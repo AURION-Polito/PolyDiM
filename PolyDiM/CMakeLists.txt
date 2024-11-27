@@ -67,7 +67,7 @@ foreach(header ${POLYDIM_LIBRARY_HEADERS})
     get_filename_component(headerFileName ${header} NAME_WE)
     get_filename_component(headerExtension ${header} EXT)
 
-    if(${headerExtension} MATCHES ".hpp.in")
+    if(${headerExtension} MATCHES ".in")
         set(headerExtension ".hpp")
         set(headerDirectory ${POLYDIM_LIBRARY_ADDITIONAL_INCLUDE_PATH})
 

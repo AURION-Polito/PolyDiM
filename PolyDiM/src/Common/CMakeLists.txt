@@ -1,4 +1,4 @@
-list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/Macro.hpp.in)
+list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/Polydim_Macro.in)
 
 list(APPEND polydim_src_includes ${CMAKE_CURRENT_SOURCE_DIR})
 
