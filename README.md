@@ -1,2 +1,2 @@
-# PolyDiM-lib
-Library
+# PolyDiM
+PolyDiM - Polygonal and Polynomial Discretization Methods
