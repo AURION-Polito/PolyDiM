@@ -43,6 +43,14 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 find_package(Eigen3 CONFIG REQUIRED)
 list(APPEND POLYDIM_LIBRARY_LINKED_LIBRARIES PUBLIC Eigen3::Eigen)
 
+## Blas
+find_package(BLAS REQUIRED)
+list(APPEND POLYDIM_LIBRARY_LINKED_LIBRARIES PUBLIC BLAS::BLAS)
+
+## Lapack
+find_package(LAPACK REQUIRED)
+list(APPEND POLYDIM_LIBRARY_LINKED_LIBRARIES PUBLIC LAPACK::LAPACK)
+
 # Insert Sources
 ###############################################################################################
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/src)
