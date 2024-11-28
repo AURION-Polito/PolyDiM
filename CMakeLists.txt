@@ -13,6 +13,3 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/PolyDiM)
 if(${ENABLE_UNIT_TESTS})
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/PolyDiM/test)
 endif()
-
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cppcheck.cmake)
-include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/clang-format.cmake)

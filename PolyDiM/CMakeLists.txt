@@ -10,12 +10,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Create library variables
 ###################################################################
 set(POLYDIM_LIBRARY_COMPILE_DEFINITIONS PolyDiM_compile_definitions)
-set(POLYDIM_INSTALL_DIR PolyDiM)
+set(POLYDIM_INSTALL_DIR ${PROJECT_NAME})
 set(POLYDIM_INSTALL_BINARY_DIR bin/)
 set(POLYDIM_INSTALL_INCLUDE_DIR include/)
 set(POLYDIM_INSTALL_LIB_DIR lib/)
 set(POLYDIM_INSTALL_ARCHIVE_DIR lib/)
-set(POLYDIM_INSTALL_DESTINATION lib/cmake/PolyDiM)
+set(POLYDIM_INSTALL_DESTINATION lib/cmake/${POLYDIM_INSTALL_DIR})
 ###################################################################
 
 if(NOT CMAKE_BUILD_TYPE)
