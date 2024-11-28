@@ -1,5 +1,8 @@
-add_subdirectory(Common)
-add_subdirectory(VEM)
+add_subdirectory(2D)
+
+list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_PCC_Utilities.hpp)
+
+list(APPEND polydim_src_sources ${CMAKE_CURRENT_SOURCE_DIR}/VEM_PCC_Utilities.cpp)
 
 list(APPEND polydim_src_includes ${CMAKE_CURRENT_SOURCE_DIR})
 
