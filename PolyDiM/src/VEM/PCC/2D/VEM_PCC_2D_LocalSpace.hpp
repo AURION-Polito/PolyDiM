@@ -4,6 +4,7 @@
 #include "Eigen/Eigen"
 #include "VEM_Monomials_2D.hpp"
 #include "VEM_PCC_2D_LocalSpace_Data.hpp"
+#include "VEM_PCC_2D_ReferenceElement.hpp"
 #include "VEM_PCC_Utilities.hpp"
 #include <vector>
 
@@ -36,7 +37,7 @@ namespace Polydim
           ///  .
           /// Moreover, the method \ref Segment::ComputeNormal() has to be called on each edge of the
           /// geometry.
-          void InitializeProjectorsComputation(const unsigned int order,
+          void InitializeProjectorsComputation(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
                                                const Eigen::MatrixXd& polygonVertices,
                                                const Eigen::Vector3d& polygonCentroid,
                                                const double& polygonDiameter,
@@ -47,7 +48,8 @@ namespace Polydim
 
           /// \brief Compute matrix \ref piNabla.
           /// \note This requires \ref InitializeProjectorsComputation() to be called previously.
-          Eigen::MatrixXd ComputePiNabla(const double& polygonMeasure,
+          Eigen::MatrixXd ComputePiNabla(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
+                                         const double& polygonMeasure,
                                          const double& polygonDiameter,const Eigen::VectorXd& internalQuadratureWeights,
                                          const Eigen::VectorXd& boundaryQuadratureWeights,
                                          const std::vector<Eigen::VectorXd>& boundaryQuadratureWeightsTimesNormal,
@@ -59,7 +61,8 @@ namespace Polydim
                                    VEM_PCC_2D_LocalSpace_Data& localSpace) const;
 
           /// \brief Compute matrices \ref pi0km1Der.
-          void ComputeL2ProjectorsOfDerivatives(const double& polygonMeasure,
+          void ComputeL2ProjectorsOfDerivatives(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
+                                                const double& polygonMeasure,
                                                 const double& polygonDiameter,
                                                 const std::vector<Eigen::VectorXd>& boundaryQuadratureWeightsTimesNormal,
                                                 VEM_PCC_2D_LocalSpace_Data& localSpace) const;
@@ -91,7 +94,7 @@ namespace Polydim
           VEM_PCC_2D_LocalSpace();
           virtual ~VEM_PCC_2D_LocalSpace() {}
 
-          VEM_PCC_2D_LocalSpace_Data CreateLocalSpace(const unsigned int order,
+          VEM_PCC_2D_LocalSpace_Data CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
                                                       const VEM_PCC_2D_Polygon_Geometry& polygon,
                                                       const Eigen::MatrixXd& internalQuadraturePoints,
                                                       const Eigen::VectorXd& internalQuadratureWeights,
@@ -99,7 +102,7 @@ namespace Polydim
                                                       const Eigen::VectorXd& boundaryQuadratureWeights,
                                                       const std::vector<Eigen::VectorXd>& boundaryQuadratureWeightsTimesNormal) const;
 
-          VEM_PCC_2D_LocalSpace_Data Compute3DUtilities(const unsigned int order,
+          VEM_PCC_2D_LocalSpace_Data Compute3DUtilities(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
                                                         const VEM_PCC_2D_Polygon_Geometry& polygon,
                                                         const Eigen::MatrixXd& internalQuadraturePoints,
                                                         const Eigen::VectorXd& internalQuadratureWeights,
@@ -139,7 +142,8 @@ namespace Polydim
                                                                   localSpace.Pi0km1Der);
           }
 
-          inline Eigen::MatrixXd ComputeBasisFunctionsValues(const VEM_PCC_2D_Polygon_Geometry& polygon,
+          inline Eigen::MatrixXd ComputeBasisFunctionsValues(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
+                                                             const VEM_PCC_2D_Polygon_Geometry& polygon,
                                                              const VEM_PCC_2D_LocalSpace_Data& localSpace,
                                                              const ProjectionTypes& projectionType,
                                                              const Eigen::MatrixXd& points) const
@@ -148,36 +152,38 @@ namespace Polydim
                                                          localSpace.Nkm1,
                                                          localSpace.Pi0km1,
                                                          localSpace.Pi0k,
-                                                         ComputeBasisPolynomialsValues(polygon,
-                                                                                       localSpace,
+                                                         ComputeBasisPolynomialsValues(reference_element_data,
+                                                                                       polygon,
                                                                                        points));
           }
 
-          inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const VEM_PCC_2D_Polygon_Geometry& polygon,
+          inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
+                                                                                    const VEM_PCC_2D_Polygon_Geometry& polygon,
                                                                                     const VEM_PCC_2D_LocalSpace_Data& localSpace,
                                                                                     const ProjectionTypes& projectionType,
                                                                                     const Eigen::MatrixXd& points) const
           {
             return utilities.ComputeBasisFunctionsDerivativeValues(projectionType,
                                                                    localSpace.Nkm1,
-                                                                   ComputeBasisPolynomialsValues(polygon,
-                                                                                                 localSpace,
+                                                                   ComputeBasisPolynomialsValues(reference_element_data,
+                                                                                                 polygon,
                                                                                                  points),
-                                                                   ComputeBasisPolynomialsDerivativeValues(polygon,
-                                                                                                           localSpace,
+                                                                   ComputeBasisPolynomialsDerivativeValues(reference_element_data,
+                                                                                                           polygon,
                                                                                                            points),
                                                                    localSpace.PiNabla,
                                                                    localSpace.Pi0km1Der);
           }
 
-          inline Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_2D_Polygon_Geometry& polygon,
+          inline Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
+                                                                      const VEM_PCC_2D_Polygon_Geometry& polygon,
                                                                       const VEM_PCC_2D_LocalSpace_Data& localSpace,
                                                                       const Eigen::MatrixXd& points) const
           {
             return utilities.ComputeBasisFunctionsLaplacianValues(localSpace.Nkm1,
                                                                   localSpace.Pi0km1Der,
-                                                                  ComputeBasisPolynomialsDerivativeValues(polygon,
-                                                                                                          localSpace,
+                                                                  ComputeBasisPolynomialsDerivativeValues(reference_element_data,
+                                                                                                          polygon,
                                                                                                           points));
           }
 
@@ -186,11 +192,11 @@ namespace Polydim
             return utilities.ComputeBasisPolynomialsValues(localSpace.VanderInternal);
           }
 
-          inline Eigen::MatrixXd ComputeBasisPolynomialsValues(const VEM_PCC_2D_Polygon_Geometry& polygon,
-                                                               const VEM_PCC_2D_LocalSpace_Data& localSpace,
+          inline Eigen::MatrixXd ComputeBasisPolynomialsValues(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
+                                                               const VEM_PCC_2D_Polygon_Geometry& polygon,
                                                                const Eigen::MatrixXd& points) const
           {
-            return utilities.ComputeBasisPolynomialsValues(localSpace.Monomials,
+            return utilities.ComputeBasisPolynomialsValues(reference_element_data.Monomials,
                                                            monomials,
                                                            polygon.Centroid,
                                                            polygon.Diameter,
@@ -202,36 +208,27 @@ namespace Polydim
             return utilities.ComputeBasisPolynomialsDerivativeValues(localSpace.VanderInternalDerivatives);
           }
 
-          inline std::vector<Eigen::MatrixXd> ComputeBasisPolynomialsDerivativeValues(const VEM_PCC_2D_Polygon_Geometry& polygon,
-                                                                                      const VEM_PCC_2D_LocalSpace_Data& localSpace,
+          inline std::vector<Eigen::MatrixXd> ComputeBasisPolynomialsDerivativeValues(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
+                                                                                      const VEM_PCC_2D_Polygon_Geometry& polygon,
                                                                                       const Eigen::MatrixXd& points) const
           {
-            return utilities.ComputeBasisPolynomialsDerivativeValues(localSpace.Monomials,
+            return utilities.ComputeBasisPolynomialsDerivativeValues(reference_element_data.Monomials,
                                                                      monomials,
                                                                      polygon.Diameter,
-                                                                     ComputeBasisPolynomialsValues(polygon,
-                                                                                                   localSpace,
+                                                                     ComputeBasisPolynomialsValues(reference_element_data,
+                                                                                                   polygon,
                                                                                                    points));
           }
 
-          inline Eigen::MatrixXd ComputeBasisPolynomialsLaplacianValues(const VEM_PCC_2D_Polygon_Geometry& polygon,
-                                                                        const Eigen::MatrixXd& internalQuadraturePoints,
-                                                                        const VEM_PCC_2D_LocalSpace_Data& localSpace) const
-          {
-            return ComputeBasisPolynomialsLaplacianValues(polygon,
-                                                          localSpace,
-                                                          internalQuadraturePoints);
-          }
-
-          inline Eigen::MatrixXd ComputeBasisPolynomialsLaplacianValues(const VEM_PCC_2D_Polygon_Geometry& polygon,
-                                                                        const VEM_PCC_2D_LocalSpace_Data& localSpace,
+          inline Eigen::MatrixXd ComputeBasisPolynomialsLaplacianValues(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
+                                                                        const VEM_PCC_2D_Polygon_Geometry& polygon,
                                                                         const Eigen::MatrixXd& points) const
           {
-            return utilities.ComputeBasisPolynomialsLaplacianValues(localSpace.Monomials,
+            return utilities.ComputeBasisPolynomialsLaplacianValues(reference_element_data.Monomials,
                                                                     monomials,
                                                                     polygon.Diameter,
-                                                                    ComputeBasisPolynomialsValues(polygon,
-                                                                                                  localSpace,
+                                                                    ComputeBasisPolynomialsValues(reference_element_data,
+                                                                                                  polygon,
                                                                                                   points));
           }
 
