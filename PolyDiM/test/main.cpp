@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include "test_VEM_PCC_2D_LocalSpace.hpp"
+
 int main(int argc, char *argv[])
 {
   ::testing::InitGoogleTest(&argc, argv);

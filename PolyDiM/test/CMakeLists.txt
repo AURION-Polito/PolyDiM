@@ -98,11 +98,13 @@ endif()
 
 # Insert Sources
 ###############################################################################################
-list(APPEND POLYDIM_LIBRARY_TEST_PUBLIC_HEADERS ${polydim_test_src_headers})
-list(APPEND POLYDIM_LIBRARY_TEST_SOURCES ${polydim_test_src_sources})
+add_subdirectory(VEM)
+
+list(APPEND POLYDIM_LIBRARY_TEST_PUBLIC_HEADERS ${polydim_test_headers})
+list(APPEND POLYDIM_LIBRARY_TEST_SOURCES ${polydim_test_sources})
 list(APPEND POLYDIM_LIBRARY_TEST_SOURCES main.cpp)
-list(APPEND POLYDIM_LIBRARY_TEST_HEADERS ${polydim_test_src_headers})
-list(APPEND POLYDIM_LIBRARY_TEST_INCLUDE ${polydim_test_src_includes})
+list(APPEND POLYDIM_LIBRARY_TEST_HEADERS ${polydim_test_headers})
+list(APPEND POLYDIM_LIBRARY_TEST_INCLUDE ${polydim_test_includes})
 
 # Add variables for clang anc cppcheck
 ###############################################################################################
