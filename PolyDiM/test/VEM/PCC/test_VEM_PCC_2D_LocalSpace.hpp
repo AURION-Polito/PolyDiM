@@ -92,9 +92,9 @@ namespace Polydim
       edgeNormals.row(1)<< -1.0000000000000000e+00, 3.7473660589094460e-02, 3.0850469803743652e-01, 6.0628041815918254e-01, 1.0000000000000000e+00, 6.0628041815918243e-01, 3.0850469803743663e-01, 3.7473660589094196e-02;
 
       // Map triangle points
-      std::vector<unsigned int> polygonTriangulation = geometryUtility.PolygonTriangulationByFirstVertex(polygonVertices);
-      result.TriangulationVertices = geometryUtility.ExtractTriangulationPoints(polygonVertices,
-                                                                                polygonTriangulation);
+      std::vector<unsigned int> polygonTriangulation = geometry_utilities.PolygonTriangulationByFirstVertex(polygonVertices);
+      result.TriangulationVertices = geometry_utilities.ExtractTriangulationPoints(polygonVertices,
+                                                                                   polygonTriangulation);
 
       return result;
     }
@@ -191,7 +191,7 @@ namespace Polydim
       Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement vem_reference_element;
       Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace vem_local_space;
 
-      const auto reference_element_data = vem_reference_element.Create(1);
+      const auto reference_element_data = vem_reference_element.Create(2);
       const auto local_space = vem_local_space.CreateLocalSpace(reference_element_data,
                                                                 polygon);
 
@@ -246,7 +246,7 @@ namespace Polydim
       Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement vem_reference_element;
       Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace vem_local_space;
 
-      const auto reference_element_data = vem_reference_element.Create(1);
+      const auto reference_element_data = vem_reference_element.Create(3);
       const auto local_space = vem_local_space.CreateLocalSpace(reference_element_data,
                                                                 polygon);
 
