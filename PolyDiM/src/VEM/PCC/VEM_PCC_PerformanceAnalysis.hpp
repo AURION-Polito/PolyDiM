@@ -59,8 +59,8 @@ namespace Polydim
             const unsigned int Nkm1 = pi0km1.rows();
             const unsigned int Nk = piNabla.rows();
 
-            const Eigen::MatrixXd polynomialBasisDofs = vem_local_space.ComputeBasisPolynomialsDofs(polytopeMeasure,
-                                                                                                    vem_local_space_data);
+            const Eigen::MatrixXd polynomialBasisDofs = vem_local_space.ComputePolynomialsDofs(polytopeMeasure,
+                                                                                               vem_local_space_data);
 
             result.ErrorPiNabla = (piNabla * polynomialBasisDofs - identity).norm() / identity.norm();
             result.ErrorPi0km1 = (pi0km1 * polynomialBasisDofs.leftCols(Nkm1) -

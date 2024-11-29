@@ -131,7 +131,6 @@ namespace Polydim
         polygon_data.EdgesNormal
       };
 
-
       Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement vem_reference_element;
       Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace vem_local_space;
 

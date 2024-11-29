@@ -211,7 +211,7 @@ namespace Polydim
         return Gmatrix.partialPivLu().solve(Bmatrix);
       }
       //****************************************************************************
-      MatrixXd VEM_PCC_2D_LocalSpace::ComputeBasisPolynomialsDofs(const double& polygonMeasure,
+      MatrixXd VEM_PCC_2D_LocalSpace::ComputePolynomialsDofs(const double& polygonMeasure,
                                                                   const VEM_PCC_2D_LocalSpace_Data& localSpace) const
       {
         MatrixXd basisPolynomialsDofs;
