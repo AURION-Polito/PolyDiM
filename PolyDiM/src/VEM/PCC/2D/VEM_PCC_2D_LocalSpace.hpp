@@ -19,7 +19,7 @@ namespace Polydim
       {
         private:
           VEM_PCC_Utilities<2> utilities;
-          VEM_Monomials_2D monomials;
+          Monomials::VEM_Monomials_2D monomials;
 
           /// \brief Initialize quantities required for computing projectors.
           /// \details This method computes \ref measure, \ref diameter, \ref

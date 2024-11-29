@@ -20,7 +20,7 @@ namespace Polydim
 
       struct VEM_PCC_2D_LocalSpace_Data final
       {
-          VEM_Monomials_Data Monomials;
+          Monomials::VEM_Monomials_Data Monomials;
           /// Order of the space
           unsigned int Order;
           /// Number of basis functions corresponding to degrees of freedom on vertices.

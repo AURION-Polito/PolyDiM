@@ -189,7 +189,7 @@ namespace Polydim
           /// \param points The points at which to evaluate the basis functions.
           /// a basis function at the given points.
           template<typename VEM_MonomialType>
-          inline Eigen::MatrixXd ComputeBasisPolynomialsValues(const VEM_Monomials_Data& data,
+          inline Eigen::MatrixXd ComputeBasisPolynomialsValues(const Monomials::VEM_Monomials_Data& data,
                                                                const VEM_MonomialType& monomials,
                                                                const Eigen::Vector3d& centroid,
                                                                const double& diameter,
@@ -215,7 +215,7 @@ namespace Polydim
           /// \ref Dimension(). Each column of each matrix will contain the values of a basis function's
           /// derivative at the given points.
           template<typename VEM_MonomialType>
-          inline std::vector<Eigen::MatrixXd> ComputeBasisPolynomialsDerivativeValues(const VEM_Monomials_Data& data,
+          inline std::vector<Eigen::MatrixXd> ComputeBasisPolynomialsDerivativeValues(const Monomials::VEM_Monomials_Data& data,
                                                                                       const VEM_MonomialType& monomials,
                                                                                       const double& diameter,
                                                                                       const Eigen::MatrixXd& vander) const
@@ -230,7 +230,7 @@ namespace Polydim
           /// \param points The points at which to evaluate the laplacian.
           /// values of a basis function's laplacian at the given points.
           template<typename VEM_MonomialType>
-          inline Eigen::MatrixXd ComputeBasisPolynomialsLaplacianValues(const VEM_Monomials_Data& data,
+          inline Eigen::MatrixXd ComputeBasisPolynomialsLaplacianValues(const Monomials::VEM_Monomials_Data& data,
                                                                         const VEM_MonomialType& monomials,
                                                                         const double& diameter,
                                                                         const Eigen::MatrixXd& vander) const
