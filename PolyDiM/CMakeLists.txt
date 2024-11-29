@@ -39,17 +39,55 @@ Message(STATUS "PolyDiM Library will be installed in: " ${CMAKE_INSTALL_PREFIX})
 ###########################################################################################
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
+## GeDiM
+if (NOT TARGET GeDiM::GeDiM)
+	find_package(GeDiM CONFIG REQUIRED)
+    list(APPEND POLYDIM_LIBRARY_LINKED_LIBRARIES PRIVATE GeDiM::GeDiM)
+else()
+	get_target_property(GEDIM_LIBRARY_HEADERS GeDiM::GeDiM PUBLIC_HEADER)
+	get_target_property(GEDIM_LIBRARY_NAME GeDiM::GeDiM EXPORT_NAME)
+	get_target_property(GEDIM_LIBRARY_LINKED_LIBRARIES GeDiM::GeDiM LINK_LIBRARIES)
+	get_target_property(GEDIM_LIBRARY_INCLUDE_DIRECTORIES GeDiM::GeDiM INCLUDE_DIRECTORIES)
+	get_target_property(GEDIM_LIBRARY_SOURCES GeDiM::GeDiM SOURCES)
+
+	list(APPEND POLYDIM_LIBRARY_LINKED_LIBRARIES PRIVATE ${GEDIM_LIBRARY_NAME} ${GEDIM_LIBRARY_LINKED_LIBRARIES})
+	list(APPEND POLYDIM_LIBRARY_HEADERS ${GEDIM_LIBRARY_HEADERS})
+    list(APPEND POLYDIM_LIBRARY_INCLUDE ${GEDIM_LIBRARY_INCLUDE_DIRECTORIES})
+endif()
+
 ## Eigen3
 find_package(Eigen3 CONFIG REQUIRED)
-list(APPEND POLYDIM_LIBRARY_LINKED_LIBRARIES PUBLIC Eigen3::Eigen)
 
 ## Blas
 find_package(BLAS REQUIRED)
-list(APPEND POLYDIM_LIBRARY_LINKED_LIBRARIES PUBLIC BLAS::BLAS)
 
 ## Lapack
 find_package(LAPACK REQUIRED)
-list(APPEND POLYDIM_LIBRARY_LINKED_LIBRARIES PUBLIC LAPACK::LAPACK)
+
+## VTK
+if(${ENABLE_VTK})
+  find_package(VTK CONFIG REQUIRED)
+endif()
+
+## VORO
+if(${ENABLE_VORO})
+  find_package(VORO CONFIG REQUIRED)
+endif()
+
+## triangle
+if(${ENABLE_TRIANGLE})
+  find_package(triangle CONFIG REQUIRED)
+endif()
+
+## tetgen
+if(${ENABLE_TETGEN})
+  find_package(tetgen CONFIG REQUIRED)
+endif()
+
+## METIS
+if(${ENABLE_METIS})
+    find_package(metis CONFIG REQUIRED)
+endif()
 
 # Insert Sources
 ###############################################################################################
