@@ -11,15 +11,6 @@ namespace Polydim
     {
       struct VEM_PCC_2D_LocalSpace_Data final
       {
-          enum struct ProjectionTypes
-          {
-            Unknown = 0,
-            Pi0km1 = 1, /// \f$\Pi^0_{order-1}\f$ projection to project basis
-            Pi0k = 2, /// \f$\Pi^0_{order}\f$ projection to project basis
-            PiNabla = 3, /// \f$\Pi^{\nabla}_{order-1}\f$ projection to project basis gradient
-            Pi0km1Der = 4 /// \f$\Pi^{0}_{order-1}\f$ projection to project basis gradient
-          };
-
           /// Order of the space
           unsigned int Order;
           /// Number of basis functions corresponding to degrees of freedom on vertices.

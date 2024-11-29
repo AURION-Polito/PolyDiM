@@ -8,6 +8,16 @@ namespace Polydim
 {
   namespace VEM
   {
+    struct VEM_Monomials_Data
+    {
+        unsigned int Order; ///< monomial space order
+        unsigned int Dimension; ///< The geometric dimension
+        unsigned int NumMonomials; ///< Number of monomials in the basis.
+        std::vector<Eigen::VectorXi> Exponents; ///< Table of exponents of each monomial.
+        std::vector<Eigen::MatrixXd> DerivativeMatrices; ///< Matrices used to compute derivatives of monomials.
+        Eigen::MatrixXd Laplacian; ///< Matrix used to compute the laplacian of monomials.
+    };
+
     ///  \brief Class used to manage scaled monomials in VEM classes.
     ///  \details These scaled monomials are used as basis for local
     ///  polynomial projections in VEM classes. The generic element of the
@@ -24,6 +34,9 @@ namespace Polydim
       public:
         virtual ~VEM_IMonomials() {}
 
+        /// \brief Compute the monomials data
+        /// \param order the polynomial space order
+        virtual VEM_Monomials_Data Compute(const unsigned int order) const = 0;
         /// \brief Get the dimension of the polynomial basis.
         /// \returns A const reference to \ref dimension.
         virtual unsigned int Dimension() const = 0;

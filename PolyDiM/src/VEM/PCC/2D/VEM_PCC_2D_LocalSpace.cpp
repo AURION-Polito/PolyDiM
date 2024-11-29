@@ -1,5 +1,8 @@
 #include "VEM_PCC_2D_LocalSpace.hpp"
 
+using namespace std;
+using namespace Eigen;
+
 namespace Polydim
 {
   namespace VEM

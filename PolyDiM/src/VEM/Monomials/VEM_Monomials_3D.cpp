@@ -8,14 +8,16 @@ namespace Polydim
   namespace VEM
   {
     //****************************************************************************
-    VEM_Monomials_3D::VEM_Monomials_3D() :
-      utilities(*this)
+    VEM_Monomials_Data VEM_Monomials_3D::Compute(const unsigned int order) const
     {
-      data.Dimension = 3;
+      VEM_Monomials_Data data;
 
-      data.NumMonomials = (config.PolynomialDegree() + 1) *
-                          (config.PolynomialDegree() + 2) *
-                          (config.PolynomialDegree() + 3) / 6;
+      data.Dimension = 3;
+      data.Order = order;
+
+      data.NumMonomials = (order + 1) *
+                          (order + 2) *
+                          (order + 3) / 6;
       data.Exponents.resize(data.NumMonomials);
       data.Exponents[0].setZero(data.Dimension);
       data.DerivativeMatrices.resize(data.Dimension);
@@ -34,8 +36,10 @@ namespace Polydim
         }
         else
           data.Exponents[i] << data.Exponents[i-1](0)-1 , data.Exponents[i-1](1)+1 , data.Exponents[i-1](2);
-        vector<int> derIndices = DerivativeIndices(i);
-        vector<int> secondDerIndices = SecondDerivativeIndices(i);
+        vector<int> derIndices = DerivativeIndices(data,
+                                                   i);
+        vector<int> secondDerIndices = SecondDerivativeIndices(data,
+                                                               i);
         for(unsigned int j = 0; j < data.Dimension; ++j)
         {
           if(derIndices[j]>=0)
@@ -44,34 +48,26 @@ namespace Polydim
             data.Laplacian(i,secondDerIndices[j]) = data.Exponents[i](j)*(data.Exponents[i](j)-1);
         }
       }
+
+      return data;
     }
     //****************************************************************************
-    MatrixXi VEM_Monomials_3D::Exponents() const
-    {
-      MatrixXi exponents(3, data.NumMonomials);
-
-      for (unsigned int m = 0; m < data.NumMonomials; m++)
-        exponents.col(m)<< data.Exponents[m];
-
-      return exponents;
-    }
-    //****************************************************************************
-    int VEM_Monomials_3D::Index( const VectorXi& _exponents ) const
+    int VEM_Monomials_3D::Index(const VectorXi& exponents) const
     {
       int out = -1;
-      if(_exponents[0]>=0 && _exponents[1]>=0 && _exponents[2]>=0)
+      if(exponents[0]>=0 && exponents[1]>=0 && exponents[2]>=0)
       {
-        unsigned int sumExponents = _exponents.sum();
-        unsigned int sumExponentsIJ = _exponents(0) + _exponents(1);
-        out = (sumExponents+1)*(sumExponents+2)*(sumExponents+3)/6-(sumExponentsIJ+1)*(sumExponentsIJ+2)/2+_exponents(1);
+        unsigned int sumExponents = exponents.sum();
+        unsigned int sumExponentsIJ = exponents(0) + exponents(1);
+        out = (sumExponents+1)*(sumExponents+2)*(sumExponents+3)/6-(sumExponentsIJ+1)*(sumExponentsIJ+2)/2+exponents(1);
       }
       return out;
     }
-
     //****************************************************************************
-    vector<int> VEM_Monomials_3D::DerivativeIndices(const unsigned int& index) const
+    std::vector<int> VEM_Monomials_3D::DerivativeIndices(const VEM_Monomials_Data& data,
+                                                         const unsigned int& index) const
     {
-      vector<int> derivativeIndices;
+      std::vector<int> derivativeIndices;
       const VectorXi& expo = data.Exponents[index];
       const unsigned int xyExpoSum = expo(0)+expo(1), xyzExpoSum = xyExpoSum+expo(2);
       const int zDerIndex = index - (xyzExpoSum+1)*(xyzExpoSum+2)/2;
@@ -83,7 +79,8 @@ namespace Polydim
       return derivativeIndices;
     }
     //****************************************************************************
-    vector<int> VEM_Monomials_3D::SecondDerivativeIndices(const unsigned int& index) const
+    vector<int> VEM_Monomials_3D::SecondDerivativeIndices(const VEM_Monomials_Data& data,
+                                                          const unsigned int& index) const
     {
       vector<int> secondDerivativeIndices;
       const VectorXi& expo = data.Exponents[index];

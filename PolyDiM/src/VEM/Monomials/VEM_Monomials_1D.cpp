@@ -8,12 +8,13 @@ namespace Polydim
   namespace VEM
   {
     //****************************************************************************
-    VEM_Monomials_1D::VEM_Monomials_1D() :
-      utilities(*this)
+    VEM_Monomials_Data VEM_Monomials_1D::Compute(const unsigned int order) const
     {
-      data.Dimension = 1;
+      VEM_Monomials_Data data;
 
-      data.NumMonomials = config.PolynomialDegree() + 1;
+      data.Dimension = 1;
+      data.Order = order;
+      data.NumMonomials = order + 1;
       data.Exponents.resize(data.NumMonomials) ;
       data.Exponents[0].setZero(data.Dimension);
       data.DerivativeMatrices.resize(data.Dimension);
@@ -24,8 +25,10 @@ namespace Polydim
       {
         data.Exponents[i].resize(data.Dimension);
         data.Exponents[i]<< data.Exponents[i-1][0]+1;
-        vector<int> derIndices = DerivativeIndices(i);
-        vector<int> secondDerIndices = SecondDerivativeIndices(i);
+        vector<int> derIndices = DerivativeIndices(data,
+                                                   i);
+        vector<int> secondDerIndices = SecondDerivativeIndices(data,
+                                                               i);
         for(unsigned int j = 0; j < data.Dimension; ++j)
         {
           if(derIndices[j] >= 0)
@@ -34,27 +37,20 @@ namespace Polydim
             data.Laplacian(i,secondDerIndices[j]) = data.Exponents[i](j) * (data.Exponents[i](j)-1);
         }
       }
+
+      return data;
     }
     //****************************************************************************
-    MatrixXi VEM_Monomials_1D::Exponents() const
-    {
-      MatrixXi exponents(1, data.NumMonomials);
-
-      for (unsigned int m = 0; m < data.NumMonomials; m++)
-        exponents.col(m)<< data.Exponents[m];
-
-      return exponents;
-    }
-    //****************************************************************************
-    int VEM_Monomials_1D::Index(const VectorXi& _exponents) const
+    int VEM_Monomials_1D::Index(const VectorXi& exponents) const
     {
       int out = -1;
-      if(_exponents[0] >= 0)
-        out = _exponents.sum();
+      if(exponents[0] >= 0)
+        out = exponents.sum();
       return out;
     }
     //****************************************************************************
-    vector<int> VEM_Monomials_1D::DerivativeIndices(const unsigned int& index) const
+    vector<int> VEM_Monomials_1D::DerivativeIndices(const VEM_Monomials_Data& data,
+                                                    const unsigned int& index) const
     {
       vector<int> derivativeIndices;
 
@@ -66,7 +62,8 @@ namespace Polydim
       return derivativeIndices;
     }
     //****************************************************************************
-    vector<int> VEM_Monomials_1D::SecondDerivativeIndices(const unsigned int& index) const
+    vector<int> VEM_Monomials_1D::SecondDerivativeIndices(const VEM_Monomials_Data& data,
+                                                          const unsigned int& index) const
     {
       vector<int> secondDerivativeIndices;
       const VectorXi& expo = data.Exponents[index];
