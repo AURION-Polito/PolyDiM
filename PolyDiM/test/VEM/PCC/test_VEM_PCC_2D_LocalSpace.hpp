@@ -11,6 +11,7 @@
 #include "MapTriangle.hpp"
 
 #include "VEM_PCC_2D_LocalSpace.hpp"
+#include "VEM_PCC_PerformanceAnalysis.hpp"
 
 namespace Polydim
 {
@@ -112,8 +113,8 @@ namespace Polydim
     TEST(Test_VEM_PCC, Test_VEM_PCC_2D_O1)
     {
       Gedim::GeometryUtilitiesConfig geometry_utilities_config;
+      geometry_utilities_config.Tolerance1D = std::numeric_limits<double>::epsilon();
       Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
-
 
       const auto polygon_data = Test_VEM_PCC_2D_Geometry(geometry_utilities);
 
@@ -143,27 +144,35 @@ namespace Polydim
       const double relErrPiNabla = (local_space.PiNabla - refPiNabla).norm() / refPiNabla.norm();
       ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.5e-14,
                                                            relErrPiNabla,
-                                                           std::numeric_limits<double>::epsilon()));
+                                                           geometry_utilities.Tolerance1D()));
 
-      //    // Test VEM performances
-      //    Gedim::VEM_PerformanceAnalysis performanceAnalysis(monomials,
-      //                                                       vemValues);
+      // Test VEM performances
+      Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis performanceAnalysis;
 
-      //    Gedim::VEM_PerformanceAnalysisData result = performanceAnalysis.Compute(polygonMeasure,
-      //                                                                            polygonDiameter,
-      //                                                                            localSpace);
+      const auto result = performanceAnalysis.Compute(polygon.Measure,
+                                                      polygon.Diameter,
+                                                      Polydim::VEM::Monomials::VEM_Monomials_2D(),
+                                                      reference_element_data.Monomials,
+                                                      vem_local_space,
+                                                      local_space);
 
-      //    ASSERT_TRUE(geometryUtility.IsValueGreaterOrEqual(7.0e-15, result.ErrorPiNabla, geometryUtility.Tolerance1D()));
-      //    ASSERT_TRUE(geometryUtility.IsValueGreaterOrEqual(1.6e-14, result.ErrorPi0km1, geometryUtility.Tolerance1D()));
-      //    ASSERT_TRUE(geometryUtility.IsValueGreaterOrEqual(4.8e-14, result.ErrorPi0k, geometryUtility.Tolerance1D()));
-      //    ASSERT_EQ(result.ErrorPi0km1Grad.size(), 2);
-      //    for(unsigned int d = 0; d < 2; ++d)
-      //      ASSERT_TRUE(geometryUtility.IsValueGreaterOrEqual(2.6e-14,
-      //                                                        result.ErrorPi0km1Grad[d],
-      //                                                        geometryUtility.Tolerance1D()));
-      //    ASSERT_TRUE(geometryUtility.IsValueGreaterOrEqual(1.5e-14,
-      //                                                      result.ErrorStabilization,
-      //                                                      geometryUtility.Tolerance1D()));
+      ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(7.0e-15,
+                                                           result.ErrorPiNabla,
+                                                           geometry_utilities.Tolerance1D()));
+      ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.6e-14,
+                                                           result.ErrorPi0km1,
+                                                           geometry_utilities.Tolerance1D()));
+      ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(4.8e-14,
+                                                           result.ErrorPi0k,
+                                                           geometry_utilities.Tolerance1D()));
+      ASSERT_EQ(result.ErrorPi0km1Grad.size(), 2);
+      for(unsigned int d = 0; d < 2; ++d)
+        ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(2.6e-14,
+                                                             result.ErrorPi0km1Grad[d],
+                                                             geometry_utilities.Tolerance1D()));
+      ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.5e-14,
+                                                           result.ErrorStabilization,
+                                                           geometry_utilities.Tolerance1D()));
     }
 
     TEST(Test_VEM_PCC, Test_VEM_PCC_2D_O2)
