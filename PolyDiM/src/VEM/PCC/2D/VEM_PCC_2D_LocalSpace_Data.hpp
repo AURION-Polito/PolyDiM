@@ -2,6 +2,7 @@
 #define __VEM_PCC_2D_LocalSpace_Data_HPP
 
 #include "Eigen/Eigen"
+#include "VEM_Monomials_Data.hpp"
 
 namespace Polydim
 {
@@ -9,8 +10,17 @@ namespace Polydim
   {
     namespace PCC
     {
+      struct VEM_PCC_2D_Polygon_Geometry final
+      {
+          Eigen::MatrixXd& Vertices;
+          Eigen::Vector3d& Centroid;
+          double& Measure;
+          double& Diameter;
+      };
+
       struct VEM_PCC_2D_LocalSpace_Data final
       {
+          VEM_Monomials_Data Monomials;
           /// Order of the space
           unsigned int Order;
           /// Number of basis functions corresponding to degrees of freedom on vertices.

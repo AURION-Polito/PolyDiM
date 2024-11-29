@@ -8,14 +8,14 @@ namespace Polydim
   namespace VEM
   {
     //****************************************************************************
-    VEM_Monomials_Data VEM_Monomials_2D::Compute(const unsigned int order) const
+    VEM_Monomials_Data VEM_Monomials_2D::Compute(const unsigned int polynomial_degree) const
     {
       VEM_Monomials_Data data;
 
       data.Dimension = 2;
 
-      data.Order = order;
-      data.NumMonomials = (order + 1) * (order + 2) * 0.5;
+      data.PolynomialDegree = polynomial_degree;
+      data.NumMonomials = (polynomial_degree + 1) * (polynomial_degree + 2) * 0.5;
       data.Exponents.resize(data.NumMonomials) ;
       data.Exponents[0].setZero(data.Dimension);
       data.DerivativeMatrices.resize(data.Dimension);

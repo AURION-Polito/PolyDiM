@@ -2,7 +2,7 @@
 #define __VEM_PCC_Utilities_HPP
 
 #include "Eigen/Eigen"
-#include "VEM_IMonomials.hpp"
+#include "VEM_Monomials_Data.hpp"
 
 namespace Polydim
 {
@@ -129,9 +129,9 @@ namespace Polydim
           /// values that do not accept points as inputs, that is:
           /// - \ref ComputeProjectedBasisFunctionValues() [1/2]
           /// - \ref ComputeProjectedBasisFunctionDerivativeValues() [1/2]
-          /// - \ref ComputePolynomialBasisValues() [1/2]
-          /// - \ref ComputePolynomialBasisDerivativeValues() [1/2]
-          /// - \ref ComputePolynomialBasisLaplacianValues() [1/2]
+          /// - \ref ComputeBasisPolynomialsValues() [1/2]
+          /// - \ref ComputeBasisPolynomialsDerivativeValues() [1/2]
+          /// - \ref ComputeBasisPolynomialsLaplacianValues() [1/2]
           /// \param weightsVector The vector to be filled.
           /// \sa \ref ComputeInternalQuadraturePoints().
           inline Eigen::VectorXd ComputeInternalQuadratureWeights(const Eigen::VectorXd& internalWeights) const
@@ -144,9 +144,9 @@ namespace Polydim
           /// not accept points as inputs, that is:
           /// - \ref ComputeProjectedBasisFunctionValues() [1/2]
           /// - \ref ComputeProjectedBasisFunctionDerivativeValues() [1/2]
-          /// - \ref ComputePolynomialBasisValues() [1/2]
-          /// - \ref ComputePolynomialBasisDerivativeValues() [1/2]
-          /// - \ref ComputePolynomialBasisLaplacianValues() [1/2]
+          /// - \ref ComputeBasisPolynomialsValues() [1/2]
+          /// - \ref ComputeBasisPolynomialsDerivativeValues() [1/2]
+          /// - \ref ComputeBasisPolynomialsLaplacianValues() [1/2]
           /// \param pointsMatrix The matrix to be filled. The size will be \ref Dimension() x \ref
           /// NumberInternalQuadraturePoints().
           /// \sa \ref ComputeInternalQuadratureWeights().
@@ -178,9 +178,8 @@ namespace Polydim
 
           /// \brief Compute the values of the basis functions of the polynomial basis of projectors at
           /// internal quadrature points on the geometry.
-          /// \param polynomialBasisValues The matrix of values. Each column will contain the values of
           /// a basis function at internal quadrature points.
-          inline Eigen::MatrixXd ComputePolynomialBasisValues(const Eigen::MatrixXd& vanderInternal) const
+          inline Eigen::MatrixXd ComputeBasisPolynomialsValues(const Eigen::MatrixXd& vanderInternal) const
           {
             return vanderInternal;
           }
@@ -188,21 +187,24 @@ namespace Polydim
           /// \brief Compute the values of the basis functions of the polynomial basis of projectors at
           /// given points on the geometry.
           /// \param points The points at which to evaluate the basis functions.
-          /// \param polynomialBasisValues The matrix of values. Each column will contain the values of
           /// a basis function at the given points.
-          inline Eigen::MatrixXd ComputePolynomialBasisValues(const VEM_IMonomials& monomials,
-                                                              const Eigen::Vector3d& centroid,
-                                                              const double& diameter,
-                                                              const Eigen::MatrixXd& points) const
+          template<typename VEM_MonomialType>
+          inline Eigen::MatrixXd ComputeBasisPolynomialsValues(const VEM_Monomials_Data& data,
+                                                               const VEM_MonomialType& monomials,
+                                                               const Eigen::Vector3d& centroid,
+                                                               const double& diameter,
+                                                               const Eigen::MatrixXd& points) const
           {
-            return monomials.Vander(points, centroid, diameter);
+            return monomials.Vander(data,
+                                    points,
+                                    centroid,
+                                    diameter);
           }
 
           /// \brief Compute the values of the derivatives of the basis functions of the polynomial
           /// basis of projectors at internal quadrature points on the geometry.
-          /// \param polynomialBasisDerivativeValues The matrix of values. Each column will contain the
           /// values of a basis function's derivative at internal quadrature points.
-          inline std::vector<Eigen::MatrixXd> ComputePolynomialBasisDerivativeValues(const std::vector<Eigen::MatrixXd>& vanderInternalDerivatives) const
+          inline std::vector<Eigen::MatrixXd> ComputeBasisPolynomialsDerivativeValues(const std::vector<Eigen::MatrixXd>& vanderInternalDerivatives) const
           {
             return vanderInternalDerivatives;
           }
@@ -210,27 +212,31 @@ namespace Polydim
           /// \brief Compute the values of the derivatives of the basis functions of the polynomial
           /// basis of projectors at given points on the geometry.
           /// \param points The points at which to evaluate the derivatives.
-          /// \param polynomialBasisDerivativeValues The vector of matrices of values. Its length equals
           /// \ref Dimension(). Each column of each matrix will contain the values of a basis function's
           /// derivative at the given points.
-          inline std::vector<Eigen::MatrixXd> ComputePolynomialBasisDerivativeValues(const VEM_IMonomials& monomials,
-                                                                                     const double& diameter,
-                                                                                     const Eigen::MatrixXd& vander) const
+          template<typename VEM_MonomialType>
+          inline std::vector<Eigen::MatrixXd> ComputeBasisPolynomialsDerivativeValues(const VEM_Monomials_Data& data,
+                                                                                      const VEM_MonomialType& monomials,
+                                                                                      const double& diameter,
+                                                                                      const Eigen::MatrixXd& vander) const
           {
-            return monomials.VanderDerivatives(vander,
+            return monomials.VanderDerivatives(data,
+                                               vander,
                                                diameter);
           }
 
           /// \brief Compute the values of the laplacian of the basis functions of the polynomial basis
           /// of projectors at given points.
           /// \param points The points at which to evaluate the laplacian.
-          /// \param polynomialBasisLaplacianValues The matrix of values. Each column will contain the
           /// values of a basis function's laplacian at the given points.
-          inline Eigen::MatrixXd ComputePolynomialBasisLaplacianValues(const VEM_IMonomials& monomials,
-                                                                       const double& diameter,
-                                                                       const Eigen::MatrixXd& vander) const
+          template<typename VEM_MonomialType>
+          inline Eigen::MatrixXd ComputeBasisPolynomialsLaplacianValues(const VEM_Monomials_Data& data,
+                                                                        const VEM_MonomialType& monomials,
+                                                                        const double& diameter,
+                                                                        const Eigen::MatrixXd& vander) const
           {
-            return monomials.VanderLaplacian(vander,
+            return monomials.VanderLaplacian(data,
+                                             vander,
                                              diameter);
           }
 

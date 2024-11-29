@@ -1,4 +1,4 @@
-list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_IMonomials.hpp)
+list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_Monomials_Data.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_Monomials_Utilities.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_Monomials_1D.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_Monomials_2D.hpp)

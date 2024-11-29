@@ -1,7 +1,7 @@
 #ifndef __VEM_Monomials_Monomials_Utilities_HPP
 #define __VEM_Monomials_Monomials_Utilities_HPP
 
-#include "VEM_IMonomials.hpp"
+#include "VEM_Monomials_Data.hpp"
 
 namespace Polydim
 {

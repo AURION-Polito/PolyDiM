@@ -34,7 +34,7 @@ namespace Polydim
       vector<MatrixXd> VanderPartial;
       if (numMonomials > 1)
       {
-        const unsigned int polynomialDegree = data.Order;
+        const unsigned int polynomialDegree = data.PolynomialDegree;
         const double inverseDiam = 1.0 / diam;
         VanderPartial.resize(dimension);
         for(unsigned int i = 0; i < dimension; i++)
@@ -77,13 +77,13 @@ namespace Polydim
         // VanderPartial[i]'s rows contain (x-x_E)^i/h_E^i,
         // (y-y_E)^i/h_E^i and (possibly) (z-z_E)^i/h_E^i respectively.
         // Size is dimension x numPoints.
-        vector<MatrixXd> VanderPartial(data.Order + 1,
+        vector<MatrixXd> VanderPartial(data.PolynomialDegree + 1,
                                        MatrixXd(dimension, numPoints));
         double inverseDiam = 1.0/diam;
         VanderPartial[0].setOnes(dimension, numPoints);
         VanderPartial[1] = (points.colwise() - centroid)*inverseDiam;
 
-        for(unsigned int i = 2; i <= data.Order; i++)
+        for(unsigned int i = 2; i <= data.PolynomialDegree; i++)
           VanderPartial[i] = VanderPartial[i-1].cwiseProduct(VanderPartial[1]);
 
         vander.resize(numPoints, data.NumMonomials);

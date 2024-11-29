@@ -13,7 +13,7 @@ namespace Polydim
         VEM_Monomials_Utilities<1> utilities;
 
       public:
-        VEM_Monomials_Data Compute(const unsigned int order) const;
+        VEM_Monomials_Data Compute(const unsigned int polynomial_degree) const;
 
         inline Eigen::MatrixXi Exponents(const VEM_Monomials_Data& data) const
         { return utilities.Exponents(data); }
