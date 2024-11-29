@@ -15,30 +15,36 @@ namespace Polydim
       }
       //****************************************************************************
       VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_LocalSpace::CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
-                                                                         const VEM_PCC_2D_Polygon_Geometry& polygon,
-                                                                         const Eigen::MatrixXd& internalQuadraturePoints,
-                                                                         const Eigen::VectorXd& internalQuadratureWeights,
-                                                                         const Eigen::MatrixXd& boundaryQuadraturePoints,
-                                                                         const Eigen::VectorXd& boundaryQuadratureWeights,
-                                                                         const std::vector<Eigen::VectorXd>& boundaryQuadratureWeightsTimesNormal) const
+                                                                         const VEM_PCC_2D_Polygon_Geometry& polygon) const
       {
         VEM_PCC_2D_LocalSpace_Data localSpace;
+
+        Quadrature::VEM_Quadrature_2D quadrature;
+        localSpace.InternalQuadrature = quadrature.PolygonInternalQuadrature(reference_element_data.Quadrature,
+                                                                             polygon.TriangulationVertices);
+        localSpace.BoundaryQuadrature = quadrature.PolygonEdgesQuadrature(reference_element_data.Quadrature,
+                                                                          polygon.Vertices,
+                                                                          polygon.EdgesLength,
+                                                                          polygon.EdgesDirection,
+                                                                          polygon.EdgesTangent,
+                                                                          polygon.EdgesNormal);
+
 
         InitializeProjectorsComputation(reference_element_data,
                                         polygon.Vertices,
                                         polygon.Centroid,
                                         polygon.Diameter,
-                                        internalQuadraturePoints,
-                                        internalQuadratureWeights,
-                                        boundaryQuadraturePoints,
+                                        localSpace.InternalQuadrature.Points,
+                                        localSpace.InternalQuadrature.Weights,
+                                        localSpace.BoundaryQuadrature.Quadrature.Points,
                                         localSpace);
 
         localSpace.PiNabla = ComputePiNabla(reference_element_data,
                                             polygon.Measure,
                                             polygon.Diameter,
-                                            internalQuadratureWeights,
-                                            boundaryQuadratureWeights,
-                                            boundaryQuadratureWeightsTimesNormal,
+                                            localSpace.InternalQuadrature.Weights,
+                                            localSpace.BoundaryQuadrature.Quadrature.Weights,
+                                            localSpace.BoundaryQuadrature.WeightsTimesNormal,
                                             localSpace);
 
         localSpace.StabMatrix = ComputeStabilizationMatrix(polygon.Measure,
@@ -50,7 +56,7 @@ namespace Polydim
         ComputeL2ProjectorsOfDerivatives(reference_element_data,
                                          polygon.Measure,
                                          polygon.Diameter,
-                                         boundaryQuadratureWeightsTimesNormal,
+                                         localSpace.BoundaryQuadrature.WeightsTimesNormal,
                                          localSpace);
 
         localSpace.StabMatrixPi0k = ComputeStabilizationMatrixPi0k(polygon.Measure,

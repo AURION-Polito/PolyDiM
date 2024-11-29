@@ -95,12 +95,7 @@ namespace Polydim
           virtual ~VEM_PCC_2D_LocalSpace() {}
 
           VEM_PCC_2D_LocalSpace_Data CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
-                                                      const VEM_PCC_2D_Polygon_Geometry& polygon,
-                                                      const Eigen::MatrixXd& internalQuadraturePoints,
-                                                      const Eigen::VectorXd& internalQuadratureWeights,
-                                                      const Eigen::MatrixXd& boundaryQuadraturePoints,
-                                                      const Eigen::VectorXd& boundaryQuadratureWeights,
-                                                      const std::vector<Eigen::VectorXd>& boundaryQuadratureWeightsTimesNormal) const;
+                                                      const VEM_PCC_2D_Polygon_Geometry& polygon) const;
 
           VEM_PCC_2D_LocalSpace_Data Compute3DUtilities(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
                                                         const VEM_PCC_2D_Polygon_Geometry& polygon,

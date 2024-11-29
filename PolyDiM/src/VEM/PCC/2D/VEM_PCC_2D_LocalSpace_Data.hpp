@@ -2,7 +2,7 @@
 #define __VEM_PCC_2D_LocalSpace_Data_HPP
 
 #include "Eigen/Eigen"
-#include "VEM_Monomials_Data.hpp"
+#include "VEM_Quadrature_2D.hpp"
 
 namespace Polydim
 {
@@ -12,10 +12,15 @@ namespace Polydim
     {
       struct VEM_PCC_2D_Polygon_Geometry final
       {
-          Eigen::MatrixXd& Vertices;
-          Eigen::Vector3d& Centroid;
-          double& Measure;
-          double& Diameter;
+          const Eigen::MatrixXd& Vertices;
+          const Eigen::Vector3d& Centroid;
+          const double& Measure;
+          const double& Diameter;
+          const std::vector<Eigen::Matrix3d>& TriangulationVertices;
+          const Eigen::VectorXd& EdgesLength;
+          const std::vector<bool>& EdgesDirection;
+          const Eigen::MatrixXd& EdgesTangent;
+          const Eigen::MatrixXd& EdgesNormal;
       };
 
       struct VEM_PCC_2D_LocalSpace_Data final
@@ -33,6 +38,8 @@ namespace Polydim
           unsigned int NumProjectorBasisFunctions; ///< dimension of the polynomial basis used for projectors.
           unsigned int Nkm1; ///< Dimension of the polynomial space of degree order-1.
           unsigned int Nkm2; ///< Dimension of the polynomial space of degree order-2.
+          Gedim::Quadrature::QuadratureData InternalQuadrature;
+          Quadrature::VEM_Quadrature_2D::Edges_QuadratureData BoundaryQuadrature;
 
           /// Vandermonde matrix of the polynomial basis at internal quadrature points.
           Eigen::MatrixXd VanderInternal;
