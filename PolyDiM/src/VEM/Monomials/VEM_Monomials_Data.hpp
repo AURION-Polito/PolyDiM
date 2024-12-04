@@ -12,7 +12,7 @@ namespace Polydim
     {
       struct VEM_Monomials_Data
       {
-          unsigned int PolynomialDegree; ///< monomial space order
+          unsigned int PolynomialDegree; ///< Monomial space order
           unsigned int Dimension; ///< The geometric dimension
           unsigned int NumMonomials; ///< Number of monomials in the basis.
           std::vector<Eigen::VectorXi> Exponents; ///< Table of exponents of each monomial.
