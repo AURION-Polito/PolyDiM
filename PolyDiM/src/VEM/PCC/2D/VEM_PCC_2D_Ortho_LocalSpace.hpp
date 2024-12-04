@@ -99,7 +99,8 @@ namespace Polydim
           /// \brief Compute matrices \ref pi0km1Der.
           /// \note This requires \ref InitializeProjectorsComputation() to
           /// be called previously..
-          void ComputeL2ProjectorsOfDerivatives(const double& polygonMeasure,
+          void ComputeL2ProjectorsOfDerivatives(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
+                                                const double& polygonMeasure,
                                                 const double& polygonDiameter,
                                                 const std::vector<Eigen::VectorXd>& boundaryQuadratureWeightsTimesNormal,
                                                 VEM_PCC_2D_LocalSpace_Data& localSpace) const;

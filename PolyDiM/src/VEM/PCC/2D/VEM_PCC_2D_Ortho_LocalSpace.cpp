@@ -51,7 +51,8 @@ namespace Polydim
         ComputeL2Projectors(polygon.Measure,
                             localSpace);
 
-        ComputeL2ProjectorsOfDerivatives(polygon.Measure,
+        ComputeL2ProjectorsOfDerivatives(reference_element_data,
+                                         polygon.Measure,
                                          polygon.Diameter,
                                          localSpace.BoundaryQuadrature.WeightsTimesNormal,
                                          localSpace);
@@ -127,17 +128,21 @@ namespace Polydim
                                                localSpace.NumEdgeBasisFunctions;
 
         // Compute Vandermonde matrices.
-        localSpace.VanderInternal = monomials.Vander(internalQuadraturePoints,
+        localSpace.VanderInternal = monomials.Vander(reference_element_data.Monomials,
+                                                     internalQuadraturePoints,
                                                      polygonCentroid,
                                                      polygonDiameter);
-        localSpace.VanderInternalDerivatives =  monomials.VanderDerivatives(localSpace.VanderInternal,
+        localSpace.VanderInternalDerivatives =  monomials.VanderDerivatives(reference_element_data.Monomials,
+                                                                            localSpace.VanderInternal,
                                                                             polygonDiameter);
 
-        localSpace.VanderBoundary = monomials.Vander(boundaryQuadraturePoints,
+        localSpace.VanderBoundary = monomials.Vander(reference_element_data.Monomials,
+                                                     boundaryQuadraturePoints,
                                                      polygonCentroid,
                                                      polygonDiameter);
 
-        localSpace.VanderBoundaryDerivatives = monomials.VanderDerivatives(localSpace.VanderBoundary,
+        localSpace.VanderBoundaryDerivatives = monomials.VanderDerivatives(reference_element_data.Monomials,
+                                                                           localSpace.VanderBoundary,
                                                                            polygonDiameter);
 
         //localSpace.internalQuadratureWeightsSqrt = internalQuadratureWeights.array().sqrt();
@@ -281,7 +286,7 @@ namespace Polydim
                                     localSpace.NumEdgeBasisFunctions) =
             localSpace.VanderBoundary * localSpace.Qmatrix.transpose();
 
-        if (referenceElement.Order() > 1)
+        if (localSpace.Order > 1)
         {
           // internal degrees of freedom of monomials (scaled moments)
           polynomialBasisDofs.bottomRows(localSpace.NumInternalBasisFunctions) =
@@ -303,7 +308,7 @@ namespace Polydim
                                           localSpace.NumInternalBasisFunctions) *
             localSpace.PiNabla;
 
-        if(referenceElement.Order() > 1)
+        if (localSpace.Order > 1)
         {
           Cmatrix.topLeftCorner(localSpace.NumInternalBasisFunctions,
                                 localSpace.NumBasisFunctions -
@@ -321,7 +326,8 @@ namespace Polydim
         localSpace.Cmatrix = Cmatrix;
       }
       //****************************************************************************
-      void VEM_PCC_2D_Ortho_LocalSpace::ComputeL2ProjectorsOfDerivatives(const double& polygonMeasure,
+      void VEM_PCC_2D_Ortho_LocalSpace::ComputeL2ProjectorsOfDerivatives(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
+                                                                         const double& polygonMeasure,
                                                                          const double& polygonDiameter,
                                                                          const std::vector<Eigen::VectorXd>& boundaryQuadratureWeightsTimesNormal,
                                                                          VEM_PCC_2D_LocalSpace_Data& localSpace) const
@@ -339,16 +345,18 @@ namespace Polydim
             localSpace.VanderBoundary.leftCols(localSpace.Nkm1).transpose() *
             boundaryQuadratureWeightsTimesNormal[1].asDiagonal();
 
-        if(referenceElement.Order() > 1)
+        if (localSpace.Order > 1)
         {
           EXmatrix.rightCols(localSpace.NumInternalBasisFunctions) =
-              -(polygonMeasure / polygonDiameter) * monomials.D_x().topLeftCorner(localSpace.Nkm1,
-                                                                                  localSpace.NumInternalBasisFunctions) *
+              -(polygonMeasure / polygonDiameter) *
+              monomials.D_x(reference_element_data.Monomials).topLeftCorner(localSpace.Nkm1,
+                                                                            localSpace.NumInternalBasisFunctions) *
               localSpace.QmatrixInv.topLeftCorner(localSpace.Nkm2,
                                                   localSpace.Nkm2);
           EYmatrix.rightCols(localSpace.NumInternalBasisFunctions) =
-              -(polygonMeasure / polygonDiameter) * monomials.D_y().topLeftCorner(localSpace.Nkm1,
-                                                                                  localSpace.NumInternalBasisFunctions) *
+              -(polygonMeasure / polygonDiameter) *
+              monomials.D_y(reference_element_data.Monomials).topLeftCorner(localSpace.Nkm1,
+                                                                            localSpace.NumInternalBasisFunctions) *
               localSpace.QmatrixInv.topLeftCorner(localSpace.Nkm2,
                                                   localSpace.Nkm2);
         }

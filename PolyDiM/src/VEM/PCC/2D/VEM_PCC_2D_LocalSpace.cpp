@@ -208,7 +208,7 @@ namespace Polydim
       }
       //****************************************************************************
       MatrixXd VEM_PCC_2D_LocalSpace::ComputePolynomialsDofs(const double& polygonMeasure,
-                                                                  const VEM_PCC_2D_LocalSpace_Data& localSpace) const
+                                                             const VEM_PCC_2D_LocalSpace_Data& localSpace) const
       {
         MatrixXd basisPolynomialsDofs;
         basisPolynomialsDofs.resize(localSpace.NumBasisFunctions, localSpace.NumProjectorBasisFunctions);
