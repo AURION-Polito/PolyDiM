@@ -47,7 +47,8 @@ namespace Polydim
           /// \brief Compute matrix \ref piNabla.
           /// \note This requires \ref InitializeProjectorsComputation() to be
           /// called previously.
-          Eigen::MatrixXd ComputePiNabla(const double& polygonMeasure,
+          Eigen::MatrixXd ComputePiNabla(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
+                                         const double& polygonMeasure,
                                          const double& polygonDiameter,
                                          const Eigen::VectorXd& internalQuadratureWeights,
                                          const Eigen::VectorXd& boundaryQuadratureWeights,
@@ -87,16 +88,13 @@ namespace Polydim
           VEM_PCC_2D_LocalSpace_Data CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
                                                       const VEM_PCC_2D_Polygon_Geometry& polygon) const;
 
-          VEM_PCC_2D_LocalSpace_Data Compute3DUtilities(const Eigen::MatrixXd& polygonVertices,
-                                                        const Eigen::Vector3d& polygonCentroid,
-                                                        const double& polygonMeasure,
-                                                        const double& polygonDiameter,
+          VEM_PCC_2D_LocalSpace_Data Compute3DUtilities(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
+                                                        const VEM_PCC_2D_Polygon_Geometry& polygon,
                                                         const Eigen::MatrixXd& internalQuadraturePoints,
                                                         const Eigen::VectorXd& internalQuadratureWeights,
                                                         const Eigen::MatrixXd& boundaryQuadraturePoints,
                                                         const Eigen::VectorXd& boundaryQuadratureWeights,
-                                                        const std::vector<Eigen::VectorXd>& boundaryQuadratureWeightsTimesNormal,
-                                                        const VEM_PCC_2D_LocalSpace_Data::ProjectionTypes& projectionType) const;
+                                                        const std::vector<Eigen::VectorXd>& boundaryQuadratureWeightsTimesNormal) const;
 
           /// \brief Compute matrices \ref pi0km1Der.
           /// \note This requires \ref InitializeProjectorsComputation() to

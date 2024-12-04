@@ -37,7 +37,8 @@ namespace Polydim
                                         localSpace.BoundaryQuadrature.Quadrature.Points,
                                         localSpace);
 
-        localSpace.PiNabla = ComputePiNabla(polygon.Measure,
+        localSpace.PiNabla = ComputePiNabla(reference_element_data,
+                                            polygon.Measure,
                                             polygon.Diameter,
                                             localSpace.InternalQuadrature.Weights,
                                             localSpace.BoundaryQuadrature.Quadrature.Weights,
@@ -62,39 +63,34 @@ namespace Polydim
         return localSpace;
       }
       //****************************************************************************
-      VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Ortho_LocalSpace::Compute3DUtilities(const Eigen::MatrixXd& polygonVertices,
-                                                                                 const Eigen::Vector3d& polygonCentroid,
-                                                                                 const double& polygonMeasure,
-                                                                                 const double& polygonDiameter,
+      VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Ortho_LocalSpace::Compute3DUtilities(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
+                                                                                 const VEM_PCC_2D_Polygon_Geometry& polygon,
                                                                                  const Eigen::MatrixXd& internalQuadraturePoints,
                                                                                  const Eigen::VectorXd& internalQuadratureWeights,
                                                                                  const Eigen::MatrixXd& boundaryQuadraturePoints,
                                                                                  const Eigen::VectorXd& boundaryQuadratureWeights,
-                                                                                 const std::vector<Eigen::VectorXd>& boundaryQuadratureWeightsTimesNormal,
-                                                                                 const VEM_PCC_2D_LocalSpace_Data::ProjectionTypes& projectionType) const
+                                                                                 const std::vector<Eigen::VectorXd>& boundaryQuadratureWeightsTimesNormal) const
       {
-        Output::Assert(polygonVertices.rows() == 3 && polygonVertices.cols() > 2);
-
         VEM_PCC_2D_LocalSpace_Data localSpace;
 
-        localSpace.ProjectionType = projectionType;
-
-        InitializeProjectorsComputation(polygonVertices,
-                                        polygonCentroid,
-                                        polygonDiameter,
+        InitializeProjectorsComputation(reference_element_data,
+                                        polygon.Vertices,
+                                        polygon.Centroid,
+                                        polygon.Diameter,
                                         internalQuadraturePoints,
                                         internalQuadratureWeights,
                                         boundaryQuadraturePoints,
                                         localSpace);
 
-        localSpace.PiNabla = ComputePiNabla(polygonMeasure,
-                                            polygonDiameter,
+        localSpace.PiNabla = ComputePiNabla(reference_element_data,
+                                            polygon.Measure,
+                                            polygon.Diameter,
                                             internalQuadratureWeights,
                                             boundaryQuadratureWeights,
                                             boundaryQuadratureWeightsTimesNormal,
                                             localSpace);
 
-        ComputeL2Projectors(polygonMeasure,
+        ComputeL2Projectors(polygon.Measure,
                             localSpace);
 
         return localSpace;
@@ -179,7 +175,8 @@ namespace Polydim
 
       }
       //****************************************************************************
-      Eigen::MatrixXd VEM_PCC_2D_Ortho_LocalSpace::ComputePiNabla(const double& polygonMeasure,
+      Eigen::MatrixXd VEM_PCC_2D_Ortho_LocalSpace::ComputePiNabla(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
+                                                                  const double& polygonMeasure,
                                                                   const double& polygonDiameter,
                                                                   const Eigen::VectorXd& internalQuadratureWeights,
                                                                   const Eigen::VectorXd& boundaryQuadratureWeights,
@@ -200,7 +197,7 @@ namespace Polydim
             localSpace.VanderBoundaryDerivatives[0].transpose()*boundaryQuadratureWeightsTimesNormal[0].asDiagonal() +
             localSpace.VanderBoundaryDerivatives[1].transpose()*boundaryQuadratureWeightsTimesNormal[1].asDiagonal();
 
-        if(referenceElement.Order() == 1)
+        if(reference_element_data.Order == 1)
         {
           // B_{0j} = \int_{\partial E} \phi_j
           Bmatrix.row(0) = boundaryQuadratureWeights;
@@ -215,7 +212,7 @@ namespace Polydim
           // Second block of B: - \int_E \Delta m_i \phi_j
           Bmatrix.rightCols(localSpace.NumInternalBasisFunctions) =
               (- polygonMeasure / (polygonDiameter * polygonDiameter)) *
-              (monomials.Lapl().leftCols(localSpace.NumInternalBasisFunctions)) *
+              (reference_element_data.Monomials.Laplacian.leftCols(localSpace.NumInternalBasisFunctions)) *
               localSpace.QmatrixInv.topLeftCorner(localSpace.Nkm2,
                                                   localSpace.Nkm2);
           // B_{0j} = \int_{E} \phi_j (only the first internal basis
