@@ -91,9 +91,6 @@ namespace Polydim
           }
 
         public:
-          VEM_PCC_2D_LocalSpace();
-          virtual ~VEM_PCC_2D_LocalSpace() {}
-
           VEM_PCC_2D_LocalSpace_Data CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
                                                       const VEM_PCC_2D_Polygon_Geometry& polygon) const;
 

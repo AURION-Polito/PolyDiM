@@ -10,10 +10,6 @@ namespace Polydim
     namespace PCC
     {
       //****************************************************************************
-      VEM_PCC_2D_LocalSpace::VEM_PCC_2D_LocalSpace()
-      {
-      }
-      //****************************************************************************
       VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_LocalSpace::CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
                                                                          const VEM_PCC_2D_Polygon_Geometry& polygon) const
       {
