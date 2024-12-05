@@ -40,7 +40,7 @@ namespace Polydim
               Gedim::Quadrature::QuadratureData Quadrature;
           };
 
-          VEM_QuadratureData_3D Compute(const unsigned int order) const;
+          VEM_QuadratureData_3D Compute_PCC_3D(const unsigned int order) const;
 
           Gedim::Quadrature::QuadratureData PolyhedronInternalQuadrature(const VEM_QuadratureData_3D& data,
                                                                          const Gedim::GeometryUtilities& geometryUtility,

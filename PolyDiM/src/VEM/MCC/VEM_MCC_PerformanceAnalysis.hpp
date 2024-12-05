@@ -59,11 +59,14 @@ namespace Polydim
             const unsigned int Nkm1 = pi0km1.rows();
             const unsigned int Nk = piNabla.rows();
 
-            result.ErrorPiNabla = (piNabla * vem_local_space_data.Dmatrix - identity).norm() / identity.norm();
-            result.ErrorPi0km1 = (pi0km1 * vem_local_space_data.Dmatrix.leftCols(Nkm1) -
+            const Eigen::MatrixXd polynomialBasisDofs = vem_local_space.ComputePolynomialsDofs(polytopeMeasure,
+                                                                                               vem_local_space_data);
+
+            result.ErrorPiNabla = (piNabla * polynomialBasisDofs - identity).norm() / identity.norm();
+            result.ErrorPi0km1 = (pi0km1 * polynomialBasisDofs.leftCols(Nkm1) -
                                   identity.topLeftCorner(Nkm1, Nkm1)).norm() / identity.topLeftCorner(Nkm1, Nkm1).norm();
 
-            result.ErrorPi0k = (pi0k * vem_local_space_data.Dmatrix - identity).norm() / identity.norm();
+            result.ErrorPi0k = (pi0k * polynomialBasisDofs - identity).norm() / identity.norm();
 
             result.ErrorPi0km1Grad.resize(vem_local_space_data.Pi0km1Der.size());
             for(unsigned int d = 0; d < vem_local_space_data.Pi0km1Der.size(); ++d)
@@ -74,7 +77,7 @@ namespace Polydim
                                                                                               d).
                                                                topLeftCorner(Nk, Nkm1) * vem_local_space_data.QmatrixInv.topLeftCorner(Nkm1, Nkm1)).transpose();
               double relErrDenominator = (Nkm1 > 1) ? derMatrix.norm() : 1.0;
-              result.ErrorPi0km1Grad[d] = (piDerkm1 * vem_local_space_data.Dmatrix - derMatrix).norm() /
+              result.ErrorPi0km1Grad[d] = (piDerkm1 * polynomialBasisDofs - derMatrix).norm() /
                                           relErrDenominator;
             }
 
@@ -82,13 +85,13 @@ namespace Polydim
             {
               const Eigen::MatrixXd& stabilizationMatrix = vem_local_space_data.StabMatrix;
               result.StabNorm = vem_local_space_data.StabMatrix.norm();
-              result.ErrorStabilization = (stabilizationMatrix * vem_local_space_data.Dmatrix).norm();
+              result.ErrorStabilization = (stabilizationMatrix * polynomialBasisDofs).norm();
             }
 
             if (vem_local_space_data.Hmatrix.size() > 0 && vem_local_space_data.Cmatrix.size() > 0)
-              result.ErrorHCD = (vem_local_space_data.Hmatrix - vem_local_space_data.Cmatrix * vem_local_space_data.Dmatrix).norm() / vem_local_space_data.Hmatrix.norm();
+              result.ErrorHCD = (vem_local_space_data.Hmatrix - vem_local_space_data.Cmatrix * polynomialBasisDofs).norm() / vem_local_space_data.Hmatrix.norm();
             if (vem_local_space_data.Gmatrix.size() > 0 && vem_local_space_data.Bmatrix.size() > 0)
-              result.ErrorGBD = (vem_local_space_data.Gmatrix - vem_local_space_data.Bmatrix * vem_local_space_data.Dmatrix).norm() / vem_local_space_data.Gmatrix.norm();
+              result.ErrorGBD = (vem_local_space_data.Gmatrix - vem_local_space_data.Bmatrix * polynomialBasisDofs).norm() / vem_local_space_data.Gmatrix.norm();
 
             result.ErrorHED.resize(vem_local_space_data.Pi0km1Der.size(), -1.0);
             for(unsigned int d = 0; d < vem_local_space_data.Pi0km1Der.size(); d++)
@@ -100,7 +103,7 @@ namespace Polydim
                                                               vem_local_space_data.Nkm1) *
                                                 vem_local_space_data.Hmatrix.topLeftCorner(vem_local_space_data.Nkm1, vem_local_space_data.Nkm1);
 
-              result.ErrorHED[d] = (derMatrix.transpose() - vem_local_space_data.Ematrix[d] * vem_local_space_data.Dmatrix).norm()
+              result.ErrorHED[d] = (derMatrix.transpose() - vem_local_space_data.Ematrix[d] * polynomialBasisDofs).norm()
                                    / derMatrix.norm();
             }
 

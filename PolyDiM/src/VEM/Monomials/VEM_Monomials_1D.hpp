@@ -24,70 +24,53 @@ namespace Polydim
 
           /// \param A const reference to an object of type \ref VEM_Monomials_Data.
           /// \returns The an Eigen::MatrixXi containing the \ref VEM_Monomials_Data::Exponents
-          inline Eigen::MatrixXi Exponents(const VEM_Monomials_Data& data) const
-          { return utilities.Exponents(data); }
+          inline Eigen::MatrixXi Exponents(const VEM_Monomials_Data &data) const
+          {
+            return utilities.Exponents(data);
+          }
 
           /// \param A const reference to an object of type \ref VEM_Monomials_Data.
           /// \param An unsigned int that expresses the required derivative:
-          /// \f$0\f$ for the \f$x\f$-derivative,
-          /// \f$1\f$ for the \f$y\f$-derivative
-          /// and \f$2\f$ for the \f$z\f$-derivative.
+          /// \f$0\f$ for the \f$x\f$-derivative
           /// \returns The \f$i\f$-th entry of \ref VEM_Monomials_Data::DerivativeMatrices.
-          inline Eigen::MatrixXd DerivativeMatrix(const VEM_Monomials_Data& data,
-                                                  const unsigned int& i) const
-          { return data.DerivativeMatrices[i]; }
+          inline Eigen::MatrixXd DerivativeMatrix(const VEM_Monomials_Data &data, const unsigned int &i) const
+          {
+            return data.DerivativeMatrices[i];
+          }
 
           /// \param A const reference to an object of type \ref VEM_Monomials_Data.
           /// \returns A const reference to the x-derivative matrix.
-          inline Eigen::MatrixXd D_x(const VEM_Monomials_Data& data) const
-          { return data.DerivativeMatrices[0]; }
+          inline Eigen::MatrixXd D_x(const VEM_Monomials_Data &data) const
+          {
+            return data.DerivativeMatrices[0];
+          }
 
-          int Index(const Eigen::VectorXi& exponents) const;
-          std::vector<int> DerivativeIndices(const VEM_Monomials_Data& data,
-                                             const unsigned int& index) const;
-          std::vector<int> SecondDerivativeIndices(const VEM_Monomials_Data& data,
-                                                   const unsigned int& index) const;
-          inline Eigen::MatrixXd Vander(const VEM_Monomials_Data& data,
-                                        const std::vector<Eigen::VectorXd>& points,
-                                        const Eigen::VectorXd& centroid,
-                                        const double& diam) const
+          int Index(const Eigen::VectorXi &exponents) const;
+          std::vector<int> DerivativeIndices(const VEM_Monomials_Data &data, const unsigned int &index) const;
+          std::vector<int> SecondDerivativeIndices(const VEM_Monomials_Data &data, const unsigned int &index) const;
+          inline Eigen::MatrixXd Vander(const VEM_Monomials_Data &data, const std::vector<Eigen::VectorXd> &points,
+                                        const Eigen::VectorXd &centroid, const double &diam) const
           {
-            return utilities.Vander(data,
-                                    points,
-                                    centroid,
-                                    diam);
+            return utilities.Vander(data, points, centroid, diam);
           }
-          inline Eigen::MatrixXd Vander(const VEM_Monomials_Data& data,
-                                        const Eigen::MatrixXd& points,
-                                        const Eigen::Vector3d& centroid,
-                                        const double& diam) const
+          inline Eigen::MatrixXd Vander(const VEM_Monomials_Data &data, const Eigen::MatrixXd &points,
+                                        const Eigen::Vector3d &centroid, const double &diam) const
           {
-            return utilities.Vander(data,
-                                    points,
-                                    centroid,
-                                    diam);
+            return utilities.Vander(data, points, centroid, diam);
           }
-          inline std::vector<Eigen::MatrixXd> VanderDerivatives(const VEM_Monomials_Data& data,
-                                                                const Eigen::MatrixXd& vander,
-                                                                const double& diam) const
+          inline std::vector<Eigen::MatrixXd> VanderDerivatives(const VEM_Monomials_Data &data,
+                                                                const Eigen::MatrixXd &vander, const double &diam) const
           {
-            return utilities.VanderDerivatives(data,
-                                               (*this),
-                                               vander,
-                                               diam);
+            return utilities.VanderDerivatives(data, (*this), vander, diam);
           }
-          inline Eigen::MatrixXd VanderLaplacian(const VEM_Monomials_Data& data,
-                                                 const Eigen::MatrixXd& vander,
-                                                 const double& diam) const
+          inline Eigen::MatrixXd VanderLaplacian(const VEM_Monomials_Data &data, const Eigen::MatrixXd &vander,
+                                                 const double &diam) const
           {
-            return utilities.VanderLaplacian(data,
-                                             (*this),
-                                             vander,
-                                             diam);
+            return utilities.VanderLaplacian(data, (*this), vander, diam);
           }
       };
-    }
-  }
-}
+    } // namespace Monomials
+  }   // namespace VEM
+} // namespace Polydim
 
 #endif

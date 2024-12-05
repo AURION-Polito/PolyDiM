@@ -28,17 +28,26 @@ namespace Polydim
               std::vector<Eigen::VectorXd> WeightsTimesNormal;
           };
 
-          VEM_QuadratureData_2D Compute(const unsigned int order) const;
+          VEM_QuadratureData_2D Compute_PCC_2D(const unsigned int order) const;
+          VEM_QuadratureData_2D Compute_MCC_2D(const unsigned int order) const;
 
           Gedim::Quadrature::QuadratureData PolygonInternalQuadrature(const VEM_QuadratureData_2D& data,
                                                                       const std::vector<Eigen::Matrix3d>& polygonTriangulationVertices) const;
 
-          Edges_QuadratureData PolygonEdgesQuadrature(const VEM_QuadratureData_2D& data,
+          Edges_QuadratureData PolygonEdgesLobattoQuadrature(const VEM_QuadratureData_2D& data,
                                                       const Eigen::MatrixXd& polygonVertices,
                                                       const Eigen::VectorXd& edgeLengths,
                                                       const std::vector<bool>& edgeDirections,
                                                       const Eigen::MatrixXd& edgeTangents,
-                                                      const Eigen::MatrixXd& edgeNormals) const;
+                                                             const Eigen::MatrixXd& edgeNormals) const;
+
+          VEM_Quadrature_2D::Edges_QuadratureData PolygonEdgesQuadrature(const VEM_QuadratureData_2D &data,
+                                                                         const Eigen::MatrixXd &polygonVertices,
+                                                                         const Eigen::VectorXd &edgeLengths,
+                                                                         const std::vector<bool> &edgeDirections,
+                                                                         const Eigen::MatrixXd &edgeTangents,
+                                                                         const Eigen::MatrixXd &edgeNormals) const;
+
       };
     }
   }

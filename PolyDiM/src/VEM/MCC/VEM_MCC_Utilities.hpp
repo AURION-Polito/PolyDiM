@@ -1,40 +1,22 @@
-#ifndef __VEM_PCC_Utilities_HPP
-#define __VEM_PCC_Utilities_HPP
+#ifndef __VEM_MCC_Utilities_HPP
+#define __VEM_MCC_Utilities_HPP
 
 #include "Eigen/Eigen"
+#include "VEM_MCC_2D_VelocityLocalSpace_Data.hpp"
 #include "VEM_Monomials_Data.hpp"
 
 namespace Polydim
 {
 namespace VEM
 {
-namespace PCC
+namespace MCC
 {
-enum struct ProjectionTypes
-{
-    Pi0km1 = 0, /// \f$\Pi^0_{order-1}\f$ projection to project basis
-    Pi0k = 1, /// \f$\Pi^0_{order}\f$ projection to project basis
-    PiNabla = 2, /// \f$\Pi^{\nabla}_{order-1}\f$ projection to project basis gradient
-    Pi0km1Der = 3 /// \f$\Pi^{0}_{order-1}\f$ projection to project basis gradient
-};
-
 /// \brief Base class for computing values of basis functions of Primal Conforming Constant degree
 /// Virtual Element Methods.
 /// \copyright See top level LICENSE file for details.
 template<unsigned short dimension>
-struct VEM_PCC_Utilities final
+struct VEM_MCC_Utilities final
 {
-    /// Compute the Edge basis coefficients
-    Eigen::VectorXd ComputeEdgeBasisCoefficients(const unsigned int& order,
-                                                 const Eigen::VectorXd& edgeInternalPoints) const;
-
-    /// \brief Compute matrix \ref stabMatrix with PiNabla projector.
-    /// \note This requires \ref ComputePiNabla() to be called previously.
-    /// \return MainApplication::Output::Success if the computation was successful.
-    Eigen::MatrixXd ComputeStabilizationMatrix(const Eigen::MatrixXd& piNabla,
-                                               const double& diameter,
-                                               const Eigen::MatrixXd& DMatrix) const;
-    /// \brief Compute matrix \ref stabMatrix with Pi0k projector.
     /// \note This requires \ref ComputeL2Projectors() to be called previously.
     /// \return MainApplication::Output::Success if the computation was successful.
     Eigen::MatrixXd ComputeStabilizationMatrixPi0k(const Eigen::MatrixXd& pi0k,
@@ -43,17 +25,17 @@ struct VEM_PCC_Utilities final
     /// \brief Compute matrices \ref pi0km1 and \ref pi0k.
     /// \return MainApplication::Output::Success if the computation was successful.
     /// \note This requires \ref ComputePiNabla() to be called previously.
-    void ComputeL2Projectors(const double& measure,
+    void ComputeL2Projectors(const unsigned int& numberProjectorBasisFunctions,
+                             const unsigned int& numberBasisFunctions,
+                             const unsigned int& numberInternalBasisFunctions,
                              const unsigned int& order,
+                             const Eigen::MatrixXd& piNabla,
+                             const Eigen::MatrixXd& Hmatrix,
+                             const double& measure,
                              const unsigned int& Nkm1,
-                             const unsigned int& Nk,
-                             const unsigned int& NumInternalBasisFunctions,
-                             const unsigned int& NumBasisFunctions,
-                             const Eigen::MatrixXd &Hmatrix,
-                             const Eigen::MatrixXd &PiNabla,
-                             Eigen::MatrixXd &Cmatrix,
-                             Eigen::MatrixXd &Pi0km1,
-                             Eigen::MatrixXd &Pi0k) const;
+                             const Eigen::LLT<Eigen::MatrixXd>& H_km1_LLT,
+                             Eigen::MatrixXd& pi0km1,
+                             Eigen::MatrixXd& pi0k) const;
 
     /// \brief Compute the values of the polynomial projection of
     /// derivatives of basis functions at internal quadrature points on
@@ -122,6 +104,37 @@ struct VEM_PCC_Utilities final
                                              pi0km1Der[d];
 
         return basisFunctionsLaplacianValues;
+    }
+
+    /// \brief Compute internal quadrature weights on the geometry used to compute projectors.
+    /// \details These weights correspond to the quadrature points used in the methods to get
+    /// values that do not accept points as inputs, that is:
+    /// - \ref ComputeProjectedBasisFunctionValues() [1/2]
+    /// - \ref ComputeProjectedBasisFunctionDerivativeValues() [1/2]
+    /// - \ref ComputeBasisPolynomialsValues() [1/2]
+    /// - \ref ComputeBasisPolynomialsDerivativeValues() [1/2]
+    /// - \ref ComputeBasisPolynomialsLaplacianValues() [1/2]
+    /// \param weightsVector The vector to be filled.
+    /// \sa \ref ComputeInternalQuadraturePoints().
+    inline Eigen::VectorXd ComputeInternalQuadratureWeights(const Eigen::VectorXd& internalWeights) const
+    {
+        return internalWeights;
+    }
+
+    /// \brief Compute internal quadrature points on the geometry used to compute projectors.
+    /// \details These points are the quadrature points used in the methods to get values that do
+    /// not accept points as inputs, that is:
+    /// - \ref ComputeProjectedBasisFunctionValues() [1/2]
+    /// - \ref ComputeProjectedBasisFunctionDerivativeValues() [1/2]
+    /// - \ref ComputeBasisPolynomialsValues() [1/2]
+    /// - \ref ComputeBasisPolynomialsDerivativeValues() [1/2]
+    /// - \ref ComputeBasisPolynomialsLaplacianValues() [1/2]
+    /// \param pointsMatrix The matrix to be filled. The size will be \ref Dimension() x \ref
+    /// NumberInternalQuadraturePoints().
+    /// \sa \ref ComputeInternalQuadratureWeights().
+    inline Eigen::MatrixXd ComputeInternalQuadraturePoints(const Eigen::MatrixXd& internalQuadraturePoints) const
+    {
+        return internalQuadraturePoints;
     }
 
     /// \brief Compute the values of the polynomial projection of basis functions at internal
@@ -225,6 +238,8 @@ struct VEM_PCC_Utilities final
                                         const Eigen::VectorXd& edgeBasisCoefficients,
                                         const Eigen::VectorXd& pointsCurvilinearCoordinates) const;
 
+    Eigen::MatrixXd ComputePolynomialBasisDofs(const double &polytopeMeasure,
+                                               const VEM_MCC_VelocityLocalSpace_Data &localSpace) const;
 };
 }
 }
