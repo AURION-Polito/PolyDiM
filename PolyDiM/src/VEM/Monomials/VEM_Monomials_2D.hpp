@@ -30,9 +30,6 @@ namespace Polydim
           /// \returns A const reference to the y-derivative matrix.
           inline Eigen::MatrixXd D_y(const VEM_Monomials_Data& data) const
           { return data.DerivativeMatrices[1]; }
-          /// \returns A const reference to the z-derivative matrix.
-          inline Eigen::MatrixXd D_z(const VEM_Monomials_Data& data) const
-          { return data.DerivativeMatrices[2]; }
 
           int Index(const Eigen::VectorXi& exponents) const;
           std::vector<int> DerivativeIndices(const VEM_Monomials_Data& data,

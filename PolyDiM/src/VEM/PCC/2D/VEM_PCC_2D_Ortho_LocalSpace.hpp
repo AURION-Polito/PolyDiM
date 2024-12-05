@@ -108,92 +108,90 @@ namespace Polydim
           Eigen::MatrixXd ComputePolynomialsDofs(const double& polytopeMeasure,
                                                  const VEM_PCC_2D_LocalSpace_Data& localSpace) const;
 
-          inline Eigen::MatrixXd ComputeBasisFunctionValues(const VEM_PCC_2D_LocalSpace_Data& localSpace) const
+          inline Eigen::MatrixXd ComputeBasisFunctionsValues(const VEM_PCC_2D_LocalSpace_Data& localSpace,
+                                                             const ProjectionTypes& projectionType) const
           {
-            switch (localSpace.ProjectionType)
+            switch (projectionType)
             {
-              case VEM_PCC_2D_LocalSpace_Data::ProjectionTypes::Pi0km1:
+              case ProjectionTypes::Pi0km1:
                 return localSpace.VanderInternal.leftCols(localSpace.Nkm1) *
                     localSpace.Qmatrix.topLeftCorner(localSpace.Nkm1,
                                                      localSpace.Nkm1).transpose() *
                     localSpace.Pi0km1;
-              case VEM_PCC_2D_LocalSpace_Data::ProjectionTypes::Pi0k:
+              case ProjectionTypes::Pi0k:
                 return localSpace.VanderInternal *
                     localSpace.Qmatrix.transpose() *
                     localSpace.Pi0k;
               default:
-                throw std::runtime_error("Unsupported ProjectionTypes");
+                throw std::runtime_error("Unsupported projectionType");
             }
           }
 
-          inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionDerivativeValues(const VEM_PCC_2D_LocalSpace_Data& localSpace) const
+          inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const VEM_PCC_2D_LocalSpace_Data& localSpace,
+                                                                                    const ProjectionTypes& projectionType) const
           {
-            std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValues;
+            switch (projectionType)
+            {
+              case ProjectionTypes::Pi0km1Der:
+              {
+                std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValues;
 
-            basisFunctionsDerivativeValues.resize(referenceElement.Dimension());
-            for(unsigned short i = 0; i < referenceElement.Dimension(); ++i)
-              basisFunctionsDerivativeValues[i] = localSpace.VanderInternal.leftCols(localSpace.Nkm1) *
-                                                  localSpace.Qmatrix.topLeftCorner(localSpace.Nkm1,
-                                                                                   localSpace.Nkm1).transpose() *
-                                                  localSpace.Pi0km1Der[i];
+                basisFunctionsDerivativeValues.resize(2);
+                for(unsigned short i = 0; i < 2; ++i)
+                  basisFunctionsDerivativeValues[i] = localSpace.VanderInternal.leftCols(localSpace.Nkm1) *
+                                                      localSpace.Qmatrix.topLeftCorner(localSpace.Nkm1,
+                                                                                       localSpace.Nkm1).transpose() *
+                                                      localSpace.Pi0km1Der[i];
 
-            return basisFunctionsDerivativeValues;
+                return basisFunctionsDerivativeValues;
+              }
+              case ProjectionTypes::PiNabla:
+              {
+                std::vector<Eigen::MatrixXd> basisFunctionDerivativeValues;
+
+                basisFunctionDerivativeValues.resize(2);
+                for(unsigned short i = 0; i < 2; ++i)
+                  basisFunctionDerivativeValues[i] = localSpace.VanderInternalDerivatives[i]
+                                                     * localSpace.Qmatrix.transpose()
+                                                     * localSpace.PiNabla;
+
+                return basisFunctionDerivativeValues;
+              }
+              default:
+                throw std::runtime_error("Unsupported projectionType");
+            }
           }
 
-          inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionDerivativeValuesPiNabla(const VEM_PCC_2D_LocalSpace_Data& localSpace) const
-          {
-            std::vector<Eigen::MatrixXd> basisFunctionDerivativeValues;
+          // TO ASK Gioana
+          //          inline Eigen::MatrixXd ComputeBasisFunctionValues(const Eigen::Vector3d& polytopeCentroid,
+          //                                                            const double& polytopeDiameter,
+          //                                                            const VEM_PCC_2D_LocalSpace_Data& localSpace,
+          //                                                            const Eigen::MatrixXd& points) const
+          //          {
+          //            return utilities.ComputeBasisFunctionValues(localSpace.ProjectionType == VEM_PCC_2D_LocalSpace_Data::ProjectionTypes::Pi0km1,
+          //                                                        localSpace.Nkm1,
+          //                                                        localSpace.Pi0km1,
+          //                                                        localSpace.Pi0k,
+          //                                                        localSpace.VanderInternal,
+          //                                                        ComputePolynomialBasisValues(polytopeCentroid,
+          //                                                                                     polytopeDiameter,
+          //                                                                                     localSpace,
+          //                                                                                     points));
+          //          }
 
-            basisFunctionDerivativeValues.resize(referenceElement.Dimension());
-            for(unsigned short i = 0; i < referenceElement.Dimension(); ++i)
-              basisFunctionDerivativeValues[i] = localSpace.VanderInternalDerivatives[i]
-                                                 * localSpace.Qmatrix.transpose()
-                                                 * localSpace.PiNabla;
+          //          inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionDerivativeValues(const Eigen::Vector3d& polytopeCentroid,
+          //                                                                                   const double& polytopeDiameter,
+          //                                                                                   const VEM_PCC_2D_LocalSpace_Data& localSpace,
+          //                                                                                   const Eigen::MatrixXd& points) const
+          //          {
+          //            return utilities.ComputeBasisFunctionDerivativeValues(localSpace.Nkm1,
+          //                                                                  localSpace.Pi0km1Der,
+          //                                                                  ComputePolynomialBasisValues(polytopeCentroid,
+          //                                                                                               polytopeDiameter,
+          //                                                                                               localSpace,
+          //                                                                                               points));
+          //          }
 
-            return basisFunctionDerivativeValues;
-          }
-
-          inline Eigen::MatrixXd ComputeBasisFunctionLaplacianValues(const VEM_PCC_2D_LocalSpace_Data& localSpace) const
-          {
-            throw std::runtime_error("Unimplemented method");
-          }
-
-          inline Eigen::MatrixXd ComputeBasisFunctionValues(const Eigen::Vector3d& polytopeCentroid,
-                                                            const double& polytopeDiameter,
-                                                            const VEM_PCC_2D_LocalSpace_Data& localSpace,
-                                                            const Eigen::MatrixXd& points) const
-          {
-            return utilities.ComputeBasisFunctionValues(localSpace.ProjectionType == VEM_PCC_2D_LocalSpace_Data::ProjectionTypes::Pi0km1,
-                                                        localSpace.Nkm1,
-                                                        localSpace.Pi0km1,
-                                                        localSpace.Pi0k,
-                                                        localSpace.VanderInternal,
-                                                        ComputePolynomialBasisValues(polytopeCentroid,
-                                                                                     polytopeDiameter,
-                                                                                     localSpace,
-                                                                                     points));
-          }
-
-          inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionDerivativeValues(const Eigen::Vector3d& polytopeCentroid,
-                                                                                   const double& polytopeDiameter,
-                                                                                   const VEM_PCC_2D_LocalSpace_Data& localSpace,
-                                                                                   const Eigen::MatrixXd& points) const
-          {
-            return utilities.ComputeBasisFunctionDerivativeValues(localSpace.Nkm1,
-                                                                  localSpace.Pi0km1Der,
-                                                                  ComputePolynomialBasisValues(polytopeCentroid,
-                                                                                               polytopeDiameter,
-                                                                                               localSpace,
-                                                                                               points));
-          }
-
-          inline Eigen::MatrixXd ComputeBasisFunctionLaplacianValues(const Eigen::Vector3d& polytopeCentroid,
-                                                                     const double& polytopeDiameter,
-                                                                     const VEM_PCC_2D_LocalSpace_Data& localSpace,
-                                                                     const Eigen::MatrixXd& points) const
-          {
-            throw std::runtime_error("Unimplemented method");
-          }
 
           inline Eigen::MatrixXd ComputePolynomialBasisValues(const VEM_PCC_2D_LocalSpace_Data& localSpace) const
           {

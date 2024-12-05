@@ -42,16 +42,6 @@ public:
     inline Eigen::MatrixXd D_x(const VEM_Monomials_Data& data) const
     { return data.DerivativeMatrices[0]; }
 
-    /// \param A const reference to an object of type \ref VEM_Monomials_Data.
-    /// \returns A const reference to the y-derivative matrix.
-    inline Eigen::MatrixXd D_y(const VEM_Monomials_Data& data) const
-    { return data.DerivativeMatrices[1]; }
-
-    /// \param A const reference to an object of type \ref VEM_Monomials_Data.
-    /// \returns A const reference to the z-derivative matrix.
-    inline Eigen::MatrixXd D_z(const VEM_Monomials_Data& data) const
-    { return data.DerivativeMatrices[2]; }
-
     int Index(const Eigen::VectorXi& exponents) const;
     std::vector<int> DerivativeIndices(const VEM_Monomials_Data& data,
                                        const unsigned int& index) const;
