@@ -1,4 +1,5 @@
 add_subdirectory(DOFs)
+add_subdirectory(Equations)
 
 list(APPEND polydim_src_includes ${CMAKE_CURRENT_SOURCE_DIR})
 

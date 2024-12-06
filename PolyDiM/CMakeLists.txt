@@ -2,11 +2,6 @@ cmake_minimum_required(VERSION 3.12)
 
 project(PolyDiM LANGUAGES CXX C VERSION 1.0.0)
 
-# Set C++ Standard
-###################################################################
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 # Create library variables
 ###################################################################
 set(POLYDIM_LIBRARY_COMPILE_DEFINITIONS PolyDiM_compile_definitions)
@@ -147,7 +142,10 @@ target_compile_options(${PROJECT_NAME} PUBLIC -fPIC)
 set_target_properties(${PROJECT_NAME} PROPERTIES 
     PUBLIC_HEADER "${POLYDIM_LIBRARY_PUBLIC_HEADERS}"
     EXPORT_NAME PolyDiM
-    LINKER_LANGUAGE CXX)
+    LINKER_LANGUAGE CXX
+    CXX_STANDARD 20
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF)
 
 install(
     TARGETS ${PROJECT_NAME}
