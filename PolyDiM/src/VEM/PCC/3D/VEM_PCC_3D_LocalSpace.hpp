@@ -3,6 +3,8 @@
 
 #include "Eigen/Eigen"
 #include "VEM_Monomials_3D.hpp"
+#include "VEM_PCC_2D_LocalSpace.hpp"
+#include "VEM_PCC_2D_ReferenceElement.hpp"
 #include "VEM_PCC_3D_LocalSpace_Data.hpp"
 #include "VEM_PCC_3D_ReferenceElement.hpp"
 #include "VEM_PCC_Utilities.hpp"
@@ -46,7 +48,8 @@ private:
                                          const Eigen::MatrixXd& internalQuadraturePoints,
                                          const Eigen::VectorXd& internalQuadratureWeights,
                                          const Eigen::MatrixXd& boundaryQuadraturePoints,
-                                         VEM_PCC_3D_LocalSpace_Data& localSpace) const;
+                                         const Eigen::MatrixXd &edgeInternalQuadraturePoints,
+                                         VEM_PCC_3D_LocalSpace_Data &localSpace) const;
 
     /// \brief Compute matrix \ref piNabla.
     /// \note This requires \ref InitializeProjectorsComputation() to be called previously.
@@ -105,9 +108,16 @@ private:
                                                                              localSpace.Dmatrix);
     }
 
+    void ComputeFaceProjectors(const VEM_PCC_2D_LocalSpace &faceVemValues,
+                               const std::vector<Eigen::MatrixXi> &polyhedronFaces,
+                               const std::vector<double> &facesMeasure,
+                               const Eigen::MatrixXd &boundaryQuadraturePoints,
+                               const Eigen::VectorXd &boundaryQuadratureWeights,
+                               VEM_PCC_3D_LocalSpace_Data &localSpace) const;
 public:
-    VEM_PCC_3D_LocalSpace_Data CreateLocalSpace(const VEM_PCC_3D_ReferenceElement_Data& reference_element_data,
-                                             const VEM_PCC_3D_Polyhedron_Geometry &polyhedron) const;
+    VEM_PCC_3D_LocalSpace_Data CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data_2D,
+                                                const VEM_PCC_3D_ReferenceElement_Data &reference_element_data_3D,
+                                                const VEM_PCC_3D_Polyhedron_Geometry &polyhedron) const;
 
     /// \brief Compute matrix D: D_{ij} = dof_i(m_j).
     void ComputePolynomialsDofs(const double& polytopeMeasure,

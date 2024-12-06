@@ -5,11 +5,7 @@
 #include <gmock/gmock.h>
 #include <gmock/gmock-matchers.h>
 
-#include "VTKUtilities.hpp"
-
 #include "GeometryUtilities.hpp"
-#include "MapTriangle.hpp"
-
 #include "VEM_PCC_2D_LocalSpace.hpp"
 #include "VEM_PCC_PerformanceAnalysis.hpp"
 

@@ -3,6 +3,9 @@
 
 #include "Eigen/Eigen"
 #include "VEM_Monomials_2D.hpp"
+#include "VEM_PCC_2D_LocalSpace_Data.hpp"
+#include "VEM_PCC_2D_Ortho_LocalSpace.hpp"
+#include "VEM_PCC_2D_ReferenceElement.hpp"
 #include "VEM_PCC_3D_LocalSpace_Data.hpp"
 #include "VEM_PCC_3D_ReferenceElement.hpp"
 #include "VEM_PCC_Utilities.hpp"
@@ -37,11 +40,14 @@ private:
     /// geometry.
     void InitializeProjectorsComputation(const VEM_PCC_3D_ReferenceElement_Data& reference_element_data,
                                          const Eigen::MatrixXd& polyhedronVertices,
+                                         const Eigen::MatrixXi &polyhedronEdges,
+                                         const std::vector<Eigen::MatrixXi> &polyhedronFaces,
                                          const Eigen::Vector3d& polyhedronCentroid,
                                          const double& polyhedronDiameter,
                                          const Eigen::MatrixXd& internalQuadraturePoints,
                                          const Eigen::VectorXd& internalQuadratureWeights,
                                          const Eigen::MatrixXd& boundaryQuadraturePoints,
+                                         const Eigen::MatrixXd &edgeInternalQuadraturePoints,
                                          VEM_PCC_3D_LocalSpace_Data& localSpace) const;
 
     /// \brief Compute matrix \ref piNabla.
@@ -105,8 +111,15 @@ private:
     void ChangeOfBasis(const Eigen::VectorXd& internalQuadratureWeights,
                        VEM_PCC_3D_LocalSpace_Data& localSpace) const;
 
+    void ComputeFaceProjectors(const VEM_PCC_2D_Ortho_LocalSpace &faceVemValues,
+                               const std::vector<Eigen::MatrixXi> &polyhedronFaces,
+                               const std::vector<double> &facesMeasure,
+                               const Eigen::MatrixXd &boundaryQuadraturePoints,
+                               const Eigen::VectorXd &boundaryQuadratureWeights,
+                               VEM_PCC_3D_LocalSpace_Data &localSpace) const;
 public:
-    VEM_PCC_3D_LocalSpace_Data CreateLocalSpace(const VEM_PCC_3D_ReferenceElement_Data& reference_element_data,
+    VEM_PCC_3D_LocalSpace_Data CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data_2D,
+                                                const VEM_PCC_3D_ReferenceElement_Data& reference_element_data_3D,
                                                 const VEM_PCC_3D_Polyhedron_Geometry& polyhedron) const;
 
 

@@ -10,46 +10,51 @@ namespace VEM
 namespace PCC
 {
 //****************************************************************************
-VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_LocalSpace::CreateLocalSpace(const VEM_PCC_3D_ReferenceElement_Data& reference_element_data,
+VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_LocalSpace::CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data_2D,
+                                                                   const VEM_PCC_3D_ReferenceElement_Data& reference_element_data_3D,
                                                                    const VEM_PCC_3D_Polyhedron_Geometry& polyhedron) const
 {
     VEM_PCC_3D_LocalSpace_Data localSpace;
+    Quadrature::VEM_Quadrature_3D quadrature3D;
 
-    Quadrature::VEM_Quadrature_2D quadrature2D;
+    // Compute quadrature on faces
     const unsigned int numFaces = polyhedron.Faces.size();
 
-    std::vector<Gedim::Quadrature::QuadratureData> FacesInternalQuadrature(numFaces);
-    std::vector<Quadrature::VEM_Quadrature_2D::Edges_QuadratureData> FacesBoundaryQuadrature(numFaces);
-
-    for(unsigned int f = 0; f < numFaces; f++)
+    // Compute VEM values on faces
+    VEM_PCC_2D_LocalSpace faceVemValues;
+    std::vector<Eigen::MatrixXd> facesQuadraturePoints(numFaces);
+    std::vector<Eigen::VectorXd> facesQuadratureWeights(numFaces);
+    localSpace.facesLocalSpace.resize(numFaces);
+    for (unsigned int f = 0; f < numFaces; f++)
     {
+        localSpace.facesLocalSpace[f] = faceVemValues.CreateLocalSpace(reference_element_data_2D,
+                                                                       polyhedron.PolygonFaces[f]);
 
-        localSpace.FacesInternalQuadrature[f]
-            = quadrature2D.PolygonInternalQuadrature(reference_element_data.Quadrature,
-                                                     polygon.TriangulationVertices);
-
-        localSpace.FacesBoundaryQuadrature[f]
-            = quadrature2D.PolygonEdgesLobattoQuadrature(reference_element_data.Quadrature,
-                                                         polygon.Vertices,
-                                                         polygon.EdgesLength,
-                                                         polygon.EdgesDirection,
-                                                         polygon.EdgesTangent,
-                                                         polygon.EdgesNormal);
+        facesQuadraturePoints[f] = localSpace.facesLocalSpace[f].InternalQuadrature.Points;
+        facesQuadratureWeights[f] = localSpace.facesLocalSpace[f].InternalQuadrature.Weights;
     }
 
-    Quadrature::VEM_Quadrature_3D quadrature3D;
-    localSpace.InternalQuadrature = quadrature3D.PolyhedronInternalQuadrature(reference_element_data.Quadrature,
-                                                                              polyhedron.TriangulationVertices);
 
-    localSpace.BoundaryQuadrature = quadrature3D.polyhedronEdgesLobattoQuadrature(reference_element_data.Quadrature,
-                                                                                  polyhedron.Vertices,
-                                                                                  polyhedron.EdgesLength,
-                                                                                  polyhedron.EdgesDirection,
-                                                                                  polyhedron.EdgesTangent,
-                                                                                  polyhedron.EdgesNormal);
+    localSpace.InternalQuadrature = quadrature3D.PolyhedronInternalQuadrature(reference_element_data_3D.Quadrature,
+                                                                              polyhedron.GeometryUtility,
+                                                                              polyhedron.TetrahedronVertices);
 
+    localSpace.BoundaryQuadrature = quadrature3D.PolyhedronFacesQuadrature(polyhedron.GeometryUtility,
+                                                                           polyhedron.Faces,
+                                                                           polyhedron.FacesRotationMatrix,
+                                                                           polyhedron.FacesTranslation,
+                                                                           polyhedron.FacesNormals,
+                                                                           polyhedron.FaceNormalDirections,
+                                                                           facesQuadraturePoints,
+                                                                           facesQuadratureWeights);
 
-    InitializeProjectorsComputation(reference_element_data,
+    const Eigen::MatrixXd edgeInternalQuadraturePoints = quadrature3D.PolyhedronInternalEdgesQuadraturePoints(reference_element_data_2D.Quadrature.ReferenceSegmentInternalPoints,
+                                                                                                              polyhedron.Vertices,
+                                                                                                              polyhedron.Edges,
+                                                                                                              polyhedron.EdgesDirection,
+                                                                                                              polyhedron.EdgesTangent);
+
+    InitializeProjectorsComputation(reference_element_data_3D,
                                     polyhedron.Vertices,
                                     polyhedron.Edges,
                                     polyhedron.Faces,
@@ -58,9 +63,17 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_LocalSpace::CreateLocalSpace(const VEM_PCC
                                     localSpace.InternalQuadrature.Points,
                                     localSpace.InternalQuadrature.Weights,
                                     localSpace.BoundaryQuadrature.Quadrature.Points,
+                                    edgeInternalQuadraturePoints,
                                     localSpace);
 
-    ComputePiNabla(reference_element_data,
+    ComputeFaceProjectors(faceVemValues,
+                          polyhedron.Faces,
+                          polyhedron.FacesMeasure,
+                          localSpace.BoundaryQuadrature.Quadrature.Points,
+                          localSpace.BoundaryQuadrature.Quadrature.Weights,
+                          localSpace);
+
+    ComputePiNabla(reference_element_data_3D,
                    polyhedron.Measure,
                    polyhedron.Diameter,
                    localSpace.InternalQuadrature.Weights,
@@ -68,13 +81,10 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_LocalSpace::CreateLocalSpace(const VEM_PCC
                    localSpace.BoundaryQuadrature.WeightsTimesNormal,
                    localSpace);
 
-    ComputeStabilizationMatrix(polyhedron.Diameter,
-                               localSpace);
-
     ComputeL2Projectors(polyhedron.Measure,
                         localSpace);
 
-    ComputeL2ProjectorsOfDerivatives(reference_element_data,
+    ComputeL2ProjectorsOfDerivatives(reference_element_data_3D,
                                      polyhedron.Measure,
                                      polyhedron.Diameter,
                                      localSpace.BoundaryQuadrature.WeightsTimesNormal,
@@ -101,6 +111,7 @@ void VEM_PCC_3D_LocalSpace::InitializeProjectorsComputation(const VEM_PCC_3D_Ref
                                                             const Eigen::MatrixXd& internalQuadraturePoints,
                                                             const Eigen::VectorXd& internalQuadratureWeights,
                                                             const Eigen::MatrixXd& boundaryQuadraturePoints,
+                                                            const Eigen::MatrixXd& edgeInternalQuadraturePoints,
                                                             VEM_PCC_3D_LocalSpace_Data& localSpace) const
 {
     const unsigned int numVertices = polyhedronVertices.cols();
@@ -175,8 +186,7 @@ void VEM_PCC_3D_LocalSpace::InitializeProjectorsComputation(const VEM_PCC_3D_Ref
                                                localSpace.NumProjectorBasisFunctions);
 }
 //****************************************************************************
-void VEM_PCC_3D_LocalSpace::ComputeFaceProjectors(const Gedim::VEM_IValues_PCC_2D& faceVemValues,
-                                                  const vector<Gedim::VEM_ValuesData>& facesLocalSpace,
+void VEM_PCC_3D_LocalSpace::ComputeFaceProjectors(const VEM_PCC_2D_LocalSpace& faceVemValues,
                                                   const std::vector<Eigen::MatrixXi>& polyhedronFaces,
                                                   const vector<double>& facesMeasure,
                                                   const Eigen::MatrixXd& boundaryQuadraturePoints,
@@ -195,12 +205,12 @@ void VEM_PCC_3D_LocalSpace::ComputeFaceProjectors(const Gedim::VEM_IValues_PCC_2
     for(unsigned int numFace = 0; numFace < numFaces; numFace++)
     {
         // Compute values of 2D tangential monomials at rotated quadrature points.
-        const MatrixXd facePolynomialBasisValues = faceVemValues.ComputePolynomialBasisValues(facesLocalSpace[numFace]);
+        const MatrixXd facePolynomialBasisValues = faceVemValues.ComputePolynomialsValues(localSpace.facesLocalSpace[numFace]);
 
         // Compute values of the 2D Pi^0_{k-1} projection of basis functions at rotated quadrature
         // points.
-        const MatrixXd thisFaceProjectedBasisFunctionsValues = faceVemValues.ComputeBasisFunctionValues(facesLocalSpace[numFace]);
-
+        const MatrixXd thisFaceProjectedBasisFunctionsValues = faceVemValues.ComputeBasisFunctionsValues(localSpace.facesLocalSpace[numFace],
+                                                                                                         ProjectionTypes::Pi0km1);
 
         // Fill columns of vanderFaceProjections relative to vertex basis functions.
         unsigned int numQuadraturePointsOnFace = thisFaceProjectedBasisFunctionsValues.rows();
@@ -218,7 +228,7 @@ void VEM_PCC_3D_LocalSpace::ComputeFaceProjectors(const Gedim::VEM_IValues_PCC_2
             // is used to compute the moments of 3D monomials on each face (see method
             // ComputePolynomialDofs()).
             localSpace.FaceScaledMomentsBasis[numFace] = (1.0 / facesMeasure[numFace]) *
-                                                         facePolynomialBasisValues.leftCols(facesLocalSpace[numFace].NumInternalBasisFunctions);
+                                                         facePolynomialBasisValues.leftCols(localSpace.facesLocalSpace[numFace].NumInternalBasisFunctions);
 
             // fill columns of vanderFaceProjections relative to edge basis functions.
             for(unsigned int numFaceEdge = 0; numFaceEdge < polyhedronFaces[numFace].cols(); numFaceEdge++)
@@ -233,7 +243,7 @@ void VEM_PCC_3D_LocalSpace::ComputeFaceProjectors(const Gedim::VEM_IValues_PCC_2
                                                        numQuadraturePointsOnFace,
                                                        localSpace.NumEdgeDofs)
                     = thisFaceProjectedBasisFunctionsValues.block(0,
-                                                                  facesLocalSpace[numFace].NumVertexBasisFunctions
+                                                                  localSpace.facesLocalSpace[numFace].NumVertexBasisFunctions
                                                                       + localSpace.NumEdgeDofs * numFaceEdge,
                                                                   numQuadraturePointsOnFace,
                                                                   localSpace.NumEdgeDofs);

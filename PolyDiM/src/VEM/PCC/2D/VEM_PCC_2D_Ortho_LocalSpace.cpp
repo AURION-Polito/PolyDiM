@@ -1,6 +1,7 @@
 #include "VEM_PCC_2D_Ortho_LocalSpace.hpp"
 
 #include "LAPACK_utilities.hpp"
+#include "iostream"
 
 using namespace Eigen;
 
@@ -172,10 +173,10 @@ void VEM_PCC_2D_Ortho_LocalSpace::ComputePiNabla(const VEM_PCC_2D_ReferenceEleme
                                                  const std::vector<Eigen::VectorXd> &boundaryQuadratureWeightsTimesNormal,
                                                  VEM_PCC_2D_LocalSpace_Data &localSpace) const
 {
-    MatrixXd temp1 = internalQuadratureWeights.array().sqrt().matrix().asDiagonal()
-                     * localSpace.VanderInternalDerivatives[0] * localSpace.Qmatrix.transpose();
-    MatrixXd temp2 = internalQuadratureWeights.array().sqrt().matrix().asDiagonal()
-                     * localSpace.VanderInternalDerivatives[1] * localSpace.Qmatrix.transpose();
+    const MatrixXd temp1 = internalQuadratureWeights.array().sqrt().matrix().asDiagonal()
+                           * localSpace.VanderInternalDerivatives[0] * localSpace.Qmatrix.transpose();
+    const MatrixXd temp2 = internalQuadratureWeights.array().sqrt().matrix().asDiagonal()
+                           * localSpace.VanderInternalDerivatives[1] * localSpace.Qmatrix.transpose();
 
     // G_{ij} = \int_E \nabla m_i \nabla m_j
     localSpace.Gmatrix = temp1.transpose() * temp1 + temp2.transpose() * temp2;
@@ -193,6 +194,8 @@ void VEM_PCC_2D_Ortho_LocalSpace::ComputePiNabla(const VEM_PCC_2D_ReferenceEleme
 
     if (reference_element_data.Order == 1)
     {
+        localSpace.Bmatrix = localSpace.Qmatrix * localSpace.Bmatrix;
+
         // B_{0j} = \int_{\partial E} \phi_j
         localSpace.Bmatrix.row(0) = boundaryQuadratureWeights;
         // G_{0j} = \int_{\partial E} m_j
@@ -212,15 +215,14 @@ void VEM_PCC_2D_Ortho_LocalSpace::ComputePiNabla(const VEM_PCC_2D_ReferenceEleme
               * localSpace.QmatrixInv.topLeftCorner(localSpace.Nkm2, localSpace.Nkm2);
         // B_{0j} = \int_{E} \phi_j (only the first internal basis
         // function has a non-zero integral)
-        //Bmatrix(0, localSpace.NumVertexBasisFunctions + localSpace.NumEdgeBasisFunctions) = measure * Qmatrix.inverse().topRows(1).sum();
-        MatrixXd a = localSpace.QmatrixInv.row(0);
+
+        localSpace.Bmatrix = localSpace.Qmatrix * localSpace.Bmatrix;
         localSpace.Bmatrix.row(0) << MatrixXd::Zero(1,
                                                     localSpace.NumVertexBasisFunctions
                                                         + localSpace.NumEdgeBasisFunctions),
-            polygonMeasure * a.leftCols(localSpace.Nkm2);
+            polygonMeasure * localSpace.QmatrixInv.row(0).leftCols(localSpace.Nkm2);
     }
-
-    localSpace.Bmatrix = localSpace.Qmatrix * localSpace.Bmatrix;
+    localSpace.Gmatrix.row(0) = localSpace.Gmatrix.row(0) * localSpace.Qmatrix.transpose();
 
     localSpace.PiNabla = localSpace.Gmatrix.partialPivLu().solve(localSpace.Bmatrix);
 }
@@ -279,8 +281,8 @@ void VEM_PCC_2D_Ortho_LocalSpace::ComputeL2ProjectorsOfDerivatives(const VEM_PCC
                             * localSpace.Ematrix[1];
 
     localSpace.Pi0km1Der.resize(2);
-    localSpace.Pi0km1Der[0] = localSpace.H_km1_LLT.solve(localSpace.Pi0km1Der[0]);
-    localSpace.Pi0km1Der[1] = localSpace.H_km1_LLT.solve(localSpace.Pi0km1Der[1]);
+    localSpace.Pi0km1Der[0] = localSpace.H_km1_LLT.solve(localSpace.Ematrix[0]);
+    localSpace.Pi0km1Der[1] = localSpace.H_km1_LLT.solve(localSpace.Ematrix[1]);
 }
 //****************************************************************************
 } // namespace PCC
