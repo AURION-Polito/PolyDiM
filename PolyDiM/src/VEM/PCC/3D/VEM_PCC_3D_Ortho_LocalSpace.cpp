@@ -162,6 +162,9 @@ void VEM_PCC_3D_Ortho_LocalSpace::InitializeProjectorsComputation(const VEM_PCC_
                                                                        localSpace.VanderBoundary,
                                                                        polyhedronDiameter);
 
+    ChangeOfBasis(internalQuadratureWeights,
+                  localSpace);
+
     // Compute positions of degrees of freedom corresponding to pointwise evaluations.
     localSpace.PointEdgeDofsCoordinates.resize(3, localSpace.NumVertexBasisFunctions +
                                                       localSpace.NumEdgeBasisFunctions);
@@ -172,10 +175,7 @@ void VEM_PCC_3D_Ortho_LocalSpace::InitializeProjectorsComputation(const VEM_PCC_
     localSpace.VanderEdgeDofs = monomials.Vander(reference_element_data.Monomials,
                                                  localSpace.PointEdgeDofsCoordinates,
                                                  polyhedronCentroid,
-                                                 polyhedronDiameter);
-
-    ChangeOfBasis(internalQuadratureWeights,
-                  localSpace);
+                                                 polyhedronDiameter) * localSpace.Qmatrix.transpose();
 
 }
 //****************************************************************************
