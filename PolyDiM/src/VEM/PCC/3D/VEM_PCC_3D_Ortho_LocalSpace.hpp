@@ -2,7 +2,7 @@
 #define __VEM_PCC_3D_Ortho_LocalSpace_HPP
 
 #include "Eigen/Eigen"
-#include "VEM_Monomials_2D.hpp"
+#include "VEM_Monomials_3D.hpp"
 #include "VEM_PCC_2D_LocalSpace_Data.hpp"
 #include "VEM_PCC_2D_Ortho_LocalSpace.hpp"
 #include "VEM_PCC_2D_ReferenceElement.hpp"
@@ -20,8 +20,8 @@ namespace PCC
 class VEM_PCC_3D_Ortho_LocalSpace final
 {
 private:
-    VEM_PCC_Utilities<2> utilities;
-    Monomials::VEM_Monomials_2D monomials;
+    VEM_PCC_Utilities<3> utilities;
+    Monomials::VEM_Monomials_3D monomials;
 
     /// \brief Initialize quantities required for computing projectors.
     /// \details This method computes \ref measure, \ref diameter, \ref
@@ -113,13 +113,14 @@ private:
 
     void ComputeFaceProjectors(const VEM_PCC_2D_Ortho_LocalSpace &faceVemValues,
                                const std::vector<Eigen::MatrixXi> &polyhedronFaces,
-                               const std::vector<double> &facesMeasure,
+                               const std::vector<VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
                                const Eigen::MatrixXd &boundaryQuadraturePoints,
                                const Eigen::VectorXd &boundaryQuadratureWeights,
                                VEM_PCC_3D_LocalSpace_Data &localSpace) const;
 public:
     VEM_PCC_3D_LocalSpace_Data CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data_2D,
                                                 const VEM_PCC_3D_ReferenceElement_Data& reference_element_data_3D,
+                                                const std::vector<VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
                                                 const VEM_PCC_3D_Polyhedron_Geometry& polyhedron) const;
 
 

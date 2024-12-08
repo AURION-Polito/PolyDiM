@@ -3,7 +3,6 @@
 #include "MapTetrahedron.hpp"
 
 #include "Quadrature_Gauss3D_Tetrahedron_PositiveWeights.hpp"
-#include "VEM_Quadrature_2D.hpp"
 
 using namespace std;
 using namespace Eigen;

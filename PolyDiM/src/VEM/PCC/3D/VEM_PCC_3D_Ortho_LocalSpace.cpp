@@ -14,6 +14,7 @@ namespace PCC
 //****************************************************************************
 VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Ortho_LocalSpace::CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data_2D,
                                                                          const VEM_PCC_3D_ReferenceElement_Data& reference_element_data_3D,
+                                                                         const std::vector<VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
                                                                          const VEM_PCC_3D_Polyhedron_Geometry &polyhedron) const
 {
     VEM_PCC_3D_LocalSpace_Data localSpace;
@@ -31,7 +32,7 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Ortho_LocalSpace::CreateLocalSpace(const V
     for (unsigned int f = 0; f < numFaces; f++)
     {
         localSpace.facesLocalSpace[f] = faceVemValues.CreateLocalSpace(reference_element_data_2D,
-                                                                       polyhedron.PolygonFaces[f]);
+                                                                       polygonalFaces[f]);
 
         facesQuadraturePoints[f] = localSpace.facesLocalSpace[f].InternalQuadrature.Points;
         facesQuadratureWeights[f] = localSpace.facesLocalSpace[f].InternalQuadrature.Weights;
@@ -47,7 +48,7 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Ortho_LocalSpace::CreateLocalSpace(const V
                                                                            polyhedron.FacesRotationMatrix,
                                                                            polyhedron.FacesTranslation,
                                                                            polyhedron.FacesNormals,
-                                                                           polyhedron.FaceNormalDirections,
+                                                                           polyhedron.FacesNormalDirection,
                                                                            facesQuadraturePoints,
                                                                            facesQuadratureWeights);
 
@@ -56,9 +57,6 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Ortho_LocalSpace::CreateLocalSpace(const V
                                                                                                               polyhedron.Edges,
                                                                                                               polyhedron.EdgesDirection,
                                                                                                               polyhedron.EdgesTangent);
-
-    ChangeOfBasis(localSpace.InternalQuadrature.Weights,
-                  localSpace);
 
     InitializeProjectorsComputation(reference_element_data_3D,
                                     polyhedron.Vertices,
@@ -74,7 +72,7 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Ortho_LocalSpace::CreateLocalSpace(const V
 
     ComputeFaceProjectors(faceVemValues,
                           polyhedron.Faces,
-                          polyhedron.FacesMeasure,
+                          polygonalFaces,
                           localSpace.BoundaryQuadrature.Quadrature.Points,
                           localSpace.BoundaryQuadrature.Quadrature.Weights,
                           localSpace);
@@ -125,6 +123,8 @@ void VEM_PCC_3D_Ortho_LocalSpace::InitializeProjectorsComputation(const VEM_PCC_
     const unsigned int numEdges = polyhedronEdges.cols();
     const unsigned int numFaces = polyhedronFaces.size();
 
+    localSpace.Dimension = reference_element_data.Dimension;
+    localSpace.Order = reference_element_data.Order;
     localSpace.NumEdgeDofs = reference_element_data.NumDofs1D;
     localSpace.NumFaceDofs = reference_element_data.NumDofs2D;
     localSpace.NumVertexBasisFunctions = numVertices;
@@ -174,11 +174,14 @@ void VEM_PCC_3D_Ortho_LocalSpace::InitializeProjectorsComputation(const VEM_PCC_
                                                  polyhedronCentroid,
                                                  polyhedronDiameter);
 
+    ChangeOfBasis(internalQuadratureWeights,
+                  localSpace);
+
 }
 //****************************************************************************
 void VEM_PCC_3D_Ortho_LocalSpace::ComputeFaceProjectors(const VEM_PCC_2D_Ortho_LocalSpace& faceVemValues,
                                                         const std::vector<Eigen::MatrixXi>& polyhedronFaces,
-                                                        const std::vector<double>& facesMeasure,
+                                                        const std::vector<VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
                                                         const Eigen::MatrixXd& boundaryQuadraturePoints,
                                                         const Eigen::VectorXd& boundaryQuadratureWeights,
                                                         VEM_PCC_3D_LocalSpace_Data& localSpace) const
@@ -221,7 +224,7 @@ void VEM_PCC_3D_Ortho_LocalSpace::ComputeFaceProjectors(const VEM_PCC_2D_Ortho_L
             // Compute values of tangential monomials of order k-2 divided by the area of the face. This
             // is used to compute the moments of 3D monomials on each face (see method
             // ComputePolynomialDofs()).
-            localSpace.FaceScaledMomentsBasis[numFace] = (1.0 / facesMeasure[numFace]) *
+            localSpace.FaceScaledMomentsBasis[numFace] = (1.0 / polygonalFaces[numFace].Measure) *
                                                          facePolynomialBasisValues.leftCols(localSpace.facesLocalSpace[numFace].NumInternalBasisFunctions);
 
             // fill columns of vanderFaceProjections relative to edge basis functions.
@@ -342,9 +345,11 @@ void VEM_PCC_3D_Ortho_LocalSpace::ComputePiNabla(const VEM_PCC_3D_ReferenceEleme
 
     if(localSpace.Order == 1)
     {
+        localSpace.Bmatrix = localSpace.Qmatrix * localSpace.Bmatrix;
+
         // B_{0j} = \int_{\partial E} \phi_j
         localSpace.Bmatrix.row(0) = boundaryQuadratureWeights.transpose() *
-                                    localSpace.VanderFaceProjections;;
+                                    localSpace.VanderFaceProjections;
         // G_{0j} = \int_{\partial E} m_j
         localSpace.Gmatrix.row(0) = localSpace.VanderBoundary.transpose() * boundaryQuadratureWeights;
     }
@@ -358,6 +363,8 @@ void VEM_PCC_3D_Ortho_LocalSpace::ComputePiNabla(const VEM_PCC_3D_ReferenceEleme
             (reference_element_data.Monomials.Laplacian.leftCols(localSpace.NumInternalBasisFunctions)) *
             localSpace.QmatrixInv.topLeftCorner(localSpace.NumInternalBasisFunctions,
                                                 localSpace.NumInternalBasisFunctions);
+
+        localSpace.Bmatrix = localSpace.Qmatrix * localSpace.Bmatrix;
         // B_{0j} = \int_{E} \phi_j (only the first internal basis
         // function has a non-zero integral)
         //Bmatrix(0, localSpace.NumVertexBasisFunctions + localSpace.NumEdgeBasisFunctions) = measure * Qmatrix.inverse().topRows(1).sum();
@@ -366,9 +373,9 @@ void VEM_PCC_3D_Ortho_LocalSpace::ComputePiNabla(const VEM_PCC_3D_ReferenceEleme
             polyhedronMeasure * localSpace.QmatrixInv.row(0).leftCols(localSpace.NumInternalBasisFunctions);
     }
 
-    localSpace.Bmatrix = localSpace.Qmatrix * localSpace.Bmatrix;
+    localSpace.Gmatrix.row(0) = localSpace.Gmatrix.row(0) * localSpace.Qmatrix.transpose();
 
-    localSpace.PiNabla =  localSpace.Gmatrix.partialPivLu().solve(localSpace.Bmatrix);
+    localSpace.PiNabla = localSpace.Gmatrix.partialPivLu().solve(localSpace.Bmatrix);
 }
 //****************************************************************************
 void VEM_PCC_3D_Ortho_LocalSpace::ComputePolynomialsDofs(const double& polyhedronMeasure,

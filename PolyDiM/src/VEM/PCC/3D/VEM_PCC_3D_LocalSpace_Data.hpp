@@ -14,8 +14,6 @@ namespace PCC
 
 struct VEM_PCC_3D_Polyhedron_Geometry final
 {
-    const std::vector<VEM_PCC_2D_Polygon_Geometry> &PolygonFaces;
-
     const Gedim::GeometryUtilities& GeometryUtility;
 
     const Eigen::MatrixXd& Vertices;
@@ -26,11 +24,10 @@ struct VEM_PCC_3D_Polyhedron_Geometry final
     const double& Diameter;
     const std::vector<Eigen::MatrixXd>& TetrahedronVertices;
 
-    const std::vector<double>& FacesMeasure;
     const std::vector<Eigen::Matrix3d>& FacesRotationMatrix;
     const std::vector<Eigen::Vector3d>& FacesTranslation;
     const std::vector<Eigen::Vector3d>& FacesNormals;
-    const std::vector<bool>& FaceNormalDirections;
+    const std::vector<bool>& FacesNormalDirection;
 
     const std::vector<bool>& EdgesDirection;
     const Eigen::MatrixXd& EdgesTangent;

@@ -12,6 +12,7 @@ namespace PCC
 //****************************************************************************
 VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_LocalSpace::CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data_2D,
                                                                    const VEM_PCC_3D_ReferenceElement_Data& reference_element_data_3D,
+                                                                   const std::vector<VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
                                                                    const VEM_PCC_3D_Polyhedron_Geometry& polyhedron) const
 {
     VEM_PCC_3D_LocalSpace_Data localSpace;
@@ -28,7 +29,7 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_LocalSpace::CreateLocalSpace(const VEM_PCC
     for (unsigned int f = 0; f < numFaces; f++)
     {
         localSpace.facesLocalSpace[f] = faceVemValues.CreateLocalSpace(reference_element_data_2D,
-                                                                       polyhedron.PolygonFaces[f]);
+                                                                       polygonalFaces[f]);
 
         facesQuadraturePoints[f] = localSpace.facesLocalSpace[f].InternalQuadrature.Points;
         facesQuadratureWeights[f] = localSpace.facesLocalSpace[f].InternalQuadrature.Weights;
@@ -44,7 +45,7 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_LocalSpace::CreateLocalSpace(const VEM_PCC
                                                                            polyhedron.FacesRotationMatrix,
                                                                            polyhedron.FacesTranslation,
                                                                            polyhedron.FacesNormals,
-                                                                           polyhedron.FaceNormalDirections,
+                                                                           polyhedron.FacesNormalDirection,
                                                                            facesQuadraturePoints,
                                                                            facesQuadratureWeights);
 
@@ -68,7 +69,7 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_LocalSpace::CreateLocalSpace(const VEM_PCC
 
     ComputeFaceProjectors(faceVemValues,
                           polyhedron.Faces,
-                          polyhedron.FacesMeasure,
+                          polygonalFaces,
                           localSpace.BoundaryQuadrature.Quadrature.Points,
                           localSpace.BoundaryQuadrature.Quadrature.Weights,
                           localSpace);
@@ -188,7 +189,7 @@ void VEM_PCC_3D_LocalSpace::InitializeProjectorsComputation(const VEM_PCC_3D_Ref
 //****************************************************************************
 void VEM_PCC_3D_LocalSpace::ComputeFaceProjectors(const VEM_PCC_2D_LocalSpace& faceVemValues,
                                                   const std::vector<Eigen::MatrixXi>& polyhedronFaces,
-                                                  const vector<double>& facesMeasure,
+                                                  const std::vector<VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
                                                   const Eigen::MatrixXd& boundaryQuadraturePoints,
                                                   const Eigen::VectorXd& boundaryQuadratureWeights,
                                                   VEM_PCC_3D_LocalSpace_Data& localSpace) const
@@ -227,7 +228,7 @@ void VEM_PCC_3D_LocalSpace::ComputeFaceProjectors(const VEM_PCC_2D_LocalSpace& f
             // Compute values of tangential monomials of order k-2 divided by the area of the face. This
             // is used to compute the moments of 3D monomials on each face (see method
             // ComputePolynomialDofs()).
-            localSpace.FaceScaledMomentsBasis[numFace] = (1.0 / facesMeasure[numFace]) *
+            localSpace.FaceScaledMomentsBasis[numFace] = (1.0 / polygonalFaces[numFace].Measure) *
                                                          facePolynomialBasisValues.leftCols(localSpace.facesLocalSpace[numFace].NumInternalBasisFunctions);
 
             // fill columns of vanderFaceProjections relative to edge basis functions.
