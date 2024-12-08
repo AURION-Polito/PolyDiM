@@ -1,5 +1,6 @@
-add_subdirectory(PCC)
-add_subdirectory(MCC)
+list(APPEND polydim_test_headers ${CMAKE_CURRENT_SOURCE_DIR}/test_VEM_MCC_2D_LocalSpace.hpp)
+
+list(APPEND polydim_test_headers ${CMAKE_CURRENT_SOURCE_DIR}/test_VEM_MCC_3D_LocalSpace.hpp)
 
 list(APPEND polydim_test_includes ${CMAKE_CURRENT_SOURCE_DIR})
 

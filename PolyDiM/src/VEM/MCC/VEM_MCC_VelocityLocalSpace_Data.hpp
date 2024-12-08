@@ -90,7 +90,7 @@ struct VEM_MCC_VelocityLocalSpace_Data final
     Eigen::MatrixXd Gmatrix;
     Eigen::MatrixXd StabMatrix;
 
-    Eigen::MatrixXd VMatrix;
+    Eigen::MatrixXd Vmatrix;
 
     std::vector<Eigen::MatrixXd> VanderBasisFunctionValuesOnFace;
 };

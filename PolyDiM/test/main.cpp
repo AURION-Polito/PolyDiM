@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include "test_VEM_MCC_2D_LocalSpace.hpp"
 #include "test_VEM_PCC_2D_LocalSpace.hpp"
 #include "test_VEM_PCC_2D_Ortho_LocalSpace.hpp"
 

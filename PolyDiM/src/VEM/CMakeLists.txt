@@ -1,5 +1,5 @@
 add_subdirectory(PCC)
-#add_subdirectory(MCC)
+add_subdirectory(MCC)
 add_subdirectory(Monomials)
 add_subdirectory(Quadrature)
 

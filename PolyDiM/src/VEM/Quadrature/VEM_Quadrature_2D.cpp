@@ -53,6 +53,8 @@ VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_MCC_2D(const unsigned int order
 
     data.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * (order + 1));
     data.ReferenceSegmentQuadrature = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * order + 1);
+    data.ReferenceSegmentInternalPoints = data.ReferenceSegmentQuadrature.Points;
+    data.ReferenceSegmentInternalWeights = data.ReferenceSegmentQuadrature.Weights;
 
     return data;
 }
