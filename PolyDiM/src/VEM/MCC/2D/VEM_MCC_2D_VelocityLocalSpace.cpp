@@ -164,13 +164,15 @@ void VEM_MCC_2D_VelocityLocalSpace::ComputeDivergenceCoefficients(const double& 
     MatrixXd W1 = MatrixXd::Zero(localSpace.Nk,
                                  localSpace.NumBasisFunctions);
 
-    W1.block(1,
-             localSpace.NumBoundaryBasisFunctions,
-             localSpace.NumNablaInternalBasisFunctions,
-             localSpace.NumNablaInternalBasisFunctions)
-        = - polytopeMeasure * Eigen::MatrixXd::Identity(localSpace.NumNablaInternalBasisFunctions,
-                                                       localSpace.NumNablaInternalBasisFunctions);
-
+    if(localSpace.Order > 0)
+    {
+        W1.block(1,
+                 localSpace.NumBoundaryBasisFunctions,
+                 localSpace.NumNablaInternalBasisFunctions,
+                 localSpace.NumNablaInternalBasisFunctions)
+            = - polytopeMeasure * Eigen::MatrixXd::Identity(localSpace.NumNablaInternalBasisFunctions,
+                                                           localSpace.NumNablaInternalBasisFunctions);
+    }
 
     localSpace.Wmatrix = W1 + W2;
     localSpace.Vmatrix = localSpace.Hmatrix.llt().solve(localSpace.Wmatrix);

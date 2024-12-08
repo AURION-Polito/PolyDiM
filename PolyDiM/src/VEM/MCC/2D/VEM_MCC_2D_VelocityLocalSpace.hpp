@@ -76,7 +76,39 @@ public:
                                                                   localSpace.Gmatrix);
     };
 
+    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const VEM_MCC_VelocityLocalSpace_Data& localSpace) const
+    {
+        const unsigned int numQuadrature = localSpace.InternalQuadrature.Points.cols();
+        const Eigen::MatrixXd temp = localSpace.GkVanderInternal.transpose() * localSpace.Pi0k;
+        std::vector<Eigen::MatrixXd> result(localSpace.Dimension, Eigen::MatrixXd::Zero(localSpace.Dimension, localSpace.NumBasisFunctions));
 
+        for(unsigned int d = 0; d < localSpace.Dimension; d++)
+            result[d] = temp.middleRows(numQuadrature * d, numQuadrature);
+
+        return result;
+    }
+
+
+    inline Eigen::MatrixXd ComputeBasisFunctionsDivergenceValues(const VEM_MCC_VelocityLocalSpace_Data& localSpace) const
+    {
+        return localSpace.VanderInternal * localSpace.Vmatrix;
+    }
+
+    inline Eigen::MatrixXd ComputePolynomialsValues(const VEM_MCC_VelocityLocalSpace_Data& localSpace) const
+    {
+        return localSpace.VanderInternal;
+    }
+
+    inline Eigen::MatrixXd ComputePolynomialsValues(const VEM_MCC_2D_ReferenceElement_Data &reference_element_data,
+                                                    const VEM_MCC_VelocityLocalSpace_Data &localSpace,
+                                                    const VEM_MCC_2D_Polygon_Geometry &polygon,
+                                                    const Eigen::MatrixXd &points) const
+    {
+        return monomials.Vander(reference_element_data.MonomialsKp1,
+                                points,
+                                polygon.Centroid,
+                                polygon.Diameter).leftCols(localSpace.Nk);
+    }
 
 };
 }
