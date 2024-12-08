@@ -3,6 +3,7 @@
 #include "MapTetrahedron.hpp"
 
 #include "Quadrature_Gauss3D_Tetrahedron_PositiveWeights.hpp"
+#include "Quadrature_Gauss2D_Triangle.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -18,6 +19,14 @@ VEM_QuadratureData_3D VEM_Quadrature_3D::Compute_PCC_3D(const unsigned int order
 {
     VEM_QuadratureData_3D data;
     data.ReferenceTetrahedronQuadrature = Gedim::Quadrature::Quadrature_Gauss3D_Tetrahedron_PositiveWeights::FillPointsAndWeights(2 * order);
+    return data;
+}
+//****************************************************************************
+VEM_QuadratureData_3D VEM_Quadrature_3D::Compute_MCC_3D(const unsigned int order) const
+{
+    VEM_QuadratureData_3D data;
+    data.ReferenceTetrahedronQuadrature = Gedim::Quadrature::Quadrature_Gauss3D_Tetrahedron_PositiveWeights::FillPointsAndWeights(2 * (order + 1));
+    data.QuadratureData_2D.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * order);
     return data;
 }
 //****************************************************************************
@@ -57,16 +66,16 @@ Gedim::Quadrature::QuadratureData VEM_Quadrature_3D::PolyhedronInternalQuadratur
     return result;
 }
 //****************************************************************************
-VEM_Quadrature_3D::Faces_QuadratureData VEM_Quadrature_3D::PolyhedronFacesQuadrature(const Gedim::GeometryUtilities& geometryUtility,
-                                                                                     const std::vector<Eigen::MatrixXi>& polyhedronFaces,
-                                                                                     const std::vector<Eigen::Matrix3d>& facesRotationMatrix,
-                                                                                     const std::vector<Eigen::Vector3d>& facesTranslation,
-                                                                                     const std::vector<Eigen::Vector3d>& facesNormals,
-                                                                                     const std::vector<bool>& faceNormalDirections,
-                                                                                     const std::vector<Eigen::MatrixXd>& facesQuadraturePoints,
-                                                                                     const std::vector<Eigen::VectorXd>& facesQuadratureWeights) const
+VEM_Quadrature_3D::Faces_QuadratureData_PCC VEM_Quadrature_3D::PolyhedronFacesQuadrature(const Gedim::GeometryUtilities& geometryUtility,
+                                                                                         const std::vector<Eigen::MatrixXi>& polyhedronFaces,
+                                                                                         const std::vector<Eigen::Matrix3d>& facesRotationMatrix,
+                                                                                         const std::vector<Eigen::Vector3d>& facesTranslation,
+                                                                                         const std::vector<Eigen::Vector3d>& facesNormals,
+                                                                                         const std::vector<bool>& faceNormalDirections,
+                                                                                         const std::vector<Eigen::MatrixXd>& facesQuadraturePoints,
+                                                                                         const std::vector<Eigen::VectorXd>& facesQuadratureWeights) const
 {
-    Faces_QuadratureData result;
+    Faces_QuadratureData_PCC result;
 
     const unsigned int numFaces = polyhedronFaces.size();
 
@@ -100,6 +109,50 @@ VEM_Quadrature_3D::Faces_QuadratureData VEM_Quadrature_3D::PolyhedronFacesQuadra
                 facesQuadratureWeights[f] *
                 faceNormalDirection *
                 facesNormals[f](d);
+
+        quadraturePointOffset += numFaceQuadraturePoints;
+    }
+
+    return result;
+}
+//****************************************************************************
+VEM_Quadrature_3D::Faces_QuadratureData_MCC VEM_Quadrature_3D::PolyhedronFacesQuadrature(const VEM_QuadratureData_3D& data,
+                                                                                         const Gedim::GeometryUtilities& geometryUtility,
+                                                                                         const std::vector<std::vector<Eigen::Matrix3d>>& facesTriangulations2D,
+                                                                                         const std::vector<Eigen::Matrix3d>& facesRotationMatrix,
+                                                                                         const std::vector<Eigen::Vector3d>& facesTranslation) const
+{
+    Faces_QuadratureData_MCC result;
+    VEM_Quadrature_2D quadrature2D;
+
+    const unsigned int numFaces = facesTriangulations2D.size();
+    result.FacesQuadrature.resize(numFaces);
+
+    unsigned int numQuadraturePoints = 0;
+    for(unsigned int f = 0; f < numFaces; f++)
+    {
+        result.FacesQuadrature[f] = quadrature2D.PolygonInternalQuadrature(data.QuadratureData_2D,
+                                                                           facesTriangulations2D[f]);
+
+        numQuadraturePoints += result.FacesQuadrature[f].Points.cols();
+    }
+
+    result.BoundaryQuadrature.Points.setZero(3, numQuadraturePoints);
+    result.BoundaryQuadrature.Weights.setZero(numQuadraturePoints);
+
+    unsigned int quadraturePointOffset = 0;
+    for (unsigned int f = 0; f < numFaces; f++)
+    {
+        const unsigned int numFaceQuadraturePoints = result.FacesQuadrature[f].Points.cols();
+
+        result.BoundaryQuadrature.Points.block(0,
+                                               quadraturePointOffset,
+                                               3,
+                                               numFaceQuadraturePoints) = geometryUtility.RotatePointsFrom2DTo3D(result.FacesQuadrature[f].Points,
+                                                     facesRotationMatrix[f],
+                                                     facesTranslation[f]);
+        result.BoundaryQuadrature.Weights.segment(quadraturePointOffset,
+                                                  numFaceQuadraturePoints) = result.FacesQuadrature[f].Weights;
 
         quadraturePointOffset += numFaceQuadraturePoints;
     }

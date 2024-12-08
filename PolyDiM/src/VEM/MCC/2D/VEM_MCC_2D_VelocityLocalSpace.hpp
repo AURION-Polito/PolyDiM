@@ -22,8 +22,8 @@ private:
     MCC::VEM_MCC_Utilities<2> utilities;
     Monomials::VEM_Monomials_2D monomials;
 
-    void InitializeProjectorsComputation(const VEM_MCC_2D_ReferenceElement_Data& reference_element_data,
-                                         const Eigen::MatrixXd& polygonVertices,
+    void InitializeProjectorsComputation(const VEM_MCC_2D_Velocity_ReferenceElement_Data& reference_element_data,
+                                         const unsigned int &numEdges,
                                          const Eigen::Vector3d& polygonCentroid,
                                          const double& polygonDiameter,
                                          const Eigen::MatrixXd& internalQuadraturePoints,
@@ -58,7 +58,7 @@ private:
                                  Eigen::MatrixXd &B2Nabla,
                                  VEM_MCC_VelocityLocalSpace_Data &localSpace) const;
 public:
-    VEM_MCC_VelocityLocalSpace_Data CreateLocalSpace(const VEM_MCC_2D_ReferenceElement_Data& reference_element_data,
+    VEM_MCC_VelocityLocalSpace_Data CreateLocalSpace(const VEM_MCC_2D_Velocity_ReferenceElement_Data& reference_element_data,
                                                      const VEM_MCC_2D_Polygon_Geometry& polygon) const;
 
     /// \brief Compute matrix D: D_{ij} = dof_i(m_j).
@@ -99,7 +99,7 @@ public:
         return localSpace.VanderInternal;
     }
 
-    inline Eigen::MatrixXd ComputePolynomialsValues(const VEM_MCC_2D_ReferenceElement_Data &reference_element_data,
+    inline Eigen::MatrixXd ComputePolynomialsValues(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                                                     const VEM_MCC_VelocityLocalSpace_Data &localSpace,
                                                     const VEM_MCC_2D_Polygon_Geometry &polygon,
                                                     const Eigen::MatrixXd &points) const

@@ -2,6 +2,7 @@
 #define __VEM_MCC_2D_VelocityLocalSpace_Data_HPP
 
 #include "Eigen/Eigen"
+#include "GeometryUtilities.hpp"
 #include "QuadratureData.hpp"
 #include "VEM_Quadrature_2D.hpp"
 
@@ -22,6 +23,27 @@ struct VEM_MCC_2D_Polygon_Geometry final
     const std::vector<bool>& EdgesDirection;
     const Eigen::MatrixXd& EdgesTangent;
     const Eigen::MatrixXd& EdgesNormal;
+};
+
+struct VEM_MCC_3D_Polyhedron_Geometry final
+{
+    const Gedim::GeometryUtilities& GeometryUtility;
+
+    const Eigen::MatrixXd& Vertices;
+    const Eigen::Vector3d& Centroid;
+    const double& Measure;
+    const double& Diameter;
+    const std::vector<Eigen::MatrixXd>& TetrahedronVertices;
+
+    const std::vector<Eigen::Matrix3d>& FacesRotationMatrix;
+    const std::vector<Eigen::Vector3d>& FacesTranslation;
+    const std::vector<Eigen::Vector3d>& FacesNormal;
+    const std::vector<bool>& FacesNormalDirection;
+    const std::vector<bool>& FacesGlobalNormalDirection;
+    const std::vector<double>& FacesMeasure;
+    const std::vector<Eigen::Vector3d>& FacesCentroid2D;
+    const std::vector<double>& FacesDiameter;
+    const std::vector<std::vector<Eigen::Matrix3d>>& FacesTriangulationVertices2D;
 };
 
 struct VEM_MCC_VelocityLocalSpace_Data final

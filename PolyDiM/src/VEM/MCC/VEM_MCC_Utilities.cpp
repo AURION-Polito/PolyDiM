@@ -38,7 +38,7 @@ MatrixXd VEM_MCC_Utilities<dimension>::ComputePolynomialBasisDofs(const double& 
 {
     MatrixXd polynomialBasisDofs = MatrixXd::Zero(NumBasisFunctions, dimension * Nk);
 
-    polynomialBasisDofs.topRows(NumBoundaryBasisFunctions) = GkVanderBoundaryTimesNormal.transpose();
+    polynomialBasisDofs.topRows(NumBoundaryBasisFunctions) = GkVanderBoundaryTimesNormal;
 
     if(order > 0)
     {

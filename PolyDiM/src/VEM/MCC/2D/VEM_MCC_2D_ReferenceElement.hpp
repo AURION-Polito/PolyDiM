@@ -10,7 +10,7 @@ namespace VEM
 {
 namespace MCC
 {
-struct VEM_MCC_2D_ReferenceElement_Data final
+struct VEM_MCC_2D_Pressure_ReferenceElement_Data final
 {
     unsigned int Dimension;
     unsigned int Order;
@@ -19,7 +19,6 @@ struct VEM_MCC_2D_ReferenceElement_Data final
     unsigned int NumDofs2D; ///< Number of dofs internal to each polygon.
 
     Monomials::VEM_Monomials_Data Monomials;
-    Monomials::VEM_Monomials_Data MonomialsKp1;
     Quadrature::VEM_QuadratureData_2D Quadrature;
 };
 
@@ -27,12 +26,12 @@ struct VEM_MCC_2D_ReferenceElement_Data final
 class VEM_MCC_2D_Pressure_ReferenceElement final
 {
 public:
-    VEM_MCC_2D_ReferenceElement_Data Create(const unsigned int order) const
+    VEM_MCC_2D_Pressure_ReferenceElement_Data Create(const unsigned int order) const
     {
         Monomials::VEM_Monomials_2D monomials;
         Quadrature::VEM_Quadrature_2D quadrature;
 
-        VEM_MCC_2D_ReferenceElement_Data result;
+        VEM_MCC_2D_Pressure_ReferenceElement_Data result;
 
         result.Monomials = monomials.Compute(order);
         result.Quadrature = quadrature.Compute_MCC_2D(order);
@@ -47,16 +46,27 @@ public:
     }
 };
 
+struct VEM_MCC_2D_Velocity_ReferenceElement_Data final
+{
+    unsigned int Dimension;
+    unsigned int Order;
+    unsigned int NumDofs0D; ///< Number of dofs for each vertex.
+    unsigned int NumDofs1D; ///< Number of dofs internal to each edge.
+    unsigned int NumDofs2D; ///< Number of dofs internal to each polygon.
+
+    Monomials::VEM_Monomials_Data MonomialsKp1;
+    Quadrature::VEM_QuadratureData_2D Quadrature;
+};
 
 class VEM_MCC_2D_Velocity_ReferenceElement final
 {
 public:
-    VEM_MCC_2D_ReferenceElement_Data Create(const unsigned int order) const
+    VEM_MCC_2D_Velocity_ReferenceElement_Data Create(const unsigned int order) const
     {
         Monomials::VEM_Monomials_2D monomials;
         Quadrature::VEM_Quadrature_2D quadrature;
 
-        VEM_MCC_2D_ReferenceElement_Data result;
+        VEM_MCC_2D_Velocity_ReferenceElement_Data result;
 
         result.MonomialsKp1 = monomials.Compute(order + 1);
         result.Quadrature = quadrature.Compute_MCC_2D(order);

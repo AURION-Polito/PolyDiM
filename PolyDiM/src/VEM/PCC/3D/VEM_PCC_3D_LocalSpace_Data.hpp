@@ -26,7 +26,7 @@ struct VEM_PCC_3D_Polyhedron_Geometry final
 
     const std::vector<Eigen::Matrix3d>& FacesRotationMatrix;
     const std::vector<Eigen::Vector3d>& FacesTranslation;
-    const std::vector<Eigen::Vector3d>& FacesNormals;
+    const std::vector<Eigen::Vector3d>& FacesNormal;
     const std::vector<bool>& FacesNormalDirection;
 
     const std::vector<bool>& EdgesDirection;
@@ -36,7 +36,7 @@ struct VEM_PCC_3D_Polyhedron_Geometry final
 struct VEM_PCC_3D_LocalSpace_Data final
 {
     Gedim::Quadrature::QuadratureData InternalQuadrature;
-    Quadrature::VEM_Quadrature_3D::Faces_QuadratureData BoundaryQuadrature;
+    Quadrature::VEM_Quadrature_3D::Faces_QuadratureData_PCC BoundaryQuadrature;
 
     std::vector<VEM_PCC_2D_LocalSpace_Data> facesLocalSpace;
 

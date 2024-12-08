@@ -12,7 +12,7 @@ namespace VEM
 namespace MCC
 {
 //****************************************************************************
-VEM_MCC_VelocityLocalSpace_Data VEM_MCC_2D_Partial_VelocityLocalSpace::CreateLocalSpace(const VEM_MCC_2D_ReferenceElement_Data& reference_element_data,
+VEM_MCC_VelocityLocalSpace_Data VEM_MCC_2D_Partial_VelocityLocalSpace::CreateLocalSpace(const VEM_MCC_2D_Velocity_ReferenceElement_Data& reference_element_data,
                                                                                         const VEM_MCC_2D_Polygon_Geometry& polygon) const
 {
     VEM_MCC_VelocityLocalSpace_Data localSpace;
@@ -29,7 +29,7 @@ VEM_MCC_VelocityLocalSpace_Data VEM_MCC_2D_Partial_VelocityLocalSpace::CreateLoc
                                                                       polygon.EdgesNormal);
 
     InitializeProjectorsComputation(reference_element_data,
-                                    polygon.Vertices,
+                                    polygon.EdgesLength.size(),
                                     polygon.Centroid,
                                     polygon.Diameter,
                                     localSpace.InternalQuadrature.Points,
@@ -66,8 +66,8 @@ VEM_MCC_VelocityLocalSpace_Data VEM_MCC_2D_Partial_VelocityLocalSpace::CreateLoc
     return localSpace;
 }
 //****************************************************************************
-void VEM_MCC_2D_Partial_VelocityLocalSpace::InitializeProjectorsComputation(const VEM_MCC_2D_ReferenceElement_Data& reference_element_data,
-                                                                            const Eigen::MatrixXd& polygonVertices,
+void VEM_MCC_2D_Partial_VelocityLocalSpace::InitializeProjectorsComputation(const VEM_MCC_2D_Velocity_ReferenceElement_Data& reference_element_data,
+                                                                            const unsigned int &numEdges,
                                                                             const Eigen::Vector3d& polygonCentroid,
                                                                             const double& polygonDiameter,
                                                                             const Eigen::MatrixXd& internalQuadraturePoints,
@@ -75,9 +75,6 @@ void VEM_MCC_2D_Partial_VelocityLocalSpace::InitializeProjectorsComputation(cons
                                                                             const Eigen::MatrixXd& boundaryQuadraturePoints,
                                                                             VEM_MCC_VelocityLocalSpace_Data& localSpace) const
 {
-    const unsigned int numVertices = polygonVertices.cols();
-    const unsigned int numEdges = numVertices;
-
     localSpace.Order = reference_element_data.Order;
     localSpace.Dimension = reference_element_data.Dimension;
 
@@ -304,7 +301,7 @@ void VEM_MCC_2D_Partial_VelocityLocalSpace::ComputeValuesOnBoundary(const Eigen:
     GkVanderBoundary << GkNablaVanderBoundary,
         GkBigOPlusVanderBoundary;
 
-    localSpace.GkVanderBoundaryTimesNormal = GkVanderBoundary * concatenateEdgeNormalMatrix;
+    localSpace.GkVanderBoundaryTimesNormal = (GkVanderBoundary * concatenateEdgeNormalMatrix).transpose();
 }
 //****************************************************************************
 }

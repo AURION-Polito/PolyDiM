@@ -44,7 +44,7 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_LocalSpace::CreateLocalSpace(const VEM_PCC
                                                                            polyhedron.Faces,
                                                                            polyhedron.FacesRotationMatrix,
                                                                            polyhedron.FacesTranslation,
-                                                                           polyhedron.FacesNormals,
+                                                                           polyhedron.FacesNormal,
                                                                            polyhedron.FacesNormalDirection,
                                                                            facesQuadraturePoints,
                                                                            facesQuadratureWeights);
