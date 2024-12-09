@@ -17,7 +17,7 @@ namespace VEM
 {
 namespace PCC
 {
-/// \brief Class used for computing values of basis functions of 2D
+/// \brief Class used for computing values of basis functions of 3D
 /// Primal Conforming Constant degree Virtual Element Methods.
 class VEM_PCC_3D_LocalSpace final
 {
@@ -25,21 +25,6 @@ private:
     VEM_PCC_Utilities<3> utilities;
     Monomials::VEM_Monomials_3D monomials;
 
-    /// \brief Initialize quantities required for computing projectors.
-    /// \details This method computes \ref measure, \ref diameter, \ref
-    /// vanderInternal, \ref vanderInternalDerivatives, \ref
-    /// internalWeights, \ref vanderBoundary, \ref
-    /// vanderBoundaryDerivatives, \ref boundaryWeights, \ref
-    /// boundaryWeightsTimesNormal, \ref Hmatrix.
-    /// \param geometry The geometry used as domain for the computation of projectors. It has to be
-    /// an object of class \ref polyhedron with dimension 2.
-    /// \note The following methods have to be called on the geometry before calling this method:
-    ///  - \ref polyhedron::Compute2DpolyhedronProperties()
-    ///  - \ref polyhedron::ComputePositionPoint()
-    ///  - \ref polyhedron::ComputeNormalSign()
-    ///  .
-    /// Moreover, the method \ref Segment::ComputeNormal() has to be called on each edge of the
-    /// geometry.
     void InitializeProjectorsComputation(const VEM_PCC_3D_ReferenceElement_Data& reference_element_data,
                                          const Eigen::MatrixXd& polyhedronVertices,
                                          const Eigen::MatrixXi& polyhedronEdges,
@@ -52,8 +37,6 @@ private:
                                          const Eigen::MatrixXd &edgeInternalQuadraturePoints,
                                          VEM_PCC_3D_LocalSpace_Data &localSpace) const;
 
-    /// \brief Compute matrix \ref piNabla.
-    /// \note This requires \ref InitializeProjectorsComputation() to be called previously.
     void ComputePiNabla(const VEM_PCC_3D_ReferenceElement_Data& reference_element_data,
                         const double& polyhedronMeasure,
                         const double& polyhedronDiameter,
@@ -63,15 +46,12 @@ private:
                         VEM_PCC_3D_LocalSpace_Data& localSpace) const;
 
 
-    /// \brief Compute matrices \ref pi0km1Der.
     void ComputeL2ProjectorsOfDerivatives(const VEM_PCC_3D_ReferenceElement_Data& reference_element_data,
                                           const double& polyhedronMeasure,
                                           const double& polyhedronDiameter,
                                           const std::vector<Eigen::VectorXd>& boundaryQuadratureWeightsTimesNormal,
                                           VEM_PCC_3D_LocalSpace_Data& localSpace) const;
 
-    /// \brief Compute matrices \ref pi0km1 and \ref pi0k.
-    /// \note This requires \ref ComputePiNabla() to be called previously.
     void ComputeL2Projectors(const double& polyhedronMeasure,
                              VEM_PCC_3D_LocalSpace_Data& localSpace) const
     {
@@ -88,10 +68,6 @@ private:
                                       localSpace.Pi0k);
     };
 
-
-    /// \brief Compute the stabilization matrix with PiNabla projector.
-    /// \note used for method with stabilization
-    /// \return stabilization matrix, size numQuadraturePoints x NumberBasisFunctions()
     inline void ComputeStabilizationMatrix(const double& polyhedronDiameter,
                                            VEM_PCC_3D_LocalSpace_Data& localSpace) const
     {
@@ -99,8 +75,7 @@ private:
                                                                      polyhedronDiameter,
                                                                      localSpace.Dmatrix);
     }
-    /// \brief Compute matrix \ref stabMatrix with Pi0k projector.
-    /// \note This requires \ref ComputeL2Projectors() to be called previously.
+
     inline void ComputeStabilizationMatrixPi0k(const double& polyhedronMeasure,
                                                VEM_PCC_3D_LocalSpace_Data& localSpace) const
     {
@@ -115,15 +90,15 @@ private:
                                const Eigen::MatrixXd &boundaryQuadraturePoints,
                                const Eigen::VectorXd &boundaryQuadratureWeights,
                                VEM_PCC_3D_LocalSpace_Data &localSpace) const;
+
+    void ComputePolynomialsDofs(const double& polytopeMeasure,
+                                VEM_PCC_3D_LocalSpace_Data &localSpace) const;
+
 public:
     VEM_PCC_3D_LocalSpace_Data CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data& reference_element_data_2D,
                                                 const VEM_PCC_3D_ReferenceElement_Data &reference_element_data_3D,
                                                 const std::vector<VEM_PCC_2D_Polygon_Geometry>& polygonalFaces,
                                                 const VEM_PCC_3D_Polyhedron_Geometry &polyhedron) const;
-
-    /// \brief Compute matrix D: D_{ij} = dof_i(m_j).
-    void ComputePolynomialsDofs(const double& polytopeMeasure,
-                                VEM_PCC_3D_LocalSpace_Data &localSpace) const;
 
     inline Eigen::MatrixXd ComputeBasisFunctionsValues(const VEM_PCC_3D_LocalSpace_Data& localSpace,
                                                        const ProjectionTypes& projectionType) const

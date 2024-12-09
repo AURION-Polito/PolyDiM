@@ -43,7 +43,7 @@ struct VEM_PCC_PerformanceAnalysis final
     {
         VEM_PCC_PerformanceAnalysis_Data result;
 
-        double invDiameter = 1.0 / polytopeDiameter;
+        const double invDiameter = 1.0 / polytopeDiameter;
 
         const Eigen::MatrixXd& piNabla = vem_local_space_data.PiNabla;
         const Eigen::MatrixXd& pi0km1 = vem_local_space_data.Pi0km1;
