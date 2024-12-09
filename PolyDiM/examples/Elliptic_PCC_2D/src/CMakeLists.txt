@@ -1,3 +1,5 @@
+list(APPEND elliptic_PCC_2D_headers ${CMAKE_CURRENT_SOURCE_DIR}/program_configuration.hpp)
+
 list(APPEND elliptic_PCC_2D_includes ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(elliptic_PCC_2D_sources ${elliptic_PCC_2D_sources} PARENT_SCOPE)
