@@ -41,57 +41,13 @@ namespace Elliptic_PCC_2D
         Gedim::Configurations::AddProperty("MeshGenerator",
                                            static_cast<unsigned int>(MeshGenerators::Tri),
                                            "Mesh 2D gereator type, 0 - triangle; 1 - OFF Importer; (Default: 0)");
-        Gedim::Configurations::AddProperty("MeshImporterFolder",
+        Gedim::Configurations::AddProperty("MeshOFF_FilePath",
                                            "./",
-                                           "Mesh importer folder (Default: './')");
-        Gedim::Configurations::AddProperty("MeshImporterSeparator",
-                                           ';',
-                                           "Mesh importer separator (Default: ';')");
-        Gedim::Configurations::AddProperty("MeshIsConcave",
-                                           false,
-                                           "True if the mesh is concave (Default: false)");
-        Gedim::Configurations::AddProperty("MeshConvexImporterFolder",
-                                           "./",
-                                           "Convex Mesh importer folder, use it when meshIsConcave=true (Default: './')");
+                                           "Mesh OFF imported file path, use it when meshIsConcave=true (Default: './')");
 
-
-        Gedim::Configurations::AddProperty("MeshOFF_Original_FilePath",
-                                           "./",
-                                           "Original Mesh OFF imported file path, use it when meshIsConcave=true (Default: './')");
-        Gedim::Configurations::AddProperty("MeshOFF_Aggregated_FilePath",
-                                           "./",
-                                           "Aggregated Mesh OFF imported file path, use it when meshIsConcave=true (Default: './')");
-        Gedim::Configurations::AddProperty("HierarchyMap_FilePath",
-                                           "./",
-                                           "HierarchyMap OFF imported file path, use it when meshIsConcave=true (Default: './')");
-
-
-
-        Gedim::Configurations::AddProperty("MeshMinimumCellSize",
+        Gedim::Configurations::AddProperty("MeshMaxArea",
                                            0.1,
-                                           "Mesh 2D minimum cell 2D size (Default: 0.1)");
-
-        Gedim::Configurations::AddProperty("MeshNumRectanglesTangentBasis",
-                                           static_cast<unsigned int>(1),
-                                           "Mesh 2D Number of rectangles tangent to basis (Default: 1)");
-        Gedim::Configurations::AddProperty("MeshNumRectanglesTangentHeight",
-                                           static_cast<unsigned int>(1),
-                                           "Mesh 2D Number of rectangles tangent to height (Default: 1)");
-
-        Gedim::Configurations::AddProperty("MeshNumAddedHangingNodesToEachRectangle",
-                                           static_cast<unsigned int>(0),
-                                           "Mesh 2D Number of hanging nodes which must be added to each rectangle (Default: 0)");
-
-        Gedim::Configurations::AddProperty("MeshNumPointsVoronoi",
-                                           static_cast<unsigned int>(5),
-                                           "Mesh 2D Number of points to generate a random Voronoi MEsh 2D (Default: 5)");
-
-        Gedim::Configurations::AddProperty("MeshNumIterationsVoronoi",
-                                           static_cast<unsigned int>(2),
-                                           "Mesh 2D Number of iterations to generate a random Voronoi MEsh 2D (Default: 2)");
-
-
-
+                                           "Mesh 2D maximum cell area (Default: 0.1)");
 
         /// Method parameters
         Gedim::Configurations::AddProperty("VemOrder",
@@ -122,39 +78,10 @@ namespace Elliptic_PCC_2D
 
       inline MeshGenerators MeshGenerator() const
       { return (MeshGenerators)Gedim::Configurations::GetPropertyValue<unsigned int>("MeshGenerator"); }
-      inline string MeshImporterFolder() const
-      { return Gedim::Configurations::GetPropertyValue<string>("MeshImporterFolder"); }
-      inline char MeshImporterSeparator() const
-      { return Gedim::Configurations::GetPropertyValue<char>("MeshImporterSeparator"); }
-      inline bool MeshIsConcave() const
-      { return Gedim::Configurations::GetPropertyValue<bool>("MeshIsConcave"); }
-      inline string MeshConvexImporterFolder() const
-      { return Gedim::Configurations::GetPropertyValue<string>("MeshConvexImporterFolder"); }
-
-      inline std::string MeshOFF_Original_FilePath() const
-      { return Gedim::Configurations::GetPropertyValue<string>("MeshOFF_Original_FilePath"); }
-      inline std::string MeshOFF_Aggregated_FilePath() const
-      { return Gedim::Configurations::GetPropertyValue<string>("MeshOFF_Aggregated_FilePath"); }
-      inline std::string HierarchyMap_FilePath() const
-      { return Gedim::Configurations::GetPropertyValue<string>("HierarchyMap_FilePath"); }
-
-      inline double MeshMinimumCellSize() const
-      { return Gedim::Configurations::GetPropertyValue<double>("MeshMinimumCellSize"); }
-
-      inline unsigned int MeshNumRectanglesTangentBasis() const
-      { return Gedim::Configurations::GetPropertyValue<unsigned int>("MeshNumRectanglesTangentBasis"); }
-
-      inline unsigned int MeshNumRectanglesTangentHeight() const
-      { return Gedim::Configurations::GetPropertyValue<unsigned int>("MeshNumRectanglesTangentHeight"); }
-
-      inline unsigned int MeshNumAddedHangingNodesToEachRectangle() const
-      { return Gedim::Configurations::GetPropertyValue<unsigned int>("MeshNumAddedHangingNodesToEachRectangle"); }
-
-
-      inline unsigned int MeshNumPointsVoronoi() const
-      { return Gedim::Configurations::GetPropertyValue<unsigned int>("MeshNumPointsVoronoi"); }
-      inline unsigned int MeshNumIterationsVoronoi() const
-      { return Gedim::Configurations::GetPropertyValue<unsigned int>("MeshNumIterationsVoronoi"); }
+      inline std::string MeshOFF_FilePath() const
+      { return Gedim::Configurations::GetPropertyValue<string>("MeshOFF_FilePath"); }
+      inline double MeshMaxArea() const
+      { return Gedim::Configurations::GetPropertyValue<double>("MeshMaxArea"); }
 
       inline bool ComputeConditionNumber() const
       { return Gedim::Configurations::GetPropertyValue<bool>("ComputeConditionNumber"); }

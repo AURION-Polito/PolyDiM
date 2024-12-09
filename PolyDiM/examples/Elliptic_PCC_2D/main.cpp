@@ -46,6 +46,13 @@ int main(int argc, char** argv)
 
   const string logFolder = exportFolder + "/Log";
 
+  /// Set Profiler
+  Gedim::Profiler::ActivateProfiler = true;
+
+  /// Set Log folder
+  Gedim::Output::CreateFolder(logFolder);
+  Gedim::LogFile::LogFolder = logFolder;
+
   /// Export Configuration of the following Run
   Gedim::Configurations::ExportToIni(exportFolder + "/Parameters.ini",
                                      false);
@@ -79,14 +86,14 @@ int main(int argc, char** argv)
     case Elliptic_PCC_2D::Program_configuration::MeshGenerators::Tri:
     {
       meshUtilities.CreateTriangularMesh(domain.Domain.Vertices,
-                                         config.MeshMinimumCellSize(),
+                                         config.MeshMaxArea(),
                                          domainMesh);
     }
       break;
 
     case Elliptic_PCC_2D::Program_configuration::MeshGenerators::OFFImporter:
     {
-      meshUtilities.ImportObjectFileFormat(config.MeshOFF_Aggregated_FilePath(),
+      meshUtilities.ImportObjectFileFormat(config.MeshOFF_FilePath(),
                                            domainMesh);
 
       meshUtilities.ComputeCell1DCell2DNeighbours(domainMesh);
