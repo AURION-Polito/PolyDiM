@@ -40,25 +40,25 @@ namespace Elliptic_PCC_2D
       };
 
     private:
-      void ComputeStrongTerm(const Gedim::GeometryUtilities geometryUtilities,
-                             const Gedim::IMeshDAO& mesh,
-                             const Gedim::IDOFManagement& dofManager,
-                             const Gedim::IStrongBoundaryCondition& strongBoundaryCondition,
-                             Gedim::IArray& solutionDirichlet) const;
+//      void ComputeStrongTerm(const Gedim::GeometryUtilities geometryUtilities,
+//                             const Gedim::IMeshDAO& mesh,
+//                             const Gedim::IDOFManagement& dofManager,
+//                             const Gedim::IStrongBoundaryCondition& strongBoundaryCondition,
+//                             Gedim::IArray& solutionDirichlet) const;
 
-      void ComputeWeakTerm(const Gedim::IMeshDAO& mesh,
-                           const unsigned int& cell2DIndex,
-                           const Eigen::VectorXd& cell2DEdgeLengths,
-                           const Eigen::MatrixXd& cell2DEdgeTangents,
-                           const Eigen::MatrixXd& cell2DEdgeNormals,
-                           const Eigen::MatrixXd& cell2DVertices,
-                           const std::vector<bool>& cell2DEdgeDirections,
-                           const Gedim::IDOFManagement& dofManager,
-                           const Gedim::VEM_IValues_PCC_2D& vemValues,
-                           const Gedim::VEM_ValuesData& vemLocalSpace,
-                           const Gedim::VEM_IQuadrature2D& vemQuadrature,
-                           const Gedim::IWeakBoundaryCondition& weakBoundaryCondition,
-                           Gedim::IArray& rightHandSide) const;
+//      void ComputeWeakTerm(const Gedim::IMeshDAO& mesh,
+//                           const unsigned int& cell2DIndex,
+//                           const Eigen::VectorXd& cell2DEdgeLengths,
+//                           const Eigen::MatrixXd& cell2DEdgeTangents,
+//                           const Eigen::MatrixXd& cell2DEdgeNormals,
+//                           const Eigen::MatrixXd& cell2DVertices,
+//                           const std::vector<bool>& cell2DEdgeDirections,
+//                           const Gedim::IDOFManagement& dofManager,
+//                           const Gedim::VEM_IValues_PCC_2D& vemValues,
+//                           const Gedim::VEM_ValuesData& vemLocalSpace,
+//                           const Gedim::VEM_IQuadrature2D& vemQuadrature,
+//                           const Gedim::IWeakBoundaryCondition& weakBoundaryCondition,
+//                           Gedim::IArray& rightHandSide) const;
     public:
       Elliptic_PCC_2D_Problem_Data Assemble(const Gedim::GeometryUtilities& geometryUtilities,
                                             const Gedim::MeshMatricesDAO& mesh,
