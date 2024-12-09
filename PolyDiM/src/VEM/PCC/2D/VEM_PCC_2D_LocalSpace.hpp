@@ -80,10 +80,11 @@ private:
 public:
 
     /// \brief Create and Initialize all the variables contained in \ref VEM::PCC::VEM_PCC_2D_LocalSpace_Data
-    /// \input The functions requires
+    /// \param The functions requires
     ///         - an object of type \ref VEM::PCC::VEM_PCC_2D_ReferenceElement_Data which contains monomials, quadrature and the number of degrees of freedom,
     /// counting in order DOFS associated with vertices, edges and internal values.
     ///         - an object of type \ref VEM::PCC::VEM_PCC_2D_Polygon_Geometry which contains the geoemtric properties of the elements.
+    ///
     /// \return An object of type \ref VEM::PCC::VEM_PCC_2D_LocalSpace_Data.
     VEM_PCC_2D_LocalSpace_Data CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                                 const VEM_PCC_2D_Polygon_Geometry &polygon) const;
