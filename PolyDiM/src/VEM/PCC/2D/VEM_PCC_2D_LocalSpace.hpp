@@ -19,20 +19,6 @@ private:
     VEM_PCC_Utilities<2> utilities;
     Monomials::VEM_Monomials_2D monomials;
 
-    /// \brief Initialize quantities required for computing projectors.
-    /// \details This method computes \ref measure, \ref diameter, \ref
-    /// vanderInternal, \ref vanderInternalDerivatives, \ref
-    /// internalWeights, \ref vanderBoundary, \ref
-    /// vanderBoundaryDerivatives, \ref boundaryWeights, \ref
-    /// boundaryWeightsTimesNormal, \ref Hmatrix.
-    /// \param geometry The geometry used as domain for the computation of projectors. It has to be
-    /// an object of class \ref Polygon with dimension 2.
-    /// \note The following methods have to be called on the geometry before calling this method:
-    ///  - \ref Polygon::Compute2DPolygonProperties()
-    ///  - \ref Polygon::ComputePositionPoint()
-    ///  - \ref Polygon::ComputeNormalSign()
-    /// Moreover, the method \ref Segment::ComputeNormal() has to be called on each edge of the
-    /// geometry.
     void InitializeProjectorsComputation(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                          const Eigen::MatrixXd &polygonVertices,
                                          const Eigen::Vector3d &polygonCentroid,
@@ -42,8 +28,6 @@ private:
                                          const Eigen::MatrixXd &boundaryQuadraturePoints,
                                          VEM_PCC_2D_LocalSpace_Data &localSpace) const;
 
-    /// \brief Compute matrix \ref piNabla.
-    /// \note This requires \ref InitializeProjectorsComputation() to be called previously.
     void ComputePiNabla(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                         const double &polygonMeasure,
                         const double &polygonDiameter,
@@ -52,15 +36,12 @@ private:
                         const std::vector<Eigen::VectorXd> &boundaryQuadratureWeightsTimesNormal,
                         VEM_PCC_2D_LocalSpace_Data &localSpace) const;
 
-    /// \brief Compute matrices \ref pi0km1Der.
     void ComputeL2ProjectorsOfDerivatives(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                           const double &polygonMeasure,
                                           const double &polygonDiameter,
                                           const std::vector<Eigen::VectorXd> &boundaryQuadratureWeightsTimesNormal,
                                           VEM_PCC_2D_LocalSpace_Data &localSpace) const;
 
-    /// \brief Compute matrices \ref pi0km1 and \ref pi0k.
-    /// \note This requires \ref ComputePiNabla() to be called previously.
     void ComputeL2Projectors(const double &polygonMeasure,
                              VEM_PCC_2D_LocalSpace_Data &localSpace) const
     {
@@ -77,9 +58,9 @@ private:
                                       localSpace.Pi0k);
     };
 
-    /// \brief Compute the stabilization matrix with PiNabla projector.
-    /// \note used for method with stabilization
-    /// \return stabilization matrix, size numQuadraturePoints x NumberBasisFunctions()
+    void ComputePolynomialsDofs(const double &polytopeMeasure,
+                                VEM_PCC_2D_LocalSpace_Data &localSpace) const;
+
     inline void ComputeStabilizationMatrix(const double &polygonDiameter,
                                            VEM_PCC_2D_LocalSpace_Data &localSpace) const
     {
@@ -87,8 +68,7 @@ private:
                                                                      polygonDiameter,
                                                                      localSpace.Dmatrix);
     }
-    /// \brief Compute matrix \ref stabMatrix with Pi0k projector.
-    /// \note This requires \ref ComputeL2Projectors() to be called previously.
+
     inline void ComputeStabilizationMatrixPi0k(const double &polygonMeasure,
                                                VEM_PCC_2D_LocalSpace_Data &localSpace) const
     {
@@ -98,10 +78,13 @@ private:
     }
 
 public:
-    /// \brief Compute matrix D: D_{ij} = dof_i(m_j).
-    void ComputePolynomialsDofs(const double &polytopeMeasure,
-                                VEM_PCC_2D_LocalSpace_Data &localSpace) const;
 
+    /// \brief Create and Initialize all the variables contained in \ref VEM::PCC::VEM_PCC_2D_LocalSpace_Data
+    /// \input The functions requires
+    ///         - an object of type \ref VEM::PCC::VEM_PCC_2D_ReferenceElement_Data which contains monomials, quadrature and the number of degrees of freedom,
+    /// counting in order DOFS associated with vertices, edges and internal values.
+    ///         - an object of type \ref VEM::PCC::VEM_PCC_2D_Polygon_Geometry which contains the geoemtric properties of the elements.
+    /// \return An object of type \ref VEM::PCC::VEM_PCC_2D_LocalSpace_Data.
     VEM_PCC_2D_LocalSpace_Data CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                                 const VEM_PCC_2D_Polygon_Geometry &polygon) const;
 
