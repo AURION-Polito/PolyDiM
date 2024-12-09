@@ -1,6 +1,10 @@
 ﻿#include "assembler.hpp"
 
+
 #include "Quadrature_Gauss1D.hpp"
+
+#include "VEM_PCC_2D_LocalSpace.hpp"
+#include "EllipticEquation.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -9,7 +13,7 @@ namespace Elliptic_PCC_2D
 {
   // ***************************************************************************
   Assembler::Elliptic_PCC_2D_Problem_Data Assembler::Assemble(const Gedim::GeometryUtilities& geometryUtilities,
-                                                              const Gedim::MeshUtilities& mesh,
+                                                              const Gedim::MeshMatricesDAO& mesh,
                                                               const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
                                                               const Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData& dofs_data,
                                                               const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
@@ -26,6 +30,123 @@ namespace Elliptic_PCC_2D
     result.rightHandSide.SetSize(dofs_data.NumberDOFs);
     result.solution.SetSize(dofs_data.NumberDOFs);
     result.solutionDirichlet.SetSize(dofs_data.NumberStrongs);
+
+    Polydim::PDETools::Equations::EllipticEquation equation;
+
+    for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); ++c)
+    {
+      const Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry polygon =
+      {
+        mesh_geometric_data.Cell2DsVertices.at(c),
+        mesh_geometric_data.Cell2DsCentroids.at(c),
+        mesh_geometric_data.Cell2DsAreas.at(c),
+        mesh_geometric_data.Cell2DsDiameters.at(c),
+        mesh_geometric_data.Cell2DsTriangulations.at(c),
+        mesh_geometric_data.Cell2DsEdgeLengths.at(c),
+        mesh_geometric_data.Cell2DsEdgeDirections.at(c),
+        mesh_geometric_data.Cell2DsEdgeTangents.at(c),
+        mesh_geometric_data.Cell2DsEdgeNormals.at(c)
+      };
+
+      Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace vem_local_space;
+
+      const auto local_space = vem_local_space.CreateLocalSpace(reference_element_data,
+                                                                polygon);
+
+      const auto basis_functions_values = vem_local_space.ComputeBasisFunctionsValues(local_space,
+                                                                                      Polydim::VEM::PCC::ProjectionTypes::Pi0k);
+
+
+      const auto basis_functions_derivative_values = vem_local_space.ComputeBasisFunctionsDerivativeValues(local_space,
+                                                                                                           Polydim::VEM::PCC::ProjectionTypes::Pi0km1Der);
+
+
+      const auto diffusion_term_values = diffusionTerm(local_space.InternalQuadrature.Points);
+      const auto source_term_values = sourceTerm(local_space.InternalQuadrature.Points);
+
+
+      const auto local_A = equation.ComputeCellDiffusionMatrix(diffusion_term_values,
+                                                               basis_functions_derivative_values,
+                                                               local_space.InternalQuadrature.Weights);
+
+      const auto local_stab_A = diffusion_term_values.cwiseAbs().maxCoeff() *
+                                local_space.StabMatrix;
+
+      const auto local_rhs = equation.ComputeCellForcingTerm(source_term_values,
+                                                             basis_functions_values,
+                                                             local_space.InternalQuadrature.Weights);
+
+      const auto& global_dofs = dofs_data.CellsGlobalDOFs[2].at(c);
+
+      for (unsigned int loc_i = 0; loc_i < global_dofs.size(); ++loc_i)
+      {
+        const auto& global_dof_i = global_dofs.at(loc_i);
+        const auto& local_dof_i = dofs_data.CellsDOFs.at(global_dof_i.Dimension).at(global_dof_i.CellIndex).at(global_dof_i.DOFIndex);
+
+        switch (local_dof_i.Type)
+        {
+          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
+            continue;
+          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
+            break;
+          default:
+            throw std::runtime_error("Unknown DOF Type");
+        }
+
+        const unsigned int global_index_i = local_dof_i.Global_Index;
+
+        result.rightHandSide.AddValue(global_index_i,
+                                      local_rhs[loc_i]);
+
+        for (unsigned int loc_j = 0; loc_j < global_dofs.size(); ++loc_j)
+        {
+          const auto& global_dof_j = global_dofs.at(loc_j);
+          const auto& local_dof_j = dofs_data.CellsDOFs.at(global_dof_j.Dimension).at(global_dof_j.CellIndex).at(global_dof_j.DOFIndex);
+
+          switch (local_dof_i.Type)
+          {
+            case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
+              continue;
+            case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
+              break;
+            default:
+              throw std::runtime_error("Unknown DOF Type");
+          }
+        }
+
+      }
+
+      for (unsigned int i = 0; i < cellNumLocals; i++)
+      {
+        if (dofManager.IsStrongBoundaryCondition(c, i))
+          continue;
+
+        const int globalDof_i = dofManager.GlobalIndex(c, i);
+        rightHandSide.AddValue(globalDof_i,
+                               cellRightHandSide(i));
+
+        for(unsigned int j = 0; j < cellNumLocals; j++)
+        {
+          if(dofManager.IsStrongBoundaryCondition(c, j))
+          {
+            const int globalDirichlet_j = dofManager.PartialGlobalIndex(c, j);
+            dirichletMatrixA.Triplet(globalDof_i, globalDirichlet_j, cellMatrixA(i,j));
+          }
+          else
+          {
+            const int globalDof_j = dofManager.GlobalIndex(c, j);
+            globalMatrixA.Triplet(globalDof_i, globalDof_j, cellMatrixA(i, j));
+          }
+        }
+      }
+
+
+    }
+
+    result.rightHandSide.Create();
+    result.solutionDirichlet.Create();
+    result.globalMatrixA.Create();
+    result.dirichletMatrixA.Create();
 
     return result;
   }
