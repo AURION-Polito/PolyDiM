@@ -1,6 +1,7 @@
 #include "MeshUtilities.hpp"
 #include "VTKUtilities.hpp"
 #include "program_configuration.hpp"
+#include "MeshMatricesDAO.hpp"
 
 struct ProblemData final
 {
@@ -65,6 +66,60 @@ int main(int argc, char** argv)
     vtkUtilities.AddPolygon(domain.Domain.Vertices);
     vtkUtilities.Export(exportVtuFolder + "/Domain.vtu");
   }
+
+  /// Create domain mesh
+  Gedim::Output::PrintGenericMessage("CreateMesh...", true);
+  Gedim::Profiler::StartTime("CreateMesh");
+
+  Gedim::MeshMatrices domainMeshData;
+  Gedim::MeshMatricesDAO domainMesh(domainMeshData);
+
+  switch (config.MeshGenerator())
+  {
+    case Elliptic_PCC_2D::Program_configuration::MeshGenerators::Tri:
+    {
+      meshUtilities.CreateTriangularMesh(domain.Domain.Vertices,
+                                         config.MeshMinimumCellSize(),
+                                         domainMesh);
+    }
+      break;
+
+    case Elliptic_PCC_2D::Program_configuration::MeshGenerators::OFFImporter:
+    {
+      meshUtilities.ImportObjectFileFormat(config.MeshOFF_Aggregated_FilePath(),
+                                           domainMesh);
+
+      meshUtilities.ComputeCell1DCell2DNeighbours(domainMesh);
+
+      const Eigen::MatrixXd domainEdgesTangent = geometryUtilities.PolygonEdgeTangents(domain.Domain.Vertices);
+
+      for (unsigned int e = 0; e < domainEdgesTangent.cols(); e++)
+      {
+        const Eigen::Vector3d& domainEdgeOrigin = domain.Domain.Vertices.col(e);
+        const Eigen::Vector3d& domainEdgeTangent = domainEdgesTangent.col(e);
+        const double domainEdgeSquaredLength = domainEdgeTangent.squaredNorm();
+        meshUtilities.SetMeshMarkersOnLine(geometryUtilities,
+                                           domainEdgeOrigin,
+                                           domainEdgeTangent,
+                                           domainEdgeSquaredLength,
+                                           domain.Domain.EdgeBoundaryConditions[e],
+                                           domainMesh);
+      }
+    }
+      break;
+    default:
+      throw runtime_error("MeshGenerator " +
+                          to_string((unsigned int)config.MeshGenerator()) +
+                          " not supported");
+  }
+
+  // Export the domain mesh
+  {
+    meshUtilities.ExportMeshToVTU(domainMesh,
+                                  exportVtuFolder,
+                                  "Domain_Mesh");
+  }
+
 
   return 0;
 }
