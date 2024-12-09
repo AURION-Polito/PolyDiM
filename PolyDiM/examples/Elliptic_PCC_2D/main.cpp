@@ -1,7 +1,9 @@
 #include "MeshUtilities.hpp"
+#include "VEM_PCC_2D_ReferenceElement.hpp"
 #include "VTKUtilities.hpp"
 #include "program_configuration.hpp"
 #include "MeshMatricesDAO.hpp"
+#include "DOFsManager.hpp"
 
 struct ProblemData final
 {
@@ -13,6 +15,28 @@ struct ProblemData final
     };
 
     Domain Domain;
+};
+
+struct MeshMatricesDAO_mesh_connectivity_data final
+{
+    Gedim::MeshMatricesDAO& mesh_data;
+
+    std::array<unsigned int, 2> Cell1D_vertices(const unsigned int cell1D_index) const
+    {
+      return {
+        mesh_data.Cell1DOrigin(cell1D_index), mesh_data.Cell1DEnd(cell1D_index)
+      };
+    }
+
+    std::vector<unsigned int> Cell2D_vertices(const unsigned int cell2D_index) const
+    {
+      return mesh_data.Cell2DVertices(cell2D_index);
+    }
+
+    std::vector<unsigned int> Cell2D_edges(const unsigned int cell2D_index) const
+    {
+      return mesh_data.Cell2DEdges(cell2D_index);
+    }
 };
 
 int main(int argc, char** argv)
@@ -78,8 +102,8 @@ int main(int argc, char** argv)
   Gedim::Output::PrintGenericMessage("CreateMesh...", true);
   Gedim::Profiler::StartTime("CreateMesh");
 
-  Gedim::MeshMatrices domainMeshData;
-  Gedim::MeshMatricesDAO domainMesh(domainMeshData);
+  Gedim::MeshMatrices meshData;
+  Gedim::MeshMatricesDAO mesh(meshData);
 
   switch (config.MeshGenerator())
   {
@@ -87,16 +111,16 @@ int main(int argc, char** argv)
     {
       meshUtilities.CreateTriangularMesh(domain.Domain.Vertices,
                                          config.MeshMaxArea(),
-                                         domainMesh);
+                                         mesh);
     }
       break;
 
     case Elliptic_PCC_2D::Program_configuration::MeshGenerators::OFFImporter:
     {
       meshUtilities.ImportObjectFileFormat(config.MeshOFF_FilePath(),
-                                           domainMesh);
+                                           mesh);
 
-      meshUtilities.ComputeCell1DCell2DNeighbours(domainMesh);
+      meshUtilities.ComputeCell1DCell2DNeighbours(mesh);
 
       const Eigen::MatrixXd domainEdgesTangent = geometryUtilities.PolygonEdgeTangents(domain.Domain.Vertices);
 
@@ -110,7 +134,7 @@ int main(int argc, char** argv)
                                            domainEdgeTangent,
                                            domainEdgeSquaredLength,
                                            domain.Domain.EdgeBoundaryConditions[e],
-                                           domainMesh);
+                                           mesh);
       }
     }
       break;
@@ -125,7 +149,7 @@ int main(int argc, char** argv)
 
   // Export the domain mesh
   {
-    meshUtilities.ExportMeshToVTU(domainMesh,
+    meshUtilities.ExportMeshToVTU(mesh,
                                   exportVtuFolder,
                                   "Domain_Mesh");
   }
@@ -136,16 +160,81 @@ int main(int argc, char** argv)
 
   Gedim::MeshUtilities::MeshGeometricData2D meshGeometricData;
 
-  std::vector<Gedim::GeometryUtilities::PolygonTypes> cell2Ds_types(domainMesh.Cell2DTotalNumber(),
+  std::vector<Gedim::GeometryUtilities::PolygonTypes> cell2Ds_types(mesh.Cell2DTotalNumber(),
                                                                     Gedim::GeometryUtilities::PolygonTypes::Generic_Concave);
   meshGeometricData = meshUtilities.FillMesh2DGeometricData(geometryUtilities,
-                                                            domainMesh,
+                                                            mesh,
                                                             cell2Ds_types);
 
   Gedim::Profiler::StopTime("ComputeGeometricProperties");
   Gedim::Output::PrintStatusProgram("ComputeGeometricProperties");
 
+  /// Initialize Discrete Space
 
+  Gedim::Output::PrintGenericMessage("CreateVEMSpace of order " + to_string(config.VemOrder()) + " and DOFs...", true);
+  Gedim::Profiler::StartTime("CreateVEMSpace");
+
+  Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement vem_reference_element;
+
+  const auto reference_element_data = vem_reference_element.Create(config.VemOrder());
+
+  Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo meshDOFsInfo;
+  meshDOFsInfo.CellsNumDOFs[0].resize(mesh.Cell0DTotalNumber(),
+                                      reference_element_data.NumDofs0D);
+  meshDOFsInfo.CellsBoundaryInfo[0].resize(mesh.Cell0DTotalNumber(),
+                                           {
+                                             Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
+                                             0
+                                           });
+  meshDOFsInfo.CellsNumDOFs[1].resize(mesh.Cell1DTotalNumber(),
+                                      reference_element_data.NumDofs1D);
+  meshDOFsInfo.CellsBoundaryInfo[1].resize(mesh.Cell1DTotalNumber(),
+                                           {
+                                             Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
+                                             0
+                                           });
+  meshDOFsInfo.CellsNumDOFs[2].resize(mesh.Cell2DTotalNumber(),
+                                      reference_element_data.NumDofs2D);
+  meshDOFsInfo.CellsBoundaryInfo[2].resize(mesh.Cell2DTotalNumber(),
+                                           {
+                                             Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
+                                             0
+                                           });
+
+  for (unsigned int p = 0; p < mesh.Cell0DTotalNumber(); ++p)
+  {
+    if (mesh.Cell0DMarker(p) == 0)
+      continue;
+
+    auto& boundary_info =  meshDOFsInfo.CellsBoundaryInfo[0][p];
+    boundary_info.Marker = 1;
+    boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong;
+  }
+
+  for (unsigned int e = 0; e < mesh.Cell1DTotalNumber(); ++e)
+  {
+    if (mesh.Cell1DMarker(e) == 0)
+      continue;
+
+    auto& boundary_info =  meshDOFsInfo.CellsBoundaryInfo[1][e];
+    boundary_info.Marker = 1;
+    boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong;
+  }
+
+  MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data = {
+    mesh
+  };
+
+  Polydim::PDETools::DOFs::DOFsManager<2> dofManager;
+  const auto dof_data = dofManager.CreateDOFs(meshDOFsInfo,
+                                              mesh_connectivity_data);
+
+  Gedim::Output::PrintGenericMessage("\tVEM Space with " +
+                                     to_string(dof_data.NumberDOFs) + " DOFs and " +
+                                     to_string(dof_data.NumberStrongs) + " STRONGs", true);
+
+  Gedim::Profiler::StopTime("CreateVEMSpace");
+  Gedim::Output::PrintStatusProgram("CreateVEMSpace");
 
   return 0;
 }
