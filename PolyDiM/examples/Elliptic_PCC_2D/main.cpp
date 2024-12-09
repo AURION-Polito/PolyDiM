@@ -4,6 +4,9 @@
 #include "program_configuration.hpp"
 #include "MeshMatricesDAO.hpp"
 #include "DOFsManager.hpp"
+#include "Eigen_CholeskySolver.hpp"
+#include "assembler.hpp"
+
 
 struct ProblemData final
 {
@@ -226,15 +229,55 @@ int main(int argc, char** argv)
   };
 
   Polydim::PDETools::DOFs::DOFsManager<2> dofManager;
-  const auto dof_data = dofManager.CreateDOFs(meshDOFsInfo,
-                                              mesh_connectivity_data);
+  const auto dofs_data = dofManager.CreateDOFs(meshDOFsInfo,
+                                               mesh_connectivity_data);
 
   Gedim::Output::PrintGenericMessage("\tVEM Space with " +
-                                     to_string(dof_data.NumberDOFs) + " DOFs and " +
-                                     to_string(dof_data.NumberStrongs) + " STRONGs", true);
+                                     to_string(dofs_data.NumberDOFs) + " DOFs and " +
+                                     to_string(dofs_data.NumberStrongs) + " STRONGs", true);
 
   Gedim::Profiler::StopTime("CreateVEMSpace");
   Gedim::Output::PrintStatusProgram("CreateVEMSpace");
+
+  Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " + to_string((unsigned int)config.VemType()) + "...", true);
+  Gedim::Profiler::StartTime("AssembleSystem");
+
+  Elliptic_PCC_2D::Assembler assembler;
+
+  const auto assembler_data = assembler.Assemble(geometryUtilities,
+                                                 mesh,
+                                                 meshGeometricData,
+                                                 dofs_data,
+                                                 );
+
+  Gedim::Profiler::StopTime("AssembleSystem");
+  Gedim::Output::PrintStatusProgram("AssembleSystem");
+
+  if (dofs_data.NumberDOFs > 0)
+  {
+    if (dofs_data.NumberStrongs > 0)
+      assembler_data.rightHandSide.SubtractionMultiplication(assembler_data.dirichletMatrixA,
+                                                             assembler_data.solutionDirichlet);
+
+    Gedim::Output::PrintGenericMessage("Factorize...", true);
+    Gedim::Profiler::StartTime("Factorize");
+
+
+    Gedim::Eigen_CholeskySolver solver;
+    solver.Initialize(assembler_data.globalMatrixA);
+
+    Gedim::Profiler::StopTime("Factorize");
+    Gedim::Output::PrintStatusProgram("Factorize");
+
+    Gedim::Output::PrintGenericMessage("Solve...", true);
+    Gedim::Profiler::StartTime("Solve");
+
+    solver.Solve(assembler_data.rightHandSide,
+                 assembler_data.solution);
+
+    Gedim::Profiler::StopTime("Solve");
+    Gedim::Output::PrintStatusProgram("Solve");
+  }
 
   return 0;
 }
