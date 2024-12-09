@@ -120,12 +120,31 @@ int main(int argc, char** argv)
                           " not supported");
   }
 
+  Gedim::Profiler::StopTime("CreateMesh");
+  Gedim::Output::PrintStatusProgram("CreateMesh");
+
   // Export the domain mesh
   {
     meshUtilities.ExportMeshToVTU(domainMesh,
                                   exportVtuFolder,
                                   "Domain_Mesh");
   }
+
+  /// Compute mesh geometric properties
+  Gedim::Output::PrintGenericMessage("ComputeGeometricProperties...", true);
+  Gedim::Profiler::StartTime("ComputeGeometricProperties");
+
+  Gedim::MeshUtilities::MeshGeometricData2D meshGeometricData;
+
+  std::vector<Gedim::GeometryUtilities::PolygonTypes> cell2Ds_types(domainMesh.Cell2DTotalNumber(),
+                                                                    Gedim::GeometryUtilities::PolygonTypes::Generic_Concave);
+  meshGeometricData = meshUtilities.FillMesh2DGeometricData(geometryUtilities,
+                                                            domainMesh,
+                                                            cell2Ds_types);
+
+  Gedim::Profiler::StopTime("ComputeGeometricProperties");
+  Gedim::Output::PrintStatusProgram("ComputeGeometricProperties");
+
 
 
   return 0;
