@@ -11,11 +11,7 @@ namespace Elliptic_PCC_2D
       enum struct MeshGenerators
       {
         Tri = 0, // triangular mesh
-        Rect = 1, // rectangular mesh
-        CsvImporter = 2, // imported csv mesh
-        RectWithHangs = 3, // rectangular mesh with hanging nodes
-        RandomVoronoi = 4,
-        OFFImporter = 5, // imported off mesh
+        OFFImporter = 1, // imported off mesh
       };
 
       enum struct VemTypes
@@ -28,8 +24,7 @@ namespace Elliptic_PCC_2D
 
       enum struct ProgramTypes
       {
-        Poisson = 0,
-        SinSinEnlarged = 1
+        Poisson = 0
       };
 
       Program_configuration()
@@ -45,7 +40,7 @@ namespace Elliptic_PCC_2D
         // Mesh parameters
         Gedim::Configurations::AddProperty("MeshGenerator",
                                            static_cast<unsigned int>(MeshGenerators::Tri),
-                                           "Mesh 2D gereator type, 0 - triangle; 1 - rectangle; 2 - CSV Importer; 3 - rectangle plus N nodes; 4 - voronoi; 5 - OFF Importer; (Default: 0)");
+                                           "Mesh 2D gereator type, 0 - triangle; 1 - OFF Importer; (Default: 0)");
         Gedim::Configurations::AddProperty("MeshImporterFolder",
                                            "./",
                                            "Mesh importer folder (Default: './')");
