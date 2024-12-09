@@ -31,8 +31,8 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Ortho_LocalSpace::CreateLocalSpace(const V
     localSpace.facesLocalSpace.resize(numFaces);
     for (unsigned int f = 0; f < numFaces; f++)
     {
-        localSpace.facesLocalSpace[f] = faceVemValues.CreateLocalSpace(reference_element_data_2D,
-                                                                       polygonalFaces[f]);
+        localSpace.facesLocalSpace[f] = faceVemValues.Compute3DUtilities(reference_element_data_2D,
+                                                                         polygonalFaces[f]);
 
         facesQuadraturePoints[f] = localSpace.facesLocalSpace[f].InternalQuadrature.Points;
         facesQuadratureWeights[f] = localSpace.facesLocalSpace[f].InternalQuadrature.Weights;

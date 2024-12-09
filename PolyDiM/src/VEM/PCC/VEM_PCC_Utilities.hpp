@@ -10,12 +10,15 @@ namespace VEM
 {
 namespace PCC
 {
+/** @file */
+
+/// \brief Enumeration for Projector Types
 enum struct ProjectionTypes
 {
-    Pi0km1 = 0, /// \f$\Pi^0_{order-1}\f$ projection to project basis
-    Pi0k = 1, /// \f$\Pi^0_{order}\f$ projection to project basis
-    PiNabla = 2, /// \f$\Pi^{\nabla}_{order-1}\f$ projection to project basis gradient
-    Pi0km1Der = 3 /// \f$\Pi^{0}_{order-1}\f$ projection to project basis gradient
+    Pi0km1 = 0, ///< \f$\Pi^0_{order-1}\f$ projection to project basis
+    Pi0k = 1, ///< \f$\Pi^0_{order}\f$ projection to project basis
+    PiNabla = 2, ///< \f$\Pi^{\nabla}_{order-1}\f$ projection to project basis gradient
+    Pi0km1Der = 3 ///< \f$\Pi^{0}_{order-1}\f$ projection to project basis gradient
 };
 
 /// \brief Base class for computing values of basis functions of Primal Conforming Constant degree
@@ -28,21 +31,36 @@ struct VEM_PCC_Utilities final
     Eigen::VectorXd ComputeEdgeBasisCoefficients(const unsigned int& order,
                                                  const Eigen::VectorXd& edgeInternalPoints) const;
 
-    /// \brief Compute matrix \ref stabMatrix with PiNabla projector.
-    /// \note This requires \ref ComputePiNabla() to be called previously.
-    /// \return MainApplication::Output::Success if the computation was successful.
+    /// \brief Compute the dofi-dofi stabilization matrix using \ref VEM::PCC::ProjectionTypes::PiNabla projector.
+    /// \param piNabla: the projection coefficients related to \ref VEM::PCC::ProjectionTypes::PiNabla
+    /// \param diameter: a double representing the diameter of the element
+    /// \param DMatrix: matrix containing the polynomials degrees of freedom
+    /// \return The dofi-dofi stabilization matrix.
     Eigen::MatrixXd ComputeStabilizationMatrix(const Eigen::MatrixXd& piNabla,
                                                const double& diameter,
                                                const Eigen::MatrixXd& DMatrix) const;
-    /// \brief Compute matrix \ref stabMatrix with Pi0k projector.
-    /// \note This requires \ref ComputeL2Projectors() to be called previously.
-    /// \return MainApplication::Output::Success if the computation was successful.
+
+    /// \brief Compute the dofi-dofi stabilization matrix using \ref VEM::PCC::ProjectionTypes::Pi0k projector.
+    /// \param pi0k: the projection coefficients related to \ref VEM::PCC::ProjectionTypes::Pi0k
+    /// \param measure: a double representing the measure of the element
+    /// \param DMatrix: matrix containing the polynomials degrees of freedom
+    /// \return The dofi-dofi stabilization matrix.
     Eigen::MatrixXd ComputeStabilizationMatrixPi0k(const Eigen::MatrixXd& pi0k,
                                                    const double& measure,
                                                    const Eigen::MatrixXd& DMatrix) const;
-    /// \brief Compute matrices \ref pi0km1 and \ref pi0k.
-    /// \return MainApplication::Output::Success if the computation was successful.
-    /// \note This requires \ref ComputePiNabla() to be called previously.
+
+    /// \brief Compute matrices of coefficients related to \ref VEM::PCC::ProjectionTypes::Pi0km1 and \ref VEM::PCC::ProjectionTypes::Pi0k.
+    /// \param[in] measure: a double representing the measure of the element
+    /// \param[in] order: the vem order
+    /// \param[in] Nkm1: number of polynomials of degree order-1
+    /// \param[in] Nk: number of polynomials of degree order
+    /// \param[in] NumInternalBasisFunctions: number of internal basis functions
+    /// \param[in] NumBasisFunctions: number of internal functions
+    /// \param[in] Hmatrix: mass matrix of polynomials
+    /// \param[in] PiNabla: \ref VEM::PCC::ProjectionTypes::PiNabla coefficients
+    /// \param[out] Cmatrix: the right-hand side to define \ref VEM::PCC::ProjectionTypes::Pi0k coefficients
+    /// \param[out] Pi0km1: \ref VEM::PCC::ProjectionTypes::Pi0km1 coefficients
+    /// \param[out] Pi0k: \ref VEM::PCC::ProjectionTypes::Pi0k coefficients
     void ComputeL2Projectors(const double& measure,
                              const unsigned int& order,
                              const unsigned int& Nkm1,
