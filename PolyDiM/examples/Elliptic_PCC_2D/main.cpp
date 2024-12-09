@@ -242,23 +242,33 @@ int main(int argc, char** argv)
   Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " + to_string((unsigned int)config.VemType()) + "...", true);
   Gedim::Profiler::StartTime("AssembleSystem");
 
+  auto diffusionTerm = [](const Eigen::MatrixXd& points)
+  {
+    const double k = 1.0;
+    return Eigen::VectorXd::Constant(points.cols(), k);
+  };
+
+  auto sourceTerm = [](const Eigen::MatrixXd& points)
+  {
+    return 32.0 * (points.row(1).array() * (1.0 - points.row(1).array()) +
+                   points.row(0).array() * (1.0 - points.row(0).array()));
+  };
+
   Elliptic_PCC_2D::Assembler assembler;
 
-  const auto assembler_data = assembler.Assemble(geometryUtilities,
-                                                 mesh,
-                                                 meshGeometricData,
-                                                 dofs_data,
-                                                 );
+  auto assembler_data = assembler.Assemble(geometryUtilities,
+                                           mesh,
+                                           meshGeometricData,
+                                           dofs_data,
+                                           reference_element_data,
+                                           diffusionTerm,
+                                           sourceTerm);
 
   Gedim::Profiler::StopTime("AssembleSystem");
   Gedim::Output::PrintStatusProgram("AssembleSystem");
 
   if (dofs_data.NumberDOFs > 0)
   {
-    if (dofs_data.NumberStrongs > 0)
-      assembler_data.rightHandSide.SubtractionMultiplication(assembler_data.dirichletMatrixA,
-                                                             assembler_data.solutionDirichlet);
-
     Gedim::Output::PrintGenericMessage("Factorize...", true);
     Gedim::Profiler::StartTime("Factorize");
 

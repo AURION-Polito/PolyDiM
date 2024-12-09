@@ -134,6 +134,10 @@ namespace Elliptic_PCC_2D
     result.globalMatrixA.Create();
     result.dirichletMatrixA.Create();
 
+    if (dofs_data.NumberStrongs > 0)
+      result.rightHandSide.SubtractionMultiplication(result.dirichletMatrixA,
+                                                     result.solutionDirichlet);
+
     return result;
   }
   // ***************************************************************************
