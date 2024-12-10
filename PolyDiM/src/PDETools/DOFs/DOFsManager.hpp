@@ -103,12 +103,12 @@ namespace Polydim
 
           void CreateCellDOFs(const MeshDOFsInfo& meshDOFsInfo,
                               DOFsData& dofs,
-                              const unsigned int d) const
+                              const unsigned int dim) const
           {
-            const auto& cells_num_dofs = meshDOFsInfo.CellsNumDOFs.at(d);
-            const auto& cells_boundary_info = meshDOFsInfo.CellsBoundaryInfo.at(d);
+            const auto& cells_num_dofs = meshDOFsInfo.CellsNumDOFs.at(dim);
+            const auto& cells_boundary_info = meshDOFsInfo.CellsBoundaryInfo.at(dim);
             const unsigned int numCells = cells_num_dofs.size();
-            auto& cellsDOFs = dofs.CellsDOFs.at(d);
+            auto& cellsDOFs = dofs.CellsDOFs.at(dim);
             cellsDOFs.resize(numCells);
 
             for (unsigned int c = 0; c < numCells; c++)

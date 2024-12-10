@@ -9,6 +9,9 @@
 using namespace std;
 using namespace Eigen;
 
+#define DEBUG_ASSEMBLER 1
+#undef DEBUG_ASSEMBLER
+
 namespace Elliptic_PCC_2D
 {
   // ***************************************************************************
@@ -54,27 +57,50 @@ namespace Elliptic_PCC_2D
                                                                 polygon);
 
       const auto basis_functions_values = vem_local_space.ComputeBasisFunctionsValues(local_space,
-                                                                                      Polydim::VEM::PCC::ProjectionTypes::Pi0k);
+                                                                                      Polydim::VEM::PCC::ProjectionTypes::Pi0km1);
+
+#ifdef DEBUG_ASSEMBLER
+      std::cout.precision(2);
+      std::cout<< std::scientific<< "u: "<< basis_functions_values<< std::endl;
+#endif
 
 
       const auto basis_functions_derivative_values = vem_local_space.ComputeBasisFunctionsDerivativeValues(local_space,
                                                                                                            Polydim::VEM::PCC::ProjectionTypes::Pi0km1Der);
-
+#ifdef DEBUG_ASSEMBLER
+      std::cout<< std::scientific<< "du_x: "<< basis_functions_derivative_values[0]<< std::endl;
+      std::cout<< std::scientific<< "du_y: "<< basis_functions_derivative_values[1]<< std::endl;
+#endif
 
       const auto diffusion_term_values = diffusionTerm(local_space.InternalQuadrature.Points);
       const auto source_term_values = sourceTerm(local_space.InternalQuadrature.Points);
 
+#ifdef DEBUG_ASSEMBLER
+      std::cout<< std::scientific<< "k: "<< diffusion_term_values.transpose()<< std::endl;
+      std::cout<< std::scientific<< "f: "<< source_term_values.transpose()<< std::endl;
+#endif
 
       const auto local_A = equation.ComputeCellDiffusionMatrix(diffusion_term_values,
                                                                basis_functions_derivative_values,
                                                                local_space.InternalQuadrature.Weights);
+#ifdef DEBUG_ASSEMBLER
+      std::cout<< std::scientific<< "A: "<< local_A<< std::endl;
+#endif
 
       const auto local_stab_A = diffusion_term_values.cwiseAbs().maxCoeff() *
                                 local_space.StabMatrix;
 
+#ifdef DEBUG_ASSEMBLER
+      std::cout<< std::scientific<< "S: "<< local_stab_A<< std::endl;
+#endif
+
       const auto local_rhs = equation.ComputeCellForcingTerm(source_term_values,
                                                              basis_functions_values,
                                                              local_space.InternalQuadrature.Weights);
+
+#ifdef DEBUG_ASSEMBLER
+      std::cout<< std::scientific<< "rhs: "<< local_rhs.transpose()<< std::endl;
+#endif
 
       const auto& global_dofs = dofs_data.CellsGlobalDOFs[2].at(c);
 
@@ -98,6 +124,10 @@ namespace Elliptic_PCC_2D
         result.rightHandSide.AddValue(global_index_i,
                                       local_rhs[loc_i]);
 
+#ifdef DEBUG_ASSEMBLER
+        std::cout<< std::scientific<< "g_rhs["<< global_index_i<< "] = "<< local_rhs[loc_i]<< std::endl;
+#endif
+
         for (unsigned int loc_j = 0; loc_j < global_dofs.size(); ++loc_j)
         {
           const auto& global_dof_j = global_dofs.at(loc_j);
@@ -109,23 +139,30 @@ namespace Elliptic_PCC_2D
                                         local_stab_A(loc_i,
                                                      loc_j);
 
-          switch (local_dof_i.Type)
+          switch (local_dof_j.Type)
           {
             case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
               result.dirichletMatrixA.Triplet(global_index_i,
                                               global_index_j,
                                               loc_A_element);
+
+#ifdef DEBUG_ASSEMBLER
+              std::cout<< std::scientific<< "g_AD("<< global_index_i<< ","<< global_index_j<< ") = "<< loc_A_element<< std::endl;
+#endif
               break;
             case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
               result.globalMatrixA.Triplet(global_index_i,
                                            global_index_j,
                                            loc_A_element);
+
+#ifdef DEBUG_ASSEMBLER
+              std::cout<< std::scientific<< "g_A("<< global_index_i<< ","<< global_index_j<< ") = "<< loc_A_element<< std::endl;
+#endif
               break;
             default:
               throw std::runtime_error("Unknown DOF Type");
           }
         }
-
       }
     }
 
