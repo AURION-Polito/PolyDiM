@@ -57,9 +57,7 @@ private:
                                  Eigen::MatrixXd &W2,
                                  Eigen::MatrixXd &B2Nabla,
                                  VEM_MCC_VelocityLocalSpace_Data &localSpace) const;
-public:
 
-    /// \brief Compute matrix D: D_{ij} = dof_i(m_j).
     void ComputePolynomialBasisDofs(const double& polytopeMeasure,
                                     VEM_MCC_VelocityLocalSpace_Data& localSpace) const
     {
@@ -73,6 +71,9 @@ public:
                                                                   localSpace.GkVanderBoundaryTimesNormal,
                                                                   localSpace.Gmatrix);
     };
+
+public:
+
     VEM_MCC_VelocityLocalSpace_Data CreateLocalSpace(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                                                      const VEM_MCC_2D_Polygon_Geometry &polygon) const;
 

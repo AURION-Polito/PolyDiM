@@ -2,8 +2,6 @@
 #define __VEM_MCC_Utilities_HPP
 
 #include "Eigen/Eigen"
-#include "VEM_MCC_VelocityLocalSpace_Data.hpp"
-#include "VEM_Monomials_Data.hpp"
 
 namespace Polydim
 {

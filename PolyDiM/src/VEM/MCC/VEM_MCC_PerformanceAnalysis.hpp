@@ -39,8 +39,6 @@ struct VEM_MCC_PerformanceAnalysis final
     {
         VEM_MCC_PerformanceAnalysis_Data result;
 
-        double invDiameter = 1.0 / polytopeDiameter;
-
         const Eigen::MatrixXd& Vmatrix = vem_local_space_data.Vmatrix;
         const Eigen::MatrixXd& Hmatrix = vem_local_space_data.Hmatrix;
         const Eigen::MatrixXd& Gmatrix = vem_local_space_data.Gmatrix;
