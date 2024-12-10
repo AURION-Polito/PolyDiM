@@ -42,6 +42,37 @@ struct MeshMatricesDAO_mesh_connectivity_data final
     }
 };
 
+struct Poisson_Polynomial_Problem final
+{
+    static Eigen::VectorXd diffusionTerm(const Eigen::MatrixXd& points)
+    {
+      const double k = 1.0;
+      return Eigen::VectorXd::Constant(points.cols(), k);
+    };
+
+    static Eigen::VectorXd sourceTerm(const Eigen::MatrixXd& points)
+    {
+      return 32.0 * (points.row(1).array() * (1.0 - points.row(1).array()) +
+                     points.row(0).array() * (1.0 - points.row(0).array()));
+    };
+
+    static Eigen::VectorXd exact_solution(const Eigen::MatrixXd& points)
+    {
+      return 16.0 * (points.row(1).array() * (1.0 - points.row(1).array()) *
+                     points.row(0).array() * (1.0 - points.row(0).array()));
+    };
+
+    static std::array<Eigen::VectorXd, 3> exact_derivative_solution(const Eigen::MatrixXd& points)
+    {
+      return
+      {
+        16.0 * (1.0 - 2.0 * points.row(0).array()) * points.row(1).array() * (1.0 - points.row(1).array()),
+            16.0 * (1.0 - 2.0 * points.row(1).array()) * points.row(0).array() * (1.0 - points.row(0).array()),
+            Eigen::VectorXd::Zero(points.cols())
+      };
+    }
+};
+
 int main(int argc, char** argv)
 {
   Elliptic_PCC_2D::Program_configuration config;
@@ -242,18 +273,6 @@ int main(int argc, char** argv)
   Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " + to_string((unsigned int)config.VemType()) + "...", true);
   Gedim::Profiler::StartTime("AssembleSystem");
 
-  auto diffusionTerm = [](const Eigen::MatrixXd& points)
-  {
-    const double k = 1.0;
-    return Eigen::VectorXd::Constant(points.cols(), k);
-  };
-
-  auto sourceTerm = [](const Eigen::MatrixXd& points)
-  {
-    return 32.0 * (points.row(1).array() * (1.0 - points.row(1).array()) +
-                   points.row(0).array() * (1.0 - points.row(0).array()));
-  };
-
   Elliptic_PCC_2D::Assembler assembler;
 
   auto assembler_data = assembler.Assemble(geometryUtilities,
@@ -261,8 +280,8 @@ int main(int argc, char** argv)
                                            meshGeometricData,
                                            dofs_data,
                                            reference_element_data,
-                                           diffusionTerm,
-                                           sourceTerm);
+                                           Poisson_Polynomial_Problem::diffusionTerm,
+                                           Poisson_Polynomial_Problem::sourceTerm);
 
   Gedim::Profiler::StopTime("AssembleSystem");
   Gedim::Output::PrintStatusProgram("AssembleSystem");
@@ -289,43 +308,66 @@ int main(int argc, char** argv)
     Gedim::Output::PrintStatusProgram("Solve");
   }
 
+  Gedim::Output::PrintGenericMessage("ComputeErrors...", true);
+  Gedim::Profiler::StartTime("ComputeErrors");
+
+  auto post_process_data = assembler.PostProcessSolution(geometryUtilities,
+                                                         mesh,
+                                                         meshGeometricData,
+                                                         dofs_data,
+                                                         reference_element_data,
+                                                         assembler_data,
+                                                         Poisson_Polynomial_Problem::exact_solution,
+                                                         Poisson_Polynomial_Problem::exact_derivative_solution);
+
+  Gedim::Profiler::StopTime("ComputeErrors");
+  Gedim::Output::PrintStatusProgram("ComputeErrors");
+
   Gedim::Output::PrintGenericMessage("ExportSolution...", true);
   Gedim::Profiler::StartTime("ExportSolution");
 
   {
-    auto exact_solution = [](const Eigen::MatrixXd& points)
+    const char separator = ';';
+    const string errorFileName = exportSolutionFolder +
+                                 "/Errors.csv";
+    const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
+
+    std::ofstream errorFile(errorFileName,
+                            std::ios_base::app | std::ios_base::out);
+    if (!errorFileExists)
     {
-      return 16.0 * (points.row(1).array() * (1.0 - points.row(1).array()) *
-                     points.row(0).array() * (1.0 - points.row(0).array()));
-    };
-
-    vector<double> cell0DNumericSolution(mesh.Cell0DTotalNumber(), 0.0);
-    vector<double> cell0DExactSolution(mesh.Cell0DTotalNumber(), 0.0);
-
-    for (unsigned int p = 0; p < mesh.Cell0DTotalNumber(); p++)
-    {
-      cell0DExactSolution[p] = exact_solution(mesh.Cell0DCoordinates(p))[0];
-
-      const auto& global_dofs = dofs_data.CellsGlobalDOFs[0].at(p);
-
-      for (unsigned int loc_i = 0; loc_i < global_dofs.size(); ++loc_i)
-      {
-        const auto& global_dof_i = global_dofs.at(loc_i);
-        const auto& local_dof_i = dofs_data.CellsDOFs.at(global_dof_i.Dimension).at(global_dof_i.CellIndex).at(global_dof_i.DOFIndex);
-
-        switch (local_dof_i.Type)
-        {
-          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
-            continue;
-          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
-            cell0DNumericSolution[p] = assembler_data.solution.GetValue(local_dof_i.Global_Index);
-            break;
-          default:
-            throw std::runtime_error("Unknown DOF Type");
-        }
-      }
+      errorFile<< "VemType" << separator;
+      errorFile<< "VemOrder" << separator;
+      errorFile<< "Cell2Ds" <<  separator;
+      errorFile<< "Dofs" <<  separator;
+      errorFile<< "Strongs" <<  separator;
+      errorFile<< "h" <<  separator;
+      errorFile<< "errorL2" <<  separator;
+      errorFile<< "errorH1" << separator;
+      errorFile<< "normL2" <<  separator;
+      errorFile<< "normH1" << separator;
+      errorFile<< "nnzA" << separator;
+      errorFile<< "residual" << endl;
     }
 
+    errorFile.precision(16);
+    errorFile<< scientific<< static_cast<unsigned int>(config.VemType())<< separator;
+    errorFile<< scientific<< config.VemOrder()<< separator;
+    errorFile<< scientific<< mesh.Cell2DTotalNumber()<< separator;
+    errorFile<< scientific<< dofs_data.NumberDOFs<< separator;
+    errorFile<< scientific<< dofs_data.NumberStrongs<< separator;
+    errorFile<< scientific<< post_process_data.mesh_size << separator;
+    errorFile<< scientific<< post_process_data.error_L2<< separator;
+    errorFile<< scientific<< post_process_data.error_H1<< separator;
+    errorFile<< scientific<< post_process_data.norm_L2<< separator;
+    errorFile<< scientific<< post_process_data.norm_H1<< separator;
+    errorFile<< scientific<< assembler_data.globalMatrixA.NonZeros()<< separator;
+    errorFile<< scientific<< post_process_data.residual_norm<< endl;
+
+    errorFile.close();
+  }
+
+  {
     {
       Gedim::VTKUtilities exporter;
       exporter.AddPolygons(mesh.Cell0DsCoordinates(),
@@ -334,14 +376,26 @@ int main(int argc, char** argv)
                              {
                                "Numeric",
                                Gedim::VTPProperty::Formats::Points,
-                               static_cast<unsigned int>(cell0DNumericSolution.size()),
-                               cell0DNumericSolution.data()
+                               static_cast<unsigned int>(post_process_data.cell0Ds_numeric.size()),
+                               post_process_data.cell0Ds_numeric.data()
                              },
                              {
                                "Exact",
                                Gedim::VTPProperty::Formats::Points,
-                               static_cast<unsigned int>(cell0DExactSolution.size()),
-                               cell0DExactSolution.data()
+                               static_cast<unsigned int>(post_process_data.cell0Ds_exact.size()),
+                               post_process_data.cell0Ds_exact.data()
+                             },
+                             {
+                               "ErrorL2",
+                               Gedim::VTPProperty::Formats::Cells,
+                               static_cast<unsigned int>(post_process_data.cell2Ds_error_L2.size()),
+                               post_process_data.cell2Ds_error_L2.data()
+                             },
+                             {
+                               "ErrorH1",
+                               Gedim::VTPProperty::Formats::Cells,
+                               static_cast<unsigned int>(post_process_data.cell2Ds_error_H1.size()),
+                               post_process_data.cell2Ds_error_H1.data()
                              }
                            });
 

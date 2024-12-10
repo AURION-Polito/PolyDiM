@@ -378,4 +378,152 @@ namespace Elliptic_PCC_2D
     return result;
   }
   // ***************************************************************************
+  Assembler::PostProcess_Data Assembler::PostProcessSolution(const Gedim::GeometryUtilities& geometryUtilities,
+                                                             const Gedim::MeshMatricesDAO& mesh,
+                                                             const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                                             const Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData& dofs_data,
+                                                             const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
+                                                             const Elliptic_PCC_2D_Problem_Data& assembler_data,
+                                                             const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& exact_solution,
+                                                             const std::function<std::array<Eigen::VectorXd, 3>(const Eigen::MatrixXd&)>& exact_derivative_solution) const
+  {
+    PostProcess_Data result;
+
+    result.residual_norm = 0.0;
+    if (dofs_data.NumberDOFs > 0)
+    {
+      Gedim::Eigen_Array<> residual;
+      residual.SetSize(dofs_data.NumberDOFs);
+      residual.SumMultiplication(assembler_data.globalMatrixA,
+                                 assembler_data.solution);
+      residual -= assembler_data.rightHandSide;
+
+      result.residual_norm = residual.Norm();
+    }
+
+    result.cell0Ds_numeric.setZero(mesh.Cell0DTotalNumber());
+    result.cell0Ds_exact.setZero(mesh.Cell0DTotalNumber());
+
+    for (unsigned int p = 0; p < mesh.Cell0DTotalNumber(); p++)
+    {
+      result.cell0Ds_exact[p] = exact_solution(mesh.Cell0DCoordinates(p))[0];
+
+      const auto& global_dofs = dofs_data.CellsGlobalDOFs[0].at(p);
+
+      for (unsigned int loc_i = 0; loc_i < global_dofs.size(); ++loc_i)
+      {
+        const auto& global_dof_i = global_dofs.at(loc_i);
+        const auto& local_dof_i = dofs_data.CellsDOFs.at(global_dof_i.Dimension).at(global_dof_i.CellIndex).at(global_dof_i.DOFIndex);
+
+        switch (local_dof_i.Type)
+        {
+          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
+            result.cell0Ds_numeric[p] = assembler_data.solutionDirichlet.GetValue(local_dof_i.Global_Index);
+            break;
+          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
+            result.cell0Ds_numeric[p] = assembler_data.solution.GetValue(local_dof_i.Global_Index);
+            break;
+          default:
+            throw std::runtime_error("Unknown DOF Type");
+        }
+      }
+    }
+
+    result.cell2Ds_error_L2.setZero(mesh.Cell2DTotalNumber());
+    result.cell2Ds_norm_L2.setZero(mesh.Cell2DTotalNumber());
+    result.cell2Ds_error_H1.setZero(mesh.Cell2DTotalNumber());
+    result.cell2Ds_norm_H1.setZero(mesh.Cell2DTotalNumber());
+    result.error_L2 = 0.0;
+    result.norm_L2 = 0.0;
+    result.error_H1 = 0.0;
+    result.norm_H1 = 0.0;
+    result.meshSize = 0.0;
+
+    for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
+    {
+      const Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry polygon =
+      {
+        mesh_geometric_data.Cell2DsVertices.at(c),
+        mesh_geometric_data.Cell2DsCentroids.at(c),
+        mesh_geometric_data.Cell2DsAreas.at(c),
+        mesh_geometric_data.Cell2DsDiameters.at(c),
+        mesh_geometric_data.Cell2DsTriangulations.at(c),
+        mesh_geometric_data.Cell2DsEdgeLengths.at(c),
+        mesh_geometric_data.Cell2DsEdgeDirections.at(c),
+        mesh_geometric_data.Cell2DsEdgeTangents.at(c),
+        mesh_geometric_data.Cell2DsEdgeNormals.at(c)
+      };
+
+      Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace vem_local_space;
+
+      const auto local_space = vem_local_space.CreateLocalSpace(reference_element_data,
+                                                                polygon);
+
+      const auto basis_functions_values = vem_local_space.ComputeBasisFunctionsValues(local_space,
+                                                                                      Polydim::VEM::PCC::ProjectionTypes::Pi0k);
+
+      const auto basis_functions_derivative_values = vem_local_space.ComputeBasisFunctionsDerivativeValues(local_space,
+                                                                                                           Polydim::VEM::PCC::ProjectionTypes::Pi0km1Der);
+
+
+      const auto exact_solution_values = exact_solution(local_space.InternalQuadrature.Points);
+      const auto exact_derivative_solution_values = exact_derivative_solution(local_space.InternalQuadrature.Points);
+
+      const auto& global_dofs = dofs_data.CellsGlobalDOFs[2].at(c);
+      Eigen::VectorXd dofs_values = Eigen::VectorXd::Zero(global_dofs.size());
+
+      for (unsigned int loc_i = 0; loc_i < global_dofs.size(); ++loc_i)
+      {
+        const auto& global_dof_i = global_dofs.at(loc_i);
+        const auto& local_dof_i = dofs_data.CellsDOFs.at(global_dof_i.Dimension).at(global_dof_i.CellIndex).at(global_dof_i.DOFIndex);
+
+        switch (local_dof_i.Type)
+        {
+          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
+            dofs_values[loc_i] = assembler_data.solutionDirichlet.GetValue(local_dof_i.Global_Index);
+            break;
+          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
+            dofs_values[loc_i] = assembler_data.solution.GetValue(local_dof_i.Global_Index);
+            break;
+          default:
+            throw std::runtime_error("Unknown DOF Type");
+        }
+      }
+
+      const Eigen::VectorXd local_error_L2 = (basis_functions_values * dofs_values -
+                                              exact_solution_values).array().square();
+      const Eigen::VectorXd local_norm_L2 = (basis_functions_values * dofs_values).array().square();
+
+      result.cell2Ds_error_L2[c] = local_space.InternalQuadrature.Weights.transpose() *
+                                   local_error_L2;
+      result.cell2Ds_norm_L2[c] = local_space.InternalQuadrature.Weights.transpose() *
+                                  local_norm_L2;
+
+
+      const Eigen::VectorXd local_error_H1 =
+          (basis_functions_derivative_values[0] * dofs_values -
+          exact_derivative_solution_values[0]).array().square() +
+          (basis_functions_derivative_values[1] * dofs_values -
+          exact_derivative_solution_values[1]).array().square();
+      const Eigen::VectorXd local_norm_H1 =
+          (basis_functions_derivative_values[0] * dofs_values).array().square() +
+          (basis_functions_derivative_values[1] * dofs_values).array().square();
+
+      result.cell2Ds_error_H1[c] = local_space.InternalQuadrature.Weights.transpose() *
+                                   local_error_H1;
+      result.cell2Ds_norm_H1[c] = local_space.InternalQuadrature.Weights.transpose() *
+                                  local_norm_H1;
+
+      if (mesh_geometric_data.Cell2DsDiameters.at(c) > result.meshSize)
+        result.mesh_size = mesh_geometric_data.Cell2DsDiameters.at(c);
+    }
+
+    result.error_L2 = std::sqrt(result.cell2Ds_error_L2.sum());
+    result.norm_L2 = std::sqrt(result.cell2Ds_norm_L2.sum());
+    result.error_H1 = std::sqrt(result.cell2Ds_error_H1.sum());
+    result.norm_H1 = std::sqrt(result.cell2Ds_norm_H1.sum());
+
+    return result;
+  }
+  // ***************************************************************************
 }
