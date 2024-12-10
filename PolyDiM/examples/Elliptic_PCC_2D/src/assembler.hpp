@@ -69,16 +69,9 @@ namespace Elliptic_PCC_2D
                                             const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& sourceTerm) const;
 
       VEM_Performance_Result ComputeVemPerformance(const Gedim::GeometryUtilities& geometryUtilities,
-                                                   const Gedim::IMeshDAO& mesh,
-                                                   const std::vector<Eigen::MatrixXd>& meshCell2DsVertices,
-                                                   const std::vector<std::vector<bool>>& meshCell2DsEdgeDirections,
-                                                   const std::vector<std::vector<Eigen::Matrix3d> >& meshCell2DsTriangulations,
-                                                   const std::vector<double>& meshCell2DsAreas,
-                                                   const std::vector<Eigen::Vector3d>& meshCell2DsCentroids,
-                                                   const std::vector<double>& meshCell2DsDiameters,
-                                                   const std::vector<Eigen::VectorXd>& meshCell2DsEdgeLengths,
-                                                   const std::vector<Eigen::MatrixXd>& meshCell2DsEdgeTangents,
-                                                   const std::vector<Eigen::MatrixXd>& meshCell2DsEdgeNormals) const;
+                                                   const Gedim::MeshMatricesDAO& mesh,
+                                                   const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                                   const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data) const;
   };
 
 }

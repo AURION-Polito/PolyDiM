@@ -334,80 +334,48 @@ namespace Elliptic_PCC_2D
   //  }
   // ***************************************************************************
   Assembler::VEM_Performance_Result Assembler::ComputeVemPerformance(const Gedim::GeometryUtilities& geometryUtilities,
-                                                                     const Gedim::IMeshDAO& mesh,
-                                                                     const vector<Eigen::MatrixXd>& meshCell2DsVertices,
-                                                                     const vector<vector<bool>>& meshCell2DsEdgeDirections,
-                                                                     const vector<vector<Eigen::Matrix3d> >& meshCell2DsTriangulations,
-                                                                     const vector<double>& meshCell2DsAreas,
-                                                                     const vector<Eigen::Vector3d>& meshCell2DsCentroids,
-                                                                     const vector<double>& meshCell2DsDiameters,
-                                                                     const vector<Eigen::VectorXd>& meshCell2DsEdgeLengths,
-                                                                     const vector<Eigen::MatrixXd>& meshCell2DsEdgeTangents,
-                                                                     const vector<Eigen::MatrixXd>& meshCell2DsEdgeNormals) const
+                                                                     const Gedim::MeshMatricesDAO& mesh,
+                                                                     const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                                                     const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data) const
   {
-    //    Assembler::VEM_Performance_Result result;
-    //    result.Cell2DsPerformance.resize(mesh.Cell2DTotalNumber());
+    Assembler::VEM_Performance_Result result;
+    result.Cell2DsPerformance.resize(mesh.Cell2DTotalNumber());
 
-    //    Gedim::VEM_PerformanceAnalysis performanceAnalysis(vemMonomials,
-    //                                                       vemValues);
+    // Assemble equation elements
+    for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
+    {
+      const Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry polygon =
+      {
+        mesh_geometric_data.Cell2DsVertices.at(c),
+        mesh_geometric_data.Cell2DsCentroids.at(c),
+        mesh_geometric_data.Cell2DsAreas.at(c),
+        mesh_geometric_data.Cell2DsDiameters.at(c),
+        mesh_geometric_data.Cell2DsTriangulations.at(c),
+        mesh_geometric_data.Cell2DsEdgeLengths.at(c),
+        mesh_geometric_data.Cell2DsEdgeDirections.at(c),
+        mesh_geometric_data.Cell2DsEdgeTangents.at(c),
+        mesh_geometric_data.Cell2DsEdgeNormals.at(c)
+      };
 
-    //    // Assemble equation elements
-    //    for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
-    //    {
-    //      if (!mesh.Cell2DIsActive(c))
-    //        continue;
+      Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace vem_local_space;
 
-    //      const MatrixXd& cell2DVertices = meshCell2DsVertices.at(c);
+      const auto local_space = vem_local_space.CreateLocalSpace(reference_element_data,
+                                                                polygon);
 
-    //      const vector<bool>& cell2DEdgeDirections = meshCell2DsEdgeDirections.at(c);
-    //      const vector<Matrix3d>& cell2DTriangulationPoints = meshCell2DsTriangulations.at(c);
-    //      const double& cell2DArea = meshCell2DsAreas.at(c);
-    //      const Vector3d& cell2DCentroid = meshCell2DsCentroids.at(c);
-    //      const double& cell2DDiameter = meshCell2DsDiameters.at(c);
-    //      const VectorXd& cell2DEdgeLengths = meshCell2DsEdgeLengths.at(c);
-    //      const MatrixXd& cell2DEdgeTangents = meshCell2DsEdgeTangents.at(c);
-    //      const MatrixXd& cell2DEdgeNormals = meshCell2DsEdgeNormals.at(c);
+      Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis performanceAnalysis;
 
-    //      // Compute Internal Quadrature points
-    //      MatrixXd internalQuadraturePoints2D;
-    //      VectorXd internalQuadratureWeights2D;
-    //      vemQuadrature.PolygonInternalQuadrature(cell2DVertices,
-    //                                              cell2DTriangulationPoints,
-    //                                              internalQuadraturePoints2D,
-    //                                              internalQuadratureWeights2D);
+      result.Cell2DsPerformance[c].Analysis = performanceAnalysis.Compute(polygon.Measure,
+                                                                          polygon.Diameter,
+                                                                          Polydim::VEM::Monomials::VEM_Monomials_2D(),
+                                                                          reference_element_data.Monomials,
+                                                                          vem_local_space,
+                                                                          local_space);
 
-    //      // Compute Boundary Quadrature points
-    //      Eigen::MatrixXd boundaryQuadraturePoints1D;
-    //      Eigen::VectorXd boundaryQuadratureWeights1D;
-    //      std::vector<Eigen::VectorXd> boundaryQuadratureWeightsTimesNormal1D;
-    //      vemQuadrature.PolygonEdgesQuadrature(cell2DVertices,
-    //                                           cell2DEdgeLengths,
-    //                                           cell2DEdgeDirections,
-    //                                           cell2DEdgeTangents,
-    //                                           cell2DEdgeNormals,
-    //                                           boundaryQuadraturePoints1D,
-    //                                           boundaryQuadratureWeights1D,
-    //                                           boundaryQuadratureWeightsTimesNormal1D);
+      result.Cell2DsPerformance[c].NumInternalQuadraturePoints = local_space.InternalQuadrature.Weights.size();
+      result.Cell2DsPerformance[c].NumBoundaryQuadraturePoints = local_space.BoundaryQuadrature.Quadrature.Weights.size();
+    }
 
-    //      Gedim::VEM_ValuesData localSpace = vemValues.CreateLocalSpace(cell2DVertices,
-    //                                                                    cell2DCentroid,
-    //                                                                    cell2DArea,
-    //                                                                    cell2DDiameter,
-    //                                                                    internalQuadraturePoints2D,
-    //                                                                    internalQuadratureWeights2D,
-    //                                                                    boundaryQuadraturePoints1D,
-    //                                                                    boundaryQuadratureWeights1D,
-    //                                                                    boundaryQuadratureWeightsTimesNormal1D,
-    //                                                                    Gedim::VEM_ValuesData::ProjectionTypes::Pi0km1);
-
-    //      result.Cell2DsPerformance[c].NumInternalQuadraturePoints = internalQuadratureWeights2D.size();
-    //      result.Cell2DsPerformance[c].NumBoundaryQuadraturePoints = boundaryQuadratureWeights1D.size();
-    //      result.Cell2DsPerformance[c].Analysis = performanceAnalysis.Compute(cell2DArea,
-    //                                                                          cell2DDiameter,
-    //                                                                          localSpace);
-    //    }
-
-    //return result;
+    return result;
   }
   // ***************************************************************************
 }

@@ -299,7 +299,6 @@ int main(int argc, char** argv)
                      points.row(0).array() * (1.0 - points.row(0).array()));
     };
 
-    // Extract solution
     vector<double> cell0DNumericSolution(mesh.Cell0DTotalNumber(), 0.0);
     vector<double> cell0DExactSolution(mesh.Cell0DTotalNumber(), 0.0);
 
@@ -327,7 +326,6 @@ int main(int argc, char** argv)
       }
     }
 
-    // Export Cell2Ds
     {
       Gedim::VTKUtilities exporter;
       exporter.AddPolygons(mesh.Cell0DsCoordinates(),
@@ -353,6 +351,64 @@ int main(int argc, char** argv)
 
   Gedim::Profiler::StopTime("ExportSolution");
   Gedim::Output::PrintStatusProgram("ExportSolution");
+
+  Gedim::Output::PrintGenericMessage("ComputeVEMPerformance...", true);
+  Gedim::Profiler::StartTime("ComputeVEMPerformance");
+
+  if (config.ComputeVEMPerformance())
+  {
+    const auto vemPerformance = assembler.ComputeVemPerformance(geometryUtilities,
+                                                                mesh,
+                                                                meshGeometricData,
+                                                                reference_element_data);
+    {
+      const char separator = ',';
+      /// Export Cell2Ds VEM performance
+      ofstream exporter;
+
+      exporter.open(exportSolutionFolder + "/Cell2Ds_VEMPerformance.csv");
+      exporter.precision(16);
+
+      if (exporter.fail())
+        throw runtime_error("Error on mesh cell2Ds file");
+
+      exporter<< "Cell2D_Index"<< separator;
+      exporter<< "NumQuadPoints_Boundary"<< separator;
+      exporter<< "NumQuadPoints_Internal"<< separator;
+      exporter<< "PiNabla_Cond"<< separator;
+      exporter<< "Pi0k_Cond"<< separator;
+      exporter<< "Pi0km1_Cond"<< separator;
+      exporter<< "PiNabla_Error"<< separator;
+      exporter<< "Pi0k_Error"<< separator;
+      exporter<< "Pi0km1_Error"<< separator;
+      exporter<< "HCD_Error"<< separator;
+      exporter<< "GBD_Error"<< separator;
+      exporter<< "Stab_Error"<< endl;
+
+      for (unsigned int v = 0; v < vemPerformance.Cell2DsPerformance.size(); v++)
+      {
+        const auto& cell2DPerformance = vemPerformance.Cell2DsPerformance[v].Analysis;
+
+        exporter<< scientific<< v<< separator;
+        exporter<< scientific<< vemPerformance.Cell2DsPerformance[v].NumBoundaryQuadraturePoints<< separator;
+        exporter<< scientific<< vemPerformance.Cell2DsPerformance[v].NumInternalQuadraturePoints<< separator;
+        exporter<< scientific<< cell2DPerformance.PiNablaConditioning<< separator;
+        exporter<< scientific<< cell2DPerformance.Pi0kConditioning<< separator;
+        exporter<< scientific<< cell2DPerformance.Pi0km1Conditioning<< separator;
+        exporter<< scientific<< cell2DPerformance.ErrorPiNabla<< separator;
+        exporter<< scientific<< cell2DPerformance.ErrorPi0k<< separator;
+        exporter<< scientific<< cell2DPerformance.ErrorPi0km1<< separator;
+        exporter<< scientific<< cell2DPerformance.ErrorHCD<< separator;
+        exporter<< scientific<< cell2DPerformance.ErrorGBD<< separator;
+        exporter<< scientific<< cell2DPerformance.ErrorStabilization<< endl;
+      }
+
+      exporter.close();
+    }
+  }
+
+  Gedim::Profiler::StopTime("ComputeVEMPerformance");
+  Gedim::Output::PrintStatusProgram("ComputeVEMPerformance");
 
   return 0;
 }
