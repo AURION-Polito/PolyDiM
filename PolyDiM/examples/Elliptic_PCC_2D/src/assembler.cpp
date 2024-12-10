@@ -437,7 +437,7 @@ namespace Elliptic_PCC_2D
     result.norm_L2 = 0.0;
     result.error_H1 = 0.0;
     result.norm_H1 = 0.0;
-    result.meshSize = 0.0;
+    result.mesh_size = 0.0;
 
     for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
     {
@@ -514,7 +514,7 @@ namespace Elliptic_PCC_2D
       result.cell2Ds_norm_H1[c] = local_space.InternalQuadrature.Weights.transpose() *
                                   local_norm_H1;
 
-      if (mesh_geometric_data.Cell2DsDiameters.at(c) > result.meshSize)
+      if (mesh_geometric_data.Cell2DsDiameters.at(c) > result.mesh_size)
         result.mesh_size = mesh_geometric_data.Cell2DsDiameters.at(c);
     }
 
