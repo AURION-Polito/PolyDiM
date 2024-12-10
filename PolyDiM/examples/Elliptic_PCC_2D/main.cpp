@@ -289,5 +289,70 @@ int main(int argc, char** argv)
     Gedim::Output::PrintStatusProgram("Solve");
   }
 
+  Gedim::Output::PrintGenericMessage("ExportSolution...", true);
+  Gedim::Profiler::StartTime("ExportSolution");
+
+  {
+    auto exact_solution = [](const Eigen::MatrixXd& points)
+    {
+      return 16.0 * (points.row(1).array() * (1.0 - points.row(1).array()) *
+                     points.row(0).array() * (1.0 - points.row(0).array()));
+    };
+
+    // Extract solution
+    vector<double> cell0DNumericSolution(mesh.Cell0DTotalNumber(), 0.0);
+    vector<double> cell0DExactSolution(mesh.Cell0DTotalNumber(), 0.0);
+
+    for (unsigned int p = 0; p < mesh.Cell0DTotalNumber(); p++)
+    {
+      cell0DExactSolution[p] = exact_solution(mesh.Cell0DCoordinates(p))[0];
+
+      const auto& global_dofs = dofs_data.CellsGlobalDOFs[0].at(p);
+
+      for (unsigned int loc_i = 0; loc_i < global_dofs.size(); ++loc_i)
+      {
+        const auto& global_dof_i = global_dofs.at(loc_i);
+        const auto& local_dof_i = dofs_data.CellsDOFs.at(global_dof_i.Dimension).at(global_dof_i.CellIndex).at(global_dof_i.DOFIndex);
+
+        switch (local_dof_i.Type)
+        {
+          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
+            continue;
+          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
+            cell0DNumericSolution[p] = assembler_data.solution.GetValue(local_dof_i.Global_Index);
+            break;
+          default:
+            throw std::runtime_error("Unknown DOF Type");
+        }
+      }
+    }
+
+    // Export Cell2Ds
+    {
+      Gedim::VTKUtilities exporter;
+      exporter.AddPolygons(mesh.Cell0DsCoordinates(),
+                           mesh.Cell2DsVertices(),
+                           {
+                             {
+                               "Numeric",
+                               Gedim::VTPProperty::Formats::Points,
+                               static_cast<unsigned int>(cell0DNumericSolution.size()),
+                               cell0DNumericSolution.data()
+                             },
+                             {
+                               "Exact",
+                               Gedim::VTPProperty::Formats::Points,
+                               static_cast<unsigned int>(cell0DExactSolution.size()),
+                               cell0DExactSolution.data()
+                             }
+                           });
+
+      exporter.Export(exportVtuFolder + "/Solution_Cell2Ds.vtu");
+    }
+  }
+
+  Gedim::Profiler::StopTime("ExportSolution");
+  Gedim::Output::PrintStatusProgram("ExportSolution");
+
   return 0;
 }
