@@ -59,11 +59,14 @@ namespace Elliptic_PCC_2D
       };
 
     private:
-      //      void ComputeStrongTerm(const Gedim::GeometryUtilities geometryUtilities,
-      //                             const Gedim::IMeshDAO& mesh,
-      //                             const Gedim::IDOFManagement& dofManager,
-      //                             const Gedim::IStrongBoundaryCondition& strongBoundaryCondition,
-      //                             Gedim::IArray& solutionDirichlet) const;
+      void ComputeStrongTerm(const Gedim::GeometryUtilities& geometryUtilities,
+                             const Gedim::MeshMatricesDAO& mesh,
+                             const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                             const Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData& dofs_data,
+                             const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
+                             const std::function<Eigen::VectorXd(const unsigned int,
+                                                                 const Eigen::MatrixXd&)>& strong_boundary_condition,
+                             Elliptic_PCC_2D_Problem_Data& assembler_data) const;
 
       //      void ComputeWeakTerm(const Gedim::IMeshDAO& mesh,
       //                           const unsigned int& cell2DIndex,
@@ -84,8 +87,10 @@ namespace Elliptic_PCC_2D
                                             const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
                                             const Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData& dofs_data,
                                             const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
-                                            const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& diffusionTerm,
-                                            const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& sourceTerm) const;
+                                            const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& diffusion_term,
+                                            const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& source_term,
+                                            const std::function<Eigen::VectorXd(const unsigned int,
+                                                                                const Eigen::MatrixXd&)>& strong_boundary_condition) const;
 
       VEM_Performance_Result ComputeVemPerformance(const Gedim::GeometryUtilities& geometryUtilities,
                                                    const Gedim::MeshMatricesDAO& mesh,

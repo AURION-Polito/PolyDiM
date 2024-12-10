@@ -44,22 +44,32 @@ struct MeshMatricesDAO_mesh_connectivity_data final
 
 struct Poisson_Polynomial_Problem final
 {
-    static Eigen::VectorXd diffusionTerm(const Eigen::MatrixXd& points)
+    static Eigen::VectorXd diffusion_term(const Eigen::MatrixXd& points)
     {
       const double k = 1.0;
       return Eigen::VectorXd::Constant(points.cols(), k);
     };
 
-    static Eigen::VectorXd sourceTerm(const Eigen::MatrixXd& points)
+    static Eigen::VectorXd source_term(const Eigen::MatrixXd& points)
     {
       return 32.0 * (points.row(1).array() * (1.0 - points.row(1).array()) +
                      points.row(0).array() * (1.0 - points.row(0).array()));
     };
 
+    static Eigen::VectorXd strong_boundary_condition(const unsigned int marker,
+                                                     const Eigen::MatrixXd& points)
+    {
+      if (marker != 1)
+        throw std::runtime_error("Unknown marker");
+
+      return 16.0 * (points.row(1).array() * (1.0 - points.row(1).array()) *
+                     points.row(0).array() * (1.0 - points.row(0).array())) + 1.1;
+    };
+
     static Eigen::VectorXd exact_solution(const Eigen::MatrixXd& points)
     {
       return 16.0 * (points.row(1).array() * (1.0 - points.row(1).array()) *
-                     points.row(0).array() * (1.0 - points.row(0).array()));
+                     points.row(0).array() * (1.0 - points.row(0).array())) + 1.1;
     };
 
     static std::array<Eigen::VectorXd, 3> exact_derivative_solution(const Eigen::MatrixXd& points)
@@ -280,8 +290,9 @@ int main(int argc, char** argv)
                                            meshGeometricData,
                                            dofs_data,
                                            reference_element_data,
-                                           Poisson_Polynomial_Problem::diffusionTerm,
-                                           Poisson_Polynomial_Problem::sourceTerm);
+                                           Poisson_Polynomial_Problem::diffusion_term,
+                                           Poisson_Polynomial_Problem::source_term,
+                                           Poisson_Polynomial_Problem::strong_boundary_condition);
 
   Gedim::Profiler::StopTime("AssembleSystem");
   Gedim::Output::PrintStatusProgram("AssembleSystem");
