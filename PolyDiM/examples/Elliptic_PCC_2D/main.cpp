@@ -263,7 +263,7 @@ int main(int argc, char** argv)
   const auto dofs_data = dofManager.CreateDOFs(meshDOFsInfo,
                                                mesh_connectivity_data);
 
-  Gedim::Output::PrintGenericMessage("\tVEM Space with " +
+  Gedim::Output::PrintGenericMessage("VEM Space with " +
                                      to_string(dofs_data.NumberDOFs) + " DOFs and " +
                                      to_string(dofs_data.NumberStrongs) + " STRONGs", true);
 
