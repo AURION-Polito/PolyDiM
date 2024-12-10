@@ -18,6 +18,7 @@ namespace Elliptic_PCC_2D
   Assembler::Elliptic_PCC_2D_Problem_Data Assembler::Assemble(const Gedim::GeometryUtilities& geometryUtilities,
                                                               const Gedim::MeshMatricesDAO& mesh,
                                                               const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                                              const Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo& mesh_dofs_info,
                                                               const Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData& dofs_data,
                                                               const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
                                                               const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& diffusion_term,
@@ -106,6 +107,8 @@ namespace Elliptic_PCC_2D
 
       const auto& global_dofs = dofs_data.CellsGlobalDOFs[2].at(c);
 
+      assert(local_space.NumBasisFunctions ==  global_dofs.size());
+
       for (unsigned int loc_i = 0; loc_i < global_dofs.size(); ++loc_i)
       {
         const auto& global_dof_i = global_dofs.at(loc_i);
@@ -171,6 +174,7 @@ namespace Elliptic_PCC_2D
     ComputeStrongTerm(geometryUtilities,
                       mesh,
                       mesh_geometric_data,
+                      mesh_dofs_info,
                       dofs_data,
                       reference_element_data,
                       strong_boundary_condition,
@@ -191,6 +195,7 @@ namespace Elliptic_PCC_2D
   void Assembler::ComputeStrongTerm(const Gedim::GeometryUtilities& geometryUtilities,
                                     const Gedim::MeshMatricesDAO& mesh,
                                     const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                    const Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo& mesh_dofs_info,
                                     const Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData& dofs_data,
                                     const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
                                     const std::function<Eigen::VectorXd(const unsigned int,
@@ -198,14 +203,22 @@ namespace Elliptic_PCC_2D
                                     Elliptic_PCC_2D_Problem_Data& assembler_data) const
   {
     // Assemble strong boundary condition on Cell0Ds
-    for (unsigned int p = 0; p < mesh.Cell0DTotalNumber(); p++)
+    for (unsigned int p = 0; p < mesh.Cell0DTotalNumber(); ++p)
     {
-      if (!mesh.Cell0DIsActive(p))
+      const auto& boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(0).at(p);
+
+      if (boundary_info.Type !=
+          Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong)
         continue;
 
       const auto coordinates = mesh.Cell0DCoordinates(p);
 
+      const auto strong_boundary_values = strong_boundary_condition(boundary_info.Marker,
+                                                                    coordinates);
+
       const auto local_dofs = dofs_data.CellsDOFs.at(0).at(p);
+
+      assert(local_dofs.size() == strong_boundary_values.size());
 
       for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
       {
@@ -216,8 +229,7 @@ namespace Elliptic_PCC_2D
           case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
           {
             assembler_data.solutionDirichlet.SetValue(local_dof_i.Global_Index,
-                                                      strong_boundary_condition(local_dof_i.Boundary.Marker,
-                                                                                coordinates)[0]);
+                                                      strong_boundary_values[loc_i]);
           }
             break;
           case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
@@ -228,78 +240,54 @@ namespace Elliptic_PCC_2D
       }
     }
 
-    //    // Assemble strong boundary condition on Cell1Ds
-    //    const auto& referenceSegmentInternalPoints = reference_element_data.Quadrature.ReferenceSegmentInternalPoints;
-    //    const unsigned int numReferenceSegmentInternalPoints = referenceSegmentInternalPoints.cols();
+    // Assemble strong boundary condition on Cell1Ds
+    const auto& referenceSegmentInternalPoints = reference_element_data.Quadrature.ReferenceSegmentInternalPoints;
+    const unsigned int numReferenceSegmentInternalPoints = referenceSegmentInternalPoints.cols();
 
-    //    for (unsigned int e = 0; e < mesh.Cell1DTotalNumber(); e++)
-    //    {
-    //      if (!mesh.Cell1DIsActive(e))
-    //        continue;
+    for (unsigned int e = 0; e < mesh.Cell1DTotalNumber(); ++e)
+    {
+      const auto& boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(1).at(e);
 
-    //      const auto cell1D_origin = mesh.Cell1DOriginCoordinates(e);
-    //      const auto cell1D_end = mesh.Cell1DEndCoordinates(e);
-    //      const auto cell1D_tangent = geometryUtilities.SegmentTangent(cell1D_origin,
-    //                                                                   cell1D_end);
+      if (boundary_info.Type !=
+          Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong)
+        continue;
 
-    //      auto coordinates = Eigen::MatrixXd::Zero(3, numReferenceSegmentInternalPoints);
-    //      for (unsigned int r = 0; r < numReferenceSegmentInternalPoints; r++)
-    //        coordinates.col(r)<< cell1D_origin +
-    //                             referenceSegmentInternalPoints(0, r) * cell1D_tangent;
+      const auto cell1D_origin = mesh.Cell1DOriginCoordinates(e);
+      const auto cell1D_end = mesh.Cell1DEndCoordinates(e);
+      const auto cell1D_tangent = geometryUtilities.SegmentTangent(cell1D_origin,
+                                                                   cell1D_end);
 
-    //      const auto& global_dofs = dofs_data.CellsGlobalDOFs[1].at(e);
+      auto coordinates = Eigen::MatrixXd::Zero(3, numReferenceSegmentInternalPoints);
+      for (unsigned int r = 0; r < numReferenceSegmentInternalPoints; r++)
+        coordinates.col(r)<< cell1D_origin +
+                             referenceSegmentInternalPoints(0, r) * cell1D_tangent;
 
-    //      for (unsigned int loc_i = 0; loc_i < global_dofs.size(); ++loc_i)
-    //      {
-    //        const auto& global_dof_i = global_dofs.at(loc_i);
-    //        const auto& local_dof_i = dofs_data.CellsDOFs.at(global_dof_i.Dimension).at(global_dof_i.CellIndex).at(global_dof_i.DOFIndex);
+      const auto strong_boundary_values = strong_boundary_condition(boundary_info.Marker,
+                                                                    coordinates);
 
-    //        switch (local_dof_i.Type)
-    //        {
-    //          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
-    //          {
-    //            assembler_data.solutionDirichlet.SetValue(local_dof_i.Global_Index,
-    //                                                      strong_boundary_condition(local_dof_i.Boundary.Marker,
-    //                                                                                coordinates)[0]);
-    //          }
-    //            break;
-    //          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
-    //            continue;
-    //          default:
-    //            throw std::runtime_error("Unknown DOF Type");
-    //        }
-    //      }
+      const auto local_dofs = dofs_data.CellsDOFs.at(1).at(e);
 
-    //      if (!dofManager.IsCellStrongBoundaryCondition(e, 1))
-    //        continue;
+      assert(local_dofs.size() == strong_boundary_values.size());
 
-    //      const unsigned int edgeMarker = dofManager.CellMarker(e, 1);
+      for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
+      {
+        const auto& local_dof_i = local_dofs.at(loc_i);
 
-    //      const Eigen::Vector3d cell1DOrigin = mesh.Cell1DOriginCoordinates(e);
-    //      const Eigen::Vector3d cell1DEnd = mesh.Cell1DEndCoordinates(e);
-    //      const Eigen::Vector3d cell1DTangent = geometryUtilities.SegmentTangent(cell1DOrigin,
-    //                                                                             cell1DEnd);
-    //      MatrixXd coordinates;
-    //      coordinates.setZero(3, numReferenceSegmentInternalPoints);
-    //      for (unsigned int r = 0; r < numReferenceSegmentInternalPoints; r++)
-    //        coordinates.col(r)<< cell1DOrigin + referenceSegmentInternalPoints(0, r) * cell1DTangent;
-
-    //      const unsigned int numCell1DLocals = dofManager.NumberLocals(e, 1);
-
-    //      for (unsigned int l = 0; l < numCell1DLocals; l++)
-    //      {
-    //        if (!dofManager.IsStrongBoundaryCondition(e, l, 1))
-    //          continue;
-
-    //        const int globalDirichlet_i = dofManager.PartialGlobalIndex(e, l, 1);
-
-    //        VectorXd dirichletTermValue = strongBoundaryCondition.Evaluate(edgeMarker,
-    //                                                                       coordinates.col(l));
-
-    //        solutionDirichlet.SetValue(globalDirichlet_i,
-    //                                   dirichletTermValue(0));
-    //      }
-    //    }
+        switch (local_dof_i.Type)
+        {
+          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
+          {
+            assembler_data.solutionDirichlet.SetValue(local_dof_i.Global_Index,
+                                                      strong_boundary_values[loc_i]);
+          }
+            break;
+          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
+            continue;
+          default:
+            throw std::runtime_error("Unknown DOF Type");
+        }
+      }
+    }
   }
   // ***************************************************************************
   //  void Assembler::ComputeWeakTerm(const Gedim::IMeshDAO& mesh,

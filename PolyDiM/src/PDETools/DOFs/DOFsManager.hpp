@@ -65,7 +65,6 @@ namespace Polydim
 
                   Types Type;
                   unsigned int Global_Index;
-                  typename MeshDOFsInfo::BoundaryInfo Boundary;
               };
 
               struct GlobalCell_DOF
