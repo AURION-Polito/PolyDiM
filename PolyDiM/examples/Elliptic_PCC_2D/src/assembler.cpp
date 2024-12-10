@@ -290,122 +290,118 @@ namespace Elliptic_PCC_2D
     }
   }
   // ***************************************************************************
-  //  void Assembler::ComputeWeakTerm(const Gedim::IMeshDAO& mesh,
-  //                                  const unsigned int& cell2DIndex,
-  //                                  const VectorXd& cell2DEdgeLengths,
-  //                                  const MatrixXd& cell2DEdgeTangents,
-  //                                  const MatrixXd& cell2DEdgeNormals,
-  //                                  const MatrixXd& cell2DVertices,
-  //                                  const vector<bool>& cell2DEdgeDirections,
-  //                                  const Gedim::IDOFManagement& dofManager,
-  //                                  const Gedim::VEM_IValues_PCC_2D& vemValues,
-  //                                  const Gedim::VEM_ValuesData& vemLocalSpace,
-  //                                  const Gedim::VEM_IQuadrature2D& vemQuadrature,
-  //                                  const Gedim::IWeakBoundaryCondition& weakBoundaryCondition,
-  //                                  Gedim::IArray& rightHandSide) const
-  //  {
-  //    if (dofManager.NumberLocalWeaks(cell2DIndex) == 0)
-  //      return;
+  void Assembler::ComputeWeakTerm(const unsigned int& cell2DIndex,
+                                  const VectorXd& cell2DEdgeLengths,
+                                  const MatrixXd& cell2DEdgeTangents,
+                                  const MatrixXd& cell2DEdgeNormals,
+                                  const MatrixXd& cell2DVertices,
+                                  const vector<bool>& cell2DEdgeDirections,
+                                  const Gedim::IDOFManagement& dofManager,
+                                  const Gedim::VEM_IValues_PCC_2D& vemValues,
+                                  const Gedim::VEM_ValuesData& vemLocalSpace,
+                                  const Gedim::VEM_IQuadrature2D& vemQuadrature,
+                                  const Gedim::IWeakBoundaryCondition& weakBoundaryCondition,
+                                  Gedim::IArray& rightHandSide,
+                                  const Gedim::GeometryUtilities& geometryUtilities,
+                                  const Gedim::MeshMatricesDAO& mesh,
+                                  const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                  const Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo& mesh_dofs_info,
+                                  const Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData& dofs_data,
+                                  const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
+                                  const std::function<Eigen::VectorXd(const unsigned int,
+                                                                      const Eigen::MatrixXd&)>& weak_boundary_condition,
+                                  Elliptic_PCC_2D_Problem_Data& assembler_data) const
+  {
+    const unsigned numVertices = cell2DVertices.cols();
 
-  //    const unsigned numVertices = cell2DVertices.cols();
+    for(unsigned int ed = 0; ed < numVertices; ed ++)
+    {
+      const unsigned int cell1D_index = mesh.Cell2DEdge(cell2DIndex,
+                                                        ed);
 
-  //    for(unsigned int ed = 0; ed < numVertices; ed ++)
-  //    {
-  //      const unsigned int edgeMeshIndex = mesh.Cell2DEdge(cell2DIndex,
-  //                                                         ed);
+      const auto& boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(1).at(cell1D_index);
 
-  //      if (!dofManager.IsCellWeakBoundaryCondition(edgeMeshIndex, 1))
-  //        continue;
+      if (boundary_info.Type !=
+          Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak)
+        continue;
 
-  //      const unsigned int edgeMarker = dofManager.CellMarker(edgeMeshIndex, 1);
+      Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace vem_local_space;
 
-  //      // compute vem values
-  //      const unsigned int quadratureOrder = max(weakBoundaryCondition.QuadratureOrder(edgeMarker),
-  //                                               2 * vemLocalSpace.Order);
+      // compute vem values
+      const auto weakReferenceSegment = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * reference_element_data.Order);
 
-  //      Eigen::MatrixXd weakReferenceSegmentPoints;
-  //      Eigen::VectorXd weakReferenceSegmentWeights;
-  //      Gedim::Quadrature_Gauss1D::FillPointsAndWeights(quadratureOrder,
-  //                                                      weakReferenceSegmentPoints,
-  //                                                      weakReferenceSegmentWeights);
+      const VectorXd pointsCurvilinearCoordinates = weakReferenceSegment.Points.row(0).transpose();
 
-  //      const VectorXd pointsCurvilinearCoordinates = weakReferenceSegmentPoints.row(0).transpose();
+      const auto weak_basis_function_values = vem_local_space.ComputeValuesOnEdge(reference_element_data,
+                                                                                  pointsCurvilinearCoordinates);
 
-  //      VectorXd edgeInternalPoints; // edge DOF: Gauss Lobatto quadrature points
-  //      const MatrixXd vemRefSegmentInternalPoints = vemQuadrature.ReferenceSegmentInternalPoints();
-  //      if (vemRefSegmentInternalPoints.rows() > 0)
-  //        edgeInternalPoints = vemRefSegmentInternalPoints.row(0).transpose();
+      // map edge internal quadrature points
+      const Vector3d& edgeStart = cell2DEdgeDirections[ed] ? cell2DVertices.col(ed) :
+                                                             cell2DVertices.col((ed + 1) % numVertices);
+      const Vector3d& edgeTangent = cell2DEdgeTangents.col(ed);
+      const double direction = cell2DEdgeDirections[ed] ? 1.0 : -1.0;
 
-  //      const MatrixXd weakBasisFunctionsValues = vemValues.ComputeValuesOnEdge(edgeInternalPoints,
-  //                                                                              pointsCurvilinearCoordinates);
+      const unsigned int numEdgeWeakQuadraturePoints = weakReferenceSegment.Points.cols();
+      MatrixXd weakQuadraturePoints(3, numEdgeWeakQuadraturePoints);
+      for (unsigned int q = 0; q < numEdgeWeakQuadraturePoints; q++)
+      {
+        weakQuadraturePoints.col(q) = edgeStart + direction *
+                                      weakReferenceSegment.Points(0, q) *
+                                      edgeTangent;
+      }
+      const double absMapDeterminant = std::abs(cell2DEdgeLengths[ed]);
+      const MatrixXd weakQuadratureWeights = weakReferenceSegment.Weights *
+                                             absMapDeterminant;
 
-  //      // map edge internal quadrature points
-  //      const Vector3d& edgeStart = cell2DEdgeDirections[ed] ? cell2DVertices.col(ed) :
-  //                                                             cell2DVertices.col((ed + 1) % numVertices);
-  //      const Vector3d& edgeTangent = cell2DEdgeTangents.col(ed);
-  //      const double direction = cell2DEdgeDirections[ed] ? 1.0 : -1.0;
+      const VectorXd neumannValues = weak_boundary_condition(boundary_info.Marker,
+                                                             weakQuadraturePoints);
 
-  //      const unsigned int numEdgeWeakQuadraturePoints = weakReferenceSegmentPoints.cols();
-  //      MatrixXd weakQuadraturePoints(3, numEdgeWeakQuadraturePoints);
-  //      for (unsigned int q = 0; q < numEdgeWeakQuadraturePoints; q++)
-  //      {
-  //        weakQuadraturePoints.col(q) = edgeStart + direction *
-  //                                      weakReferenceSegmentPoints(0, q) *
-  //                                      edgeTangent;
-  //      }
-  //      const double absMapDeterminant = std::abs(cell2DEdgeLengths[ed]);
-  //      const MatrixXd weakQuadratureWeights = weakReferenceSegmentWeights *
-  //                                             absMapDeterminant;
+      // compute values of Neumann condition
+      const VectorXd neumannContributions = weak_basis_function_values.transpose() *
+                                            weakQuadratureWeights.asDiagonal() *
+                                            neumannValues;
 
-  //      const VectorXd neumannValues = weakBoundaryCondition.Evaluate(edgeMarker,
-  //                                                                    weakQuadraturePoints);
+      // add contributions relative to edge extrema.
+      for (unsigned int p = 0; p < 2; ++p)
+      {
+        const unsigned int vertexGlobalIndex = mesh.Cell1DVertex(cell1D_index,
+                                                                 p);
 
-  //      // compute values of Neumann condition
-  //      const VectorXd neumannContributions = weakBasisFunctionsValues.transpose() *
-  //                                            weakQuadratureWeights.asDiagonal() *
-  //                                            neumannValues;
+        //        if (dofManager.CellMarker(vertexGlobalIndex, 0) != edgeMarker)
+        //          continue;
 
-  //      // add contributions relative to edge extrema.
-  //      for(unsigned int p = 0; p < 2; ++p)
-  //      {
-  //        const unsigned int vertexGlobalIndex = mesh.Cell1DVertex(edgeMeshIndex,
-  //                                                                 p);
+        const unsigned int numCell0DLocals = dofManager.NumberLocals(vertexGlobalIndex,
+                                                                     0);
+        for (unsigned int l = 0; l < numCell0DLocals; l++)
+        {
+          //                    if (!dofManager.IsWeakBoundaryCondition(vertexGlobalIndex, l, 0))
+          //                      continue;
+          if (dofManager.IsStrongBoundaryCondition(vertexGlobalIndex, l, 0))
+            continue;
 
-  //        //        if (dofManager.CellMarker(vertexGlobalIndex, 0) != edgeMarker)
-  //        //          continue;
+          const int globalNeumann_i = dofManager.GlobalIndex(vertexGlobalIndex,
+                                                             l,
+                                                             0);
+          rightHandSide.AddValue(globalNeumann_i, neumannContributions(p));
+        }
+      }
 
-  //        const unsigned int numCell0DLocals = dofManager.NumberLocals(vertexGlobalIndex,
-  //                                                                     0);
-  //        for (unsigned int l = 0; l < numCell0DLocals; l++)
-  //        {
-  //          //                    if (!dofManager.IsWeakBoundaryCondition(vertexGlobalIndex, l, 0))
-  //          //                      continue;
-  //          if (dofManager.IsStrongBoundaryCondition(vertexGlobalIndex, l, 0))
-  //            continue;
+      const unsigned int numCell1DLocals = dofManager.NumberLocals(edgeMeshIndex,
+                                                                   1);
 
-  //          const int globalNeumann_i = dofManager.GlobalIndex(vertexGlobalIndex,
-  //                                                             l,
-  //                                                             0);
-  //          rightHandSide.AddValue(globalNeumann_i, neumannContributions(p));
-  //        }
-  //      }
+      // add contributions relative to edge internal dofs (here we assume we are dealing with
+      // conforming VEM)
+      for (unsigned int l = 0; l < numCell1DLocals; l++)
+      {
+        const unsigned int localIndex = cell2DEdgeDirections[ed] ? l :
+                                                                   numCell1DLocals - 1 - l;
 
-  //      const unsigned int numCell1DLocals = dofManager.NumberLocals(edgeMeshIndex,
-  //                                                                   1);
+        const int globalNeumann_i = dofManager.GlobalIndex(edgeMeshIndex, localIndex, 1);
 
-  //      // add contributions relative to edge internal dofs (here we assume we are dealing with
-  //      // conforming VEM)
-  //      for (unsigned int l = 0; l < numCell1DLocals; l++)
-  //      {
-  //        const unsigned int localIndex = cell2DEdgeDirections[ed] ? l :
-  //                                                                   numCell1DLocals - 1 - l;
-
-  //        const int globalNeumann_i = dofManager.GlobalIndex(edgeMeshIndex, localIndex, 1);
-
-  //        rightHandSide.AddValue(globalNeumann_i, neumannContributions(localIndex + 2));
-  //      }
-  //    }
-  //  }
+        rightHandSide.AddValue(globalNeumann_i, neumannContributions(localIndex + 2));
+      }
+    }
+  }
   // ***************************************************************************
   Assembler::VEM_Performance_Result Assembler::ComputeVemPerformance(const Gedim::GeometryUtilities& geometryUtilities,
                                                                      const Gedim::MeshMatricesDAO& mesh,
