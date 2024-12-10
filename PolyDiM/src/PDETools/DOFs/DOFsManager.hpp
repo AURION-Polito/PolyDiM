@@ -115,7 +115,6 @@ namespace Polydim
               const unsigned int numCellDofs = cells_num_dofs.at(c);
 
               const auto& cell_boundary_info = cells_boundary_info.at(c);
-              const unsigned int cellMarker = cell_boundary_info.Marker;
               const BoundaryTypes& cellBoundaryType = cell_boundary_info.Type;
 
               cellsDOFs.at(c).resize(numCellDofs);
@@ -129,7 +128,6 @@ namespace Polydim
                     auto& dof = cellsDOFs.at(c).at(d);
                     dof.Type = DOFsData::DOF::Types::DOF;
                     dof.Global_Index = dofs.NumberDOFs + d;
-                    dof.Boundary = { cellBoundaryType, cellMarker };
                   }
 
                   dofs.NumberDOFs += numCellDofs;
@@ -142,7 +140,6 @@ namespace Polydim
                     auto& dof = cellsDOFs.at(c).at(d);
                     dof.Type = DOFsData::DOF::Types::Strong;
                     dof.Global_Index = dofs.NumberStrongs + d;
-                    dof.Boundary = { cellBoundaryType, cellMarker };
                   }
 
                   dofs.NumberStrongs += numCellDofs;
@@ -155,7 +152,6 @@ namespace Polydim
                     auto& dof = cellsDOFs.at(c).at(d);
                     dof.Type = DOFsData::DOF::Types::DOF;
                     dof.Global_Index = dofs.NumberDOFs + d;
-                    dof.Boundary = { cellBoundaryType, cellMarker };
                   }
 
                   dofs.NumberDOFs += numCellDofs;

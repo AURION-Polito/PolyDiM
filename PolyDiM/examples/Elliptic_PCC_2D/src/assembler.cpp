@@ -257,7 +257,7 @@ namespace Elliptic_PCC_2D
       const auto cell1D_tangent = geometryUtilities.SegmentTangent(cell1D_origin,
                                                                    cell1D_end);
 
-      auto coordinates = Eigen::MatrixXd::Zero(3, numReferenceSegmentInternalPoints);
+      Eigen::MatrixXd coordinates = Eigen::MatrixXd::Zero(3, numReferenceSegmentInternalPoints);
       for (unsigned int r = 0; r < numReferenceSegmentInternalPoints; r++)
         coordinates.col(r)<< cell1D_origin +
                              referenceSegmentInternalPoints(0, r) * cell1D_tangent;

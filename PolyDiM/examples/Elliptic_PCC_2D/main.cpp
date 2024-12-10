@@ -288,6 +288,7 @@ int main(int argc, char** argv)
   auto assembler_data = assembler.Assemble(geometryUtilities,
                                            mesh,
                                            meshGeometricData,
+                                           meshDOFsInfo,
                                            dofs_data,
                                            reference_element_data,
                                            Poisson_Polynomial_Problem::diffusion_term,
