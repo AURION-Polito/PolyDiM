@@ -8,6 +8,7 @@
 #include "assembler.hpp"
 #include "VEM_DF_PCC_2D_Velocity_LocalSpace.hpp"
 #include "ranges"
+#include "CommonUtilities.hpp"
 
 struct ProblemData final
 {
@@ -54,7 +55,7 @@ struct PatchTest final
 
     static array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd& points)
     {
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array();
 
         Eigen::ArrayXd result = Eigen::ArrayXd::Constant(points.cols(), 1.0);
         for(int i = 0; i < order-2; i++)
@@ -74,7 +75,7 @@ struct PatchTest final
         if (marker != 1)
             throw std::runtime_error("Unknown marker");
 
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array();
 
         Eigen::ArrayXd result = Eigen::ArrayXd::Constant(points.cols(), 1.0);
         for(int i = 0; i < order; i++)
@@ -91,18 +92,26 @@ struct PatchTest final
     static Eigen::VectorXd exact_pressure(const Eigen::MatrixXd& points)
     {
 
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array();
+        double mean = 0.0;
 
         Eigen::ArrayXd result = Eigen::ArrayXd::Constant(points.cols(), 1.0);
         for(int i = 0; i < order - 1; i++)
+        {
             result = result * polynomial;
+            mean += Gedim::Utilities::BinomialCoefficient(order-1.0, i) / ((i + 1.0) * (order - i));
+        }
+
+        mean += 1.0 / order;
+
+        result -= mean;
 
         return result;
     };
 
     static std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd& points)
     {
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array();
 
         Eigen::ArrayXd result = Eigen::ArrayXd::Constant(points.cols(), 1.0);
         for(int i = 0; i < order; i++)
@@ -118,13 +127,13 @@ struct PatchTest final
 
     static std::array<Eigen::VectorXd, 9> exact_derivatives_velocity(const Eigen::MatrixXd& points)
     {
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array();
 
         Eigen::ArrayXd result = Eigen::ArrayXd::Constant(points.cols(), 1.0);
         for(int i = 0; i < order - 1; i++)
             result = result * polynomial;
 
-        result *= order-1;
+        result *= order;
 
         return
             {
@@ -222,8 +231,8 @@ int main(int argc, char** argv)
     Eigen::Vector3d rectangleBaseTangent = domain.Domain.Vertices.col(1) - domain.Domain.Vertices.col(0);
     Eigen::Vector3d rectangleHeightTangent = domain.Domain.Vertices.rightCols(1) - domain.Domain.Vertices.col(0);
 
-    vector<double> baseMeshCurvilinearCoordinates = geometryUtilities.EquispaceCoordinates(2, 0.0, 1.0, 1);
-    vector<double> heightMeshCurvilinearCoordinates = geometryUtilities.EquispaceCoordinates(2, 0.0, 1.0, 1);
+    vector<double> baseMeshCurvilinearCoordinates = geometryUtilities.EquispaceCoordinates(4, 0.0, 1.0, 1);
+    vector<double> heightMeshCurvilinearCoordinates = geometryUtilities.EquispaceCoordinates(4, 0.0, 1.0, 1);
 
     meshUtilities.CreateRectangleMesh(origin,
                                       rectangleBaseTangent,
@@ -314,7 +323,7 @@ int main(int argc, char** argv)
                                                         0
                                                     });
 
-        for (unsigned int v = 0; v < mesh.Cell1DTotalNumber(); v++)
+        for (unsigned int v = 0; v < mesh.Cell0DTotalNumber(); v++)
         {
             if (mesh.Cell0DMarker(v) == 0)
                 continue;
@@ -450,8 +459,6 @@ int main(int argc, char** argv)
                                              PatchTest::diffusion_term,
                                              PatchTest::source_term,
                                              PatchTest::strong_boundary_condition);
-
-    cout << assembler_data.globalMatrixA << endl;
 
     Gedim::Profiler::StopTime("AssembleSystem");
     Gedim::Output::PrintStatusProgram("AssembleSystem");
