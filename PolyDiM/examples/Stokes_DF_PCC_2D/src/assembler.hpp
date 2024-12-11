@@ -64,11 +64,12 @@ private:
     void ComputeStrongTerm(const Gedim::GeometryUtilities& geometryUtilities,
                            const Gedim::MeshMatricesDAO& mesh,
                            const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
-                           const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo& mesh_dofs_info,
-                           const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
+                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo>& mesh_dofs_info,
+                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData>& dofs_data,
+                           const std::vector<unsigned int> &offsetStrongs,
                            const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data& reference_element_data,
-                           const std::function<Eigen::VectorXd(const unsigned int,
-                                                               const Eigen::MatrixXd&)>& strong_boundary_condition,
+                           const std::function<std::array<Eigen::VectorXd, 3>(const unsigned int,
+                                                                              const Eigen::MatrixXd&)>& strong_boundary_condition,
                            Stokes_DF_PCC_2D_Problem_Data& assembler_data) const;
 
 public:
