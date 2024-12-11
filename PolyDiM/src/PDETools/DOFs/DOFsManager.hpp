@@ -5,6 +5,8 @@
 #include <concepts>
 #include <array>
 
+#define DOFSMANAGER_MAX_DIMENSION 3
+
 namespace Polydim
 {
   namespace PDETools
@@ -26,7 +28,6 @@ namespace Polydim
       { mesh.Cell3D_edges(0) } -> std::same_as<std::vector<unsigned int>>;
       { mesh.Cell3D_faces(0) } -> std::same_as<std::vector<unsigned int>>; };
 
-      template <unsigned int dimension>
       class DOFsManager
       {
         public:
@@ -46,8 +47,8 @@ namespace Polydim
                   unsigned int Marker;
               };
 
-              std::array<std::vector<unsigned int>, dimension + 1> CellsNumDOFs;
-              std::array<std::vector<BoundaryInfo>, dimension + 1> CellsBoundaryInfo;
+              std::array<std::vector<unsigned int>, DOFSMANAGER_MAX_DIMENSION + 1> CellsNumDOFs;
+              std::array<std::vector<BoundaryInfo>, DOFSMANAGER_MAX_DIMENSION + 1> CellsBoundaryInfo;
           };
 
           using BoundaryTypes = typename MeshDOFsInfo::BoundaryInfo::BoundaryTypes;
@@ -76,8 +77,8 @@ namespace Polydim
 
               unsigned int NumberDOFs;
               unsigned int NumberStrongs;
-              std::array<std::vector<std::vector<DOF>>, dimension + 1> CellsDOFs;
-              std::array<std::vector<std::vector<GlobalCell_DOF>>, dimension + 1> CellsGlobalDOFs;
+              std::array<std::vector<std::vector<DOF>>, DOFSMANAGER_MAX_DIMENSION + 1> CellsDOFs;
+              std::array<std::vector<std::vector<GlobalCell_DOF>>, DOFSMANAGER_MAX_DIMENSION + 1> CellsGlobalDOFs;
           };
 
         private:
@@ -164,6 +165,7 @@ namespace Polydim
             }
           }
 
+          template <unsigned int dimension>
           void CreateCell0DDOFs(const MeshDOFsInfo& meshDOFsInfo,
                                 DOFsData& dofs) const
           {
@@ -196,7 +198,8 @@ namespace Polydim
             }
           }
 
-          template <class mesh_connectivity_data_class>
+          template <unsigned int dimension,
+                    class mesh_connectivity_data_class>
           void CreateCell1DDOFs(const MeshDOFsInfo& meshDOFsInfo,
                                 const mesh_connectivity_data_class& mesh,
                                 DOFsData& dofs) const requires(is_mesh_connectivity_class_1D<mesh_connectivity_data_class>)
@@ -249,7 +252,8 @@ namespace Polydim
             }
           }
 
-          template <class mesh_connectivity_data_class>
+          template <unsigned int dimension,
+                    class mesh_connectivity_data_class>
           void CreateCell2DDOFs(const MeshDOFsInfo& meshDOFsInfo,
                                 const mesh_connectivity_data_class& mesh,
                                 DOFsData& dofs) const requires(is_mesh_connectivity_class_2D<mesh_connectivity_data_class>)
@@ -318,7 +322,8 @@ namespace Polydim
             }
           }
 
-          template <class mesh_connectivity_data_class>
+          template <unsigned int dimension,
+                    class mesh_connectivity_data_class>
           void CreateCell3DDOFs(const MeshDOFsInfo& meshDOFsInfo,
                                 const mesh_connectivity_data_class& mesh,
                                 DOFsData& dofs) const requires(is_mesh_connectivity_class_3D<mesh_connectivity_data_class>)
@@ -403,6 +408,7 @@ namespace Polydim
           }
 
         public:
+          template <unsigned int dimension>
           DOFsData CreateDOFs(const MeshDOFsInfo& meshDOFsInfo) const requires(dimension == 0)
           {
             DOFsData result;
@@ -410,13 +416,14 @@ namespace Polydim
             result.NumberDOFs = 0;
             result.NumberStrongs = 0;
 
-            CreateCell0DDOFs(meshDOFsInfo,
-                             result);
+            CreateCell0DDOFs<dimension>(meshDOFsInfo,
+                                        result);
 
             return result;
           }
 
-          template <class mesh_connectivity_data_class>
+          template <unsigned int dimension,
+                    class mesh_connectivity_data_class>
           DOFsData CreateDOFs(const MeshDOFsInfo& meshDOFsInfo,
                               const mesh_connectivity_data_class& mesh) const requires(dimension == 1)
           {
@@ -425,17 +432,18 @@ namespace Polydim
             result.NumberDOFs = 0;
             result.NumberStrongs = 0;
 
-            CreateCell0DDOFs(meshDOFsInfo,
-                             result);
+            CreateCell0DDOFs<dimension>(meshDOFsInfo,
+                                        result);
 
-            CreateCell1DDOFs(meshDOFsInfo,
-                             mesh,
-                             result);
+            CreateCell1DDOFs<dimension>(meshDOFsInfo,
+                                        mesh,
+                                        result);
 
             return result;
           }
 
-          template <class mesh_connectivity_data_class>
+          template <unsigned int dimension,
+                    class mesh_connectivity_data_class>
           DOFsData CreateDOFs(const MeshDOFsInfo& meshDOFsInfo,
                               const mesh_connectivity_data_class& mesh) const requires(dimension == 2)
           {
@@ -444,21 +452,22 @@ namespace Polydim
             result.NumberDOFs = 0;
             result.NumberStrongs = 0;
 
-            CreateCell0DDOFs(meshDOFsInfo,
-                             result);
+            CreateCell0DDOFs<dimension>(meshDOFsInfo,
+                                        result);
 
-            CreateCell1DDOFs(meshDOFsInfo,
-                             mesh,
-                             result);
+            CreateCell1DDOFs<dimension>(meshDOFsInfo,
+                                        mesh,
+                                        result);
 
-            CreateCell2DDOFs(meshDOFsInfo,
-                             mesh,
-                             result);
+            CreateCell2DDOFs<dimension>(meshDOFsInfo,
+                                        mesh,
+                                        result);
 
             return result;
           }
 
-          template <class mesh_connectivity_data_class>
+          template <unsigned int dimension,
+                    class mesh_connectivity_data_class>
           DOFsData CreateDOFs(const MeshDOFsInfo& meshDOFsInfo,
                               const mesh_connectivity_data_class& mesh) const requires(dimension == 3)
           {
@@ -467,20 +476,20 @@ namespace Polydim
             result.NumberDOFs = 0;
             result.NumberStrongs = 0;
 
-            CreateCell0DDOFs(meshDOFsInfo,
-                             result);
+            CreateCell0DDOFs<dimension>(meshDOFsInfo,
+                                        result);
 
-            CreateCell1DDOFs(meshDOFsInfo,
-                             mesh,
-                             result);
+            CreateCell1DDOFs<dimension>(meshDOFsInfo,
+                                        mesh,
+                                        result);
 
-            CreateCell2DDOFs(meshDOFsInfo,
-                             mesh,
-                             result);
+            CreateCell2DDOFs<dimension>(meshDOFsInfo,
+                                        mesh,
+                                        result);
 
-            CreateCell3DDOFs(meshDOFsInfo,
-                             mesh,
-                             result);
+            CreateCell3DDOFs<dimension>(meshDOFsInfo,
+                                        mesh,
+                                        result);
 
             return result;
           }

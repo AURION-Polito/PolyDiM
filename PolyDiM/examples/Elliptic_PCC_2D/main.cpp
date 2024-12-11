@@ -236,26 +236,26 @@ int main(int argc, char** argv)
 
   const auto reference_element_data = vem_reference_element.Create(config.VemOrder());
 
-  Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo meshDOFsInfo;
+  Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo meshDOFsInfo;
   meshDOFsInfo.CellsNumDOFs[0].resize(mesh.Cell0DTotalNumber(),
                                       reference_element_data.NumDofs0D);
   meshDOFsInfo.CellsBoundaryInfo[0].resize(mesh.Cell0DTotalNumber(),
                                            {
-                                             Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
+                                             Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
                                              0
                                            });
   meshDOFsInfo.CellsNumDOFs[1].resize(mesh.Cell1DTotalNumber(),
                                       reference_element_data.NumDofs1D);
   meshDOFsInfo.CellsBoundaryInfo[1].resize(mesh.Cell1DTotalNumber(),
                                            {
-                                             Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
+                                             Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
                                              0
                                            });
   meshDOFsInfo.CellsNumDOFs[2].resize(mesh.Cell2DTotalNumber(),
                                       reference_element_data.NumDofs2D);
   meshDOFsInfo.CellsBoundaryInfo[2].resize(mesh.Cell2DTotalNumber(),
                                            {
-                                             Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
+                                             Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
                                              0
                                            });
 
@@ -276,20 +276,20 @@ int main(int argc, char** argv)
       case 3:
       case 4:
         boundary_info.Marker = 1;
-        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong;
+        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong;
         break;
       case 5:
       case 7:
         boundary_info.Marker = 1;
-        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong;
+        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong;
         break;
       case 6:
         boundary_info.Marker = 2;
-        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak;
+        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak;
         break;
       case 8:
         boundary_info.Marker = 4;
-        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak;
+        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak;
         break;
       default:
         throw std::runtime_error("Unknown mesh marker");
@@ -308,15 +308,15 @@ int main(int argc, char** argv)
       case 5:
       case 7:
         boundary_info.Marker = 1;
-        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong;
+        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong;
         break;
       case 6:
         boundary_info.Marker = 2;
-        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak;
+        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak;
         break;
       case 8:
         boundary_info.Marker = 4;
-        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak;
+        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak;
         break;
       default:
         throw std::runtime_error("Unknown mesh marker");
@@ -327,9 +327,9 @@ int main(int argc, char** argv)
     mesh
   };
 
-  Polydim::PDETools::DOFs::DOFsManager<2> dofManager;
-  const auto dofs_data = dofManager.CreateDOFs(meshDOFsInfo,
-                                               mesh_connectivity_data);
+  Polydim::PDETools::DOFs::DOFsManager dofManager;
+  const auto dofs_data = dofManager.CreateDOFs<2>(meshDOFsInfo,
+                                                  mesh_connectivity_data);
 
   Gedim::Output::PrintGenericMessage("VEM Space with " +
                                      to_string(dofs_data.NumberDOFs) + " DOFs and " +

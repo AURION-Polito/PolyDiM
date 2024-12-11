@@ -1,6 +1,4 @@
-add_subdirectory(DOFs)
-add_subdirectory(Equations)
-add_subdirectory(Assembler)
+list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/Assembler_Utilities.hpp)
 
 list(APPEND polydim_src_includes ${CMAKE_CURRENT_SOURCE_DIR})
 
