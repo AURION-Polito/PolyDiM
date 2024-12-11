@@ -24,7 +24,9 @@ namespace Elliptic_PCC_2D
                                                               const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& diffusion_term,
                                                               const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& source_term,
                                                               const std::function<Eigen::VectorXd(const unsigned int,
-                                                                                                  const Eigen::MatrixXd&)>& strong_boundary_condition) const
+                                                                                                  const Eigen::MatrixXd&)>& strong_boundary_condition,
+                                                              const std::function<Eigen::VectorXd(const unsigned int,
+                                                                                                  const Eigen::MatrixXd&)>& weak_boundary_condition) const
   {
     Elliptic_PCC_2D_Problem_Data result;
 
@@ -169,6 +171,15 @@ namespace Elliptic_PCC_2D
           }
         }
       }
+
+      ComputeWeakTerm(c,
+                      mesh,
+                      polygon,
+                      mesh_dofs_info,
+                      dofs_data,
+                      reference_element_data,
+                      weak_boundary_condition,
+                      result);
     }
 
     ComputeStrongTerm(geometryUtilities,
@@ -290,21 +301,9 @@ namespace Elliptic_PCC_2D
     }
   }
   // ***************************************************************************
-  void Assembler::ComputeWeakTerm(const unsigned int& cell2DIndex,
-                                  const VectorXd& cell2DEdgeLengths,
-                                  const MatrixXd& cell2DEdgeTangents,
-                                  const MatrixXd& cell2DEdgeNormals,
-                                  const MatrixXd& cell2DVertices,
-                                  const vector<bool>& cell2DEdgeDirections,
-                                  const Gedim::IDOFManagement& dofManager,
-                                  const Gedim::VEM_IValues_PCC_2D& vemValues,
-                                  const Gedim::VEM_ValuesData& vemLocalSpace,
-                                  const Gedim::VEM_IQuadrature2D& vemQuadrature,
-                                  const Gedim::IWeakBoundaryCondition& weakBoundaryCondition,
-                                  Gedim::IArray& rightHandSide,
-                                  const Gedim::GeometryUtilities& geometryUtilities,
+  void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
                                   const Gedim::MeshMatricesDAO& mesh,
-                                  const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                  const Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry& polygon,
                                   const Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo& mesh_dofs_info,
                                   const Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData& dofs_data,
                                   const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
@@ -312,7 +311,7 @@ namespace Elliptic_PCC_2D
                                                                       const Eigen::MatrixXd&)>& weak_boundary_condition,
                                   Elliptic_PCC_2D_Problem_Data& assembler_data) const
   {
-    const unsigned numVertices = cell2DVertices.cols();
+    const unsigned numVertices = polygon.Vertices.cols();
 
     for(unsigned int ed = 0; ed < numVertices; ed ++)
     {
@@ -336,10 +335,12 @@ namespace Elliptic_PCC_2D
                                                                                   pointsCurvilinearCoordinates);
 
       // map edge internal quadrature points
-      const Vector3d& edgeStart = cell2DEdgeDirections[ed] ? cell2DVertices.col(ed) :
-                                                             cell2DVertices.col((ed + 1) % numVertices);
-      const Vector3d& edgeTangent = cell2DEdgeTangents.col(ed);
-      const double direction = cell2DEdgeDirections[ed] ? 1.0 : -1.0;
+      const Vector3d& edgeStart = polygon.EdgesDirection[ed] ?
+                                    polygon.Vertices.col(ed) :
+                                    polygon.Vertices.col((ed + 1) % numVertices);
+
+      const Vector3d& edgeTangent = polygon.EdgesTangent.col(ed);
+      const double direction = polygon.EdgesDirection[ed] ? 1.0 : -1.0;
 
       const unsigned int numEdgeWeakQuadraturePoints = weakReferenceSegment.Points.cols();
       MatrixXd weakQuadraturePoints(3, numEdgeWeakQuadraturePoints);
@@ -349,7 +350,7 @@ namespace Elliptic_PCC_2D
                                       weakReferenceSegment.Points(0, q) *
                                       edgeTangent;
       }
-      const double absMapDeterminant = std::abs(cell2DEdgeLengths[ed]);
+      const double absMapDeterminant = std::abs(polygon.EdgesLength[ed]);
       const MatrixXd weakQuadratureWeights = weakReferenceSegment.Weights *
                                              absMapDeterminant;
 
@@ -361,44 +362,56 @@ namespace Elliptic_PCC_2D
                                             weakQuadratureWeights.asDiagonal() *
                                             neumannValues;
 
-      // add contributions relative to edge extrema.
       for (unsigned int p = 0; p < 2; ++p)
       {
-        const unsigned int vertexGlobalIndex = mesh.Cell1DVertex(cell1D_index,
-                                                                 p);
+        const unsigned int cell0D_index = mesh.Cell1DVertex(cell1D_index,
+                                                            p);
 
-        //        if (dofManager.CellMarker(vertexGlobalIndex, 0) != edgeMarker)
-        //          continue;
+        const auto local_dofs = dofs_data.CellsDOFs.at(0).at(cell0D_index);
 
-        const unsigned int numCell0DLocals = dofManager.NumberLocals(vertexGlobalIndex,
-                                                                     0);
-        for (unsigned int l = 0; l < numCell0DLocals; l++)
+        for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
         {
-          //                    if (!dofManager.IsWeakBoundaryCondition(vertexGlobalIndex, l, 0))
-          //                      continue;
-          if (dofManager.IsStrongBoundaryCondition(vertexGlobalIndex, l, 0))
-            continue;
+          const auto& local_dof_i = local_dofs.at(loc_i);
 
-          const int globalNeumann_i = dofManager.GlobalIndex(vertexGlobalIndex,
-                                                             l,
-                                                             0);
-          rightHandSide.AddValue(globalNeumann_i, neumannContributions(p));
+          switch (local_dof_i.Type)
+          {
+            case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
+              continue;
+            case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
+            {
+              assembler_data.rightHandSide.AddValue(local_dof_i.Global_Index,
+                                                    neumannContributions[p]);
+            }
+              break;
+            default:
+              throw std::runtime_error("Unknown DOF Type");
+          }
         }
       }
 
-      const unsigned int numCell1DLocals = dofManager.NumberLocals(edgeMeshIndex,
-                                                                   1);
+      const auto local_dofs = dofs_data.CellsDOFs.at(1).at(cell1D_index);
 
-      // add contributions relative to edge internal dofs (here we assume we are dealing with
-      // conforming VEM)
-      for (unsigned int l = 0; l < numCell1DLocals; l++)
+      for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
       {
-        const unsigned int localIndex = cell2DEdgeDirections[ed] ? l :
-                                                                   numCell1DLocals - 1 - l;
+        const auto& local_dof_i = local_dofs.at(loc_i);
 
-        const int globalNeumann_i = dofManager.GlobalIndex(edgeMeshIndex, localIndex, 1);
+        const unsigned int localIndex = polygon.EdgesDirection[ed] ? loc_i :
+                                                                     local_dofs.size() - 1 - loc_i;
 
-        rightHandSide.AddValue(globalNeumann_i, neumannContributions(localIndex + 2));
+
+        switch (local_dof_i.Type)
+        {
+          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
+            continue;
+          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
+          {
+            assembler_data.rightHandSide.AddValue(local_dof_i.Global_Index,
+                                                  neumannContributions[localIndex]);
+          }
+            break;
+          default:
+            throw std::runtime_error("Unknown DOF Type");
+        }
       }
     }
   }

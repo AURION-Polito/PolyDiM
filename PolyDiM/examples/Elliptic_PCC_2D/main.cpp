@@ -66,6 +66,20 @@ struct Poisson_Polynomial_Problem final
                      points.row(0).array() * (1.0 - points.row(0).array())) + 1.1;
     };
 
+    static Eigen::VectorXd weak_boundary_condition(const unsigned int marker,
+                                                   const Eigen::MatrixXd& points)
+    {
+      switch(marker)
+      {
+        case 2: // co-normal derivatives on the right
+          return 16.0 * (1.0 - 2.0 * points.row(0).array()) * points.row(1).array() * (1.0 - points.row(1).array());
+        case 4: // co-normal derivatives on the left
+          return - 16.0 * (1.0 - 2.0 * points.row(0).array()) * points.row(1).array() * (1.0 - points.row(1).array());
+        default:
+          throw std::runtime_error("Unknown marker");
+      }
+    }
+
     static Eigen::VectorXd exact_solution(const Eigen::MatrixXd& points)
     {
       return 16.0 * (points.row(1).array() * (1.0 - points.row(1).array()) *
@@ -257,12 +271,29 @@ int main(int argc, char** argv)
 
   for (unsigned int e = 0; e < mesh.Cell1DTotalNumber(); ++e)
   {
-    if (mesh.Cell1DMarker(e) == 0)
-      continue;
-
+    const auto mesh_marker = mesh.Cell1DMarker(e);
     auto& boundary_info =  meshDOFsInfo.CellsBoundaryInfo[1][e];
-    boundary_info.Marker = 1;
-    boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong;
+
+    switch (mesh_marker)
+    {
+      case 0:
+        continue;
+      case 5:
+      case 7:
+        boundary_info.Marker = 1;
+        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong;
+        break;
+      case 6:
+        boundary_info.Marker = 2;
+        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak;
+        break;
+      case 8:
+        boundary_info.Marker = 4;
+        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak;
+        break;
+      default:
+        throw std::runtime_error("Unknown mesh marker");
+    }
   }
 
   MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data = {
@@ -293,7 +324,8 @@ int main(int argc, char** argv)
                                            reference_element_data,
                                            Poisson_Polynomial_Problem::diffusion_term,
                                            Poisson_Polynomial_Problem::source_term,
-                                           Poisson_Polynomial_Problem::strong_boundary_condition);
+                                           Poisson_Polynomial_Problem::strong_boundary_condition,
+                                           Poisson_Polynomial_Problem::weak_boundary_condition);
 
   Gedim::Profiler::StopTime("AssembleSystem");
   Gedim::Output::PrintStatusProgram("AssembleSystem");
