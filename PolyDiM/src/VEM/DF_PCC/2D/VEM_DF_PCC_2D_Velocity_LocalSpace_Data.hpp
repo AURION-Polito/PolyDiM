@@ -1,5 +1,5 @@
-#ifndef __VEM_DF_PCC_2D_LocalSpace_Data_HPP
-#define __VEM_DF_PCC_2D_LocalSpace_Data_HPP
+#ifndef __VEM_DF_PCC_2D_Velocity_LocalSpace_Data_HPP
+#define __VEM_DF_PCC_2D_Velocity_LocalSpace_Data_HPP
 
 #include "Eigen/Eigen"
 #include "VEM_Quadrature_2D.hpp"
@@ -23,7 +23,7 @@ struct VEM_DF_PCC_2D_Polygon_Geometry final
 };
 
 /// \brief Structure containing the local matrices and the main variables to compute the vritual element discrete matrices
-struct VEM_DF_PCC_2D_LocalSpace_Data final
+struct VEM_DF_PCC_2D_Velocity_LocalSpace_Data final
 {
     /// Order
     unsigned int Order;

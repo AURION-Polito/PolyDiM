@@ -1,5 +1,5 @@
-#ifndef __VEM_MCC_2D_VelocityLocalSpace_Data_HPP
-#define __VEM_MCC_2D_VelocityLocalSpace_Data_HPP
+#ifndef __VEM_MCC_2D_Velocity_LocalSpace_Data_HPP
+#define __VEM_MCC_2D_Velocity_LocalSpace_Data_HPP
 
 #include "Eigen/Eigen"
 #include "GeometryUtilities.hpp"
@@ -46,7 +46,7 @@ struct VEM_MCC_3D_Polyhedron_Geometry final
     const std::vector<std::vector<Eigen::Matrix3d>>& FacesTriangulationVertices2D;
 };
 
-struct VEM_MCC_VelocityLocalSpace_Data final
+struct VEM_MCC_Velocity_LocalSpace_Data final
 {
     /// Order
     unsigned int Order;

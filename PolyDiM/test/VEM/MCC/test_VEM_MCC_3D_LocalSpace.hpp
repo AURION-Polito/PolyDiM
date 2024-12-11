@@ -6,7 +6,7 @@
 #include <gmock/gmock-matchers.h>
 
 #include "GeometryUtilities.hpp"
-#include "VEM_MCC_3D_VelocityLocalSpace.hpp"
+#include "VEM_MCC_3D_Velocity_LocalSpace.hpp"
 #include "VEM_MCC_PerformanceAnalysis.hpp"
 
 namespace Polydim
@@ -136,7 +136,7 @@ TEST(Test_VEM_MCC, Test_VEM_MCC_3D_O0_O1_O2_O3)
     for(unsigned int k = 0; k < 4; k++)
     {
         Polydim::VEM::MCC::VEM_MCC_3D_Velocity_ReferenceElement vem_reference_element;
-        Polydim::VEM::MCC::VEM_MCC_3D_VelocityLocalSpace vem_local_space;
+        Polydim::VEM::MCC::VEM_MCC_3D_Velocity_LocalSpace vem_local_space;
 
         const auto reference_element_data = vem_reference_element.Create(k);
         const auto local_space = vem_local_space.CreateLocalSpace(reference_element_data,

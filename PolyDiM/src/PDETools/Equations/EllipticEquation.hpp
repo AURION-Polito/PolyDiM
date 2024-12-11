@@ -85,13 +85,31 @@ struct EllipticEquation final
         return cell_matrix;
     }
 
-    inline Eigen::VectorXd ComputeCellForcingTerm(const Eigen::VectorXd& forcingTermValues,
+    inline Eigen::VectorXd ComputeCellForcingTerm(const Eigen::VectorXd& forcing_term_values,
                                                   const Eigen::MatrixXd& basis_functions_values,
                                                   const Eigen::VectorXd& quadrature_weights) const
     {
         return basis_functions_values.transpose() *
                quadrature_weights.asDiagonal() *
-               forcingTermValues;
+               forcing_term_values;
+    }
+
+    inline Eigen::VectorXd ComputeCellForcingTerm(const std::array<Eigen::VectorXd, 3>& forcing_term_values,
+                                                  const std::vector<Eigen::MatrixXd>& basis_functions_values,
+                                                  const Eigen::VectorXd& quadrature_weights) const
+    {
+        Eigen::MatrixXd rightHandSide = basis_functions_values[0].transpose() *
+                                 quadrature_weights.asDiagonal() *
+                                 forcing_term_values[0];
+
+        for(unsigned int d = 1; d < basis_functions_values.size() ; d++)
+        {
+            rightHandSide.noalias() += basis_functions_values[d].transpose() *
+                                       quadrature_weights.asDiagonal() *
+                                       forcing_term_values[d];
+        }
+
+        return rightHandSide;
     }
 };
 }

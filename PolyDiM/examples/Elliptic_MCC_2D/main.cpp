@@ -6,7 +6,7 @@
 #include "DOFsManager.hpp"
 #include "Eigen_LUSolver.hpp"
 #include "assembler.hpp"
-#include "VEM_MCC_2D_Ortho_VelocityLocalSpace.hpp"
+#include "VEM_MCC_2D_Ortho_Velocity_LocalSpace.hpp"
 
 struct ProblemData final
 {
@@ -163,29 +163,6 @@ struct PatchTest final
 
         return result;
     };
-
-    static std::array<Eigen::VectorXd, 3> exact_derivative_solution(const Eigen::MatrixXd& points)
-    {
-        Eigen::ArrayXd result = Eigen::ArrayXd::Constant(points.cols(), 0.0);
-
-        if(order > 0)
-        {
-            result = Eigen::ArrayXd::Constant(points.cols(), 1.0);
-
-            const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
-            for(int i = 0; i < order - 1; i++)
-                result = result * polynomial;
-
-            result *= order;
-        }
-
-        return
-            {
-                result,
-                result,
-                Eigen::VectorXd::Zero(points.cols())
-            };
-    }
 
     static std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd& points)
     {
@@ -527,7 +504,7 @@ int main(int argc, char** argv)
     Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " + to_string((unsigned int)config.VemType()) + "...", true);
     Gedim::Profiler::StartTime("AssembleSystem");
 
-    Elliptic_MCC_2D::Assembler<Polydim::VEM::MCC::VEM_MCC_2D_Ortho_VelocityLocalSpace> assembler;
+    Elliptic_MCC_2D::Assembler<Polydim::VEM::MCC::VEM_MCC_2D_Ortho_Velocity_LocalSpace> assembler;
 
     PatchTest::order = config.VemOrder();
     auto assembler_data = assembler.Assemble(geometryUtilities,

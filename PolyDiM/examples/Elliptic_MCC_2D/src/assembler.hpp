@@ -10,7 +10,7 @@
 #include "VEM_MCC_PerformanceAnalysis.hpp"
 #include "DOFsManager.hpp"
 
-#include "VEM_MCC_VelocityLocalSpace_Data.hpp"
+#include "VEM_MCC_Velocity_LocalSpace_Data.hpp"
 
 namespace Elliptic_MCC_2D
 {
@@ -77,7 +77,7 @@ private:
                          const Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo &mesh_dofs_info,
                          const Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData &dofs_data,
                          const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& reference_element_data,
-                         const Polydim::VEM::MCC::VEM_MCC_VelocityLocalSpace_Data &local_space_data,
+                         const Polydim::VEM::MCC::VEM_MCC_Velocity_LocalSpace_Data &local_space_data,
                          const std::function<Eigen::VectorXd(const unsigned int,
                                                              const Eigen::MatrixXd&)>& weak_boundary_condition,
                          Elliptic_MCC_2D_Problem_Data& assembler_data) const;

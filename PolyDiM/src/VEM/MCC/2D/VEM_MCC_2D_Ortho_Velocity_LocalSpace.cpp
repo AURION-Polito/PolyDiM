@@ -1,4 +1,4 @@
-#include "VEM_MCC_2D_Ortho_VelocityLocalSpace.hpp"
+#include "VEM_MCC_2D_Ortho_Velocity_LocalSpace.hpp"
 
 
 #include "LAPACK_utilities.hpp"
@@ -12,10 +12,10 @@ namespace VEM
 namespace MCC
 {
 //****************************************************************************
-VEM_MCC_VelocityLocalSpace_Data VEM_MCC_2D_Ortho_VelocityLocalSpace::CreateLocalSpace(const VEM_MCC_2D_Velocity_ReferenceElement_Data& reference_element_data,
+VEM_MCC_Velocity_LocalSpace_Data VEM_MCC_2D_Ortho_Velocity_LocalSpace::CreateLocalSpace(const VEM_MCC_2D_Velocity_ReferenceElement_Data& reference_element_data,
                                                                                       const VEM_MCC_2D_Polygon_Geometry& polygon) const
 {
-    VEM_MCC_VelocityLocalSpace_Data localSpace;
+    VEM_MCC_Velocity_LocalSpace_Data localSpace;
 
     Quadrature::VEM_Quadrature_2D quadrature;
     localSpace.InternalQuadrature = quadrature.PolygonInternalQuadrature(reference_element_data.Quadrature.ReferenceTriangleQuadrature,
@@ -66,14 +66,14 @@ VEM_MCC_VelocityLocalSpace_Data VEM_MCC_2D_Ortho_VelocityLocalSpace::CreateLocal
     return localSpace;
 }
 //****************************************************************************
-void VEM_MCC_2D_Ortho_VelocityLocalSpace::InitializeProjectorsComputation(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+void VEM_MCC_2D_Ortho_Velocity_LocalSpace::InitializeProjectorsComputation(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                                                                           const unsigned int &numEdges,
                                                                           const Eigen::Vector3d& polygonCentroid,
                                                                           const double& polygonDiameter,
                                                                           const Eigen::MatrixXd& internalQuadraturePoints,
                                                                           const Eigen::VectorXd& internalQuadratureWeights,
                                                                           const Eigen::MatrixXd& boundaryQuadraturePoints,
-                                                                          VEM_MCC_VelocityLocalSpace_Data& localSpace) const
+                                                                          VEM_MCC_Velocity_LocalSpace_Data& localSpace) const
 {
     localSpace.Order = reference_element_data.Order;
     localSpace.Dimension = reference_element_data.Dimension;
@@ -170,9 +170,9 @@ void VEM_MCC_2D_Ortho_VelocityLocalSpace::InitializeProjectorsComputation(const 
     localSpace.Gmatrix = tempG.transpose() * tempG;
 }
 //****************************************************************************
-void VEM_MCC_2D_Ortho_VelocityLocalSpace::ChangeOfBasis(const Eigen::MatrixXd &VanderInternalMonomialsKp1,
+void VEM_MCC_2D_Ortho_Velocity_LocalSpace::ChangeOfBasis(const Eigen::MatrixXd &VanderInternalMonomialsKp1,
                                                         const Eigen::VectorXd& internalQuadratureWeights,
-                                                        VEM_MCC_VelocityLocalSpace_Data& localSpace) const
+                                                        VEM_MCC_Velocity_LocalSpace_Data& localSpace) const
 {
 
     const VectorXd sqrtInternalQuadratureWeights = internalQuadratureWeights.array().sqrt();
@@ -193,10 +193,10 @@ void VEM_MCC_2D_Ortho_VelocityLocalSpace::ChangeOfBasis(const Eigen::MatrixXd &V
     LAPACK_utilities::inverseTri(localSpace.QmatrixInvKp1, localSpace.QmatrixKp1, 'L', 'N');
 }
 //****************************************************************************
-void VEM_MCC_2D_Ortho_VelocityLocalSpace::ComputeL2Projectors(const double& polygonMeasure,
+void VEM_MCC_2D_Ortho_Velocity_LocalSpace::ComputeL2Projectors(const double& polygonMeasure,
                                                               const Eigen::VectorXd& internalQuadratureWeights,
                                                               const Eigen::MatrixXd& B2Nabla,
-                                                              VEM_MCC_VelocityLocalSpace_Data& localSpace) const
+                                                              VEM_MCC_Velocity_LocalSpace_Data& localSpace) const
 {
 
     const MatrixXd HHashtagMatrix = localSpace.VanderInternalKp1.rightCols(localSpace.NkNabla).transpose() *
@@ -217,9 +217,9 @@ void VEM_MCC_2D_Ortho_VelocityLocalSpace::ComputeL2Projectors(const double& poly
     localSpace.Pi0k = localSpace.Gmatrix.llt().solve(localSpace.Bmatrix);
 }
 //****************************************************************************
-void VEM_MCC_2D_Ortho_VelocityLocalSpace::ComputeDivergenceCoefficients(const double& polytopeMeasure,
+void VEM_MCC_2D_Ortho_Velocity_LocalSpace::ComputeDivergenceCoefficients(const double& polytopeMeasure,
                                                                         const Eigen::MatrixXd& W2,
-                                                                        VEM_MCC_VelocityLocalSpace_Data& localSpace) const
+                                                                        VEM_MCC_Velocity_LocalSpace_Data& localSpace) const
 {
     MatrixXd W1 = MatrixXd::Zero(localSpace.Nk,
                                  localSpace.NumBasisFunctions);
@@ -239,13 +239,13 @@ void VEM_MCC_2D_Ortho_VelocityLocalSpace::ComputeDivergenceCoefficients(const do
     localSpace.Vmatrix = localSpace.Hmatrix.llt().solve(localSpace.Wmatrix);
 }
 //****************************************************************************
-void VEM_MCC_2D_Ortho_VelocityLocalSpace::ComputeValuesOnBoundary(const Eigen::MatrixXd& polytopeVertices,
+void VEM_MCC_2D_Ortho_Velocity_LocalSpace::ComputeValuesOnBoundary(const Eigen::MatrixXd& polytopeVertices,
                                                                   const Eigen::MatrixXd& edgeNormals,
                                                                   const std::vector<bool>& edgeDirections,
                                                                   const Eigen::VectorXd& boundaryQuadratureWeights,
                                                                   MatrixXd& W2,
                                                                   MatrixXd& B2Nabla,
-                                                                  VEM_MCC_VelocityLocalSpace_Data& localSpace) const
+                                                                  VEM_MCC_Velocity_LocalSpace_Data& localSpace) const
 {
 
     const unsigned int numVertices = polytopeVertices.cols();

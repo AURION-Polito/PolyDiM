@@ -15,7 +15,7 @@ namespace DF_PCC
 /// \brief Enumeration for Projector Types
 enum struct ProjectionTypes
 {
-    Pi0km1 = 0, ///< \f$\Pi^0_{order-1}\f$ projection to project basis
+    Pi0km2 = 0, ///< \f$\Pi^0_{order-1}\f$ projection to project basis
     Pi0k = 1, ///< \f$\Pi^0_{order}\f$ projection to project basis
     PiNabla = 2, ///< \f$\Pi^{\nabla}_{order-1}\f$ projection to project basis gradient
     Pi0km1Der = 3 ///< \f$\Pi^{0}_{order-1}\f$ projection to project basis gradient
@@ -31,48 +31,6 @@ struct VEM_DF_PCC_Utilities final
     Eigen::VectorXd ComputeEdgeBasisCoefficients(const unsigned int& order,
                                                  const Eigen::VectorXd& edgeInternalPoints) const;
 
-    /// \brief Compute the dofi-dofi stabilization matrix using \ref VEM::DF_PCC::ProjectionTypes::PiNabla projector.
-    /// \param piNabla: the projection coefficients related to \ref VEM::DF_PCC::ProjectionTypes::PiNabla
-    /// \param diameter: a double representing the diameter of the element
-    /// \param DMatrix: matrix containing the polynomials degrees of freedom
-    /// \return The dofi-dofi stabilization matrix.
-    Eigen::MatrixXd ComputeStabilizationMatrix(const Eigen::MatrixXd& piNabla,
-                                               const double& diameter,
-                                               const Eigen::MatrixXd& DMatrix) const;
-
-    /// \brief Compute the dofi-dofi stabilization matrix using \ref VEM::DF_PCC::ProjectionTypes::Pi0k projector.
-    /// \param pi0k: the projection coefficients related to \ref VEM::DF_PCC::ProjectionTypes::Pi0k
-    /// \param measure: a double representing the measure of the element
-    /// \param DMatrix: matrix containing the polynomials degrees of freedom
-    /// \return The dofi-dofi stabilization matrix.
-    Eigen::MatrixXd ComputeStabilizationMatrixPi0k(const Eigen::MatrixXd& pi0k,
-                                                   const double& measure,
-                                                   const Eigen::MatrixXd& DMatrix) const;
-
-    /// \brief Compute matrices of coefficients related to \ref VEM::DF_PCC::ProjectionTypes::Pi0km1 and \ref VEM::DF_PCC::ProjectionTypes::Pi0k.
-    /// \param[in] measure: a double representing the measure of the element
-    /// \param[in] order: the vem order
-    /// \param[in] Nkm1: number of polynomials of degree order-1
-    /// \param[in] Nk: number of polynomials of degree order
-    /// \param[in] NumInternalBasisFunctions: number of internal basis functions
-    /// \param[in] NumBasisFunctions: number of internal functions
-    /// \param[in] Hmatrix: mass matrix of polynomials
-    /// \param[in] PiNabla: \ref VEM::DF_PCC::ProjectionTypes::PiNabla coefficients
-    /// \param[out] Cmatrix: the right-hand side to define \ref VEM::DF_PCC::ProjectionTypes::Pi0k coefficients
-    /// \param[out] Pi0km1: \ref VEM::DF_PCC::ProjectionTypes::Pi0km1 coefficients
-    /// \param[out] Pi0k: \ref VEM::DF_PCC::ProjectionTypes::Pi0k coefficients
-    void ComputeL2Projectors(const double& measure,
-                             const unsigned int& order,
-                             const unsigned int& Nkm1,
-                             const unsigned int& Nk,
-                             const unsigned int& NumInternalBasisFunctions,
-                             const unsigned int& NumBasisFunctions,
-                             const Eigen::MatrixXd &Hmatrix,
-                             const Eigen::MatrixXd &PiNabla,
-                             Eigen::MatrixXd &Cmatrix,
-                             Eigen::MatrixXd &Pi0km1,
-                             Eigen::MatrixXd &Pi0k) const;
-
     /// \brief Compute the values of the polynomial projection of
     /// derivatives of basis functions at internal quadrature points on
     /// the geometry.
@@ -84,83 +42,73 @@ struct VEM_DF_PCC_Utilities final
                                                                        const unsigned int& Nkm1,
                                                                        const Eigen::MatrixXd& vanderInternal,
                                                                        const std::vector<Eigen::MatrixXd>& vanderInternalDerivatives,
-                                                                       const Eigen::MatrixXd& piNabla,
+                                                                       const std::vector<Eigen::MatrixXd>& piNabla,
                                                                        const std::vector<Eigen::MatrixXd>& pi0km1Der) const
     {
         switch (projectionType)
         {
         case ProjectionTypes::PiNabla:
         {
-            std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValues;
+            std::vector<Eigen::MatrixXd> basisFunctionDerivativeValues(dimension * dimension);
 
-            basisFunctionsDerivativeValues.resize(dimension);
-            for(unsigned short i = 0; i < dimension; ++i)
-                basisFunctionsDerivativeValues[i] = vanderInternalDerivatives[i] *
-                                                    piNabla;
+            for(unsigned short j = 0; j < dimension; ++j)
+                for(unsigned short i = 0; i < dimension; ++i)
+                    basisFunctionDerivativeValues[dimension * j + i]
+                        = vanderInternalDerivatives[i] * piNabla[j];
 
-            return basisFunctionsDerivativeValues;
+            return basisFunctionDerivativeValues;
         }
         case ProjectionTypes::Pi0km1Der:
         {
-            std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValues;
+            std::vector<Eigen::MatrixXd> basisFunctionDerivativeValues(dimension * dimension);
 
-            basisFunctionsDerivativeValues.resize(dimension);
-            for(unsigned short i = 0; i < dimension; ++i)
-                basisFunctionsDerivativeValues[i] = vanderInternal.leftCols(Nkm1) *
-                                                    pi0km1Der[i];
+            for(unsigned short j = 0; j < dimension; ++j)
+                for(unsigned short i = 0; i < dimension; ++i)
+                    basisFunctionDerivativeValues[dimension * j + i]
+                        = vanderInternal.leftCols(Nkm1)
+                          * pi0km1Der[dimension * j + i];
 
-            return basisFunctionsDerivativeValues;
+            return basisFunctionDerivativeValues;
         }
         default:
             throw std::runtime_error("Unknown projector type");
         }
     }
 
-
-    /// \brief Compute the values of the polynomial projection of
-    /// the laplacian of basis functions at internal quadrature
-    /// points on the geometry.
-    /// \details The projection of the laplacian considered is \f$
-    /// \widetilde{\Delta}\varphi = \nabla
-    /// \cdot \left(\Pi^0_{\mathrm{order}-1} \nabla \varphi \right)\f$.
-    /// \param basisFunctionLaplacianValues The matrix of
-    /// values. Each column will contain the values
-    /// of the projected laplacian of a basis function at internal quadrature points.
-    /// \sa \ref ComputeInternalQuadratureWeights().
-    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const unsigned int& Nkm1,
-                                                         const std::vector<Eigen::MatrixXd>& vanderInternalDerivatives,
-                                                         const std::vector<Eigen::MatrixXd>& pi0km1Der) const
+    inline Eigen::MatrixXd ComputeBasisFunctionsDivergenceValues(const unsigned int& Nkm1,
+                                                                 const Eigen::MatrixXd& vanderInternal,
+                                                                 const Eigen::MatrixXd& vmatrix) const
     {
-
-        Eigen::MatrixXd basisFunctionsLaplacianValues;
-
-        basisFunctionsLaplacianValues = vanderInternalDerivatives[0].leftCols(Nkm1) * pi0km1Der[0];
-        for(unsigned int d = 1; d < dimension; ++d)
-            basisFunctionsLaplacianValues += vanderInternalDerivatives[d].leftCols(Nkm1) *
-                                             pi0km1Der[d];
-
-        return basisFunctionsLaplacianValues;
+        return vanderInternal.leftCols(Nkm1) * vmatrix;
     }
+
+
 
     /// \brief Compute the values of the polynomial projection of basis functions at internal
     /// quadrature points on the geometry.
     /// \param basisFunctionsValues The matrix of values. Each column will contain the values of a
     /// basis function's projection at internal quadrature points.
-    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const ProjectionTypes& projectionType,
-                                                       const unsigned int& Nkm1,
-                                                       const Eigen::MatrixXd& pi0km1,
-                                                       const Eigen::MatrixXd& pi0k,
-                                                       const Eigen::MatrixXd& vanderInternal) const
+    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const ProjectionTypes& projectionType,
+                                                                    const unsigned int& Nkm2,
+                                                                    const std::vector<Eigen::MatrixXd>& pi0km2,
+                                                                    const std::vector<Eigen::MatrixXd>& pi0k,
+                                                                    const Eigen::MatrixXd& vanderInternal) const
     {
+        std::vector<Eigen::MatrixXd> basisFunctionValues(dimension);
         switch (projectionType)
         {
-        case ProjectionTypes::Pi0km1:
-            return vanderInternal.leftCols(Nkm1) * pi0km1;
+        case ProjectionTypes::Pi0km2:
+            for(unsigned short i = 0; i < dimension; ++i)
+                basisFunctionValues[i] = vanderInternal.leftCols(Nkm2) * pi0km2[i];
+            break;
         case ProjectionTypes::Pi0k:
-            return vanderInternal * pi0k;
+            for(unsigned short i = 0; i < dimension; ++i)
+                basisFunctionValues[i] = vanderInternal * pi0k[i];
+            break;
         default:
             throw std::runtime_error("Unknown projector type");
         }
+        return basisFunctionValues;
     }
 
     /// \brief Compute the values of the basis functions of the polynomial basis of projectors at

@@ -10,6 +10,41 @@ namespace VEM
 {
 namespace DF_PCC
 {
+struct VEM_DF_PCC_2D_Pressure_ReferenceElement_Data final
+{
+    unsigned int Dimension;
+    unsigned int Order;
+    unsigned int NumDofs0D; ///< Number of dofs for each vertex.
+    unsigned int NumDofs1D; ///< Number of dofs internal to each edge.
+    unsigned int NumDofs2D; ///< Number of dofs internal to each polygon.
+
+    Monomials::VEM_Monomials_Data Monomials;
+    Quadrature::VEM_QuadratureData_2D Quadrature;
+};
+
+class VEM_DF_PCC_2D_Pressure_ReferenceElement final
+{
+public:
+    VEM_DF_PCC_2D_Pressure_ReferenceElement_Data Create(const unsigned int order) const
+    {
+        Monomials::VEM_Monomials_2D monomials;
+        Quadrature::VEM_Quadrature_2D quadrature;
+
+        VEM_DF_PCC_2D_Pressure_ReferenceElement_Data result;
+
+        result.Monomials = monomials.Compute(order - 1);
+        result.Quadrature = quadrature.Compute_DF_PCC_2D(order);
+
+        result.Dimension = 2;
+        result.Order = order;
+        result.NumDofs0D = 0;
+        result.NumDofs1D = 0;
+        result.NumDofs2D = order * (order + 1) / 2;
+
+        return result;
+    }
+};
+
 struct VEM_DF_PCC_2D_Velocity_ReferenceElement_Data final
 {
     unsigned int Dimension;

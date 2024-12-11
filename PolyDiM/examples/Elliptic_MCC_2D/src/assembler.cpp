@@ -2,9 +2,9 @@
 
 #include "ranges"
 
-#include "VEM_MCC_2D_VelocityLocalSpace.hpp"
-#include "VEM_MCC_2D_Partial_VelocityLocalSpace.hpp"
-#include "VEM_MCC_2D_Ortho_VelocityLocalSpace.hpp"
+#include "VEM_MCC_2D_Velocity_LocalSpace.hpp"
+#include "VEM_MCC_2D_Partial_Velocity_LocalSpace.hpp"
+#include "VEM_MCC_2D_Ortho_Velocity_LocalSpace.hpp"
 #include "EllipticEquation.hpp"
 
 using namespace std;
@@ -13,9 +13,9 @@ using namespace Eigen;
 
 namespace Elliptic_MCC_2D
 {
-template struct Assembler<Polydim::VEM::MCC::VEM_MCC_2D_VelocityLocalSpace>;
-template struct Assembler<Polydim::VEM::MCC::VEM_MCC_2D_Partial_VelocityLocalSpace>;
-template struct Assembler<Polydim::VEM::MCC::VEM_MCC_2D_Ortho_VelocityLocalSpace>;
+template struct Assembler<Polydim::VEM::MCC::VEM_MCC_2D_Velocity_LocalSpace>;
+template struct Assembler<Polydim::VEM::MCC::VEM_MCC_2D_Partial_Velocity_LocalSpace>;
+template struct Assembler<Polydim::VEM::MCC::VEM_MCC_2D_Ortho_Velocity_LocalSpace>;
 
 // ***************************************************************************
 template<typename VEM_LocalSpace_Type>
@@ -318,7 +318,7 @@ void Assembler<VEM_LocalSpace_Type>::ComputeWeakTerm(const unsigned int cell2DIn
                                                      const Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo& mesh_dofs_info,
                                                      const Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData& dofs_data,
                                                      const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& reference_element_data,
-                                                     const Polydim::VEM::MCC::VEM_MCC_VelocityLocalSpace_Data& local_space_data,
+                                                     const Polydim::VEM::MCC::VEM_MCC_Velocity_LocalSpace_Data& local_space_data,
                                                      const std::function<Eigen::VectorXd(const unsigned int,
                                                                                          const Eigen::MatrixXd&)>& weak_boundary_condition,
                                                      Elliptic_MCC_2D_Problem_Data& assembler_data) const

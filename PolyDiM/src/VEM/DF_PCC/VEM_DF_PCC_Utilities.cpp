@@ -49,68 +49,6 @@ Eigen::VectorXd VEM_DF_PCC_Utilities<dimension>::ComputeEdgeBasisCoefficients(co
 }
 //****************************************************************************
 template<unsigned short dimension>
-MatrixXd VEM_DF_PCC_Utilities<dimension>::ComputeStabilizationMatrix(const MatrixXd& piNabla,
-                                                                  const double& diameter,
-                                                                  const MatrixXd& Dmatrix) const
-{
-    MatrixXd stabMatrix = Dmatrix * piNabla;
-    stabMatrix.diagonal().array() -= 1;
-    // stabMatrix = (\Pi^{\nabla,dofs}_order - I)^T * (\Pi^{\nabla,dofs}_order - I).
-    stabMatrix = stabMatrix.transpose() * stabMatrix;
-
-    if (dimension == 3)
-        stabMatrix *= diameter;
-
-    return stabMatrix;
-}
-//****************************************************************************
-template<unsigned short dimension>
-MatrixXd VEM_DF_PCC_Utilities<dimension>::ComputeStabilizationMatrixPi0k(const MatrixXd& pi0k,
-                                                                      const double& measure,
-                                                                      const Eigen::MatrixXd& DMatrix) const
-{
-    MatrixXd stabMatrixPi0k = DMatrix * pi0k;
-    stabMatrixPi0k.diagonal().array() -= 1;
-    // stabMatrix = (\Pi^{0,dofs}_order - I)^T * (\Pi^{0,dofs}_order - I).
-    stabMatrixPi0k = measure * stabMatrixPi0k.transpose() * stabMatrixPi0k;
-
-    return stabMatrixPi0k;
-}
-//****************************************************************************
-template<unsigned short dimension>
-void VEM_DF_PCC_Utilities<dimension>::ComputeL2Projectors(const double& measure,
-                                                       const unsigned int& order,
-                                                       const unsigned int& Nkm1,
-                                                       const unsigned int& Nk,
-                                                       const unsigned int& NumInternalBasisFunctions,
-                                                       const unsigned int& NumBasisFunctions,
-                                                       const Eigen::MatrixXd& Hmatrix,
-                                                       const Eigen::MatrixXd& PiNabla,
-                                                       MatrixXd &Cmatrix,
-                                                       MatrixXd &Pi0km1,
-                                                       MatrixXd &Pi0k) const
-{
-    Cmatrix  = Eigen::MatrixXd::Zero(Nk, NumBasisFunctions);
-    // \int_E \Pi^\nabla_order \phi_j · m_i for m_i of degree > order-2 (enhancement property).
-    Cmatrix.bottomRows(Nk - NumInternalBasisFunctions) =
-        Hmatrix.bottomRows(Nk - NumInternalBasisFunctions) *
-        PiNabla;
-
-    if (order > 1)
-    {
-        Cmatrix.topLeftCorner(NumInternalBasisFunctions,
-                              NumBasisFunctions - NumInternalBasisFunctions).setZero();
-        //\int_E \phi_j · m_i = measure*\delta_{ij} for m_i of degree <= order-2 (internal dofs).
-        Cmatrix.topRightCorner(NumInternalBasisFunctions, NumInternalBasisFunctions) =
-            measure * Eigen::MatrixXd::Identity(NumInternalBasisFunctions,
-                                                NumInternalBasisFunctions);
-    }
-
-    Pi0km1 = Hmatrix.topLeftCorner(Nkm1, Nkm1).llt().solve(Cmatrix.topRows(Nkm1));
-    Pi0k = Hmatrix.llt().solve(Cmatrix);
-}
-//****************************************************************************
-template<unsigned short dimension>
 MatrixXd VEM_DF_PCC_Utilities<dimension>::ComputeValuesOnEdge(const Eigen::RowVectorXd& edgeInternalPoints,
                                                            const unsigned int& order,
                                                            const Eigen::VectorXd& edgeBasisCoefficients,
