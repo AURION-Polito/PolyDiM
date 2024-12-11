@@ -127,7 +127,7 @@ Assembler<VEM_LocalSpace_Type>::Elliptic_MCC_2D_Problem_Data Assembler<VEM_Local
 
         assert(local_space.NumBasisFunctions ==  global_dofs[0].size());
 
-        for(unsigned h1 = 0; h1 < numDOFHandler; h1++)
+        for(unsigned int h1 = 0; h1 < numDOFHandler; h1++)
         {
             for (unsigned int loc_i = 0; loc_i < global_dofs[h1].size(); loc_i++)
             {

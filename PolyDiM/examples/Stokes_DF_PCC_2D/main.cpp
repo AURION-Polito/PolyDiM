@@ -7,6 +7,7 @@
 #include "Eigen_LUSolver.hpp"
 #include "assembler.hpp"
 #include "VEM_DF_PCC_2D_Velocity_LocalSpace.hpp"
+#include "ranges"
 
 struct ProblemData final
 {
@@ -191,8 +192,6 @@ int main(int argc, char** argv)
     domain.Domain.Vertices.row(0)<< 0.0, 1.0, 1.0, 0.0;
     domain.Domain.Vertices.row(1)<< 0.0, 0.0, 1.0, 1.0;
     domain.Domain.Vertices.row(2)<< 0.0, 0.0, 0.0, 0.0;
-    domain.Domain.VertexBoundaryConditions = {1, 1, 1, 1};
-    domain.Domain.EdgeBoundaryConditions = {1, 1, 1, 1};
 
     // Export domain
     {
@@ -223,8 +222,8 @@ int main(int argc, char** argv)
     Eigen::Vector3d rectangleBaseTangent = domain.Domain.Vertices.col(1) - domain.Domain.Vertices.col(0);
     Eigen::Vector3d rectangleHeightTangent = domain.Domain.Vertices.rightCols(1) - domain.Domain.Vertices.col(0);
 
-    vector<double> baseMeshCurvilinearCoordinates = geometryUtilities.EquispaceCoordinates(1, 0.0, 1.0, 1);
-    vector<double> heightMeshCurvilinearCoordinates = geometryUtilities.EquispaceCoordinates(1, 0.0, 1.0, 1);
+    vector<double> baseMeshCurvilinearCoordinates = geometryUtilities.EquispaceCoordinates(2, 0.0, 1.0, 1);
+    vector<double> heightMeshCurvilinearCoordinates = geometryUtilities.EquispaceCoordinates(2, 0.0, 1.0, 1);
 
     meshUtilities.CreateRectangleMesh(origin,
                                       rectangleBaseTangent,
@@ -314,6 +313,17 @@ int main(int argc, char** argv)
                                                         Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
                                                         0
                                                     });
+
+        for (unsigned int v = 0; v < mesh.Cell1DTotalNumber(); v++)
+        {
+            if (mesh.Cell0DMarker(v) == 0)
+                continue;
+
+            auto& boundary_info =  meshDOFsInfo[i].CellsBoundaryInfo[0][v];
+            boundary_info.Marker = 1;
+            boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong;
+        }
+
         meshDOFsInfo[i].CellsNumDOFs[1].resize(mesh.Cell1DTotalNumber(),
                                                velocity_reference_element_data.NumDofs1D);
         meshDOFsInfo[i].CellsBoundaryInfo[1].resize(mesh.Cell1DTotalNumber(),
@@ -328,8 +338,8 @@ int main(int argc, char** argv)
                 continue;
 
             auto& boundary_info =  meshDOFsInfo[i].CellsBoundaryInfo[1][e];
-            boundary_info.Marker = 2;
-            boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak;
+            boundary_info.Marker = 1;
+            boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong;
         }
 
         meshDOFsInfo[i].CellsNumDOFs[2].resize(mesh.Cell2DTotalNumber(),
@@ -415,6 +425,7 @@ int main(int argc, char** argv)
         numberStrongs += dofs_data[i].NumberStrongs;
     }
 
+    numberDOFs += 1; // lagrange
 
     Gedim::Output::PrintGenericMessage("VEM Space with " +
                                            to_string(numberDOFs) + " DOFs and " +
@@ -439,6 +450,8 @@ int main(int argc, char** argv)
                                              PatchTest::diffusion_term,
                                              PatchTest::source_term,
                                              PatchTest::strong_boundary_condition);
+
+    cout << assembler_data.globalMatrixA << endl;
 
     Gedim::Profiler::StopTime("AssembleSystem");
     Gedim::Output::PrintStatusProgram("AssembleSystem");
@@ -467,93 +480,93 @@ int main(int argc, char** argv)
     Gedim::Output::PrintGenericMessage("ComputeErrors...", true);
     Gedim::Profiler::StartTime("ComputeErrors");
 
-//    auto post_process_data = assembler.PostProcessSolution(geometryUtilities,
-//                                                           mesh,
-//                                                           meshGeometricData,
-//                                                           dofs_data,
-//                                                           velocity_reference_element_data,
-//                                                           pressure_reference_element_data,
-//                                                           assembler_data,
-//                                                           PatchTest::exact_velocity,
-//                                                           PatchTest::exact_pressure);
+    auto post_process_data = assembler.PostProcessSolution(geometryUtilities,
+                                                           mesh,
+                                                           meshGeometricData,
+                                                           dofs_data,
+                                                           velocity_reference_element_data,
+                                                           pressure_reference_element_data,
+                                                           assembler_data,
+                                                           PatchTest::exact_derivatives_velocity,
+                                                           PatchTest::exact_pressure);
 
-//    Gedim::Profiler::StopTime("ComputeErrors");
-//    Gedim::Output::PrintStatusProgram("ComputeErrors");
+    Gedim::Profiler::StopTime("ComputeErrors");
+    Gedim::Output::PrintStatusProgram("ComputeErrors");
 
-//    Gedim::Output::PrintGenericMessage("ExportSolution...", true);
-//    Gedim::Profiler::StartTime("ExportSolution");
+    Gedim::Output::PrintGenericMessage("ExportSolution...", true);
+    Gedim::Profiler::StartTime("ExportSolution");
 
-//    {
-//        const char separator = ';';
-//        cout << "VemType" << separator;
-//        cout << "VemOrder" << separator;
-//        cout << "Cell2Ds" <<  separator;
-//        cout << "Dofs" <<  separator;
-//        cout << "Strongs" <<  separator;
-//        cout << "h" <<  separator;
-//        cout << "errorL2Velocity" <<  separator;
-//        cout << "errorL2Pressure" << separator;
-//        cout << "normL2Velocity" <<  separator;
-//        cout << "normL2Pressure" << separator;
-//        cout << "nnzA" << separator;
-//        cout << "residual" << endl;
+    {
+        const char separator = ';';
+        cout << "VemType" << separator;
+        cout << "VemOrder" << separator;
+        cout << "Cell2Ds" <<  separator;
+        cout << "Dofs" <<  separator;
+        cout << "Strongs" <<  separator;
+        cout << "h" <<  separator;
+        cout << "errorH1Velocity" <<  separator;
+        cout << "errorL2Pressure" << separator;
+        cout << "normH1Velocity" <<  separator;
+        cout << "normL2Pressure" << separator;
+        cout << "nnzA" << separator;
+        cout << "residual" << endl;
 
-//        cout.precision(16);
-//        cout << scientific << static_cast<unsigned int>(config.VemType()) << separator;
-//        cout << scientific << config.VemOrder()<< separator;
-//        cout << scientific << mesh.Cell2DTotalNumber()<< separator;
-//        cout << scientific << numberDOFs << separator;
-//        cout << scientific << numberStrongs << separator;
-//        cout << scientific << post_process_data.mesh_size << separator;
-//        cout << scientific << post_process_data.error_L2_velocity << separator;
-//        cout << scientific << post_process_data.error_L2_pressure << separator;
-//        cout << scientific << post_process_data.norm_L2_velocity << separator;
-//        cout << scientific << post_process_data.norm_L2_pressure << separator;
-//        cout << scientific << assembler_data.globalMatrixA.NonZeros() << separator;
-//        cout << scientific << post_process_data.residual_norm << endl;
+        cout.precision(16);
+        cout << scientific << static_cast<unsigned int>(config.VemType()) << separator;
+        cout << scientific << config.VemOrder()<< separator;
+        cout << scientific << mesh.Cell2DTotalNumber()<< separator;
+        cout << scientific << numberDOFs << separator;
+        cout << scientific << numberStrongs << separator;
+        cout << scientific << post_process_data.mesh_size << separator;
+        cout << scientific << post_process_data.error_H1_velocity << separator;
+        cout << scientific << post_process_data.error_L2_pressure << separator;
+        cout << scientific << post_process_data.norm_H1_velocity << separator;
+        cout << scientific << post_process_data.norm_L2_pressure << separator;
+        cout << scientific << assembler_data.globalMatrixA.NonZeros() << separator;
+        cout << scientific << post_process_data.residual_norm << endl;
 
-//    }
+    }
 
-//    {
-//        const char separator = ';';
-//        const string errorFileName = exportSolutionFolder +
-//                                     "/Errors.csv";
-//        const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
+    {
+        const char separator = ';';
+        const string errorFileName = exportSolutionFolder +
+                                     "/Errors.csv";
+        const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
 
-//        std::ofstream errorFile(errorFileName,
-//                                std::ios_base::app | std::ios_base::out);
-//        if (!errorFileExists)
-//        {
-//            errorFile << "VemType" << separator;
-//            errorFile << "VemOrder" << separator;
-//            errorFile << "Cell2Ds" <<  separator;
-//            errorFile << "Dofs" <<  separator;
-//            errorFile << "Strongs" <<  separator;
-//            errorFile << "h" <<  separator;
-//            errorFile << "errorL2Velocity" <<  separator;
-//            errorFile << "errorL2Pressure" << separator;
-//            errorFile << "normL2Velocity" <<  separator;
-//            errorFile << "normL2Pressure" << separator;
-//            errorFile << "nnzA" << separator;
-//            errorFile << "residual" << endl;
-//        }
+        std::ofstream errorFile(errorFileName,
+                                std::ios_base::app | std::ios_base::out);
+        if (!errorFileExists)
+        {
+            errorFile << "VemType" << separator;
+            errorFile << "VemOrder" << separator;
+            errorFile << "Cell2Ds" <<  separator;
+            errorFile << "Dofs" <<  separator;
+            errorFile << "Strongs" <<  separator;
+            errorFile << "h" <<  separator;
+            errorFile << "errorH1Velocity" <<  separator;
+            errorFile << "errorL2Pressure" << separator;
+            errorFile << "normH1Velocity" <<  separator;
+            errorFile << "normL2Pressure" << separator;
+            errorFile << "nnzA" << separator;
+            errorFile << "residual" << endl;
+        }
 
-//        errorFile.precision(16);
-//        errorFile << scientific << static_cast<unsigned int>(config.VemType()) << separator;
-//        errorFile << scientific << config.VemOrder()<< separator;
-//        errorFile << scientific << mesh.Cell2DTotalNumber()<< separator;
-//        errorFile << scientific << numberDOFs << separator;
-//        errorFile << scientific << numberStrongs << separator;
-//        errorFile << scientific << post_process_data.mesh_size << separator;
-//        errorFile << scientific << post_process_data.error_L2_velocity << separator;
-//        errorFile << scientific << post_process_data.error_L2_pressure << separator;
-//        errorFile << scientific << post_process_data.norm_L2_velocity << separator;
-//        errorFile << scientific << post_process_data.norm_L2_pressure << separator;
-//        errorFile << scientific << assembler_data.globalMatrixA.NonZeros() << separator;
-//        errorFile << scientific << post_process_data.residual_norm << endl;
+        errorFile.precision(16);
+        errorFile << scientific << static_cast<unsigned int>(config.VemType()) << separator;
+        errorFile << scientific << config.VemOrder()<< separator;
+        errorFile << scientific << mesh.Cell2DTotalNumber()<< separator;
+        errorFile << scientific << numberDOFs << separator;
+        errorFile << scientific << numberStrongs << separator;
+        errorFile << scientific << post_process_data.mesh_size << separator;
+        errorFile << scientific << post_process_data.error_H1_velocity << separator;
+        errorFile << scientific << post_process_data.error_L2_pressure << separator;
+        errorFile << scientific << post_process_data.norm_H1_velocity << separator;
+        errorFile << scientific << post_process_data.norm_L2_pressure << separator;
+        errorFile << scientific << assembler_data.globalMatrixA.NonZeros() << separator;
+        errorFile << scientific << post_process_data.residual_norm << endl;
 
-//        errorFile.close();
-//    }
+        errorFile.close();
+    }
 
     //    {
     //        {
@@ -594,68 +607,71 @@ int main(int argc, char** argv)
 //    Gedim::Profiler::StopTime("ExportSolution");
 //    Gedim::Output::PrintStatusProgram("ExportSolution");
 
-//    Gedim::Output::PrintGenericMessage("ComputeVEMPerformance...", true);
-//    Gedim::Profiler::StartTime("ComputeVEMPerformance");
+    Gedim::Output::PrintGenericMessage("ComputeVEMPerformance...", true);
+    Gedim::Profiler::StartTime("ComputeVEMPerformance");
 
-//    if (config.ComputeVEMPerformance())
-//    {
-//        const auto vemPerformance = assembler.ComputeVemPerformance(geometryUtilities,
-//                                                                    mesh,
-//                                                                    meshGeometricData,
-//                                                                    velocity_reference_element_data);
-//        {
-//            const char separator = ',';
-//            /// Export Cell2Ds VEM performance
-//            ofstream exporter;
+    if (config.ComputeVEMPerformance())
+    {
+        const auto vemPerformance = assembler.ComputeVemPerformance(geometryUtilities,
+                                                                    mesh,
+                                                                    meshGeometricData,
+                                                                    velocity_reference_element_data);
+        {
+            const char separator = ',';
+            /// Export Cell2Ds VEM performance
+            ofstream exporter;
 
-//            exporter.open(exportSolutionFolder + "/Cell2Ds_VEMPerformance.csv");
-//            exporter.precision(16);
+            exporter.open(exportSolutionFolder + "/Cell2Ds_VEMPerformance.csv");
+            exporter.precision(16);
 
-//            if (exporter.fail())
-//                throw runtime_error("Error on mesh cell2Ds file");
+            if (exporter.fail())
+                throw runtime_error("Error on mesh cell2Ds file");
 
-//            double VmatrixConditioning = -1.0; ///< conditioning of piNabla
-//            double HmatrixConditioning = -1.0; ///< conditioning of piNabla
-//            double Pi0kConditioning = -1.0; ///< conditioning of piNabla
-//            double GmatrixConditioning = -1.0; ///< conditioning of piNabla
-//            double ErrorPi0k = -1.0; ///< |pi0k * Dofs - I|
-//            double StabNorm = -1.0;
-//            double ErrorStabilization = -1.0; ///< |S * Dofs|
-//            double ErrorGBD = -1.0; ///< |G - BD|
+            exporter<< "Cell2D_Index"<< separator;
+            exporter<< "NumQuadPoints_Boundary" << separator;
+            exporter<< "NumQuadPoints_Internal" << separator;
+            exporter<< "PiNabla_Cond" << separator;
+            exporter<< "Pi0k_Cond" << separator;
+            exporter<< "PiNabla_Error" << separator;
+            exporter<< "Pi0k_Error" << separator;
+            exporter<< "GBD_Error" << separator;
+            exporter<< "HCD_Error" << separator;
+            exporter<< "Stab_Error" << endl;
 
-//            exporter<< "Cell2D_Index"<< separator;
-//            exporter<< "NumQuadPoints_Boundary" << separator;
-//            exporter<< "NumQuadPoints_Internal" << separator;
-//            exporter<< "Vmatrix_Cond" << separator;
-//            exporter<< "Hmatrix_Cond" << separator;
-//            exporter<< "Pi0k_Cond" << separator;
-//            exporter<< "Gmatrix_Cond" << separator;
-//            exporter<< "Pi0k_Error" << separator;
-//            exporter<< "GBD_Error" << separator;
-//            exporter<< "Stab_Error" << endl;
+            for (unsigned int v = 0; v < vemPerformance.Cell2DsPerformance.size(); v++)
+            {
+                const auto& cell2DPerformance = vemPerformance.Cell2DsPerformance[v].Analysis;
 
-//            for (unsigned int v = 0; v < vemPerformance.Cell2DsPerformance.size(); v++)
-//            {
-//                const auto& cell2DPerformance = vemPerformance.Cell2DsPerformance[v].Analysis;
+                exporter<< scientific << v << separator;
+                exporter<< scientific << vemPerformance.Cell2DsPerformance[v].NumBoundaryQuadraturePoints<< separator;
+                exporter<< scientific << vemPerformance.Cell2DsPerformance[v].NumInternalQuadraturePoints<< separator;
+                double sum_of_elems = 0.0;
+                std::ranges::for_each(cell2DPerformance.PiNablaConditioning , [&] (int n) {sum_of_elems += n * n;});
+                exporter<< scientific << sqrt(sum_of_elems) << separator;
+                sum_of_elems = 0.0;
+                std::ranges::for_each(cell2DPerformance.Pi0kConditioning , [&] (int n) {sum_of_elems += n * n;});
+                exporter<< scientific << sqrt(sum_of_elems) << separator;
+                sum_of_elems = 0.0;
+                std::ranges::for_each(cell2DPerformance.ErrorPiNabla , [&] (int n) {sum_of_elems += n * n;});
+                exporter<< scientific << sqrt(sum_of_elems) << separator;
+                sum_of_elems = 0.0;
+                std::ranges::for_each(cell2DPerformance.ErrorPi0k , [&] (int n) {sum_of_elems += n * n;});
+                exporter<< scientific << sqrt(sum_of_elems) << separator;
+                sum_of_elems = 0.0;
+                std::ranges::for_each(cell2DPerformance.ErrorGBD , [&] (int n) {sum_of_elems += n * n;});
+                exporter<< scientific << sqrt(sum_of_elems) << separator;
+                sum_of_elems = 0.0;
+                std::ranges::for_each(cell2DPerformance.ErrorHCD , [&] (int n) {sum_of_elems += n * n;});
+                exporter<< scientific << sqrt(sum_of_elems) << separator;
+                exporter<< scientific << cell2DPerformance.ErrorStabilization << endl;
+            }
 
-//                exporter<< scientific<< v << separator;
-//                exporter<< scientific<< vemPerformance.Cell2DsPerformance[v].NumBoundaryQuadraturePoints<< separator;
-//                exporter<< scientific<< vemPerformance.Cell2DsPerformance[v].NumInternalQuadraturePoints<< separator;
-//                exporter<< scientific<< cell2DPerformance.VmatrixConditioning << separator;
-//                exporter<< scientific<< cell2DPerformance.HmatrixConditioning << separator;
-//                exporter<< scientific<< cell2DPerformance.Pi0kConditioning << separator;
-//                exporter<< scientific<< cell2DPerformance.GmatrixConditioning << separator;
-//                exporter<< scientific<< cell2DPerformance.ErrorPi0k << separator;
-//                exporter<< scientific<< cell2DPerformance.ErrorGBD << separator;
-//                exporter<< scientific<< cell2DPerformance.ErrorStabilization << endl;
-//            }
+            exporter.close();
+        }
+    }
 
-//            exporter.close();
-//        }
-//    }
-
-//    Gedim::Profiler::StopTime("ComputeVEMPerformance");
-//    Gedim::Output::PrintStatusProgram("ComputeVEMPerformance");
+    Gedim::Profiler::StopTime("ComputeVEMPerformance");
+    Gedim::Output::PrintStatusProgram("ComputeVEMPerformance");
 
     return 0;
 }

@@ -695,15 +695,6 @@ int main(int argc, char** argv)
             if (exporter.fail())
                 throw runtime_error("Error on mesh cell2Ds file");
 
-            double VmatrixConditioning = -1.0; ///< conditioning of piNabla
-            double HmatrixConditioning = -1.0; ///< conditioning of piNabla
-            double Pi0kConditioning = -1.0; ///< conditioning of piNabla
-            double GmatrixConditioning = -1.0; ///< conditioning of piNabla
-            double ErrorPi0k = -1.0; ///< |pi0k * Dofs - I|
-            double StabNorm = -1.0;
-            double ErrorStabilization = -1.0; ///< |S * Dofs|
-            double ErrorGBD = -1.0; ///< |G - BD|
-
             exporter<< "Cell2D_Index"<< separator;
             exporter<< "NumQuadPoints_Boundary" << separator;
             exporter<< "NumQuadPoints_Internal" << separator;
