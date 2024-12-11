@@ -1,0 +1,96 @@
+#ifndef __VEM_MCC_3D_ReferenceElement_H
+#define __VEM_MCC_3D_ReferenceElement_H
+
+#include "VEM_Monomials_2D.hpp"
+#include "VEM_Monomials_3D.hpp"
+#include "VEM_Quadrature_3D.hpp"
+
+namespace Polydim
+{
+namespace VEM
+{
+namespace MCC
+{
+struct VEM_MCC_3D_Pressure_ReferenceElement_Data final
+{
+    unsigned int Dimension;
+    unsigned int Order;
+    unsigned int NumDofs0D; ///< Number of dofs for each vertex.
+    unsigned int NumDofs1D; ///< Number of dofs internal to each edge.
+    unsigned int NumDofs2D; ///< Number of dofs internal to each face.
+    unsigned int NumDofs3D; ///< Number of dofs internal to each polyhedron.
+
+    Monomials::VEM_Monomials_Data Monomials;
+    Quadrature::VEM_QuadratureData_3D Quadrature;
+};
+
+/// \brief Base class for Primal Conforming Virtual Element Method of Constant Degree.
+class VEM_MCC_3D_Pressure_ReferenceElement final
+{
+public:
+    VEM_MCC_3D_Pressure_ReferenceElement_Data Create(const unsigned int order) const
+    {
+        Monomials::VEM_Monomials_3D monomials;
+        Quadrature::VEM_Quadrature_3D quadrature;
+
+        VEM_MCC_3D_Pressure_ReferenceElement_Data result;
+
+        result.Monomials = monomials.Compute(order);
+        result.Quadrature = quadrature.Compute_MCC_3D(order);
+
+        result.Dimension = 3;
+        result.Order = order;
+        result.NumDofs0D = 0;
+        result.NumDofs1D = 0;
+        result.NumDofs2D = 0;
+        result.NumDofs3D = (order + 1) * (order + 2) * (order + 3) / 6;
+
+        return result;
+    }
+};
+
+struct VEM_MCC_3D_Velocity_ReferenceElement_Data final
+{
+    unsigned int Dimension;
+    unsigned int Order;
+    unsigned int NumDofs0D; ///< Number of dofs for each vertex.
+    unsigned int NumDofs1D; ///< Number of dofs internal to each edge.
+    unsigned int NumDofs2D; ///< Number of dofs internal to each face.
+    unsigned int NumDofs3D; ///< Number of dofs internal to each polyhedron.
+
+    Monomials::VEM_Monomials_Data Monomials2D;
+    Monomials::VEM_Monomials_Data MonomialsKp1;
+    Quadrature::VEM_QuadratureData_3D Quadrature;
+};
+
+class VEM_MCC_3D_Velocity_ReferenceElement final
+{
+public:
+    VEM_MCC_3D_Velocity_ReferenceElement_Data Create(const unsigned int order) const
+    {
+        Monomials::VEM_Monomials_2D monomials2D;
+        Monomials::VEM_Monomials_3D monomials3D;
+        Quadrature::VEM_Quadrature_3D quadrature;
+
+        VEM_MCC_3D_Velocity_ReferenceElement_Data result;
+
+        result.Monomials2D = monomials2D.Compute(order);
+        result.MonomialsKp1 = monomials3D.Compute(order + 1);
+        result.Quadrature = quadrature.Compute_MCC_3D(order);
+
+        result.Dimension = 3;
+        result.Order = order;
+        result.NumDofs0D = 0;
+        result.NumDofs1D = 0;
+        result.NumDofs2D = (order + 1) * (order + 2) / 2;
+        result.NumDofs3D = order * (order + 2) * (order + 3) / 2;
+
+        return result;
+    }
+};
+}
+}
+}
+
+
+#endif
