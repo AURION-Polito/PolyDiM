@@ -3,6 +3,8 @@
 #include "ranges"
 
 #include "VEM_MCC_2D_VelocityLocalSpace.hpp"
+#include "VEM_MCC_2D_Partial_VelocityLocalSpace.hpp"
+#include "VEM_MCC_2D_Ortho_VelocityLocalSpace.hpp"
 #include "EllipticEquation.hpp"
 
 using namespace std;
@@ -11,22 +13,27 @@ using namespace Eigen;
 
 namespace Elliptic_MCC_2D
 {
+template struct Assembler<Polydim::VEM::MCC::VEM_MCC_2D_VelocityLocalSpace>;
+template struct Assembler<Polydim::VEM::MCC::VEM_MCC_2D_Partial_VelocityLocalSpace>;
+template struct Assembler<Polydim::VEM::MCC::VEM_MCC_2D_Ortho_VelocityLocalSpace>;
+
 // ***************************************************************************
-Assembler::Elliptic_MCC_2D_Problem_Data Assembler::Assemble(const Gedim::GeometryUtilities& geometryUtilities,
-                                                            const Gedim::MeshMatricesDAO& mesh,
-                                                            const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
-                                                            const std::vector<Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo>& mesh_dofs_info,
-                                                            const std::vector<Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData>& dofs_data,
-                                                            const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& velocity_reference_element_data,
-                                                            const Polydim::VEM::MCC::VEM_MCC_2D_Pressure_ReferenceElement_Data& pressure_reference_element_data,
-                                                            const std::function<std::array<Eigen::VectorXd, 3>(const Eigen::MatrixXd&)>& mixed_advection_term,
-                                                            const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& reaction_term,
-                                                            const std::function<std::array<Eigen::VectorXd, 9>(const Eigen::MatrixXd&)>& inverse_diffusion_term,
-                                                            const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& source_term,
-                                                            const std::function<Eigen::VectorXd(const unsigned int,
-                                                                                                const Eigen::MatrixXd&)>& strong_boundary_condition,
-                                                            const std::function<Eigen::VectorXd(const unsigned int,
-                                                                                                const Eigen::MatrixXd&)>& weak_boundary_condition) const
+template<typename VEM_LocalSpace_Type>
+Assembler<VEM_LocalSpace_Type>::Elliptic_MCC_2D_Problem_Data Assembler<VEM_LocalSpace_Type>::Assemble(const Gedim::GeometryUtilities& geometryUtilities,
+                                                                                                      const Gedim::MeshMatricesDAO& mesh,
+                                                                                                      const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                                                                                      const std::vector<Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo>& mesh_dofs_info,
+                                                                                                      const std::vector<Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData>& dofs_data,
+                                                                                                      const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& velocity_reference_element_data,
+                                                                                                      const Polydim::VEM::MCC::VEM_MCC_2D_Pressure_ReferenceElement_Data& pressure_reference_element_data,
+                                                                                                      const std::function<std::array<Eigen::VectorXd, 3>(const Eigen::MatrixXd&)>& mixed_advection_term,
+                                                                                                      const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& reaction_term,
+                                                                                                      const std::function<std::array<Eigen::VectorXd, 9>(const Eigen::MatrixXd&)>& inverse_diffusion_term,
+                                                                                                      const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& source_term,
+                                                                                                      const std::function<Eigen::VectorXd(const unsigned int,
+                                                                                                                                          const Eigen::MatrixXd&)>& strong_boundary_condition,
+                                                                                                      const std::function<Eigen::VectorXd(const unsigned int,
+                                                                                                                                          const Eigen::MatrixXd&)>& weak_boundary_condition) const
 {
 
     const unsigned int numDOFHandler = mesh_dofs_info.size();
@@ -66,17 +73,14 @@ Assembler::Elliptic_MCC_2D_Problem_Data Assembler::Assemble(const Gedim::Geometr
                 mesh_geometric_data.Cell2DsEdgeNormals.at(c)
             };
 
-        Polydim::VEM::MCC::VEM_MCC_2D_VelocityLocalSpace vem_local_space;
+        VEM_LocalSpace_Type vem_local_space;
 
         const auto local_space = vem_local_space.CreateLocalSpace(velocity_reference_element_data,
                                                                   polygon);
 
         const auto velocity_basis_functions_values = vem_local_space.ComputeBasisFunctionsValues(local_space);
         const auto velocity_basis_functions_divergence_values = vem_local_space.ComputeBasisFunctionsDivergenceValues(local_space);
-        const auto pressure_basis_functions_values = monomials.Vander(pressure_reference_element_data.Monomials,
-                                                                      local_space.InternalQuadrature.Points,
-                                                                      mesh_geometric_data.Cell2DsCentroids.at(c),
-                                                                      mesh_geometric_data.Cell2DsDiameters.at(c));
+        const auto pressure_basis_functions_values = vem_local_space.ComputePolynomialsValues(local_space);
 
         const auto reaction_term_values = reaction_term(local_space.InternalQuadrature.Points);
         const auto advection_term_values = mixed_advection_term(local_space.InternalQuadrature.Points);
@@ -208,15 +212,16 @@ Assembler::Elliptic_MCC_2D_Problem_Data Assembler::Assemble(const Gedim::Geometr
     return result;
 }
 // ***************************************************************************
-void Assembler::ComputeStrongTerm(const Gedim::GeometryUtilities& geometryUtilities,
-                                  const Gedim::MeshMatricesDAO& mesh,
-                                  const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
-                                  const Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo& mesh_dofs_info,
-                                  const Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData& dofs_data,
-                                  const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& reference_element_data,
-                                  const std::function<Eigen::VectorXd(const unsigned int,
-                                                                      const Eigen::MatrixXd&)>& strong_boundary_condition,
-                                  Elliptic_MCC_2D_Problem_Data& assembler_data) const
+template<typename VEM_LocalSpace_Type>
+void Assembler<VEM_LocalSpace_Type>::ComputeStrongTerm(const Gedim::GeometryUtilities& geometryUtilities,
+                                                       const Gedim::MeshMatricesDAO& mesh,
+                                                       const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                                       const Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo& mesh_dofs_info,
+                                                       const Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData& dofs_data,
+                                                       const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& reference_element_data,
+                                                       const std::function<Eigen::VectorXd(const unsigned int,
+                                                                                           const Eigen::MatrixXd&)>& strong_boundary_condition,
+                                                       Elliptic_MCC_2D_Problem_Data& assembler_data) const
 {
     // Assemble strong boundary condition on Cell0Ds
     for (unsigned int p = 0; p < mesh.Cell0DTotalNumber(); ++p)
@@ -306,16 +311,17 @@ void Assembler::ComputeStrongTerm(const Gedim::GeometryUtilities& geometryUtilit
     }
 }
 // ***************************************************************************
-void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
-                                const Gedim::MeshMatricesDAO& mesh,
-                                const Polydim::VEM::MCC::VEM_MCC_2D_Polygon_Geometry& polygon,
-                                const Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo& mesh_dofs_info,
-                                const Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData& dofs_data,
-                                const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& reference_element_data,
-                                const Polydim::VEM::MCC::VEM_MCC_VelocityLocalSpace_Data& local_space_data,
-                                const std::function<Eigen::VectorXd(const unsigned int,
-                                                                    const Eigen::MatrixXd&)>& weak_boundary_condition,
-                                Elliptic_MCC_2D_Problem_Data& assembler_data) const
+template<typename VEM_LocalSpace_Type>
+void Assembler<VEM_LocalSpace_Type>::ComputeWeakTerm(const unsigned int cell2DIndex,
+                                                     const Gedim::MeshMatricesDAO& mesh,
+                                                     const Polydim::VEM::MCC::VEM_MCC_2D_Polygon_Geometry& polygon,
+                                                     const Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo& mesh_dofs_info,
+                                                     const Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData& dofs_data,
+                                                     const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& reference_element_data,
+                                                     const Polydim::VEM::MCC::VEM_MCC_VelocityLocalSpace_Data& local_space_data,
+                                                     const std::function<Eigen::VectorXd(const unsigned int,
+                                                                                         const Eigen::MatrixXd&)>& weak_boundary_condition,
+                                                     Elliptic_MCC_2D_Problem_Data& assembler_data) const
 {
 
     const unsigned int numQuadraturePoints = reference_element_data.Quadrature.ReferenceSegmentInternalPoints.cols();
@@ -367,10 +373,11 @@ void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
     }
 }
 // ***************************************************************************
-Assembler::VEM_Performance_Result Assembler::ComputeVemPerformance(const Gedim::GeometryUtilities& geometryUtilities,
-                                                                   const Gedim::MeshMatricesDAO& mesh,
-                                                                   const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
-                                                                   const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& reference_element_data) const
+template<typename VEM_LocalSpace_Type>
+Assembler<VEM_LocalSpace_Type>::VEM_Performance_Result Assembler<VEM_LocalSpace_Type>::ComputeVemPerformance(const Gedim::GeometryUtilities& geometryUtilities,
+                                                                                                             const Gedim::MeshMatricesDAO& mesh,
+                                                                                                             const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                                                                                             const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& reference_element_data) const
 {
     Assembler::VEM_Performance_Result result;
     result.Cell2DsPerformance.resize(mesh.Cell2DTotalNumber());
@@ -391,7 +398,7 @@ Assembler::VEM_Performance_Result Assembler::ComputeVemPerformance(const Gedim::
                 mesh_geometric_data.Cell2DsEdgeNormals.at(c)
             };
 
-        Polydim::VEM::MCC::VEM_MCC_2D_VelocityLocalSpace vem_local_space;
+        VEM_LocalSpace_Type vem_local_space;
 
         const auto local_space = vem_local_space.CreateLocalSpace(reference_element_data,
                                                                   polygon);
@@ -412,15 +419,16 @@ Assembler::VEM_Performance_Result Assembler::ComputeVemPerformance(const Gedim::
     return result;
 }
 // ***************************************************************************
-Assembler::PostProcess_Data Assembler::PostProcessSolution(const Gedim::GeometryUtilities& geometryUtilities,
-                                                           const Gedim::MeshMatricesDAO& mesh,
-                                                           const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
-                                                           const vector<Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData>& dofs_data,
-                                                           const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& velocity_reference_element_data,
-                                                           const Polydim::VEM::MCC::VEM_MCC_2D_Pressure_ReferenceElement_Data& pressure_reference_element_data,
-                                                           const Elliptic_MCC_2D_Problem_Data& assembler_data,
-                                                           const std::function<std::array<Eigen::VectorXd, 3>(const Eigen::MatrixXd&)>& exact_velocity,
-                                                           const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& exact_pressure) const
+template<typename VEM_LocalSpace_Type>
+Assembler<VEM_LocalSpace_Type>::PostProcess_Data Assembler<VEM_LocalSpace_Type>::PostProcessSolution(const Gedim::GeometryUtilities& geometryUtilities,
+                                                                                                     const Gedim::MeshMatricesDAO& mesh,
+                                                                                                     const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                                                                                     const vector<Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData>& dofs_data,
+                                                                                                     const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& velocity_reference_element_data,
+                                                                                                     const Polydim::VEM::MCC::VEM_MCC_2D_Pressure_ReferenceElement_Data& pressure_reference_element_data,
+                                                                                                     const Elliptic_MCC_2D_Problem_Data& assembler_data,
+                                                                                                     const std::function<std::array<Eigen::VectorXd, 3>(const Eigen::MatrixXd&)>& exact_velocity,
+                                                                                                     const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& exact_pressure) const
 {
     const unsigned int numDOFHandler = dofs_data.size();
     unsigned int numberDOFs = 0;
@@ -475,16 +483,13 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Gedim::Geometry
                 mesh_geometric_data.Cell2DsEdgeNormals.at(c)
             };
 
-        Polydim::VEM::MCC::VEM_MCC_2D_VelocityLocalSpace vem_local_space;
+        VEM_LocalSpace_Type vem_local_space;
 
         const auto local_space = vem_local_space.CreateLocalSpace(velocity_reference_element_data,
                                                                   polygon);
 
         const auto velocity_basis_functions_values = vem_local_space.ComputeBasisFunctionsValues(local_space);
-        const auto pressure_basis_functions_values = monomials.Vander(pressure_reference_element_data.Monomials,
-                                                                      local_space.InternalQuadrature.Points,
-                                                                      mesh_geometric_data.Cell2DsCentroids.at(c),
-                                                                      mesh_geometric_data.Cell2DsDiameters.at(c));
+        const auto pressure_basis_functions_values = vem_local_space.ComputePolynomialsValues(local_space);
 
         const auto& global_dofs_velocity = dofs_data[0].CellsGlobalDOFs[2].at(c);
         Eigen::VectorXd velocity_dofs_values = Eigen::VectorXd::Zero(global_dofs_velocity.size());
@@ -547,9 +552,9 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Gedim::Geometry
             (velocity_basis_functions_values[1] * velocity_dofs_values).array().square();
 
         result.cell2Ds_error_L2_velocity[c] = local_space.InternalQuadrature.Weights.transpose() *
-                                     local_error_L2_velocity;
+                                              local_error_L2_velocity;
         result.cell2Ds_norm_L2_velocity[c] = local_space.InternalQuadrature.Weights.transpose() *
-                                    local_norm_L2_velocity;
+                                             local_norm_L2_velocity;
 
         if (mesh_geometric_data.Cell2DsDiameters.at(c) > result.mesh_size)
             result.mesh_size = mesh_geometric_data.Cell2DsDiameters.at(c);

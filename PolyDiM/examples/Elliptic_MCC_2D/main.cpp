@@ -6,6 +6,7 @@
 #include "DOFsManager.hpp"
 #include "Eigen_LUSolver.hpp"
 #include "assembler.hpp"
+#include "VEM_MCC_2D_Ortho_VelocityLocalSpace.hpp"
 
 struct ProblemData final
 {
@@ -526,7 +527,7 @@ int main(int argc, char** argv)
     Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " + to_string((unsigned int)config.VemType()) + "...", true);
     Gedim::Profiler::StartTime("AssembleSystem");
 
-    Elliptic_MCC_2D::Assembler assembler;
+    Elliptic_MCC_2D::Assembler<Polydim::VEM::MCC::VEM_MCC_2D_Ortho_VelocityLocalSpace> assembler;
 
     PatchTest::order = config.VemOrder();
     auto assembler_data = assembler.Assemble(geometryUtilities,
