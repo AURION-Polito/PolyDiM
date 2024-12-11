@@ -18,8 +18,8 @@ namespace Elliptic_PCC_2D
   Assembler::Elliptic_PCC_2D_Problem_Data Assembler::Assemble(const Gedim::GeometryUtilities& geometryUtilities,
                                                               const Gedim::MeshMatricesDAO& mesh,
                                                               const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
-                                                              const Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo& mesh_dofs_info,
-                                                              const Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData& dofs_data,
+                                                              const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo& mesh_dofs_info,
+                                                              const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
                                                               const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
                                                               const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& diffusion_term,
                                                               const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& source_term,
@@ -118,9 +118,9 @@ namespace Elliptic_PCC_2D
 
         switch (local_dof_i.Type)
         {
-          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
+          case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
             continue;
-          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
+          case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
             break;
           default:
             throw std::runtime_error("Unknown DOF Type");
@@ -148,7 +148,7 @@ namespace Elliptic_PCC_2D
 
           switch (local_dof_j.Type)
           {
-            case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
               result.dirichletMatrixA.Triplet(global_index_i,
                                               global_index_j,
                                               loc_A_element);
@@ -157,7 +157,7 @@ namespace Elliptic_PCC_2D
               std::cout<< std::scientific<< "g_AD("<< global_index_i<< ","<< global_index_j<< ") = "<< loc_A_element<< std::endl;
 #endif
               break;
-            case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
               result.globalMatrixA.Triplet(global_index_i,
                                            global_index_j,
                                            loc_A_element);
@@ -206,8 +206,8 @@ namespace Elliptic_PCC_2D
   void Assembler::ComputeStrongTerm(const Gedim::GeometryUtilities& geometryUtilities,
                                     const Gedim::MeshMatricesDAO& mesh,
                                     const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
-                                    const Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo& mesh_dofs_info,
-                                    const Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData& dofs_data,
+                                    const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo& mesh_dofs_info,
+                                    const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
                                     const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
                                     const std::function<Eigen::VectorXd(const unsigned int,
                                                                         const Eigen::MatrixXd&)>& strong_boundary_condition,
@@ -219,7 +219,7 @@ namespace Elliptic_PCC_2D
       const auto& boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(0).at(p);
 
       if (boundary_info.Type !=
-          Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong)
+          Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong)
         continue;
 
       const auto coordinates = mesh.Cell0DCoordinates(p);
@@ -237,13 +237,13 @@ namespace Elliptic_PCC_2D
 
         switch (local_dof_i.Type)
         {
-          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
+          case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
           {
             assembler_data.solutionDirichlet.SetValue(local_dof_i.Global_Index,
                                                       strong_boundary_values[loc_i]);
           }
             break;
-          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
+          case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
             continue;
           default:
             throw std::runtime_error("Unknown DOF Type");
@@ -260,7 +260,7 @@ namespace Elliptic_PCC_2D
       const auto& boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(1).at(e);
 
       if (boundary_info.Type !=
-          Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong)
+          Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong)
         continue;
 
       const auto cell1D_origin = mesh.Cell1DOriginCoordinates(e);
@@ -286,13 +286,13 @@ namespace Elliptic_PCC_2D
 
         switch (local_dof_i.Type)
         {
-          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
+          case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
           {
             assembler_data.solutionDirichlet.SetValue(local_dof_i.Global_Index,
                                                       strong_boundary_values[loc_i]);
           }
             break;
-          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
+          case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
             continue;
           default:
             throw std::runtime_error("Unknown DOF Type");
@@ -304,8 +304,8 @@ namespace Elliptic_PCC_2D
   void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
                                   const Gedim::MeshMatricesDAO& mesh,
                                   const Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry& polygon,
-                                  const Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo& mesh_dofs_info,
-                                  const Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData& dofs_data,
+                                  const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo& mesh_dofs_info,
+                                  const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
                                   const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
                                   const std::function<Eigen::VectorXd(const unsigned int,
                                                                       const Eigen::MatrixXd&)>& weak_boundary_condition,
@@ -321,7 +321,7 @@ namespace Elliptic_PCC_2D
       const auto& boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(1).at(cell1D_index);
 
       if (boundary_info.Type !=
-          Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak)
+          Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak)
         continue;
 
       Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace vem_local_space;
@@ -380,9 +380,9 @@ namespace Elliptic_PCC_2D
 
           switch (local_dof_i.Type)
           {
-            case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
               continue;
-            case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
             {
               assembler_data.rightHandSide.AddValue(local_dof_i.Global_Index,
                                                     neumannContributions[p]);
@@ -410,9 +410,9 @@ namespace Elliptic_PCC_2D
 
         switch (local_dof_i.Type)
         {
-          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
+          case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
             continue;
-          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
+          case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
           {
             assembler_data.rightHandSide.AddValue(local_dof_i.Global_Index,
                                                   neumannContributions[localIndex + 2]);
@@ -477,7 +477,7 @@ namespace Elliptic_PCC_2D
   Assembler::PostProcess_Data Assembler::PostProcessSolution(const Gedim::GeometryUtilities& geometryUtilities,
                                                              const Gedim::MeshMatricesDAO& mesh,
                                                              const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
-                                                             const Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData& dofs_data,
+                                                             const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
                                                              const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
                                                              const Elliptic_PCC_2D_Problem_Data& assembler_data,
                                                              const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& exact_solution,
@@ -512,10 +512,10 @@ namespace Elliptic_PCC_2D
 
         switch (local_dof_i.Type)
         {
-          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
+          case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
             result.cell0Ds_numeric[p] = assembler_data.solutionDirichlet.GetValue(local_dof_i.Global_Index);
             break;
-          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
+          case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
             result.cell0Ds_numeric[p] = assembler_data.solution.GetValue(local_dof_i.Global_Index);
             break;
           default:
@@ -574,10 +574,10 @@ namespace Elliptic_PCC_2D
 
         switch (local_dof_i.Type)
         {
-          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
+          case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
             dofs_values[loc_i] = assembler_data.solutionDirichlet.GetValue(local_dof_i.Global_Index);
             break;
-          case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
+          case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
             dofs_values[loc_i] = assembler_data.solution.GetValue(local_dof_i.Global_Index);
             break;
           default:
