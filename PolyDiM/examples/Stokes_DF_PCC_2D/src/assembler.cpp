@@ -16,8 +16,8 @@ template<typename VEM_LocalSpace_Type>
 Assembler<VEM_LocalSpace_Type>::Stokes_DF_PCC_2D_Problem_Data Assembler<VEM_LocalSpace_Type>::Assemble(const Gedim::GeometryUtilities& geometryUtilities,
                                                                                                        const Gedim::MeshMatricesDAO& mesh,
                                                                                                        const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
-                                                                                                       const std::vector<Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo>& mesh_dofs_info,
-                                                                                                       const std::vector<Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData>& dofs_data,
+                                                                                                       const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo>& mesh_dofs_info,
+                                                                                                       const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData>& dofs_data,
                                                                                                        const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data& velocity_reference_element_data,
                                                                                                        const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data& pressure_reference_element_data,
                                                                                                        const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& diffusion_term,
@@ -101,7 +101,7 @@ Assembler<VEM_LocalSpace_Type>::Stokes_DF_PCC_2D_Problem_Data Assembler<VEM_Loca
         const std::vector<size_t> offset_global_dofs = {0lu, dofs_data[0].CellsGlobalDOFs[2].at(c).size(),
                                                         dofs_data[0].CellsGlobalDOFs[2].at(c).size() + dofs_data[1].CellsGlobalDOFs[2].at(c).size(),
                                                         dofs_data[0].CellsGlobalDOFs[2].at(c).size() + dofs_data[1].CellsGlobalDOFs[2].at(c).size() + dofs_data[2].CellsGlobalDOFs[2].at(c).size()};
-        const std::vector<std::vector<Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::GlobalCell_DOF>> global_dofs
+        const std::vector<std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData::GlobalCell_DOF>> global_dofs
             = {dofs_data[0].CellsGlobalDOFs[2].at(c), dofs_data[1].CellsGlobalDOFs[2].at(c), dofs_data[2].CellsGlobalDOFs[2].at(c), dofs_data[3].CellsGlobalDOFs[2].at(c)};
 
         Eigen::MatrixXd elemental_matrix = MatrixXd::Zero(global_dofs[0].size() + global_dofs[1].size() + global_dofs[2].size() + global_dofs[3].size(),
@@ -127,9 +127,9 @@ Assembler<VEM_LocalSpace_Type>::Stokes_DF_PCC_2D_Problem_Data Assembler<VEM_Loca
 
                 switch (local_dof_i.Type)
                 {
-                case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
+                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
                     continue;
-                case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
+                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
                     break;
                 default:
                     throw std::runtime_error("Unknown DOF Type");
@@ -153,12 +153,12 @@ Assembler<VEM_LocalSpace_Type>::Stokes_DF_PCC_2D_Problem_Data Assembler<VEM_Loca
 
                         switch (local_dof_j.Type)
                         {
-                        case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
+                        case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
                             result.dirichletMatrixA.Triplet(global_index_i,
                                                             global_index_j + offsetStrongs[h2],
                                                             loc_A_element);
                             break;
-                        case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
+                        case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
                             result.globalMatrixA.Triplet(global_index_i,
                                                          global_index_j + offsetDOFs[h2],
                                                          loc_A_element);
@@ -215,8 +215,8 @@ template<typename VEM_LocalSpace_Type>
 void Assembler<VEM_LocalSpace_Type>::ComputeStrongTerm(const Gedim::GeometryUtilities& geometryUtilities,
                                                        const Gedim::MeshMatricesDAO& mesh,
                                                        const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
-                                                       const Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo& mesh_dofs_info,
-                                                       const Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData& dofs_data,
+                                                       const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo& mesh_dofs_info,
+                                                       const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
                                                        const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data& reference_element_data,
                                                        const std::function<Eigen::VectorXd(const unsigned int,
                                                                                            const Eigen::MatrixXd&)>& strong_boundary_condition,
@@ -228,7 +228,7 @@ void Assembler<VEM_LocalSpace_Type>::ComputeStrongTerm(const Gedim::GeometryUtil
         const auto& boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(0).at(p);
 
         if (boundary_info.Type !=
-            Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong)
+            Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong)
             continue;
 
         const auto coordinates = mesh.Cell0DCoordinates(p);
@@ -246,13 +246,13 @@ void Assembler<VEM_LocalSpace_Type>::ComputeStrongTerm(const Gedim::GeometryUtil
 
             switch (local_dof_i.Type)
             {
-            case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
             {
                 assembler_data.solutionDirichlet.SetValue(local_dof_i.Global_Index,
                                                           strong_boundary_values[loc_i]);
             }
             break;
-            case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
                 continue;
             default:
                 throw std::runtime_error("Unknown DOF Type");
@@ -269,7 +269,7 @@ void Assembler<VEM_LocalSpace_Type>::ComputeStrongTerm(const Gedim::GeometryUtil
         const auto& boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(1).at(e);
 
         if (boundary_info.Type !=
-            Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong)
+            Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong)
             continue;
 
         const auto cell1D_origin = mesh.Cell1DOriginCoordinates(e);
@@ -295,13 +295,13 @@ void Assembler<VEM_LocalSpace_Type>::ComputeStrongTerm(const Gedim::GeometryUtil
 
             switch (local_dof_i.Type)
             {
-            case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
             {
                 assembler_data.solutionDirichlet.SetValue(local_dof_i.Global_Index,
                                                           strong_boundary_values[loc_i]);
             }
             break;
-            case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
                 continue;
             default:
                 throw std::runtime_error("Unknown DOF Type");
@@ -360,7 +360,7 @@ template<typename VEM_LocalSpace_Type>
 Assembler<VEM_LocalSpace_Type>::PostProcess_Data Assembler<VEM_LocalSpace_Type>::PostProcessSolution(const Gedim::GeometryUtilities& geometryUtilities,
                                                                                                      const Gedim::MeshMatricesDAO& mesh,
                                                                                                      const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
-                                                                                                     const vector<Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData>& dofs_data,
+                                                                                                     const vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData>& dofs_data,
                                                                                                      const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data& velocity_reference_element_data,
                                                                                                      const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data& pressure_reference_element_data,
                                                                                                      const Stokes_DF_PCC_2D_Problem_Data& assembler_data,
@@ -441,10 +441,10 @@ Assembler<VEM_LocalSpace_Type>::PostProcess_Data Assembler<VEM_LocalSpace_Type>:
 
         //            switch (local_dof_i.Type)
         //            {
-        //            case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::Strong:
+        //            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
         //                velocity_dofs_values[loc_i] = assembler_data.solutionDirichlet.GetValue(local_dof_i.Global_Index);
         //                break;
-        //            case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
+        //            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
         //                velocity_dofs_values[loc_i] = assembler_data.solution.GetValue(local_dof_i.Global_Index);
         //                break;
         //            default:
@@ -461,7 +461,7 @@ Assembler<VEM_LocalSpace_Type>::PostProcess_Data Assembler<VEM_LocalSpace_Type>:
 
             switch (local_dof_i.Type)
             {
-            case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
                 pressure_dofs_values[loc_i] = assembler_data.solution.GetValue(local_dof_i.Global_Index + offsetDOFs[3]);
                 break;
             default:

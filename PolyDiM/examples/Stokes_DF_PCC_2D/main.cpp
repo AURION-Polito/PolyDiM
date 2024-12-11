@@ -296,13 +296,13 @@ int main(int argc, char** argv)
     MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data = {
         mesh
     };
-    Polydim::PDETools::DOFs::DOFsManager<2> dofManager;
+    Polydim::PDETools::DOFs::DOFsManager dofManager;
 
     Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement vem_velocity_reference_element;
     const auto velocity_reference_element_data = vem_velocity_reference_element.Create(config.VemOrder());
 
-    std::vector<Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo> meshDOFsInfo(4);
-    std::vector<Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData> dofs_data(4);
+    std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> meshDOFsInfo(4);
+    std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> dofs_data(4);
 
     for(unsigned int i = 0; i < 2; i++)
     {
@@ -310,7 +310,7 @@ int main(int argc, char** argv)
                                                velocity_reference_element_data.NumDofs0D);
         meshDOFsInfo[i].CellsBoundaryInfo[0].resize(mesh.Cell0DTotalNumber(),
                                                     {
-                                                        Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
+                                                        Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
                                                         0
                                                     });
 
@@ -321,14 +321,14 @@ int main(int argc, char** argv)
 
             auto& boundary_info =  meshDOFsInfo[i].CellsBoundaryInfo[0][v];
             boundary_info.Marker = 1;
-            boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong;
+            boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong;
         }
 
         meshDOFsInfo[i].CellsNumDOFs[1].resize(mesh.Cell1DTotalNumber(),
                                                velocity_reference_element_data.NumDofs1D);
         meshDOFsInfo[i].CellsBoundaryInfo[1].resize(mesh.Cell1DTotalNumber(),
                                                     {
-                                                        Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
+                                                        Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
                                                         0
                                                     });
 
@@ -339,33 +339,33 @@ int main(int argc, char** argv)
 
             auto& boundary_info =  meshDOFsInfo[i].CellsBoundaryInfo[1][e];
             boundary_info.Marker = 1;
-            boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong;
+            boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong;
         }
 
         meshDOFsInfo[i].CellsNumDOFs[2].resize(mesh.Cell2DTotalNumber(),
                                                0);
         meshDOFsInfo[i].CellsBoundaryInfo[2].resize(mesh.Cell2DTotalNumber(),
                                                     {
-                                                        Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
+                                                        Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
                                                         0
                                                     });
 
-        dofs_data[i] = dofManager.CreateDOFs(meshDOFsInfo[i],
-                                             mesh_connectivity_data);
+        dofs_data[i] = dofManager.CreateDOFs<2>(meshDOFsInfo[i],
+                                                mesh_connectivity_data);
     }
 
     meshDOFsInfo[2].CellsNumDOFs[0].resize(mesh.Cell0DTotalNumber(),
                                            0);
     meshDOFsInfo[2].CellsBoundaryInfo[0].resize(mesh.Cell0DTotalNumber(),
                                                 {
-                                                    Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
+                                                    Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
                                                     0
                                                 });
     meshDOFsInfo[2].CellsNumDOFs[1].resize(mesh.Cell1DTotalNumber(),
                                            0);
     meshDOFsInfo[2].CellsBoundaryInfo[1].resize(mesh.Cell1DTotalNumber(),
                                                 {
-                                                    Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
+                                                    Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
                                                     0
                                                 });
 
@@ -373,12 +373,12 @@ int main(int argc, char** argv)
                                            velocity_reference_element_data.NumDofs2D_BigOPlus + velocity_reference_element_data.NumDofs2D_Divergence);
     meshDOFsInfo[2].CellsBoundaryInfo[2].resize(mesh.Cell2DTotalNumber(),
                                                 {
-                                                    Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
+                                                    Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
                                                     0
                                                 });
 
-    dofs_data[2] = dofManager.CreateDOFs(meshDOFsInfo[2],
-                                         mesh_connectivity_data);
+    dofs_data[2] = dofManager.CreateDOFs<2>(meshDOFsInfo[2],
+                                            mesh_connectivity_data);
 
 
 
@@ -389,14 +389,14 @@ int main(int argc, char** argv)
                                            pressure_reference_element_data.NumDofs0D);
     meshDOFsInfo[3].CellsBoundaryInfo[0].resize(mesh.Cell0DTotalNumber(),
                                                 {
-                                                    Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
+                                                    Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
                                                     0
                                                 });
     meshDOFsInfo[3].CellsNumDOFs[1].resize(mesh.Cell1DTotalNumber(),
                                            pressure_reference_element_data.NumDofs1D);
     meshDOFsInfo[3].CellsBoundaryInfo[1].resize(mesh.Cell1DTotalNumber(),
                                                 {
-                                                    Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
+                                                    Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
                                                     0
                                                 });
 
@@ -404,13 +404,13 @@ int main(int argc, char** argv)
                                            pressure_reference_element_data.NumDofs2D);
     meshDOFsInfo[3].CellsBoundaryInfo[2].resize(mesh.Cell2DTotalNumber(),
                                                 {
-                                                    Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
+                                                    Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
                                                     0
                                                 });
 
 
-    dofs_data[3] = dofManager.CreateDOFs(meshDOFsInfo[3],
-                                         mesh_connectivity_data);
+    dofs_data[3] = dofManager.CreateDOFs<2>(meshDOFsInfo[3],
+                                            mesh_connectivity_data);
 
     const unsigned int numDOFHandler = meshDOFsInfo.size();
     unsigned int numberDOFs = 0;
@@ -604,8 +604,8 @@ int main(int argc, char** argv)
     //        }
     //    }
 
-//    Gedim::Profiler::StopTime("ExportSolution");
-//    Gedim::Output::PrintStatusProgram("ExportSolution");
+    //    Gedim::Profiler::StopTime("ExportSolution");
+    //    Gedim::Output::PrintStatusProgram("ExportSolution");
 
     Gedim::Output::PrintGenericMessage("ComputeVEMPerformance...", true);
     Gedim::Profiler::StartTime("ComputeVEMPerformance");
