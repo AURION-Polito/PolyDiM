@@ -31,8 +31,8 @@ Assembler::Elliptic_MCC_2D_Problem_Data Assembler::Assemble(const Gedim::Geometr
     const unsigned int numDOFHandler = mesh_dofs_info.size();
     unsigned int numberDOFs = 0;
     unsigned int numberStrongs = 0;
-    std::vector<unsigned int> offsetDOFs = {0};
-    std::vector<unsigned int> offsetStrongs = {0};
+    std::vector<unsigned int> offsetDOFs = {0, dofs_data[0].NumberDOFs};
+    std::vector<unsigned int> offsetStrongs = {0, dofs_data[0].NumberStrongs};
     for(unsigned int i = 0; i < numDOFHandler; i++)
     {
         numberDOFs += dofs_data[i].NumberDOFs;
