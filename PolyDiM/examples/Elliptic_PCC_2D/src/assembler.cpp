@@ -5,6 +5,7 @@
 
 #include "VEM_PCC_2D_LocalSpace.hpp"
 #include "EllipticEquation.hpp"
+#include "Assembler_Utilities.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -110,6 +111,25 @@ namespace Elliptic_PCC_2D
       const auto& global_dofs = dofs_data.CellsGlobalDOFs[2].at(c);
 
       assert(local_space.NumBasisFunctions ==  global_dofs.size());
+
+
+      Polydim::PDETools::Assembler_Utilities::local_matrix_to_global_matrix_dofs_data
+          local_matrix_to_global_matrix_dofs_data =
+      {
+        { cref(dofs_data) },
+        { 0 },
+        { 0 },
+        { 0 }
+      };
+
+      Polydim::PDETools::Assembler_Utilities::assemble_local_matrix_to_global_matrix<2>(c,
+                                                                                        local_matrix_to_global_matrix_dofs_data,
+                                                                                        local_matrix_to_global_matrix_dofs_data,
+                                                                                        local_A + local_stab_A,
+                                                                                        local_rhs,
+                                                                                        result.globalMatrixA,
+                                                                                        result.dirichletMatrixA,
+                                                                                        result.rightHandSide);
 
       for (unsigned int loc_i = 0; loc_i < global_dofs.size(); ++loc_i)
       {

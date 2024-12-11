@@ -13,10 +13,10 @@ namespace Polydim
     {
       struct local_matrix_to_global_matrix_dofs_data final
       {
-          std::vector<std::reference_wrapper<Polydim::PDETools::DOFs::DOFsManager::DOFsData>> dofs_data;
-          std::vector<unsigned int>& local_offsets;
-          std::vector<unsigned int>& global_offsets_DOFs;
-          std::vector<unsigned int>& global_offsets_Strongs;
+          std::vector<std::reference_wrapper<const Polydim::PDETools::DOFs::DOFsManager::DOFsData>> dofs_data;
+          std::vector<unsigned int> local_offsets;
+          std::vector<unsigned int> global_offsets_DOFs;
+          std::vector<unsigned int> global_offsets_Strongs;
       };
 
       template<unsigned int dimension,
@@ -28,8 +28,8 @@ namespace Polydim
           const unsigned int cell_index,
           const local_matrix_to_global_matrix_dofs_data& test_functions_dofs_data,
           const local_matrix_to_global_matrix_dofs_data& trial_functions_dofs_data,
-          const global_lhs_type& local_lhs,
-          const global_rhs_type& local_rhs,
+          const local_lhs_type& local_lhs,
+          const local_rhs_type& local_rhs,
           global_lhs_type& global_lhs_DOFs,
           global_lhs_type& global_lhs_Strongs,
           global_rhs_type& global_rhs)
