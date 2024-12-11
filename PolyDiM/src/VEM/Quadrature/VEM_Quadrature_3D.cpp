@@ -131,7 +131,7 @@ VEM_Quadrature_3D::Faces_QuadratureData_MCC VEM_Quadrature_3D::PolyhedronFacesQu
     unsigned int numQuadraturePoints = 0;
     for(unsigned int f = 0; f < numFaces; f++)
     {
-        result.FacesQuadrature[f] = quadrature2D.PolygonInternalQuadrature(data.QuadratureData_2D,
+        result.FacesQuadrature[f] = quadrature2D.PolygonInternalQuadrature(data.QuadratureData_2D.ReferenceTriangleQuadrature,
                                                                            facesTriangulations2D[f]);
 
         numQuadraturePoints += result.FacesQuadrature[f].Points.cols();
