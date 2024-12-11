@@ -19,9 +19,9 @@ Assembler::Elliptic_MCC_2D_Problem_Data Assembler::Assemble(const Gedim::Geometr
                                                             const std::vector<Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData>& dofs_data,
                                                             const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& velocity_reference_element_data,
                                                             const Polydim::VEM::MCC::VEM_MCC_2D_Pressure_ReferenceElement_Data& pressure_reference_element_data,
-                                                            const std::function<std::array<Eigen::VectorXd, 3>(const Eigen::MatrixXd&)>& advection_term,
+                                                            const std::function<std::array<Eigen::VectorXd, 3>(const Eigen::MatrixXd&)>& mixed_advection_term,
                                                             const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& reaction_term,
-                                                            const std::function<std::array<Eigen::VectorXd, 9>(const Eigen::MatrixXd&)>& diffusion_term,
+                                                            const std::function<std::array<Eigen::VectorXd, 9>(const Eigen::MatrixXd&)>& inverse_diffusion_term,
                                                             const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& source_term,
                                                             const std::function<Eigen::VectorXd(const unsigned int,
                                                                                                 const Eigen::MatrixXd&)>& strong_boundary_condition,
@@ -42,7 +42,7 @@ Assembler::Elliptic_MCC_2D_Problem_Data Assembler::Assemble(const Gedim::Geometr
 
     Elliptic_MCC_2D_Problem_Data result;
     result.globalMatrixA.SetSize(numberDOFs, numberDOFs,
-                                 Gedim::ISparseArray::SparseArrayTypes::Symmetric);
+                                 Gedim::ISparseArray::SparseArrayTypes::None);
     result.neumannMatrixA.SetSize(numberDOFs,
                                   numberStrongs);
     result.rightHandSide.SetSize(numberDOFs);
@@ -79,8 +79,8 @@ Assembler::Elliptic_MCC_2D_Problem_Data Assembler::Assemble(const Gedim::Geometr
                                                                       mesh_geometric_data.Cell2DsDiameters.at(c));
 
         const auto reaction_term_values = reaction_term(local_space.InternalQuadrature.Points);
-        const auto advection_term_values = advection_term(local_space.InternalQuadrature.Points);
-        const auto diffusion_term_values = diffusion_term(local_space.InternalQuadrature.Points);
+        const auto advection_term_values = mixed_advection_term(local_space.InternalQuadrature.Points);
+        const auto diffusion_term_values = inverse_diffusion_term(local_space.InternalQuadrature.Points);
         const auto source_term_values = source_term(local_space.InternalQuadrature.Points);
 
         auto local_A = equation.ComputeCellDiffusionMatrix(diffusion_term_values,
@@ -117,7 +117,7 @@ Assembler::Elliptic_MCC_2D_Problem_Data Assembler::Assemble(const Gedim::Geometr
 
         Eigen::MatrixXd elemental_matrix = MatrixXd::Zero(global_dofs[0].size() + global_dofs[1].size(), global_dofs[0].size() + global_dofs[1].size());
         Eigen::VectorXd elemental_rhs = VectorXd::Zero(global_dofs[0].size() + global_dofs[1].size());
-        elemental_matrix << local_A, -local_B.transpose()+local_T,
+        elemental_matrix << local_A, -(local_B + local_T).transpose(),
             local_B, local_M;
         elemental_rhs <<  VectorXd::Zero(global_dofs[0].size()), local_rhs;
 

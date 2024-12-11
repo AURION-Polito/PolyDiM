@@ -47,7 +47,7 @@ struct EllipticEquation final
             {
                 cell_matrix.noalias() +=
                     basis_functions_derivative_values.at(d1).transpose() *
-                                         quadrature_weights.cwiseProduct(diffusion_term_values.at(d1 + 3 * d2)).asDiagonal() *
+                    quadrature_weights.cwiseProduct(diffusion_term_values.at(d1 + 3 * d2)).asDiagonal() *
                     basis_functions_derivative_values.at(d2);
             }
         }
@@ -70,16 +70,16 @@ struct EllipticEquation final
                                                const std::vector<Eigen::MatrixXd>& basis_functions_derivative_values,
                                                const Eigen::VectorXd& quadrature_weights) const
     {
-        Eigen::MatrixXd cell_matrix = basis_functions_derivative_values[0].transpose() *
+        Eigen::MatrixXd cell_matrix = basis_functions_values.transpose() *
                                       quadrature_weights.cwiseProduct(advection_term_values[0]).asDiagonal() *
-                                      basis_functions_values;
+                                      basis_functions_derivative_values[0];
 
         for(unsigned int d = 1; d < basis_functions_derivative_values.size(); ++d)
         {
-            cell_matrix.noalias() +=
-                basis_functions_derivative_values.at(d).transpose() *
-                quadrature_weights.cwiseProduct(advection_term_values.at(d)).asDiagonal() *
-                basis_functions_values;
+            cell_matrix.noalias() += basis_functions_values.transpose() *
+                                     quadrature_weights.cwiseProduct(advection_term_values.at(d)).asDiagonal() *
+                                     basis_functions_derivative_values.at(d);
+
         }
 
         return cell_matrix;

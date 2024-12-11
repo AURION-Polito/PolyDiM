@@ -54,6 +54,16 @@ struct PatchTest final
             };
     }
 
+    static std::array<Eigen::VectorXd, 3> mixed_advection_term(const Eigen::MatrixXd& points)
+    {
+        return
+            {
+                Eigen::VectorXd::Constant(points.cols(), 0.4),
+                Eigen::VectorXd::Constant(points.cols(), -0.2),
+                Eigen::VectorXd::Zero(points.cols())
+            };
+    }
+
     static Eigen::VectorXd reaction_term(const Eigen::MatrixXd& points)
     {
         return points.row(0).array() * points.row(1).array();
@@ -71,7 +81,7 @@ struct PatchTest final
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Constant(points.cols(), 1.0)
+                Eigen::VectorXd::Constant(points.cols(), 0.0)
             };
     };
 
@@ -87,7 +97,7 @@ struct PatchTest final
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Constant(points.cols(), 1.0)
+                Eigen::VectorXd::Constant(points.cols(), 0.0)
             };
     };
 
@@ -106,7 +116,7 @@ struct PatchTest final
             solution = second_derivatives * polynomial * polynomial;
             second_derivatives *= order * (order - 1);
         }
-        else if(order == 0)
+        else if(order == 1)
             solution = polynomial;
 
         return - 3.0 * second_derivatives + points.row(1).array().transpose() * points.row(0).array().transpose() * solution;
@@ -330,44 +340,61 @@ int main(int argc, char** argv)
     Gedim::MeshMatrices meshData;
     Gedim::MeshMatricesDAO mesh(meshData);
 
-    switch (config.MeshGenerator())
-    {
-    case Elliptic_MCC_2D::Program_configuration::MeshGenerators::Tri:
-    {
-        meshUtilities.CreateTriangularMesh(domain.Domain.Vertices,
-                                           config.MeshMaxArea(),
-                                           mesh);
-    }
-    break;
+//    switch (config.MeshGenerator())
+//    {
+//    case Elliptic_MCC_2D::Program_configuration::MeshGenerators::Tri:
+//    {
+//        meshUtilities.CreateTriangularMesh(domain.Domain.Vertices,
+//                                           config.MeshMaxArea(),
+//                                           mesh);
+//    }
+//    break;
+//    case Elliptic_MCC_2D::Program_configuration::MeshGenerators::Rect:
+//    {
+        Eigen::Vector3d origin = domain.Domain.Vertices.col(0);
+        Eigen::Vector3d rectangleBaseTangent = domain.Domain.Vertices.col(1) - domain.Domain.Vertices.col(0);
+        Eigen::Vector3d rectangleHeightTangent = domain.Domain.Vertices.rightCols(1) - domain.Domain.Vertices.col(0);
 
-    case Elliptic_MCC_2D::Program_configuration::MeshGenerators::OFFImporter:
-    {
-        meshUtilities.ImportObjectFileFormat(config.MeshOFF_FilePath(),
-                                             mesh);
+        vector<double> baseMeshCurvilinearCoordinates = geometryUtilities.EquispaceCoordinates(3, 0.0, 1.0, 1);
+        vector<double> heightMeshCurvilinearCoordinates = geometryUtilities.EquispaceCoordinates(3, 0.0, 1.0, 1);
 
-        meshUtilities.ComputeCell1DCell2DNeighbours(mesh);
 
-        const Eigen::MatrixXd domainEdgesTangent = geometryUtilities.PolygonEdgeTangents(domain.Domain.Vertices);
+        meshUtilities.CreateRectangleMesh(origin,
+                                          rectangleBaseTangent,
+                                          rectangleHeightTangent,
+                                          baseMeshCurvilinearCoordinates,
+                                          heightMeshCurvilinearCoordinates,
+                                          mesh);
+//    }
+//    break;
+//    case Elliptic_MCC_2D::Program_configuration::MeshGenerators::OFFImporter:
+//    {
+//        meshUtilities.ImportObjectFileFormat(config.MeshOFF_FilePath(),
+//                                             mesh);
 
-        for (unsigned int e = 0; e < domainEdgesTangent.cols(); e++)
-        {
-            const Eigen::Vector3d& domainEdgeOrigin = domain.Domain.Vertices.col(e);
-            const Eigen::Vector3d& domainEdgeTangent = domainEdgesTangent.col(e);
-            const double domainEdgeSquaredLength = domainEdgeTangent.squaredNorm();
-            meshUtilities.SetMeshMarkersOnLine(geometryUtilities,
-                                               domainEdgeOrigin,
-                                               domainEdgeTangent,
-                                               domainEdgeSquaredLength,
-                                               domain.Domain.EdgeBoundaryConditions[e],
-                                               mesh);
-        }
-    }
-    break;
-    default:
-        throw runtime_error("MeshGenerator " +
-                            to_string((unsigned int)config.MeshGenerator()) +
-                            " not supported");
-    }
+//        meshUtilities.ComputeCell1DCell2DNeighbours(mesh);
+
+//        const Eigen::MatrixXd domainEdgesTangent = geometryUtilities.PolygonEdgeTangents(domain.Domain.Vertices);
+
+//        for (unsigned int e = 0; e < domainEdgesTangent.cols(); e++)
+//        {
+//            const Eigen::Vector3d& domainEdgeOrigin = domain.Domain.Vertices.col(e);
+//            const Eigen::Vector3d& domainEdgeTangent = domainEdgesTangent.col(e);
+//            const double domainEdgeSquaredLength = domainEdgeTangent.squaredNorm();
+//            meshUtilities.SetMeshMarkersOnLine(geometryUtilities,
+//                                               domainEdgeOrigin,
+//                                               domainEdgeTangent,
+//                                               domainEdgeSquaredLength,
+//                                               domain.Domain.EdgeBoundaryConditions[e],
+//                                               mesh);
+//        }
+//    }
+//    break;
+//    default:
+//        throw runtime_error("MeshGenerator " +
+//                            to_string((unsigned int)config.MeshGenerator()) +
+//                            " not supported");
+//    }
 
     Gedim::Profiler::StopTime("CreateMesh");
     Gedim::Output::PrintStatusProgram("CreateMesh");
@@ -509,17 +536,15 @@ int main(int argc, char** argv)
                                              dofs_data,
                                              velocity_reference_element_data,
                                              pressure_reference_element_data,
-                                             PatchTest::advection_term,
+                                             PatchTest::mixed_advection_term,
                                              PatchTest::reaction_term,
-                                             PatchTest::diffusion_term,
+                                             PatchTest::inverse_diffusion_term,
                                              PatchTest::source_term,
                                              PatchTest::strong_boundary_condition,
                                              PatchTest::weak_boundary_condition);
 
     Gedim::Profiler::StopTime("AssembleSystem");
     Gedim::Output::PrintStatusProgram("AssembleSystem");
-
-
 
     if (numberDOFs > 0)
     {
