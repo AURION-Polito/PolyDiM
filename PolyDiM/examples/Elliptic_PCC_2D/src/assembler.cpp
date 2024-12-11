@@ -131,67 +131,6 @@ namespace Elliptic_PCC_2D
                                                                                         result.dirichletMatrixA,
                                                                                         result.rightHandSide);
 
-      for (unsigned int loc_i = 0; loc_i < global_dofs.size(); ++loc_i)
-      {
-        const auto& global_dof_i = global_dofs.at(loc_i);
-        const auto& local_dof_i = dofs_data.CellsDOFs.at(global_dof_i.Dimension).at(global_dof_i.CellIndex).at(global_dof_i.DOFIndex);
-
-        switch (local_dof_i.Type)
-        {
-          case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
-            continue;
-          case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-            break;
-          default:
-            throw std::runtime_error("Unknown DOF Type");
-        }
-
-        const unsigned int global_index_i = local_dof_i.Global_Index;
-
-        result.rightHandSide.AddValue(global_index_i,
-                                      local_rhs[loc_i]);
-
-#ifdef DEBUG_ASSEMBLER
-        std::cout<< std::scientific<< "g_rhs["<< global_index_i<< "] = "<< local_rhs[loc_i]<< std::endl;
-#endif
-
-        for (unsigned int loc_j = 0; loc_j < global_dofs.size(); ++loc_j)
-        {
-          const auto& global_dof_j = global_dofs.at(loc_j);
-          const auto& local_dof_j = dofs_data.CellsDOFs.at(global_dof_j.Dimension).at(global_dof_j.CellIndex).at(global_dof_j.DOFIndex);
-
-          const unsigned int global_index_j = local_dof_j.Global_Index;
-          const double loc_A_element =  local_A(loc_i,
-                                                loc_j) +
-                                        local_stab_A(loc_i,
-                                                     loc_j);
-
-          switch (local_dof_j.Type)
-          {
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
-              result.dirichletMatrixA.Triplet(global_index_i,
-                                              global_index_j,
-                                              loc_A_element);
-
-#ifdef DEBUG_ASSEMBLER
-              std::cout<< std::scientific<< "g_AD("<< global_index_i<< ","<< global_index_j<< ") = "<< loc_A_element<< std::endl;
-#endif
-              break;
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-              result.globalMatrixA.Triplet(global_index_i,
-                                           global_index_j,
-                                           loc_A_element);
-
-#ifdef DEBUG_ASSEMBLER
-              std::cout<< std::scientific<< "g_A("<< global_index_i<< ","<< global_index_j<< ") = "<< loc_A_element<< std::endl;
-#endif
-              break;
-            default:
-              throw std::runtime_error("Unknown DOF Type");
-          }
-        }
-      }
-
       ComputeWeakTerm(c,
                       mesh,
                       polygon,
