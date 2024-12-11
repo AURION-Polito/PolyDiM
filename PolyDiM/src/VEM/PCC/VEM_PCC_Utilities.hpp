@@ -18,7 +18,8 @@ enum struct ProjectionTypes
     Pi0km1 = 0, ///< \f$\Pi^0_{order-1}\f$ projection to project basis
     Pi0k = 1, ///< \f$\Pi^0_{order}\f$ projection to project basis
     PiNabla = 2, ///< \f$\Pi^{\nabla}_{order-1}\f$ projection to project basis gradient
-    Pi0km1Der = 3 ///< \f$\Pi^{0}_{order-1}\f$ projection to project basis gradient
+    Pi0km1Der = 3, ///< \f$\Pi^{0}_{order-1}\f$ projection to project basis gradient
+    Pi0klm1 = 4
 };
 
 /// \brief Base class for computing values of basis functions of Primal Conforming Constant degree

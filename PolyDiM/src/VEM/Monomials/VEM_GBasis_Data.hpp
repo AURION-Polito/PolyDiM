@@ -26,6 +26,9 @@ struct VEM_GBasis_Data
     std::vector<std::vector<Eigen::MatrixXd>> VectorDecomposition; ///< Matrix used to compute the laplacian of monomials.
 
     Eigen::MatrixXi MatrixExponents; ///< Table of exponents of each monomial.
+
+
+    unsigned int DimFirstBasis;
     std::vector<std::vector<std::vector<unsigned int>>> MapExponents;
     std::vector<unsigned int> SaveFirstGroupVectorDecomposition;
     std::vector<int> MapFirstGroupVectorDecomposition;

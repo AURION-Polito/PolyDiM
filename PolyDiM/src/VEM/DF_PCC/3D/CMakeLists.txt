@@ -1,10 +1,8 @@
-list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_PCC_3D_LocalSpace.hpp)
-list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_PCC_3D_LocalSpace_Data.hpp)
-list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_PCC_3D_ReferenceElement.hpp)
-list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_PCC_3D_Ortho_LocalSpace.hpp)
+list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_DF_PCC_3D_Velocity_LocalSpace.hpp)
+list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_DF_PCC_3D_Velocity_LocalSpace_Data.hpp)
+list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_DF_PCC_3D_ReferenceElement.hpp)
 
-list(APPEND polydim_src_sources ${CMAKE_CURRENT_SOURCE_DIR}/VEM_PCC_3D_LocalSpace.cpp)
-list(APPEND polydim_src_sources ${CMAKE_CURRENT_SOURCE_DIR}/VEM_PCC_3D_Ortho_LocalSpace.cpp)
+list(APPEND polydim_src_sources ${CMAKE_CURRENT_SOURCE_DIR}/VEM_DF_PCC_3D_Velocity_LocalSpace.cpp)
 
 list(APPEND polydim_src_includes ${CMAKE_CURRENT_SOURCE_DIR})
 

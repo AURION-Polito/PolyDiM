@@ -22,6 +22,13 @@ VEM_QuadratureData_3D VEM_Quadrature_3D::Compute_PCC_3D(const unsigned int order
     return data;
 }
 //****************************************************************************
+VEM_QuadratureData_3D VEM_Quadrature_3D::Compute_DF_PCC_3D(const unsigned int order) const
+{
+    VEM_QuadratureData_3D data;
+    data.ReferenceTetrahedronQuadrature = Gedim::Quadrature::Quadrature_Gauss3D_Tetrahedron_PositiveWeights::FillPointsAndWeights(2 * order);
+    return data;
+}
+//****************************************************************************
 VEM_QuadratureData_3D VEM_Quadrature_3D::Compute_MCC_3D(const unsigned int order) const
 {
     VEM_QuadratureData_3D data;

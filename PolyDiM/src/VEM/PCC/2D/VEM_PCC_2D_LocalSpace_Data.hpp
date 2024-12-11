@@ -37,12 +37,16 @@ struct VEM_PCC_2D_LocalSpace_Data final
     unsigned int NumProjectorBasisFunctions; ///< dimension of the polynomial basis used for projectors.
     unsigned int Nkm1; ///< Dimension of the polynomial space of degree order-1.
     unsigned int Nkm2; ///< Dimension of the polynomial space of degree order-2.
-
+    unsigned int Nklm1;
 
     Gedim::Quadrature::QuadratureData InternalQuadrature; ///< Internal quadrature points and weights
     Quadrature::VEM_Quadrature_2D::Edges_QuadratureData BoundaryQuadrature; ///< Boundary quadrature points and weights
 
+    Gedim::Quadrature::QuadratureData InternalQuadratureKL; ///< Internal quadrature points and weights for e2
+    Quadrature::VEM_Quadrature_2D::Edges_QuadratureData BoundaryQuadratureKL; ///< Boundary quadrature points and weights for e2
+
     Eigen::MatrixXd VanderInternal; ///< Vandermonde matrix of the polynomial basis at internal quadrature points.
+    Eigen::MatrixXd VanderInternalKL; ///< Vandermonde matrix of the polynomial basis at internal quadrature points.
     std::vector<Eigen::MatrixXd> VanderInternalDerivatives; ///< Vandermonde matrices of the derivatives of the polynomial basis at internal quadrature points.
     Eigen::MatrixXd VanderBoundary; ///< Vandermonde matrix of the polynomial basis at boundary quadrature points.
     std::vector<Eigen::MatrixXd> VanderBoundaryDerivatives; ///< Vandermonde matrices of the derivatives of the polynomial basis at boundary quadrature points.
@@ -50,6 +54,7 @@ struct VEM_PCC_2D_LocalSpace_Data final
     Eigen::MatrixXd PiNabla; ///< Matrix representing the \f$\Pi^\nabla_{\mathrm{order}}\f$ operator.
     Eigen::MatrixXd Pi0km1;  ///< Matrix representing the \f$\Pi^0_{\mathrm{order}-1}\f$ operator.
     Eigen::MatrixXd Pi0k;    ///< Matrix representing the \f$\Pi^0_{\mathrm{order}}\f$ operator.
+    Eigen::MatrixXd Pi0klm1;
     std::vector<Eigen::MatrixXd> Pi0km1Der; ///< Vector of matrices representing the \f$\Pi^0_{\mathrm{order}-1}\f$ operator applied to derivatives of basis functions.
 
     Eigen::MatrixXd StabMatrix;     ///< Matrix used for stabilizing elliptic bilinear forms.
@@ -58,7 +63,9 @@ struct VEM_PCC_2D_LocalSpace_Data final
 
 
     Eigen::MatrixXd Hmatrix; ///< Mass matrix of the polynomial basis: \f$ H_{ij} = \int_E m_i m_j \f$, where \f$ E \f$ is the input polygon.
+    Eigen::MatrixXd H_klm1_matrix;
     Eigen::LLT<Eigen::MatrixXd> H_km1_LLT; ///< LLT factorization of the mass matrix of order-1 monomials.
+    Eigen::LLT<Eigen::MatrixXd> H_klm1_LLT; ///< LLT factorization of the mass matrix of order+l-1 monomials.
     Eigen::MatrixXd Cmatrix; ///< C matrix
     Eigen::MatrixXd Bmatrix; ///< B matrix
     Eigen::MatrixXd Gmatrix; ///< G matrix
@@ -69,6 +76,7 @@ struct VEM_PCC_2D_LocalSpace_Data final
     Eigen::MatrixXd Qmatrix; ///< change of basis matrix: pV = mV*Q'
     Eigen::MatrixXd QmatrixInv; ///< inverse of \a Qmatrix
     Eigen::MatrixXd Qmatrixkm1; ///< change of basis matrix of order (order-1)
+
 };
 } // namespace PCC
 } // namespace VEM

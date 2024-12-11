@@ -82,6 +82,20 @@ private:
                                                                              localSpace.Dmatrix);
     }
 
+    void InitializeE2ProjectorsComputation(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                           const unsigned int &l,
+                                           const Eigen::MatrixXd &polygonVertices,
+                                           const Eigen::Vector3d &polygonCentroid,
+                                           const double &polygonDiameter,
+                                           const Eigen::MatrixXd &internalQuadraturePoints,
+                                           const Eigen::VectorXd &internalQuadratureWeights,
+                                           const Eigen::MatrixXd &internalQuadratureKLPoints,
+                                           const Eigen::VectorXd &internalQuadratureKLWeights,
+                                           const Eigen::MatrixXd &boundaryQuadraturePoints,
+                                           VEM_PCC_2D_LocalSpace_Data &localSpace) const;
+
+    void ComputeL2ProjectorsKL(VEM_PCC_2D_LocalSpace_Data &localSpace) const;
+
 public:
 
     /// \brief Create and Initialize all the variables contained in \ref VEM::PCC::VEM_PCC_2D_LocalSpace_Data
@@ -100,6 +114,9 @@ public:
     VEM_PCC_2D_LocalSpace_Data Compute3DUtilities(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                                   const VEM_PCC_2D_Polygon_Geometry &polygon) const;
 
+    VEM_PCC_2D_LocalSpace_Data Compute3DUtilities_DF_PCC(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                         const VEM_PCC_2D_Polygon_Geometry &polygon) const;
+
 
     /// \brief Compute the values of projections of VEM basis functions at the internal quadrature points.
     /// \param localSpace: an object of type \ref VEM::PCC::VEM_PCC_2D_LocalSpace_Data which contains local matrices.
@@ -108,6 +125,9 @@ public:
     inline Eigen::MatrixXd ComputeBasisFunctionsValues(const VEM_PCC_2D_LocalSpace_Data &localSpace,
                                                        const ProjectionTypes &projectionType) const
     {
+        if(projectionType == ProjectionTypes::Pi0klm1)
+            return localSpace.VanderInternalKL * localSpace.Pi0klm1;
+
         return utilities.ComputeBasisFunctionsValues(projectionType,
                                                      localSpace.Nkm1,
                                                      localSpace.Pi0km1,
@@ -276,7 +296,7 @@ public:
     {
         Eigen::VectorXd edgeInternalPoints;
         if (reference_element_data.Quadrature.ReferenceSegmentInternalPoints.rows() > 0)
-          edgeInternalPoints = reference_element_data.Quadrature.ReferenceSegmentInternalPoints.row(0).transpose();
+            edgeInternalPoints = reference_element_data.Quadrature.ReferenceSegmentInternalPoints.row(0).transpose();
         const Eigen::VectorXd edgeBasisCoefficients = utilities.ComputeEdgeBasisCoefficients(reference_element_data.Order,
                                                                                              edgeInternalPoints);
 
@@ -285,6 +305,7 @@ public:
                                              edgeBasisCoefficients,
                                              pointsCurvilinearCoordinates);
     }
+
 };
 } // namespace PCC
 } // namespace VEM

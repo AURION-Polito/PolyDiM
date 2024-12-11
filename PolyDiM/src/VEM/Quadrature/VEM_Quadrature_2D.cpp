@@ -47,6 +47,13 @@ VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_PCC_2D(const unsigned int order
     return data;
 }
 //****************************************************************************
+VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_DF_PCC_3D(const unsigned int order) const
+{
+    VEM_QuadratureData_2D data;
+    data.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * (order + 1));
+    return data;
+}
+//****************************************************************************
 VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_DF_PCC_2D(const unsigned int order) const
 {
     VEM_QuadratureData_2D data;

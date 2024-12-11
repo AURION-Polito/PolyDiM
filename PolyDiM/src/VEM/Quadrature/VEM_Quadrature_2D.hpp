@@ -37,6 +37,7 @@ public:
     VEM_QuadratureData_2D Compute_PCC_2D(const unsigned int order) const;
     VEM_QuadratureData_2D Compute_MCC_2D(const unsigned int order) const;
     VEM_QuadratureData_2D Compute_DF_PCC_2D(const unsigned int order) const;
+    VEM_QuadratureData_2D Compute_DF_PCC_3D(const unsigned int order) const;
 
     Gedim::Quadrature::QuadratureData PolygonInternalQuadrature(const Gedim::Quadrature::QuadratureData& data,
                                                                 const std::vector<Eigen::Matrix3d>& polygonTriangulationVertices) const;

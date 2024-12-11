@@ -34,6 +34,7 @@ public:
 
     VEM_QuadratureData_3D Compute_PCC_3D(const unsigned int order) const;
     VEM_QuadratureData_3D Compute_MCC_3D(const unsigned int order) const;
+    VEM_QuadratureData_3D Compute_DF_PCC_3D(const unsigned int order) const;
 
     Gedim::Quadrature::QuadratureData PolyhedronInternalQuadrature(const VEM_QuadratureData_3D& data,
                                                                    const Gedim::GeometryUtilities& geometryUtility,
