@@ -264,9 +264,36 @@ int main(int argc, char** argv)
     if (mesh.Cell0DMarker(p) == 0)
       continue;
 
+    const auto mesh_marker = mesh.Cell0DMarker(p);
     auto& boundary_info =  meshDOFsInfo.CellsBoundaryInfo[0][p];
-    boundary_info.Marker = 1;
-    boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong;
+
+    switch (mesh_marker)
+    {
+      case 0:
+        continue;
+      case 1:
+      case 2:
+      case 3:
+      case 4:
+        boundary_info.Marker = 1;
+        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong;
+        break;
+      case 5:
+      case 7:
+        boundary_info.Marker = 1;
+        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong;
+        break;
+      case 6:
+        boundary_info.Marker = 2;
+        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak;
+        break;
+      case 8:
+        boundary_info.Marker = 4;
+        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager<2>::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak;
+        break;
+      default:
+        throw std::runtime_error("Unknown mesh marker");
+    }
   }
 
   for (unsigned int e = 0; e < mesh.Cell1DTotalNumber(); ++e)

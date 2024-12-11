@@ -362,6 +362,11 @@ namespace Elliptic_PCC_2D
                                             weakQuadratureWeights.asDiagonal() *
                                             neumannValues;
 
+#ifdef DEBUG_ASSEMBLER
+      std::cout.precision(2);
+      std::cout<< std::scientific<< "u_n: "<< neumannContributions.transpose()<< std::endl;
+#endif
+
       for (unsigned int p = 0; p < 2; ++p)
       {
         const unsigned int cell0D_index = mesh.Cell1DVertex(cell1D_index,
@@ -381,6 +386,10 @@ namespace Elliptic_PCC_2D
             {
               assembler_data.rightHandSide.AddValue(local_dof_i.Global_Index,
                                                     neumannContributions[p]);
+
+#ifdef DEBUG_ASSEMBLER
+              std::cout<< std::scientific<< "rhs["<< local_dof_i.Global_Index<< "]: "<< neumannContributions(p)<< " -> "<< assembler_data.rightHandSide.GetValue(local_dof_i.Global_Index)<< std::endl;
+#endif
             }
               break;
             default:
@@ -406,7 +415,11 @@ namespace Elliptic_PCC_2D
           case Polydim::PDETools::DOFs::DOFsManager<2>::DOFsData::DOF::Types::DOF:
           {
             assembler_data.rightHandSide.AddValue(local_dof_i.Global_Index,
-                                                  neumannContributions[localIndex]);
+                                                  neumannContributions[localIndex + 2]);
+
+#ifdef DEBUG_ASSEMBLER
+            std::cout<< std::scientific<< "rhs_ed["<< local_dof_i.Global_Index<< "]: "<< neumannContributions(localIndex + 2)<< " -> "<< assembler_data.rightHandSide.GetValue(local_dof_i.Global_Index)<< std::endl;
+#endif
           }
             break;
           default:
