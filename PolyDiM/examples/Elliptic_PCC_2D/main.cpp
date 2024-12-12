@@ -205,7 +205,6 @@ int main(int argc, char** argv)
   Gedim::Output::PrintStatusProgram("ComputeGeometricProperties");
 
   /// Initialize Discrete Space
-
   Gedim::Output::PrintGenericMessage("CreateVEMSpace of order " + to_string(config.VemOrder()) + " and DOFs...", true);
   Gedim::Profiler::StartTime("CreateVEMSpace");
 
