@@ -6,44 +6,23 @@
 #include "DOFsManager.hpp"
 #include "Eigen_CholeskySolver.hpp"
 #include "assembler.hpp"
-
-
-struct ProblemData final
-{
-    struct Domain final
-    {
-        Eigen::MatrixXd Vertices;
-        std::vector<unsigned int> VertexBoundaryConditions;
-        std::vector<unsigned int> EdgeBoundaryConditions;
-    };
-
-    Domain Domain;
-};
-
-struct MeshMatricesDAO_mesh_connectivity_data final
-{
-    Gedim::MeshMatricesDAO& mesh_data;
-
-    std::array<unsigned int, 2> Cell1D_vertices(const unsigned int cell1D_index) const
-    {
-      return {
-        mesh_data.Cell1DOrigin(cell1D_index), mesh_data.Cell1DEnd(cell1D_index)
-      };
-    }
-
-    std::vector<unsigned int> Cell2D_vertices(const unsigned int cell2D_index) const
-    {
-      return mesh_data.Cell2DVertices(cell2D_index);
-    }
-
-    std::vector<unsigned int> Cell2D_edges(const unsigned int cell2D_index) const
-    {
-      return mesh_data.Cell2DEdges(cell2D_index);
-    }
-};
+#include "MeshMatricesDAO_mesh_connectivity_data.hpp"
 
 struct Poisson_Polynomial_Problem final
 {
+    static Polydim::PDETools::Mesh::PDE_Mesh_Generation::PDE_Domain_2D domain()
+    {
+      Polydim::PDETools::Mesh::PDE_Mesh_Generation::PDE_Domain_2D domain;
+
+      domain.area = 1.0;
+
+      domain.vertices = Eigen::MatrixXd::Zero(3, 4);
+      domain.vertices.row(0)<< 0.0, 1.0, 1.0, 0.0;
+      domain.vertices.row(1)<< 0.0, 0.0, 1.0, 1.0;
+
+      return domain;
+    }
+
     static Eigen::VectorXd diffusion_term(const Eigen::MatrixXd& points)
     {
       const double k = 1.0;
@@ -140,19 +119,18 @@ int main(int argc, char** argv)
                                      false);
 
   /// Create domain
-  ProblemData domain;
+  Gedim::Output::PrintGenericMessage("CreateDomain...", true);
+  Gedim::Profiler::StartTime("CreateDomain");
 
-  domain.Domain.Vertices.resize(3, 4);
-  domain.Domain.Vertices.row(0)<< 0.0, 1.0, 1.0, 0.0;
-  domain.Domain.Vertices.row(1)<< 0.0, 0.0, 1.0, 1.0;
-  domain.Domain.Vertices.row(2)<< 0.0, 0.0, 0.0, 0.0;
-  domain.Domain.VertexBoundaryConditions = { 1, 1, 1, 1 };
-  domain.Domain.EdgeBoundaryConditions = { 1, 1, 1, 1 };
+  const auto domain = Poisson_Polynomial_Problem::domain();
 
-  // Export domain
+  Gedim::Profiler::StopTime("CreateDomain");
+  Gedim::Output::PrintStatusProgram("CreateDomain");
+
+  // export domain
   {
     Gedim::VTKUtilities vtkUtilities;
-    vtkUtilities.AddPolygon(domain.Domain.Vertices);
+    vtkUtilities.AddPolygon(domain.vertices);
     vtkUtilities.Export(exportVtuFolder + "/Domain.vtu");
   }
 
@@ -165,35 +143,25 @@ int main(int argc, char** argv)
 
   switch (config.MeshGenerator())
   {
-    case Elliptic_PCC_2D::Program_configuration::MeshGenerators::Tri:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Generation::MeshGenerator_Types_2D::Triangular:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Generation::MeshGenerator_Types_2D::Minimal:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Generation::MeshGenerator_Types_2D::Polygonal:
     {
-      meshUtilities.CreateTriangularMesh(domain.Domain.Vertices,
-                                         config.MeshMaxArea(),
-                                         mesh);
+      Polydim::PDETools::Mesh::PDE_Mesh_Generation::create_mesh_2D(geometryUtilities,
+                                                                   meshUtilities,
+                                                                   config.MeshGenerator(),
+                                                                   domain,
+                                                                   config.MeshMaxArea(),
+                                                                   mesh);
     }
       break;
-
-    case Elliptic_PCC_2D::Program_configuration::MeshGenerators::OFFImporter:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Generation::MeshGenerator_Types_2D::OFFImporter:
     {
-      meshUtilities.ImportObjectFileFormat(config.MeshOFF_FilePath(),
-                                           mesh);
-
-      meshUtilities.ComputeCell1DCell2DNeighbours(mesh);
-
-      const Eigen::MatrixXd domainEdgesTangent = geometryUtilities.PolygonEdgeTangents(domain.Domain.Vertices);
-
-      for (unsigned int e = 0; e < domainEdgesTangent.cols(); e++)
-      {
-        const Eigen::Vector3d& domainEdgeOrigin = domain.Domain.Vertices.col(e);
-        const Eigen::Vector3d& domainEdgeTangent = domainEdgesTangent.col(e);
-        const double domainEdgeSquaredLength = domainEdgeTangent.squaredNorm();
-        meshUtilities.SetMeshMarkersOnLine(geometryUtilities,
-                                           domainEdgeOrigin,
-                                           domainEdgeTangent,
-                                           domainEdgeSquaredLength,
-                                           domain.Domain.EdgeBoundaryConditions[e],
-                                           mesh);
-      }
+      Polydim::PDETools::Mesh::PDE_Mesh_Generation::import_mesh_2D(geometryUtilities,
+                                                                   meshUtilities,
+                                                                   config.MeshGenerator(),
+                                                                   config.MeshImportFilePath(),
+                                                                   mesh);
     }
       break;
     default:
@@ -212,7 +180,6 @@ int main(int argc, char** argv)
                                   "Domain_Mesh");
   }
 
-  /// Compute mesh geometric properties
   Gedim::Output::PrintGenericMessage("ComputeGeometricProperties...", true);
   Gedim::Profiler::StartTime("ComputeGeometricProperties");
 
@@ -323,7 +290,8 @@ int main(int argc, char** argv)
     }
   }
 
-  MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data = {
+  Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data =
+  {
     mesh
   };
 

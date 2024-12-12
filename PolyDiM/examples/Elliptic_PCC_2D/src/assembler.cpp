@@ -10,9 +10,6 @@
 using namespace std;
 using namespace Eigen;
 
-#define DEBUG_ASSEMBLER 1
-#undef DEBUG_ASSEMBLER
-
 namespace Elliptic_PCC_2D
 {
   // ***************************************************************************
@@ -65,48 +62,22 @@ namespace Elliptic_PCC_2D
       const auto basis_functions_values = vem_local_space.ComputeBasisFunctionsValues(local_space,
                                                                                       Polydim::VEM::PCC::ProjectionTypes::Pi0km1);
 
-#ifdef DEBUG_ASSEMBLER
-      std::cout.precision(2);
-      std::cout<< std::scientific<< "u: "<< basis_functions_values<< std::endl;
-#endif
-
-
       const auto basis_functions_derivative_values = vem_local_space.ComputeBasisFunctionsDerivativeValues(local_space,
                                                                                                            Polydim::VEM::PCC::ProjectionTypes::Pi0km1Der);
-#ifdef DEBUG_ASSEMBLER
-      std::cout<< std::scientific<< "du_x: "<< basis_functions_derivative_values[0]<< std::endl;
-      std::cout<< std::scientific<< "du_y: "<< basis_functions_derivative_values[1]<< std::endl;
-#endif
 
       const auto diffusion_term_values = diffusion_term(local_space.InternalQuadrature.Points);
       const auto source_term_values = source_term(local_space.InternalQuadrature.Points);
 
-#ifdef DEBUG_ASSEMBLER
-      std::cout<< std::scientific<< "k: "<< diffusion_term_values.transpose()<< std::endl;
-      std::cout<< std::scientific<< "f: "<< source_term_values.transpose()<< std::endl;
-#endif
-
       const auto local_A = equation.ComputeCellDiffusionMatrix(diffusion_term_values,
                                                                basis_functions_derivative_values,
                                                                local_space.InternalQuadrature.Weights);
-#ifdef DEBUG_ASSEMBLER
-      std::cout<< std::scientific<< "A: "<< local_A<< std::endl;
-#endif
 
       const auto local_stab_A = diffusion_term_values.cwiseAbs().maxCoeff() *
                                 local_space.StabMatrix;
 
-#ifdef DEBUG_ASSEMBLER
-      std::cout<< std::scientific<< "S: "<< local_stab_A<< std::endl;
-#endif
-
       const auto local_rhs = equation.ComputeCellForcingTerm(source_term_values,
                                                              basis_functions_values,
                                                              local_space.InternalQuadrature.Weights);
-
-#ifdef DEBUG_ASSEMBLER
-      std::cout<< std::scientific<< "rhs: "<< local_rhs.transpose()<< std::endl;
-#endif
 
       const auto& global_dofs = dofs_data.CellsGlobalDOFs[2].at(c);
 
@@ -321,11 +292,6 @@ namespace Elliptic_PCC_2D
                                             weakQuadratureWeights.asDiagonal() *
                                             neumannValues;
 
-#ifdef DEBUG_ASSEMBLER
-      std::cout.precision(2);
-      std::cout<< std::scientific<< "u_n: "<< neumannContributions.transpose()<< std::endl;
-#endif
-
       for (unsigned int p = 0; p < 2; ++p)
       {
         const unsigned int cell0D_index = mesh.Cell1DVertex(cell1D_index,
@@ -345,10 +311,6 @@ namespace Elliptic_PCC_2D
             {
               assembler_data.rightHandSide.AddValue(local_dof_i.Global_Index,
                                                     neumannContributions[p]);
-
-#ifdef DEBUG_ASSEMBLER
-              std::cout<< std::scientific<< "rhs["<< local_dof_i.Global_Index<< "]: "<< neumannContributions(p)<< " -> "<< assembler_data.rightHandSide.GetValue(local_dof_i.Global_Index)<< std::endl;
-#endif
             }
               break;
             default:
@@ -375,10 +337,6 @@ namespace Elliptic_PCC_2D
           {
             assembler_data.rightHandSide.AddValue(local_dof_i.Global_Index,
                                                   neumannContributions[localIndex + 2]);
-
-#ifdef DEBUG_ASSEMBLER
-            std::cout<< std::scientific<< "rhs_ed["<< local_dof_i.Global_Index<< "]: "<< neumannContributions(localIndex + 2)<< " -> "<< assembler_data.rightHandSide.GetValue(local_dof_i.Global_Index)<< std::endl;
-#endif
           }
             break;
           default:

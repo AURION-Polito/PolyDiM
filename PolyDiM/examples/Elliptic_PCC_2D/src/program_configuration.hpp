@@ -2,18 +2,13 @@
 #define __program_configuration_H
 
 #include "Configurations.hpp"
+#include "PDE_Mesh_Generation.hpp"
 
 namespace Elliptic_PCC_2D
 {
   struct Program_configuration final
   {
     public:
-      enum struct MeshGenerators
-      {
-        Tri = 0, // triangular mesh
-        OFFImporter = 1, // imported off mesh
-      };
-
       enum struct VemTypes
       {
         EVem = 1,
@@ -37,15 +32,15 @@ namespace Elliptic_PCC_2D
                                            "Geometric tolerance to perform 1D operations (Default: machine epsilon)");
         // Mesh parameters
         Gedim::Configurations::AddProperty("MeshGenerator",
-                                           static_cast<unsigned int>(MeshGenerators::Tri),
-                                           "Mesh 2D gereator type, 0 - triangle; 1 - OFF Importer; (Default: 0)");
-        Gedim::Configurations::AddProperty("MeshOFF_FilePath",
+                                           static_cast<unsigned int>(Polydim::PDETools::Mesh::PDE_Mesh_Generation::MeshGenerator_Types_2D::Triangular),
+                                           "Mesh 2D gereator type, 0 - Triangular; 1 - Minimal; 2 - Polygonal; 3 - OFF Importer (Default: 0)");
+        Gedim::Configurations::AddProperty("MeshImportFilePath",
                                            "./",
-                                           "Mesh OFF imported file path, use it when meshIsConcave=true (Default: './')");
+                                           "Mesh imported file path (Default: './')");
 
         Gedim::Configurations::AddProperty("MeshMaxArea",
                                            0.1,
-                                           "Mesh 2D maximum cell area (Default: 0.1)");
+                                           "Mesh 2D maximum relative cell area (Default: 0.1)");
 
         /// Method parameters
         Gedim::Configurations::AddProperty("VemOrder",
@@ -74,10 +69,10 @@ namespace Elliptic_PCC_2D
       inline double GeometricTolerance() const
       { return Gedim::Configurations::GetPropertyValue<double>("GeometricTolerance"); }
 
-      inline MeshGenerators MeshGenerator() const
-      { return (MeshGenerators)Gedim::Configurations::GetPropertyValue<unsigned int>("MeshGenerator"); }
-      inline std::string MeshOFF_FilePath() const
-      { return Gedim::Configurations::GetPropertyValue<string>("MeshOFF_FilePath"); }
+      inline Polydim::PDETools::Mesh::PDE_Mesh_Generation::MeshGenerator_Types_2D MeshGenerator() const
+      { return (Polydim::PDETools::Mesh::PDE_Mesh_Generation::MeshGenerator_Types_2D)Gedim::Configurations::GetPropertyValue<unsigned int>("MeshGenerator"); }
+      inline std::string MeshImportFilePath() const
+      { return Gedim::Configurations::GetPropertyValue<string>("MeshImportFilePath"); }
       inline double MeshMaxArea() const
       { return Gedim::Configurations::GetPropertyValue<double>("MeshMaxArea"); }
 
