@@ -10,9 +10,9 @@
 
 struct Poisson_Polynomial_Problem final
 {
-    static Polydim::PDETools::Mesh::PDE_Mesh_Generation::PDE_Domain_2D domain()
+    static Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain()
     {
-      Polydim::PDETools::Mesh::PDE_Mesh_Generation::PDE_Domain_2D domain;
+      Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain;
 
       domain.area = 1.0;
 
@@ -143,25 +143,25 @@ int main(int argc, char** argv)
 
   switch (config.MeshGenerator())
   {
-    case Polydim::PDETools::Mesh::PDE_Mesh_Generation::MeshGenerator_Types_2D::Triangular:
-    case Polydim::PDETools::Mesh::PDE_Mesh_Generation::MeshGenerator_Types_2D::Minimal:
-    case Polydim::PDETools::Mesh::PDE_Mesh_Generation::MeshGenerator_Types_2D::Polygonal:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Minimal:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Polygonal:
     {
-      Polydim::PDETools::Mesh::PDE_Mesh_Generation::create_mesh_2D(geometryUtilities,
-                                                                   meshUtilities,
-                                                                   config.MeshGenerator(),
-                                                                   domain,
-                                                                   config.MeshMaxArea(),
-                                                                   mesh);
+      Polydim::PDETools::Mesh::PDE_Mesh_Utilities::create_mesh_2D(geometryUtilities,
+                                                                  meshUtilities,
+                                                                  config.MeshGenerator(),
+                                                                  domain,
+                                                                  config.MeshMaxArea(),
+                                                                  mesh);
     }
       break;
-    case Polydim::PDETools::Mesh::PDE_Mesh_Generation::MeshGenerator_Types_2D::OFFImporter:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::OFFImporter:
     {
-      Polydim::PDETools::Mesh::PDE_Mesh_Generation::import_mesh_2D(geometryUtilities,
-                                                                   meshUtilities,
-                                                                   config.MeshGenerator(),
-                                                                   config.MeshImportFilePath(),
-                                                                   mesh);
+      Polydim::PDETools::Mesh::PDE_Mesh_Utilities::import_mesh_2D(geometryUtilities,
+                                                                  meshUtilities,
+                                                                  config.MeshGenerator(),
+                                                                  config.MeshImportFilePath(),
+                                                                  mesh);
     }
       break;
     default:
@@ -183,14 +183,9 @@ int main(int argc, char** argv)
   Gedim::Output::PrintGenericMessage("ComputeGeometricProperties...", true);
   Gedim::Profiler::StartTime("ComputeGeometricProperties");
 
-  Gedim::MeshUtilities::MeshGeometricData2D meshGeometricData;
-
-  std::vector<Gedim::GeometryUtilities::PolygonTypes> cell2Ds_types(mesh.Cell2DTotalNumber(),
-                                                                    Gedim::GeometryUtilities::PolygonTypes::Generic_Concave);
-  meshGeometricData = meshUtilities.FillMesh2DGeometricData(geometryUtilities,
-                                                            mesh,
-                                                            cell2Ds_types);
-
+  const auto meshGeometricData = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_2D_geometry_data(geometryUtilities,
+                                                                                                            meshUtilities,
+                                                                                                            mesh);
   Gedim::Profiler::StopTime("ComputeGeometricProperties");
   Gedim::Output::PrintStatusProgram("ComputeGeometricProperties");
 
@@ -200,102 +195,87 @@ int main(int argc, char** argv)
   Gedim::Profiler::StartTime("CreateVEMSpace");
 
   Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement vem_reference_element;
-
   const auto reference_element_data = vem_reference_element.Create(config.VemOrder());
 
-  Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo meshDOFsInfo;
-  meshDOFsInfo.CellsNumDOFs[0].resize(mesh.Cell0DTotalNumber(),
-                                      reference_element_data.NumDofs0D);
-  meshDOFsInfo.CellsBoundaryInfo[0].resize(mesh.Cell0DTotalNumber(),
-                                           {
-                                             Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
-                                             0
-                                           });
-  meshDOFsInfo.CellsNumDOFs[1].resize(mesh.Cell1DTotalNumber(),
-                                      reference_element_data.NumDofs1D);
-  meshDOFsInfo.CellsBoundaryInfo[1].resize(mesh.Cell1DTotalNumber(),
-                                           {
-                                             Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
-                                             0
-                                           });
-  meshDOFsInfo.CellsNumDOFs[2].resize(mesh.Cell2DTotalNumber(),
-                                      reference_element_data.NumDofs2D);
-  meshDOFsInfo.CellsBoundaryInfo[2].resize(mesh.Cell2DTotalNumber(),
-                                           {
-                                             Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None,
-                                             0
-                                           });
-
-  for (unsigned int p = 0; p < mesh.Cell0DTotalNumber(); ++p)
-  {
-    if (mesh.Cell0DMarker(p) == 0)
-      continue;
-
-    const auto mesh_marker = mesh.Cell0DMarker(p);
-    auto& boundary_info =  meshDOFsInfo.CellsBoundaryInfo[0][p];
-
-    switch (mesh_marker)
-    {
-      case 0:
-        continue;
-      case 1:
-      case 2:
-      case 3:
-      case 4:
-        boundary_info.Marker = 1;
-        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong;
-        break;
-      case 5:
-      case 7:
-        boundary_info.Marker = 1;
-        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong;
-        break;
-      case 6:
-        boundary_info.Marker = 2;
-        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak;
-        break;
-      case 8:
-        boundary_info.Marker = 4;
-        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak;
-        break;
-      default:
-        throw std::runtime_error("Unknown mesh marker");
-    }
-  }
-
-  for (unsigned int e = 0; e < mesh.Cell1DTotalNumber(); ++e)
-  {
-    const auto mesh_marker = mesh.Cell1DMarker(e);
-    auto& boundary_info =  meshDOFsInfo.CellsBoundaryInfo[1][e];
-
-    switch (mesh_marker)
-    {
-      case 0:
-        continue;
-      case 5:
-      case 7:
-        boundary_info.Marker = 1;
-        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong;
-        break;
-      case 6:
-        boundary_info.Marker = 2;
-        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak;
-        break;
-      case 8:
-        boundary_info.Marker = 4;
-        boundary_info.Type = Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak;
-        break;
-      default:
-        throw std::runtime_error("Unknown mesh marker");
-    }
-  }
-
   Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data =
-  {
-    mesh
-  };
+  { mesh };
 
   Polydim::PDETools::DOFs::DOFsManager dofManager;
+  const auto meshDOFsInfo = dofManager.Create_Constant_DOFsInfo<2>(mesh_connectivity_data,
+                                                                   {
+                                                                     {
+                                                                       reference_element_data.NumDofs0D,
+                                                                       reference_element_data.NumDofs1D,
+                                                                       reference_element_data.NumDofs2D,
+                                                                       0
+                                                                     },
+                                                                     {
+                                                                       {
+                                                                         0,
+                                                                         {
+                                                                           Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None,
+                                                                           0
+                                                                         }
+                                                                       },
+                                                                       {
+                                                                         1,
+                                                                         {
+                                                                           Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong,
+                                                                           1
+                                                                         }
+                                                                       },
+                                                                       {
+                                                                         2,
+                                                                         {
+                                                                           Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong,
+                                                                           1
+                                                                         }
+                                                                       },
+                                                                       {
+                                                                         3,
+                                                                         {
+                                                                           Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong,
+                                                                           1
+                                                                         }
+                                                                       },
+                                                                       {
+                                                                         4,
+                                                                         {
+                                                                           Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong,
+                                                                           1
+                                                                         }
+                                                                       },
+                                                                       {
+                                                                         5,
+                                                                         {
+                                                                           Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong,
+                                                                           1
+                                                                         }
+                                                                       },
+                                                                       {
+                                                                         6,
+                                                                         {
+                                                                           Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak,
+                                                                           2
+                                                                         }
+                                                                       },
+                                                                       {
+                                                                         7,
+                                                                         {
+                                                                           Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong,
+                                                                           1
+                                                                         }
+                                                                       },
+                                                                       {
+                                                                         8,
+                                                                         {
+                                                                           Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak,
+                                                                           4
+                                                                         }
+                                                                       }
+                                                                     }
+                                                                   });
+
   const auto dofs_data = dofManager.CreateDOFs<2>(meshDOFsInfo,
                                                   mesh_connectivity_data);
 

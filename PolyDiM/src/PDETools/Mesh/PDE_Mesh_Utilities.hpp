@@ -1,5 +1,5 @@
-#ifndef __PDETOOLS_MESH_PDE_Mesh_Generation_HPP
-#define __PDETOOLS_MESH_PDE_Mesh_Generation_HPP
+#ifndef __PDETOOLS_MESH_PDE_Mesh_Utilities_HPP
+#define __PDETOOLS_MESH_PDE_Mesh_Utilities_HPP
 
 #include "MeshMatricesDAO.hpp"
 #include "MeshUtilities.hpp"
@@ -10,7 +10,7 @@ namespace Polydim
   {
     namespace Mesh
     {
-      namespace PDE_Mesh_Generation
+      namespace PDE_Mesh_Utilities
       {
         struct PDE_Domain_2D final
         {
@@ -92,6 +92,18 @@ namespace Polydim
                                        std::to_string((unsigned int)mesh_type) +
                                        " not supported");
           }
+        }
+
+
+        Gedim::MeshUtilities::MeshGeometricData2D compute_mesh_2D_geometry_data(const Gedim::GeometryUtilities& geometry_utilities,
+                                                                                const Gedim::MeshUtilities& mesh_utilities,
+                                                                                const Gedim::MeshMatricesDAO& mesh)
+        {
+          std::vector<Gedim::GeometryUtilities::PolygonTypes> cell2Ds_types(mesh.Cell2DTotalNumber(),
+                                                                            Gedim::GeometryUtilities::PolygonTypes::Generic_Concave);
+          return mesh_utilities.FillMesh2DGeometricData(geometry_utilities,
+                                                        mesh,
+                                                        cell2Ds_types);
         }
       }
     }

@@ -1,5 +1,5 @@
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/MeshMatricesDAO_mesh_connectivity_data.hpp)
-list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/PDE_Mesh_Generation.hpp)
+list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/PDE_Mesh_Utilities.hpp)
 
 list(APPEND polydim_src_includes ${CMAKE_CURRENT_SOURCE_DIR})
 

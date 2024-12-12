@@ -2,7 +2,7 @@
 #define __program_configuration_H
 
 #include "Configurations.hpp"
-#include "PDE_Mesh_Generation.hpp"
+#include "PDE_Mesh_Utilities.hpp"
 
 namespace Elliptic_PCC_2D
 {
@@ -32,7 +32,7 @@ namespace Elliptic_PCC_2D
                                            "Geometric tolerance to perform 1D operations (Default: machine epsilon)");
         // Mesh parameters
         Gedim::Configurations::AddProperty("MeshGenerator",
-                                           static_cast<unsigned int>(Polydim::PDETools::Mesh::PDE_Mesh_Generation::MeshGenerator_Types_2D::Triangular),
+                                           static_cast<unsigned int>(Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular),
                                            "Mesh 2D gereator type, 0 - Triangular; 1 - Minimal; 2 - Polygonal; 3 - OFF Importer (Default: 0)");
         Gedim::Configurations::AddProperty("MeshImportFilePath",
                                            "./",
@@ -69,8 +69,8 @@ namespace Elliptic_PCC_2D
       inline double GeometricTolerance() const
       { return Gedim::Configurations::GetPropertyValue<double>("GeometricTolerance"); }
 
-      inline Polydim::PDETools::Mesh::PDE_Mesh_Generation::MeshGenerator_Types_2D MeshGenerator() const
-      { return (Polydim::PDETools::Mesh::PDE_Mesh_Generation::MeshGenerator_Types_2D)Gedim::Configurations::GetPropertyValue<unsigned int>("MeshGenerator"); }
+      inline Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D MeshGenerator() const
+      { return (Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D)Gedim::Configurations::GetPropertyValue<unsigned int>("MeshGenerator"); }
       inline std::string MeshImportFilePath() const
       { return Gedim::Configurations::GetPropertyValue<string>("MeshImportFilePath"); }
       inline double MeshMaxArea() const
