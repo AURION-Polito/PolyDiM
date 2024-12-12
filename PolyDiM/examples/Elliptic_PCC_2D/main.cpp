@@ -23,6 +23,21 @@ struct Poisson_Polynomial_Problem final
       return domain;
     }
 
+    static std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info()
+    {
+      return {
+        { 0, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+        { 1, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
+        { 2, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
+        { 3, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
+        { 4, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 }  },
+        { 5, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
+        { 6, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
+        { 7, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
+        { 8, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 4 } }
+      };
+    }
+
     static Eigen::VectorXd diffusion_term(const Eigen::MatrixXd& points)
     {
       const double k = 1.0;
@@ -209,71 +224,7 @@ int main(int argc, char** argv)
                                                                        reference_element_data.NumDofs2D,
                                                                        0
                                                                      },
-                                                                     {
-                                                                       {
-                                                                         0,
-                                                                         {
-                                                                           Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None,
-                                                                           0
-                                                                         }
-                                                                       },
-                                                                       {
-                                                                         1,
-                                                                         {
-                                                                           Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong,
-                                                                           1
-                                                                         }
-                                                                       },
-                                                                       {
-                                                                         2,
-                                                                         {
-                                                                           Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong,
-                                                                           1
-                                                                         }
-                                                                       },
-                                                                       {
-                                                                         3,
-                                                                         {
-                                                                           Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong,
-                                                                           1
-                                                                         }
-                                                                       },
-                                                                       {
-                                                                         4,
-                                                                         {
-                                                                           Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong,
-                                                                           1
-                                                                         }
-                                                                       },
-                                                                       {
-                                                                         5,
-                                                                         {
-                                                                           Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong,
-                                                                           1
-                                                                         }
-                                                                       },
-                                                                       {
-                                                                         6,
-                                                                         {
-                                                                           Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak,
-                                                                           2
-                                                                         }
-                                                                       },
-                                                                       {
-                                                                         7,
-                                                                         {
-                                                                           Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong,
-                                                                           1
-                                                                         }
-                                                                       },
-                                                                       {
-                                                                         8,
-                                                                         {
-                                                                           Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak,
-                                                                           4
-                                                                         }
-                                                                       }
-                                                                     }
+                                                                     Poisson_Polynomial_Problem::boundary_info()
                                                                    });
 
   const auto dofs_data = dofManager.CreateDOFs<2>(meshDOFsInfo,
