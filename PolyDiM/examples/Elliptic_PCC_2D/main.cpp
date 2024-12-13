@@ -46,7 +46,7 @@ struct PatchTest final
     static Eigen::VectorXd source_term(const Eigen::MatrixXd& points)
     {
       Eigen::VectorXd source_term = Eigen::VectorXd::Constant(points.cols(),
-                                                              order * (order - 1));
+                                                              2.0 * order * (order - 1));
       const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
 
       const int max_order = order - 2;
@@ -81,7 +81,7 @@ struct PatchTest final
       const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
 
       Eigen::VectorXd result = Eigen::VectorXd::Constant(points.cols(), 1.0);
-      for(int i = 0; i < order; ++i)
+      for (int i = 0; i < order; ++i)
         result.array() *= polynomial;
 
       return result;
@@ -89,24 +89,17 @@ struct PatchTest final
 
     static std::array<Eigen::VectorXd, 3> exact_derivative_solution(const Eigen::MatrixXd& points)
     {
-      Eigen::ArrayXd derivatives = Eigen::ArrayXd::Constant(points.cols(), 0.0);
-      Eigen::ArrayXd solution = Eigen::ArrayXd::Constant(points.cols(), 1.0);
+      Eigen::VectorXd derivatives = Eigen::VectorXd::Constant(points.cols(), order);
       const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
 
-      if(order > 0)
-      {
-        derivatives = Eigen::ArrayXd::Constant(points.cols(), 1.0);
-        for(int i = 0; i < order - 1; i++)
-          derivatives = derivatives * polynomial;
-
-        solution = derivatives * polynomial;
-        derivatives *= order;
-      }
+      const int max_order = order - 1;
+      for (int i = 0; i < max_order; ++i)
+        derivatives.array() *= polynomial;
 
       return
       {
-        -derivatives + solution,
-            -2.0 * derivatives - solution,
+        derivatives,
+            derivatives,
             Eigen::VectorXd::Zero(points.cols())
       };
     }
