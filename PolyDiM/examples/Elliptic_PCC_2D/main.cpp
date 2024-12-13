@@ -8,6 +8,109 @@
 #include "assembler.hpp"
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
 
+struct PatchTest final
+{
+    static unsigned int order;
+
+    static Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain()
+    {
+      Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain;
+
+      domain.area = 1.0;
+
+      domain.vertices = Eigen::MatrixXd::Zero(3, 4);
+      domain.vertices.row(0)<< 0.0, 1.0, 1.0, 0.0;
+      domain.vertices.row(1)<< 0.0, 0.0, 1.0, 1.0;
+
+      return domain;
+    }
+
+    static std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info()
+    {
+      return {
+        { 0, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+        { 1, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
+        { 2, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
+        { 3, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
+        { 4, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 }  },
+        { 5, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
+        { 6, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 1 } },
+        { 7, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
+        { 8, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 1 } }
+      };
+    }
+
+    static Eigen::VectorXd diffusion_term(const Eigen::MatrixXd& points)
+    { return Eigen::VectorXd::Constant(points.cols(), 1.0); };
+
+    static Eigen::VectorXd source_term(const Eigen::MatrixXd& points)
+    {
+      Eigen::VectorXd source_term = Eigen::VectorXd::Constant(points.cols(),
+                                                              order * (order - 1));
+      const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+
+      for(int i = 0; i < order - 2; i++)
+        source_term.array() *= polynomial;
+
+      return - source_term;
+    };
+
+    static Eigen::VectorXd strong_boundary_condition(const unsigned int marker,
+                                                     const Eigen::MatrixXd& points)
+    {
+      if (marker != 1)
+        throw std::runtime_error("Unknown marker");
+
+      const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+
+      Eigen::VectorXd result = Eigen::VectorXd::Constant(points.cols(), 1.0);
+      for(int i = 0; i < order; i++)
+        result.array() *= polynomial;
+
+      return result;
+    };
+
+    static Eigen::VectorXd weak_boundary_condition(const unsigned int marker,
+                                                   const Eigen::MatrixXd& points)
+    { throw std::runtime_error("Not supported"); }
+
+    static Eigen::VectorXd exact_solution(const Eigen::MatrixXd& points)
+    {
+
+      const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+
+      Eigen::VectorXd result = Eigen::VectorXd::Constant(points.cols(), 1.0);
+      for(int i = 0; i < order; i++)
+        result.array() *= polynomial;
+
+      return result;
+    };
+
+    static std::array<Eigen::VectorXd, 3> exact_derivative_solution(const Eigen::MatrixXd& points)
+    {
+      Eigen::ArrayXd derivatives = Eigen::ArrayXd::Constant(points.cols(), 0.0);
+      Eigen::ArrayXd solution = Eigen::ArrayXd::Constant(points.cols(), 1.0);
+      const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+
+      if(order > 0)
+      {
+        derivatives = Eigen::ArrayXd::Constant(points.cols(), 1.0);
+        for(int i = 0; i < order - 1; i++)
+          derivatives = derivatives * polynomial;
+
+        solution = derivatives * polynomial;
+        derivatives *= order;
+      }
+
+      return
+      {
+        -derivatives + solution,
+            -2.0 * derivatives - solution,
+            Eigen::VectorXd::Zero(points.cols())
+      };
+    }
+};
+
 struct Poisson_Polynomial_Problem final
 {
     static Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain()
@@ -138,6 +241,13 @@ int main(int argc, char** argv)
   Gedim::Profiler::StartTime("CreateDomain");
 
   const auto domain = Poisson_Polynomial_Problem::domain();
+  const auto boundary_info = Poisson_Polynomial_Problem::boundary_info();
+  const auto diffusion_term = Poisson_Polynomial_Problem::diffusion_term;
+  const auto source_term = Poisson_Polynomial_Problem::source_term;
+  const auto weak_boundary_condition = Poisson_Polynomial_Problem::weak_boundary_condition;
+  const auto strong_boundary_condition = Poisson_Polynomial_Problem::strong_boundary_condition;
+  const auto exact_solution = Poisson_Polynomial_Problem::exact_solution;
+  const auto exact_derivative_solution = Poisson_Polynomial_Problem::exact_derivative_solution;
 
   Gedim::Profiler::StopTime("CreateDomain");
   Gedim::Output::PrintStatusProgram("CreateDomain");
@@ -223,7 +333,7 @@ int main(int argc, char** argv)
                                                                        reference_element_data.NumDofs2D,
                                                                        0
                                                                      },
-                                                                     Poisson_Polynomial_Problem::boundary_info()
+                                                                     boundary_info
                                                                    });
 
   const auto dofs_data = dofManager.CreateDOFs<2>(meshDOFsInfo,
@@ -247,10 +357,10 @@ int main(int argc, char** argv)
                                            meshDOFsInfo,
                                            dofs_data,
                                            reference_element_data,
-                                           Poisson_Polynomial_Problem::diffusion_term,
-                                           Poisson_Polynomial_Problem::source_term,
-                                           Poisson_Polynomial_Problem::strong_boundary_condition,
-                                           Poisson_Polynomial_Problem::weak_boundary_condition);
+                                           diffusion_term,
+                                           source_term,
+                                           strong_boundary_condition,
+                                           weak_boundary_condition);
 
   Gedim::Profiler::StopTime("AssembleSystem");
   Gedim::Output::PrintStatusProgram("AssembleSystem");
@@ -286,8 +396,8 @@ int main(int argc, char** argv)
                                                          dofs_data,
                                                          reference_element_data,
                                                          assembler_data,
-                                                         Poisson_Polynomial_Problem::exact_solution,
-                                                         Poisson_Polynomial_Problem::exact_derivative_solution);
+                                                         exact_solution,
+                                                         exact_derivative_solution);
 
   Gedim::Profiler::StopTime("ComputeErrors");
   Gedim::Output::PrintStatusProgram("ComputeErrors");
