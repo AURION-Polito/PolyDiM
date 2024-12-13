@@ -34,9 +34,9 @@ struct PatchTest final
         { 3, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
         { 4, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 }  },
         { 5, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
-        { 6, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 1 } },
+        { 6, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
         { 7, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
-        { 8, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 1 } }
+        { 8, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } }
       };
     }
 
@@ -49,7 +49,8 @@ struct PatchTest final
                                                               order * (order - 1));
       const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
 
-      for(int i = 0; i < order - 2; i++)
+      const int max_order = order - 2;
+      for (int i = 0; i < max_order; ++i)
         source_term.array() *= polynomial;
 
       return - source_term;
@@ -64,7 +65,7 @@ struct PatchTest final
       const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
 
       Eigen::VectorXd result = Eigen::VectorXd::Constant(points.cols(), 1.0);
-      for(int i = 0; i < order; i++)
+      for (int i = 0; i < order; ++i)
         result.array() *= polynomial;
 
       return result;
@@ -80,7 +81,7 @@ struct PatchTest final
       const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
 
       Eigen::VectorXd result = Eigen::VectorXd::Constant(points.cols(), 1.0);
-      for(int i = 0; i < order; i++)
+      for(int i = 0; i < order; ++i)
         result.array() *= polynomial;
 
       return result;
@@ -194,6 +195,8 @@ struct Poisson_Polynomial_Problem final
     }
 };
 
+unsigned int PatchTest::order;
+
 int main(int argc, char** argv)
 {
   Elliptic_PCC_2D::Program_configuration config;
@@ -240,14 +243,16 @@ int main(int argc, char** argv)
   Gedim::Output::PrintGenericMessage("CreateDomain...", true);
   Gedim::Profiler::StartTime("CreateDomain");
 
-  const auto domain = Poisson_Polynomial_Problem::domain();
-  const auto boundary_info = Poisson_Polynomial_Problem::boundary_info();
-  const auto diffusion_term = Poisson_Polynomial_Problem::diffusion_term;
-  const auto source_term = Poisson_Polynomial_Problem::source_term;
-  const auto weak_boundary_condition = Poisson_Polynomial_Problem::weak_boundary_condition;
-  const auto strong_boundary_condition = Poisson_Polynomial_Problem::strong_boundary_condition;
-  const auto exact_solution = Poisson_Polynomial_Problem::exact_solution;
-  const auto exact_derivative_solution = Poisson_Polynomial_Problem::exact_derivative_solution;
+  PatchTest::order = config.VemOrder();
+
+  const auto domain = PatchTest::domain();
+  const auto boundary_info = PatchTest::boundary_info();
+  const auto diffusion_term = PatchTest::diffusion_term;
+  const auto source_term = PatchTest::source_term;
+  const auto weak_boundary_condition = PatchTest::weak_boundary_condition;
+  const auto strong_boundary_condition = PatchTest::strong_boundary_condition;
+  const auto exact_solution = PatchTest::exact_solution;
+  const auto exact_derivative_solution = PatchTest::exact_derivative_solution;
 
   Gedim::Profiler::StopTime("CreateDomain");
   Gedim::Output::PrintStatusProgram("CreateDomain");
@@ -407,6 +412,37 @@ int main(int argc, char** argv)
 
   {
     const char separator = ';';
+
+    std::cout<< "VemType" << separator;
+    std::cout<< "VemOrder" << separator;
+    std::cout<< "Cell2Ds" <<  separator;
+    std::cout<< "Dofs" <<  separator;
+    std::cout<< "Strongs" <<  separator;
+    std::cout<< "h" <<  separator;
+    std::cout<< "errorL2" <<  separator;
+    std::cout<< "errorH1" << separator;
+    std::cout<< "normL2" <<  separator;
+    std::cout<< "normH1" << separator;
+    std::cout<< "nnzA" << separator;
+    std::cout<< "residual" << std::endl;
+
+    std::cout.precision(2);
+    std::cout<< scientific<< static_cast<unsigned int>(config.VemType())<< separator;
+    std::cout<< scientific<< config.VemOrder()<< separator;
+    std::cout<< scientific<< mesh.Cell2DTotalNumber()<< separator;
+    std::cout<< scientific<< dofs_data.NumberDOFs<< separator;
+    std::cout<< scientific<< dofs_data.NumberStrongs<< separator;
+    std::cout<< scientific<< post_process_data.mesh_size << separator;
+    std::cout<< scientific<< post_process_data.error_L2<< separator;
+    std::cout<< scientific<< post_process_data.error_H1<< separator;
+    std::cout<< scientific<< post_process_data.norm_L2<< separator;
+    std::cout<< scientific<< post_process_data.norm_H1<< separator;
+    std::cout<< scientific<< assembler_data.globalMatrixA.NonZeros()<< separator;
+    std::cout<< scientific<< post_process_data.residual_norm<< std::endl;
+  }
+
+  {
+    const char separator = ';';
     const string errorFileName = exportSolutionFolder +
                                  "/Errors.csv";
     const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
@@ -426,7 +462,7 @@ int main(int argc, char** argv)
       errorFile<< "normL2" <<  separator;
       errorFile<< "normH1" << separator;
       errorFile<< "nnzA" << separator;
-      errorFile<< "residual" << endl;
+      errorFile<< "residual" << std::endl;
     }
 
     errorFile.precision(16);
@@ -441,7 +477,7 @@ int main(int argc, char** argv)
     errorFile<< scientific<< post_process_data.norm_L2<< separator;
     errorFile<< scientific<< post_process_data.norm_H1<< separator;
     errorFile<< scientific<< assembler_data.globalMatrixA.NonZeros()<< separator;
-    errorFile<< scientific<< post_process_data.residual_norm<< endl;
+    errorFile<< scientific<< post_process_data.residual_norm<< std::endl;
 
     errorFile.close();
   }
