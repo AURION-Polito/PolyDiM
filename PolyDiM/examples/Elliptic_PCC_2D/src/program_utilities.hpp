@@ -84,8 +84,8 @@ namespace Polydim
           {
             const char separator = ';';
 
-            std::cout<< "VemType" << separator;
             std::cout<< "ProgramType" << separator;
+            std::cout<< "VemType" << separator;
             std::cout<< "VemOrder" << separator;
             std::cout<< "Cell2Ds" <<  separator;
             std::cout<< "Dofs" <<  separator;
@@ -99,8 +99,8 @@ namespace Polydim
             std::cout<< "residual" << std::endl;
 
             std::cout.precision(2);
-            std::cout<< scientific<< static_cast<unsigned int>(VEM_TYPE)<< separator;
             std::cout<< scientific<< static_cast<unsigned int>(PROGRAM_TYPE)<< separator;
+            std::cout<< scientific<< static_cast<unsigned int>(VEM_TYPE)<< separator;
             std::cout<< scientific<< config.VemOrder()<< separator;
             std::cout<< scientific<< mesh.Cell2DTotalNumber()<< separator;
             std::cout<< scientific<< dofs_data.NumberDOFs<< separator;
@@ -124,8 +124,8 @@ namespace Polydim
                                     std::ios_base::app | std::ios_base::out);
             if (!errorFileExists)
             {
-              errorFile<< "VemType" << separator;
               errorFile<< "ProgramType" << separator;
+              errorFile<< "VemType" << separator;
               errorFile<< "VemOrder" << separator;
               errorFile<< "Cell2Ds" <<  separator;
               errorFile<< "Dofs" <<  separator;
@@ -140,8 +140,8 @@ namespace Polydim
             }
 
             errorFile.precision(16);
-            errorFile<< scientific<< static_cast<unsigned int>(VEM_TYPE)<< separator;
             errorFile<< scientific<< static_cast<unsigned int>(PROGRAM_TYPE)<< separator;
+            errorFile<< scientific<< static_cast<unsigned int>(VEM_TYPE)<< separator;
             errorFile<< scientific<< config.VemOrder()<< separator;
             errorFile<< scientific<< mesh.Cell2DTotalNumber()<< separator;
             errorFile<< scientific<< dofs_data.NumberDOFs<< separator;
