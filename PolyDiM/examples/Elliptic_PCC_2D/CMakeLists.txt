@@ -5,7 +5,7 @@ project(Elliptic_PCC_2D LANGUAGES CXX C)
 # Create variables
 #########################################################
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel" FORCE)
+      set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel" FORCE)
 endif()
 
 set(PROGRAM_TYPE 0 CACHE STRING "Select Program type (0, 1)")
@@ -16,34 +16,34 @@ set(VEM_TYPE 0 CACHE STRING "Select VEM type (0, 1)")
 
 ## GeDiM
 if (NOT TARGET GeDiM::GeDiM)
-	find_package(GeDiM CONFIG REQUIRED)
-        list(APPEND ELLIPTIC_PCC_2D_LINKED_LIBRARIES GeDiM::GeDiM)
+      find_package(GeDiM CONFIG REQUIRED)
+      list(APPEND ELLIPTIC_PCC_2D_LINKED_LIBRARIES GeDiM::GeDiM)
 else()
-	get_target_property(GEDIM_LIBRARY_HEADERS GeDiM::GeDiM PUBLIC_HEADER)
-	get_target_property(GEDIM_LIBRARY_NAME GeDiM::GeDiM EXPORT_NAME)
-	get_target_property(GEDIM_LIBRARY_LINKED_LIBRARIES GeDiM::GeDiM LINK_LIBRARIES)
-	get_target_property(GEDIM_LIBRARY_INCLUDE_DIRECTORIES GeDiM::GeDiM INCLUDE_DIRECTORIES)
-	get_target_property(GEDIM_LIBRARY_SOURCES GeDiM::GeDiM SOURCES)
+      get_target_property(GEDIM_LIBRARY_HEADERS GeDiM::GeDiM PUBLIC_HEADER)
+      get_target_property(GEDIM_LIBRARY_NAME GeDiM::GeDiM EXPORT_NAME)
+      get_target_property(GEDIM_LIBRARY_LINKED_LIBRARIES GeDiM::GeDiM LINK_LIBRARIES)
+      get_target_property(GEDIM_LIBRARY_INCLUDE_DIRECTORIES GeDiM::GeDiM INCLUDE_DIRECTORIES)
+      get_target_property(GEDIM_LIBRARY_SOURCES GeDiM::GeDiM SOURCES)
 
-        list(APPEND ELLIPTIC_PCC_2D_LINKED_LIBRARIES ${GEDIM_LIBRARY_NAME} ${GEDIM_LIBRARY_LINKED_LIBRARIES})
-	list(APPEND ELLIPTIC_PCC_2D_HEADERS ${GEDIM_LIBRARY_HEADERS})
-	list(APPEND ELLIPTIC_PCC_2D_INCLUDE ${GEDIM_LIBRARY_INCLUDE_DIRECTORIES})
+      list(APPEND ELLIPTIC_PCC_2D_LINKED_LIBRARIES ${GEDIM_LIBRARY_NAME} ${GEDIM_LIBRARY_LINKED_LIBRARIES})
+      list(APPEND ELLIPTIC_PCC_2D_HEADERS ${GEDIM_LIBRARY_HEADERS})
+      list(APPEND ELLIPTIC_PCC_2D_INCLUDE ${GEDIM_LIBRARY_INCLUDE_DIRECTORIES})
 endif()
 
 ## PolyDiM
 if (NOT TARGET PolyDiM::PolyDiM)
-	find_package(PolyDiM CONFIG REQUIRED)
-        list(APPEND ELLIPTIC_PCC_2D_LINKED_LIBRARIES PolyDiM::PolyDiM)
+      find_package(PolyDiM CONFIG REQUIRED)
+      list(APPEND ELLIPTIC_PCC_2D_LINKED_LIBRARIES PolyDiM::PolyDiM)
 else()
-	get_target_property(POLYDIM_LIBRARY_HEADERS PolyDiM::PolyDiM PUBLIC_HEADER)
-	get_target_property(POLYDIM_LIBRARY_NAME PolyDiM::PolyDiM EXPORT_NAME)
-	get_target_property(POLYDIM_LIBRARY_LINKED_LIBRARIES PolyDiM::PolyDiM LINK_LIBRARIES)
-	get_target_property(POLYDIM_LIBRARY_INCLUDE_DIRECTORIES PolyDiM::PolyDiM INCLUDE_DIRECTORIES)
-	get_target_property(POLYDIM_LIBRARY_SOURCES PolyDiM::PolyDiM SOURCES)
+      get_target_property(POLYDIM_LIBRARY_HEADERS PolyDiM::PolyDiM PUBLIC_HEADER)
+      get_target_property(POLYDIM_LIBRARY_NAME PolyDiM::PolyDiM EXPORT_NAME)
+      get_target_property(POLYDIM_LIBRARY_LINKED_LIBRARIES PolyDiM::PolyDiM LINK_LIBRARIES)
+      get_target_property(POLYDIM_LIBRARY_INCLUDE_DIRECTORIES PolyDiM::PolyDiM INCLUDE_DIRECTORIES)
+      get_target_property(POLYDIM_LIBRARY_SOURCES PolyDiM::PolyDiM SOURCES)
 
-        list(APPEND ELLIPTIC_PCC_2D_LINKED_LIBRARIES ${POLYDIM_LIBRARY_NAME} ${POLYDIM_LIBRARY_LINKED_LIBRARIES})
-	list(APPEND ELLIPTIC_PCC_2D_HEADERS ${POLYDIM_LIBRARY_HEADERS})
-	list(APPEND ELLIPTIC_PCC_2D_INCLUDE ${POLYDIM_LIBRARY_INCLUDE_DIRECTORIES})
+      list(APPEND ELLIPTIC_PCC_2D_LINKED_LIBRARIES ${POLYDIM_LIBRARY_NAME} ${POLYDIM_LIBRARY_LINKED_LIBRARIES})
+      list(APPEND ELLIPTIC_PCC_2D_HEADERS ${POLYDIM_LIBRARY_HEADERS})
+      list(APPEND ELLIPTIC_PCC_2D_INCLUDE ${POLYDIM_LIBRARY_INCLUDE_DIRECTORIES})
 endif()
 
 ## Eigen3
@@ -57,27 +57,27 @@ find_package(LAPACK REQUIRED)
 
 ## VTK
 if(${ENABLE_VTK})
-  find_package(VTK CONFIG REQUIRED)
+      find_package(VTK CONFIG REQUIRED)
 endif()
 
 ## VORO
 if(${ENABLE_VORO})
-  find_package(VORO CONFIG REQUIRED)
+      find_package(VORO CONFIG REQUIRED)
 endif()
 
 ## triangle
 if(${ENABLE_TRIANGLE})
-  find_package(triangle CONFIG REQUIRED)
+      find_package(triangle CONFIG REQUIRED)
 endif()
 
 ## tetgen
 if(${ENABLE_TETGEN})
-  find_package(tetgen CONFIG REQUIRED)
+      find_package(tetgen CONFIG REQUIRED)
 endif()
 
 ## METIS
 if(${ENABLE_METIS})
-    find_package(metis CONFIG REQUIRED)
+      find_package(metis CONFIG REQUIRED)
 endif()
 
 # Insert Sources
@@ -102,16 +102,16 @@ set(CPPCHECK_FILES ${CPPCHECK_FILES} PARENT_SCOPE)
 # Create library test executable
 #########################################################
 add_executable(${PROJECT_NAME}
-    ${ELLIPTIC_PCC_2D_SOURCES}
-    ${ELLIPTIC_PCC_2D_HEADERS})
+      ${ELLIPTIC_PCC_2D_SOURCES}
+      ${ELLIPTIC_PCC_2D_HEADERS})
 
 target_include_directories(${PROJECT_NAME}
-    PRIVATE ${ELLIPTIC_PCC_2D_INCLUDE})
+      PRIVATE ${ELLIPTIC_PCC_2D_INCLUDE})
 
 target_link_libraries(${PROJECT_NAME} ${ELLIPTIC_PCC_2D_LINKED_LIBRARIES})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
-    LINKER_LANGUAGE CXX
-    CXX_STANDARD 20
-    CXX_STANDARD_REQUIRED ON
-    CXX_EXTENSIONS OFF)
+      LINKER_LANGUAGE CXX
+      CXX_STANDARD 20
+      CXX_STANDARD_REQUIRED ON
+      CXX_EXTENSIONS OFF)
