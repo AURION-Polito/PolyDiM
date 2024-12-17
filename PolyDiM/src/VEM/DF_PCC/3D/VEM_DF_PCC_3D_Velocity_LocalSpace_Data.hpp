@@ -38,11 +38,9 @@ struct VEM_DF_PCC_3D_Polyhedron_Geometry final
 /// \brief Structure containing the local matrices and the main variables to compute the vritual element discrete matrices
 struct VEM_DF_PCC_3D_Velocity_LocalSpace_Data final
 {
-    /// Order
-    unsigned int Order;
 
-    /// Geometric dimension
-    unsigned int Dimension;
+    unsigned int Order; ///< Order
+    unsigned int Dimension; ///< Geometric dimension
 
     unsigned int NKp1;
     unsigned int Nk;
@@ -58,34 +56,24 @@ struct VEM_DF_PCC_3D_Velocity_LocalSpace_Data final
     unsigned int NumFaceBasisFunctions;
     unsigned int NumNormalBasisFunctions;
     unsigned int NumTangentsBasisFunctions;
-
     unsigned int NumBoundaryBasisFunctions;
-
     unsigned int NumDivergenceInternalBasisFunctions;
     unsigned int NumBigOPlusInternalBasisFunctions;
-
     unsigned int NumInternalBasisFunctions;
-
     unsigned int NumBasisFunctions; ///< Number of basis functions.
 
     Gedim::Quadrature::QuadratureData InternalQuadrature;
     Quadrature::VEM_Quadrature_3D::Faces_QuadratureData_PCC BoundaryQuadrature;
     Quadrature::VEM_Quadrature_3D::Faces_QuadratureData_PCC BoundaryQuadratureKL;
 
-    /// Vandermonde matrix of the polynomial basis at internal quadrature points.
-    Eigen::MatrixXd VanderInternal;
-
-    /// Vandermonde matrices of the derivatives of the polynomial basis at internal quadrature points.
-    std::vector<Eigen::MatrixXd> VanderInternalDerivatives;
-
-    /// \brief Vandermonde matrix of the polynomial basis at boundary quadrature points.
-    Eigen::MatrixXd VanderBoundary;
-    Eigen::MatrixXd VanderBoundaryKp1;
+    Eigen::MatrixXd VanderInternal; ///< Vandermonde matrix of the polynomial basis at internal quadrature points.
+    std::vector<Eigen::MatrixXd> VanderInternalDerivatives; ///< Vandermonde matrices of the derivatives of the polynomial basis at internal quadrature points.
+    Eigen::MatrixXd VanderBoundary; ///< \brief Vandermonde matrix of the polynomial basis at boundary quadrature points.
+    Eigen::MatrixXd VanderBoundaryKL;
 
     std::vector<Eigen::MatrixXd> VanderBoundaryDerivatives;
 
     std::vector<std::vector<Eigen::MatrixXd>> VectorDecompositionMatrices;
-    std::vector<std::vector<Eigen::MatrixXd>> VectorDecompositionMatriceskm2;
     std::vector<Eigen::MatrixXd> VanderGBigOPlus;
     std::vector<Eigen::MatrixXd> VanderGBigOPluskm2;
 
@@ -94,15 +82,10 @@ struct VEM_DF_PCC_3D_Velocity_LocalSpace_Data final
     Eigen::MatrixXd Hmatrix; ///< mass matrix of order order
     Eigen::MatrixXd HmatrixKp1;
 
-    Eigen::VectorXd ReferenceEdgeInternalPoints;
-    Eigen::VectorXd ReferenceEdgeDofInternalPoints;
-    Eigen::VectorXd EdgeBasisCoefficients;
-    Eigen::MatrixXd VanderKp1EdgeProjections;
     std::vector<Eigen::MatrixXd> VanderFaceProjectionsKm1;
     Eigen::MatrixXd VanderEdgeDofs;
     Eigen::MatrixXd VanderFaceProjectionsKp1TimesNormal;
     std::vector<Eigen::MatrixXd> FaceScaledMomentsBasis;
-    Eigen::MatrixXd PointEdgeDofsCoordinates;
     std::vector<Eigen::MatrixXd> ScaledHmatrixOnBoundary;
 
     std::vector<Eigen::MatrixXd> PiNabla;

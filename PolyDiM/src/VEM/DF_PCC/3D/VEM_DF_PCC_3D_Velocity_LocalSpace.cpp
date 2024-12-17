@@ -192,10 +192,10 @@ void VEM_DF_PCC_3D_Velocity_LocalSpace::InitializeProjectorsComputation(const VE
                                                                        localSpace.VanderBoundary,
                                                                        polyhedronDiameter);
 
-    localSpace.VanderBoundaryKp1 = monomials.Vander(reference_element_data.GBasis.monomials_data,
-                                                    boundaryQuadratureKLPoints,
-                                                    polyhedronCentroid,
-                                                    polyhedronDiameter);
+    localSpace.VanderBoundaryKL = monomials.Vander(reference_element_data.GBasis.monomials_data,
+                                                   boundaryQuadratureKLPoints,
+                                                   polyhedronCentroid,
+                                                   polyhedronDiameter);
 
     localSpace.VanderGBigOPlus = g_basis.VanderGBigOPlus(reference_element_data.GBasis,
                                                          localSpace.VanderInternal);
@@ -210,14 +210,14 @@ void VEM_DF_PCC_3D_Velocity_LocalSpace::InitializeProjectorsComputation(const VE
 
 
     // Compute positions of degrees of freedom corresponding to pointwise evaluations.
-    localSpace.PointEdgeDofsCoordinates.resize(3, localSpace.NumVertexBasisFunctions +
-                                                      localSpace.NumEdgeBasisFunctions);
+    Eigen::MatrixXd PointEdgeDofsCoordinates = Eigen::MatrixXd(3, localSpace.NumVertexBasisFunctions +
+                                                                      localSpace.NumEdgeBasisFunctions);
 
-    localSpace.PointEdgeDofsCoordinates << polyhedronVertices, edgeInternalQuadraturePoints;
+    PointEdgeDofsCoordinates << polyhedronVertices, edgeInternalQuadraturePoints;
 
     // edge degrees of freedom of monomials (values at points on the edges).
     localSpace.VanderEdgeDofs = monomials.Vander(reference_element_data.Monomials,
-                                                 localSpace.PointEdgeDofsCoordinates,
+                                                 PointEdgeDofsCoordinates,
                                                  polyhedronCentroid,
                                                  polyhedronDiameter);
 
@@ -460,17 +460,17 @@ void VEM_DF_PCC_3D_Velocity_LocalSpace::ComputeCMatrixkm2(const double& polyhedr
         // Boundary DOF
         localSpace.Cmatrix[d].leftCols(localSpace.NumBoundaryBasisFunctions)
             = polyhedronDiameter * localSpace.VectorDecompositionMatrices[d][0].block(0, 1, localSpace.Nk, localSpace.NKp1 - 1)
-              * localSpace.VanderBoundaryKp1.middleCols(1, localSpace.NKp1 - 1).transpose()
+              * localSpace.VanderBoundaryKL.middleCols(1, localSpace.NKp1 - 1).transpose()
               * boundaryQuadratureKLWeights.asDiagonal() * localSpace.VanderFaceProjectionsKp1TimesNormal;
 
         // DOF big o plus
-            MatrixXd tmpVD = MatrixXd::Zero(localSpace.Nk, localSpace.NumBigOPlusInternalBasisFunctions);
-            tmpVD << localSpace.VectorDecompositionMatrices[d][1].middleCols(0, localSpace.Nkm3 - localSpace.Nkm4),
-                localSpace.VectorDecompositionMatrices[d][1].middleCols(localSpace.Nkm1 - localSpace.Nkm2, localSpace.Nkm3),
-                localSpace.VectorDecompositionMatrices[d][1].middleCols(2 * localSpace.Nkm1 - localSpace.Nkm2, localSpace.Nkm3);
+        MatrixXd tmpVD = MatrixXd::Zero(localSpace.Nk, localSpace.NumBigOPlusInternalBasisFunctions);
+        tmpVD << localSpace.VectorDecompositionMatrices[d][1].middleCols(0, localSpace.Nkm3 - localSpace.Nkm4),
+            localSpace.VectorDecompositionMatrices[d][1].middleCols(localSpace.Nkm1 - localSpace.Nkm2, localSpace.Nkm3),
+            localSpace.VectorDecompositionMatrices[d][1].middleCols(2 * localSpace.Nkm1 - localSpace.Nkm2, localSpace.Nkm3);
 
-            localSpace.Cmatrix[d].middleCols(localSpace.NumBoundaryBasisFunctions, localSpace.NumBigOPlusInternalBasisFunctions)
-                += polyhedronMeasure * tmpVD;
+        localSpace.Cmatrix[d].middleCols(localSpace.NumBoundaryBasisFunctions, localSpace.NumBigOPlusInternalBasisFunctions)
+            += polyhedronMeasure * tmpVD;
 
         // DOF divergenza
         localSpace.Cmatrix[d] += - polyhedronDiameter * localSpace.VectorDecompositionMatrices[d][0].block(0, 1, localSpace.Nk, localSpace.NKp1 - 1)

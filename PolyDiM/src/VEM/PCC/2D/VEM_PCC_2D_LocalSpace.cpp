@@ -94,7 +94,8 @@ VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_LocalSpace::Compute3DUtilities(const VEM_P
                    localSpace.BoundaryQuadrature.WeightsTimesNormal,
                    localSpace);
 
-    ComputeL2Projectors(polygon.Measure, localSpace);
+    ComputeL2Projectors(polygon.Measure,
+                        localSpace);
 
     return localSpace;
 }
