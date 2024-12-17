@@ -28,7 +28,7 @@ struct PatchTest final
         { 1, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
         { 2, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
         { 3, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
-        { 4, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 }  },
+        { 4, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
         { 5, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
         { 6, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
         { 7, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
