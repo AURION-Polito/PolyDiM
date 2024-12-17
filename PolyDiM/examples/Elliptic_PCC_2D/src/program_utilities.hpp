@@ -7,7 +7,9 @@
 #include "program_configuration.hpp"
 #include "DOFsManager.hpp"
 #include "VTKUtilities.hpp"
-#include <any>
+
+#define PROGRAM_TYPE 0 // 0 PatchTest, 1 Poisson_Polynomial_Problem
+#define VEM_TYPE 0 // 0 E_VEM_MON, 1 E_VEM_ORTHO
 
 namespace Polydim
 {
@@ -22,7 +24,7 @@ namespace Polydim
                                 Gedim::MeshMatricesDAO& mesh)
         {
           Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
-          geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance();
+          geometryUtilitiesConfig.Tolerance1D = 1.0e-8;
           Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
           Gedim::MeshUtilities meshUtilities;
@@ -61,7 +63,7 @@ namespace Polydim
                                                                                           const Gedim::MeshMatricesDAO& mesh)
         {
           Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
-          geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance();
+          geometryUtilitiesConfig.Tolerance1D = 1.0e-8;
           Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
           Gedim::MeshUtilities meshUtilities;
@@ -83,6 +85,7 @@ namespace Polydim
             const char separator = ';';
 
             std::cout<< "VemType" << separator;
+            std::cout<< "ProgramType" << separator;
             std::cout<< "VemOrder" << separator;
             std::cout<< "Cell2Ds" <<  separator;
             std::cout<< "Dofs" <<  separator;
@@ -96,7 +99,8 @@ namespace Polydim
             std::cout<< "residual" << std::endl;
 
             std::cout.precision(2);
-            std::cout<< scientific<< static_cast<unsigned int>(config.VemType())<< separator;
+            std::cout<< scientific<< static_cast<unsigned int>(VEM_TYPE)<< separator;
+            std::cout<< scientific<< static_cast<unsigned int>(PROGRAM_TYPE)<< separator;
             std::cout<< scientific<< config.VemOrder()<< separator;
             std::cout<< scientific<< mesh.Cell2DTotalNumber()<< separator;
             std::cout<< scientific<< dofs_data.NumberDOFs<< separator;
@@ -121,6 +125,7 @@ namespace Polydim
             if (!errorFileExists)
             {
               errorFile<< "VemType" << separator;
+              errorFile<< "ProgramType" << separator;
               errorFile<< "VemOrder" << separator;
               errorFile<< "Cell2Ds" <<  separator;
               errorFile<< "Dofs" <<  separator;
@@ -135,7 +140,8 @@ namespace Polydim
             }
 
             errorFile.precision(16);
-            errorFile<< scientific<< static_cast<unsigned int>(config.VemType())<< separator;
+            errorFile<< scientific<< static_cast<unsigned int>(VEM_TYPE)<< separator;
+            errorFile<< scientific<< static_cast<unsigned int>(PROGRAM_TYPE)<< separator;
             errorFile<< scientific<< config.VemOrder()<< separator;
             errorFile<< scientific<< mesh.Cell2DTotalNumber()<< separator;
             errorFile<< scientific<< dofs_data.NumberDOFs<< separator;

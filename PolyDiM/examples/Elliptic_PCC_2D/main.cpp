@@ -12,8 +12,6 @@
 #include "VEM_PCC_2D_LocalSpace.hpp"
 #include "VEM_PCC_2D_Ortho_LocalSpace.hpp"
 
-#define VEM_LOCAL_SPACE_TYPE Polydim::VEM::PCC::VEM_PCC_2D_Ortho_LocalSpace
-
 struct PatchTest final
 {
     static unsigned int order;
@@ -110,6 +108,7 @@ struct PatchTest final
       };
     }
 };
+unsigned int PatchTest::order;
 
 struct Poisson_Polynomial_Problem final
 {
@@ -194,7 +193,17 @@ struct Poisson_Polynomial_Problem final
     }
 };
 
-unsigned int PatchTest::order;
+#if VEM_TYPE == 0
+#define VEM_LOCAL_SPACE_TYPE Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace
+#else
+#define VEM_LOCAL_SPACE_TYPE Polydim::VEM::PCC::VEM_PCC_2D_Ortho_LocalSpace
+#endif
+
+#if PROGRAM_TYPE == 0
+#define TEST_TYPE PatchTest
+#else
+#define TEST_TYPE Poisson_Polynomial_Problem
+#endif
 
 int main(int argc, char** argv)
 {
@@ -238,14 +247,14 @@ int main(int argc, char** argv)
 
   PatchTest::order = config.VemOrder();
 
-  const auto domain = PatchTest::domain();
-  const auto boundary_info = PatchTest::boundary_info();
-  const auto diffusion_term = PatchTest::diffusion_term;
-  const auto source_term = PatchTest::source_term;
-  const auto weak_boundary_condition = PatchTest::weak_boundary_condition;
-  const auto strong_boundary_condition = PatchTest::strong_boundary_condition;
-  const auto exact_solution = PatchTest::exact_solution;
-  const auto exact_derivative_solution = PatchTest::exact_derivative_solution;
+  const auto domain = TEST_TYPE::domain();
+  const auto boundary_info = TEST_TYPE::boundary_info();
+  const auto diffusion_term = TEST_TYPE::diffusion_term;
+  const auto source_term = TEST_TYPE::source_term;
+  const auto weak_boundary_condition = TEST_TYPE::weak_boundary_condition;
+  const auto strong_boundary_condition = TEST_TYPE::strong_boundary_condition;
+  const auto exact_solution = TEST_TYPE::exact_solution;
+  const auto exact_derivative_solution = TEST_TYPE::exact_derivative_solution;
 
   Gedim::Profiler::StopTime("CreateDomain");
   Gedim::Output::PrintStatusProgram("CreateDomain");
@@ -321,7 +330,7 @@ int main(int argc, char** argv)
   Gedim::Profiler::StopTime("CreateVEMSpace");
   Gedim::Output::PrintStatusProgram("CreateVEMSpace");
 
-  Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " + to_string((unsigned int)config.VemType()) + "...", true);
+  Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " + to_string((unsigned int)VEM_TYPE) + "...", true);
   Gedim::Profiler::StartTime("AssembleSystem");
 
   const VEM_LOCAL_SPACE_TYPE vem_local_space;
