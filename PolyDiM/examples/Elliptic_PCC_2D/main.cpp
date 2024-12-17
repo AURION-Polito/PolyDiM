@@ -1,16 +1,8 @@
-#include "MeshUtilities.hpp"
-#include "VEM_PCC_2D_ReferenceElement.hpp"
-#include "VTKUtilities.hpp"
-#include "program_configuration.hpp"
-#include "MeshMatricesDAO.hpp"
-#include "DOFsManager.hpp"
 #include "Eigen_CholeskySolver.hpp"
-#include "assembler.hpp"
-#include "MeshMatricesDAO_mesh_connectivity_data.hpp"
-#include "program_utilities.hpp"
 
-#include "VEM_PCC_2D_LocalSpace.hpp"
-#include "VEM_PCC_2D_Ortho_LocalSpace.hpp"
+#include "MeshMatricesDAO_mesh_connectivity_data.hpp"
+
+#include "program_utilities.hpp"
 
 struct PatchTest final
 {
@@ -192,18 +184,6 @@ struct Poisson_Polynomial_Problem final
       };
     }
 };
-
-#if VEM_TYPE == 0
-#define VEM_LOCAL_SPACE_TYPE Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace
-#else
-#define VEM_LOCAL_SPACE_TYPE Polydim::VEM::PCC::VEM_PCC_2D_Ortho_LocalSpace
-#endif
-
-#if PROGRAM_TYPE == 0
-#define TEST_TYPE PatchTest
-#else
-#define TEST_TYPE Poisson_Polynomial_Problem
-#endif
 
 int main(int argc, char** argv)
 {

@@ -1,6 +1,8 @@
 #ifndef __program_utilities_H
 #define __program_utilities_H
 
+#include "program_macro.hpp"
+
 #include "VEM_PCC_2D_LocalSpace.hpp"
 #include "VEM_PCC_2D_Ortho_LocalSpace.hpp"
 #include "assembler.hpp"
@@ -8,8 +10,17 @@
 #include "DOFsManager.hpp"
 #include "VTKUtilities.hpp"
 
-#define PROGRAM_TYPE 0 // 0 PatchTest, 1 Poisson_Polynomial_Problem
-#define VEM_TYPE 0 // 0 E_VEM_MON, 1 E_VEM_ORTHO
+#if VEM_TYPE == 0
+#define VEM_LOCAL_SPACE_TYPE Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace
+#else
+#define VEM_LOCAL_SPACE_TYPE Polydim::VEM::PCC::VEM_PCC_2D_Ortho_LocalSpace
+#endif
+
+#if PROGRAM_TYPE == 0
+#define TEST_TYPE PatchTest
+#else
+#define TEST_TYPE Poisson_Polynomial_Problem
+#endif
 
 namespace Polydim
 {
