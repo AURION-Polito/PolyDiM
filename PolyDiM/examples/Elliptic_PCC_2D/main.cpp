@@ -7,8 +7,12 @@
 #include "Eigen_CholeskySolver.hpp"
 #include "assembler.hpp"
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
-#include "VEM_PCC_2D_LocalSpace.hpp"
 #include "program_utilities.hpp"
+
+#include "VEM_PCC_2D_LocalSpace.hpp"
+#include "VEM_PCC_2D_Ortho_LocalSpace.hpp"
+
+#define VEM_LOCAL_SPACE_TYPE Polydim::VEM::PCC::VEM_PCC_2D_Ortho_LocalSpace
 
 struct PatchTest final
 {
@@ -320,7 +324,7 @@ int main(int argc, char** argv)
   Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " + to_string((unsigned int)config.VemType()) + "...", true);
   Gedim::Profiler::StartTime("AssembleSystem");
 
-  Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace vem_local_space;
+  const VEM_LOCAL_SPACE_TYPE vem_local_space;
 
   auto assembler_data = Polydim::examples::Elliptic_PCC_2D::Assembler::Assemble(mesh,
                                                                                 meshGeometricData,

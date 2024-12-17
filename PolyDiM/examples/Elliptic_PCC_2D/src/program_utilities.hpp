@@ -1,10 +1,13 @@
 #ifndef __program_utilities_H
 #define __program_utilities_H
 
+#include "VEM_PCC_2D_LocalSpace.hpp"
+#include "VEM_PCC_2D_Ortho_LocalSpace.hpp"
 #include "assembler.hpp"
 #include "program_configuration.hpp"
 #include "DOFsManager.hpp"
 #include "VTKUtilities.hpp"
+#include <any>
 
 namespace Polydim
 {

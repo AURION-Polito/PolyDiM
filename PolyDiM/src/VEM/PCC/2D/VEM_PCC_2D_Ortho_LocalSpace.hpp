@@ -261,14 +261,17 @@ public:
         return polynomialBasisDerivativeValues;
     }
 
-    inline Eigen::MatrixXd ComputeValuesOnEdge(const VEM_PCC_2D_LocalSpace_Data &localSpace,
-                                               const Eigen::VectorXd &edgeInternalPoints,
+    inline Eigen::MatrixXd ComputeValuesOnEdge(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                                const Eigen::VectorXd &pointsCurvilinearCoordinates) const
     {
-        const Eigen::VectorXd edgeBasisCoefficients
-            = utilities.ComputeEdgeBasisCoefficients(localSpace.Order, edgeInternalPoints);
+        Eigen::VectorXd edgeInternalPoints;
+        if (reference_element_data.Quadrature.ReferenceSegmentInternalPoints.rows() > 0)
+            edgeInternalPoints = reference_element_data.Quadrature.ReferenceSegmentInternalPoints.row(0).transpose();
+        const Eigen::VectorXd edgeBasisCoefficients = utilities.ComputeEdgeBasisCoefficients(reference_element_data.Order,
+                                                                                             edgeInternalPoints);
+
         return utilities.ComputeValuesOnEdge(edgeInternalPoints.transpose(),
-                                             localSpace.Order,
+                                             reference_element_data.Order,
                                              edgeBasisCoefficients,
                                              pointsCurvilinearCoordinates);
     }
