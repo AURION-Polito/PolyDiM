@@ -12,10 +12,9 @@ namespace MCC
 /// \brief Base class for computing values of basis functions of Mixed Conforming Constant degree
 /// Virtual Element Methods.
 /// \copyright See top level LICENSE file for details.
-template<unsigned short dimension>
-struct VEM_MCC_Utilities final
+template <unsigned short dimension> struct VEM_MCC_Utilities final
 {
-    Eigen::MatrixXd ComputePolynomialBasisDofs(const double& polytopeMeasure,
+    Eigen::MatrixXd ComputePolynomialBasisDofs(const double &polytopeMeasure,
                                                const unsigned int &order,
                                                const unsigned int &Nk,
                                                const unsigned int &NumBoundaryBasisFunctions,
@@ -29,8 +28,8 @@ struct VEM_MCC_Utilities final
                                                const double &measure,
                                                const Eigen::MatrixXd &DMatrix) const;
 };
-}
-}
-}
+} // namespace MCC
+} // namespace VEM
+} // namespace Polydim
 
 #endif

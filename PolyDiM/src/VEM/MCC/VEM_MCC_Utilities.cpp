@@ -12,10 +12,10 @@ namespace MCC
 template struct VEM_MCC_Utilities<2>;
 template struct VEM_MCC_Utilities<3>;
 //****************************************************************************
-template<unsigned short dimension>
-MatrixXd VEM_MCC_Utilities<dimension>::ComputeStabilizationMatrix(const MatrixXd& pi0k,
-                                                                      const double& measure,
-                                                                      const Eigen::MatrixXd& DMatrix) const
+template <unsigned short dimension>
+MatrixXd VEM_MCC_Utilities<dimension>::ComputeStabilizationMatrix(const MatrixXd &pi0k,
+                                                                  const double &measure,
+                                                                  const Eigen::MatrixXd &DMatrix) const
 {
     MatrixXd stabMatrixPi0k = DMatrix * pi0k;
     stabMatrixPi0k.diagonal().array() -= 1;
@@ -25,8 +25,8 @@ MatrixXd VEM_MCC_Utilities<dimension>::ComputeStabilizationMatrix(const MatrixXd
     return stabMatrixPi0k;
 }
 //****************************************************************************
-template<unsigned short dimension>
-MatrixXd VEM_MCC_Utilities<dimension>::ComputePolynomialBasisDofs(const double& polytopeMeasure,
+template <unsigned short dimension>
+MatrixXd VEM_MCC_Utilities<dimension>::ComputePolynomialBasisDofs(const double &polytopeMeasure,
                                                                   const unsigned int &order,
                                                                   const unsigned int &Nk,
                                                                   const unsigned int &NumBoundaryBasisFunctions,
@@ -40,19 +40,17 @@ MatrixXd VEM_MCC_Utilities<dimension>::ComputePolynomialBasisDofs(const double& 
 
     polynomialBasisDofs.topRows(NumBoundaryBasisFunctions) = GkVanderBoundaryTimesNormal;
 
-    if(order > 0)
+    if (order > 0)
     {
-        polynomialBasisDofs.block(NumBoundaryBasisFunctions, 0,
-                                  NumNablaInternalBasisFunctions, dimension * Nk)
-            = (1.0 / polytopeMeasure) * Gmatrix.topRows(NumNablaInternalBasisFunctions);
+        polynomialBasisDofs.block(NumBoundaryBasisFunctions, 0, NumNablaInternalBasisFunctions, dimension * Nk) =
+            (1.0 / polytopeMeasure) * Gmatrix.topRows(NumNablaInternalBasisFunctions);
 
-        polynomialBasisDofs.bottomRows(NumBigOPlusInternalBasisFunctions)
-            = (1.0 / polytopeMeasure) * Gmatrix.bottomRows(NumBigOPlusInternalBasisFunctions);
-
+        polynomialBasisDofs.bottomRows(NumBigOPlusInternalBasisFunctions) =
+            (1.0 / polytopeMeasure) * Gmatrix.bottomRows(NumBigOPlusInternalBasisFunctions);
     }
     return polynomialBasisDofs;
 }
 //****************************************************************************
-}
-}
-}
+} // namespace MCC
+} // namespace VEM
+} // namespace Polydim

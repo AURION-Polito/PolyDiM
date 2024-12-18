@@ -25,7 +25,7 @@ struct VEM_DF_PCC_3D_Pressure_ReferenceElement_Data final
 
 class VEM_DF_PCC_3D_Pressure_ReferenceElement final
 {
-public:
+  public:
     VEM_DF_PCC_3D_Pressure_ReferenceElement_Data Create(const unsigned int order) const
     {
         Monomials::VEM_Monomials_3D monomials;
@@ -64,7 +64,7 @@ struct VEM_DF_PCC_3D_Velocity_ReferenceElement_Data final
 
 class VEM_DF_PCC_3D_Velocity_ReferenceElement final
 {
-public:
+  public:
     VEM_DF_PCC_3D_Velocity_ReferenceElement_Data Create(const unsigned int order) const
     {
         Monomials::VEM_GBasis_3D g_basis;
@@ -88,9 +88,8 @@ public:
         return result;
     }
 };
-}
-}
-}
-
+} // namespace DF_PCC
+} // namespace VEM
+} // namespace Polydim
 
 #endif

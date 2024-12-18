@@ -1,5 +1,6 @@
 #include "Eigen_CholeskySolver.hpp"
 
+#include "MeshDAOExporterToCsv.hpp"
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
 
 #include "test_definition.hpp"
@@ -18,8 +19,8 @@ int main(int argc, char** argv)
 
     Gedim::Configurations::Initialize(argc, argv);
 
-    typedef Polydim::examples::Elliptic_PCC_2D::test::Patch_Test TEST_TYPE;
-    typedef Polydim::VEM::PCC::VEM_PCC_2D_Inertia_LocalSpace VEM_LOCAL_SPACE_TYPE;
+    typedef Polydim::examples::Elliptic_PCC_2D::test::Poisson_Polynomial_Problem TEST_TYPE;
+    typedef Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace VEM_LOCAL_SPACE_TYPE;
 
     /// Create folders
     const string exportFolder = config.ExportFolder();
@@ -81,6 +82,12 @@ int main(int argc, char** argv)
     Polydim::examples::Elliptic_PCC_2D::program_utilities::create_domain_mesh(config,
                                                                               domain,
                                                                               mesh);
+    const Gedim::MeshFromCsvUtilities utilities;
+    Gedim::MeshFromCsvUtilities::Configuration configuration;
+    configuration.Folder = config.ExportFolder() + "/Mesh";
+    Gedim::MeshDAOExporterToCsv exportMesh(utilities);
+    exportMesh.Export(configuration,
+                      mesh);
 
     Gedim::Profiler::StopTime("CreateMesh");
     Gedim::Output::PrintStatusProgram("CreateMesh");

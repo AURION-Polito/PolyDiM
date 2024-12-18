@@ -25,7 +25,7 @@ struct VEM_MCC_2D_Pressure_ReferenceElement_Data final
 /// \brief Base class for Primal Conforming Virtual Element Method of Constant Degree.
 class VEM_MCC_2D_Pressure_ReferenceElement final
 {
-public:
+  public:
     VEM_MCC_2D_Pressure_ReferenceElement_Data Create(const unsigned int order) const
     {
         Monomials::VEM_Monomials_2D monomials;
@@ -60,7 +60,7 @@ struct VEM_MCC_2D_Velocity_ReferenceElement_Data final
 
 class VEM_MCC_2D_Velocity_ReferenceElement final
 {
-public:
+  public:
     VEM_MCC_2D_Velocity_ReferenceElement_Data Create(const unsigned int order) const
     {
         Monomials::VEM_Monomials_2D monomials;
@@ -80,9 +80,8 @@ public:
         return result;
     }
 };
-}
-}
-}
-
+} // namespace MCC
+} // namespace VEM
+} // namespace Polydim
 
 #endif

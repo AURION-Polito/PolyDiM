@@ -14,36 +14,36 @@ namespace MCC
 {
 struct VEM_MCC_2D_Polygon_Geometry final
 {
-    const Eigen::MatrixXd& Vertices;
-    const Eigen::Vector3d& Centroid;
-    const double& Measure;
-    const double& Diameter;
-    const std::vector<Eigen::Matrix3d>& TriangulationVertices;
-    const Eigen::VectorXd& EdgesLength;
-    const std::vector<bool>& EdgesDirection;
-    const Eigen::MatrixXd& EdgesTangent;
-    const Eigen::MatrixXd& EdgesNormal;
+    const Eigen::MatrixXd &Vertices;
+    const Eigen::Vector3d &Centroid;
+    const double &Measure;
+    const double &Diameter;
+    const std::vector<Eigen::Matrix3d> &TriangulationVertices;
+    const Eigen::VectorXd &EdgesLength;
+    const std::vector<bool> &EdgesDirection;
+    const Eigen::MatrixXd &EdgesTangent;
+    const Eigen::MatrixXd &EdgesNormal;
 };
 
 struct VEM_MCC_3D_Polyhedron_Geometry final
 {
-    const Gedim::GeometryUtilities& GeometryUtility;
+    const Gedim::GeometryUtilities &GeometryUtility;
 
-    const Eigen::MatrixXd& Vertices;
-    const Eigen::Vector3d& Centroid;
-    const double& Measure;
-    const double& Diameter;
-    const std::vector<Eigen::MatrixXd>& TetrahedronVertices;
+    const Eigen::MatrixXd &Vertices;
+    const Eigen::Vector3d &Centroid;
+    const double &Measure;
+    const double &Diameter;
+    const std::vector<Eigen::MatrixXd> &TetrahedronVertices;
 
-    const std::vector<Eigen::Matrix3d>& FacesRotationMatrix;
-    const std::vector<Eigen::Vector3d>& FacesTranslation;
-    const std::vector<Eigen::Vector3d>& FacesNormal;
-    const std::vector<bool>& FacesNormalDirection;
-    const std::vector<bool>& FacesGlobalNormalDirection;
-    const std::vector<double>& FacesMeasure;
-    const std::vector<Eigen::Vector3d>& FacesCentroid2D;
-    const std::vector<double>& FacesDiameter;
-    const std::vector<std::vector<Eigen::Matrix3d>>& FacesTriangulationVertices2D;
+    const std::vector<Eigen::Matrix3d> &FacesRotationMatrix;
+    const std::vector<Eigen::Vector3d> &FacesTranslation;
+    const std::vector<Eigen::Vector3d> &FacesNormal;
+    const std::vector<bool> &FacesNormalDirection;
+    const std::vector<bool> &FacesGlobalNormalDirection;
+    const std::vector<double> &FacesMeasure;
+    const std::vector<Eigen::Vector3d> &FacesCentroid2D;
+    const std::vector<double> &FacesDiameter;
+    const std::vector<std::vector<Eigen::Matrix3d>> &FacesTriangulationVertices2D;
 };
 
 struct VEM_MCC_Velocity_LocalSpace_Data final
@@ -62,8 +62,8 @@ struct VEM_MCC_Velocity_LocalSpace_Data final
 
     /// Number of basis functions corresponding to degrees of freedom internal to element (bigoplus).
     unsigned int NumBigOPlusInternalBasisFunctions;
-    unsigned int NumInternalBasisFunctions;  ///< Number of basis functions corresponding to internal moments.
-    unsigned int NumBasisFunctions; ///< Number of basis functions.
+    unsigned int NumInternalBasisFunctions; ///< Number of basis functions corresponding to internal moments.
+    unsigned int NumBasisFunctions;         ///< Number of basis functions.
 
     Gedim::Quadrature::QuadratureData InternalQuadrature;
     Quadrature::VEM_Quadrature_2D::Edges_QuadratureData BoundaryQuadrature;
@@ -74,7 +74,6 @@ struct VEM_MCC_Velocity_LocalSpace_Data final
 
     std::vector<Eigen::MatrixXd> FacesVanderInternal;
 
-
     /// \brief Coefficients of basis functions on the reference edge.
     Eigen::VectorXd EdgeBasisCoefficients;
 
@@ -84,7 +83,7 @@ struct VEM_MCC_Velocity_LocalSpace_Data final
 
     /// \brief Mass matrix of the polynomial basis.
     /// \details \f$ H_{ij} = \int_E m_i m_j \f$, where \f$ E \f$ is the input polygon.
-    Eigen::MatrixXd Hmatrix; ///< mass matrix of order order
+    Eigen::MatrixXd Hmatrix;               ///< mass matrix of order order
     Eigen::LLT<Eigen::MatrixXd> H_km1_LLT; ///< LLT factorization of the mass matrix of order-1 monomials.
 
     /// \brief Vandermonde matrix of the polynomial basis at boundary quadrature points.
@@ -106,7 +105,6 @@ struct VEM_MCC_Velocity_LocalSpace_Data final
 
     Eigen::MatrixXd TkNablaDof;
 
-
     Eigen::MatrixXd Bmatrix;
     Eigen::MatrixXd Dmatrix;
     Eigen::MatrixXd Gmatrix;
@@ -116,8 +114,8 @@ struct VEM_MCC_Velocity_LocalSpace_Data final
 
     std::vector<Eigen::MatrixXd> VanderBasisFunctionValuesOnFace;
 };
-}
-}
-}
+} // namespace MCC
+} // namespace VEM
+} // namespace Polydim
 
 #endif

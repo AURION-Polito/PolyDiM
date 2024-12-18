@@ -26,7 +26,7 @@ struct VEM_PCC_3D_ReferenceElement_Data final
 /// \brief Base class for Primal Conforming Virtual Element Method of Constant Degree.
 class VEM_PCC_3D_ReferenceElement final
 {
-public:
+  public:
     VEM_PCC_3D_ReferenceElement_Data Create(const unsigned int order) const
     {
         Monomials::VEM_Monomials_3D monomials;
@@ -47,9 +47,8 @@ public:
         return result;
     }
 };
-}
-}
-}
-
+} // namespace PCC
+} // namespace VEM
+} // namespace Polydim
 
 #endif

@@ -4,9 +4,12 @@
 #include "Eigen/Eigen"
 #include "VEM_Quadrature_2D.hpp"
 
-namespace Polydim {
-namespace VEM {
-namespace DF_PCC {
+namespace Polydim
+{
+namespace VEM
+{
+namespace DF_PCC
+{
 
 /// \brief Structure containing the geometric properties of the element
 struct VEM_DF_PCC_2D_Polygon_Geometry final
@@ -22,11 +25,12 @@ struct VEM_DF_PCC_2D_Polygon_Geometry final
     const Eigen::MatrixXd &EdgesNormal;
 };
 
-/// \brief Structure containing the local matrices and the main variables to compute the vritual element discrete matrices
+/// \brief Structure containing the local matrices and the main variables to compute the vritual element discrete
+/// matrices
 struct VEM_DF_PCC_2D_Velocity_LocalSpace_Data final
 {
 
-    unsigned int Order; ///< Order
+    unsigned int Order;     ///< Order
     unsigned int Dimension; ///< Geometric dimension
 
     unsigned int NKp1;
@@ -48,13 +52,13 @@ struct VEM_DF_PCC_2D_Velocity_LocalSpace_Data final
 
     unsigned int NumBasisFunctions; ///< Number of basis functions.
 
-    Gedim::Quadrature::QuadratureData InternalQuadrature; ///< Internal quadrature points and weights
+    Gedim::Quadrature::QuadratureData InternalQuadrature;                   ///< Internal quadrature points and weights
     Quadrature::VEM_Quadrature_2D::Edges_QuadratureData BoundaryQuadrature; ///< Boundary quadrature points and weights
-    Quadrature::VEM_Quadrature_2D::Edges_QuadratureData EdgesDOFs; ///< Boundary quadrature points and weights
+    Quadrature::VEM_Quadrature_2D::Edges_QuadratureData EdgesDOFs;          ///< Boundary quadrature points and weights
 
-
-    Eigen::MatrixXd VanderInternal;  /// Vandermonde matrix of the polynomial basis at internal quadrature points.
-    std::vector<Eigen::MatrixXd> VanderInternalDerivatives; /// Vandermonde matrices of the derivatives of the polynomial basis at internal quadrature points.
+    Eigen::MatrixXd VanderInternal; /// Vandermonde matrix of the polynomial basis at internal quadrature points.
+    std::vector<Eigen::MatrixXd> VanderInternalDerivatives; /// Vandermonde matrices of the derivatives of the
+                                                            /// polynomial basis at internal quadrature points.
     Eigen::MatrixXd VanderBoundary; ///< Vandermonde matrix of the polynomial basis at boundary quadrature points.
     Eigen::MatrixXd VanderBoundaryKp1;
     std::vector<Eigen::MatrixXd> VanderBoundaryDerivatives;

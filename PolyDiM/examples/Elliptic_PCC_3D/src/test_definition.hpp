@@ -136,7 +136,7 @@ struct Poisson_Polynomial_Problem final
             { 1, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
             { 2, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
             { 3, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
-            { 4, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
+            { 4, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 }  },
             { 5, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
             { 6, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
             { 7, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },

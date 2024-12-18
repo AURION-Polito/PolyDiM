@@ -19,7 +19,7 @@ struct VEM_QuadratureData_3D final
 
 class VEM_Quadrature_3D final
 {
-public:
+  public:
     struct Faces_QuadratureData_PCC
     {
         Gedim::Quadrature::QuadratureData Quadrature;
@@ -36,33 +36,36 @@ public:
     VEM_QuadratureData_3D Compute_MCC_3D(const unsigned int order) const;
     VEM_QuadratureData_3D Compute_DF_PCC_3D(const unsigned int order) const;
 
-    Gedim::Quadrature::QuadratureData PolyhedronInternalQuadrature(const VEM_QuadratureData_3D& data,
-                                                                   const Gedim::GeometryUtilities& geometryUtility,
-                                                                   const std::vector<Eigen::MatrixXd>& polyhedronTetrahedronVertices) const;
+    Gedim::Quadrature::QuadratureData PolyhedronInternalQuadrature(
+        const VEM_QuadratureData_3D &data,
+        const Gedim::GeometryUtilities &geometryUtility,
+        const std::vector<Eigen::MatrixXd> &polyhedronTetrahedronVertices) const;
 
-    Faces_QuadratureData_PCC PolyhedronFacesQuadrature(const Gedim::GeometryUtilities& geometryUtility,
-                                                       const std::vector<Eigen::MatrixXi>& polyhedronFaces,
-                                                       const std::vector<Eigen::Matrix3d>& facesRotationMatrix,
-                                                       const std::vector<Eigen::Vector3d>& facesTranslation,
-                                                       const std::vector<Eigen::Vector3d>& facesNormals,
-                                                       const std::vector<bool>& faceNormalDirections,
-                                                       const std::vector<Eigen::MatrixXd>& facesQuadraturePoints,
-                                                       const std::vector<Eigen::VectorXd>& facesQuadratureWeights) const;
+    Faces_QuadratureData_PCC PolyhedronFacesQuadrature(
+        const Gedim::GeometryUtilities &geometryUtility,
+        const std::vector<Eigen::MatrixXi> &polyhedronFaces,
+        const std::vector<Eigen::Matrix3d> &facesRotationMatrix,
+        const std::vector<Eigen::Vector3d> &facesTranslation,
+        const std::vector<Eigen::Vector3d> &facesNormals,
+        const std::vector<bool> &faceNormalDirections,
+        const std::vector<Eigen::MatrixXd> &facesQuadraturePoints,
+        const std::vector<Eigen::VectorXd> &facesQuadratureWeights) const;
 
     Eigen::MatrixXd PolyhedronInternalEdgesQuadraturePoints(const Eigen::MatrixXd &referenceSegmentInternalPoints,
-                                                            const Eigen::MatrixXd& polyhedronVertices,
-                                                            const Eigen::MatrixXi& polyhedronEdges,
-                                                            const std::vector<bool>& edgeDirections,
-                                                            const Eigen::MatrixXd& edgeTangents) const;
+                                                            const Eigen::MatrixXd &polyhedronVertices,
+                                                            const Eigen::MatrixXi &polyhedronEdges,
+                                                            const std::vector<bool> &edgeDirections,
+                                                            const Eigen::MatrixXd &edgeTangents) const;
 
-    VEM_Quadrature_3D::Faces_QuadratureData_MCC PolyhedronFacesQuadrature(const Polydim::VEM::Quadrature::VEM_QuadratureData_3D &data,
-                                                                          const Gedim::GeometryUtilities &geometryUtility,
-                                                                          const std::vector<std::vector<Eigen::Matrix3d> > &facesTriangulations2D,
-                                                                          const std::vector<Eigen::Matrix3d> &facesRotationMatrix,
-                                                                          const std::vector<Eigen::Vector3d> &facesTranslation) const;
+    VEM_Quadrature_3D::Faces_QuadratureData_MCC PolyhedronFacesQuadrature(
+        const Polydim::VEM::Quadrature::VEM_QuadratureData_3D &data,
+        const Gedim::GeometryUtilities &geometryUtility,
+        const std::vector<std::vector<Eigen::Matrix3d>> &facesTriangulations2D,
+        const std::vector<Eigen::Matrix3d> &facesRotationMatrix,
+        const std::vector<Eigen::Vector3d> &facesTranslation) const;
 };
-}
-}
-}
+} // namespace Quadrature
+} // namespace VEM
+} // namespace Polydim
 
 #endif

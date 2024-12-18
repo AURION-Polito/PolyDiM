@@ -140,7 +140,7 @@ void Assembler<VEM_LocalSpace_Type>::ComputeWeakTerm(const unsigned int cell2DIn
         // compute vem values
         const auto weakReferenceSegment = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * reference_element_data.Order);
 
-        const Eigen::VectorXd pointsCurvilinearCoordinates = weakReferenceSegment.Points.row(0);
+        const Eigen::VectorXd pointsCurvilinearCoordinates = weakReferenceSegment.Points.row(0).transpose();
 
         const auto weak_basis_function_values = vem_local_space.ComputeValuesOnEdge(reference_element_data,
                                                                                     pointsCurvilinearCoordinates);
@@ -201,6 +201,7 @@ void Assembler<VEM_LocalSpace_Type>::ComputeWeakTerm(const unsigned int cell2DIn
         }
 
         const auto local_dofs = dofs_data.CellsDOFs.at(1).at(cell1D_index);
+
         for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
         {
             const auto& local_dof_i = local_dofs.at(loc_i);

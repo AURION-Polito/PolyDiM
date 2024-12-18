@@ -2,44 +2,48 @@
 #define __VEM_DF_PCC_3D_Velocity_LocalSpace_Data_HPP
 
 #include "Eigen/Eigen"
-#include "VEM_Quadrature_3D.hpp"
 #include "GeometryUtilities.hpp"
 #include "VEM_PCC_2D_LocalSpace_Data.hpp"
+#include "VEM_Quadrature_3D.hpp"
 
-namespace Polydim {
-namespace VEM {
-namespace DF_PCC {
+namespace Polydim
+{
+namespace VEM
+{
+namespace DF_PCC
+{
 
 /// \brief Structure containing the geometric properties of the element
 struct VEM_DF_PCC_3D_Polyhedron_Geometry final
 {
-    const Gedim::GeometryUtilities& GeometryUtility;
+    const Gedim::GeometryUtilities &GeometryUtility;
 
-    const Eigen::MatrixXd& Vertices;
-    const Eigen::MatrixXi& Edges;
-    const std::vector<Eigen::MatrixXi>& Faces;
-    const Eigen::Vector3d& Centroid;
-    const double& Measure;
-    const double& Diameter;
-    const std::vector<Eigen::MatrixXd>& TetrahedronVertices;
+    const Eigen::MatrixXd &Vertices;
+    const Eigen::MatrixXi &Edges;
+    const std::vector<Eigen::MatrixXi> &Faces;
+    const Eigen::Vector3d &Centroid;
+    const double &Measure;
+    const double &Diameter;
+    const std::vector<Eigen::MatrixXd> &TetrahedronVertices;
 
-    const std::vector<Eigen::Matrix3d>& FacesRotationMatrix;
-    const std::vector<Eigen::Vector3d>& FacesTranslation;
-    const std::vector<Eigen::Vector3d>& FacesNormal;
-    const std::vector<bool>& FacesNormalDirection;
-    const std::vector<bool>& FacesNormalGlobalDirection;
-    const std::vector<std::array<Eigen::Vector3d, 2>>& FacesTangents;
-    const std::vector<std::array<bool, 2>>& FacesTangentsGlobalDirection;
+    const std::vector<Eigen::Matrix3d> &FacesRotationMatrix;
+    const std::vector<Eigen::Vector3d> &FacesTranslation;
+    const std::vector<Eigen::Vector3d> &FacesNormal;
+    const std::vector<bool> &FacesNormalDirection;
+    const std::vector<bool> &FacesNormalGlobalDirection;
+    const std::vector<std::array<Eigen::Vector3d, 2>> &FacesTangents;
+    const std::vector<std::array<bool, 2>> &FacesTangentsGlobalDirection;
 
-    const std::vector<bool>& EdgesDirection;
-    const Eigen::MatrixXd& EdgesTangent;
+    const std::vector<bool> &EdgesDirection;
+    const Eigen::MatrixXd &EdgesTangent;
 };
 
-/// \brief Structure containing the local matrices and the main variables to compute the vritual element discrete matrices
+/// \brief Structure containing the local matrices and the main variables to compute the vritual element discrete
+/// matrices
 struct VEM_DF_PCC_3D_Velocity_LocalSpace_Data final
 {
 
-    unsigned int Order; ///< Order
+    unsigned int Order;     ///< Order
     unsigned int Dimension; ///< Geometric dimension
 
     unsigned int NKp1;
@@ -67,8 +71,10 @@ struct VEM_DF_PCC_3D_Velocity_LocalSpace_Data final
     Quadrature::VEM_Quadrature_3D::Faces_QuadratureData_PCC BoundaryQuadratureKL;
 
     Eigen::MatrixXd VanderInternal; ///< Vandermonde matrix of the polynomial basis at internal quadrature points.
-    std::vector<Eigen::MatrixXd> VanderInternalDerivatives; ///< Vandermonde matrices of the derivatives of the polynomial basis at internal quadrature points.
-    Eigen::MatrixXd VanderBoundary; ///< \brief Vandermonde matrix of the polynomial basis at boundary quadrature points.
+    std::vector<Eigen::MatrixXd> VanderInternalDerivatives; ///< Vandermonde matrices of the derivatives of the
+                                                            ///< polynomial basis at internal quadrature points.
+    Eigen::MatrixXd
+        VanderBoundary; ///< \brief Vandermonde matrix of the polynomial basis at boundary quadrature points.
     Eigen::MatrixXd VanderBoundaryKL;
 
     std::vector<Eigen::MatrixXd> VanderBoundaryDerivatives;
