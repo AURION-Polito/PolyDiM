@@ -87,7 +87,6 @@ list(APPEND ELLIPTIC_PCC_2D_SOURCES ${elliptic_PCC_2D_sources})
 list(APPEND ELLIPTIC_PCC_2D_SOURCES main.cpp)
 list(APPEND ELLIPTIC_PCC_2D_HEADERS ${elliptic_PCC_2D_headers})
 list(APPEND ELLIPTIC_PCC_2D_INCLUDE ${elliptic_PCC_2D_includes})
-configure_file(program_macro.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/program_macro.hpp)
 
 # Add variables for clang anc cppcheck
 ###############################################################################################

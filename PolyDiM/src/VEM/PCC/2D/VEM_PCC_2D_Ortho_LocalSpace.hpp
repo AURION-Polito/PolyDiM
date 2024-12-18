@@ -9,9 +9,12 @@
 #include "VEM_PCC_Utilities.hpp"
 #include <vector>
 
-namespace Polydim {
-namespace VEM {
-namespace PCC {
+namespace Polydim
+{
+namespace VEM
+{
+namespace PCC
+{
 class VEM_PCC_2D_Ortho_LocalSpace final
 {
 private:

@@ -12,6 +12,10 @@
 
 #include "VEM_MCC_Velocity_LocalSpace_Data.hpp"
 
+namespace Polydim
+{
+namespace examples
+{
 namespace Elliptic_MCC_2D
 {
 template<typename VEM_LocalSpace_Type>
@@ -114,6 +118,8 @@ public:
                                          const std::function<std::array<Eigen::VectorXd, 3>(const Eigen::MatrixXd&)>& exact_velocity,
                                          const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& exact_pressure) const;
 };
+}
+}
 
 }
 

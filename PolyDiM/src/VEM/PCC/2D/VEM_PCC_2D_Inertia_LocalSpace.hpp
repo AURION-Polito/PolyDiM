@@ -1,7 +1,8 @@
-#ifndef __VEM_PCC_2D_LocalSpace_HPP
-#define __VEM_PCC_2D_LocalSpace_HPP
+#ifndef __VEM_PCC_2D_Inertia_LocalSpace_HPP
+#define __VEM_PCC_2D_Inertia_LocalSpace_HPP
 
 #include "Eigen/Eigen"
+#include "GeometryUtilities.hpp"
 #include "VEM_Monomials_2D.hpp"
 #include "VEM_PCC_2D_LocalSpace_Data.hpp"
 #include "VEM_PCC_2D_ReferenceElement.hpp"
@@ -21,11 +22,33 @@ namespace PCC
 /// Please cite the following article:
 ///     - <a href="https://doi.org/10.1016/j.matcom.2023.10.003">"Improving high-order VEM stability on badly-shaped elements. Stefano Berrone, Gioana Teora and Fabio Vicini. (2024)"</a>
 
-class VEM_PCC_2D_LocalSpace final
+class VEM_PCC_2D_Inertia_LocalSpace final
 {
 private:
     VEM_PCC_Utilities<2> utilities;
     Monomials::VEM_Monomials_2D monomials;
+
+
+    struct InertiaData final
+    {
+        Eigen::MatrixXd Vertices; ///< cell2D vertices coordinates
+        Eigen::MatrixXd OrderedVertices; ///< cell2D vertices coordinates
+        Eigen::Vector3d Centroid; ///< cell2D centroids
+        double Measure; ///< cell2D areas
+        double Diameter; ///< cell2D diameters
+        std::vector<Eigen::Matrix3d> TriangulationVertices; ///< cell2D triangulations
+        Eigen::VectorXd EdgesLength; ///< cell2D edge lengths
+        std::vector<bool> EdgesDirection; ///< cell2D edge directions
+        Eigen::MatrixXd EdgesTangent; ///< cell2D edge tangents
+        Eigen::MatrixXd EdgesNormal; ///< cell2D edge normals
+
+        Eigen::Matrix3d Fmatrix;
+        Eigen::Matrix3d FmatrixInv;
+        Eigen::Vector3d translation;
+        double absDetFmatrix;
+        double signDetQ;
+
+    };
 
     void InitializeProjectorsComputation(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                          const Eigen::MatrixXd &polygonVertices,
@@ -85,20 +108,14 @@ private:
                                                                              localSpace.Dmatrix);
     }
 
-    void InitializeE2ProjectorsComputation(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                           const unsigned int &l,
-                                           const Eigen::MatrixXd &polygonVertices,
-                                           const Eigen::Vector3d &polygonCentroid,
-                                           const double &polygonDiameter,
-                                           const Eigen::MatrixXd &internalQuadraturePoints,
-                                           const Eigen::VectorXd &internalQuadratureWeights,
-                                           const Eigen::MatrixXd &internalQuadratureKLPoints,
-                                           const Eigen::VectorXd &internalQuadratureKLWeights,
-                                           const Eigen::MatrixXd &boundaryQuadraturePoints,
-                                           VEM_PCC_2D_LocalSpace_Data &localSpace) const;
+    void InertiaMapping(const Gedim::GeometryUtilities& geometryUtilities,
+                        const VEM_PCC_2D_Polygon_Geometry& polygon,
+                        InertiaData &inertia_data);
 
-    void ComputeL2ProjectorsKL(VEM_PCC_2D_LocalSpace_Data &localSpace) const;
-
+    void ComputeGeometryProperties(const Gedim::GeometryUtilities &geometryUtilities,
+                                   const std::vector<bool> &polygonEdgeDirections,
+                                   const std::vector<Eigen::Matrix3d> &polygonTriangulation,
+                                   InertiaData &data);
 public:
 
     /// \brief Create and Initialize all the variables contained in \ref VEM::PCC::VEM_PCC_2D_LocalSpace_Data
@@ -116,10 +133,6 @@ public:
     /// \return An object of type \ref VEM::PCC::VEM_PCC_2D_LocalSpace_Data.
     VEM_PCC_2D_LocalSpace_Data Compute3DUtilities(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                                   const VEM_PCC_2D_Polygon_Geometry &polygon) const;
-
-    VEM_PCC_2D_LocalSpace_Data Compute3DUtilities_DF_PCC(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                         const VEM_PCC_2D_Polygon_Geometry &polygon) const;
-
 
     /// \brief Compute the values of projections of VEM basis functions at the internal quadrature points.
     /// \param localSpace: an object of type \ref VEM::PCC::VEM_PCC_2D_LocalSpace_Data which contains local matrices.
