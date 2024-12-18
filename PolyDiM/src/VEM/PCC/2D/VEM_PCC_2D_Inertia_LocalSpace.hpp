@@ -82,12 +82,12 @@ class VEM_PCC_2D_Inertia_LocalSpace final
             utilities.ComputeStabilizationMatrixPi0k(localSpace.Pi0k, polygonMeasure, localSpace.Dmatrix);
     }
 
-    void InertiaMapping(const VEM_PCC_2D_Polygon_Geometry &polygon, InertiaData &inertia_data) const;
+    void InertiaMapping(const VEM_PCC_2D_Polygon_Geometry &polygon, VEM_PCC_2D_Inertia_Data &inertia_data) const;
 
     void ComputeGeometryProperties(const Gedim::GeometryUtilities &geometryUtilities,
                                    const std::vector<bool> &polygonEdgeDirections,
                                    const std::vector<Eigen::Matrix3d> &polygonTriangulation,
-                                   InertiaData &data) const;
+                                   VEM_PCC_2D_Inertia_Data &data) const;
 
   public:
     /// \brief Create and Initialize all the variables contained in \ref VEM::PCC::VEM_PCC_2D_LocalSpace_Data
@@ -178,7 +178,7 @@ class VEM_PCC_2D_Inertia_LocalSpace final
                                                        const Eigen::MatrixXd &points) const
     {
         const Eigen::MatrixXd referencePoints =
-            (localSpace.inertia_data.FmatrixInv * points).colwise() - localSpace.inertia_data.translation;
+            localSpace.inertia_data.FmatrixInv * (points.colwise() - localSpace.inertia_data.translation);
         return utilities.ComputeBasisFunctionsValues(
             projectionType,
             localSpace.Nkm1,
@@ -203,7 +203,7 @@ class VEM_PCC_2D_Inertia_LocalSpace final
     {
 
         const Eigen::MatrixXd referencePoints =
-            (localSpace.inertia_data.FmatrixInv * points).colwise() - localSpace.inertia_data.translation;
+            localSpace.inertia_data.FmatrixInv * (points.colwise() - localSpace.inertia_data.translation);
 
         const Eigen::MatrixXd vander = ComputePolynomialsValues(reference_element_data, localSpace, referencePoints);
 
@@ -262,9 +262,8 @@ class VEM_PCC_2D_Inertia_LocalSpace final
                                                     const VEM_PCC_2D_LocalSpace_Data &localSpace,
                                                     const Eigen::MatrixXd &points) const
     {
-
         const Eigen::MatrixXd referencePoints =
-            (localSpace.inertia_data.FmatrixInv * points).colwise() - localSpace.inertia_data.translation;
+            localSpace.inertia_data.FmatrixInv * (points.colwise() - localSpace.inertia_data.translation);
         return utilities.ComputePolynomialsValues(
             reference_element_data.Monomials, monomials, localSpace.Centroid, localSpace.Diameter, referencePoints);
     }
@@ -303,7 +302,7 @@ class VEM_PCC_2D_Inertia_LocalSpace final
         const Eigen::MatrixXd &points) const
     {
         const Eigen::MatrixXd referencePoints =
-            (localSpace.inertia_data.FmatrixInv * points).colwise() - localSpace.inertia_data.translation;
+            localSpace.inertia_data.FmatrixInv * (points.colwise() - localSpace.inertia_data.translation);
 
         const std::vector<Eigen::MatrixXd> polynomialDerivatives = utilities.ComputePolynomialsDerivativeValues(
             reference_element_data.Monomials,

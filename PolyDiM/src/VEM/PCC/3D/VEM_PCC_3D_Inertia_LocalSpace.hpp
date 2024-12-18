@@ -3,7 +3,7 @@
 
 #include "Eigen/Eigen"
 #include "VEM_Monomials_3D.hpp"
-#include "VEM_PCC_2D_LocalSpace.hpp"
+#include "VEM_PCC_2D_Inertia_LocalSpace.hpp"
 #include "VEM_PCC_2D_LocalSpace_Data.hpp"
 #include "VEM_PCC_2D_ReferenceElement.hpp"
 #include "VEM_PCC_3D_LocalSpace_Data.hpp"
@@ -21,7 +21,7 @@ namespace PCC
 /// Primal Conforming Constant degree Virtual Element Methods.
 class VEM_PCC_3D_Inertia_LocalSpace final
 {
-  private:
+private:
     VEM_PCC_Utilities<3> utilities;
     Monomials::VEM_Monomials_3D monomials;
 
@@ -80,16 +80,26 @@ class VEM_PCC_3D_Inertia_LocalSpace final
             utilities.ComputeStabilizationMatrixPi0k(localSpace.Pi0k, polyhedronMeasure, localSpace.Dmatrix);
     }
 
-    void ComputeFaceProjectors(const VEM_PCC_2D_LocalSpace &faceVemValues,
+    void ComputeFaceProjectors(const VEM_PCC_2D_Inertia_LocalSpace &faceVemValues,
                                const std::vector<Eigen::MatrixXi> &polyhedronFaces,
-                               const std::vector<VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
+                               const std::vector<double> &polygonalFaces,
                                const Eigen::MatrixXd &boundaryQuadraturePoints,
                                const Eigen::VectorXd &boundaryQuadratureWeights,
                                VEM_PCC_3D_LocalSpace_Data &localSpace) const;
 
     void ComputePolynomialsDofs(const double &polytopeMeasure, VEM_PCC_3D_LocalSpace_Data &localSpace) const;
 
-  public:
+    void InertiaMapping(const Gedim::GeometryUtilities &geometryUtilities,
+                        const VEM_PCC_3D_Polyhedron_Geometry &polyhedron,
+                        VEM_PCC_3D_Inertia_Data &inertia_data) const;
+
+    void ComputeGeometryProperties(const Gedim::GeometryUtilities &geometryUtilities,
+                                   const Eigen::MatrixXi &polyhedronEdges,
+                                   const std::vector<Eigen::MatrixXi> &polyhedronFaces,
+                                   const std::vector<bool> &polyhedronEdgeDirections,
+                                   const std::vector<Eigen::MatrixXd> &mappedFaces3DVertices,
+                                   VEM_PCC_3D_Inertia_Data &inertia_data) const;
+public:
     VEM_PCC_3D_LocalSpace_Data CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data_2D,
                                                 const VEM_PCC_3D_ReferenceElement_Data &reference_element_data_3D,
                                                 const std::vector<VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,

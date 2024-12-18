@@ -14,7 +14,9 @@ namespace PCC
 
 struct VEM_PCC_3D_Polyhedron_Geometry final
 {
-    const Gedim::GeometryUtilities &GeometryUtility;
+    const double Tolerance1D;
+    const double Tolerance2D;
+    const double Tolerance3D;
 
     const Eigen::MatrixXd &Vertices;
     const Eigen::MatrixXi &Edges;
@@ -31,6 +33,32 @@ struct VEM_PCC_3D_Polyhedron_Geometry final
 
     const std::vector<bool> &EdgesDirection;
     const Eigen::MatrixXd &EdgesTangent;
+};
+
+struct VEM_PCC_3D_Inertia_Data final
+{
+    Eigen::MatrixXd Vertices;
+    Eigen::MatrixXi Edges;
+    std::vector<Eigen::MatrixXi> Faces;
+    Eigen::Vector3d Centroid;
+    double Measure;
+    double Diameter;
+    std::vector<Eigen::MatrixXd> TetrahedronVertices;
+
+    std::vector<Eigen::Matrix3d> FacesRotationMatrix;
+    std::vector<Eigen::Vector3d> FacesTranslation;
+    std::vector<Eigen::Vector3d> FacesNormal;
+    std::vector<bool> FacesNormalDirection;
+    std::vector<double> FacesMeasure;
+
+    std::vector<bool> EdgesDirection;
+    Eigen::MatrixXd EdgesTangent;
+
+    Eigen::Matrix3d Fmatrix;
+    Eigen::Matrix3d FmatrixInv;
+    Eigen::Vector3d translation;
+    double absDetFmatrix;
+    double signDetQ;
 };
 
 struct VEM_PCC_3D_LocalSpace_Data final
@@ -110,6 +138,8 @@ struct VEM_PCC_3D_LocalSpace_Data final
     Eigen::MatrixXd Qmatrix; // change of basis matrix: pV = mV*Q'
     Eigen::MatrixXd QmatrixInv;
     Eigen::MatrixXd Qmatrixkm1;
+
+    VEM_PCC_3D_Inertia_Data inertia_data;
 };
 } // namespace PCC
 } // namespace VEM

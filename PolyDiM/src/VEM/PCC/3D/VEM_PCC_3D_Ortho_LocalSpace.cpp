@@ -17,6 +17,13 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Ortho_LocalSpace::CreateLocalSpace(
     const std::vector<VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
     const VEM_PCC_3D_Polyhedron_Geometry &polyhedron) const
 {
+
+    Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
+    geometryUtilitiesConfig.Tolerance1D = polyhedron.Tolerance1D;
+    geometryUtilitiesConfig.Tolerance2D = polyhedron.Tolerance2D;
+    geometryUtilitiesConfig.Tolerance3D = polyhedron.Tolerance3D;
+    Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
+
     VEM_PCC_3D_LocalSpace_Data localSpace;
 
     Quadrature::VEM_Quadrature_3D quadrature3D;
@@ -38,9 +45,9 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Ortho_LocalSpace::CreateLocalSpace(
     }
 
     localSpace.InternalQuadrature = quadrature3D.PolyhedronInternalQuadrature(
-        reference_element_data_3D.Quadrature, polyhedron.GeometryUtility, polyhedron.TetrahedronVertices);
+        reference_element_data_3D.Quadrature, geometryUtilities, polyhedron.TetrahedronVertices);
 
-    localSpace.BoundaryQuadrature = quadrature3D.PolyhedronFacesQuadrature(polyhedron.GeometryUtility,
+    localSpace.BoundaryQuadrature = quadrature3D.PolyhedronFacesQuadrature(geometryUtilities,
                                                                            polyhedron.Faces,
                                                                            polyhedron.FacesRotationMatrix,
                                                                            polyhedron.FacesTranslation,

@@ -28,7 +28,7 @@ struct VEM_PCC_2D_Polygon_Geometry final
     const Eigen::MatrixXd &EdgesNormal;
 };
 
-struct InertiaData final
+struct VEM_PCC_2D_Inertia_Data final
 {
     Eigen::MatrixXd Vertices;                           ///< cell2D vertices coordinates
     Eigen::MatrixXd OrderedVertices;                    ///< cell2D vertices coordinates
@@ -113,7 +113,7 @@ struct VEM_PCC_2D_LocalSpace_Data final
     Eigen::MatrixXd QmatrixInv; ///< inverse of \a Qmatrix
     Eigen::MatrixXd Qmatrixkm1; ///< change of basis matrix of order (order-1)
 
-    InertiaData inertia_data;
+    VEM_PCC_2D_Inertia_Data inertia_data;
 };
 } // namespace PCC
 } // namespace VEM

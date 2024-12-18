@@ -146,7 +146,9 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_3D_Inertia_O1_O2_O3)
     }
 
     Polydim::VEM::PCC::VEM_PCC_3D_Polyhedron_Geometry polyhedron = {
-        geometry_utilities,
+        geometry_utilities_config.Tolerance1D,
+        geometry_utilities_config.Tolerance2D,
+        geometry_utilities_config.Tolerance3D,
 
         polyhedron_data.Vertices,
 
