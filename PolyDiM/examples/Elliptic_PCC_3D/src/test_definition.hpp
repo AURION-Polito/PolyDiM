@@ -11,7 +11,7 @@ namespace Polydim
 {
 namespace examples
 {
-namespace Elliptic_PCC_2D
+namespace Elliptic_PCC_3D
 {
 namespace test
 {
@@ -201,8 +201,8 @@ struct Poisson_Polynomial_Problem final
 unsigned int TestType(const std::type_index& type)
 {
     static const std::unordered_map<std::type_index, unsigned int> typeToID = {
-        {typeid(Polydim::examples::Elliptic_PCC_2D::test::Patch_Test), 1},
-        {typeid(Polydim::examples::Elliptic_PCC_2D::test::Poisson_Polynomial_Problem), 2}
+        {typeid(Polydim::examples::Elliptic_PCC_3D::test::Patch_Test), 1},
+        {typeid(Polydim::examples::Elliptic_PCC_3D::test::Poisson_Polynomial_Problem), 2}
     };
 
     auto it = typeToID.find(type);

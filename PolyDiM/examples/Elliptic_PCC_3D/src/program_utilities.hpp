@@ -5,9 +5,9 @@
 #include "program_configuration.hpp"
 #include "DOFsManager.hpp"
 #include "VTKUtilities.hpp"
-#include "VEM_PCC_2D_LocalSpace.hpp"
-#include "VEM_PCC_2D_Inertia_LocalSpace.hpp"
-#include "VEM_PCC_2D_Ortho_LocalSpace.hpp"
+#include "VEM_PCC_3D_LocalSpace.hpp"
+#include "VEM_PCC_3D_Inertia_LocalSpace.hpp"
+#include "VEM_PCC_3D_Ortho_LocalSpace.hpp"
 #include "test_definition.hpp"
 
 #include <unordered_map>
@@ -17,7 +17,7 @@ namespace Polydim
 {
 namespace examples
 {
-namespace Elliptic_PCC_2D
+namespace Elliptic_PCC_3D
 {
 namespace program_utilities
 {
@@ -26,9 +26,9 @@ namespace program_utilities
 unsigned int VemType(const std::type_index& type)
 {
     static const std::unordered_map<std::type_index, unsigned int> typeToID = {
-        {typeid(Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace), 1},
-        {typeid(Polydim::VEM::PCC::VEM_PCC_2D_Inertia_LocalSpace), 2},
-        {typeid(Polydim::VEM::PCC::VEM_PCC_2D_Ortho_LocalSpace), 3}
+        {typeid(Polydim::VEM::PCC::VEM_PCC_3D_LocalSpace), 1},
+        {typeid(Polydim::VEM::PCC::VEM_PCC_3D_Inertia_LocalSpace), 2},
+        {typeid(Polydim::VEM::PCC::VEM_PCC_3D_Ortho_LocalSpace), 3}
     };
 
     auto it = typeToID.find(type);
@@ -44,7 +44,7 @@ unsigned int VemType() {
     return VemType(typeid(T));
 }
 // ***************************************************************************
-void create_domain_mesh(const Polydim::examples::Elliptic_PCC_2D::Program_configuration& config,
+void create_domain_mesh(const Polydim::examples::Elliptic_PCC_3D::Program_configuration& config,
                         const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D& domain,
                         Gedim::MeshMatricesDAO& mesh)
 {
@@ -84,7 +84,7 @@ void create_domain_mesh(const Polydim::examples::Elliptic_PCC_2D::Program_config
     }
 }
 // ***************************************************************************
-Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_properties(const Polydim::examples::Elliptic_PCC_2D::Program_configuration& config,
+Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_properties(const Polydim::examples::Elliptic_PCC_3D::Program_configuration& config,
                                                                                   const Gedim::MeshMatricesDAO& mesh)
 {
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
@@ -99,17 +99,17 @@ Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_propertie
 }
 // ***************************************************************************
 template<typename VEM_LOCAL_SPACE_TYPE, typename TEST_TYPE>
-void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configuration& config,
+void export_solution(const Polydim::examples::Elliptic_PCC_3D::Program_configuration& config,
                      const Gedim::MeshMatricesDAO& mesh,
                      const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
-                     const typename Polydim::examples::Elliptic_PCC_2D::Assembler<VEM_LOCAL_SPACE_TYPE>::Elliptic_PCC_2D_Problem_Data& assembler_data,
-                     const typename Polydim::examples::Elliptic_PCC_2D::Assembler<VEM_LOCAL_SPACE_TYPE>::PostProcess_Data& post_process_data,
+                     const typename Polydim::examples::Elliptic_PCC_3D::Assembler<VEM_LOCAL_SPACE_TYPE>::Elliptic_PCC_3D_Problem_Data& assembler_data,
+                     const typename Polydim::examples::Elliptic_PCC_3D::Assembler<VEM_LOCAL_SPACE_TYPE>::PostProcess_Data& post_process_data,
                      const std::string& exportSolutionFolder,
                      const std::string& exportVtuFolder)
 {
 
-    const unsigned int VEM_ID = Polydim::examples::Elliptic_PCC_2D::program_utilities::VemType<VEM_LOCAL_SPACE_TYPE>();
-    const unsigned int TEST_ID = Polydim::examples::Elliptic_PCC_2D::test::TestType<TEST_TYPE>();
+    const unsigned int VEM_ID = Polydim::examples::Elliptic_PCC_3D::program_utilities::VemType<VEM_LOCAL_SPACE_TYPE>();
+    const unsigned int TEST_ID = Polydim::examples::Elliptic_PCC_3D::test::TestType<TEST_TYPE>();
 
     {
         const char separator = ';';

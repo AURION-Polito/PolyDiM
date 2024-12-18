@@ -490,7 +490,9 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_2D_Ortho_O1)
 
     const auto polygon_data = Test_VEM_PCC_2D_Ortho_Geometry(geometry_utilities);
 
-    Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry polygon = {polygon_data.Vertices,
+    Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry polygon = {geometry_utilities_config.Tolerance1D,
+                                                              geometry_utilities_config.Tolerance2D,
+                                                              polygon_data.Vertices,
                                                               polygon_data.Centroid,
                                                               polygon_data.Measure,
                                                               polygon_data.Diameter,
@@ -542,7 +544,9 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_2D_Ortho_O2)
 
     const auto polygon_data = Test_VEM_PCC_2D_Ortho_Geometry(geometry_utilities);
 
-    Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry polygon = {polygon_data.Vertices,
+    Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry polygon = {geometry_utilities_config.Tolerance1D,
+                                                              geometry_utilities_config.Tolerance2D,
+                                                              polygon_data.Vertices,
                                                               polygon_data.Centroid,
                                                               polygon_data.Measure,
                                                               polygon_data.Diameter,
@@ -594,7 +598,9 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_2D_Ortho_O3)
 
     const auto polygon_data = Test_VEM_PCC_2D_Ortho_Geometry(geometry_utilities);
 
-    Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry polygon = {polygon_data.Vertices,
+    Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry polygon = {geometry_utilities_config.Tolerance1D,
+                                                              geometry_utilities_config.Tolerance2D,
+                                                              polygon_data.Vertices,
                                                               polygon_data.Centroid,
                                                               polygon_data.Measure,
                                                               polygon_data.Diameter,

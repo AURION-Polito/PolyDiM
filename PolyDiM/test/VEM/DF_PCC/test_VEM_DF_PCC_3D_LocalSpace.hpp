@@ -145,7 +145,9 @@ TEST(Test_VEM_DF_PCC, Test_VEM_DF_PCC_3D_O2_O3_O4)
 
     for (unsigned int f = 0; f < numFaces; f++)
     {
-        polygonalFaces.push_back({polyhedron_data.PolygonalFaces[f].Vertices,
+        polygonalFaces.push_back({geometry_utilities_config.Tolerance1D,
+                                  geometry_utilities_config.Tolerance2D,
+                                  polyhedron_data.PolygonalFaces[f].Vertices,
                                   polyhedron_data.PolygonalFaces[f].Centroid,
                                   polyhedron_data.PolygonalFaces[f].Measure,
                                   polyhedron_data.PolygonalFaces[f].Diameter,

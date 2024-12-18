@@ -1,28 +1,28 @@
 #include "assembler.hpp"
 
-#include "VEM_PCC_2D_LocalSpace.hpp"
-#include "VEM_PCC_2D_Inertia_LocalSpace.hpp"
-#include "VEM_PCC_2D_Ortho_LocalSpace.hpp"
+#include "VEM_PCC_3D_LocalSpace.hpp"
+#include "VEM_PCC_3D_Inertia_LocalSpace.hpp"
+#include "VEM_PCC_3D_Ortho_LocalSpace.hpp"
 
 namespace Polydim
 {
 namespace examples
 {
-namespace Elliptic_PCC_2D
+namespace Elliptic_PCC_3D
 {
-template struct Assembler<Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace>;
-template struct Assembler<Polydim::VEM::PCC::VEM_PCC_2D_Inertia_LocalSpace>;
-template struct Assembler<Polydim::VEM::PCC::VEM_PCC_2D_Ortho_LocalSpace>;
+template struct Assembler<Polydim::VEM::PCC::VEM_PCC_3D_LocalSpace>;
+template struct Assembler<Polydim::VEM::PCC::VEM_PCC_3D_Inertia_LocalSpace>;
+template struct Assembler<Polydim::VEM::PCC::VEM_PCC_3D_Ortho_LocalSpace>;
 //***************************************************************************
 template<typename VEM_LocalSpace_Type>
 void Assembler<VEM_LocalSpace_Type>::ComputeStrongTerm(const Gedim::MeshMatricesDAO& mesh,
                                                        const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
                                                        const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo& mesh_dofs_info,
                                                        const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
-                                                       const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
+                                                       const Polydim::VEM::PCC::VEM_PCC_3D_ReferenceElement_Data& reference_element_data,
                                                        const std::function<Eigen::VectorXd(const unsigned int,
                                                                                            const Eigen::MatrixXd&)>& strong_boundary_condition,
-                                                       Elliptic_PCC_2D_Problem_Data& assembler_data) const
+                                                       Elliptic_PCC_3D_Problem_Data& assembler_data) const
 {
     // Assemble strong boundary condition on Cell0Ds
     for (unsigned int p = 0; p < mesh.Cell0DTotalNumber(); ++p)
@@ -114,13 +114,13 @@ void Assembler<VEM_LocalSpace_Type>::ComputeStrongTerm(const Gedim::MeshMatrices
 template<typename VEM_LocalSpace_Type>
 void Assembler<VEM_LocalSpace_Type>::ComputeWeakTerm(const unsigned int cell2DIndex,
                                                      const Gedim::MeshMatricesDAO& mesh,
-                                                     const Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry& polygon,
+                                                     const Polydim::VEM::PCC::VEM_PCC_3D_Polygon_Geometry& polygon,
                                                      const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo& mesh_dofs_info,
                                                      const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
-                                                     const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
+                                                     const Polydim::VEM::PCC::VEM_PCC_3D_ReferenceElement_Data& reference_element_data,
                                                      const std::function<Eigen::VectorXd(const unsigned int,
                                                                                          const Eigen::MatrixXd&)>& weak_boundary_condition,
-                                                     Elliptic_PCC_2D_Problem_Data& assembler_data) const
+                                                     Elliptic_PCC_3D_Problem_Data& assembler_data) const
 {
     const VEM_LocalSpace_Type vem_local_space;
 
@@ -228,11 +228,11 @@ void Assembler<VEM_LocalSpace_Type>::ComputeWeakTerm(const unsigned int cell2DIn
 }
 // ***************************************************************************
 template <typename VEM_LocalSpace_Type>
-typename Assembler<VEM_LocalSpace_Type>::Elliptic_PCC_2D_Problem_Data Assembler<VEM_LocalSpace_Type>::Assemble(const Gedim::MeshMatricesDAO& mesh,
+typename Assembler<VEM_LocalSpace_Type>::Elliptic_PCC_3D_Problem_Data Assembler<VEM_LocalSpace_Type>::Assemble(const Gedim::MeshMatricesDAO& mesh,
                                                                                                                const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
                                                                                                                const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo& mesh_dofs_info,
                                                                                                                const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
-                                                                                                               const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
+                                                                                                               const Polydim::VEM::PCC::VEM_PCC_3D_ReferenceElement_Data& reference_element_data,
                                                                                                                const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& diffusion_term,
                                                                                                                const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& source_term,
                                                                                                                const std::function<Eigen::VectorXd(const unsigned int,
@@ -242,7 +242,7 @@ typename Assembler<VEM_LocalSpace_Type>::Elliptic_PCC_2D_Problem_Data Assembler<
 {
     const VEM_LocalSpace_Type vem_local_space;
 
-    Elliptic_PCC_2D_Problem_Data result;
+    Elliptic_PCC_3D_Problem_Data result;
 
     result.globalMatrixA.SetSize(dofs_data.NumberDOFs,
                                  dofs_data.NumberDOFs,
@@ -257,7 +257,7 @@ typename Assembler<VEM_LocalSpace_Type>::Elliptic_PCC_2D_Problem_Data Assembler<
 
     for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); ++c)
     {
-        const Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry polygon =
+        const Polydim::VEM::PCC::VEM_PCC_3D_Polygon_Geometry polygon =
             {
                 1.0e-08,
                 1.0e-12,
@@ -351,7 +351,7 @@ typename Assembler<VEM_LocalSpace_Type>::Elliptic_PCC_2D_Problem_Data Assembler<
 template <typename VEM_LocalSpace_Type>
 typename Assembler<VEM_LocalSpace_Type>::VEM_Performance_Result Assembler<VEM_LocalSpace_Type>::ComputeVemPerformance(const Gedim::MeshMatricesDAO& mesh,
                                                                                                                       const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
-                                                                                                                      const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data) const
+                                                                                                                      const Polydim::VEM::PCC::VEM_PCC_3D_ReferenceElement_Data& reference_element_data) const
 {
 
     const VEM_LocalSpace_Type vem_local_space;
@@ -362,7 +362,7 @@ typename Assembler<VEM_LocalSpace_Type>::VEM_Performance_Result Assembler<VEM_Lo
     // Assemble equation elements
     for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
     {
-        const Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry polygon =
+        const Polydim::VEM::PCC::VEM_PCC_3D_Polygon_Geometry polygon =
             {
                 1.0e-08,
                 1.0e-12,
@@ -400,8 +400,8 @@ template <typename VEM_LocalSpace_Type>
 typename Assembler<VEM_LocalSpace_Type>::PostProcess_Data Assembler<VEM_LocalSpace_Type>::PostProcessSolution(const Gedim::MeshMatricesDAO& mesh,
                                                                                                               const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
                                                                                                               const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
-                                                                                                              const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
-                                                                                                              const Elliptic_PCC_2D_Problem_Data& assembler_data,
+                                                                                                              const Polydim::VEM::PCC::VEM_PCC_3D_ReferenceElement_Data& reference_element_data,
+                                                                                                              const Elliptic_PCC_3D_Problem_Data& assembler_data,
                                                                                                               const std::function<Eigen::VectorXd(const Eigen::MatrixXd&)>& exact_solution,
                                                                                                               const std::function<std::array<Eigen::VectorXd, 3>(const Eigen::MatrixXd&)>& exact_derivative_solution) const
 {
@@ -460,7 +460,7 @@ typename Assembler<VEM_LocalSpace_Type>::PostProcess_Data Assembler<VEM_LocalSpa
 
     for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
     {
-        const Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry polygon =
+        const Polydim::VEM::PCC::VEM_PCC_3D_Polygon_Geometry polygon =
             {
                 1.0e-08,
                 1.0e-12,

@@ -8,7 +8,7 @@
 
 int main(int argc, char** argv)
 {
-    Polydim::examples::Elliptic_PCC_2D::Program_configuration config;
+    Polydim::examples::Elliptic_PCC_3D::Program_configuration config;
 
     if (!Gedim::Output::FileExists("./Parameters.ini"))
         Gedim::Configurations::ExportToIni("./Parameters.ini",
@@ -18,8 +18,8 @@ int main(int argc, char** argv)
 
     Gedim::Configurations::Initialize(argc, argv);
 
-    typedef Polydim::examples::Elliptic_PCC_2D::test::Patch_Test TEST_TYPE;
-    typedef Polydim::VEM::PCC::VEM_PCC_2D_Inertia_LocalSpace VEM_LOCAL_SPACE_TYPE;
+    typedef Polydim::examples::Elliptic_PCC_3D::test::Patch_Test TEST_TYPE;
+    typedef Polydim::VEM::PCC::VEM_PCC_3D_Inertia_LocalSpace VEM_LOCAL_SPACE_TYPE;
 
     /// Create folders
     const string exportFolder = config.ExportFolder();
@@ -49,7 +49,7 @@ int main(int argc, char** argv)
     Gedim::Output::PrintGenericMessage("CreateDomain...", true);
     Gedim::Profiler::StartTime("CreateDomain");
 
-    Polydim::examples::Elliptic_PCC_2D::test::Patch_Test::order = config.VemOrder();
+    Polydim::examples::Elliptic_PCC_3D::test::Patch_Test::order = config.VemOrder();
 
     const auto domain = TEST_TYPE::domain();
     const auto boundary_info = TEST_TYPE::boundary_info();
@@ -78,7 +78,7 @@ int main(int argc, char** argv)
     Gedim::MeshMatricesDAO mesh(meshData);
 
 
-    Polydim::examples::Elliptic_PCC_2D::program_utilities::create_domain_mesh(config,
+    Polydim::examples::Elliptic_PCC_3D::program_utilities::create_domain_mesh(config,
                                                                               domain,
                                                                               mesh);
 
@@ -96,7 +96,7 @@ int main(int argc, char** argv)
     Gedim::Output::PrintGenericMessage("ComputeGeometricProperties...", true);
     Gedim::Profiler::StartTime("ComputeGeometricProperties");
 
-    const auto meshGeometricData = Polydim::examples::Elliptic_PCC_2D::program_utilities::create_domain_mesh_geometric_properties(config,
+    const auto meshGeometricData = Polydim::examples::Elliptic_PCC_3D::program_utilities::create_domain_mesh_geometric_properties(config,
                                                                                                                                   mesh);
 
     Gedim::Profiler::StopTime("ComputeGeometricProperties");
@@ -106,7 +106,7 @@ int main(int argc, char** argv)
     Gedim::Output::PrintGenericMessage("CreateVEMSpace of order " + to_string(config.VemOrder()) + " and DOFs...", true);
     Gedim::Profiler::StartTime("CreateVEMSpace");
 
-    Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement vem_reference_element;
+    Polydim::VEM::PCC::VEM_PCC_3D_ReferenceElement vem_reference_element;
     const auto reference_element_data = vem_reference_element.Create(config.VemOrder());
 
     Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data =
@@ -134,15 +134,13 @@ int main(int argc, char** argv)
     Gedim::Profiler::StopTime("CreateVEMSpace");
     Gedim::Output::PrintStatusProgram("CreateVEMSpace");
 
-
-
-    const unsigned int VEM_ID = Polydim::examples::Elliptic_PCC_2D::program_utilities::VemType<VEM_LOCAL_SPACE_TYPE>(); // Enhanced Virtual Element Method with monomials basis
+    const unsigned int VEM_ID = Polydim::examples::Elliptic_PCC_3D::program_utilities::VemType<VEM_LOCAL_SPACE_TYPE>(); // Enhanced Virtual Element Method with monomials basis
 
     Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " + to_string(VEM_ID) + "...", true);
     Gedim::Profiler::StartTime("AssembleSystem");
 
 
-    Polydim::examples::Elliptic_PCC_2D::Assembler<VEM_LOCAL_SPACE_TYPE> assembler;
+    Polydim::examples::Elliptic_PCC_3D::Assembler<VEM_LOCAL_SPACE_TYPE> assembler;
     auto assembler_data = assembler.Assemble(mesh,
                                              meshGeometricData,
                                              meshDOFsInfo,
@@ -195,7 +193,7 @@ int main(int argc, char** argv)
     Gedim::Output::PrintGenericMessage("ExportSolution...", true);
     Gedim::Profiler::StartTime("ExportSolution");
 
-    Polydim::examples::Elliptic_PCC_2D::program_utilities::export_solution<VEM_LOCAL_SPACE_TYPE, TEST_TYPE>(config,
+    Polydim::examples::Elliptic_PCC_3D::program_utilities::export_solution<VEM_LOCAL_SPACE_TYPE, TEST_TYPE>(config,
                                                                                                             mesh,
                                                                                                             dofs_data,
                                                                                                             assembler_data,

@@ -8,7 +8,7 @@ namespace Polydim
 {
 namespace examples
 {
-namespace Elliptic_PCC_2D
+namespace Elliptic_PCC_3D
 {
 struct Program_configuration final
 {

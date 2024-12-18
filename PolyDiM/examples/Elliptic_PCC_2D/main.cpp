@@ -20,7 +20,7 @@ int main(int argc, char** argv)
     Gedim::Configurations::Initialize(argc, argv);
 
     typedef Polydim::examples::Elliptic_PCC_2D::test::Poisson_Polynomial_Problem TEST_TYPE;
-    typedef Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace VEM_LOCAL_SPACE_TYPE;
+    typedef Polydim::VEM::PCC::VEM_PCC_2D_Inertia_LocalSpace VEM_LOCAL_SPACE_TYPE;
 
     /// Create folders
     const string exportFolder = config.ExportFolder();
