@@ -28,28 +28,6 @@ private:
     VEM_PCC_Utilities<2> utilities;
     Monomials::VEM_Monomials_2D monomials;
 
-
-    struct InertiaData final
-    {
-        Eigen::MatrixXd Vertices; ///< cell2D vertices coordinates
-        Eigen::MatrixXd OrderedVertices; ///< cell2D vertices coordinates
-        Eigen::Vector3d Centroid; ///< cell2D centroids
-        double Measure; ///< cell2D areas
-        double Diameter; ///< cell2D diameters
-        std::vector<Eigen::Matrix3d> TriangulationVertices; ///< cell2D triangulations
-        Eigen::VectorXd EdgesLength; ///< cell2D edge lengths
-        std::vector<bool> EdgesDirection; ///< cell2D edge directions
-        Eigen::MatrixXd EdgesTangent; ///< cell2D edge tangents
-        Eigen::MatrixXd EdgesNormal; ///< cell2D edge normals
-
-        Eigen::Matrix3d Fmatrix;
-        Eigen::Matrix3d FmatrixInv;
-        Eigen::Vector3d translation;
-        double absDetFmatrix;
-        double signDetQ;
-
-    };
-
     void InitializeProjectorsComputation(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                          const Eigen::MatrixXd &polygonVertices,
                                          const Eigen::Vector3d &polygonCentroid,
@@ -108,14 +86,13 @@ private:
                                                                              localSpace.Dmatrix);
     }
 
-    void InertiaMapping(const Gedim::GeometryUtilities& geometryUtilities,
-                        const VEM_PCC_2D_Polygon_Geometry& polygon,
-                        InertiaData &inertia_data);
+    void InertiaMapping(const VEM_PCC_2D_Polygon_Geometry& polygon,
+                        InertiaData &inertia_data) const;
 
     void ComputeGeometryProperties(const Gedim::GeometryUtilities &geometryUtilities,
                                    const std::vector<bool> &polygonEdgeDirections,
                                    const std::vector<Eigen::Matrix3d> &polygonTriangulation,
-                                   InertiaData &data);
+                                   InertiaData &data) const;
 public:
 
     /// \brief Create and Initialize all the variables contained in \ref VEM::PCC::VEM_PCC_2D_LocalSpace_Data
@@ -141,9 +118,6 @@ public:
     inline Eigen::MatrixXd ComputeBasisFunctionsValues(const VEM_PCC_2D_LocalSpace_Data &localSpace,
                                                        const ProjectionTypes &projectionType) const
     {
-        if(projectionType == ProjectionTypes::Pi0klm1)
-            return localSpace.VanderInternalKL * localSpace.Pi0klm1;
-
         return utilities.ComputeBasisFunctionsValues(projectionType,
                                                      localSpace.Nkm1,
                                                      localSpace.Pi0km1,
@@ -159,108 +133,152 @@ public:
     inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const VEM_PCC_2D_LocalSpace_Data &localSpace,
                                                                               const ProjectionTypes &projectionType) const
     {
-        return utilities.ComputeBasisFunctionsDerivativeValues(projectionType,
-                                                               localSpace.Nkm1,
-                                                               localSpace.VanderInternal,
-                                                               localSpace.VanderInternalDerivatives,
-                                                               localSpace.PiNabla,
-                                                               localSpace.Pi0km1Der);
-    }
+        std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValues(localSpace.Dimension);
+        const Eigen::MatrixXd FmatrixInvTransp = localSpace.inertia_data.FmatrixInv.transpose();
+        switch (projectionType)
+        {
+        case ProjectionTypes::PiNabla:
+        {
+            basisFunctionsDerivativeValues.resize(localSpace.Dimension);
+            for(unsigned short i = 0; i < localSpace.Dimension; ++i)
+                basisFunctionsDerivativeValues[i] = localSpace.VanderInternalDerivatives[i] *
+                                                    localSpace.PiNabla;
+        }
+        break;
+        case ProjectionTypes::Pi0km1Der:
+        {
+            basisFunctionsDerivativeValues.resize(localSpace.Dimension);
+            for(unsigned short i = 0; i < localSpace.Dimension; ++i)
+                basisFunctionsDerivativeValues[i] = localSpace.VanderInternal.leftCols(localSpace.Nkm1) *
+                                                    localSpace.Pi0km1Der[i];
+        }
+        break;
+        default:
+            throw std::runtime_error("Unknown projector type");
+        }
 
-    /// \brief Compute the values of VEM basis function laplacian at the internal quadrature points, here approximated using \ref VEM::PCC::ProjectionTypes::Pi0km1Der.
-    /// \param localSpace: an object of type \ref VEM::PCC::VEM_PCC_2D_LocalSpace_Data which contains local matrices.
-    /// \return A matrix of size numQuadrature \f$\times\f$ numDOFs whose columns contain the evaluation of the approximated laplacian at the internal quadrature points.
-    inline Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_2D_LocalSpace_Data &localSpace) const
-    {
-        return utilities.ComputeBasisFunctionsLaplacianValues(localSpace.Nkm1,
-                                                              localSpace.VanderInternalDerivatives,
-                                                              localSpace.Pi0km1Der);
+        std::vector<Eigen::MatrixXd> fmatrixInvTranspTimesBasisFunctionDerivativeValues2D(localSpace.Dimension,
+                                                                                          Eigen::MatrixXd::Zero(basisFunctionsDerivativeValues[0].rows(),
+                                                                                                                basisFunctionsDerivativeValues[1].cols()));
+        for(unsigned int d1 = 0; d1 < localSpace.Dimension; d1++)
+        {
+            for(unsigned int d2 = 0; d2 < localSpace.Dimension; d2++)
+            {
+                fmatrixInvTranspTimesBasisFunctionDerivativeValues2D[d1] += FmatrixInvTransp(d1, d2) * basisFunctionsDerivativeValues[d2];
+            }
+        }
+
+        return fmatrixInvTranspTimesBasisFunctionDerivativeValues2D;
     }
 
 
     /// \brief Compute the values of projections of VEM basis functions at points.
     /// \param reference_element_data: an object of type \ref VEM::PCC::VEM_PCC_2D_ReferenceElement_Data which contains monomials stuff.
-    /// \param polygon: an object of type \ref VEM::PCC::VEM_PCC_2D_Polygon_Geometry which contains the geoemtric properties of the elements.
     /// \param localSpace: an object of type \ref VEM::PCC::VEM_PCC_2D_LocalSpace_Data which contains local matrices.
     /// \param projectionType: the \ref VEM::PCC::ProjectionTypes reporting the kind of projector used to access to the point-wise evalution of VE basis functions.
     /// \param points: a matrix 3 \f$\times\f$ numPoints reporting the coordinates of points.
     /// \return A matrix of size numPoints \f$\times\f$ numDOFs whose columns contain the evaluation of the projection of each basis function at points.
     inline Eigen::MatrixXd ComputeBasisFunctionsValues(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                       const VEM_PCC_2D_Polygon_Geometry &polygon,
                                                        const VEM_PCC_2D_LocalSpace_Data &localSpace,
                                                        const ProjectionTypes &projectionType,
                                                        const Eigen::MatrixXd &points) const
     {
+        const Eigen::MatrixXd referencePoints = (localSpace.inertia_data.FmatrixInv * points).colwise() - localSpace.inertia_data.translation;
         return utilities.ComputeBasisFunctionsValues(projectionType,
                                                      localSpace.Nkm1,
                                                      localSpace.Pi0km1,
                                                      localSpace.Pi0k,
                                                      ComputePolynomialsValues(reference_element_data,
-                                                                              polygon,
-                                                                              points));
+                                                                              localSpace,
+                                                                              referencePoints));
     }
 
     /// \brief Compute the values of projections of VEM basis function derivatives at points.
     /// \param reference_element_data: an object of type \ref VEM::PCC::VEM_PCC_2D_ReferenceElement_Data which contains monomials stuff.
-    /// \param polygon: an object of type \ref VEM::PCC::VEM_PCC_2D_Polygon_Geometry which contains the geoemtric properties of the elements.
     /// \param localSpace: an object of type \ref VEM::PCC::VEM_PCC_2D_LocalSpace_Data which contains local matrices.
     /// \param projectionType: the \ref VEM::PCC::ProjectionTypes reporting the kind of projector used to access to the point-wise evalution of VE basis function derivatives.
     /// \param points: a matrix 3 \f$\times\f$ numPoints reporting the coordinates of points.
     /// \return A vector of 2 matrices of size numPoints \f$\times\f$ numDOFs whose columns contain the evaluation of the projection of each basis function derivatives with respect x and y, respectively,
     /// at points.
     inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                                              const VEM_PCC_2D_Polygon_Geometry &polygon,
                                                                               const VEM_PCC_2D_LocalSpace_Data &localSpace,
                                                                               const ProjectionTypes &projectionType,
                                                                               const Eigen::MatrixXd &points) const
     {
-        return utilities.ComputeBasisFunctionsDerivativeValues(
-            projectionType,
-            localSpace.Nkm1,
-            ComputePolynomialsValues(reference_element_data, polygon, points),
-            ComputePolynomialsDerivativeValues(reference_element_data, polygon, points),
-            localSpace.PiNabla,
-            localSpace.Pi0km1Der);
+
+        const Eigen::MatrixXd referencePoints = (localSpace.inertia_data.FmatrixInv * points).colwise() - localSpace.inertia_data.translation;
+
+        const Eigen::MatrixXd vander = ComputePolynomialsValues(reference_element_data,
+                                                                localSpace,
+                                                                referencePoints);
+
+        std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValues(localSpace.Dimension);
+        const Eigen::MatrixXd FmatrixInvTransp = localSpace.inertia_data.FmatrixInv.transpose();
+        switch (projectionType)
+        {
+        case ProjectionTypes::PiNabla:
+        {
+            const std::vector<Eigen::MatrixXd> VanderDerivatives = utilities.ComputePolynomialsDerivativeValues(reference_element_data.Monomials,
+                                                                                                                monomials,
+                                                                                                                localSpace.Diameter,
+                                                                                                                vander);
+
+            basisFunctionsDerivativeValues.resize(localSpace.Dimension);
+            for(unsigned short i = 0; i < localSpace.Dimension; ++i)
+                basisFunctionsDerivativeValues[i] = VanderDerivatives[i] *
+                                                    localSpace.PiNabla;
+        }
+        break;
+        case ProjectionTypes::Pi0km1Der:
+        {
+            basisFunctionsDerivativeValues.resize(localSpace.Dimension);
+            for(unsigned short i = 0; i < localSpace.Dimension; ++i)
+                basisFunctionsDerivativeValues[i] = vander.leftCols(localSpace.Nkm1) *
+                                                    localSpace.Pi0km1Der[i];
+        }
+        break;
+        default:
+            throw std::runtime_error("Unknown projector type");
+        }
+
+        std::vector<Eigen::MatrixXd> fmatrixInvTranspTimesBasisFunctionDerivativeValues2D(localSpace.Dimension,
+                                                                                          Eigen::MatrixXd::Zero(basisFunctionsDerivativeValues[0].rows(),
+                                                                                                                basisFunctionsDerivativeValues[1].cols()));
+        for(unsigned int d1 = 0; d1 < localSpace.Dimension; d1++)
+        {
+            for(unsigned int d2 = 0; d2 < localSpace.Dimension; d2++)
+            {
+                fmatrixInvTranspTimesBasisFunctionDerivativeValues2D[d1] += FmatrixInvTransp(d1, d2) * basisFunctionsDerivativeValues[d2];
+            }
+        }
+
+        return fmatrixInvTranspTimesBasisFunctionDerivativeValues2D;
     }
 
-    /// \brief Compute the values of VEM basis function laplacian at points, here approximated using \ref VEM::PCC::ProjectionTypes::Pi0km1Der.
-    /// \param reference_element_data: an object of type \ref VEM::PCC::VEM_PCC_2D_ReferenceElement_Data which contains monomials stuff.
-    /// \param polygon: an object of type \ref VEM::PCC::VEM_PCC_2D_Polygon_Geometry which contains the geoemtric properties of the elements.
-    /// \param localSpace: an object of type \ref VEM::PCC::VEM_PCC_2D_LocalSpace_Data which contains local matrices.
-    /// \param points: a matrix 3 \f$\times\f$ numPoints reporting the coordinates of points.
-    /// \return A matrix of size numPoints \f$\times\f$ numDOFs whose columns contain the evaluation of the approximated laplacian at points.
-    inline Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                                const VEM_PCC_2D_Polygon_Geometry &polygon,
-                                                                const VEM_PCC_2D_LocalSpace_Data &localSpace,
-                                                                const Eigen::MatrixXd &points) const
-    {
-        return utilities.ComputeBasisFunctionsLaplacianValues(localSpace.Nkm1,
-                                                              localSpace.Pi0km1Der,
-                                                              ComputePolynomialsDerivativeValues(reference_element_data, polygon, points));
-    }
 
     /// \brief Compute the values of monomial basis functions at the internal quadrature points.
     /// \param localSpace: an object of type \ref VEM::PCC::VEM_PCC_2D_LocalSpace_Data which contains local matrices.
     /// \return A matrix of size numQuadrature \f$\times\f$ numMonomials whose columns contain the evaluation of monomials at the internal quadrature points.
     inline Eigen::MatrixXd ComputePolynomialsValues(const VEM_PCC_2D_LocalSpace_Data &localSpace) const
     {
-        return utilities.ComputePolynomialsValues(localSpace.VanderInternal);
+        return localSpace.VanderInternal;
     }
 
     /// \brief Compute the values of monomial basis functions at points.
     /// \param reference_element_data: an object of type \ref VEM::PCC::VEM_PCC_2D_ReferenceElement_Data which contains monomials stuff.
-    /// \param polygon: an object of type \ref VEM::PCC::VEM_PCC_2D_Polygon_Geometry which contains the geoemtric properties of the elements.
     /// \param points: a matrix 3 \f$\times\f$ numPoints reporting the coordinates of points.
     /// \return A matrix of size numPoints \f$\times\f$ numMonomials whose columns contain the evaluation of monomials at points.
     inline Eigen::MatrixXd ComputePolynomialsValues(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                    const VEM_PCC_2D_Polygon_Geometry &polygon,
+                                                    const VEM_PCC_2D_LocalSpace_Data &localSpace,
                                                     const Eigen::MatrixXd &points) const
     {
+
+        const Eigen::MatrixXd referencePoints = (localSpace.inertia_data.FmatrixInv * points).colwise() - localSpace.inertia_data.translation;
         return utilities.ComputePolynomialsValues(reference_element_data.Monomials,
                                                   monomials,
-                                                  polygon.Centroid,
-                                                  polygon.Diameter,
-                                                  points);
+                                                  localSpace.Centroid,
+                                                  localSpace.Diameter,
+                                                  referencePoints);
     }
 
     /// \brief Compute the values of monomial basis function derivatives at the internal quadrature points.
@@ -269,42 +287,53 @@ public:
     /// derivatives with respect x and y, respectively, at the internal quadrature points
     inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const VEM_PCC_2D_LocalSpace_Data &localSpace) const
     {
-        return utilities.ComputePolynomialsDerivativeValues(localSpace.VanderInternalDerivatives);
+        const std::vector<Eigen::MatrixXd> &polynomialDerivatives = localSpace.VanderInternalDerivatives;
+        const Eigen::MatrixXd FmatrixInvTransp = localSpace.inertia_data.FmatrixInv.transpose();
+
+        std::vector<Eigen::MatrixXd> fmatrixInvTranspTimesPolynomialDerivatives(localSpace.Dimension,
+                                                                                Eigen::MatrixXd::Zero(polynomialDerivatives[0].rows(),
+                                                                                                      polynomialDerivatives[1].cols()));
+        for(unsigned int d1 = 0; d1 < localSpace.Dimension; d1++)
+        {
+            for(unsigned int d2 = 0; d2 < localSpace.Dimension; d2++)
+            {
+                fmatrixInvTranspTimesPolynomialDerivatives[d1] += FmatrixInvTransp(d1, d2) * polynomialDerivatives[d2];
+            }
+        }
+        return fmatrixInvTranspTimesPolynomialDerivatives;
     }
 
     /// \brief Compute the values of monomial basis functions at points.
     /// \param reference_element_data: an object of type \ref VEM::PCC::VEM_PCC_2D_ReferenceElement_Data which contains monomials stuff.
-    /// \param polygon: an object of type \ref VEM::PCC::VEM_PCC_2D_Polygon_Geometry which contains the geoemtric properties of the elements.
     /// \param points: a matrix 3 \f$\times\f$ numPoints reporting the coordinates of points.
     /// \return A vector of two matrices of size numPoints \f$\times\f$ numMonomials whose columns contain the evaluation of monomials
     /// derivatives with respect x and y, respectively, at points
     inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                                           const VEM_PCC_2D_Polygon_Geometry &polygon,
+                                                                           const VEM_PCC_2D_LocalSpace_Data &localSpace,
                                                                            const Eigen::MatrixXd &points) const
     {
-        return utilities.ComputePolynomialsDerivativeValues(reference_element_data.Monomials,
-                                                            monomials,
-                                                            polygon.Diameter,
-                                                            ComputePolynomialsValues(reference_element_data,
-                                                                                     polygon,
-                                                                                     points));
-    }
+        const Eigen::MatrixXd referencePoints = (localSpace.inertia_data.FmatrixInv * points).colwise() - localSpace.inertia_data.translation;
 
-    /// \brief Compute the values of monomials laplacian at points.
-    /// \param reference_element_data: an object of type \ref VEM::PCC::VEM_PCC_2D_ReferenceElement_Data which contains monomials stuff.
-    /// \param polygon: an object of type \ref VEM::PCC::VEM_PCC_2D_Polygon_Geometry which contains the geoemtric properties of the elements.
-    /// \param points: a matrix 3 \f$\times\f$ numPoints reporting the coordinates of points.
-    /// \return A matrix of size numPoints \f$\times\f$ numMonomials whose columns contain the evaluation of monomials at points.
-    inline Eigen::MatrixXd ComputePolynomialsLaplacianValues(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                             const VEM_PCC_2D_Polygon_Geometry &polygon,
-                                                             const Eigen::MatrixXd &points) const
-    {
-        return utilities.ComputePolynomialsLaplacianValues(reference_element_data.Monomials,
-                                                           monomials,
-                                                           polygon.Diameter,
-                                                           ComputePolynomialsValues(reference_element_data,
-                                                                                    polygon,
-                                                                                    points));
+        const std::vector<Eigen::MatrixXd> polynomialDerivatives =  utilities.ComputePolynomialsDerivativeValues(reference_element_data.Monomials,
+                                                                                                                monomials,
+                                                                                                                localSpace.Diameter,
+                                                                                                                ComputePolynomialsValues(reference_element_data,
+                                                                                                                                         localSpace,
+                                                                                                                                         referencePoints));
+
+        const Eigen::MatrixXd FmatrixInvTransp = localSpace.inertia_data.FmatrixInv.transpose();
+
+        std::vector<Eigen::MatrixXd> fmatrixInvTranspTimesPolynomialDerivatives(localSpace.Dimension,
+                                                                                Eigen::MatrixXd::Zero(polynomialDerivatives[0].rows(),
+                                                                                                      polynomialDerivatives[1].cols()));
+        for(unsigned int d1 = 0; d1 < localSpace.Dimension; d1++)
+        {
+            for(unsigned int d2 = 0; d2 < localSpace.Dimension; d2++)
+            {
+                fmatrixInvTranspTimesPolynomialDerivatives[d1] += FmatrixInvTransp(d1, d2) * polynomialDerivatives[d2];
+            }
+        }
+        return fmatrixInvTranspTimesPolynomialDerivatives;
     }
 
     inline Eigen::MatrixXd ComputeValuesOnEdge(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,

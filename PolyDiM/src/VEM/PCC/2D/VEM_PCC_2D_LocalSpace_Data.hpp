@@ -28,6 +28,28 @@ struct VEM_PCC_2D_Polygon_Geometry final
     const Eigen::MatrixXd &EdgesNormal;
 };
 
+
+struct InertiaData final
+{
+    Eigen::MatrixXd Vertices; ///< cell2D vertices coordinates
+    Eigen::MatrixXd OrderedVertices; ///< cell2D vertices coordinates
+    Eigen::Vector3d Centroid; ///< cell2D centroids
+    double Measure; ///< cell2D areas
+    double Diameter; ///< cell2D diameters
+    std::vector<Eigen::Matrix3d> TriangulationVertices; ///< cell2D triangulations
+    Eigen::VectorXd EdgesLength; ///< cell2D edge lengths
+    std::vector<bool> EdgesDirection; ///< cell2D edge directions
+    Eigen::MatrixXd EdgesTangent; ///< cell2D edge tangents
+    Eigen::MatrixXd EdgesNormal; ///< cell2D edge normals
+
+    Eigen::Matrix3d Fmatrix;
+    Eigen::Matrix3d FmatrixInv;
+    Eigen::Vector3d translation;
+    double absDetFmatrix;
+    double signDetQ;
+
+};
+
 /// \brief Structure containing the local matrices and the main variables to compute the vritual element discrete matrices
 struct VEM_PCC_2D_LocalSpace_Data final
 {
@@ -51,6 +73,9 @@ struct VEM_PCC_2D_LocalSpace_Data final
     Gedim::Quadrature::QuadratureData InternalQuadratureKL; ///< Internal quadrature points and weights for e2
     Quadrature::VEM_Quadrature_2D::Edges_QuadratureData BoundaryQuadratureKL; ///< Boundary quadrature points and weights for e2
 
+    double Diameter;
+    Eigen::Vector3d Centroid;
+
     Eigen::MatrixXd VanderInternal; ///< Vandermonde matrix of the polynomial basis at internal quadrature points.
     Eigen::MatrixXd VanderInternalKL; ///< Vandermonde matrix of the polynomial basis at internal quadrature points.
     std::vector<Eigen::MatrixXd> VanderInternalDerivatives; ///< Vandermonde matrices of the derivatives of the polynomial basis at internal quadrature points.
@@ -65,8 +90,6 @@ struct VEM_PCC_2D_LocalSpace_Data final
 
     Eigen::MatrixXd StabMatrix;     ///< Matrix used for stabilizing elliptic bilinear forms.
     Eigen::MatrixXd StabMatrixPi0k; ///< Matrix used for stabilizing elliptic bilinear forms.
-
-
 
     Eigen::MatrixXd Hmatrix; ///< Mass matrix of the polynomial basis: \f$ H_{ij} = \int_E m_i m_j \f$, where \f$ E \f$ is the input polygon.
     Eigen::MatrixXd H_klm1_matrix;
@@ -83,6 +106,7 @@ struct VEM_PCC_2D_LocalSpace_Data final
     Eigen::MatrixXd QmatrixInv; ///< inverse of \a Qmatrix
     Eigen::MatrixXd Qmatrixkm1; ///< change of basis matrix of order (order-1)
 
+    InertiaData inertia_data;
 };
 } // namespace PCC
 } // namespace VEM

@@ -21,21 +21,6 @@ private:
     VEM_PCC_Utilities<2> utilities;
     Monomials::VEM_Monomials_2D monomials;
 
-    /// \brief Initialize quantities required for computing projectors.
-    /// \details This method computes \ref measure, \ref diameter, \ref
-    /// vanderInternal, \ref vanderInternalDerivatives, \ref
-    /// internalWeights, \ref vanderBoundary, \ref
-    /// vanderBoundaryDerivatives, \ref boundaryWeights, \ref
-    /// boundaryWeightsTimesNormal, \ref Hmatrix.
-    /// \param geometry The geometry used as domain for the computation of projectors. It has to be
-    /// an object of class \ref Polygon with dimension 2.
-    /// \note The following methods have to be called on the geometry before calling this method:
-    ///  - \ref Polygon::Compute2DPolygonProperties()
-    ///  - \ref Polygon::ComputePositionPoint()
-    ///  - \ref Polygon::ComputeNormalSign()
-    ///  .
-    /// Moreover, the method \ref Segment::ComputeNormal() has to be called on each edge of the
-    /// geometry.
     void InitializeProjectorsComputation(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                          const Eigen::MatrixXd &polygonVertices,
                                          const Eigen::Vector3d &polygonCentroid,
@@ -45,9 +30,6 @@ private:
                                          const Eigen::MatrixXd &boundaryQuadraturePoints,
                                          VEM_PCC_2D_LocalSpace_Data &localSpace) const;
 
-    /// \brief Compute matrix \ref piNabla.
-    /// \note This requires \ref InitializeProjectorsComputation() to be
-    /// called previously.
     void ComputePiNabla(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                         const double &polygonMeasure,
                         const double &polygonDiameter,
@@ -56,17 +38,12 @@ private:
                         const std::vector<Eigen::VectorXd> &boundaryQuadratureWeightsTimesNormal,
                         VEM_PCC_2D_LocalSpace_Data &localSpace) const;
 
-    /// \brief Compute matrices \ref pi0km1Der.
-    /// \note This requires \ref InitializeProjectorsComputation() to
-    /// be called previously..
     void ComputeL2ProjectorsOfDerivatives(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                           const double &polygonMeasure,
                                           const double &polygonDiameter,
                                           const std::vector<Eigen::VectorXd> &boundaryQuadratureWeightsTimesNormal,
                                           VEM_PCC_2D_LocalSpace_Data &localSpace) const;
 
-    /// \brief Compute matrices \ref pi0km1 and \ref pi0k.
-    /// \note This requires \ref ComputePiNabla() to be called previously.
     void ComputeL2Projectors(const double &polygonMeasure,
                              VEM_PCC_2D_LocalSpace_Data &localSpace) const
     {
@@ -83,9 +60,6 @@ private:
                                       localSpace.Pi0k);
     };
 
-    /// \brief Compute the stabilization matrix with PiNabla projector.
-    /// \note used for method with stabilization
-    /// \return stabilization matrix, size numQuadraturePoints x NumberBasisFunctions()
     inline void ComputeStabilizationMatrix(const double &polygonDiameter,
                                            VEM_PCC_2D_LocalSpace_Data &localSpace) const
     {
@@ -93,8 +67,7 @@ private:
                                                                      polygonDiameter,
                                                                      localSpace.Dmatrix);
     }
-    /// \brief Compute matrix \ref stabMatrix with Pi0k projector.
-    /// \note This requires \ref ComputeL2Projectors() to be called previously.
+
     inline void ComputeStabilizationMatrixPi0k(const double &polygonMeasure,
                                                VEM_PCC_2D_LocalSpace_Data &localSpace) const
     {
@@ -103,7 +76,6 @@ private:
                                                                              localSpace.Dmatrix);
     }
 
-    /// Compute the change of basis matrix and the mass matrix of orthogonal polynomial basis
     void ChangeOfBasis(const Eigen::VectorXd &internalQuadratureWeights,
                        VEM_PCC_2D_LocalSpace_Data &localSpace) const;
 
@@ -161,14 +133,12 @@ public:
     }
 
     inline Eigen::MatrixXd ComputeBasisFunctionValues(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                      const VEM_PCC_2D_Polygon_Geometry &polygon,
                                                       const VEM_PCC_2D_LocalSpace_Data &localSpace,
                                                       const ProjectionTypes &projectionType,
                                                       const Eigen::MatrixXd &points) const
     {
         const Eigen::MatrixXd vanderInternal = ComputePolynomialsValues(reference_element_data,
                                                                         localSpace,
-                                                                        polygon,
                                                                         points);
 
         switch (projectionType) {
@@ -182,7 +152,6 @@ public:
     }
 
     inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionDerivativeValues(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                                             const VEM_PCC_2D_Polygon_Geometry &polygon,
                                                                              const VEM_PCC_2D_LocalSpace_Data &localSpace,
                                                                              const ProjectionTypes &projectionType,
                                                                              const Eigen::MatrixXd &points) const
@@ -190,7 +159,6 @@ public:
         const std::vector<Eigen::MatrixXd> polynomialsDerivativeValues
             = ComputePolynomialsDerivativeValues(reference_element_data,
                                                  localSpace,
-                                                 polygon,
                                                  points);
 
         switch (projectionType) {
@@ -222,13 +190,12 @@ public:
 
     inline Eigen::MatrixXd ComputePolynomialsValues(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                                     const VEM_PCC_2D_LocalSpace_Data &localSpace,
-                                                    const VEM_PCC_2D_Polygon_Geometry &polygon,
                                                     const Eigen::MatrixXd &points) const
     {
         return monomials.Vander(reference_element_data.Monomials,
                                 points,
-                                polygon.Centroid,
-                                polygon.Diameter)
+                                localSpace.Centroid,
+                                localSpace.Diameter)
                * localSpace.Qmatrix.transpose();
     }
 
@@ -244,17 +211,16 @@ public:
 
     inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                                                            const VEM_PCC_2D_LocalSpace_Data &localSpace,
-                                                                           const VEM_PCC_2D_Polygon_Geometry &polygon,
                                                                            const Eigen::MatrixXd &points) const
     {
         const Eigen::MatrixXd monomialBasisValues = monomials.Vander(reference_element_data.Monomials,
                                                                      points,
-                                                                     polygon.Centroid,
-                                                                     polygon.Diameter);
+                                                                     localSpace.Centroid,
+                                                                     localSpace.Diameter);
         const std::vector<Eigen::MatrixXd> monomialBasisDerivativeValues
             = monomials.VanderDerivatives(reference_element_data.Monomials,
                                           monomialBasisValues,
-                                          polygon.Diameter);
+                                          localSpace.Diameter);
 
         std::vector<Eigen::MatrixXd> polynomialBasisDerivativeValues(localSpace.Dimension);
         for (unsigned short i = 0; i < localSpace.Dimension; ++i)
