@@ -1,5 +1,5 @@
-#ifndef __VEM_PCC_3D_LocalSpace_HPP
-#define __VEM_PCC_3D_LocalSpace_HPP
+#ifndef __VEM_PCC_3D_Inertia_LocalSpace_HPP
+#define __VEM_PCC_3D_Inertia_LocalSpace_HPP
 
 #include "Eigen/Eigen"
 #include "VEM_Monomials_3D.hpp"
@@ -19,7 +19,7 @@ namespace PCC
 {
 /// \brief Class used for computing values of basis functions of 3D
 /// Primal Conforming Constant degree Virtual Element Methods.
-class VEM_PCC_3D_LocalSpace final
+class VEM_PCC_3D_Inertia_LocalSpace final
 {
   private:
     VEM_PCC_Utilities<3> utilities;

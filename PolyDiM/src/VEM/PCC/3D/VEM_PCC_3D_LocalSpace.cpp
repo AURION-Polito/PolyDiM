@@ -124,7 +124,6 @@ void VEM_PCC_3D_LocalSpace::InitializeProjectorsComputation(
     localSpace.NumEdgeBasisFunctions = localSpace.NumEdgeDofs * numEdges;
     localSpace.NumFaceBasisFunctions = localSpace.NumFaceDofs * numFaces;
     localSpace.NumInternalBasisFunctions = reference_element_data.NumDofs3D;
-    ;
 
     localSpace.NumBasisFunctions = localSpace.NumVertexBasisFunctions + localSpace.NumEdgeBasisFunctions +
                                    localSpace.NumFaceBasisFunctions + localSpace.NumInternalBasisFunctions;
@@ -138,6 +137,9 @@ void VEM_PCC_3D_LocalSpace::InitializeProjectorsComputation(
         localSpace.NumVertexBasisFunctions + localSpace.NumEdgeBasisFunctions + localSpace.NumFaceBasisFunctions;
 
     // Compute Vandermonde matrices.
+    localSpace.Diameter = polyhedronDiameter;
+    localSpace.Centroid = polyhedronCentroid;
+
     localSpace.VanderInternal = monomials.Vander(
         reference_element_data.Monomials, internalQuadraturePoints, polyhedronCentroid, polyhedronDiameter);
 

@@ -277,6 +277,9 @@ void VEM_PCC_2D_LocalSpace::InitializeProjectorsComputation(
     localSpace.Nkm1 = localSpace.NumProjectorBasisFunctions - reference_element_data.Order - 1;
 
     // Compute Vandermonde matrices.
+    localSpace.Diameter = polygonDiameter;
+    localSpace.Centroid = polygonCentroid;
+
     localSpace.VanderInternal =
         monomials.Vander(reference_element_data.Monomials, internalQuadraturePoints, polygonCentroid, polygonDiameter);
     localSpace.VanderInternalDerivatives =

@@ -68,6 +68,9 @@ struct VEM_PCC_3D_LocalSpace_Data final
     /// points.
     std::vector<Eigen::MatrixXd> VanderInternalDerivatives;
 
+    double Diameter;
+    Eigen::Vector3d Centroid;
+
     /// \brief Coefficients of basis functions on the reference edge.
     Eigen::VectorXd EdgeBasisCoefficients;
     Eigen::MatrixXd PiNabla; ///< Matrix representing the \f$\Pi^\nabla_{\mathrm{order}}\f$ operator.

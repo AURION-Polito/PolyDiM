@@ -138,6 +138,9 @@ void VEM_PCC_3D_Ortho_LocalSpace::InitializeProjectorsComputation(
         (reference_element_data.Order + 1) * (reference_element_data.Order + 2) * reference_element_data.Order / 6;
 
     // Compute Vandermonde matrices.
+    localSpace.Diameter = polyhedronDiameter;
+    localSpace.Centroid = polyhedronCentroid;
+
     localSpace.VanderInternal = monomials.Vander(
         reference_element_data.Monomials, internalQuadraturePoints, polyhedronCentroid, polyhedronDiameter);
 

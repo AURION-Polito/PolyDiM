@@ -381,9 +381,7 @@ typename Assembler<VEM_LocalSpace_Type>::VEM_Performance_Result Assembler<VEM_Lo
 
         Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis performanceAnalysis;
 
-        result.Cell2DsPerformance[c].Analysis = performanceAnalysis.Compute(polygon.Measure,
-                                                                            polygon.Diameter,
-                                                                            Polydim::VEM::Monomials::VEM_Monomials_2D(),
+        result.Cell2DsPerformance[c].Analysis = performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_2D(),
                                                                             reference_element_data.Monomials,
                                                                             vem_local_space,
                                                                             local_space);

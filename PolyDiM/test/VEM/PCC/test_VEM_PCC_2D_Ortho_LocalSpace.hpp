@@ -516,9 +516,7 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_2D_Ortho_O1)
     // Test VEM performances
     Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis performanceAnalysis;
 
-    const auto result = performanceAnalysis.Compute(polygon.Measure,
-                                                    polygon.Diameter,
-                                                    Polydim::VEM::Monomials::VEM_Monomials_2D(),
+    const auto result = performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_2D(),
                                                     reference_element_data.Monomials,
                                                     vem_local_space,
                                                     local_space);
@@ -570,9 +568,7 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_2D_Ortho_O2)
     // Test VEM performances
     Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis performanceAnalysis;
 
-    const auto result = performanceAnalysis.Compute(polygon.Measure,
-                                                    polygon.Diameter,
-                                                    Polydim::VEM::Monomials::VEM_Monomials_2D(),
+    const auto result = performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_2D(),
                                                     reference_element_data.Monomials,
                                                     vem_local_space,
                                                     local_space);
@@ -624,9 +620,7 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_2D_Ortho_O3)
     // Test VEM performances
     Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis performanceAnalysis;
 
-    const auto result = performanceAnalysis.Compute(polygon.Measure,
-                                                    polygon.Diameter,
-                                                    Polydim::VEM::Monomials::VEM_Monomials_2D(),
+    const auto result = performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_2D(),
                                                     reference_element_data.Monomials,
                                                     vem_local_space,
                                                     local_space);

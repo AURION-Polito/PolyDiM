@@ -1,4 +1,4 @@
-#include "VEM_PCC_3D_LocalSpace.hpp"
+#include "VEM_PCC_3D_Inertia_LocalSpace.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -10,7 +10,7 @@ namespace VEM
 namespace PCC
 {
 //****************************************************************************
-VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_LocalSpace::CreateLocalSpace(
+VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Inertia_LocalSpace::CreateLocalSpace(
     const VEM_PCC_2D_ReferenceElement_Data &reference_element_data_2D,
     const VEM_PCC_3D_ReferenceElement_Data &reference_element_data_3D,
     const std::vector<VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
@@ -98,7 +98,7 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_LocalSpace::CreateLocalSpace(
     return localSpace;
 }
 //****************************************************************************
-void VEM_PCC_3D_LocalSpace::InitializeProjectorsComputation(
+void VEM_PCC_3D_Inertia_LocalSpace::InitializeProjectorsComputation(
     const VEM_PCC_3D_ReferenceElement_Data &reference_element_data,
     const Eigen::MatrixXd &polyhedronVertices,
     const Eigen::MatrixXi &polyhedronEdges,
@@ -124,7 +124,6 @@ void VEM_PCC_3D_LocalSpace::InitializeProjectorsComputation(
     localSpace.NumEdgeBasisFunctions = localSpace.NumEdgeDofs * numEdges;
     localSpace.NumFaceBasisFunctions = localSpace.NumFaceDofs * numFaces;
     localSpace.NumInternalBasisFunctions = reference_element_data.NumDofs3D;
-    ;
 
     localSpace.NumBasisFunctions = localSpace.NumVertexBasisFunctions + localSpace.NumEdgeBasisFunctions +
                                    localSpace.NumFaceBasisFunctions + localSpace.NumInternalBasisFunctions;
@@ -138,6 +137,9 @@ void VEM_PCC_3D_LocalSpace::InitializeProjectorsComputation(
         localSpace.NumVertexBasisFunctions + localSpace.NumEdgeBasisFunctions + localSpace.NumFaceBasisFunctions;
 
     // Compute Vandermonde matrices.
+    localSpace.Diameter = polyhedronDiameter;
+    localSpace.Centroid = polyhedronCentroid;
+
     localSpace.VanderInternal = monomials.Vander(
         reference_element_data.Monomials, internalQuadraturePoints, polyhedronCentroid, polyhedronDiameter);
 
@@ -174,7 +176,7 @@ void VEM_PCC_3D_LocalSpace::InitializeProjectorsComputation(
         MatrixXd::Identity(localSpace.NumProjectorBasisFunctions, localSpace.NumProjectorBasisFunctions);
 }
 //****************************************************************************
-void VEM_PCC_3D_LocalSpace::ComputeFaceProjectors(const VEM_PCC_2D_LocalSpace &faceVemValues,
+void VEM_PCC_3D_Inertia_LocalSpace::ComputeFaceProjectors(const VEM_PCC_2D_LocalSpace &faceVemValues,
                                                   const std::vector<Eigen::MatrixXi> &polyhedronFaces,
                                                   const std::vector<VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
                                                   const Eigen::MatrixXd &boundaryQuadraturePoints,
@@ -276,7 +278,7 @@ void VEM_PCC_3D_LocalSpace::ComputeFaceProjectors(const VEM_PCC_2D_LocalSpace &f
     }
 }
 //****************************************************************************
-void VEM_PCC_3D_LocalSpace::ComputePiNabla(const VEM_PCC_3D_ReferenceElement_Data &reference_element_data,
+void VEM_PCC_3D_Inertia_LocalSpace::ComputePiNabla(const VEM_PCC_3D_ReferenceElement_Data &reference_element_data,
                                            const double &polyhedronMeasure,
                                            const double &polyhedronDiameter,
                                            const Eigen::VectorXd &internalQuadratureWeights,
@@ -328,7 +330,7 @@ void VEM_PCC_3D_LocalSpace::ComputePiNabla(const VEM_PCC_3D_ReferenceElement_Dat
     localSpace.PiNabla = localSpace.Gmatrix.partialPivLu().solve(localSpace.Bmatrix);
 }
 //****************************************************************************
-void VEM_PCC_3D_LocalSpace::ComputePolynomialsDofs(const double &polyhedronMeasure,
+void VEM_PCC_3D_Inertia_LocalSpace::ComputePolynomialsDofs(const double &polyhedronMeasure,
                                                    VEM_PCC_3D_LocalSpace_Data &localSpace) const
 {
     localSpace.Dmatrix.setZero(localSpace.NumBasisFunctions, localSpace.NumProjectorBasisFunctions);
@@ -349,7 +351,7 @@ void VEM_PCC_3D_LocalSpace::ComputePolynomialsDofs(const double &polyhedronMeasu
     }
 }
 //****************************************************************************
-void VEM_PCC_3D_LocalSpace::ComputeL2ProjectorsOfDerivatives(
+void VEM_PCC_3D_Inertia_LocalSpace::ComputeL2ProjectorsOfDerivatives(
     const VEM_PCC_3D_ReferenceElement_Data &reference_element_data,
     const double &polyhedronMeasure,
     const double &polyhedronDiameter,

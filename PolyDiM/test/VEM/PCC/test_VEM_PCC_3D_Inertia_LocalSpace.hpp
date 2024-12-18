@@ -1,5 +1,5 @@
-#ifndef __TEST_VEM_PCC_3D_Ortho_LocalSpace_H
-#define __TEST_VEM_PCC_3D_Ortho_LocalSpace_H
+#ifndef __TEST_VEM_PCC_3D_Inertia_LocalSpace_H
+#define __TEST_VEM_PCC_3D_Inertia_LocalSpace_H
 
 #include <gmock/gmock-matchers.h>
 #include <gmock/gmock.h>
@@ -7,14 +7,14 @@
 
 #include "GeometryUtilities.hpp"
 #include "VEM_PCC_2D_LocalSpace_Data.hpp"
-#include "VEM_PCC_3D_Ortho_LocalSpace.hpp"
+#include "VEM_PCC_3D_Inertia_LocalSpace.hpp"
 #include "VEM_PCC_PerformanceAnalysis.hpp"
 
 namespace Polydim
 {
 namespace UnitTesting
 {
-struct Test_VEM_PCC_2D_Ortho_PolygonalFaces_Geometry final
+struct Test_VEM_PCC_2D_Inertia_PolygonalFaces_Geometry final
 {
     Eigen::MatrixXd Vertices;
     Eigen::Vector3d Centroid;
@@ -27,9 +27,9 @@ struct Test_VEM_PCC_2D_Ortho_PolygonalFaces_Geometry final
     Eigen::MatrixXd EdgesNormal;
 };
 
-struct Test_VEM_PCC_3D_Ortho_Polyhedron_Geometry final
+struct Test_VEM_PCC_3D_Inertia_Polyhedron_Geometry final
 {
-    std::vector<Test_VEM_PCC_2D_Ortho_PolygonalFaces_Geometry> PolygonalFaces;
+    std::vector<Test_VEM_PCC_2D_Inertia_PolygonalFaces_Geometry> PolygonalFaces;
 
     Eigen::MatrixXd Vertices;
     Eigen::MatrixXi Edges;
@@ -49,10 +49,10 @@ struct Test_VEM_PCC_3D_Ortho_Polyhedron_Geometry final
     Eigen::MatrixXd EdgesTangent;
 };
 
-Test_VEM_PCC_3D_Ortho_Polyhedron_Geometry Test_VEM_PCC_3D_Ortho_Geometry(
+Test_VEM_PCC_3D_Inertia_Polyhedron_Geometry Test_VEM_PCC_3D_Inertia_Geometry(
     const Gedim::GeometryUtilities &geometry_utilities)
 {
-    Test_VEM_PCC_3D_Ortho_Polyhedron_Geometry result;
+    Test_VEM_PCC_3D_Inertia_Polyhedron_Geometry result;
 
     const Eigen::Vector3d origin = Eigen::Vector3d(0.0, 0.0, 0.0);
     const Eigen::Vector3d length = Eigen::Vector3d(1.0, 0.0, 0.0);
@@ -118,14 +118,14 @@ Test_VEM_PCC_3D_Ortho_Polyhedron_Geometry Test_VEM_PCC_3D_Ortho_Geometry(
     return result;
 }
 
-TEST(Test_VEM_PCC, Test_VEM_PCC_3D_Ortho_O1_O2_O3)
+TEST(Test_VEM_PCC, Test_VEM_PCC_3D_Inertia_O1_O2_O3)
 {
     Gedim::GeometryUtilitiesConfig geometry_utilities_config;
     geometry_utilities_config.Tolerance1D = std::numeric_limits<double>::epsilon();
     Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
 
-    const Test_VEM_PCC_3D_Ortho_Polyhedron_Geometry polyhedron_data =
-        Test_VEM_PCC_3D_Ortho_Geometry(geometry_utilities);
+    const Test_VEM_PCC_3D_Inertia_Polyhedron_Geometry polyhedron_data =
+        Test_VEM_PCC_3D_Inertia_Geometry(geometry_utilities);
 
     const unsigned int numFaces = polyhedron_data.PolygonalFaces.size();
     std::vector<Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry> polygonalFaces;
@@ -170,7 +170,7 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_3D_Ortho_O1_O2_O3)
     {
         Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement vem_reference_element_2D;
         Polydim::VEM::PCC::VEM_PCC_3D_ReferenceElement vem_reference_element_3D;
-        Polydim::VEM::PCC::VEM_PCC_3D_Ortho_LocalSpace vem_local_space;
+        Polydim::VEM::PCC::VEM_PCC_3D_Inertia_LocalSpace vem_local_space;
 
         const auto reference_element_data_2D = vem_reference_element_2D.Create(k);
         const auto reference_element_data_3D = vem_reference_element_3D.Create(k);
