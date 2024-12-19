@@ -13,7 +13,7 @@
 #include "VEM_PCC_2D_ReferenceElement.hpp"
 #include "VEM_PCC_PerformanceAnalysis.hpp"
 #include "VEM_PCC_Utilities.hpp"
-#include "VEM_PCC_2D_LocalSpace_Creator.hpp"
+#include "VEM_PCC_2D_Creator.hpp"
 #include "DOFsManager.hpp"
 #include "program_configuration.hpp"
 #include "test_definition.hpp"
