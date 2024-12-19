@@ -20,7 +20,7 @@ enum struct VEM_PCC_2D_LocalSpace_Types
     VEM_PCC_2D_Ortho_LocalSpace = 3
 };
 
-std::unique_ptr<I_VEM_PCC_2D_LocalSpace> create_VEM_PCC_2D_local_space(const VEM_PCC_2D_LocalSpace_Types &type)
+inline std::unique_ptr<I_VEM_PCC_2D_LocalSpace> create_VEM_PCC_2D_local_space(const VEM_PCC_2D_LocalSpace_Types &type)
 {
     switch (type)
     {

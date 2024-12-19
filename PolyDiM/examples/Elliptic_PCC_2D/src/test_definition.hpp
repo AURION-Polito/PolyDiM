@@ -131,7 +131,6 @@ namespace Polydim
               };
             }
         };
-        unsigned int Patch_Test::order;
         // ***************************************************************************
         struct Poisson_Polynomial_Problem final : public I_Test
         {

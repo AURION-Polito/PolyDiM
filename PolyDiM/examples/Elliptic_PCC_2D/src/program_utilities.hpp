@@ -37,7 +37,8 @@ namespace Polydim
                                 Gedim::MeshMatricesDAO& mesh)
         {
           Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
-          geometryUtilitiesConfig.Tolerance1D = 1.0e-8;
+          geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance1D();
+          geometryUtilitiesConfig.Tolerance2D = config.GeometricTolerance2D();
           Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
           Gedim::MeshUtilities meshUtilities;

@@ -26,12 +26,12 @@ enum struct MeshGenerator_Types_2D
     OFFImporter = 3 ///< imported off mesh
 };
 
-void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
-                    const Gedim::MeshUtilities &mesh_utilities,
-                    const MeshGenerator_Types_2D &mesh_type,
-                    const PDE_Domain_2D &pde_domain,
-                    const double &max_relative_area,
-                    Gedim::MeshMatricesDAO &mesh)
+inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
+                           const Gedim::MeshUtilities &mesh_utilities,
+                           const MeshGenerator_Types_2D &mesh_type,
+                           const PDE_Domain_2D &pde_domain,
+                           const double &max_relative_area,
+                           Gedim::MeshMatricesDAO &mesh)
 {
     switch (mesh_type)
     {
@@ -56,11 +56,11 @@ void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
     }
 }
 
-void import_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
-                    const Gedim::MeshUtilities &mesh_utilities,
-                    const MeshGenerator_Types_2D &mesh_type,
-                    const std::string &file_path,
-                    Gedim::MeshMatricesDAO &mesh)
+inline void import_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
+                           const Gedim::MeshUtilities &mesh_utilities,
+                           const MeshGenerator_Types_2D &mesh_type,
+                           const std::string &file_path,
+                           Gedim::MeshMatricesDAO &mesh)
 {
     switch (mesh_type)
     {
@@ -74,13 +74,12 @@ void import_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
     }
 }
 
-Gedim::MeshUtilities::MeshGeometricData2D compute_mesh_2D_geometry_data(
-    const Gedim::GeometryUtilities &geometry_utilities,
-    const Gedim::MeshUtilities &mesh_utilities,
-    const Gedim::MeshMatricesDAO &mesh)
+inline Gedim::MeshUtilities::MeshGeometricData2D compute_mesh_2D_geometry_data(const Gedim::GeometryUtilities &geometry_utilities,
+                                                                               const Gedim::MeshUtilities &mesh_utilities,
+                                                                               const Gedim::MeshMatricesDAO &mesh)
 {
-    std::vector<Gedim::GeometryUtilities::PolygonTypes> cell2Ds_types(
-        mesh.Cell2DTotalNumber(), Gedim::GeometryUtilities::PolygonTypes::Generic_Concave);
+    std::vector<Gedim::GeometryUtilities::PolygonTypes> cell2Ds_types(mesh.Cell2DTotalNumber(),
+                                                                      Gedim::GeometryUtilities::PolygonTypes::Generic_Concave);
     return mesh_utilities.FillMesh2DGeometricData(geometry_utilities, mesh, cell2Ds_types);
 }
 } // namespace PDE_Mesh_Utilities

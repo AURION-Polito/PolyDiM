@@ -11,18 +11,16 @@ namespace VEM
 namespace MCC
 {
 //****************************************************************************
-VEM_MCC_Velocity_LocalSpace_Data VEM_MCC_2D_Ortho_Velocity_LocalSpace::CreateLocalSpace(
-    const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+VEM_MCC_Velocity_LocalSpace_Data VEM_MCC_2D_Ortho_Velocity_LocalSpace::CreateLocalSpace(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
     const VEM_MCC_2D_Polygon_Geometry &polygon) const
 {
     VEM_MCC_Velocity_LocalSpace_Data localSpace;
 
     Quadrature::VEM_Quadrature_2D quadrature;
-    localSpace.InternalQuadrature = quadrature.PolygonInternalQuadrature(
-        reference_element_data.Quadrature.ReferenceTriangleQuadrature, polygon.TriangulationVertices);
+    localSpace.InternalQuadrature = quadrature.PolygonInternalQuadrature(reference_element_data.Quadrature.ReferenceTriangleQuadrature,
+                                                                         polygon.TriangulationVertices);
 
-    localSpace.BoundaryQuadrature =
-        quadrature.PolygonEdgesQuadrature(reference_element_data.Quadrature.ReferenceSegmentQuadrature,
+    localSpace.BoundaryQuadrature = quadrature.PolygonEdgesQuadrature(reference_element_data.Quadrature.ReferenceSegmentQuadrature,
                                           polygon.Vertices,
                                           polygon.EdgesLength,
                                           polygon.EdgesDirection,
@@ -59,8 +57,7 @@ VEM_MCC_Velocity_LocalSpace_Data VEM_MCC_2D_Ortho_Velocity_LocalSpace::CreateLoc
     return localSpace;
 }
 //****************************************************************************
-void VEM_MCC_2D_Ortho_Velocity_LocalSpace::InitializeProjectorsComputation(
-    const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+void VEM_MCC_2D_Ortho_Velocity_LocalSpace::InitializeProjectorsComputation(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
     const unsigned int &numEdges,
     const Eigen::Vector3d &polygonCentroid,
     const double &polygonDiameter,
@@ -79,13 +76,16 @@ void VEM_MCC_2D_Ortho_Velocity_LocalSpace::InitializeProjectorsComputation(
 
     localSpace.NumNablaInternalBasisFunctions = localSpace.Nk - 1;
     localSpace.NumBigOPlusInternalBasisFunctions = localSpace.Nk - (reference_element_data.Order + 1);
-    localSpace.NumInternalBasisFunctions =
-        localSpace.NumNablaInternalBasisFunctions + localSpace.NumBigOPlusInternalBasisFunctions;
+    localSpace.NumInternalBasisFunctions = localSpace.NumNablaInternalBasisFunctions
+                                           + localSpace.NumBigOPlusInternalBasisFunctions;
 
-    localSpace.NumBasisFunctions = localSpace.NumBoundaryBasisFunctions + localSpace.NumInternalBasisFunctions;
+    localSpace.NumBasisFunctions = localSpace.NumBoundaryBasisFunctions
+                                   + localSpace.NumInternalBasisFunctions;
 
-    const MatrixXd VanderInternalMonomials = monomials.Vander(
-        reference_element_data.MonomialsKp1, internalQuadraturePoints, polygonCentroid, polygonDiameter);
+    const MatrixXd VanderInternalMonomials = monomials.Vander(reference_element_data.MonomialsKp1,
+                                                              internalQuadraturePoints,
+                                                              polygonCentroid,
+                                                              polygonDiameter);
 
     // Compute change of polynomial basis matrix
     ChangeOfBasis(VanderInternalMonomials, internalQuadratureWeights, localSpace);
@@ -202,8 +202,9 @@ void VEM_MCC_2D_Ortho_Velocity_LocalSpace::ComputeL2Projectors(const double &pol
     localSpace.Pi0k = localSpace.Gmatrix.llt().solve(localSpace.Bmatrix);
 }
 //****************************************************************************
-void VEM_MCC_2D_Ortho_Velocity_LocalSpace::ComputeDivergenceCoefficients(
-    const double &polytopeMeasure, const Eigen::MatrixXd &W2, VEM_MCC_Velocity_LocalSpace_Data &localSpace) const
+void VEM_MCC_2D_Ortho_Velocity_LocalSpace::ComputeDivergenceCoefficients(const double &polytopeMeasure,
+                                                                         const Eigen::MatrixXd &W2,
+                                                                         VEM_MCC_Velocity_LocalSpace_Data &localSpace) const
 {
     MatrixXd W1 = MatrixXd::Zero(localSpace.Nk, localSpace.NumBasisFunctions);
 

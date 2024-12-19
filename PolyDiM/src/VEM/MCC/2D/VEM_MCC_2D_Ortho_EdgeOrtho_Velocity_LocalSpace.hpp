@@ -1,5 +1,5 @@
-#ifndef __VEM_MCC_2D_Velocity_LocalSpace_HPP
-#define __VEM_MCC_2D_Velocity_LocalSpace_HPP
+#ifndef __VEM_MCC_2D_Ortho_EdgeOrtho_Velocity_LocalSpace_HPP
+#define __VEM_MCC_2D_Ortho_EdgeOrtho_Velocity_LocalSpace_HPP
 
 #include "Eigen/Eigen"
 #include "I_VEM_MCC_2D_Velocity_LocalSpace.hpp"
@@ -15,12 +15,10 @@ namespace VEM
 {
 namespace MCC
 {
-/// \brief Class used for computing values of basis functions of 2D
-/// Mixed Conforming Constant degree Virtual Element Methods.
-class VEM_MCC_2D_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_LocalSpace
+class VEM_MCC_2D_Ortho_EdgeOrtho_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_LocalSpace
 {
 private:
-    MCC::VEM_MCC_Utilities<2> utilities;
+    VEM_MCC_Utilities<2> utilities;
     Monomials::VEM_Monomials_2D monomials;
 
     void InitializeProjectorsComputation(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
@@ -32,6 +30,10 @@ private:
                                          const Eigen::MatrixXd &boundaryQuadraturePoints,
                                          VEM_MCC_Velocity_LocalSpace_Data &localSpace) const;
 
+    void ChangeOfBasis(const Eigen::MatrixXd &VanderInternalMonomialsKp1,
+                       const Eigen::VectorXd &internalQuadratureWeights,
+                       VEM_MCC_Velocity_LocalSpace_Data &localSpace) const;
+
     inline void ComputeStabilizationMatrix(const double &polygonMeasure,
                                            VEM_MCC_Velocity_LocalSpace_Data &localSpace) const
     {
@@ -39,6 +41,14 @@ private:
                                                                      polygonMeasure,
                                                                      localSpace.Dmatrix);
     }
+
+    void ComputeValuesOnBoundary(const Eigen::MatrixXd &polytopeVertices,
+                                 const Eigen::MatrixXd &edgeNormals,
+                                 const std::vector<bool> &edgeDirections,
+                                 const Eigen::VectorXd &boundaryQuadratureWeights,
+                                 Eigen::MatrixXd &W2,
+                                 Eigen::MatrixXd &B2Nabla,
+                                 VEM_MCC_Velocity_LocalSpace_Data &localSpace) const;
 
     void ComputeL2Projectors(const double &polygonMeasure,
                              const Eigen::VectorXd &internalQuadratureWeights,
@@ -48,14 +58,6 @@ private:
     void ComputeDivergenceCoefficients(const double &polytopeMeasure,
                                        const Eigen::MatrixXd &W2,
                                        VEM_MCC_Velocity_LocalSpace_Data &localSpace) const;
-
-    void ComputeValuesOnBoundary(const Eigen::MatrixXd &polytopeVertices,
-                                 const Eigen::MatrixXd &edgeNormals,
-                                 const std::vector<bool> &edgeDirections,
-                                 const Eigen::VectorXd &boundaryQuadratureWeights,
-                                 Eigen::MatrixXd &W2,
-                                 Eigen::MatrixXd &B2Nabla,
-                                 VEM_MCC_Velocity_LocalSpace_Data &localSpace) const;
 
     void ComputePolynomialBasisDofs(const double &polytopeMeasure, VEM_MCC_Velocity_LocalSpace_Data &localSpace) const
     {
@@ -102,8 +104,11 @@ public:
                                                     const VEM_MCC_2D_Polygon_Geometry &polygon,
                                                     const Eigen::MatrixXd &points) const
     {
-        return monomials.Vander(reference_element_data.MonomialsKp1, points, polygon.Centroid, polygon.Diameter)
-            .leftCols(localSpace.Nk);
+        return monomials.Vander(reference_element_data.MonomialsKp1,
+                                points, polygon.Centroid,
+                                polygon.Diameter) *
+               localSpace.QmatrixKp1.topLeftCorner(localSpace.Nk,
+                                                   localSpace.Nk).transpose();
     }
 };
 } // namespace MCC

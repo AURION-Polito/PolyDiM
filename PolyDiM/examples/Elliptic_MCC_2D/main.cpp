@@ -1,17 +1,16 @@
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
 #include "MeshUtilities.hpp"
 #include "VEM_MCC_2D_ReferenceElement.hpp"
-#include "VEM_MCC_2D_Velocity_LocalSpace.hpp"
 #include "VTKUtilities.hpp"
 #include "program_configuration.hpp"
 #include "MeshMatricesDAO.hpp"
 #include "DOFsManager.hpp"
 #include "Eigen_LUSolver.hpp"
 #include "assembler.hpp"
-#include "VEM_MCC_2D_Ortho_Velocity_LocalSpace.hpp"
 #include "program_utilities.hpp"
 #include "test_definition.hpp"
 
+unsigned int Polydim::examples::Elliptic_MCC_2D::test::Patch_Test::order;
 
 int main(int argc, char** argv)
 {
@@ -56,19 +55,10 @@ int main(int argc, char** argv)
     Gedim::Output::PrintGenericMessage("SetProblem...", true);
     Gedim::Profiler::StartTime("SetProblem");
 
-    Polydim::examples::Elliptic_MCC_2D::test::Patch_Test::order = config.VemOrder();
+    const auto test = Polydim::examples::Elliptic_MCC_2D::program_utilities::create_test(config);
 
-    const auto domain = TEST_TYPE::domain();
-    const auto boundary_info = TEST_TYPE::boundary_info();
-    const auto diffusion_term = TEST_TYPE::diffusion_term;
-    const auto source_term = TEST_TYPE::source_term;
-    const auto weak_boundary_condition = TEST_TYPE::weak_boundary_condition;
-    const auto strong_boundary_condition = TEST_TYPE::strong_boundary_condition;
-    const auto exact_pressure = TEST_TYPE::exact_pressure;
-    const auto exact_velocity = TEST_TYPE::exact_velocity;
-    const auto mixed_advection_term = TEST_TYPE::mixed_advection_term;
-    const auto reaction_term = TEST_TYPE::reaction_term;
-    const auto inverse_diffusion_term = TEST_TYPE::inverse_diffusion_term;
+    const auto domain = test->domain();
+    const auto boundary_info = test->boundary_info();
 
     // export domain
     {
@@ -182,31 +172,19 @@ int main(int argc, char** argv)
     Gedim::Profiler::StopTime("CreateVEMSpace");
     Gedim::Output::PrintStatusProgram("CreateVEMSpace");
 
-    const unsigned int VEM_ID = Polydim::examples::Elliptic_MCC_2D::program_utilities::VemType<VEM_LOCAL_SPACE_TYPE>(); // Enhanced Virtual Element Method with monomials basis
-
-
-    Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " + to_string(VEM_ID) + "...", true);
+    Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " + to_string(static_cast<unsigned int>(config.VemType())) + "...", true);
     Gedim::Profiler::StartTime("AssembleSystem");
 
 
-    Polydim::examples::Elliptic_MCC_2D::Assembler<Polydim::VEM::MCC::VEM_MCC_2D_Velocity_LocalSpace> assembler;
-
-
-
-    auto assembler_data = assembler.Assemble(mesh,
+    Polydim::examples::Elliptic_MCC_2D::Assembler assembler;
+    auto assembler_data = assembler.Assemble(config,
+                                             mesh,
                                              meshGeometricData,
-                                             config.GeometricTolerance1D(),
-                                             config.GeometricTolerance2D(),
                                              meshDOFsInfo,
                                              dofs_data,
                                              velocity_reference_element_data,
                                              pressure_reference_element_data,
-                                             mixed_advection_term,
-                                             reaction_term,
-                                             inverse_diffusion_term,
-                                             source_term,
-                                             strong_boundary_condition,
-                                             weak_boundary_condition);
+                                             *test);
 
     Gedim::Profiler::StopTime("AssembleSystem");
     Gedim::Output::PrintStatusProgram("AssembleSystem");
@@ -235,16 +213,14 @@ int main(int argc, char** argv)
     Gedim::Output::PrintGenericMessage("ComputeErrors...", true);
     Gedim::Profiler::StartTime("ComputeErrors");
 
-    auto post_process_data = assembler.PostProcessSolution(mesh,
+    auto post_process_data = assembler.PostProcessSolution(config,
+                                                           mesh,
                                                            meshGeometricData,
-                                                           config.GeometricTolerance1D(),
-                                                           config.GeometricTolerance2D(),
                                                            dofs_data,
                                                            velocity_reference_element_data,
                                                            pressure_reference_element_data,
                                                            assembler_data,
-                                                           exact_velocity,
-                                                           exact_pressure);
+                                                           *test);
 
     Gedim::Profiler::StopTime("ComputeErrors");
     Gedim::Output::PrintStatusProgram("ComputeErrors");
@@ -252,13 +228,13 @@ int main(int argc, char** argv)
     Gedim::Output::PrintGenericMessage("ExportSolution...", true);
     Gedim::Profiler::StartTime("ExportSolution");
 
-    Polydim::examples::Elliptic_MCC_2D::program_utilities::export_solution<VEM_LOCAL_SPACE_TYPE, TEST_TYPE>(config,
-                                                                                                            mesh,
-                                                                                                            dofs_data,
-                                                                                                            assembler_data,
-                                                                                                            post_process_data,
-                                                                                                            exportSolutionFolder,
-                                                                                                            exportVtuFolder);
+    Polydim::examples::Elliptic_MCC_2D::program_utilities::export_solution(config,
+                                                                           mesh,
+                                                                           dofs_data,
+                                                                           assembler_data,
+                                                                           post_process_data,
+                                                                           exportSolutionFolder,
+                                                                           exportVtuFolder);
 
     Gedim::Profiler::StopTime("ExportSolution");
     Gedim::Output::PrintStatusProgram("ExportSolution");
@@ -268,10 +244,9 @@ int main(int argc, char** argv)
 
     if (config.ComputeVEMPerformance())
     {
-        const auto vemPerformance = assembler.ComputeVemPerformance(mesh,
+        const auto vemPerformance = assembler.ComputeVemPerformance(config,
+                                                                    mesh,
                                                                     meshGeometricData,
-                                                                    config.GeometricTolerance1D(),
-                                                                    config.GeometricTolerance2D(),
                                                                     velocity_reference_element_data);
         {
             const char separator = ',';

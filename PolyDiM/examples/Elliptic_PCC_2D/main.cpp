@@ -1,11 +1,11 @@
 #include "Eigen_CholeskySolver.hpp"
 
-#include "MeshDAOExporterToCsv.hpp"
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
 
 #include "test_definition.hpp"
 #include "program_utilities.hpp"
 
+unsigned int Polydim::examples::Elliptic_PCC_2D::test::Patch_Test::order;
 
 int main(int argc, char** argv)
 {
@@ -19,8 +19,6 @@ int main(int argc, char** argv)
 
   Gedim::Configurations::Initialize(argc, argv);
 
-  typedef Polydim::examples::Elliptic_PCC_2D::test::Poisson_Polynomial_Problem TEST_TYPE;
-  typedef Polydim::VEM::PCC::VEM_PCC_2D_Inertia_LocalSpace VEM_LOCAL_SPACE_TYPE;
 
   /// Create folders
   const string exportFolder = config.ExportFolder();
@@ -79,12 +77,6 @@ int main(int argc, char** argv)
   Polydim::examples::Elliptic_PCC_2D::program_utilities::create_domain_mesh(config,
                                                                             domain,
                                                                             mesh);
-  //    const Gedim::MeshFromCsvUtilities utilities;
-  //    Gedim::MeshFromCsvUtilities::Configuration configuration;
-  //    configuration.Folder = config.ExportFolder() + "/Mesh";
-  //    Gedim::MeshDAOExporterToCsv exportMesh(utilities);
-  //    exportMesh.Export(configuration,
-  //                      mesh);
 
   Gedim::Profiler::StopTime("CreateMesh");
   Gedim::Output::PrintStatusProgram("CreateMesh");
@@ -213,8 +205,7 @@ int main(int argc, char** argv)
     const auto vemPerformance = assembler.ComputeVemPerformance(config,
                                                                 mesh,
                                                                 meshGeometricData,
-                                                                reference_element_data,
-                                                                *test);
+                                                                reference_element_data);
     {
       const char separator = ',';
       /// Export Cell2Ds VEM performance

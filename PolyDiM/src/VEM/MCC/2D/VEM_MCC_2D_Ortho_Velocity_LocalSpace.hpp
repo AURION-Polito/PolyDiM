@@ -2,6 +2,7 @@
 #define __VEM_MCC_2D_Ortho_Velocity_LocalSpace_HPP
 
 #include "Eigen/Eigen"
+#include "I_VEM_MCC_2D_Velocity_LocalSpace.hpp"
 #include "VEM_MCC_2D_ReferenceElement.hpp"
 #include "VEM_MCC_Utilities.hpp"
 #include "VEM_MCC_Velocity_LocalSpace_Data.hpp"
@@ -14,9 +15,9 @@ namespace VEM
 {
 namespace MCC
 {
-class VEM_MCC_2D_Ortho_Velocity_LocalSpace final
+class VEM_MCC_2D_Ortho_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_LocalSpace
 {
-  private:
+private:
     VEM_MCC_Utilities<2> utilities;
     Monomials::VEM_Monomials_2D monomials;
 
@@ -36,8 +37,9 @@ class VEM_MCC_2D_Ortho_Velocity_LocalSpace final
     inline void ComputeStabilizationMatrix(const double &polygonMeasure,
                                            VEM_MCC_Velocity_LocalSpace_Data &localSpace) const
     {
-        localSpace.StabMatrix =
-            utilities.ComputeStabilizationMatrix(localSpace.Pi0k, polygonMeasure, localSpace.Dmatrix);
+        localSpace.StabMatrix = utilities.ComputeStabilizationMatrix(localSpace.Pi0k,
+                                                                     polygonMeasure,
+                                                                     localSpace.Dmatrix);
     }
 
     void ComputeValuesOnBoundary(const Eigen::MatrixXd &polytopeVertices,
@@ -70,13 +72,11 @@ class VEM_MCC_2D_Ortho_Velocity_LocalSpace final
                                                                   localSpace.Gmatrix);
     };
 
-  public:
-    VEM_MCC_Velocity_LocalSpace_Data CreateLocalSpace(
-        const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
-        const VEM_MCC_2D_Polygon_Geometry &polygon) const;
+public:
+    VEM_MCC_Velocity_LocalSpace_Data CreateLocalSpace(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+                                                      const VEM_MCC_2D_Polygon_Geometry &polygon) const;
 
-    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(
-        const VEM_MCC_Velocity_LocalSpace_Data &localSpace) const
+    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const VEM_MCC_Velocity_LocalSpace_Data &localSpace) const
     {
         const unsigned int numQuadrature = localSpace.InternalQuadrature.Points.cols();
         const Eigen::MatrixXd temp = localSpace.GkVanderInternal.transpose() * localSpace.Pi0k;
@@ -89,8 +89,7 @@ class VEM_MCC_2D_Ortho_Velocity_LocalSpace final
         return result;
     }
 
-    inline Eigen::MatrixXd ComputeBasisFunctionsDivergenceValues(
-        const VEM_MCC_Velocity_LocalSpace_Data &localSpace) const
+    inline Eigen::MatrixXd ComputeBasisFunctionsDivergenceValues(const VEM_MCC_Velocity_LocalSpace_Data &localSpace) const
     {
         return localSpace.VanderInternal * localSpace.Vmatrix;
     }
@@ -100,14 +99,17 @@ class VEM_MCC_2D_Ortho_Velocity_LocalSpace final
         return localSpace.VanderInternal;
     }
 
-    inline Eigen::MatrixXd ComputePolynomialsValues(
-        const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
-        const VEM_MCC_Velocity_LocalSpace_Data &localSpace,
-        const VEM_MCC_2D_Polygon_Geometry &polygon,
-        const Eigen::MatrixXd &points) const
+    inline Eigen::MatrixXd ComputePolynomialsValues(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+                                                    const VEM_MCC_Velocity_LocalSpace_Data &localSpace,
+                                                    const VEM_MCC_2D_Polygon_Geometry &polygon,
+                                                    const Eigen::MatrixXd &points) const
     {
-        return monomials.Vander(reference_element_data.MonomialsKp1, points, polygon.Centroid, polygon.Diameter) *
-               localSpace.QmatrixKp1.topLeftCorner(localSpace.Nk, localSpace.Nk).transpose();
+        return monomials.Vander(reference_element_data.MonomialsKp1,
+                                points,
+                                polygon.Centroid,
+                                polygon.Diameter) *
+               localSpace.QmatrixKp1.topLeftCorner(localSpace.Nk,
+                                                   localSpace.Nk).transpose();
     }
 };
 } // namespace MCC

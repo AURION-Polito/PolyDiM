@@ -1,5 +1,5 @@
-#ifndef __VEM_MCC_2D_Velocity_LocalSpace_HPP
-#define __VEM_MCC_2D_Velocity_LocalSpace_HPP
+#ifndef __VEM_MCC_2D_EdgeOrtho_Velocity_LocalSpace_HPP
+#define __VEM_MCC_2D_EdgeOrtho_Velocity_LocalSpace_HPP
 
 #include "Eigen/Eigen"
 #include "I_VEM_MCC_2D_Velocity_LocalSpace.hpp"
@@ -17,7 +17,7 @@ namespace MCC
 {
 /// \brief Class used for computing values of basis functions of 2D
 /// Mixed Conforming Constant degree Virtual Element Methods.
-class VEM_MCC_2D_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_LocalSpace
+class VEM_MCC_2D_EdgeOrtho_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_LocalSpace
 {
 private:
     MCC::VEM_MCC_Utilities<2> utilities;
@@ -79,7 +79,8 @@ public:
         const unsigned int numQuadrature = localSpace.InternalQuadrature.Points.cols();
         const Eigen::MatrixXd temp = localSpace.GkVanderInternal.transpose() * localSpace.Pi0k;
         std::vector<Eigen::MatrixXd> result(localSpace.Dimension,
-                                            Eigen::MatrixXd::Zero(localSpace.Dimension, localSpace.NumBasisFunctions));
+                                            Eigen::MatrixXd::Zero(localSpace.Dimension,
+                                                                  localSpace.NumBasisFunctions));
 
         for (unsigned int d = 0; d < localSpace.Dimension; d++)
             result[d] = temp.middleRows(numQuadrature * d, numQuadrature);
@@ -102,8 +103,10 @@ public:
                                                     const VEM_MCC_2D_Polygon_Geometry &polygon,
                                                     const Eigen::MatrixXd &points) const
     {
-        return monomials.Vander(reference_element_data.MonomialsKp1, points, polygon.Centroid, polygon.Diameter)
-            .leftCols(localSpace.Nk);
+        return monomials.Vander(reference_element_data.MonomialsKp1,
+                                points,
+                                polygon.Centroid,
+                                polygon.Diameter).leftCols(localSpace.Nk);
     }
 };
 } // namespace MCC

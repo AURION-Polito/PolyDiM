@@ -11,23 +11,21 @@ namespace VEM
 namespace MCC
 {
 //****************************************************************************
-VEM_MCC_Velocity_LocalSpace_Data VEM_MCC_2D_Velocity_LocalSpace::CreateLocalSpace(
-    const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
-    const VEM_MCC_2D_Polygon_Geometry &polygon) const
+VEM_MCC_Velocity_LocalSpace_Data VEM_MCC_2D_Velocity_LocalSpace::CreateLocalSpace(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+                                                                                  const VEM_MCC_2D_Polygon_Geometry &polygon) const
 {
     VEM_MCC_Velocity_LocalSpace_Data localSpace;
 
     Quadrature::VEM_Quadrature_2D quadrature;
-    localSpace.InternalQuadrature = quadrature.PolygonInternalQuadrature(
-        reference_element_data.Quadrature.ReferenceTriangleQuadrature, polygon.TriangulationVertices);
+    localSpace.InternalQuadrature = quadrature.PolygonInternalQuadrature(reference_element_data.Quadrature.ReferenceTriangleQuadrature,
+                                                                         polygon.TriangulationVertices);
 
-    localSpace.BoundaryQuadrature =
-        quadrature.PolygonEdgesQuadrature(reference_element_data.Quadrature.ReferenceSegmentQuadrature,
-                                          polygon.Vertices,
-                                          polygon.EdgesLength,
-                                          polygon.EdgesDirection,
-                                          polygon.EdgesTangent,
-                                          polygon.EdgesNormal);
+    localSpace.BoundaryQuadrature =quadrature.PolygonEdgesQuadrature(reference_element_data.Quadrature.ReferenceSegmentQuadrature,
+                                                                      polygon.Vertices,
+                                                                      polygon.EdgesLength,
+                                                                      polygon.EdgesDirection,
+                                                                      polygon.EdgesTangent,
+                                                                      polygon.EdgesNormal);
 
     InitializeProjectorsComputation(reference_element_data,
                                     polygon.EdgesLength.size(),
@@ -59,15 +57,14 @@ VEM_MCC_Velocity_LocalSpace_Data VEM_MCC_2D_Velocity_LocalSpace::CreateLocalSpac
     return localSpace;
 }
 //****************************************************************************
-void VEM_MCC_2D_Velocity_LocalSpace::InitializeProjectorsComputation(
-    const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
-    const unsigned int &numEdges,
-    const Eigen::Vector3d &polygonCentroid,
-    const double &polygonDiameter,
-    const Eigen::MatrixXd &internalQuadraturePoints,
-    const Eigen::VectorXd &internalQuadratureWeights,
-    const Eigen::MatrixXd &boundaryQuadraturePoints,
-    VEM_MCC_Velocity_LocalSpace_Data &localSpace) const
+void VEM_MCC_2D_Velocity_LocalSpace::InitializeProjectorsComputation(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+                                                                     const unsigned int &numEdges,
+                                                                     const Eigen::Vector3d &polygonCentroid,
+                                                                     const double &polygonDiameter,
+                                                                     const Eigen::MatrixXd &internalQuadraturePoints,
+                                                                     const Eigen::VectorXd &internalQuadratureWeights,
+                                                                     const Eigen::MatrixXd &boundaryQuadraturePoints,
+                                                                     VEM_MCC_Velocity_LocalSpace_Data &localSpace) const
 {
     localSpace.Dimension = reference_element_data.Dimension;
     localSpace.Order = reference_element_data.Order;
@@ -83,8 +80,10 @@ void VEM_MCC_2D_Velocity_LocalSpace::InitializeProjectorsComputation(
     localSpace.NumBasisFunctions = localSpace.NumBoundaryBasisFunctions + localSpace.NumInternalBasisFunctions;
 
     // Compute Vandermonde matrices.
-    localSpace.VanderInternalKp1 = monomials.Vander(
-        reference_element_data.MonomialsKp1, internalQuadraturePoints, polygonCentroid, polygonDiameter);
+    localSpace.VanderInternalKp1 = monomials.Vander(reference_element_data.MonomialsKp1,
+                                                    internalQuadraturePoints,
+                                                    polygonCentroid,
+                                                    polygonDiameter);
 
     localSpace.VanderInternal = localSpace.VanderInternalKp1.leftCols(localSpace.Nk);
 
@@ -105,12 +104,12 @@ void VEM_MCC_2D_Velocity_LocalSpace::InitializeProjectorsComputation(
 
     localSpace.TkNabla.resize(localSpace.NkNabla, localSpace.Dimension * localSpace.Nk);
 
-    const MatrixXd dx =
-        (1.0 / polygonDiameter) *
-        monomials.D_x(reference_element_data.MonomialsKp1).bottomLeftCorner(localSpace.NkNabla, localSpace.Nk);
-    const MatrixXd dy =
-        (1.0 / polygonDiameter) *
-        monomials.D_y(reference_element_data.MonomialsKp1).bottomLeftCorner(localSpace.NkNabla, localSpace.Nk);
+    const MatrixXd dx = (1.0 / polygonDiameter) *
+                        monomials.D_x(reference_element_data.MonomialsKp1).bottomLeftCorner(localSpace.NkNabla,
+                                                                                            localSpace.Nk);
+    const MatrixXd dy = (1.0 / polygonDiameter) *
+                        monomials.D_y(reference_element_data.MonomialsKp1).bottomLeftCorner(localSpace.NkNabla,
+                                                                                            localSpace.Nk);
 
     localSpace.TkNabla << dx, dy;
 

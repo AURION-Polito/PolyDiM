@@ -5,10 +5,8 @@
 #include "program_configuration.hpp"
 #include "DOFsManager.hpp"
 #include "VTKUtilities.hpp"
-#include "VEM_MCC_2D_Velocity_LocalSpace.hpp"
-#include "VEM_MCC_2D_Partial_Velocity_LocalSpace.hpp"
-#include "VEM_MCC_2D_Ortho_Velocity_LocalSpace.hpp"
 #include "test_definition.hpp"
+#include "PDE_Mesh_Utilities.hpp"
 
 #include <unordered_map>
 #include <typeindex>
@@ -22,26 +20,19 @@ namespace Elliptic_MCC_2D
 namespace program_utilities
 {
 // ***************************************************************************
-// Centralized mapping function for IDs
-unsigned int VemType(const std::type_index& type)
+std::unique_ptr<Polydim::examples::Elliptic_MCC_2D::test::I_Test> create_test(const Polydim::examples::Elliptic_MCC_2D::Program_configuration& config)
 {
-    static const std::unordered_map<std::type_index, unsigned int> typeToID = {
-        {typeid(Polydim::VEM::MCC::VEM_MCC_2D_Velocity_LocalSpace), 1},
-        {typeid(Polydim::VEM::MCC::VEM_MCC_2D_Partial_Velocity_LocalSpace), 2},
-        {typeid(Polydim::VEM::MCC::VEM_MCC_2D_Ortho_Velocity_LocalSpace), 3}
-    };
-
-    auto it = typeToID.find(type);
-    if (it != typeToID.end()) {
-        return it->second;
-    } else {
-        throw std::runtime_error("Class type not recognized.");
+    switch (config.TestType())
+    {
+    case Polydim::examples::Elliptic_MCC_2D::test::Test_Types::Patch_Test:
+        return std::make_unique<Polydim::examples::Elliptic_MCC_2D::test::Patch_Test>();
+    case Polydim::examples::Elliptic_MCC_2D::test::Test_Types::Poisson_Polynomial_Problem:
+        return std::make_unique<Polydim::examples::Elliptic_MCC_2D::test::Poisson_Polynomial_Problem>();
+    default:
+        throw runtime_error("Test type " +
+                            to_string((unsigned int)config.TestType()) +
+                            " not supported");
     }
-}
-// Helper template to get the ID for a specific class
-template <typename T>
-unsigned int VemType() {
-    return VemType(typeid(T));
 }
 // ***************************************************************************
 void create_domain_mesh(const Polydim::examples::Elliptic_MCC_2D::Program_configuration& config,
@@ -49,7 +40,8 @@ void create_domain_mesh(const Polydim::examples::Elliptic_MCC_2D::Program_config
                         Gedim::MeshMatricesDAO& mesh)
 {
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
-    geometryUtilitiesConfig.Tolerance1D = 1.0e-8;
+    geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance1D();
+    geometryUtilitiesConfig.Tolerance2D = config.GeometricTolerance2D();
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
     Gedim::MeshUtilities meshUtilities;
@@ -99,18 +91,17 @@ Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_propertie
                                                                                       mesh);
 }
 // ***************************************************************************
-template<typename VEM_LOCAL_SPACE_TYPE, typename TEST_TYPE>
 void export_solution(const Polydim::examples::Elliptic_MCC_2D::Program_configuration& config,
                      const Gedim::MeshMatricesDAO& mesh,
                      const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData>& dofs_data,
-                     const typename Polydim::examples::Elliptic_MCC_2D::Assembler<VEM_LOCAL_SPACE_TYPE>::Elliptic_MCC_2D_Problem_Data& assembler_data,
-                     const typename Polydim::examples::Elliptic_MCC_2D::Assembler<VEM_LOCAL_SPACE_TYPE>::PostProcess_Data& post_process_data,
+                     const Polydim::examples::Elliptic_MCC_2D::Assembler::Elliptic_MCC_2D_Problem_Data& assembler_data,
+                     const Polydim::examples::Elliptic_MCC_2D::Assembler::PostProcess_Data& post_process_data,
                      const std::string& exportSolutionFolder,
                      const std::string& exportVtuFolder)
 {
 
-    const unsigned int VEM_ID = Polydim::examples::Elliptic_MCC_2D::program_utilities::VemType<VEM_LOCAL_SPACE_TYPE>();
-    const unsigned int TEST_ID = Polydim::examples::Elliptic_MCC_2D::test::TestType<TEST_TYPE>();
+    const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
+    const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
 
     {
         const char separator = ';';

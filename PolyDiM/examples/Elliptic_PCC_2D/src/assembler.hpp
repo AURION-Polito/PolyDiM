@@ -99,8 +99,7 @@ namespace Polydim
           VEM_Performance_Result ComputeVemPerformance(const Polydim::examples::Elliptic_PCC_2D::Program_configuration& config,
                                                        const Gedim::MeshMatricesDAO& mesh,
                                                        const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
-                                                       const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
-                                                       const Polydim::examples::Elliptic_PCC_2D::test::I_Test& test) const;
+                                                       const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data) const;
 
           PostProcess_Data PostProcessSolution(const Polydim::examples::Elliptic_PCC_2D::Program_configuration& config,
                                                const Gedim::MeshMatricesDAO& mesh,
