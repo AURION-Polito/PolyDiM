@@ -52,7 +52,22 @@ inline std::unique_ptr<I_VEM_PCC_3D_ReferenceElement> create_VEM_PCC_3D_referenc
     }
 }
 
-inline std::unique_ptr<I_VEM_PCC_3D_LocalSpace> create_VEM_PCC_3D_local_space(const VEM_PCC_3D_LocalSpace_Types &type)
+inline std::unique_ptr<I_VEM_PCC_2D_LocalSpace> create_VEM_PCC_3D_local_space_2D(const VEM_PCC_3D_LocalSpace_Types &type)
+{
+    switch (type)
+    {
+    case VEM_PCC_3D_LocalSpace_Types::VEM_PCC_3D_LocalSpace:
+        return std::make_unique<VEM_PCC_2D_LocalSpace>();
+    case VEM_PCC_3D_LocalSpace_Types::VEM_PCC_3D_Inertia_LocalSpace:
+        return std::make_unique<VEM_PCC_2D_Inertia_LocalSpace>();
+    case VEM_PCC_3D_LocalSpace_Types::VEM_PCC_3D_Ortho_LocalSpace:
+        return std::make_unique<VEM_PCC_2D_Ortho_LocalSpace>();
+    default:
+        throw std::runtime_error("VEM type " + std::to_string((unsigned int)type) + " not supported");
+    }
+}
+
+inline std::unique_ptr<I_VEM_PCC_3D_LocalSpace> create_VEM_PCC_3D_local_space_3D(const VEM_PCC_3D_LocalSpace_Types &type)
 {
     switch (type)
     {

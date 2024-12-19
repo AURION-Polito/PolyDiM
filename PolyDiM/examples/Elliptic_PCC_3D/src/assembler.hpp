@@ -14,6 +14,7 @@
 #include "VEM_PCC_PerformanceAnalysis.hpp"
 #include "VEM_PCC_Utilities.hpp"
 #include "VEM_PCC_3D_Creator.hpp"
+#include "VEM_PCC_2D_Ortho_LocalSpace.hpp"
 #include "DOFsManager.hpp"
 #include "program_configuration.hpp"
 #include "test_definition.hpp"
@@ -69,11 +70,14 @@ public:
     };
 
 private:
-    void ComputeStrongTerm(const Gedim::MeshMatricesDAO& mesh,
-                           const Gedim::MeshUtilities::MeshGeometricData3D& mesh_geometric_data,
+    void ComputeStrongTerm(const unsigned int &cell3DIndex,
+                           const Gedim::MeshMatricesDAO& mesh,
+                           const std::vector<VEM::PCC::VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
                            const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo& mesh_dofs_info,
                            const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
-                           const Polydim::VEM::PCC::VEM_PCC_3D_ReferenceElement_Data& reference_element_data,
+                           const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data_2D,
+                           const Polydim::VEM::PCC::VEM_PCC_3D_ReferenceElement_Data& reference_element_data_3D,
+                           const Polydim::VEM::PCC::VEM_PCC_3D_LocalSpace_Data &local_space_data,
                            const Polydim::examples::Elliptic_PCC_3D::test::I_Test& test,
                            Elliptic_PCC_3D_Problem_Data& assembler_data) const;
 
