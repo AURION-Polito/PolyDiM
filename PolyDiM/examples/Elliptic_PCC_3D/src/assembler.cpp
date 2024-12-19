@@ -70,7 +70,7 @@ void Assembler::ComputeStrongTerm(const unsigned int& cell3DIndex,
         const auto& boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(1).at(cell1D_index);
 
         if (boundary_info.Type !=
-            Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong
+                Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong
             || local_dofs.size() == 0)
             continue;
 
@@ -121,7 +121,7 @@ void Assembler::ComputeStrongTerm(const unsigned int& cell3DIndex,
         const unsigned int numFaceQuadraturePoints = local_space_data.facesLocalSpace[f].InternalQuadrature.Points.cols();
 
         if (boundary_info.Type !=
-            Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong || local_dofs.size() == 0)
+                Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong || local_dofs.size() == 0)
         {
             quadraturePointOffset += numFaceQuadraturePoints;
             continue;
@@ -136,7 +136,8 @@ void Assembler::ComputeStrongTerm(const unsigned int& cell3DIndex,
                                                                                facesInternalQuadraturePoints3D);
 
         const Eigen::VectorXd strong_boundary_values = local_space_data.FaceScaledMomentsBasis[f].transpose()
-                                                       * local_space_data.facesLocalSpace[f].InternalQuadrature.Weights.asDiagonal()
+                                                       * local_space_data.BoundaryQuadrature.Quadrature.Weights.segment(quadraturePointOffset,
+                                                                                                                        numFaceQuadraturePoints).asDiagonal()
                                                        * dirichletValues;
 
         assert(local_dofs.size() == strong_boundary_values.size());

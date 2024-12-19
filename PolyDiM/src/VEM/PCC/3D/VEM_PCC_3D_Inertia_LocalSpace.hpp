@@ -120,12 +120,40 @@ public:
     inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const VEM_PCC_3D_LocalSpace_Data &localSpace,
                                                                               const ProjectionTypes &projectionType) const
     {
-        return utilities.ComputeBasisFunctionsDerivativeValues(projectionType,
-                                                               localSpace.Nkm1,
-                                                               localSpace.VanderInternal,
-                                                               localSpace.VanderInternalDerivatives,
-                                                               localSpace.PiNabla,
-                                                               localSpace.Pi0km1Der);
+        std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValues(localSpace.Dimension);
+        const Eigen::MatrixXd FmatrixInvTransp = localSpace.inertia_data.FmatrixInv.transpose();
+        switch (projectionType)
+        {
+        case ProjectionTypes::PiNabla: {
+            basisFunctionsDerivativeValues.resize(localSpace.Dimension);
+            for (unsigned short i = 0; i < localSpace.Dimension; ++i)
+                basisFunctionsDerivativeValues[i] = localSpace.VanderInternalDerivatives[i] * localSpace.PiNabla;
+        }
+        break;
+        case ProjectionTypes::Pi0km1Der: {
+            basisFunctionsDerivativeValues.resize(localSpace.Dimension);
+            for (unsigned short i = 0; i < localSpace.Dimension; ++i)
+                basisFunctionsDerivativeValues[i] =
+                    localSpace.VanderInternal.leftCols(localSpace.Nkm1) * localSpace.Pi0km1Der[i];
+        }
+        break;
+        default:
+            throw std::runtime_error("Unknown projector type");
+        }
+
+        std::vector<Eigen::MatrixXd> fmatrixInvTranspTimesBasisFunctionDerivativeValues(
+            localSpace.Dimension,
+            Eigen::MatrixXd::Zero(basisFunctionsDerivativeValues[0].rows(), basisFunctionsDerivativeValues[1].cols()));
+        for (unsigned int d1 = 0; d1 < localSpace.Dimension; d1++)
+        {
+            for (unsigned int d2 = 0; d2 < localSpace.Dimension; d2++)
+            {
+                fmatrixInvTranspTimesBasisFunctionDerivativeValues[d1] +=
+                    FmatrixInvTransp(d1, d2) * basisFunctionsDerivativeValues[d2];
+            }
+        }
+
+        return fmatrixInvTranspTimesBasisFunctionDerivativeValues;
     }
 
     inline Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_3D_LocalSpace_Data &) const
@@ -138,13 +166,15 @@ public:
                                                        const ProjectionTypes &projectionType,
                                                        const Eigen::MatrixXd &points) const
     {
+        const Eigen::MatrixXd referencePoints = localSpace.inertia_data.FmatrixInv
+                                                * (points.colwise() - localSpace.inertia_data.translation);
         return utilities.ComputeBasisFunctionsValues(projectionType,
                                                      localSpace.Nkm1,
                                                      localSpace.Pi0km1,
                                                      localSpace.Pi0k,
                                                      ComputePolynomialsValues(reference_element_data,
                                                                               localSpace,
-                                                                              points));
+                                                                              referencePoints));
     }
 
     inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const VEM_PCC_3D_ReferenceElement_Data &reference_element_data,
@@ -152,13 +182,47 @@ public:
                                                                               const ProjectionTypes &projectionType,
                                                                               const Eigen::MatrixXd &points) const
     {
-        return utilities.ComputeBasisFunctionsDerivativeValues(
-            projectionType,
-            localSpace.Nkm1,
-            ComputePolynomialsValues(reference_element_data, localSpace, points),
-            ComputePolynomialsDerivativeValues(reference_element_data, localSpace, points),
-            localSpace.PiNabla,
-            localSpace.Pi0km1Der);
+        const Eigen::MatrixXd referencePoints =
+            localSpace.inertia_data.FmatrixInv * (points.colwise() - localSpace.inertia_data.translation);
+
+        const Eigen::MatrixXd vander = ComputePolynomialsValues(reference_element_data, localSpace, referencePoints);
+
+        std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValues(localSpace.Dimension);
+        const Eigen::MatrixXd FmatrixInvTransp = localSpace.inertia_data.FmatrixInv.transpose();
+        switch (projectionType)
+        {
+        case ProjectionTypes::PiNabla: {
+            const std::vector<Eigen::MatrixXd> VanderDerivatives = utilities.ComputePolynomialsDerivativeValues(
+                reference_element_data.Monomials, monomials, localSpace.Diameter, vander);
+
+            basisFunctionsDerivativeValues.resize(localSpace.Dimension);
+            for (unsigned short i = 0; i < localSpace.Dimension; ++i)
+                basisFunctionsDerivativeValues[i] = VanderDerivatives[i] * localSpace.PiNabla;
+        }
+        break;
+        case ProjectionTypes::Pi0km1Der: {
+            basisFunctionsDerivativeValues.resize(localSpace.Dimension);
+            for (unsigned short i = 0; i < localSpace.Dimension; ++i)
+                basisFunctionsDerivativeValues[i] = vander.leftCols(localSpace.Nkm1) * localSpace.Pi0km1Der[i];
+        }
+        break;
+        default:
+            throw std::runtime_error("Unknown projector type");
+        }
+
+        std::vector<Eigen::MatrixXd> fmatrixInvTranspTimesBasisFunctionDerivativeValues(
+            localSpace.Dimension,
+            Eigen::MatrixXd::Zero(basisFunctionsDerivativeValues[0].rows(), basisFunctionsDerivativeValues[1].cols()));
+        for (unsigned int d1 = 0; d1 < localSpace.Dimension; d1++)
+        {
+            for (unsigned int d2 = 0; d2 < localSpace.Dimension; d2++)
+            {
+                fmatrixInvTranspTimesBasisFunctionDerivativeValues[d1] +=
+                    FmatrixInvTransp(d1, d2) * basisFunctionsDerivativeValues[d2];
+            }
+        }
+
+        return fmatrixInvTranspTimesBasisFunctionDerivativeValues;
     }
 
     inline Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_3D_ReferenceElement_Data &,
@@ -170,35 +234,63 @@ public:
 
     inline Eigen::MatrixXd ComputePolynomialsValues(const VEM_PCC_3D_LocalSpace_Data &localSpace) const
     {
-        return utilities.ComputePolynomialsValues(localSpace.VanderInternal);
+        return localSpace.VanderInternal;
     }
 
     inline Eigen::MatrixXd ComputePolynomialsValues(const VEM_PCC_3D_ReferenceElement_Data &reference_element_data,
                                                     const VEM_PCC_3D_LocalSpace_Data &localSpace,
                                                     const Eigen::MatrixXd &points) const
     {
-        return utilities.ComputePolynomialsValues(reference_element_data.Monomials,
-                                                  monomials,
-                                                  localSpace.Centroid,
-                                                  localSpace.Diameter,
-                                                  points);
+        const Eigen::MatrixXd referencePoints =
+            localSpace.inertia_data.FmatrixInv * (points.colwise() - localSpace.inertia_data.translation);
+        return utilities.ComputePolynomialsValues(
+            reference_element_data.Monomials, monomials, localSpace.Centroid, localSpace.Diameter, referencePoints);
     }
 
     inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const VEM_PCC_3D_LocalSpace_Data &localSpace) const
     {
-        return utilities.ComputePolynomialsDerivativeValues(localSpace.VanderInternalDerivatives);
+        const std::vector<Eigen::MatrixXd> &polynomialDerivatives = localSpace.VanderInternalDerivatives;
+        const Eigen::MatrixXd FmatrixInvTransp = localSpace.inertia_data.FmatrixInv.transpose();
+
+        std::vector<Eigen::MatrixXd> fmatrixInvTranspTimesPolynomialDerivatives(
+            localSpace.Dimension,
+            Eigen::MatrixXd::Zero(polynomialDerivatives[0].rows(), polynomialDerivatives[1].cols()));
+        for (unsigned int d1 = 0; d1 < localSpace.Dimension; d1++)
+        {
+            for (unsigned int d2 = 0; d2 < localSpace.Dimension; d2++)
+            {
+                fmatrixInvTranspTimesPolynomialDerivatives[d1] += FmatrixInvTransp(d1, d2) * polynomialDerivatives[d2];
+            }
+        }
+        return fmatrixInvTranspTimesPolynomialDerivatives;
     }
 
     inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const VEM_PCC_3D_ReferenceElement_Data &reference_element_data,
                                                                            const VEM_PCC_3D_LocalSpace_Data &localSpace,
                                                                            const Eigen::MatrixXd &points) const
     {
-        return utilities.ComputePolynomialsDerivativeValues(reference_element_data.Monomials,
-                                                            monomials,
-                                                            localSpace.Diameter,
-                                                            ComputePolynomialsValues(reference_element_data,
-                                                                                     localSpace,
-                                                                                     points));
+        const Eigen::MatrixXd referencePoints =
+            localSpace.inertia_data.FmatrixInv * (points.colwise() - localSpace.inertia_data.translation);
+
+        const std::vector<Eigen::MatrixXd> polynomialDerivatives = utilities.ComputePolynomialsDerivativeValues(
+            reference_element_data.Monomials,
+            monomials,
+            localSpace.Diameter,
+            ComputePolynomialsValues(reference_element_data, localSpace, referencePoints));
+
+        const Eigen::MatrixXd FmatrixInvTransp = localSpace.inertia_data.FmatrixInv.transpose();
+
+        std::vector<Eigen::MatrixXd> fmatrixInvTranspTimesPolynomialDerivatives(
+            localSpace.Dimension,
+            Eigen::MatrixXd::Zero(polynomialDerivatives[0].rows(), polynomialDerivatives[1].cols()));
+        for (unsigned int d1 = 0; d1 < localSpace.Dimension; d1++)
+        {
+            for (unsigned int d2 = 0; d2 < localSpace.Dimension; d2++)
+            {
+                fmatrixInvTranspTimesPolynomialDerivatives[d1] += FmatrixInvTransp(d1, d2) * polynomialDerivatives[d2];
+            }
+        }
+        return fmatrixInvTranspTimesPolynomialDerivatives;
     }
 
     inline Eigen::MatrixXd ComputePolynomialsLaplacianValues(const VEM_PCC_3D_ReferenceElement_Data &,

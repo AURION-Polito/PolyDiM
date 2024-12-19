@@ -112,8 +112,11 @@ public:
     inline Eigen::MatrixXd ComputeBasisFunctionsValues(const VEM_PCC_2D_LocalSpace_Data &localSpace,
                                                        const ProjectionTypes &projectionType) const
     {
-        return utilities.ComputeBasisFunctionsValues(
-            projectionType, localSpace.Nkm1, localSpace.Pi0km1, localSpace.Pi0k, localSpace.VanderInternal);
+        return utilities.ComputeBasisFunctionsValues(projectionType,
+                                                     localSpace.Nkm1,
+                                                     localSpace.Pi0km1,
+                                                     localSpace.Pi0k,
+                                                     localSpace.VanderInternal);
     }
 
     /// \brief Compute the values of projections of VEM basis function derivatives at the internal quadrature points.
@@ -122,8 +125,8 @@ public:
     /// point-wise evalution of VE basis function derivatives. \return A vector of 2 matrices of size numQuadrature
     /// \f$\times\f$ numDOFs whose columns contain the evaluation of the projection of each basis function derivatives
     /// with respect x and y, respectively, at the internal quadrature points.
-    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(
-        const VEM_PCC_2D_LocalSpace_Data &localSpace, const ProjectionTypes &projectionType) const
+    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const VEM_PCC_2D_LocalSpace_Data &localSpace,
+                                                                              const ProjectionTypes &projectionType) const
     {
         std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValues(localSpace.Dimension);
         const Eigen::MatrixXd FmatrixInvTransp = localSpace.inertia_data.FmatrixInv.transpose();
@@ -173,14 +176,15 @@ public:
                                                        const ProjectionTypes &projectionType,
                                                        const Eigen::MatrixXd &points) const
     {
-        const Eigen::MatrixXd referencePoints =
-            localSpace.inertia_data.FmatrixInv * (points.colwise() - localSpace.inertia_data.translation);
-        return utilities.ComputeBasisFunctionsValues(
-            projectionType,
-            localSpace.Nkm1,
-            localSpace.Pi0km1,
-            localSpace.Pi0k,
-            ComputePolynomialsValues(reference_element_data, localSpace, referencePoints));
+        const Eigen::MatrixXd referencePoints = localSpace.inertia_data.FmatrixInv
+                                                * (points.colwise() - localSpace.inertia_data.translation);
+        return utilities.ComputeBasisFunctionsValues(projectionType,
+                                                     localSpace.Nkm1,
+                                                     localSpace.Pi0km1,
+                                                     localSpace.Pi0k,
+                                                     ComputePolynomialsValues(reference_element_data,
+                                                                              localSpace,
+                                                                              referencePoints));
     }
 
     /// \brief Compute the values of projections of VEM basis function derivatives at points.
@@ -191,11 +195,10 @@ public:
     /// numPoints reporting the coordinates of points. \return A vector of 2 matrices of size numPoints \f$\times\f$
     /// numDOFs whose columns contain the evaluation of the projection of each basis function derivatives with respect x
     /// and y, respectively, at points.
-    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(
-        const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-        const VEM_PCC_2D_LocalSpace_Data &localSpace,
-        const ProjectionTypes &projectionType,
-        const Eigen::MatrixXd &points) const
+    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                                              const VEM_PCC_2D_LocalSpace_Data &localSpace,
+                                                                              const ProjectionTypes &projectionType,
+                                                                              const Eigen::MatrixXd &points) const
     {
 
         const Eigen::MatrixXd referencePoints =

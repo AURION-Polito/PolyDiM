@@ -105,6 +105,8 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Inertia_LocalSpace::CreateLocalSpace(
                                                                            facesQuadraturePoints,
                                                                            facesQuadratureWeights);
 
+    localSpace.BoundaryQuadrature.Quadrature.Weights = MappedBoundaryQuadrature.Quadrature.Weights;
+
     const Eigen::MatrixXd mappedEdgeInternalQuadraturePoints = quadrature3D.PolyhedronInternalEdgesQuadraturePoints(
         reference_element_data_2D.Quadrature.ReferenceSegmentInternalPoints,
         localSpace.inertia_data.Vertices,
@@ -480,9 +482,8 @@ void VEM_PCC_3D_Inertia_LocalSpace::ComputeFaceProjectors(const VEM_PCC_2D_Inert
             localSpace.ScaledHmatrixOnBoundary.block(
                 faceDofsOffset, 0, localSpace.FaceScaledMomentsBasis[i].cols(), localSpace.NumProjectorBasisFunctions) =
                 localSpace.FaceScaledMomentsBasis[i].transpose() *
-                boundaryQuadratureWeights
-                    .segment(faceQuadraturePointsOffset, localSpace.FaceScaledMomentsBasis[i].rows())
-                    .asDiagonal() *
+                boundaryQuadratureWeights.segment(faceQuadraturePointsOffset,
+                                                  localSpace.FaceScaledMomentsBasis[i].rows()).asDiagonal() *
                 localSpace.VanderBoundary.block(faceQuadraturePointsOffset,
                                                 0,
                                                 localSpace.FaceScaledMomentsBasis[i].rows(),
