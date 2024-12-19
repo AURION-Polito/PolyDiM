@@ -103,7 +103,7 @@ struct Patch_Test final : public I_Test
             { 8, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
             { 9, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
             { 10, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
-            { 11, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
+            { 11, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
             { 12, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
             { 13, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
             { 14, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
@@ -113,23 +113,23 @@ struct Patch_Test final : public I_Test
             { 18, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
             { 19, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
             { 20, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
-            { 21, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
+            { 21, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
             { 22, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
             { 23, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
             { 24, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
             { 25, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
-            { 26, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } }
+            { 26, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 4 } }
         };
     }
 
     Eigen::VectorXd diffusion_term(const Eigen::MatrixXd& points) const
-    { return Eigen::VectorXd::Constant(points.cols(), 1.0); };
+    { return Eigen::VectorXd::Constant(points.cols(), 2.0); };
 
     Eigen::VectorXd source_term(const Eigen::MatrixXd& points) const
     {
         Eigen::VectorXd source_term = Eigen::VectorXd::Constant(points.cols(),
-                                                                2.0 * order * (order - 1));
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+                                                                6.0 * order * (order - 1));
+        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + points.row(2).array() + 0.5;
 
         const int max_order = order - 2;
         for (int i = 0; i < max_order; ++i)
@@ -144,7 +144,7 @@ struct Patch_Test final : public I_Test
         if (marker != 1)
             throw std::runtime_error("Unknown marker");
 
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + points.row(2).array() + 0.5;
 
         Eigen::VectorXd result = Eigen::VectorXd::Constant(points.cols(), 1.0);
         for (int i = 0; i < order; ++i)
@@ -155,12 +155,29 @@ struct Patch_Test final : public I_Test
 
     Eigen::VectorXd weak_boundary_condition(const unsigned int marker,
                                             const Eigen::MatrixXd& points) const
-    { throw std::runtime_error("Not supported"); }
+    {
+        Eigen::VectorXd derivatives = Eigen::VectorXd::Constant(points.cols(), 2.0 * order);
+        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + points.row(2).array() + 0.5;
+
+        const int max_order = order - 1;
+        for (int i = 0; i < max_order; ++i)
+            derivatives.array() *= polynomial;
+
+        switch(marker)
+        {
+        case 2: // co-normal derivatives on the right
+            return -derivatives;
+        case 4: // co-normal derivatives on the left
+            return derivatives;
+        default:
+            throw std::runtime_error("Unknown marker");
+        }
+    }
 
     Eigen::VectorXd exact_solution(const Eigen::MatrixXd& points) const
     {
 
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + points.row(2).array() + 0.5;
 
         Eigen::VectorXd result = Eigen::VectorXd::Constant(points.cols(), 1.0);
         for (int i = 0; i < order; ++i)
@@ -172,7 +189,7 @@ struct Patch_Test final : public I_Test
     std::array<Eigen::VectorXd, 3> exact_derivative_solution(const Eigen::MatrixXd& points) const
     {
         Eigen::VectorXd derivatives = Eigen::VectorXd::Constant(points.cols(), order);
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + points.row(2).array() + 0.5;
 
         const int max_order = order - 1;
         for (int i = 0; i < max_order; ++i)
@@ -182,7 +199,7 @@ struct Patch_Test final : public I_Test
             {
                 derivatives,
                 derivatives,
-                Eigen::VectorXd::Zero(points.cols())
+                derivatives
             };
     }
 };

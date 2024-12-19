@@ -128,6 +128,7 @@ struct VEM_PCC_3D_LocalSpace_Data final
 
     Eigen::MatrixXd VanderFaceProjections;
     std::vector<Eigen::MatrixXd> FaceScaledMomentsBasis;
+    std::vector<Eigen::MatrixXd> FaceProjectedBasisFunctionsValues;
     Eigen::MatrixXd PointEdgeDofsCoordinates;
 
     /// \brief Vandermonde matrices of the derivatives of the polynomial basis at boundary

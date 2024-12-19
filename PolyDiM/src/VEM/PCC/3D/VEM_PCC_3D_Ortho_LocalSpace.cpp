@@ -193,7 +193,7 @@ void VEM_PCC_3D_Ortho_LocalSpace::ComputeFaceProjectors(const VEM_PCC_2D_Ortho_L
     unsigned int faceQuadraturePointsOffset = 0;
     unsigned int faceDofsOffset = localSpace.NumVertexBasisFunctions + localSpace.NumEdgeBasisFunctions;
     localSpace.FaceScaledMomentsBasis.resize(numFaces);
-
+    localSpace.FaceProjectedBasisFunctionsValues.resize(numFaces);
     for (unsigned int numFace = 0; numFace < numFaces; numFace++)
     {
         // Compute values of 2D tangential monomials at rotated quadrature points.
@@ -202,16 +202,16 @@ void VEM_PCC_3D_Ortho_LocalSpace::ComputeFaceProjectors(const VEM_PCC_2D_Ortho_L
 
         // Compute values of the 2D Pi^0_{k-1} projection of basis functions at rotated quadrature
         // points.
-        const MatrixXd thisFaceProjectedBasisFunctionsValues =
+        localSpace.FaceProjectedBasisFunctionsValues[numFace] =
             faceVemValues.ComputeBasisFunctionsValues(localSpace.facesLocalSpace[numFace], ProjectionTypes::Pi0km1);
 
         // Fill columns of vanderFaceProjections relative to vertex basis functions.
-        unsigned int numQuadraturePointsOnFace = thisFaceProjectedBasisFunctionsValues.rows();
+        unsigned int numQuadraturePointsOnFace = localSpace.FaceProjectedBasisFunctionsValues[numFace].rows();
         for (unsigned int numFaceVertex = 0; numFaceVertex < polyhedronFaces[numFace].cols(); numFaceVertex++)
         {
             localSpace.VanderFaceProjections.col(polyhedronFaces[numFace](0, numFaceVertex))
                 .segment(faceQuadraturePointsOffset, numQuadraturePointsOnFace) =
-                thisFaceProjectedBasisFunctionsValues.col(numFaceVertex);
+                localSpace.FaceProjectedBasisFunctionsValues[numFace].col(numFaceVertex);
         }
 
         if (localSpace.Order > 1)
@@ -235,7 +235,7 @@ void VEM_PCC_3D_Ortho_LocalSpace::ComputeFaceProjectors(const VEM_PCC_2D_Ortho_L
                                                                polyhedronFaces[numFace](1, numFaceEdge),
                                                        numQuadraturePointsOnFace,
                                                        localSpace.NumEdgeDofs) =
-                    thisFaceProjectedBasisFunctionsValues.block(
+                    localSpace.FaceProjectedBasisFunctionsValues[numFace].block(
                         0,
                         localSpace.facesLocalSpace[numFace].NumVertexBasisFunctions +
                             localSpace.NumEdgeDofs * numFaceEdge,
@@ -246,7 +246,7 @@ void VEM_PCC_3D_Ortho_LocalSpace::ComputeFaceProjectors(const VEM_PCC_2D_Ortho_L
             // fill columns of vanderFaceProjections relative to face internal basis functions.
             localSpace.VanderFaceProjections.block(
                 faceQuadraturePointsOffset, faceDofsOffset, numQuadraturePointsOnFace, localSpace.NumFaceDofs) =
-                thisFaceProjectedBasisFunctionsValues.rightCols(localSpace.NumFaceDofs);
+                localSpace.FaceProjectedBasisFunctionsValues[numFace].rightCols(localSpace.NumFaceDofs);
         }
 
         faceQuadraturePointsOffset += numQuadraturePointsOnFace;
