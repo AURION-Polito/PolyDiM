@@ -159,7 +159,9 @@ TEST(Test_VEM_DF_PCC, Test_VEM_DF_PCC_3D_O2_O3_O4)
     }
 
     Polydim::VEM::DF_PCC::VEM_DF_PCC_3D_Polyhedron_Geometry polyhedron = {
-        geometry_utilities,
+        geometry_utilities_config.Tolerance1D,
+        geometry_utilities_config.Tolerance2D,
+        geometry_utilities_config.Tolerance3D,
 
         polyhedron_data.Vertices,
 

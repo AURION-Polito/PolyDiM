@@ -83,7 +83,9 @@ TEST(Test_VEM_DF_PCC, Test_VEM_DF_PCC_2D_O2_O3_O4)
 
     const auto polygon_data = Test_VEM_DF_PCC_2D_Geometry(geometry_utilities);
 
-    Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Polygon_Geometry polygon = {polygon_data.Vertices,
+    Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Polygon_Geometry polygon = {geometry_utilities_config.Tolerance1D,
+                                                                    geometry_utilities_config.Tolerance2D,
+                                                                    polygon_data.Vertices,
                                                                     polygon_data.Centroid,
                                                                     polygon_data.Measure,
                                                                     polygon_data.Diameter,

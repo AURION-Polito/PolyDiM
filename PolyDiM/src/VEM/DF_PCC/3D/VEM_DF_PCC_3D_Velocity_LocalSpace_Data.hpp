@@ -16,7 +16,9 @@ namespace DF_PCC
 /// \brief Structure containing the geometric properties of the element
 struct VEM_DF_PCC_3D_Polyhedron_Geometry final
 {
-    const Gedim::GeometryUtilities &GeometryUtility;
+    const double Tolerance1D;
+    const double Tolerance2D;
+    const double Tolerance3D;
 
     const Eigen::MatrixXd &Vertices;
     const Eigen::MatrixXi &Edges;

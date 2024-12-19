@@ -85,8 +85,6 @@ void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
     const unsigned int numQuadraturePoints = reference_element_data.Quadrature.ReferenceSegmentInternalPoints.cols();
     for(unsigned int e = 0; e < mesh.Cell2DNumberEdges(cell2DIndex); e ++)
     {
-        const unsigned int edgeGlobalId = mesh.Cell2DEdge(cell2DIndex,e);
-
         const unsigned int cell1D_index = mesh.Cell2DEdge(cell2DIndex,
                                                           e);
 

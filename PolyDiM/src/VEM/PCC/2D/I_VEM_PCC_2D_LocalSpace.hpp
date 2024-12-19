@@ -2,7 +2,6 @@
 #define __I_VEM_PCC_2D_LocalSpace_HPP
 
 #include "Eigen/Eigen"
-#include "VEM_Monomials_2D.hpp"
 #include "VEM_PCC_2D_LocalSpace_Data.hpp"
 #include "VEM_PCC_2D_ReferenceElement.hpp"
 #include "VEM_PCC_Utilities.hpp"

@@ -17,8 +17,8 @@ VEM_MCC_Velocity_LocalSpace_Data VEM_MCC_2D_EdgeOrtho_Velocity_LocalSpace::Creat
     VEM_MCC_Velocity_LocalSpace_Data localSpace;
 
     Quadrature::VEM_Quadrature_2D quadrature;
-    localSpace.InternalQuadrature = quadrature.PolygonInternalQuadrature(
-        reference_element_data.Quadrature.ReferenceTriangleQuadrature, polygon.TriangulationVertices);
+    localSpace.InternalQuadrature = quadrature.PolygonInternalQuadrature(reference_element_data.Quadrature.ReferenceTriangleQuadrature,
+                                                                         polygon.TriangulationVertices);
 
     localSpace.BoundaryQuadrature = quadrature.PolygonEdgesQuadrature(reference_element_data.Quadrature.ReferenceSegmentQuadrature,
                                                                       polygon.Vertices,

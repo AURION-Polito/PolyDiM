@@ -10,12 +10,17 @@ namespace VEM
 namespace DF_PCC
 {
 //****************************************************************************
-VEM_DF_PCC_3D_Velocity_LocalSpace_Data VEM_DF_PCC_3D_Velocity_LocalSpace::CreateLocalSpace(
-    const PCC::VEM_PCC_2D_ReferenceElement_Data &reference_element_data_2D,
-    const VEM_DF_PCC_3D_Velocity_ReferenceElement_Data &reference_element_data_3D,
-    const std::vector<PCC::VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
-    const VEM_DF_PCC_3D_Polyhedron_Geometry &polyhedron) const
+VEM_DF_PCC_3D_Velocity_LocalSpace_Data VEM_DF_PCC_3D_Velocity_LocalSpace::CreateLocalSpace(const PCC::VEM_PCC_2D_ReferenceElement_Data &reference_element_data_2D,
+                                                                                           const VEM_DF_PCC_3D_Velocity_ReferenceElement_Data &reference_element_data_3D,
+                                                                                           const std::vector<PCC::VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
+                                                                                           const VEM_DF_PCC_3D_Polyhedron_Geometry &polyhedron) const
 {
+    Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
+    geometryUtilitiesConfig.Tolerance1D = polyhedron.Tolerance1D;
+    geometryUtilitiesConfig.Tolerance2D = polyhedron.Tolerance2D;
+    geometryUtilitiesConfig.Tolerance3D = polyhedron.Tolerance3D;
+    Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
+
     VEM_DF_PCC_3D_Velocity_LocalSpace_Data localSpace;
     Quadrature::VEM_Quadrature_3D quadrature3D;
 
@@ -41,9 +46,9 @@ VEM_DF_PCC_3D_Velocity_LocalSpace_Data VEM_DF_PCC_3D_Velocity_LocalSpace::Create
     }
 
     localSpace.InternalQuadrature = quadrature3D.PolyhedronInternalQuadrature(
-        reference_element_data_3D.Quadrature, polyhedron.GeometryUtility, polyhedron.TetrahedronVertices);
+        reference_element_data_3D.Quadrature, geometryUtilities, polyhedron.TetrahedronVertices);
 
-    localSpace.BoundaryQuadrature = quadrature3D.PolyhedronFacesQuadrature(polyhedron.GeometryUtility,
+    localSpace.BoundaryQuadrature = quadrature3D.PolyhedronFacesQuadrature(geometryUtilities,
                                                                            polyhedron.Faces,
                                                                            polyhedron.FacesRotationMatrix,
                                                                            polyhedron.FacesTranslation,
@@ -52,7 +57,7 @@ VEM_DF_PCC_3D_Velocity_LocalSpace_Data VEM_DF_PCC_3D_Velocity_LocalSpace::Create
                                                                            facesQuadraturePoints,
                                                                            facesQuadratureWeights);
 
-    localSpace.BoundaryQuadratureKL = quadrature3D.PolyhedronFacesQuadrature(polyhedron.GeometryUtility,
+    localSpace.BoundaryQuadratureKL = quadrature3D.PolyhedronFacesQuadrature(geometryUtilities,
                                                                              polyhedron.Faces,
                                                                              polyhedron.FacesRotationMatrix,
                                                                              polyhedron.FacesTranslation,

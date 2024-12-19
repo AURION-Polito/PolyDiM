@@ -17,6 +17,8 @@ namespace MCC
 class I_VEM_MCC_2D_Velocity_LocalSpace
 {
 public:
+    virtual ~I_VEM_MCC_2D_Velocity_LocalSpace(){}
+
     virtual VEM_MCC_Velocity_LocalSpace_Data CreateLocalSpace(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                                                               const VEM_MCC_2D_Polygon_Geometry &polygon) const = 0;
 

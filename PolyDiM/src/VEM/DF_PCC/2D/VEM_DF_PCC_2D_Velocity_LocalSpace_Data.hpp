@@ -14,6 +14,9 @@ namespace DF_PCC
 /// \brief Structure containing the geometric properties of the element
 struct VEM_DF_PCC_2D_Polygon_Geometry final
 {
+    const double Tolerance1D;
+    const double Tolerance2D;
+
     const Eigen::MatrixXd &Vertices;
     const Eigen::Vector3d &Centroid;
     const double &Measure;

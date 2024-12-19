@@ -24,9 +24,6 @@ int main(int argc, char** argv)
 
     Gedim::Configurations::Initialize(argc, argv);
 
-    typedef Polydim::examples::Elliptic_MCC_2D::test::Patch_Test TEST_TYPE;
-    typedef Polydim::VEM::MCC::VEM_MCC_2D_Velocity_LocalSpace VEM_LOCAL_SPACE_TYPE;
-
     /// Create folders
     const string exportFolder = config.ExportFolder();
     Gedim::Output::CreateFolder(exportFolder);
