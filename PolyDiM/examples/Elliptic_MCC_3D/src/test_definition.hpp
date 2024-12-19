@@ -24,7 +24,7 @@ enum struct Test_Types
 // ***************************************************************************
 struct I_Test
 {
-    virtual Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain() const = 0;
+    virtual Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_3D domain() const = 0;
     virtual std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info() const = 0;
     virtual std::array<Eigen::VectorXd, 9> diffusion_term(const Eigen::MatrixXd& points) const = 0;
     virtual std::array<Eigen::VectorXd, 9> inverse_diffusion_term(const Eigen::MatrixXd& points) const = 0;
@@ -44,15 +44,16 @@ struct Patch_Test final : public I_Test
 {
     static unsigned int order;
 
-    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain() const
+    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_3D domain() const
     {
-        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain;
+        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_3D domain;
 
-        domain.area = 1.0;
+        domain.volume = 1.0;
 
-        domain.vertices = Eigen::MatrixXd::Zero(3, 4);
-        domain.vertices.row(0)<< 0.0, 1.0, 1.0, 0.0;
-        domain.vertices.row(1)<< 0.0, 0.0, 1.0, 1.0;
+        domain.vertices.resize(3, 8);
+        domain.vertices.row(0) << 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0;
+        domain.vertices.row(1) << 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0;
+        domain.vertices.row(2) << 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0;
 
         return domain;
     }
@@ -65,10 +66,28 @@ struct Patch_Test final : public I_Test
             { 2, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
             { 3, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
             { 4, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
-            { 5, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
-            { 6, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
-            { 7, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
-            { 8, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } }
+            { 5, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 6, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 7, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 8, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 9, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 10, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 11, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 12, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 13, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 14, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 15, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 16, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 17, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 18, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 19, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 20, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 21, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
+            { 22, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
+            { 23, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
+            { 24, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
+            { 25, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
+            { 26, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } }
         };
     }
 
@@ -77,8 +96,8 @@ struct Patch_Test final : public I_Test
         return
             {
                 Eigen::VectorXd::Constant(points.cols(), 1.0),
-                Eigen::VectorXd::Constant(points.cols(), -1.0),
-                Eigen::VectorXd::Zero(points.cols())
+                Eigen::VectorXd::Constant(points.cols(), 1.0),
+                Eigen::VectorXd::Constant(points.cols(), -2.0)
             };
     }
 
@@ -86,30 +105,30 @@ struct Patch_Test final : public I_Test
     {
         return
             {
-                Eigen::VectorXd::Constant(points.cols(), 0.4),
-                Eigen::VectorXd::Constant(points.cols(), -0.2),
-                Eigen::VectorXd::Zero(points.cols())
+                Eigen::VectorXd::Constant(points.cols(), 16.0 / 3.0),
+                Eigen::VectorXd::Constant(points.cols(), 3.0),
+                Eigen::VectorXd::Constant(points.cols(), 4.0 / 3.0)
             };
     }
 
     Eigen::VectorXd reaction_term(const Eigen::MatrixXd& points) const
     {
-        return points.row(0).array() * points.row(1).array();
+        return points.row(0).array() * points.row(1).array() * points.row(2).array();
     }
 
     std::array<Eigen::VectorXd, 9> diffusion_term(const Eigen::MatrixXd& points) const
     {
         return
             {
-                Eigen::VectorXd::Constant(points.cols(), 2.0),
+                Eigen::VectorXd::Constant(points.cols(), 1.0),
                 Eigen::VectorXd::Constant(points.cols(), -1.0),
-                Eigen::VectorXd::Zero(points.cols()),
+                Eigen::VectorXd::Constant(points.cols(), -1.0),
                 Eigen::VectorXd::Constant(points.cols(), -1.0),
                 Eigen::VectorXd::Constant(points.cols(), 3.0),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Constant(points.cols(), 0.0)
+                Eigen::VectorXd::Constant(points.cols(), -2.0),
+                Eigen::VectorXd::Constant(points.cols(), -1.0),
+                Eigen::VectorXd::Constant(points.cols(), -2.0),
+                Eigen::VectorXd::Constant(points.cols(), 7.0)
             };
     };
 
@@ -117,15 +136,15 @@ struct Patch_Test final : public I_Test
     {
         return
             {
-                Eigen::VectorXd::Constant(points.cols(), 0.6),
-                Eigen::VectorXd::Constant(points.cols(), 0.2),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Constant(points.cols(), 0.2),
-                Eigen::VectorXd::Constant(points.cols(), 0.4),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Constant(points.cols(), 0.0)
+                Eigen::VectorXd::Constant(points.cols(), 17.0 / 3.0),
+                Eigen::VectorXd::Constant(points.cols(), 3.0),
+                Eigen::VectorXd::Constant(points.cols(), 5.0 / 3.0),
+                Eigen::VectorXd::Constant(points.cols(), 3.0),
+                Eigen::VectorXd::Constant(points.cols(), 2.0),
+                Eigen::VectorXd::Constant(points.cols(), 1.0),
+                Eigen::VectorXd::Constant(points.cols(), 5.0 / 3.0),
+                Eigen::VectorXd::Constant(points.cols(), 1.0),
+                Eigen::VectorXd::Constant(points.cols(), 2.0 / 3.0)
             };
     };
 
@@ -133,7 +152,7 @@ struct Patch_Test final : public I_Test
     {
         Eigen::ArrayXd second_derivatives = Eigen::ArrayXd::Constant(points.cols(), 0.0);
         Eigen::ArrayXd solution = Eigen::ArrayXd::Constant(points.cols(), 1.0);
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + points.row(2).array() + 0.5;
 
         if(order > 1)
         {
@@ -147,7 +166,9 @@ struct Patch_Test final : public I_Test
         else if(order == 1)
             solution = polynomial;
 
-        return - 3.0 * second_derivatives + points.row(1).array().transpose() * points.row(0).array().transpose() * solution;
+        return - 3.0 * second_derivatives
+               + points.row(1).array().transpose() * points.row(0).array().transpose()
+                     * points.row(2).array().transpose() * solution;
     };
 
     Eigen::VectorXd weak_boundary_condition(const unsigned int marker,
@@ -156,7 +177,7 @@ struct Patch_Test final : public I_Test
         if (marker != 2)
             throw std::runtime_error("Unknown marker");
 
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + points.row(2).array() + 0.5;
 
         Eigen::ArrayXd result = Eigen::ArrayXd::Constant(points.cols(), 1.0);
         for(int i = 0; i < order; i++)
@@ -170,10 +191,6 @@ struct Patch_Test final : public I_Test
     {
         switch(marker)
         {
-        case 1: // co-normal derivatives on the right
-            return 16.0 * (1.0 - 2.0 * points.row(0).array()) * points.row(1).array() * (1.0 - points.row(1).array());
-        case 3: // co-normal derivatives on the left
-            return - 16.0 * (1.0 - 2.0 * points.row(0).array()) * points.row(1).array() * (1.0 - points.row(1).array());
         default:
             throw std::runtime_error("Unknown marker");
         }
@@ -182,7 +199,7 @@ struct Patch_Test final : public I_Test
     Eigen::VectorXd exact_pressure(const Eigen::MatrixXd& points) const
     {
 
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + points.row(2).array() + 0.5;
 
         Eigen::ArrayXd result = Eigen::ArrayXd::Constant(points.cols(), 1.0);
         for(int i = 0; i < order; i++)
@@ -195,7 +212,7 @@ struct Patch_Test final : public I_Test
     {
         Eigen::ArrayXd derivatives = Eigen::ArrayXd::Constant(points.cols(), 0.0);
         Eigen::ArrayXd solution = Eigen::ArrayXd::Constant(points.cols(), 1.0);
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + points.row(2).array() + 0.5;
 
         if(order > 0)
         {
@@ -218,15 +235,16 @@ struct Patch_Test final : public I_Test
 // ***************************************************************************
 struct Poisson_Polynomial_Problem final : public I_Test
 {
-    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain() const
+    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_3D domain() const
     {
-        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain;
+        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_3D domain;
 
-        domain.area = 1.0;
+        domain.volume = 1.0;
 
-        domain.vertices = Eigen::MatrixXd::Zero(3, 4);
-        domain.vertices.row(0)<< 0.0, 1.0, 1.0, 0.0;
-        domain.vertices.row(1)<< 0.0, 0.0, 1.0, 1.0;
+        domain.vertices.resize(3, 8);
+        domain.vertices.row(0) << 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0;
+        domain.vertices.row(1) << 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0;
+        domain.vertices.row(2) << 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0;
 
         return domain;
     }
@@ -235,14 +253,32 @@ struct Poisson_Polynomial_Problem final : public I_Test
     {
         return {
             { 0, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
-            { 1, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 0 } },
-            { 2, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 0 } },
-            { 3, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 0 } },
-            { 4, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 0 } },
-            { 5, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 2 } },
-            { 6, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 1 } },
-            { 7, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 2 } },
-            { 8, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 3 } }
+            { 1, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 2, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 3, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 4, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 5, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 6, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 7, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 8, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 9, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 10, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 11, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 12, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 13, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 14, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 15, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 16, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 17, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 18, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 19, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 20, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
+            { 21, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
+            { 22, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
+            { 23, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
+            { 24, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
+            { 25, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
+            { 26, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } }
         };
     }
 
@@ -283,7 +319,7 @@ struct Poisson_Polynomial_Problem final : public I_Test
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Constant(points.cols(), 0.0)
+                Eigen::VectorXd::Constant(points.cols(), 1.0)
             };
     };
 
@@ -299,14 +335,15 @@ struct Poisson_Polynomial_Problem final : public I_Test
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Constant(points.cols(), 0.0)
+                Eigen::VectorXd::Constant(points.cols(), 1.0)
             };
     };
 
     Eigen::VectorXd source_term(const Eigen::MatrixXd& points) const
     {
-        return 32.0 * (points.row(1).array() * (1.0 - points.row(1).array()) +
-                       points.row(0).array() * (1.0 - points.row(0).array()));
+        return 128.0 * (points.row(1).array() * (1.0 - points.row(1).array()) +
+                        points.row(0).array() * (1.0 - points.row(0).array()) +
+                        points.row(2).array() * (1.0 - points.row(2).array()));
     };
 
     Eigen::VectorXd strong_boundary_condition(const unsigned int marker,
@@ -329,23 +366,31 @@ struct Poisson_Polynomial_Problem final : public I_Test
         if (marker != 2)
             throw std::runtime_error("Unknown marker");
 
-        return 16.0 * (points.row(1).array() * (1.0 - points.row(1).array()) *
-                       points.row(0).array() * (1.0 - points.row(0).array())) + 1.1;
+        return 64.0 * (points.row(1).array() * (1.0 - points.row(1).array()) *
+                       points.row(0).array() * (1.0 - points.row(0).array()) *
+                       points.row(2).array() * (1.0 - points.row(2).array())) + 1.7;
     }
 
     Eigen::VectorXd exact_pressure(const Eigen::MatrixXd& points) const
     {
-        return 16.0 * (points.row(1).array() * (1.0 - points.row(1).array()) *
-                       points.row(0).array() * (1.0 - points.row(0).array())) + 1.1;
+        return 64.0 * (points.row(1).array() * (1.0 - points.row(1).array()) *
+                       points.row(0).array() * (1.0 - points.row(0).array()) *
+                       points.row(2).array() * (1.0 - points.row(2).array())) + 1.7;
     };
 
     std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd& points) const
     {
         return
             {
-                -16.0 * (1.0 - 2.0 * points.row(0).array()) * points.row(1).array() * (1.0 - points.row(1).array()),
-                -16.0 * (1.0 - 2.0 * points.row(1).array()) * points.row(0).array() * (1.0 - points.row(0).array()),
-                Eigen::VectorXd::Zero(points.cols())
+                -64.0 * (1.0 - 2.0 * points.row(0).array())
+                    * points.row(1).array() * (1.0 - points.row(1).array())
+                    * points.row(2).array() * (1.0 - points.row(2).array()),
+                -64.0 * (1.0 - 2.0 * points.row(1).array())
+                    * points.row(0).array() * (1.0 - points.row(0).array())
+                    * points.row(2).array() * (1.0 - points.row(2).array()),
+                -64.0 * (1.0 - 2.0 * points.row(2).array())
+                    * points.row(0).array() * (1.0 - points.row(0).array())
+                    * points.row(1).array() * (1.0 - points.row(1).array())
             };
     }
 };

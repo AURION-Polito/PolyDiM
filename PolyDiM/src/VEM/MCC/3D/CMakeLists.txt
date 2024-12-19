@@ -1,5 +1,6 @@
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/I_VEM_MCC_3D_Velocity_LocalSpace.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_MCC_3D_Velocity_LocalSpace.hpp)
+list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_MCC_3D_Velocity_LocalSpace_Data.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_MCC_3D_Velocity_LocalSpace_Creator.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_MCC_3D_ReferenceElement.hpp)
 

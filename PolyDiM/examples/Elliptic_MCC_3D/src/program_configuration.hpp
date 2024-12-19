@@ -26,8 +26,8 @@ struct Program_configuration final
                                            "Folder where to export data (Default: ./Export)");
         // Mesh parameters
         Gedim::Configurations::AddProperty("MeshGenerator",
-                                           static_cast<unsigned int>(Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular),
-                                           "Mesh 2D gereator type, 0 - Triangular; 1 - Minimal; 2 - Polygonal; 3 - OFF Importer (Default: 0)");
+                                           static_cast<unsigned int>(Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Tetrahedral),
+                                           "Mesh 3D gereator type, 0 - Tetrahedral; 1 - Minimal; 2 - Polyhedral; 3 - OVMImporter; 4 - VtkImporter (Default: 0)");
         Gedim::Configurations::AddProperty("MeshImportFilePath",
                                            "./",
                                            "Mesh imported file path (Default: './')");
@@ -42,6 +42,10 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty("GeometricTolerance2D",
                                            1.0e-14,
                                            "Geometric Tolerance 2D (Default: 1.0e-14)");
+
+        Gedim::Configurations::AddProperty("GeometricTolerance3D",
+                                           1.0e-15,
+                                           "Geometric Tolerance 3D (Default: 1.0e-15)");
 
         /// Method parameters
         Gedim::Configurations::AddProperty("VemType",
@@ -62,8 +66,8 @@ struct Program_configuration final
     inline string ExportFolder() const
     { return Gedim::Configurations::GetPropertyValue<string>("ExportFolder"); }
 
-    inline Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D MeshGenerator() const
-    { return (Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D)Gedim::Configurations::GetPropertyValue<unsigned int>("MeshGenerator"); }
+    inline Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D MeshGenerator() const
+    { return (Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D)Gedim::Configurations::GetPropertyValue<unsigned int>("MeshGenerator"); }
     inline std::string MeshImportFilePath() const
     { return Gedim::Configurations::GetPropertyValue<string>("MeshImportFilePath"); }
     inline double MeshMaxArea() const
@@ -72,6 +76,8 @@ struct Program_configuration final
     { return Gedim::Configurations::GetPropertyValue<double>("GeometricTolerance1D"); }
     inline double GeometricTolerance2D() const
     { return Gedim::Configurations::GetPropertyValue<double>("GeometricTolerance2D"); }
+    inline double GeometricTolerance3D() const
+    { return Gedim::Configurations::GetPropertyValue<double>("GeometricTolerance3D"); }
 
     inline Polydim::VEM::MCC::VEM_MCC_3D_LocalSpace_Types VemType() const
     { return (Polydim::VEM::MCC::VEM_MCC_3D_LocalSpace_Types)Gedim::Configurations::GetPropertyValue<unsigned int>("VemType"); }

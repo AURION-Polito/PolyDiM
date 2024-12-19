@@ -30,9 +30,7 @@ struct VEM_MCC_PerformanceAnalysis final
               typename VEM_Monomials_Data_Type,
               typename VEM_LocalSpace_Type,
               typename VEM_LocalSpaceData_Type>
-    VEM_MCC_PerformanceAnalysis_Data Compute(const double &polytopeMeasure,
-                                             const double &polytopeDiameter,
-                                             const VEM_Monomials_Type &vem_monomials,
+    VEM_MCC_PerformanceAnalysis_Data Compute(const VEM_Monomials_Type &vem_monomials,
                                              const VEM_Monomials_Data_Type &vem_monomials_data,
                                              const VEM_LocalSpace_Type &vem_local_space,
                                              const VEM_LocalSpaceData_Type &vem_local_space_data) const

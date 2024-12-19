@@ -139,18 +139,18 @@ VEM_Quadrature_3D::Faces_QuadratureData_MCC VEM_Quadrature_3D::PolyhedronFacesQu
         numQuadraturePoints += result.FacesQuadrature[f].Points.cols();
     }
 
-    result.BoundaryQuadrature.Points.setZero(3, numQuadraturePoints);
-    result.BoundaryQuadrature.Weights.setZero(numQuadraturePoints);
+    result.Quadrature.Points.setZero(3, numQuadraturePoints);
+    result.Quadrature.Weights.setZero(numQuadraturePoints);
 
     unsigned int quadraturePointOffset = 0;
     for (unsigned int f = 0; f < numFaces; f++)
     {
         const unsigned int numFaceQuadraturePoints = result.FacesQuadrature[f].Points.cols();
 
-        result.BoundaryQuadrature.Points.block(0, quadraturePointOffset, 3, numFaceQuadraturePoints) =
+        result.Quadrature.Points.block(0, quadraturePointOffset, 3, numFaceQuadraturePoints) =
             geometryUtility.RotatePointsFrom2DTo3D(
                 result.FacesQuadrature[f].Points, facesRotationMatrix[f], facesTranslation[f]);
-        result.BoundaryQuadrature.Weights.segment(quadraturePointOffset, numFaceQuadraturePoints) =
+        result.Quadrature.Weights.segment(quadraturePointOffset, numFaceQuadraturePoints) =
             result.FacesQuadrature[f].Weights;
 
         quadraturePointOffset += numFaceQuadraturePoints;

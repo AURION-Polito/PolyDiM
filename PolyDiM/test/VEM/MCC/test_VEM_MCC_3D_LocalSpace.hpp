@@ -132,9 +132,7 @@ TEST(Test_VEM_MCC, Test_VEM_MCC_3D_O0_O1_O2_O3)
         // Test VEM performances
         Polydim::VEM::MCC::VEM_MCC_PerformanceAnalysis performanceAnalysis;
 
-        const auto result = performanceAnalysis.Compute(polyhedron.Measure,
-                                                        polyhedron.Diameter,
-                                                        Polydim::VEM::Monomials::VEM_Monomials_3D(),
+        const auto result = performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_3D(),
                                                         reference_element_data.MonomialsKp1,
                                                         vem_local_space,
                                                         local_space);

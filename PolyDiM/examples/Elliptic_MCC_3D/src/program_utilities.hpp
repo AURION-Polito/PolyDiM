@@ -36,23 +36,24 @@ std::unique_ptr<Polydim::examples::Elliptic_MCC_3D::test::I_Test> create_test(co
 }
 // ***************************************************************************
 void create_domain_mesh(const Polydim::examples::Elliptic_MCC_3D::Program_configuration& config,
-                        const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D& domain,
+                        const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_3D& domain,
                         Gedim::MeshMatricesDAO& mesh)
 {
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
     geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance1D();
     geometryUtilitiesConfig.Tolerance2D = config.GeometricTolerance2D();
+    geometryUtilitiesConfig.Tolerance3D = config.GeometricTolerance3D();
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
     Gedim::MeshUtilities meshUtilities;
 
     switch (config.MeshGenerator())
     {
-    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular:
-    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Minimal:
-    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Polygonal:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Tetrahedral:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Minimal:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Polyhedral:
     {
-        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::create_mesh_2D(geometryUtilities,
+        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::create_mesh_3D(geometryUtilities,
                                                                     meshUtilities,
                                                                     config.MeshGenerator(),
                                                                     domain,
@@ -60,9 +61,10 @@ void create_domain_mesh(const Polydim::examples::Elliptic_MCC_3D::Program_config
                                                                     mesh);
     }
     break;
-    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::OFFImporter:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::OVMImporter:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::VtkImporter:
     {
-        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::import_mesh_2D(geometryUtilities,
+        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::import_mesh_3D(geometryUtilities,
                                                                     meshUtilities,
                                                                     config.MeshGenerator(),
                                                                     config.MeshImportFilePath(),
@@ -76,17 +78,18 @@ void create_domain_mesh(const Polydim::examples::Elliptic_MCC_3D::Program_config
     }
 }
 // ***************************************************************************
-Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_properties(const Polydim::examples::Elliptic_MCC_3D::Program_configuration& config,
+Gedim::MeshUtilities::MeshGeometricData3D create_domain_mesh_geometric_properties(const Polydim::examples::Elliptic_MCC_3D::Program_configuration& config,
                                                                                   const Gedim::MeshMatricesDAO& mesh)
 {
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
     geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance1D();
     geometryUtilitiesConfig.Tolerance2D = config.GeometricTolerance2D();
+    geometryUtilitiesConfig.Tolerance3D = config.GeometricTolerance2D();
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
     Gedim::MeshUtilities meshUtilities;
 
-    return Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_2D_geometry_data(geometryUtilities,
+    return Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_3D_geometry_data(geometryUtilities,
                                                                                       meshUtilities,
                                                                                       mesh);
 }
@@ -108,7 +111,7 @@ void export_solution(const Polydim::examples::Elliptic_MCC_3D::Program_configura
         std::cout << "ProgramType" << separator;
         std::cout << "VemType" << separator;
         std::cout << "VemOrder" << separator;
-        std::cout << "Cell2Ds" <<  separator;
+        std::cout << "Cell3Ds" <<  separator;
         std::cout << "Dofs" <<  separator;
         std::cout << "Strongs" <<  separator;
         std::cout << "h" <<  separator;
@@ -122,7 +125,7 @@ void export_solution(const Polydim::examples::Elliptic_MCC_3D::Program_configura
         std::cout.precision(2);
         std::cout << scientific<< TEST_ID << separator;
         std::cout << scientific<< VEM_ID << separator;
-        std::cout << scientific << mesh.Cell2DTotalNumber()<< separator;
+        std::cout << scientific << mesh.Cell3DTotalNumber()<< separator;
         std::cout << scientific << dofs_data[0].NumberDOFs + dofs_data[1].NumberDOFs << separator;
         std::cout << scientific << dofs_data[0].NumberStrongs + dofs_data[1].NumberStrongs << separator;
         std::cout << scientific << post_process_data.mesh_size << separator;
@@ -148,7 +151,7 @@ void export_solution(const Polydim::examples::Elliptic_MCC_3D::Program_configura
             errorFile << "ProgramType" << separator;
             errorFile << "VemType" << separator;
             errorFile << "VemOrder" << separator;
-            errorFile << "Cell2Ds" <<  separator;
+            errorFile << "Cell3Ds" <<  separator;
             errorFile << "Dofs" <<  separator;
             errorFile << "Strongs" <<  separator;
             errorFile << "h" <<  separator;
@@ -164,7 +167,7 @@ void export_solution(const Polydim::examples::Elliptic_MCC_3D::Program_configura
         errorFile << scientific<< TEST_ID << separator;
         errorFile << scientific<< VEM_ID << separator;
         errorFile << scientific << config.VemOrder()<< separator;
-        errorFile << scientific << mesh.Cell2DTotalNumber()<< separator;
+        errorFile << scientific << mesh.Cell3DTotalNumber()<< separator;
         errorFile << scientific << dofs_data[0].NumberDOFs + dofs_data[1].NumberDOFs << separator;
         errorFile << scientific << dofs_data[0].NumberStrongs + dofs_data[1].NumberStrongs << separator;
         errorFile << scientific << post_process_data.mesh_size << separator;

@@ -28,7 +28,7 @@ class VEM_Quadrature_3D final
 
     struct Faces_QuadratureData_MCC
     {
-        Gedim::Quadrature::QuadratureData BoundaryQuadrature;
+        Gedim::Quadrature::QuadratureData Quadrature;
         std::vector<Gedim::Quadrature::QuadratureData> FacesQuadrature;
     };
 

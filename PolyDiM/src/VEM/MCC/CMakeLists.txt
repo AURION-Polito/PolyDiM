@@ -1,7 +1,6 @@
 add_subdirectory(2D)
 add_subdirectory(3D)
 
-list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_MCC_Velocity_LocalSpace_Data.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_MCC_PerformanceAnalysis.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_MCC_PerformanceAnalysis.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_MCC_Utilities.hpp)

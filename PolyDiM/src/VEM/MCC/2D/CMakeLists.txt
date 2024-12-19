@@ -1,5 +1,6 @@
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/I_VEM_MCC_2D_Velocity_LocalSpace.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_MCC_2D_Velocity_LocalSpace_Creator.hpp)
+list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_MCC_2D_Velocity_LocalSpace_Data.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_MCC_2D_Velocity_LocalSpace.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_MCC_2D_EdgeOrtho_Velocity_LocalSpace.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_MCC_2D_Ortho_Velocity_LocalSpace.hpp)

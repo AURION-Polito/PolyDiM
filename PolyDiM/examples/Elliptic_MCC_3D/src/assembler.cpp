@@ -12,7 +12,7 @@ namespace Polydim
 {
 namespace examples
 {
-namespace Elliptic_MCC_2D
+namespace Elliptic_MCC_3D
 {
 // ***************************************************************************
 void Assembler::ComputeStrongTerm(const Gedim::MeshMatricesDAO& mesh,
@@ -22,90 +22,94 @@ void Assembler::ComputeStrongTerm(const Gedim::MeshMatricesDAO& mesh,
                                   const Eigen::VectorXd& boundaryQuadratureWeights,
                                   const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo& mesh_dofs_info,
                                   const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
-                                  const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& reference_element_data,
+                                  const Polydim::VEM::MCC::VEM_MCC_3D_Velocity_ReferenceElement_Data& reference_element_data,
                                   const test::I_Test& test,
-                                  Elliptic_MCC_2D_Problem_Data& assembler_data) const
+                                  Elliptic_MCC_3D_Problem_Data& assembler_data) const
 {
-    // Assemble strong boundary condition on Cell1Ds
-    const unsigned int numReferenceSegmentInternalPoints = reference_element_data.Quadrature.ReferenceSegmentInternalPoints.cols();
+//    // Assemble strong boundary condition on Cell1Ds
+//    const unsigned int numReferenceSegmentInternalPoints = reference_element_data.Quadrature.ReferenceSegmentInternalPoints.cols();
 
-    for(unsigned int e = 0; e < mesh.Cell2DNumberEdges(cell2DIndex); e ++)
-    {
-        const unsigned int edgeGlobalId = mesh.Cell2DEdge(cell2DIndex, e);
+//    for(unsigned int e = 0; e < mesh.Cell2DNumberEdges(cell2DIndex); e ++)
+//    {
+//        const unsigned int edgeGlobalId = mesh.Cell2DEdge(cell2DIndex, e);
 
-        const auto& boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(1).at(edgeGlobalId);
+//        const auto& boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(1).at(edgeGlobalId);
 
-        if (boundary_info.Type !=
-            Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong)
-            continue;
+//        if (boundary_info.Type !=
+//            Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong)
+//            continue;
 
-        // compute values of Neumann condition
-        const double direction = cell2DEdgeDirections[e] ? 1.0 : -1.0;
-        const VectorXd strong_boundary_values = direction * test.strong_boundary_condition(boundary_info.Marker,
-                                                                                           boundaryQuadraturePoints.middleCols(numReferenceSegmentInternalPoints * e,
-                                                                                                                               numReferenceSegmentInternalPoints));
+//        // compute values of Neumann condition
+//        const double direction = cell2DEdgeDirections[e] ? 1.0 : -1.0;
+//        const VectorXd strong_boundary_values = direction * test.strong_boundary_condition(boundary_info.Marker,
+//                                                                                           boundaryQuadraturePoints.middleCols(numReferenceSegmentInternalPoints * e,
+//                                                                                                                               numReferenceSegmentInternalPoints));
 
 
 
-        const auto local_dofs = dofs_data.CellsDOFs.at(1).at(edgeGlobalId);
-        assert(local_dofs.size() == strong_boundary_values.size());
+//        const auto local_dofs = dofs_data.CellsDOFs.at(1).at(edgeGlobalId);
+//        assert(local_dofs.size() == strong_boundary_values.size());
 
-        for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
-        {
-            const auto& local_dof_i = local_dofs.at(loc_i);
+//        for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
+//        {
+//            const auto& local_dof_i = local_dofs.at(loc_i);
 
-            switch (local_dof_i.Type)
-            {
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
-            {
-                assembler_data.solutionNeumann.SetValue(local_dof_i.Global_Index,
-                                                        strong_boundary_values[loc_i]);
-            }
-            break;
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-                continue;
-            default:
-                throw std::runtime_error("Unknown DOF Type");
-            }
-        }
-    }
+//            switch (local_dof_i.Type)
+//            {
+//            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+//            {
+//                assembler_data.solutionNeumann.SetValue(local_dof_i.Global_Index,
+//                                                        strong_boundary_values[loc_i]);
+//            }
+//            break;
+//            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
+//                continue;
+//            default:
+//                throw std::runtime_error("Unknown DOF Type");
+//            }
+//        }
+//    }
 }
 // ***************************************************************************
-void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
+void Assembler::ComputeWeakTerm(const unsigned int cell3DIndex,
                                 const Gedim::MeshMatricesDAO& mesh,
-                                const Polydim::VEM::MCC::VEM_MCC_2D_Polygon_Geometry& polygon,
+                                const Polydim::VEM::MCC::VEM_MCC_3D_Polyhedron_Geometry& polyhedron,
                                 const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo& mesh_dofs_info,
                                 const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
-                                const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& reference_element_data,
-                                const Polydim::VEM::MCC::VEM_MCC_Velocity_LocalSpace_Data& local_space_data,
+                                const Polydim::VEM::MCC::VEM_MCC_3D_Velocity_ReferenceElement_Data& reference_element_data,
+                                const Polydim::VEM::MCC::VEM_MCC_3D_Velocity_LocalSpace_Data& local_space_data,
                                 const test::I_Test& test,
-                                Elliptic_MCC_2D_Problem_Data& assembler_data) const
+                                Elliptic_MCC_3D_Problem_Data& assembler_data) const
 {
 
-    const unsigned int numQuadraturePoints = reference_element_data.Quadrature.ReferenceSegmentInternalPoints.cols();
-    for(unsigned int e = 0; e < mesh.Cell2DNumberEdges(cell2DIndex); e ++)
+    unsigned int offsetQuadraturePoints = 0;
+    for(unsigned int f = 0; f < mesh.Cell3DNumberFaces(cell3DIndex); f++)
     {
-        const unsigned int cell1D_index = mesh.Cell2DEdge(cell2DIndex,
-                                                          e);
+        const unsigned int cell2D_index = mesh.Cell3DFace(cell3DIndex, f);
+        const unsigned int numFaceQuadraturePoints = local_space_data.BoundaryQuadrature.FacesQuadrature[f].Weights.size();
 
-        const auto& boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(1).at(cell1D_index);
+        const auto& boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(2).at(cell2D_index);
 
         if (boundary_info.Type !=
             Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak)
+        {
+            offsetQuadraturePoints += numFaceQuadraturePoints;
             continue;
+        }
+
+        const double globalDirection = polyhedron.FacesGlobalNormalDirection[f] ? 1.0 : -1.0;
 
         // compute values of Neumann condition
-        const double direction = polygon.EdgesDirection[e] ? 1.0 : -1.0;
-
         const VectorXd dirichletValues = test.weak_boundary_condition(boundary_info.Marker,
-                                                                      local_space_data.BoundaryQuadrature.Quadrature.Points.middleCols(numQuadraturePoints * e,
-                                                                                                                                       numQuadraturePoints));
+                                                                      local_space_data.BoundaryQuadrature.Quadrature.Points.middleCols(offsetQuadraturePoints,
+                                                                                                                                       numFaceQuadraturePoints));
 
-        const VectorXd dirichletContributions = - direction *
-                                                dirichletValues.cwiseProduct(local_space_data.BoundaryQuadrature.Quadrature.Weights.segment(numQuadraturePoints * e,
-                                                                                                                                            numQuadraturePoints));
+        const VectorXd dirichletContributions = - globalDirection
+                                                * local_space_data.VanderBasisFunctionValuesOnFace[f].transpose()
+                                                * local_space_data.BoundaryQuadrature.FacesQuadrature[f].Weights.asDiagonal()
+                                                * dirichletValues;
 
-        const auto local_dofs = dofs_data.CellsDOFs.at(1).at(cell1D_index);
+        const auto local_dofs = dofs_data.CellsDOFs.at(2).at(cell2D_index);
 
         for (unsigned int loc_i = 0; loc_i < local_dofs.size(); loc_i++)
         {
@@ -125,18 +129,18 @@ void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
                 throw std::runtime_error("Unknown DOF Type");
             }
         }
-
+        offsetQuadraturePoints += numFaceQuadraturePoints;
     }
 }
 // ***************************************************************************
-Assembler::Elliptic_MCC_2D_Problem_Data Assembler::Assemble(const Polydim::examples::Elliptic_MCC_2D::Program_configuration& config,
+Assembler::Elliptic_MCC_3D_Problem_Data Assembler::Assemble(const Polydim::examples::Elliptic_MCC_3D::Program_configuration& config,
                                                             const Gedim::MeshMatricesDAO& mesh,
-                                                            const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                                            const Gedim::MeshUtilities::MeshGeometricData3D& mesh_geometric_data,
                                                             const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo>& mesh_dofs_info,
                                                             const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData>& dofs_data,
-                                                            const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& velocity_reference_element_data,
-                                                            const Polydim::VEM::MCC::VEM_MCC_2D_Pressure_ReferenceElement_Data& pressure_reference_element_data,
-                                                            const Polydim::examples::Elliptic_MCC_2D::test::I_Test& test) const
+                                                            const Polydim::VEM::MCC::VEM_MCC_3D_Velocity_ReferenceElement_Data& velocity_reference_element_data,
+                                                            const Polydim::VEM::MCC::VEM_MCC_3D_Pressure_ReferenceElement_Data& pressure_reference_element_data,
+                                                            const Polydim::examples::Elliptic_MCC_3D::test::I_Test& test) const
 {
 
     const unsigned int numDOFHandler = mesh_dofs_info.size();
@@ -150,7 +154,7 @@ Assembler::Elliptic_MCC_2D_Problem_Data Assembler::Assemble(const Polydim::examp
         numberStrongs += dofs_data[i].NumberStrongs;
     }
 
-    Elliptic_MCC_2D_Problem_Data result;
+    Elliptic_MCC_3D_Problem_Data result;
     result.globalMatrixA.SetSize(numberDOFs, numberDOFs,
                                  Gedim::ISparseArray::SparseArrayTypes::None);
     result.neumannMatrixA.SetSize(numberDOFs,
@@ -161,27 +165,33 @@ Assembler::Elliptic_MCC_2D_Problem_Data Assembler::Assemble(const Polydim::examp
 
     Polydim::PDETools::Equations::EllipticEquation equation;
 
-    for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
+    for (unsigned int c = 0; c < mesh.Cell3DTotalNumber(); c++)
     {
-        const Polydim::VEM::MCC::VEM_MCC_2D_Polygon_Geometry polygon =
+        const Polydim::VEM::MCC::VEM_MCC_3D_Polyhedron_Geometry polyhedron =
             {
                 config.GeometricTolerance1D(),
                 config.GeometricTolerance2D(),
-                mesh_geometric_data.Cell2DsVertices.at(c),
-                mesh_geometric_data.Cell2DsCentroids.at(c),
-                mesh_geometric_data.Cell2DsAreas.at(c),
-                mesh_geometric_data.Cell2DsDiameters.at(c),
-                mesh_geometric_data.Cell2DsTriangulations.at(c),
-                mesh_geometric_data.Cell2DsEdgeLengths.at(c),
-                mesh_geometric_data.Cell2DsEdgeDirections.at(c),
-                mesh_geometric_data.Cell2DsEdgeTangents.at(c),
-                mesh_geometric_data.Cell2DsEdgeNormals.at(c)
+                config.GeometricTolerance3D(),
+                mesh_geometric_data.Cell3DsVertices.at(c),
+                mesh_geometric_data.Cell3DsCentroids.at(c),
+                mesh_geometric_data.Cell3DsVolumes.at(c),
+                mesh_geometric_data.Cell3DsDiameters.at(c),
+                mesh_geometric_data.Cell3DsTetrahedronPoints.at(c),
+                mesh_geometric_data.Cell3DsFacesRotationMatrices.at(c),
+                mesh_geometric_data.Cell3DsFacesTranslations.at(c),
+                mesh_geometric_data.Cell3DsFacesNormals.at(c),
+                mesh_geometric_data.Cell3DsFacesNormalDirections.at(c),
+                mesh_geometric_data.Cell3DsFacesNormalGlobalDirection.at(c),
+                mesh_geometric_data.Cell3DsFacesAreas.at(c),
+                mesh_geometric_data.Cell3DsFaces2DCentroids.at(c),
+                mesh_geometric_data.Cell3DsFacesDiameters.at(c),
+                mesh_geometric_data.Cell3DsFaces2DTriangulations.at(c)
             };
 
-        const auto vem_local_space = Polydim::VEM::MCC::create_VEM_MCC_2D_local_space(config.VemType());
+        const auto vem_local_space = Polydim::VEM::MCC::create_VEM_MCC_3D_local_space(config.VemType());
 
         const auto local_space = vem_local_space->CreateLocalSpace(velocity_reference_element_data,
-                                                                   polygon);
+                                                                   polyhedron);
 
         const auto velocity_basis_functions_values = vem_local_space->ComputeBasisFunctionsValues(local_space);
         const auto velocity_basis_functions_divergence_values = vem_local_space->ComputeBasisFunctionsDivergenceValues(local_space);
@@ -221,26 +231,26 @@ Assembler::Elliptic_MCC_2D_Problem_Data Assembler::Assemble(const Polydim::examp
                                                                local_space.InternalQuadrature.Weights);
 
 
-        const unsigned int num_local_dofs = dofs_data[0].CellsGlobalDOFs[2].at(c).size() + dofs_data[1].CellsGlobalDOFs[2].at(c).size();
+        const unsigned int num_local_dofs = dofs_data[0].CellsGlobalDOFs[3].at(c).size() + dofs_data[1].CellsGlobalDOFs[3].at(c).size();
 
         Eigen::MatrixXd elemental_matrix = MatrixXd::Zero(num_local_dofs, num_local_dofs);
         Eigen::VectorXd elemental_rhs = VectorXd::Zero(num_local_dofs);
         elemental_matrix << local_A, -(local_B + local_T).transpose(),
             local_B, local_M;
-        elemental_rhs <<  VectorXd::Zero(dofs_data[0].CellsGlobalDOFs[2].at(c).size()), local_rhs;
+        elemental_rhs <<  VectorXd::Zero(dofs_data[0].CellsGlobalDOFs[3].at(c).size()), local_rhs;
 
-        assert(local_space.NumBasisFunctions ==  dofs_data[0].CellsGlobalDOFs[2].at(c).size());
+        assert(local_space.NumBasisFunctions ==  dofs_data[0].CellsGlobalDOFs[3].at(c).size());
 
         Polydim::PDETools::Assembler_Utilities::local_matrix_to_global_matrix_dofs_data
             local_matrix_to_global_matrix_dofs_data =
             {
                 { std::cref(dofs_data[0]), std::cref(dofs_data[1]) },
-                { 0lu, dofs_data[0].CellsGlobalDOFs[2].at(c).size() },
+                { 0lu, dofs_data[0].CellsGlobalDOFs[3].at(c).size() },
                 { std::cref(offsetDOFs[0]), std::cref(offsetDOFs[1]) },
                 { std::cref(offsetStrongs[0]), std::cref(offsetStrongs[1]) }
             };
 
-        Polydim::PDETools::Assembler_Utilities::assemble_local_matrix_to_global_matrix<2>(c,
+        Polydim::PDETools::Assembler_Utilities::assemble_local_matrix_to_global_matrix<3>(c,
                                                                                           local_matrix_to_global_matrix_dofs_data,
                                                                                           local_matrix_to_global_matrix_dofs_data,
                                                                                           elemental_matrix,
@@ -249,26 +259,26 @@ Assembler::Elliptic_MCC_2D_Problem_Data Assembler::Assemble(const Polydim::examp
                                                                                           result.neumannMatrixA,
                                                                                           result.rightHandSide);
 
-        ComputeWeakTerm(c,
-                        mesh,
-                        polygon,
-                        mesh_dofs_info[0],
-                        dofs_data[0],
-                        velocity_reference_element_data,
-                        local_space,
-                        test,
-                        result);
+        //        ComputeWeakTerm(c,
+        //                        mesh,
+        //                        polygon,
+        //                        mesh_dofs_info[0],
+        //                        dofs_data[0],
+        //                        velocity_reference_element_data,
+        //                        local_space,
+        //                        test,
+        //                        result);
 
-        ComputeStrongTerm(mesh,
-                          c,
-                          polygon.EdgesDirection,
-                          local_space.BoundaryQuadrature.Quadrature.Points,
-                          local_space.BoundaryQuadrature.Quadrature.Weights,
-                          mesh_dofs_info[0],
-                          dofs_data[0],
-                          velocity_reference_element_data,
-                          test,
-                          result);
+        //        ComputeStrongTerm(mesh,
+        //                          c,
+        //                          polygon.EdgesDirection,
+        //                          local_space.BoundaryQuadrature.Quadrature.Points,
+        //                          local_space.BoundaryQuadrature.Quadrature.Weights,
+        //                          mesh_dofs_info[0],
+        //                          dofs_data[0],
+        //                          velocity_reference_element_data,
+        //                          test,
+        //                          result);
     }
 
     result.rightHandSide.Create();
@@ -283,61 +293,65 @@ Assembler::Elliptic_MCC_2D_Problem_Data Assembler::Assemble(const Polydim::examp
     return result;
 }
 // ***************************************************************************
-Assembler::VEM_Performance_Result Assembler::ComputeVemPerformance(const Polydim::examples::Elliptic_MCC_2D::Program_configuration& config,
+Assembler::VEM_Performance_Result Assembler::ComputeVemPerformance(const Polydim::examples::Elliptic_MCC_3D::Program_configuration& config,
                                                                    const Gedim::MeshMatricesDAO& mesh,
-                                                                   const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
-                                                                   const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& velocity_reference_element_data) const
+                                                                   const Gedim::MeshUtilities::MeshGeometricData3D& mesh_geometric_data,
+                                                                   const Polydim::VEM::MCC::VEM_MCC_3D_Velocity_ReferenceElement_Data& velocity_reference_element_data) const
 {
     Assembler::VEM_Performance_Result result;
-    result.Cell2DsPerformance.resize(mesh.Cell2DTotalNumber());
+    result.Cell3DsPerformance.resize(mesh.Cell3DTotalNumber());
 
     // Assemble equation elements
-    for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
+    for (unsigned int c = 0; c < mesh.Cell3DTotalNumber(); c++)
     {
-        const Polydim::VEM::MCC::VEM_MCC_2D_Polygon_Geometry polygon =
+        const Polydim::VEM::MCC::VEM_MCC_3D_Polyhedron_Geometry polyhedron =
             {
                 config.GeometricTolerance1D(),
                 config.GeometricTolerance2D(),
-                mesh_geometric_data.Cell2DsVertices.at(c),
-                mesh_geometric_data.Cell2DsCentroids.at(c),
-                mesh_geometric_data.Cell2DsAreas.at(c),
-                mesh_geometric_data.Cell2DsDiameters.at(c),
-                mesh_geometric_data.Cell2DsTriangulations.at(c),
-                mesh_geometric_data.Cell2DsEdgeLengths.at(c),
-                mesh_geometric_data.Cell2DsEdgeDirections.at(c),
-                mesh_geometric_data.Cell2DsEdgeTangents.at(c),
-                mesh_geometric_data.Cell2DsEdgeNormals.at(c)
+                config.GeometricTolerance3D(),
+                mesh_geometric_data.Cell3DsVertices.at(c),
+                mesh_geometric_data.Cell3DsCentroids.at(c),
+                mesh_geometric_data.Cell3DsVolumes.at(c),
+                mesh_geometric_data.Cell3DsDiameters.at(c),
+                mesh_geometric_data.Cell3DsTetrahedronPoints.at(c),
+                mesh_geometric_data.Cell3DsFacesRotationMatrices.at(c),
+                mesh_geometric_data.Cell3DsFacesTranslations.at(c),
+                mesh_geometric_data.Cell3DsFacesNormals.at(c),
+                mesh_geometric_data.Cell3DsFacesNormalDirections.at(c),
+                mesh_geometric_data.Cell3DsFacesNormalGlobalDirection.at(c),
+                mesh_geometric_data.Cell3DsFacesAreas.at(c),
+                mesh_geometric_data.Cell3DsFaces2DCentroids.at(c),
+                mesh_geometric_data.Cell3DsFacesDiameters.at(c),
+                mesh_geometric_data.Cell3DsFaces2DTriangulations.at(c)
             };
 
-        const auto vem_local_space = Polydim::VEM::MCC::create_VEM_MCC_2D_local_space(config.VemType());
+        const auto vem_local_space = Polydim::VEM::MCC::create_VEM_MCC_3D_local_space(config.VemType());
 
         const auto local_space = vem_local_space->CreateLocalSpace(velocity_reference_element_data,
-                                                                   polygon);
+                                                                   polyhedron);
 
         Polydim::VEM::MCC::VEM_MCC_PerformanceAnalysis performanceAnalysis;
 
-        result.Cell2DsPerformance[c].Analysis = performanceAnalysis.Compute(polygon.Measure,
-                                                                            polygon.Diameter,
-                                                                            Polydim::VEM::Monomials::VEM_Monomials_2D(),
+        result.Cell3DsPerformance[c].Analysis = performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_2D(),
                                                                             velocity_reference_element_data.MonomialsKp1,
                                                                             vem_local_space,
                                                                             local_space);
 
-        result.Cell2DsPerformance[c].NumInternalQuadraturePoints = local_space.InternalQuadrature.Weights.size();
-        result.Cell2DsPerformance[c].NumBoundaryQuadraturePoints = local_space.BoundaryQuadrature.Quadrature.Weights.size();
+        result.Cell3DsPerformance[c].NumInternalQuadraturePoints = local_space.InternalQuadrature.Weights.size();
+        result.Cell3DsPerformance[c].NumBoundaryQuadraturePoints = local_space.BoundaryQuadrature.Quadrature.Weights.size();
     }
 
     return result;
 }
 // ***************************************************************************
-Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::examples::Elliptic_MCC_2D::Program_configuration& config,
+Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::examples::Elliptic_MCC_3D::Program_configuration& config,
                                                            const Gedim::MeshMatricesDAO& mesh,
-                                                           const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                                           const Gedim::MeshUtilities::MeshGeometricData3D& mesh_geometric_data,
                                                            const vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData>& dofs_data,
-                                                           const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& velocity_reference_element_data,
-                                                           const Polydim::VEM::MCC::VEM_MCC_2D_Pressure_ReferenceElement_Data& pressure_reference_element_data,
-                                                           const Elliptic_MCC_2D_Problem_Data& assembler_data,
-                                                           const Polydim::examples::Elliptic_MCC_2D::test::I_Test& test) const
+                                                           const Polydim::VEM::MCC::VEM_MCC_3D_Velocity_ReferenceElement_Data& velocity_reference_element_data,
+                                                           const Polydim::VEM::MCC::VEM_MCC_3D_Pressure_ReferenceElement_Data& pressure_reference_element_data,
+                                                           const Elliptic_MCC_3D_Problem_Data& assembler_data,
+                                                           const Polydim::examples::Elliptic_MCC_3D::test::I_Test& test) const
 {
     const unsigned int numDOFHandler = dofs_data.size();
     unsigned int numberDOFs = 0;
@@ -364,40 +378,46 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
         result.residual_norm = residual.Norm();
     }
 
-    result.cell0Ds_numeric_pressure.resize(mesh.Cell2DTotalNumber());
-    result.cell0Ds_exact_pressure.resize(mesh.Cell2DTotalNumber());
+    result.cell0Ds_numeric_pressure.resize(mesh.Cell3DTotalNumber());
+    result.cell0Ds_exact_pressure.resize(mesh.Cell3DTotalNumber());
 
-    result.cell2Ds_error_L2_pressure.setZero(mesh.Cell2DTotalNumber());
-    result.cell2Ds_norm_L2_pressure.setZero(mesh.Cell2DTotalNumber());
-    result.cell2Ds_error_L2_velocity.setZero(mesh.Cell2DTotalNumber());
-    result.cell2Ds_norm_L2_velocity.setZero(mesh.Cell2DTotalNumber());
+    result.cell3Ds_error_L2_pressure.setZero(mesh.Cell3DTotalNumber());
+    result.cell3Ds_norm_L2_pressure.setZero(mesh.Cell3DTotalNumber());
+    result.cell3Ds_error_L2_velocity.setZero(mesh.Cell3DTotalNumber());
+    result.cell3Ds_norm_L2_velocity.setZero(mesh.Cell3DTotalNumber());
     result.error_L2_pressure = 0.0;
     result.norm_L2_pressure = 0.0;
     result.error_L2_velocity = 0.0;
     result.norm_L2_velocity = 0.0;
     result.mesh_size = 0.0;
 
-    for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
+    for (unsigned int c = 0; c < mesh.Cell3DTotalNumber(); c++)
     {
-        const Polydim::VEM::MCC::VEM_MCC_2D_Polygon_Geometry polygon =
+        const Polydim::VEM::MCC::VEM_MCC_3D_Polyhedron_Geometry polyhedron =
             {
                 config.GeometricTolerance1D(),
                 config.GeometricTolerance2D(),
-                mesh_geometric_data.Cell2DsVertices.at(c),
-                mesh_geometric_data.Cell2DsCentroids.at(c),
-                mesh_geometric_data.Cell2DsAreas.at(c),
-                mesh_geometric_data.Cell2DsDiameters.at(c),
-                mesh_geometric_data.Cell2DsTriangulations.at(c),
-                mesh_geometric_data.Cell2DsEdgeLengths.at(c),
-                mesh_geometric_data.Cell2DsEdgeDirections.at(c),
-                mesh_geometric_data.Cell2DsEdgeTangents.at(c),
-                mesh_geometric_data.Cell2DsEdgeNormals.at(c)
+                config.GeometricTolerance3D(),
+                mesh_geometric_data.Cell3DsVertices.at(c),
+                mesh_geometric_data.Cell3DsCentroids.at(c),
+                mesh_geometric_data.Cell3DsVolumes.at(c),
+                mesh_geometric_data.Cell3DsDiameters.at(c),
+                mesh_geometric_data.Cell3DsTetrahedronPoints.at(c),
+                mesh_geometric_data.Cell3DsFacesRotationMatrices.at(c),
+                mesh_geometric_data.Cell3DsFacesTranslations.at(c),
+                mesh_geometric_data.Cell3DsFacesNormals.at(c),
+                mesh_geometric_data.Cell3DsFacesNormalDirections.at(c),
+                mesh_geometric_data.Cell3DsFacesNormalGlobalDirection.at(c),
+                mesh_geometric_data.Cell3DsFacesAreas.at(c),
+                mesh_geometric_data.Cell3DsFaces2DCentroids.at(c),
+                mesh_geometric_data.Cell3DsFacesDiameters.at(c),
+                mesh_geometric_data.Cell3DsFaces2DTriangulations.at(c)
             };
 
-        const auto vem_local_space = Polydim::VEM::MCC::create_VEM_MCC_2D_local_space(config.VemType());
+        const auto vem_local_space = Polydim::VEM::MCC::create_VEM_MCC_3D_local_space(config.VemType());
 
         const auto local_space = vem_local_space->CreateLocalSpace(velocity_reference_element_data,
-                                                                   polygon);
+                                                                   polyhedron);
 
         const auto velocity_basis_functions_values = vem_local_space->ComputeBasisFunctionsValues(local_space);
         const auto pressure_basis_functions_values = vem_local_space->ComputePolynomialsValues(local_space);
@@ -447,9 +467,9 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
                                                          exact_pressure_values).array().square();
         const Eigen::VectorXd local_norm_L2_pressure = (pressure_basis_functions_values * pressure_dofs_values).array().square();
 
-        result.cell2Ds_error_L2_pressure[c] = local_space.InternalQuadrature.Weights.transpose() *
+        result.cell3Ds_error_L2_pressure[c] = local_space.InternalQuadrature.Weights.transpose() *
                                               local_error_L2_pressure;
-        result.cell2Ds_norm_L2_pressure[c] = local_space.InternalQuadrature.Weights.transpose() *
+        result.cell3Ds_norm_L2_pressure[c] = local_space.InternalQuadrature.Weights.transpose() *
                                              local_norm_L2_pressure;
 
 
@@ -462,19 +482,19 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
             (velocity_basis_functions_values[0] * velocity_dofs_values).array().square() +
             (velocity_basis_functions_values[1] * velocity_dofs_values).array().square();
 
-        result.cell2Ds_error_L2_velocity[c] = local_space.InternalQuadrature.Weights.transpose() *
+        result.cell3Ds_error_L2_velocity[c] = local_space.InternalQuadrature.Weights.transpose() *
                                               local_error_L2_velocity;
-        result.cell2Ds_norm_L2_velocity[c] = local_space.InternalQuadrature.Weights.transpose() *
+        result.cell3Ds_norm_L2_velocity[c] = local_space.InternalQuadrature.Weights.transpose() *
                                              local_norm_L2_velocity;
 
-        if (mesh_geometric_data.Cell2DsDiameters.at(c) > result.mesh_size)
-            result.mesh_size = mesh_geometric_data.Cell2DsDiameters.at(c);
+        if (mesh_geometric_data.Cell3DsDiameters.at(c) > result.mesh_size)
+            result.mesh_size = mesh_geometric_data.Cell3DsDiameters.at(c);
     }
 
-    result.error_L2_pressure = std::sqrt(result.cell2Ds_error_L2_pressure.sum());
-    result.norm_L2_pressure = std::sqrt(result.cell2Ds_norm_L2_pressure.sum());
-    result.error_L2_velocity = std::sqrt(result.cell2Ds_error_L2_velocity.sum());
-    result.norm_L2_velocity = std::sqrt(result.cell2Ds_norm_L2_velocity.sum());
+    result.error_L2_pressure = std::sqrt(result.cell3Ds_error_L2_pressure.sum());
+    result.norm_L2_pressure = std::sqrt(result.cell3Ds_norm_L2_pressure.sum());
+    result.error_L2_velocity = std::sqrt(result.cell3Ds_error_L2_velocity.sum());
+    result.norm_L2_velocity = std::sqrt(result.cell3Ds_norm_L2_velocity.sum());
 
     return result;
 }

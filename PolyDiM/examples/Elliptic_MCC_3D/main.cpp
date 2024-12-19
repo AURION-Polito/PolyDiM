@@ -256,7 +256,7 @@ int main(int argc, char** argv)
             if (exporter.fail())
                 throw runtime_error("Error on mesh cell2Ds file");
 
-            exporter<< "Cell2D_Index"<< separator;
+            exporter<< "Cell3D_Index"<< separator;
             exporter<< "NumQuadPoints_Boundary" << separator;
             exporter<< "NumQuadPoints_Internal" << separator;
             exporter<< "Vmatrix_Cond" << separator;
@@ -267,20 +267,20 @@ int main(int argc, char** argv)
             exporter<< "GBD_Error" << separator;
             exporter<< "Stab_Error" << endl;
 
-            for (unsigned int v = 0; v < vemPerformance.Cell2DsPerformance.size(); v++)
+            for (unsigned int v = 0; v < vemPerformance.Cell3DsPerformance.size(); v++)
             {
-                const auto& cell2DPerformance = vemPerformance.Cell2DsPerformance[v].Analysis;
+                const auto& cell3DPerformance = vemPerformance.Cell3DsPerformance[v].Analysis;
 
                 exporter<< scientific<< v << separator;
-                exporter<< scientific<< vemPerformance.Cell2DsPerformance[v].NumBoundaryQuadraturePoints<< separator;
-                exporter<< scientific<< vemPerformance.Cell2DsPerformance[v].NumInternalQuadraturePoints<< separator;
-                exporter<< scientific<< cell2DPerformance.VmatrixConditioning << separator;
-                exporter<< scientific<< cell2DPerformance.HmatrixConditioning << separator;
-                exporter<< scientific<< cell2DPerformance.Pi0kConditioning << separator;
-                exporter<< scientific<< cell2DPerformance.GmatrixConditioning << separator;
-                exporter<< scientific<< cell2DPerformance.ErrorPi0k << separator;
-                exporter<< scientific<< cell2DPerformance.ErrorGBD << separator;
-                exporter<< scientific<< cell2DPerformance.ErrorStabilization << endl;
+                exporter<< scientific<< vemPerformance.Cell3DsPerformance[v].NumBoundaryQuadraturePoints<< separator;
+                exporter<< scientific<< vemPerformance.Cell3DsPerformance[v].NumInternalQuadraturePoints<< separator;
+                exporter<< scientific<< cell3DPerformance.VmatrixConditioning << separator;
+                exporter<< scientific<< cell3DPerformance.HmatrixConditioning << separator;
+                exporter<< scientific<< cell3DPerformance.Pi0kConditioning << separator;
+                exporter<< scientific<< cell3DPerformance.GmatrixConditioning << separator;
+                exporter<< scientific<< cell3DPerformance.ErrorPi0k << separator;
+                exporter<< scientific<< cell3DPerformance.ErrorGBD << separator;
+                exporter<< scientific<< cell3DPerformance.ErrorStabilization << endl;
             }
 
             exporter.close();

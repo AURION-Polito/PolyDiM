@@ -10,7 +10,7 @@
 #include "VEM_MCC_PerformanceAnalysis.hpp"
 #include "DOFsManager.hpp"
 
-#include "VEM_MCC_Velocity_LocalSpace_Data.hpp"
+#include "VEM_MCC_2D_Velocity_LocalSpace_Data.hpp"
 #include "program_configuration.hpp"
 
 namespace Polydim
@@ -83,7 +83,7 @@ private:
                          const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
                          const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                          const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& reference_element_data,
-                         const Polydim::VEM::MCC::VEM_MCC_Velocity_LocalSpace_Data &local_space_data,
+                         const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_LocalSpace_Data &local_space_data,
                          const test::I_Test &test,
                          Elliptic_MCC_2D_Problem_Data& assembler_data) const;
 

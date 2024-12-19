@@ -5,7 +5,7 @@
 #include "I_VEM_MCC_3D_Velocity_LocalSpace.hpp"
 #include "VEM_MCC_3D_ReferenceElement.hpp"
 #include "VEM_MCC_Utilities.hpp"
-#include "VEM_MCC_Velocity_LocalSpace_Data.hpp"
+#include "VEM_MCC_3D_Velocity_LocalSpace_Data.hpp"
 #include "VEM_Monomials_2D.hpp"
 #include "VEM_Monomials_3D.hpp"
 #include <vector>
@@ -32,10 +32,10 @@ private:
                                          const Eigen::MatrixXd &internalQuadraturePoints,
                                          const Eigen::VectorXd &internalQuadratureWeights,
                                          const Eigen::MatrixXd &boundaryQuadraturePoints,
-                                         VEM_MCC_Velocity_LocalSpace_Data &localSpace) const;
+                                         VEM_MCC_3D_Velocity_LocalSpace_Data &localSpace) const;
 
     inline void ComputeStabilizationMatrix(const double &polyhedronMeasure,
-                                           VEM_MCC_Velocity_LocalSpace_Data &localSpace) const
+                                           VEM_MCC_3D_Velocity_LocalSpace_Data &localSpace) const
     {
         localSpace.StabMatrix =
             utilities.ComputeStabilizationMatrix(localSpace.Pi0k, polyhedronMeasure, localSpace.Dmatrix);
@@ -44,11 +44,11 @@ private:
     void ComputeL2Projectors(const double &polyhedronMeasure,
                              const Eigen::VectorXd &internalQuadratureWeights,
                              const Eigen::MatrixXd &B2Nabla,
-                             VEM_MCC_Velocity_LocalSpace_Data &localSpace) const;
+                             VEM_MCC_3D_Velocity_LocalSpace_Data &localSpace) const;
 
     void ComputeDivergenceCoefficients(const double &polytopeMeasure,
                                        const Eigen::MatrixXd &W2,
-                                       VEM_MCC_Velocity_LocalSpace_Data &localSpace) const;
+                                       VEM_MCC_3D_Velocity_LocalSpace_Data &localSpace) const;
 
     void ComputeValuesOnBoundary(const VEM_MCC_3D_Velocity_ReferenceElement_Data &reference_element_data,
                                  const unsigned int &numFaces,
@@ -62,9 +62,9 @@ private:
                                  const Eigen::VectorXd &boundaryQuadratureWeights,
                                  Eigen::MatrixXd &W2,
                                  Eigen::MatrixXd &B2Nabla,
-                                 VEM_MCC_Velocity_LocalSpace_Data &localSpace) const;
+                                 VEM_MCC_3D_Velocity_LocalSpace_Data &localSpace) const;
 
-    void ComputePolynomialBasisDofs(const double &polytopeMeasure, VEM_MCC_Velocity_LocalSpace_Data &localSpace) const
+    void ComputePolynomialBasisDofs(const double &polytopeMeasure, VEM_MCC_3D_Velocity_LocalSpace_Data &localSpace) const
     {
         localSpace.Dmatrix = utilities.ComputePolynomialBasisDofs(polytopeMeasure,
                                                                   localSpace.Order,
@@ -78,12 +78,12 @@ private:
     };
 
 public:
-    VEM_MCC_Velocity_LocalSpace_Data CreateLocalSpace(
+    VEM_MCC_3D_Velocity_LocalSpace_Data CreateLocalSpace(
         const VEM_MCC_3D_Velocity_ReferenceElement_Data &reference_element_data,
         const VEM_MCC_3D_Polyhedron_Geometry &polyhedron) const;
 
     inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(
-        const VEM_MCC_Velocity_LocalSpace_Data &localSpace) const
+        const VEM_MCC_3D_Velocity_LocalSpace_Data &localSpace) const
     {
         const unsigned int numQuadrature = localSpace.InternalQuadrature.Points.cols();
         const Eigen::MatrixXd temp = localSpace.GkVanderInternal.transpose() * localSpace.Pi0k;
@@ -97,19 +97,19 @@ public:
     }
 
     inline Eigen::MatrixXd ComputeBasisFunctionsDivergenceValues(
-        const VEM_MCC_Velocity_LocalSpace_Data &localSpace) const
+        const VEM_MCC_3D_Velocity_LocalSpace_Data &localSpace) const
     {
         return localSpace.VanderInternal * localSpace.Vmatrix;
     }
 
-    inline Eigen::MatrixXd ComputePolynomialsValues(const VEM_MCC_Velocity_LocalSpace_Data &localSpace) const
+    inline Eigen::MatrixXd ComputePolynomialsValues(const VEM_MCC_3D_Velocity_LocalSpace_Data &localSpace) const
     {
         return localSpace.VanderInternal;
     }
 
     inline Eigen::MatrixXd ComputePolynomialsValues(
         const VEM_MCC_3D_Velocity_ReferenceElement_Data &reference_element_data,
-        const VEM_MCC_Velocity_LocalSpace_Data &localSpace,
+        const VEM_MCC_3D_Velocity_LocalSpace_Data &localSpace,
         const VEM_MCC_3D_Polyhedron_Geometry &polyhedron,
         const Eigen::MatrixXd &points) const
     {

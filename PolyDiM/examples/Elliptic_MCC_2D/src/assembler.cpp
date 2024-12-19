@@ -77,7 +77,7 @@ void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
                                 const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo& mesh_dofs_info,
                                 const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
                                 const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& reference_element_data,
-                                const Polydim::VEM::MCC::VEM_MCC_Velocity_LocalSpace_Data& local_space_data,
+                                const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_LocalSpace_Data& local_space_data,
                                 const test::I_Test& test,
                                 Elliptic_MCC_2D_Problem_Data& assembler_data) const
 {
@@ -316,9 +316,7 @@ Assembler::VEM_Performance_Result Assembler::ComputeVemPerformance(const Polydim
 
         Polydim::VEM::MCC::VEM_MCC_PerformanceAnalysis performanceAnalysis;
 
-        result.Cell2DsPerformance[c].Analysis = performanceAnalysis.Compute(polygon.Measure,
-                                                                            polygon.Diameter,
-                                                                            Polydim::VEM::Monomials::VEM_Monomials_2D(),
+        result.Cell2DsPerformance[c].Analysis = performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_2D(),
                                                                             velocity_reference_element_data.MonomialsKp1,
                                                                             vem_local_space,
                                                                             local_space);

@@ -11,11 +11,10 @@ namespace VEM
 namespace MCC
 {
 //****************************************************************************
-VEM_MCC_Velocity_LocalSpace_Data VEM_MCC_3D_Velocity_LocalSpace::CreateLocalSpace(
-    const VEM_MCC_3D_Velocity_ReferenceElement_Data &reference_element_data,
-    const VEM_MCC_3D_Polyhedron_Geometry &polyhedron) const
+VEM_MCC_3D_Velocity_LocalSpace_Data VEM_MCC_3D_Velocity_LocalSpace::CreateLocalSpace(const VEM_MCC_3D_Velocity_ReferenceElement_Data &reference_element_data,
+                                                                                     const VEM_MCC_3D_Polyhedron_Geometry &polyhedron) const
 {
-    VEM_MCC_Velocity_LocalSpace_Data localSpace;
+    VEM_MCC_3D_Velocity_LocalSpace_Data localSpace;
 
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
     geometryUtilitiesConfig.Tolerance1D = polyhedron.Tolerance1D;
@@ -27,7 +26,7 @@ VEM_MCC_Velocity_LocalSpace_Data VEM_MCC_3D_Velocity_LocalSpace::CreateLocalSpac
     localSpace.InternalQuadrature = quadrature.PolyhedronInternalQuadrature(
         reference_element_data.Quadrature, geometryUtilities, polyhedron.TetrahedronVertices);
 
-    Quadrature::VEM_Quadrature_3D::Faces_QuadratureData_MCC boundaryQuadrature =
+    localSpace.BoundaryQuadrature =
         quadrature.PolyhedronFacesQuadrature(reference_element_data.Quadrature,
                                              geometryUtilities,
                                              polyhedron.FacesTriangulationVertices2D,
@@ -40,7 +39,7 @@ VEM_MCC_Velocity_LocalSpace_Data VEM_MCC_3D_Velocity_LocalSpace::CreateLocalSpac
                                     polyhedron.Diameter,
                                     localSpace.InternalQuadrature.Points,
                                     localSpace.InternalQuadrature.Weights,
-                                    boundaryQuadrature.BoundaryQuadrature.Points,
+                                    localSpace.BoundaryQuadrature.Quadrature.Points,
                                     localSpace);
 
     Eigen::MatrixXd W2;
@@ -53,8 +52,8 @@ VEM_MCC_Velocity_LocalSpace_Data VEM_MCC_3D_Velocity_LocalSpace::CreateLocalSpac
                             polyhedron.FacesCentroid2D,
                             polyhedron.FacesMeasure,
                             polyhedron.FacesDiameter,
-                            boundaryQuadrature.FacesQuadrature,
-                            boundaryQuadrature.BoundaryQuadrature.Weights,
+                            localSpace.BoundaryQuadrature.FacesQuadrature,
+                            localSpace.BoundaryQuadrature.Quadrature.Weights,
                             W2,
                             B2Nabla,
                             localSpace);
@@ -78,7 +77,7 @@ void VEM_MCC_3D_Velocity_LocalSpace::InitializeProjectorsComputation(
     const Eigen::MatrixXd &internalQuadraturePoints,
     const Eigen::VectorXd &internalQuadratureWeights,
     const Eigen::MatrixXd &boundaryQuadraturePoints,
-    VEM_MCC_Velocity_LocalSpace_Data &localSpace) const
+    VEM_MCC_3D_Velocity_LocalSpace_Data &localSpace) const
 {
     localSpace.Dimension = reference_element_data.Dimension;
     localSpace.Order = reference_element_data.Order;
@@ -160,7 +159,7 @@ void VEM_MCC_3D_Velocity_LocalSpace::InitializeProjectorsComputation(
 //****************************************************************************
 void VEM_MCC_3D_Velocity_LocalSpace::ComputeDivergenceCoefficients(const double &polyhedronMeasure,
                                                                    const Eigen::MatrixXd &W2,
-                                                                   VEM_MCC_Velocity_LocalSpace_Data &localSpace) const
+                                                                   VEM_MCC_3D_Velocity_LocalSpace_Data &localSpace) const
 {
     MatrixXd W1 = MatrixXd::Zero(localSpace.Nk, localSpace.NumBasisFunctions);
 
@@ -181,7 +180,7 @@ void VEM_MCC_3D_Velocity_LocalSpace::ComputeDivergenceCoefficients(const double 
 void VEM_MCC_3D_Velocity_LocalSpace::ComputeL2Projectors(const double &polyhedronMeasure,
                                                          const Eigen::VectorXd &internalQuadratureWeights,
                                                          const Eigen::MatrixXd &B2Nabla,
-                                                         VEM_MCC_Velocity_LocalSpace_Data &localSpace) const
+                                                         VEM_MCC_3D_Velocity_LocalSpace_Data &localSpace) const
 {
 
     const MatrixXd HHashtagMatrix = localSpace.VanderInternalKp1.rightCols(localSpace.NkNabla).transpose() *
@@ -214,7 +213,7 @@ void VEM_MCC_3D_Velocity_LocalSpace::ComputeValuesOnBoundary(
     const Eigen::VectorXd &boundaryQuadratureWeights,
     MatrixXd &W2,
     MatrixXd &B2Nabla,
-    VEM_MCC_Velocity_LocalSpace_Data &localSpace) const
+    VEM_MCC_3D_Velocity_LocalSpace_Data &localSpace) const
 {
     const unsigned int numBoundaryQuadraturePoints = boundaryQuadratureWeights.size();
 
