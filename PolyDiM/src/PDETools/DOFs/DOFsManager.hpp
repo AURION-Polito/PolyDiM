@@ -13,34 +13,76 @@ namespace PDETools
 {
 namespace DOFs
 {
-template <class mesh_connectivity_class>
-concept is_mesh_connectivity_class_0D = requires(mesh_connectivity_class mesh) {
-    { mesh.Cell0Ds_number() } -> std::same_as<unsigned int>;
-    { mesh.Cell0D_marker(0) } -> std::same_as<unsigned int>;
+template <class mesh_connectivity_class> concept is_mesh_connectivity_class_0D = requires(mesh_connectivity_class mesh)
+{
+    {
+        mesh.Cell0Ds_number()
+    }
+    ->std::same_as<unsigned int>;
+    {
+        mesh.Cell0D_marker(0)
+    }
+    ->std::same_as<unsigned int>;
 };
 
-template <class mesh_connectivity_class>
-concept is_mesh_connectivity_class_1D = requires(mesh_connectivity_class mesh) {
-    { mesh.Cell1Ds_number() } -> std::same_as<unsigned int>;
-    { mesh.Cell1D_marker(0) } -> std::same_as<unsigned int>;
-    { mesh.Cell1D_vertices(0) } -> std::same_as<std::array<unsigned int, 2>>;
+template <class mesh_connectivity_class> concept is_mesh_connectivity_class_1D = requires(mesh_connectivity_class mesh)
+{
+    {
+        mesh.Cell1Ds_number()
+    }
+    ->std::same_as<unsigned int>;
+    {
+        mesh.Cell1D_marker(0)
+    }
+    ->std::same_as<unsigned int>;
+    {
+        mesh.Cell1D_vertices(0)
+    }
+    ->std::same_as<std::array<unsigned int, 2>>;
 };
 
-template <class mesh_connectivity_class>
-concept is_mesh_connectivity_class_2D = requires(mesh_connectivity_class mesh) {
-    { mesh.Cell2Ds_number() } -> std::same_as<unsigned int>;
-    { mesh.Cell2D_marker(0) } -> std::same_as<unsigned int>;
-    { mesh.Cell2D_vertices(0) } -> std::same_as<std::vector<unsigned int>>;
-    { mesh.Cell2D_edges(0) } -> std::same_as<std::vector<unsigned int>>;
+template <class mesh_connectivity_class> concept is_mesh_connectivity_class_2D = requires(mesh_connectivity_class mesh)
+{
+    {
+        mesh.Cell2Ds_number()
+    }
+    ->std::same_as<unsigned int>;
+    {
+        mesh.Cell2D_marker(0)
+    }
+    ->std::same_as<unsigned int>;
+    {
+        mesh.Cell2D_vertices(0)
+    }
+    ->std::same_as<std::vector<unsigned int>>;
+    {
+        mesh.Cell2D_edges(0)
+    }
+    ->std::same_as<std::vector<unsigned int>>;
 };
 
-template <class mesh_connectivity_class>
-concept is_mesh_connectivity_class_3D = requires(mesh_connectivity_class mesh) {
-    { mesh.Cell3Ds_number() } -> std::same_as<unsigned int>;
-    { mesh.Cell3D_marker(0) } -> std::same_as<unsigned int>;
-    { mesh.Cell3D_vertices(0) } -> std::same_as<std::vector<unsigned int>>;
-    { mesh.Cell3D_edges(0) } -> std::same_as<std::vector<unsigned int>>;
-    { mesh.Cell3D_faces(0) } -> std::same_as<std::vector<unsigned int>>;
+template <class mesh_connectivity_class> concept is_mesh_connectivity_class_3D = requires(mesh_connectivity_class mesh)
+{
+    {
+        mesh.Cell3Ds_number()
+    }
+    ->std::same_as<unsigned int>;
+    {
+        mesh.Cell3D_marker(0)
+    }
+    ->std::same_as<unsigned int>;
+    {
+        mesh.Cell3D_vertices(0)
+    }
+    ->std::same_as<std::vector<unsigned int>>;
+    {
+        mesh.Cell3D_edges(0)
+    }
+    ->std::same_as<std::vector<unsigned int>>;
+    {
+        mesh.Cell3D_faces(0)
+    }
+    ->std::same_as<std::vector<unsigned int>>;
 };
 
 class DOFsManager
@@ -264,8 +306,7 @@ class DOFsManager
     template <unsigned int dimension, class mesh_connectivity_data_class>
     void CreateCell1DDOFs(const MeshDOFsInfo &meshDOFsInfo,
                           const mesh_connectivity_data_class &mesh,
-                          DOFsData &dofs) const
-        requires(is_mesh_connectivity_class_1D<mesh_connectivity_data_class>)
+                          DOFsData &dofs) const requires(is_mesh_connectivity_class_1D<mesh_connectivity_data_class>)
     {
         if (dimension < 1)
             return;
@@ -305,8 +346,7 @@ class DOFsManager
     template <unsigned int dimension, class mesh_connectivity_data_class>
     void CreateCell2DDOFs(const MeshDOFsInfo &meshDOFsInfo,
                           const mesh_connectivity_data_class &mesh,
-                          DOFsData &dofs) const
-        requires(is_mesh_connectivity_class_2D<mesh_connectivity_data_class>)
+                          DOFsData &dofs) const requires(is_mesh_connectivity_class_2D<mesh_connectivity_data_class>)
     {
         if (dimension < 2)
             return;
@@ -370,8 +410,7 @@ class DOFsManager
     template <unsigned int dimension, class mesh_connectivity_data_class>
     void CreateCell3DDOFs(const MeshDOFsInfo &meshDOFsInfo,
                           const mesh_connectivity_data_class &mesh,
-                          DOFsData &dofs) const
-        requires(is_mesh_connectivity_class_3D<mesh_connectivity_data_class>)
+                          DOFsData &dofs) const requires(is_mesh_connectivity_class_3D<mesh_connectivity_data_class>)
     {
         if (dimension < 3)
             return;
@@ -450,8 +489,7 @@ class DOFsManager
   public:
     template <unsigned int dimension, class mesh_connectivity_data_class>
     MeshDOFsInfo Create_Constant_DOFsInfo(const mesh_connectivity_data_class &mesh,
-                                          const ConstantDOFsInfo &boundary_info) const
-        requires(dimension == 0)
+                                          const ConstantDOFsInfo &boundary_info) const requires(dimension == 0)
     {
         Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo meshDOFsInfo;
 
@@ -462,8 +500,7 @@ class DOFsManager
 
     template <unsigned int dimension, class mesh_connectivity_data_class>
     MeshDOFsInfo Create_Constant_DOFsInfo(const mesh_connectivity_data_class &mesh,
-                                          const ConstantDOFsInfo &boundary_info) const
-        requires(dimension == 1)
+                                          const ConstantDOFsInfo &boundary_info) const requires(dimension == 1)
     {
         Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo meshDOFsInfo;
 
@@ -475,8 +512,7 @@ class DOFsManager
 
     template <unsigned int dimension, class mesh_connectivity_data_class>
     MeshDOFsInfo Create_Constant_DOFsInfo(const mesh_connectivity_data_class &mesh,
-                                          const ConstantDOFsInfo &boundary_info) const
-        requires(dimension == 2)
+                                          const ConstantDOFsInfo &boundary_info) const requires(dimension == 2)
     {
         Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo meshDOFsInfo;
 
@@ -489,8 +525,7 @@ class DOFsManager
 
     template <unsigned int dimension, class mesh_connectivity_data_class>
     MeshDOFsInfo Create_Constant_DOFsInfo(const mesh_connectivity_data_class &mesh,
-                                          const ConstantDOFsInfo &boundary_info) const
-        requires(dimension == 3)
+                                          const ConstantDOFsInfo &boundary_info) const requires(dimension == 3)
     {
         Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo meshDOFsInfo;
 
@@ -503,8 +538,7 @@ class DOFsManager
     }
 
     template <unsigned int dimension>
-    DOFsData CreateDOFs(const MeshDOFsInfo &meshDOFsInfo) const
-        requires(dimension == 0)
+    DOFsData CreateDOFs(const MeshDOFsInfo &meshDOFsInfo) const requires(dimension == 0)
     {
         DOFsData result;
 

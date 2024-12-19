@@ -1,13 +1,7 @@
 #ifndef __VEM_PCC_2D_Ortho_LocalSpace_HPP
 #define __VEM_PCC_2D_Ortho_LocalSpace_HPP
 
-#include "Eigen/Eigen"
-#include "VEM_Monomials_2D.hpp"
-#include "VEM_PCC_2D_LocalSpace.hpp"
-#include "VEM_PCC_2D_LocalSpace_Data.hpp"
-#include "VEM_PCC_2D_ReferenceElement.hpp"
-#include "VEM_PCC_Utilities.hpp"
-#include <vector>
+#include "I_VEM_PCC_2D_LocalSpace.hpp"
 
 namespace Polydim
 {
@@ -15,7 +9,7 @@ namespace VEM
 {
 namespace PCC
 {
-class VEM_PCC_2D_Ortho_LocalSpace final
+class VEM_PCC_2D_Ortho_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
 {
   private:
     VEM_PCC_Utilities<2> utilities;
@@ -126,10 +120,10 @@ class VEM_PCC_2D_Ortho_LocalSpace final
         }
     }
 
-    inline Eigen::MatrixXd ComputeBasisFunctionValues(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                      const VEM_PCC_2D_LocalSpace_Data &localSpace,
-                                                      const ProjectionTypes &projectionType,
-                                                      const Eigen::MatrixXd &points) const
+    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                       const VEM_PCC_2D_LocalSpace_Data &localSpace,
+                                                       const ProjectionTypes &projectionType,
+                                                       const Eigen::MatrixXd &points) const
     {
         const Eigen::MatrixXd vanderInternal = ComputePolynomialsValues(reference_element_data, localSpace, points);
 
@@ -144,7 +138,7 @@ class VEM_PCC_2D_Ortho_LocalSpace final
         }
     }
 
-    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionDerivativeValues(
+    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(
         const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
         const VEM_PCC_2D_LocalSpace_Data &localSpace,
         const ProjectionTypes &projectionType,
@@ -229,6 +223,25 @@ class VEM_PCC_2D_Ortho_LocalSpace final
                                              reference_element_data.Order,
                                              edgeBasisCoefficients,
                                              pointsCurvilinearCoordinates);
+    }
+
+    // I_VEM_PCC_2D_LocalSpace interface
+  public:
+    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_2D_LocalSpace_Data &) const
+    {
+        throw std::runtime_error("Unimplemented method");
+    }
+    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_2D_ReferenceElement_Data &,
+                                                         const VEM_PCC_2D_LocalSpace_Data &,
+                                                         const Eigen::MatrixXd &) const
+    {
+        throw std::runtime_error("Unimplemented method");
+    }
+    Eigen::MatrixXd ComputePolynomialsLaplacianValues(const VEM_PCC_2D_ReferenceElement_Data &,
+                                                      const VEM_PCC_2D_LocalSpace_Data &,
+                                                      const Eigen::MatrixXd &) const
+    {
+        throw std::runtime_error("Unimplemented method");
     }
 };
 } // namespace PCC

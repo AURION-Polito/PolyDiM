@@ -20,16 +20,17 @@ VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Inertia_LocalSpace::CreateLocalSpace(
     InertiaMapping(polygon, localSpace.inertia_data);
 
     Quadrature::VEM_Quadrature_2D quadrature;
-    Gedim::Quadrature::QuadratureData MappedInternalQuadrature = quadrature.PolygonInternalQuadrature(reference_element_data.Quadrature.ReferenceTriangleQuadrature,
-                                                                                                      localSpace.inertia_data.TriangulationVertices);
+    Gedim::Quadrature::QuadratureData MappedInternalQuadrature = quadrature.PolygonInternalQuadrature(
+        reference_element_data.Quadrature.ReferenceTriangleQuadrature, localSpace.inertia_data.TriangulationVertices);
 
 #ifdef TEST
     if (abs(MappedInternalQuadrature.Weights.sum() - localSpace.inertia_data.Measure) >= 1.0e-12)
         throw runtime_error("Weights inertia are wrong - 1");
 #endif
 
-    localSpace.InternalQuadrature.Points = (localSpace.inertia_data.Fmatrix * MappedInternalQuadrature.Points).colwise()
-                                           + localSpace.inertia_data.translation;
+    localSpace.InternalQuadrature.Points =
+        (localSpace.inertia_data.Fmatrix * MappedInternalQuadrature.Points).colwise() +
+        localSpace.inertia_data.translation;
     localSpace.InternalQuadrature.Weights = localSpace.inertia_data.absDetFmatrix * MappedInternalQuadrature.Weights;
 
 #ifdef TEST
@@ -232,24 +233,25 @@ void VEM_PCC_2D_Inertia_LocalSpace::ComputeGeometryProperties(const Gedim::Geome
     data.EdgesDirection = polygonEdgeDirections;
 }
 //****************************************************************************
-VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Inertia_LocalSpace::Compute3DUtilities(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                                             const VEM_PCC_2D_Polygon_Geometry &polygon) const
+VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Inertia_LocalSpace::Compute3DUtilities(
+    const VEM_PCC_2D_ReferenceElement_Data &reference_element_data, const VEM_PCC_2D_Polygon_Geometry &polygon) const
 {
     VEM_PCC_2D_LocalSpace_Data localSpace;
 
     InertiaMapping(polygon, localSpace.inertia_data);
 
     Quadrature::VEM_Quadrature_2D quadrature;
-    Gedim::Quadrature::QuadratureData MappedInternalQuadrature = quadrature.PolygonInternalQuadrature(reference_element_data.Quadrature.ReferenceTriangleQuadrature,
-                                                                                                      localSpace.inertia_data.TriangulationVertices);
+    Gedim::Quadrature::QuadratureData MappedInternalQuadrature = quadrature.PolygonInternalQuadrature(
+        reference_element_data.Quadrature.ReferenceTriangleQuadrature, localSpace.inertia_data.TriangulationVertices);
 
 #ifdef TEST
     if (abs(MappedInternalQuadrature.Weights.sum() - localSpace.inertia_data.Measure) >= 1.0e-12)
         throw runtime_error("Weights inertia are wrong - 1");
 #endif
 
-    localSpace.InternalQuadrature.Points = (localSpace.inertia_data.Fmatrix * MappedInternalQuadrature.Points).colwise()
-                                           + localSpace.inertia_data.translation;
+    localSpace.InternalQuadrature.Points =
+        (localSpace.inertia_data.Fmatrix * MappedInternalQuadrature.Points).colwise() +
+        localSpace.inertia_data.translation;
     localSpace.InternalQuadrature.Weights = localSpace.inertia_data.absDetFmatrix * MappedInternalQuadrature.Weights;
 
 #ifdef TEST

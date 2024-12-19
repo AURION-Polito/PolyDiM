@@ -21,7 +21,7 @@ namespace PCC
 /// Primal Conforming Constant degree Virtual Element Methods.
 class VEM_PCC_3D_Inertia_LocalSpace final
 {
-private:
+  private:
     VEM_PCC_Utilities<3> utilities;
     Monomials::VEM_Monomials_3D monomials;
 
@@ -99,7 +99,8 @@ private:
                                    const std::vector<bool> &polyhedronEdgeDirections,
                                    const std::vector<Eigen::MatrixXd> &mappedFaces3DVertices,
                                    VEM_PCC_3D_Inertia_Data &inertia_data) const;
-public:
+
+  public:
     VEM_PCC_3D_LocalSpace_Data CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data_2D,
                                                 const VEM_PCC_3D_ReferenceElement_Data &reference_element_data_3D,
                                                 const std::vector<VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,

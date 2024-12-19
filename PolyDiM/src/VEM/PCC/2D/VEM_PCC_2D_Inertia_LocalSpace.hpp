@@ -1,13 +1,8 @@
 #ifndef __VEM_PCC_2D_Inertia_LocalSpace_HPP
 #define __VEM_PCC_2D_Inertia_LocalSpace_HPP
 
-#include "Eigen/Eigen"
 #include "GeometryUtilities.hpp"
-#include "VEM_Monomials_2D.hpp"
-#include "VEM_PCC_2D_LocalSpace_Data.hpp"
-#include "VEM_PCC_2D_ReferenceElement.hpp"
-#include "VEM_PCC_Utilities.hpp"
-#include <vector>
+#include "I_VEM_PCC_2D_LocalSpace.hpp"
 
 namespace Polydim
 {
@@ -23,7 +18,7 @@ namespace PCC
 ///     - <a href="https://doi.org/10.1016/j.matcom.2023.10.003">"Improving high-order VEM stability on badly-shaped
 ///     elements. Stefano Berrone, Gioana Teora and Fabio Vicini. (2024)"</a>
 
-class VEM_PCC_2D_Inertia_LocalSpace final
+class VEM_PCC_2D_Inertia_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
 {
   private:
     VEM_PCC_Utilities<2> utilities;
@@ -338,6 +333,23 @@ class VEM_PCC_2D_Inertia_LocalSpace final
                                              reference_element_data.Order,
                                              edgeBasisCoefficients,
                                              pointsCurvilinearCoordinates);
+    }
+
+    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_2D_LocalSpace_Data &) const
+    {
+        throw std::runtime_error("Unimplemented method");
+    }
+    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_2D_ReferenceElement_Data &,
+                                                         const VEM_PCC_2D_LocalSpace_Data &,
+                                                         const Eigen::MatrixXd &) const
+    {
+        throw std::runtime_error("Unimplemented method");
+    }
+    Eigen::MatrixXd ComputePolynomialsLaplacianValues(const VEM_PCC_2D_ReferenceElement_Data &,
+                                                      const VEM_PCC_2D_LocalSpace_Data &,
+                                                      const Eigen::MatrixXd &) const
+    {
+        throw std::runtime_error("Unimplemented method");
     }
 };
 } // namespace PCC
