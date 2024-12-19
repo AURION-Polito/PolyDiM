@@ -1,5 +1,5 @@
-#ifndef __VEM_PCC_2D_LocalSpace_creator_HPP
-#define __VEM_PCC_2D_LocalSpace_creator_HPP
+#ifndef __VEM_PCC_2D_LocalSpace_Creator_HPP
+#define __VEM_PCC_2D_LocalSpace_Creator_HPP
 
 #include "I_VEM_PCC_2D_LocalSpace.hpp"
 #include "VEM_PCC_2D_Inertia_LocalSpace.hpp"

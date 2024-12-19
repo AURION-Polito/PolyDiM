@@ -2,6 +2,7 @@
 #define __VEM_MCC_3D_Velocity_LocalSpace_HPP
 
 #include "Eigen/Eigen"
+#include "I_VEM_MCC_3D_Velocity_LocalSpace.hpp"
 #include "VEM_MCC_3D_ReferenceElement.hpp"
 #include "VEM_MCC_Utilities.hpp"
 #include "VEM_MCC_Velocity_LocalSpace_Data.hpp"
@@ -17,9 +18,9 @@ namespace MCC
 {
 /// \brief Class used for computing values of basis functions of 3D
 /// Mixed Conforming Constant degree Virtual Element Methods.
-class VEM_MCC_3D_Velocity_LocalSpace final
+class VEM_MCC_3D_Velocity_LocalSpace final : public I_VEM_MCC_3D_Velocity_LocalSpace
 {
-  private:
+private:
     MCC::VEM_MCC_Utilities<3> utilities;
     Monomials::VEM_Monomials_3D monomials3D;
     Monomials::VEM_Monomials_2D monomials2D;
@@ -76,7 +77,7 @@ class VEM_MCC_3D_Velocity_LocalSpace final
                                                                   localSpace.Gmatrix);
     };
 
-  public:
+public:
     VEM_MCC_Velocity_LocalSpace_Data CreateLocalSpace(
         const VEM_MCC_3D_Velocity_ReferenceElement_Data &reference_element_data,
         const VEM_MCC_3D_Polyhedron_Geometry &polyhedron) const;
