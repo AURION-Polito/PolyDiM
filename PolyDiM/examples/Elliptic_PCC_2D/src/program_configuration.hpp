@@ -4,7 +4,7 @@
 #include "Configurations.hpp"
 #include "PDE_Mesh_Utilities.hpp"
 #include "test_definition.hpp"
-#include "VEM_PCC_2D_LocalSpace_creator.hpp"
+#include "VEM_PCC_2D_LocalSpace_Creator.hpp"
 
 namespace Polydim
 {
