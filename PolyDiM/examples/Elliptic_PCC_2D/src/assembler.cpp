@@ -229,6 +229,8 @@ void Assembler<VEM_LocalSpace_Type>::ComputeWeakTerm(const unsigned int cell2DIn
 template <typename VEM_LocalSpace_Type>
 typename Assembler<VEM_LocalSpace_Type>::Elliptic_PCC_2D_Problem_Data Assembler<VEM_LocalSpace_Type>::Assemble(const Gedim::MeshMatricesDAO& mesh,
                                                                                                                const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                                                                                               const double &tol1D,
+                                                                                                               const double &tol2D,
                                                                                                                const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo& mesh_dofs_info,
                                                                                                                const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
                                                                                                                const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
@@ -258,8 +260,8 @@ typename Assembler<VEM_LocalSpace_Type>::Elliptic_PCC_2D_Problem_Data Assembler<
     {
         const Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry polygon =
             {
-                1.0e-08,
-                1.0e-12,
+                tol1D,
+                tol2D,
                 mesh_geometric_data.Cell2DsVertices.at(c),
                 mesh_geometric_data.Cell2DsCentroids.at(c),
                 mesh_geometric_data.Cell2DsAreas.at(c),
@@ -350,6 +352,8 @@ typename Assembler<VEM_LocalSpace_Type>::Elliptic_PCC_2D_Problem_Data Assembler<
 template <typename VEM_LocalSpace_Type>
 typename Assembler<VEM_LocalSpace_Type>::VEM_Performance_Result Assembler<VEM_LocalSpace_Type>::ComputeVemPerformance(const Gedim::MeshMatricesDAO& mesh,
                                                                                                                       const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                                                                                                      const double &tol1D,
+                                                                                                                      const double &tol2D,
                                                                                                                       const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data) const
 {
 
@@ -363,8 +367,8 @@ typename Assembler<VEM_LocalSpace_Type>::VEM_Performance_Result Assembler<VEM_Lo
     {
         const Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry polygon =
             {
-                1.0e-08,
-                1.0e-12,
+                tol1D,
+                tol2D,
                 mesh_geometric_data.Cell2DsVertices.at(c),
                 mesh_geometric_data.Cell2DsCentroids.at(c),
                 mesh_geometric_data.Cell2DsAreas.at(c),
@@ -396,6 +400,8 @@ typename Assembler<VEM_LocalSpace_Type>::VEM_Performance_Result Assembler<VEM_Lo
 template <typename VEM_LocalSpace_Type>
 typename Assembler<VEM_LocalSpace_Type>::PostProcess_Data Assembler<VEM_LocalSpace_Type>::PostProcessSolution(const Gedim::MeshMatricesDAO& mesh,
                                                                                                               const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                                                                                              const double &tol1D,
+                                                                                                              const double &tol2D,
                                                                                                               const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
                                                                                                               const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
                                                                                                               const Elliptic_PCC_2D_Problem_Data& assembler_data,
@@ -459,8 +465,8 @@ typename Assembler<VEM_LocalSpace_Type>::PostProcess_Data Assembler<VEM_LocalSpa
     {
         const Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry polygon =
             {
-                1.0e-08,
-                1.0e-12,
+                tol1D,
+                tol2D,
                 mesh_geometric_data.Cell2DsVertices.at(c),
                 mesh_geometric_data.Cell2DsCentroids.at(c),
                 mesh_geometric_data.Cell2DsAreas.at(c),

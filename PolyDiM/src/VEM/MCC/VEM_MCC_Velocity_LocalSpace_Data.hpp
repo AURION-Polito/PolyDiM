@@ -2,7 +2,6 @@
 #define __VEM_MCC_2D_Velocity_LocalSpace_Data_HPP
 
 #include "Eigen/Eigen"
-#include "GeometryUtilities.hpp"
 #include "QuadratureData.hpp"
 #include "VEM_Quadrature_2D.hpp"
 
@@ -14,6 +13,9 @@ namespace MCC
 {
 struct VEM_MCC_2D_Polygon_Geometry final
 {
+    const double Tolerance1D;
+    const double Tolerance2D;
+
     const Eigen::MatrixXd &Vertices;
     const Eigen::Vector3d &Centroid;
     const double &Measure;
@@ -27,7 +29,9 @@ struct VEM_MCC_2D_Polygon_Geometry final
 
 struct VEM_MCC_3D_Polyhedron_Geometry final
 {
-    const Gedim::GeometryUtilities &GeometryUtility;
+    const double Tolerance1D;
+    const double Tolerance2D;
+    const double Tolerance3D;
 
     const Eigen::MatrixXd &Vertices;
     const Eigen::Vector3d &Centroid;

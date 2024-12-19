@@ -65,9 +65,11 @@ public:
 
 private:
 
-    void ComputeStrongTerm(const Gedim::GeometryUtilities& geometryUtilities,
-                           const Gedim::MeshMatricesDAO& mesh,
-                           const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+    void ComputeStrongTerm(const Gedim::MeshMatricesDAO& mesh,
+                           const unsigned int &cell2DIndex,
+                           const std::vector<bool> &cell2DEdgeDirections,
+                           const Eigen::MatrixXd &boundaryQuadraturePoints,
+                           const Eigen::VectorXd &boundaryQuadratureWeights,
                            const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo& mesh_dofs_info,
                            const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
                            const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& reference_element_data,
@@ -87,9 +89,10 @@ private:
                          Elliptic_MCC_2D_Problem_Data& assembler_data) const;
 
 public:
-    Elliptic_MCC_2D_Problem_Data Assemble(const Gedim::GeometryUtilities& geometryUtilities,
-                                          const Gedim::MeshMatricesDAO& mesh,
+    Elliptic_MCC_2D_Problem_Data Assemble(const Gedim::MeshMatricesDAO& mesh,
                                           const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                          const double &tol1D,
+                                          const double &tol2D,
                                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo>& mesh_dofs_info,
                                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData>& dofs_data,
                                           const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& velocity_reference_element_data,
@@ -103,14 +106,16 @@ public:
                                           const std::function<Eigen::VectorXd(const unsigned int,
                                                                               const Eigen::MatrixXd&)>& weak_boundary_condition) const;
 
-    VEM_Performance_Result ComputeVemPerformance(const Gedim::GeometryUtilities& geometryUtilities,
-                                                 const Gedim::MeshMatricesDAO& mesh,
+    VEM_Performance_Result ComputeVemPerformance(const Gedim::MeshMatricesDAO& mesh,
                                                  const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                                 const double &tol1D,
+                                                 const double &tol2D,
                                                  const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& reference_element_data) const;
 
-    PostProcess_Data PostProcessSolution(const Gedim::GeometryUtilities& geometryUtilities,
-                                         const Gedim::MeshMatricesDAO& mesh,
+    PostProcess_Data PostProcessSolution(const Gedim::MeshMatricesDAO& mesh,
                                          const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                         const double &tol1D,
+                                         const double &tol2D,
                                          const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData>& dofs_data,
                                          const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& velocity_reference_element_data,
                                          const Polydim::VEM::MCC::VEM_MCC_2D_Pressure_ReferenceElement_Data& pressure_reference_element_data,

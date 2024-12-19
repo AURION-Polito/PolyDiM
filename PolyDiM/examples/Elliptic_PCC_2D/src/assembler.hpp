@@ -89,6 +89,8 @@ private:
 public:
     Elliptic_PCC_2D_Problem_Data Assemble(const Gedim::MeshMatricesDAO& mesh,
                                           const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                          const double &tol1D,
+                                          const double &tol2D,
                                           const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo& mesh_dofs_info,
                                           const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
                                           const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
@@ -101,10 +103,14 @@ public:
 
     VEM_Performance_Result ComputeVemPerformance(const Gedim::MeshMatricesDAO& mesh,
                                                  const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                                 const double &tol1D,
+                                                 const double &tol2D,
                                                  const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data) const;
 
     PostProcess_Data PostProcessSolution(const Gedim::MeshMatricesDAO& mesh,
                                          const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                         const double &tol1D,
+                                         const double &tol2D,
                                          const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
                                          const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data& reference_element_data,
                                          const Elliptic_PCC_2D_Problem_Data& assembler_data,

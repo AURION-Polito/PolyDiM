@@ -17,13 +17,19 @@ VEM_MCC_Velocity_LocalSpace_Data VEM_MCC_3D_Velocity_LocalSpace::CreateLocalSpac
 {
     VEM_MCC_Velocity_LocalSpace_Data localSpace;
 
+    Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
+    geometryUtilitiesConfig.Tolerance1D = polyhedron.Tolerance1D;
+    geometryUtilitiesConfig.Tolerance2D = polyhedron.Tolerance2D;
+    geometryUtilitiesConfig.Tolerance3D = polyhedron.Tolerance3D;
+    Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
+
     Quadrature::VEM_Quadrature_3D quadrature;
     localSpace.InternalQuadrature = quadrature.PolyhedronInternalQuadrature(
-        reference_element_data.Quadrature, polyhedron.GeometryUtility, polyhedron.TetrahedronVertices);
+        reference_element_data.Quadrature, geometryUtilities, polyhedron.TetrahedronVertices);
 
     Quadrature::VEM_Quadrature_3D::Faces_QuadratureData_MCC boundaryQuadrature =
         quadrature.PolyhedronFacesQuadrature(reference_element_data.Quadrature,
-                                             polyhedron.GeometryUtility,
+                                             geometryUtilities,
                                              polyhedron.FacesTriangulationVertices2D,
                                              polyhedron.FacesRotationMatrix,
                                              polyhedron.FacesTranslation);

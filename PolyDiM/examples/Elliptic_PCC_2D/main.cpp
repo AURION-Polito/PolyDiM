@@ -46,9 +46,9 @@ int main(int argc, char** argv)
     Gedim::Configurations::ExportToIni(exportFolder + "/Parameters.ini",
                                        false);
 
-    /// Create domain
-    Gedim::Output::PrintGenericMessage("CreateDomain...", true);
-    Gedim::Profiler::StartTime("CreateDomain");
+    /// Set problem
+    Gedim::Output::PrintGenericMessage("SetProblem...", true);
+    Gedim::Profiler::StartTime("SetProblem");
 
     Polydim::examples::Elliptic_PCC_2D::test::Patch_Test::order = config.VemOrder();
 
@@ -61,15 +61,16 @@ int main(int argc, char** argv)
     const auto exact_solution = TEST_TYPE::exact_solution;
     const auto exact_derivative_solution = TEST_TYPE::exact_derivative_solution;
 
-    Gedim::Profiler::StopTime("CreateDomain");
-    Gedim::Output::PrintStatusProgram("CreateDomain");
-
     // export domain
     {
         Gedim::VTKUtilities vtkUtilities;
         vtkUtilities.AddPolygon(domain.vertices);
         vtkUtilities.Export(exportVtuFolder + "/Domain.vtu");
     }
+
+    Gedim::Profiler::StopTime("SetProblem");
+    Gedim::Output::PrintStatusProgram("SetProblem");
+
 
     /// Create domain mesh
     Gedim::Output::PrintGenericMessage("CreateMesh...", true);
@@ -82,12 +83,12 @@ int main(int argc, char** argv)
     Polydim::examples::Elliptic_PCC_2D::program_utilities::create_domain_mesh(config,
                                                                               domain,
                                                                               mesh);
-    const Gedim::MeshFromCsvUtilities utilities;
-    Gedim::MeshFromCsvUtilities::Configuration configuration;
-    configuration.Folder = config.ExportFolder() + "/Mesh";
-    Gedim::MeshDAOExporterToCsv exportMesh(utilities);
-    exportMesh.Export(configuration,
-                      mesh);
+//    const Gedim::MeshFromCsvUtilities utilities;
+//    Gedim::MeshFromCsvUtilities::Configuration configuration;
+//    configuration.Folder = config.ExportFolder() + "/Mesh";
+//    Gedim::MeshDAOExporterToCsv exportMesh(utilities);
+//    exportMesh.Export(configuration,
+//                      mesh);
 
     Gedim::Profiler::StopTime("CreateMesh");
     Gedim::Output::PrintStatusProgram("CreateMesh");
@@ -141,8 +142,6 @@ int main(int argc, char** argv)
     Gedim::Profiler::StopTime("CreateVEMSpace");
     Gedim::Output::PrintStatusProgram("CreateVEMSpace");
 
-
-
     const unsigned int VEM_ID = Polydim::examples::Elliptic_PCC_2D::program_utilities::VemType<VEM_LOCAL_SPACE_TYPE>(); // Enhanced Virtual Element Method with monomials basis
 
     Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " + to_string(VEM_ID) + "...", true);
@@ -152,6 +151,8 @@ int main(int argc, char** argv)
     Polydim::examples::Elliptic_PCC_2D::Assembler<VEM_LOCAL_SPACE_TYPE> assembler;
     auto assembler_data = assembler.Assemble(mesh,
                                              meshGeometricData,
+                                             config.GeometricTolerance1D(),
+                                             config.GeometricTolerance2D(),
                                              meshDOFsInfo,
                                              dofs_data,
                                              reference_element_data,
@@ -190,6 +191,8 @@ int main(int argc, char** argv)
 
     auto post_process_data = assembler.PostProcessSolution(mesh,
                                                            meshGeometricData,
+                                                           config.GeometricTolerance1D(),
+                                                           config.GeometricTolerance2D(),
                                                            dofs_data,
                                                            reference_element_data,
                                                            assembler_data,
@@ -219,6 +222,8 @@ int main(int argc, char** argv)
     {
         const auto vemPerformance = assembler.ComputeVemPerformance(mesh,
                                                                     meshGeometricData,
+                                                                    config.GeometricTolerance1D(),
+                                                                    config.GeometricTolerance2D(),
                                                                     reference_element_data);
         {
             const char separator = ',';

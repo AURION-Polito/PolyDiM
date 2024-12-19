@@ -30,6 +30,14 @@ public:
                                            0.1,
                                            "Mesh 2D maximum relative cell area (Default: 0.1)");
 
+        Gedim::Configurations::AddProperty("GeometricTolerance1D",
+                                           1.0e-12,
+                                           "Geometric Tolerance 1D (Default: 1.0e-12)");
+
+        Gedim::Configurations::AddProperty("GeometricTolerance2D",
+                                           1.0e-14,
+                                           "Geometric Tolerance 2D (Default: 1.0e-14)");
+
         /// Method parameters
         Gedim::Configurations::AddProperty("VemOrder",
                                            static_cast<unsigned int>(1),
@@ -49,6 +57,10 @@ public:
     { return Gedim::Configurations::GetPropertyValue<string>("MeshImportFilePath"); }
     inline double MeshMaxArea() const
     { return Gedim::Configurations::GetPropertyValue<double>("MeshMaxArea"); }
+    inline double GeometricTolerance1D() const
+    { return Gedim::Configurations::GetPropertyValue<double>("GeometricTolerance1D"); }
+    inline double GeometricTolerance2D() const
+    { return Gedim::Configurations::GetPropertyValue<double>("GeometricTolerance2D"); }
 
     inline bool ComputeVEMPerformance() const
     { return Gedim::Configurations::GetPropertyValue<bool>("ComputeVEMPerformance"); }

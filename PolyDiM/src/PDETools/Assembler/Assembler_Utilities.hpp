@@ -13,9 +13,9 @@ namespace Assembler_Utilities
 struct local_matrix_to_global_matrix_dofs_data final
 {
     std::vector<std::reference_wrapper<const Polydim::PDETools::DOFs::DOFsManager::DOFsData>> dofs_data;
-    std::vector<unsigned int> local_offsets;
-    std::vector<unsigned int> global_offsets_DOFs;
-    std::vector<unsigned int> global_offsets_Strongs;
+    std::vector<size_t> local_offsets;
+    std::vector<size_t> global_offsets_DOFs;
+    std::vector<size_t> global_offsets_Strongs;
 };
 
 template <unsigned int dimension,
@@ -32,14 +32,14 @@ void assemble_local_matrix_to_global_matrix(const unsigned int cell_index,
                                             global_lhs_type &global_lhs_Strongs,
                                             global_rhs_type &global_rhs)
 {
-    for (unsigned test_f = 0; test_f < test_functions_dofs_data.dofs_data.size(); ++test_f)
+    for (size_t test_f = 0; test_f < test_functions_dofs_data.dofs_data.size(); ++test_f)
     {
         const auto &test_dofs_data = test_functions_dofs_data.dofs_data.at(test_f).get();
         const auto &test_global_dofs = test_dofs_data.CellsGlobalDOFs.at(dimension).at(cell_index);
         const auto test_global_offset_DOFs = test_functions_dofs_data.global_offsets_DOFs[test_f];
         const auto test_local_offset = test_functions_dofs_data.local_offsets[test_f];
 
-        for (unsigned int test_loc_i = 0; test_loc_i < test_global_dofs.size(); ++test_loc_i)
+        for (size_t test_loc_i = 0; test_loc_i < test_global_dofs.size(); ++test_loc_i)
         {
             const auto global_dof_i = test_global_dofs.at(test_loc_i);
             const auto local_dof_i = test_dofs_data.CellsDOFs.at(global_dof_i.Dimension)

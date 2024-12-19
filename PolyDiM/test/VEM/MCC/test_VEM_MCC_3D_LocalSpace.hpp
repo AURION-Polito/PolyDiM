@@ -100,7 +100,9 @@ TEST(Test_VEM_MCC, Test_VEM_MCC_3D_O0_O1_O2_O3)
 
     const Test_VEM_MCC_3D_Polyhedron_Geometry polyhedron_data = Test_VEM_MCC_3D_Geometry(geometry_utilities);
 
-    Polydim::VEM::MCC::VEM_MCC_3D_Polyhedron_Geometry polyhedron = {geometry_utilities,
+    Polydim::VEM::MCC::VEM_MCC_3D_Polyhedron_Geometry polyhedron = {geometry_utilities_config.Tolerance1D,
+                                                                    geometry_utilities_config.Tolerance2D,
+                                                                    geometry_utilities_config.Tolerance3D,
 
                                                                     polyhedron_data.Vertices,
                                                                     polyhedron_data.Centroid,
