@@ -2,6 +2,7 @@
 #define __VEM_PCC_2D_Ortho_LocalSpace_HPP
 
 #include "I_VEM_PCC_2D_LocalSpace.hpp"
+#include "VEM_Monomials_2D.hpp"
 
 namespace Polydim
 {
@@ -92,8 +93,8 @@ class VEM_PCC_2D_Ortho_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
         }
     }
 
-    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(
-        const VEM_PCC_2D_LocalSpace_Data &localSpace, const ProjectionTypes &projectionType) const
+    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const VEM_PCC_2D_LocalSpace_Data &localSpace,
+                                                                              const ProjectionTypes &projectionType) const
     {
         switch (projectionType)
         {

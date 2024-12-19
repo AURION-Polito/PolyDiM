@@ -158,8 +158,9 @@ inline Gedim::MeshUtilities::MeshGeometricData2D compute_mesh_2D_geometry_data(
 inline Gedim::MeshUtilities::MeshGeometricData3D compute_mesh_3D_geometry_data(
     const Gedim::GeometryUtilities &geometry_utilities,
     const Gedim::MeshUtilities &mesh_utilities,
-    const Gedim::MeshMatricesDAO &mesh)
+    Gedim::MeshMatricesDAO &mesh)
 {
+    mesh_utilities.ComputeCell2DCell3DNeighbours(mesh);
     return mesh_utilities.FillMesh3DGeometricData(geometry_utilities, mesh);
 }
 } // namespace PDE_Mesh_Utilities

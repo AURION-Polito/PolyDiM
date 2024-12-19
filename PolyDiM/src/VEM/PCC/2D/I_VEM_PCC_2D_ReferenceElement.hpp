@@ -1,7 +1,7 @@
 #ifndef __I_VEM_PCC_2D_ReferenceElement_H
 #define __I_VEM_PCC_2D_ReferenceElement_H
 
-#include "VEM_Monomials_2D.hpp"
+#include "VEM_Monomials_Data.hpp"
 #include "VEM_Quadrature_2D.hpp"
 
 namespace Polydim

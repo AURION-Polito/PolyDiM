@@ -1,3 +1,6 @@
+list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/I_VEM_PCC_3D_LocalSpace.hpp)
+list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_PCC_3D_Creator.hpp)
+list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/I_VEM_PCC_3D_ReferenceElement.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_PCC_3D_LocalSpace.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_PCC_3D_Inertia_LocalSpace.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_PCC_3D_LocalSpace_Data.hpp)

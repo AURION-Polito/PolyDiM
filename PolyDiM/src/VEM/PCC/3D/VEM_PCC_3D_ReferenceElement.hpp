@@ -2,7 +2,7 @@
 #define __VEM_PCC_3D_ReferenceElement_H
 
 #include "VEM_Monomials_3D.hpp"
-#include "VEM_Quadrature_3D.hpp"
+#include "I_VEM_PCC_3D_ReferenceElement.hpp"
 
 namespace Polydim
 {
@@ -10,21 +10,9 @@ namespace VEM
 {
 namespace PCC
 {
-struct VEM_PCC_3D_ReferenceElement_Data final
-{
-    unsigned int Dimension;
-    unsigned int Order;
-    unsigned int NumDofs0D; ///< Number of dofs for each vertex.
-    unsigned int NumDofs1D; ///< Number of dofs internal to each edge.
-    unsigned int NumDofs2D; ///< Number of dofs internal to each face.
-    unsigned int NumDofs3D; ///< Number of dofs internal to each polyhedron.
-
-    Monomials::VEM_Monomials_Data Monomials;
-    Quadrature::VEM_QuadratureData_3D Quadrature;
-};
 
 /// \brief Base class for Primal Conforming Virtual Element Method of Constant Degree.
-class VEM_PCC_3D_ReferenceElement final
+class VEM_PCC_3D_ReferenceElement final : public I_VEM_PCC_3D_ReferenceElement
 {
   public:
     VEM_PCC_3D_ReferenceElement_Data Create(const unsigned int order) const

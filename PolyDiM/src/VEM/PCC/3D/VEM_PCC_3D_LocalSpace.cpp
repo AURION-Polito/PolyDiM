@@ -10,11 +10,10 @@ namespace VEM
 namespace PCC
 {
 //****************************************************************************
-VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_LocalSpace::CreateLocalSpace(
-    const VEM_PCC_2D_ReferenceElement_Data &reference_element_data_2D,
-    const VEM_PCC_3D_ReferenceElement_Data &reference_element_data_3D,
-    const std::vector<VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
-    const VEM_PCC_3D_Polyhedron_Geometry &polyhedron) const
+VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_LocalSpace::CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data_2D,
+                                                                   const VEM_PCC_3D_ReferenceElement_Data &reference_element_data_3D,
+                                                                   const std::vector<VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
+                                                                   const VEM_PCC_3D_Polyhedron_Geometry &polyhedron) const
 {
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
     geometryUtilitiesConfig.Tolerance1D = polyhedron.Tolerance1D;

@@ -2,6 +2,7 @@
 #define __VEM_PCC_2D_ReferenceElement_H
 
 #include "I_VEM_PCC_2D_ReferenceElement.hpp"
+#include "VEM_Monomials_2D.hpp"
 
 namespace Polydim
 {

@@ -3,6 +3,7 @@
 
 #include "GeometryUtilities.hpp"
 #include "I_VEM_PCC_2D_LocalSpace.hpp"
+#include "VEM_Monomials_2D.hpp"
 
 namespace Polydim
 {
@@ -20,7 +21,7 @@ namespace PCC
 
 class VEM_PCC_2D_Inertia_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
 {
-  private:
+private:
     VEM_PCC_Utilities<2> utilities;
     Monomials::VEM_Monomials_2D monomials;
 
@@ -84,7 +85,7 @@ class VEM_PCC_2D_Inertia_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
                                    const std::vector<Eigen::Matrix3d> &polygonTriangulation,
                                    VEM_PCC_2D_Inertia_Data &data) const;
 
-  public:
+public:
     /// \brief Create and Initialize all the variables contained in \ref VEM::PCC::VEM_PCC_2D_LocalSpace_Data
     /// \param reference_element_data: an object of type \ref VEM::PCC::VEM_PCC_2D_ReferenceElement_Data which contains
     /// monomials, quadrature and the number of degrees of freedom, counting in order DOFS associated with vertices,
