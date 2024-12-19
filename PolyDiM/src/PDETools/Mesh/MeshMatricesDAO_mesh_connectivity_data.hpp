@@ -74,7 +74,7 @@ struct MeshMatricesDAO_mesh_connectivity_data final
 
     inline std::vector<unsigned int> Cell3D_faces(const unsigned int cell3D_index) const
     {
-        return mesh_data.Cell3DEdges(cell3D_index);
+        return mesh_data.Cell3DFaces(cell3D_index);
     }
 };
 } // namespace Mesh

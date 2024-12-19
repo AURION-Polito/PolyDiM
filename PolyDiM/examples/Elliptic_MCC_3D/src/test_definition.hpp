@@ -55,6 +55,41 @@ struct Patch_Test final : public I_Test
         domain.vertices.row(1) << 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0;
         domain.vertices.row(2) << 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0;
 
+        // create edges
+        domain.edges.setZero(2, 12);
+        domain.edges.col(0)<< 0, 1;
+        domain.edges.col(1)<< 1, 2;
+        domain.edges.col(2)<< 2, 3;
+        domain.edges.col(3)<< 3, 0;
+        domain.edges.col(4)<< 4, 5;
+        domain.edges.col(5)<< 5, 6;
+        domain.edges.col(6)<< 6, 7;
+        domain.edges.col(7)<< 7, 4;
+        domain.edges.col(8)<< 0, 4;
+        domain.edges.col(9)<< 1, 5;
+        domain.edges.col(10)<< 2, 6;
+        domain.edges.col(11)<< 3, 7;
+
+        // create faces
+        domain.faces.resize(6, Eigen::MatrixXi::Zero(2, 4));
+        domain.faces[0].row(0)<< 0, 1, 2, 3;
+        domain.faces[0].row(1)<< 0, 1, 2, 3;
+
+        domain.faces[1].row(0)<< 4, 5, 6, 7;
+        domain.faces[1].row(1)<< 4, 5, 6, 7;
+
+        domain.faces[2].row(0)<< 0, 3, 7, 4;
+        domain.faces[2].row(1)<< 3, 11, 7, 8;
+
+        domain.faces[3].row(0)<< 1, 2, 6, 5;
+        domain.faces[3].row(1)<< 1, 10, 5, 9;
+
+        domain.faces[4].row(0)<< 0, 1, 5, 4;
+        domain.faces[4].row(1)<< 0, 9, 4, 8;
+
+        domain.faces[5].row(0)<< 3, 2, 6, 7;
+        domain.faces[5].row(1)<< 2, 10, 6, 11;
+
         return domain;
     }
 
@@ -245,6 +280,42 @@ struct Poisson_Polynomial_Problem final : public I_Test
         domain.vertices.row(0) << 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0;
         domain.vertices.row(1) << 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0;
         domain.vertices.row(2) << 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0;
+
+        // create edges
+        domain.edges.setZero(2, 12);
+        domain.edges.col(0)<< 0, 1;
+        domain.edges.col(1)<< 1, 2;
+        domain.edges.col(2)<< 2, 3;
+        domain.edges.col(3)<< 3, 0;
+        domain.edges.col(4)<< 4, 5;
+        domain.edges.col(5)<< 5, 6;
+        domain.edges.col(6)<< 6, 7;
+        domain.edges.col(7)<< 7, 4;
+        domain.edges.col(8)<< 0, 4;
+        domain.edges.col(9)<< 1, 5;
+        domain.edges.col(10)<< 2, 6;
+        domain.edges.col(11)<< 3, 7;
+
+        // create faces
+        domain.faces.resize(6, Eigen::MatrixXi::Zero(2, 4));
+        domain.faces[0].row(0)<< 0, 1, 2, 3;
+        domain.faces[0].row(1)<< 0, 1, 2, 3;
+
+        domain.faces[1].row(0)<< 4, 5, 6, 7;
+        domain.faces[1].row(1)<< 4, 5, 6, 7;
+
+        domain.faces[2].row(0)<< 0, 3, 7, 4;
+        domain.faces[2].row(1)<< 3, 11, 7, 8;
+
+        domain.faces[3].row(0)<< 1, 2, 6, 5;
+        domain.faces[3].row(1)<< 1, 10, 5, 9;
+
+        domain.faces[4].row(0)<< 0, 1, 5, 4;
+        domain.faces[4].row(1)<< 0, 9, 4, 8;
+
+        domain.faces[5].row(0)<< 3, 2, 6, 7;
+        domain.faces[5].row(1)<< 2, 10, 6, 11;
+
 
         return domain;
     }

@@ -48,8 +48,8 @@ struct Program_configuration final
                                            static_cast<unsigned int>(Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_LocalSpace),
                                            "Vem Type, 1 - Vem; 2 - Vem_Partial; 3 - Vem_Ortho; 4 - Vem_EdgeOrtho; 5 - Vem_Ortho_EdgeOrtho (Default: 1)");
         Gedim::Configurations::AddProperty("VemOrder",
-                                           static_cast<unsigned int>(1),
-                                           "VEM order (Default: 1)");
+                                           static_cast<unsigned int>(0),
+                                           "VEM order (Default: 0)");
         Gedim::Configurations::AddProperty("ComputeVEMPerformance",
                                            true,
                                            "Compute VEM Performance (Default: true)");

@@ -79,16 +79,16 @@ void create_domain_mesh(const Polydim::examples::Elliptic_MCC_3D::Program_config
 }
 // ***************************************************************************
 Gedim::MeshUtilities::MeshGeometricData3D create_domain_mesh_geometric_properties(const Polydim::examples::Elliptic_MCC_3D::Program_configuration& config,
-                                                                                  const Gedim::MeshMatricesDAO& mesh)
+                                                                                  Gedim::MeshMatricesDAO& mesh)
 {
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
     geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance1D();
     geometryUtilitiesConfig.Tolerance2D = config.GeometricTolerance2D();
-    geometryUtilitiesConfig.Tolerance3D = config.GeometricTolerance2D();
+    geometryUtilitiesConfig.Tolerance3D = config.GeometricTolerance3D();
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
     Gedim::MeshUtilities meshUtilities;
-
+    meshUtilities.ComputeCell2DCell3DNeighbours(mesh);
     return Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_3D_geometry_data(geometryUtilities,
                                                                                       meshUtilities,
                                                                                       mesh);
