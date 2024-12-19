@@ -178,7 +178,7 @@ Assembler::Elliptic_MCC_2D_Problem_Data Assembler::Assemble(const Polydim::examp
                 mesh_geometric_data.Cell2DsEdgeNormals.at(c)
             };
 
-        const auto vem_local_space = Polydim::VEM::MCC::create_VEM_MCC_2D_local_space(config.VemType());
+        const auto vem_local_space = Polydim::VEM::MCC::create_VEM_MCC_2D_velocity_local_space(config.VemType());
 
         const auto local_space = vem_local_space->CreateLocalSpace(velocity_reference_element_data,
                                                                    polygon);
@@ -309,7 +309,7 @@ Assembler::VEM_Performance_Result Assembler::ComputeVemPerformance(const Polydim
                 mesh_geometric_data.Cell2DsEdgeNormals.at(c)
             };
 
-        const auto vem_local_space = Polydim::VEM::MCC::create_VEM_MCC_2D_local_space(config.VemType());
+        const auto vem_local_space = Polydim::VEM::MCC::create_VEM_MCC_2D_velocity_local_space(config.VemType());
 
         const auto local_space = vem_local_space->CreateLocalSpace(velocity_reference_element_data,
                                                                    polygon);
@@ -392,7 +392,7 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
                 mesh_geometric_data.Cell2DsEdgeNormals.at(c)
             };
 
-        const auto vem_local_space = Polydim::VEM::MCC::create_VEM_MCC_2D_local_space(config.VemType());
+        const auto vem_local_space = Polydim::VEM::MCC::create_VEM_MCC_2D_velocity_local_space(config.VemType());
 
         const auto local_space = vem_local_space->CreateLocalSpace(velocity_reference_element_data,
                                                                    polygon);

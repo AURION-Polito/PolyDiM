@@ -27,6 +27,14 @@ template <unsigned short dimension> struct VEM_MCC_Utilities final
     Eigen::MatrixXd ComputeStabilizationMatrix(const Eigen::MatrixXd &pi0k,
                                                const double &measure,
                                                const Eigen::MatrixXd &DMatrix) const;
+
+    void MonomialTraceOnEdges(const unsigned int &polynomialDegree,
+                              const Eigen::MatrixXd &polygonVertices,
+                              const double &polygonDiameter,
+                              const Eigen::Vector3d &polygonCentroid,
+                              const std::vector<bool> &edgeDirections,
+                              const Eigen::MatrixXd &edgeTangents,
+                              std::vector<Eigen::MatrixXd> &Cmatrixkp1) const;
 };
 } // namespace MCC
 } // namespace VEM

@@ -10,6 +10,8 @@
 #include "VEM_MCC_2D_Partial_Velocity_LocalSpace.hpp"
 #include "VEM_MCC_2D_Velocity_LocalSpace.hpp"
 #include "VEM_MCC_PerformanceAnalysis.hpp"
+#include "VEM_MCC_2D_EdgeOrtho_Velocity_LocalSpace.hpp"
+#include "VEM_MCC_2D_Ortho_EdgeOrtho_Velocity_LocalSpace.hpp"
 
 namespace Polydim
 {
@@ -195,6 +197,100 @@ TEST(Test_VEM_MCC, Test_VEM_MCC_Ortho_2D_O0_O1_O2_O3)
     {
         Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement vem_reference_element;
         Polydim::VEM::MCC::VEM_MCC_2D_Ortho_Velocity_LocalSpace vem_local_space;
+
+        const auto reference_element_data = vem_reference_element.Create(k);
+        const auto local_space = vem_local_space.CreateLocalSpace(reference_element_data, polygon);
+
+        // Test VEM performances
+        Polydim::VEM::MCC::VEM_MCC_PerformanceAnalysis performanceAnalysis;
+
+        const auto result = performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_2D(),
+                                                        reference_element_data.MonomialsKp1,
+                                                        vem_local_space,
+                                                        local_space);
+
+        ASSERT_TRUE(
+            geometry_utilities.IsValueGreaterOrEqual(1.0e-10, result.ErrorPi0k, geometry_utilities.Tolerance1D()));
+
+        ASSERT_TRUE(
+            geometry_utilities.IsValueGreaterOrEqual(1.0e-10, result.ErrorGBD, geometry_utilities.Tolerance1D()));
+
+        ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(
+            1.0e-10, result.ErrorStabilization, geometry_utilities.Tolerance1D()));
+    }
+}
+
+TEST(Test_VEM_MCC, Test_VEM_MCC_EdgeOrtho_2D_O0_O1_O2_O3)
+{
+    Gedim::GeometryUtilitiesConfig geometry_utilities_config;
+    geometry_utilities_config.Tolerance1D = std::numeric_limits<double>::epsilon();
+    Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
+
+    const auto polygon_data = Test_VEM_MCC_2D_Geometry(geometry_utilities);
+
+    Polydim::VEM::MCC::VEM_MCC_2D_Polygon_Geometry polygon = {geometry_utilities_config.Tolerance1D,
+                                                              geometry_utilities_config.Tolerance2D,
+                                                              polygon_data.Vertices,
+                                                              polygon_data.Centroid,
+                                                              polygon_data.Measure,
+                                                              polygon_data.Diameter,
+                                                              polygon_data.TriangulationVertices,
+                                                              polygon_data.EdgesLength,
+                                                              polygon_data.EdgesDirection,
+                                                              polygon_data.EdgesTangent,
+                                                              polygon_data.EdgesNormal};
+
+    for (unsigned int k = 0; k < 4; k++)
+    {
+        Polydim::VEM::MCC::VEM_MCC_2D_EdgeOrtho_Velocity_ReferenceElement vem_reference_element;
+        Polydim::VEM::MCC::VEM_MCC_2D_EdgeOrtho_Velocity_LocalSpace vem_local_space;
+
+        const auto reference_element_data = vem_reference_element.Create(k);
+        const auto local_space = vem_local_space.CreateLocalSpace(reference_element_data, polygon);
+
+        // Test VEM performances
+        Polydim::VEM::MCC::VEM_MCC_PerformanceAnalysis performanceAnalysis;
+
+        const auto result = performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_2D(),
+                                                        reference_element_data.MonomialsKp1,
+                                                        vem_local_space,
+                                                        local_space);
+
+        ASSERT_TRUE(
+            geometry_utilities.IsValueGreaterOrEqual(1.0e-10, result.ErrorPi0k, geometry_utilities.Tolerance1D()));
+
+        ASSERT_TRUE(
+            geometry_utilities.IsValueGreaterOrEqual(1.0e-10, result.ErrorGBD, geometry_utilities.Tolerance1D()));
+
+        ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(
+            1.0e-10, result.ErrorStabilization, geometry_utilities.Tolerance1D()));
+    }
+}
+
+TEST(Test_VEM_MCC, Test_VEM_MCC_Ortho_EdgeOrtho_2D_O0_O1_O2_O3)
+{
+    Gedim::GeometryUtilitiesConfig geometry_utilities_config;
+    geometry_utilities_config.Tolerance1D = std::numeric_limits<double>::epsilon();
+    Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
+
+    const auto polygon_data = Test_VEM_MCC_2D_Geometry(geometry_utilities);
+
+    Polydim::VEM::MCC::VEM_MCC_2D_Polygon_Geometry polygon = {geometry_utilities_config.Tolerance1D,
+                                                              geometry_utilities_config.Tolerance2D,
+                                                              polygon_data.Vertices,
+                                                              polygon_data.Centroid,
+                                                              polygon_data.Measure,
+                                                              polygon_data.Diameter,
+                                                              polygon_data.TriangulationVertices,
+                                                              polygon_data.EdgesLength,
+                                                              polygon_data.EdgesDirection,
+                                                              polygon_data.EdgesTangent,
+                                                              polygon_data.EdgesNormal};
+
+    for (unsigned int k = 0; k < 4; k++)
+    {
+        Polydim::VEM::MCC::VEM_MCC_2D_EdgeOrtho_Velocity_ReferenceElement vem_reference_element;
+        Polydim::VEM::MCC::VEM_MCC_2D_Ortho_EdgeOrtho_Velocity_LocalSpace vem_local_space;
 
         const auto reference_element_data = vem_reference_element.Create(k);
         const auto local_space = vem_local_space.CreateLocalSpace(reference_element_data, polygon);

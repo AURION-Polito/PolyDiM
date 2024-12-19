@@ -42,10 +42,12 @@ private:
                                                                      localSpace.Dmatrix);
     }
 
-    void ComputeValuesOnBoundary(const Eigen::MatrixXd &polytopeVertices,
+    void ComputeValuesOnBoundary(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+                                 const Eigen::MatrixXd &polytopeVertices,
                                  const Eigen::MatrixXd &edgeNormals,
                                  const std::vector<bool> &edgeDirections,
                                  const Eigen::VectorXd &boundaryQuadratureWeights,
+                                 const std::vector<Eigen::MatrixXd> &Cmatrixkp1,
                                  Eigen::MatrixXd &W2,
                                  Eigen::MatrixXd &B2Nabla,
                                  VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const;

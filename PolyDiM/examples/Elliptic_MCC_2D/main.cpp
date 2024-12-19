@@ -109,8 +109,11 @@ int main(int argc, char** argv)
     Gedim::Output::PrintGenericMessage("CreateVEMSpace of order " + to_string(config.VemOrder()) + " and DOFs...", true);
     Gedim::Profiler::StartTime("CreateVEMSpace");
 
-    Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement vem_velocity_reference_element;
-    const auto velocity_reference_element_data = vem_velocity_reference_element.Create(config.VemOrder());
+
+    const auto vem_pressure_reference_element = Polydim::VEM::MCC::create_VEM_PCC_2D_pressure_reference_element(config.VemType());
+    const auto pressure_reference_element_data = vem_pressure_reference_element->Create(config.VemOrder());
+    const auto vem_velocity_reference_element = Polydim::VEM::MCC::create_VEM_PCC_2D_velocity_reference_element(config.VemType());
+    const auto velocity_reference_element_data = vem_velocity_reference_element->Create(config.VemOrder());
 
     Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data =
         { mesh };
@@ -132,9 +135,6 @@ int main(int argc, char** argv)
 
     dofs_data[0] = dofManager.CreateDOFs<2>(meshDOFsInfo[0],
                                             mesh_connectivity_data);
-
-    Polydim::VEM::MCC::VEM_MCC_2D_Pressure_ReferenceElement vem_pressure_reference_element;
-    const auto pressure_reference_element_data = vem_pressure_reference_element.Create(config.VemOrder());
 
     meshDOFsInfo[1] = dofManager.Create_Constant_DOFsInfo<2>(mesh_connectivity_data,
                                                              {

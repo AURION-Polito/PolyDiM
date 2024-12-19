@@ -3,7 +3,7 @@
 
 #include "Eigen/Eigen"
 #include "I_VEM_MCC_2D_Velocity_LocalSpace.hpp"
-#include "VEM_MCC_2D_ReferenceElement.hpp"
+#include "VEM_MCC_2D_EdgeOrtho_ReferenceElement.hpp"
 #include "VEM_MCC_Utilities.hpp"
 #include "VEM_MCC_2D_Velocity_LocalSpace_Data.hpp"
 #include "VEM_Monomials_2D.hpp"
@@ -49,10 +49,12 @@ private:
                                        const Eigen::MatrixXd &W2,
                                        VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const;
 
-    void ComputeValuesOnBoundary(const Eigen::MatrixXd &polytopeVertices,
+    void ComputeValuesOnBoundary(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+                                 const Eigen::MatrixXd &polytopeVertices,
                                  const Eigen::MatrixXd &edgeNormals,
                                  const std::vector<bool> &edgeDirections,
                                  const Eigen::VectorXd &boundaryQuadratureWeights,
+                                 const std::vector<Eigen::MatrixXd> &Cmatrixkp1,
                                  Eigen::MatrixXd &W2,
                                  Eigen::MatrixXd &B2Nabla,
                                  VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const;
@@ -72,7 +74,7 @@ private:
 
 public:
     VEM_MCC_2D_Velocity_LocalSpace_Data CreateLocalSpace(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
-                                                      const VEM_MCC_2D_Polygon_Geometry &polygon) const;
+                                                         const VEM_MCC_2D_Polygon_Geometry &polygon) const;
 
     inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const
     {

@@ -6,7 +6,7 @@
 #include "Eigen_SparseArray.hpp"
 #include "Eigen_Array.hpp"
 
-#include "VEM_MCC_2D_ReferenceElement.hpp"
+#include "I_VEM_MCC_2D_ReferenceElement.hpp"
 #include "VEM_MCC_PerformanceAnalysis.hpp"
 #include "DOFsManager.hpp"
 
