@@ -198,6 +198,7 @@ int main(int argc, char** argv)
   Polydim::examples::Elliptic_PCC_2D::program_utilities::export_dofs(config,
                                                                      mesh,
                                                                      meshGeometricData,
+                                                                     meshDOFsInfo,
                                                                      dofs_data,
                                                                      assembler_data,
                                                                      post_process_data,
