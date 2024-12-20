@@ -227,6 +227,7 @@ namespace Polydim
           Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
           std::list<Eigen::Vector3d> dofs_coordinate;
+          std::list<double> solution_values;
           std::list<double> rhs_values;
           std::list<double> dof_global_index_values;
           std::list<double> dof_type_values;
@@ -246,10 +247,12 @@ namespace Polydim
               switch (local_dof.Type)
               {
                 case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                  solution_values.push_back(assembler_data.solutionDirichlet.GetValue(local_dof.Global_Index));
                   rhs_values.push_back(0.0);
                   break;
                 case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-                  rhs_values.push_back(assembler_data.rightHandSide[local_dof.Global_Index]);
+                  solution_values.push_back(assembler_data.solution.GetValue(local_dof.Global_Index));
+                  rhs_values.push_back(assembler_data.rightHandSide.GetValue(local_dof.Global_Index));
                   break;
                 default:
                   throw std::runtime_error("Unknown DOF Type");
@@ -283,10 +286,12 @@ namespace Polydim
               switch (local_dof.Type)
               {
                 case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                  solution_values.push_back(assembler_data.solutionDirichlet.GetValue(local_dof.Global_Index));
                   rhs_values.push_back(0.0);
                   break;
                 case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-                  rhs_values.push_back(assembler_data.rightHandSide[local_dof.Global_Index]);
+                  solution_values.push_back(assembler_data.solution.GetValue(local_dof.Global_Index));
+                  rhs_values.push_back(assembler_data.rightHandSide.GetValue(local_dof.Global_Index));
                   break;
                 default:
                   throw std::runtime_error("Unknown DOF Type");
@@ -322,10 +327,12 @@ namespace Polydim
               switch (local_dof.Type)
               {
                 case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                  solution_values.push_back(assembler_data.solutionDirichlet.GetValue(local_dof.Global_Index));
                   rhs_values.push_back(0.0);
                   break;
                 case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-                  rhs_values.push_back(assembler_data.rightHandSide[local_dof.Global_Index]);
+                  solution_values.push_back(assembler_data.solution.GetValue(local_dof.Global_Index));
+                  rhs_values.push_back(assembler_data.rightHandSide.GetValue(local_dof.Global_Index));
                   break;
                 default:
                   throw std::runtime_error("Unknown DOF Type");
