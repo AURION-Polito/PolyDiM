@@ -22,24 +22,24 @@ VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_PCC_2D(const unsigned int order
 
     data.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * order);
 
-    data.ReferenceSegmentQuadrature = Gedim::Quadrature::Quadrature_GaussLobatto1D::FillPointsAndWeights(2 * order - 1);
+    data.ReferenceEdgeDOFsQuadrature = Gedim::Quadrature::Quadrature_GaussLobatto1D::FillPointsAndWeights(2 * order - 1);
 
     if (order == 1)
     {
-        data.ReferenceSegmentInternalPoints.resize(0, 0);
-        data.ReferenceSegmentInternalWeights.resize(0);
-        data.ReferenceSegmentExtremaWeights.setConstant(0.5);
+        data.ReferenceEdgeDOFsInternalPoints.resize(0, 0);
+        data.ReferenceEdgeDOFsInternalWeights.resize(0);
+        data.ReferenceEdgeDOFsExtremaWeights.setConstant(0.5);
     }
     else
     {
-        const unsigned int edgeReferenceQuadratureNumPoints = data.ReferenceSegmentQuadrature.Points.cols();
+        const unsigned int edgeReferenceQuadratureNumPoints = data.ReferenceEdgeDOFsQuadrature.Points.cols();
 
-        data.ReferenceSegmentInternalPoints =
-            data.ReferenceSegmentQuadrature.Points.block(0, 1, 3, edgeReferenceQuadratureNumPoints - 2);
-        data.ReferenceSegmentInternalWeights =
-            data.ReferenceSegmentQuadrature.Weights.segment(1, edgeReferenceQuadratureNumPoints - 2);
-        data.ReferenceSegmentExtremaWeights << data.ReferenceSegmentQuadrature.Weights(0),
-            data.ReferenceSegmentQuadrature.Weights.tail<1>();
+        data.ReferenceEdgeDOFsInternalPoints =
+            data.ReferenceEdgeDOFsQuadrature.Points.block(0, 1, 3, edgeReferenceQuadratureNumPoints - 2);
+        data.ReferenceEdgeDOFsInternalWeights =
+            data.ReferenceEdgeDOFsQuadrature.Weights.segment(1, edgeReferenceQuadratureNumPoints - 2);
+        data.ReferenceEdgeDOFsExtremaWeights << data.ReferenceEdgeDOFsQuadrature.Weights(0),
+            data.ReferenceEdgeDOFsQuadrature.Weights.tail<1>();
     }
 
     return data;

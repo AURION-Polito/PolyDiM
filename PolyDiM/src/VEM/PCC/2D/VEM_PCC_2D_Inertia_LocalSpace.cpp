@@ -39,9 +39,9 @@ VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Inertia_LocalSpace::CreateLocalSpace(
 #endif
 
     Quadrature::VEM_Quadrature_2D::Edges_QuadratureData MappedBoundaryQuadrature =
-        quadrature.PolygonEdgesLobattoQuadrature(reference_element_data.Quadrature.ReferenceSegmentInternalPoints,
-                                                 reference_element_data.Quadrature.ReferenceSegmentInternalWeights,
-                                                 reference_element_data.Quadrature.ReferenceSegmentExtremaWeights,
+        quadrature.PolygonEdgesLobattoQuadrature(reference_element_data.Quadrature.ReferenceEdgeDOFsInternalPoints,
+                                                 reference_element_data.Quadrature.ReferenceEdgeDOFsInternalWeights,
+                                                 reference_element_data.Quadrature.ReferenceEdgeDOFsExtremaWeights,
                                                  localSpace.inertia_data.Vertices,
                                                  localSpace.inertia_data.EdgesLength,
                                                  localSpace.inertia_data.EdgesDirection,
@@ -49,9 +49,9 @@ VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Inertia_LocalSpace::CreateLocalSpace(
                                                  localSpace.inertia_data.EdgesNormal);
 
     localSpace.BoundaryQuadrature =
-        quadrature.PolygonEdgesLobattoQuadrature(reference_element_data.Quadrature.ReferenceSegmentInternalPoints,
-                                                 reference_element_data.Quadrature.ReferenceSegmentInternalWeights,
-                                                 reference_element_data.Quadrature.ReferenceSegmentExtremaWeights,
+        quadrature.PolygonEdgesLobattoQuadrature(reference_element_data.Quadrature.ReferenceEdgeDOFsInternalPoints,
+                                                 reference_element_data.Quadrature.ReferenceEdgeDOFsInternalWeights,
+                                                 reference_element_data.Quadrature.ReferenceEdgeDOFsExtremaWeights,
                                                  polygon.Vertices,
                                                  polygon.EdgesLength,
                                                  polygon.EdgesDirection,
@@ -260,9 +260,9 @@ VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Inertia_LocalSpace::Compute3DUtilities(
 #endif
 
     Quadrature::VEM_Quadrature_2D::Edges_QuadratureData MappedBoundaryQuadrature =
-        quadrature.PolygonEdgesLobattoQuadrature(reference_element_data.Quadrature.ReferenceSegmentInternalPoints,
-                                                 reference_element_data.Quadrature.ReferenceSegmentInternalWeights,
-                                                 reference_element_data.Quadrature.ReferenceSegmentExtremaWeights,
+        quadrature.PolygonEdgesLobattoQuadrature(reference_element_data.Quadrature.ReferenceEdgeDOFsInternalPoints,
+                                                 reference_element_data.Quadrature.ReferenceEdgeDOFsInternalWeights,
+                                                 reference_element_data.Quadrature.ReferenceEdgeDOFsExtremaWeights,
                                                  localSpace.inertia_data.Vertices,
                                                  localSpace.inertia_data.EdgesLength,
                                                  localSpace.inertia_data.EdgesDirection,
@@ -270,9 +270,9 @@ VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Inertia_LocalSpace::Compute3DUtilities(
                                                  localSpace.inertia_data.EdgesNormal);
 
     localSpace.BoundaryQuadrature =
-        quadrature.PolygonEdgesLobattoQuadrature(reference_element_data.Quadrature.ReferenceSegmentInternalPoints,
-                                                 reference_element_data.Quadrature.ReferenceSegmentInternalWeights,
-                                                 reference_element_data.Quadrature.ReferenceSegmentExtremaWeights,
+        quadrature.PolygonEdgesLobattoQuadrature(reference_element_data.Quadrature.ReferenceEdgeDOFsInternalPoints,
+                                                 reference_element_data.Quadrature.ReferenceEdgeDOFsInternalWeights,
+                                                 reference_element_data.Quadrature.ReferenceEdgeDOFsExtremaWeights,
                                                  polygon.Vertices,
                                                  polygon.EdgesLength,
                                                  polygon.EdgesDirection,

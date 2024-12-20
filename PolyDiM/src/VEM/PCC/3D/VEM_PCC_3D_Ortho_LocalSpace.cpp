@@ -57,7 +57,7 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Ortho_LocalSpace::CreateLocalSpace(
                                                                            facesQuadratureWeights);
 
     const Eigen::MatrixXd edgeInternalQuadraturePoints = quadrature3D.PolyhedronInternalEdgesQuadraturePoints(
-        reference_element_data_2D.Quadrature.ReferenceSegmentInternalPoints,
+        reference_element_data_2D.Quadrature.ReferenceEdgeDOFsInternalPoints,
         polyhedron.Vertices,
         polyhedron.Edges,
         polyhedron.EdgesDirection,

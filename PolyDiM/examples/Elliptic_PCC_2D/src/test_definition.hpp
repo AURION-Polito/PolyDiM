@@ -156,7 +156,7 @@ namespace Polydim
                 { 3, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
                 { 4, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
                 { 5, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
-                { 6, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
+                { 6, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
                 { 7, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
                 { 8, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 4 } }
               };
@@ -181,7 +181,7 @@ namespace Polydim
                 throw std::runtime_error("Unknown marker");
 
               return 16.0 * (points.row(1).array() * (1.0 - points.row(1).array()) *
-                             points.row(0).array() * (1.0 - points.row(0).array())) + 1.1;
+                             points.row(0).array() * (1.0 - points.row(0).array()));// + 1.1;
             };
 
             Eigen::VectorXd weak_boundary_condition(const unsigned int marker,
@@ -201,7 +201,7 @@ namespace Polydim
             Eigen::VectorXd exact_solution(const Eigen::MatrixXd& points) const
             {
               return 16.0 * (points.row(1).array() * (1.0 - points.row(1).array()) *
-                             points.row(0).array() * (1.0 - points.row(0).array())) + 1.1;
+                             points.row(0).array() * (1.0 - points.row(0).array()));// + 1.1;
             };
 
             std::array<Eigen::VectorXd, 3> exact_derivative_solution(const Eigen::MatrixXd& points) const

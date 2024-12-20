@@ -22,9 +22,9 @@ VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Ortho_LocalSpace::CreateLocalSpace(
         reference_element_data.Quadrature.ReferenceTriangleQuadrature, polygon.TriangulationVertices);
 
     localSpace.BoundaryQuadrature =
-        quadrature.PolygonEdgesLobattoQuadrature(reference_element_data.Quadrature.ReferenceSegmentInternalPoints,
-                                                 reference_element_data.Quadrature.ReferenceSegmentInternalWeights,
-                                                 reference_element_data.Quadrature.ReferenceSegmentExtremaWeights,
+        quadrature.PolygonEdgesLobattoQuadrature(reference_element_data.Quadrature.ReferenceEdgeDOFsInternalPoints,
+                                                 reference_element_data.Quadrature.ReferenceEdgeDOFsInternalWeights,
+                                                 reference_element_data.Quadrature.ReferenceEdgeDOFsExtremaWeights,
                                                  polygon.Vertices,
                                                  polygon.EdgesLength,
                                                  polygon.EdgesDirection,
@@ -75,9 +75,9 @@ VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Ortho_LocalSpace::Compute3DUtilities(
         reference_element_data.Quadrature.ReferenceTriangleQuadrature, polygon.TriangulationVertices);
 
     localSpace.BoundaryQuadrature =
-        quadrature.PolygonEdgesLobattoQuadrature(reference_element_data.Quadrature.ReferenceSegmentInternalPoints,
-                                                 reference_element_data.Quadrature.ReferenceSegmentInternalWeights,
-                                                 reference_element_data.Quadrature.ReferenceSegmentExtremaWeights,
+        quadrature.PolygonEdgesLobattoQuadrature(reference_element_data.Quadrature.ReferenceEdgeDOFsInternalPoints,
+                                                 reference_element_data.Quadrature.ReferenceEdgeDOFsInternalWeights,
+                                                 reference_element_data.Quadrature.ReferenceEdgeDOFsExtremaWeights,
                                                  polygon.Vertices,
                                                  polygon.EdgesLength,
                                                  polygon.EdgesDirection,

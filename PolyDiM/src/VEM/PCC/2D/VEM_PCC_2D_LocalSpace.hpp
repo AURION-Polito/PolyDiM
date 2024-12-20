@@ -285,8 +285,8 @@ public:
                                                const Eigen::VectorXd &pointsCurvilinearCoordinates) const
     {
         Eigen::RowVectorXd edgeInternalPoints;
-        if (reference_element_data.Quadrature.ReferenceSegmentInternalPoints.rows() > 0)
-            edgeInternalPoints = reference_element_data.Quadrature.ReferenceSegmentInternalPoints.row(0);
+        if (reference_element_data.Quadrature.ReferenceEdgeDOFsInternalPoints.rows() > 0)
+            edgeInternalPoints = reference_element_data.Quadrature.ReferenceEdgeDOFsInternalPoints.row(0);
         const Eigen::VectorXd edgeBasisCoefficients =
             utilities.ComputeEdgeBasisCoefficients(reference_element_data.Order, edgeInternalPoints);
 

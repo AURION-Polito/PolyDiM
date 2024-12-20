@@ -215,8 +215,8 @@ class VEM_PCC_2D_Ortho_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
                                                const Eigen::VectorXd &pointsCurvilinearCoordinates) const
     {
         Eigen::VectorXd edgeInternalPoints;
-        if (reference_element_data.Quadrature.ReferenceSegmentInternalPoints.rows() > 0)
-            edgeInternalPoints = reference_element_data.Quadrature.ReferenceSegmentInternalPoints.row(0).transpose();
+        if (reference_element_data.Quadrature.ReferenceEdgeDOFsInternalPoints.rows() > 0)
+            edgeInternalPoints = reference_element_data.Quadrature.ReferenceEdgeDOFsInternalPoints.row(0).transpose();
         const Eigen::VectorXd edgeBasisCoefficients =
             utilities.ComputeEdgeBasisCoefficients(reference_element_data.Order, edgeInternalPoints);
 

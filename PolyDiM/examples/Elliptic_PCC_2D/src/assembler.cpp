@@ -54,8 +54,8 @@ namespace Polydim
         }
 
         // Assemble strong boundary condition on Cell1Ds
-        const auto& referenceSegmentInternalPoints = reference_element_data.Quadrature.ReferenceSegmentInternalPoints;
-        const unsigned int numReferenceSegmentInternalPoints = referenceSegmentInternalPoints.cols();
+        const auto& referenceEdgeDOFsPoint = reference_element_data.Quadrature.ReferenceEdgeDOFsInternalPoints;
+        const unsigned int numReferenceEdgeDOFsPoint = referenceEdgeDOFsPoint.cols();
 
         for (unsigned int e = 0; e < mesh.Cell1DTotalNumber(); ++e)
         {
@@ -69,10 +69,10 @@ namespace Polydim
           const auto cell1D_end = mesh.Cell1DEndCoordinates(e);
           const auto cell1D_tangent = cell1D_end - cell1D_origin;
 
-          Eigen::MatrixXd coordinates = Eigen::MatrixXd::Zero(3, numReferenceSegmentInternalPoints);
-          for (unsigned int r = 0; r < numReferenceSegmentInternalPoints; r++)
+          Eigen::MatrixXd coordinates = Eigen::MatrixXd::Zero(3, numReferenceEdgeDOFsPoint);
+          for (unsigned int r = 0; r < numReferenceEdgeDOFsPoint; r++)
             coordinates.col(r)<< cell1D_origin +
-                                 referenceSegmentInternalPoints(0, r) * cell1D_tangent;
+                                 referenceEdgeDOFsPoint(0, r) * cell1D_tangent;
 
           const auto strong_boundary_values = test.strong_boundary_condition(boundary_info.Marker,
                                                                              coordinates);
@@ -193,9 +193,9 @@ namespace Polydim
           {
             const auto& local_dof_i = local_dofs.at(loc_i);
 
-            const unsigned int localIndex = polygon.EdgesDirection[ed] ? loc_i :
-                                                                         local_dofs.size() - 1 - loc_i;
-
+            // const unsigned int localIndex = polygon.EdgesDirection[ed] ? loc_i :
+            //                                                              local_dofs.size() - 1 - loc_i;
+            const unsigned int localIndex = loc_i;
 
             switch (local_dof_i.Type)
             {
@@ -210,6 +210,15 @@ namespace Polydim
               default:
                 throw std::runtime_error("Unknown DOF Type");
             }
+
+            std::cerr.precision(2);
+            std::cerr<< std::scientific<< "C2D "<< cell2DIndex
+                     << " C1D "<< cell1D_index
+                     << " loc_index "<< localIndex + 2
+                     << " glb_index "<< local_dof_i.Global_Index
+                     << " nm "<< neumannContributions[localIndex + 2]
+                     << " rhs "<< assembler_data.rightHandSide.GetValue(local_dof_i.Global_Index)
+                     << std::endl;
           }
         }
       }

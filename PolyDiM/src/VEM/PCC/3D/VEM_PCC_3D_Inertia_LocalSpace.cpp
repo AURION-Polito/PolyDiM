@@ -108,7 +108,7 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Inertia_LocalSpace::CreateLocalSpace(
     localSpace.BoundaryQuadrature.Quadrature.Weights = MappedBoundaryQuadrature.Quadrature.Weights;
 
     const Eigen::MatrixXd mappedEdgeInternalQuadraturePoints = quadrature3D.PolyhedronInternalEdgesQuadraturePoints(
-        reference_element_data_2D.Quadrature.ReferenceSegmentInternalPoints,
+        reference_element_data_2D.Quadrature.ReferenceEdgeDOFsInternalPoints,
         localSpace.inertia_data.Vertices,
         localSpace.inertia_data.Edges,
         localSpace.inertia_data.EdgesDirection,
