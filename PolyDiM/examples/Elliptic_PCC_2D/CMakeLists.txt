@@ -114,3 +114,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
       CXX_STANDARD 20
       CXX_STANDARD_REQUIRED ON
       CXX_EXTENSIONS OFF)
+      
+# Add test
+###############################################################################################
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/integration_test.py
+     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
