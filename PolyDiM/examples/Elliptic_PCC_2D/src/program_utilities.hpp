@@ -240,7 +240,7 @@ namespace Polydim
               const auto &local_dof = local_dofs.at(loc_i);
 
               dofs_coordinate.push_back(mesh.Cell0DCoordinates(c));
-              dof_type_values.push_back(local_dof.Type);
+              dof_type_values.push_back(static_cast<double>(local_dof.Type));
               dof_global_index_values.push_back(local_dof.Global_Index);
 
               switch (local_dof.Type)
@@ -277,7 +277,7 @@ namespace Polydim
               dofs_coordinate.push_back(edge_origin +
                                         local_edge_coordinates.at(loc_i) *
                                         edge_tangent);
-              dof_type_values.push_back(local_dof.Type);
+              dof_type_values.push_back(static_cast<double>(local_dof.Type));
               dof_global_index_values.push_back(local_dof.Global_Index);
 
               switch (local_dof.Type)
@@ -316,7 +316,7 @@ namespace Polydim
                                         Eigen::Vector3d(cos( 2.0 * M_PI * local_polygon_coordinates.at(loc_i)),
                                                         sin( 2.0 * M_PI * local_polygon_coordinates.at(loc_i)),
                                                         0.0));
-              dof_type_values.push_back(local_dof.Type);
+              dof_type_values.push_back(static_cast<double>(local_dof.Type));
               dof_global_index_values.push_back(local_dof.Global_Index);
 
               switch (local_dof.Type)
