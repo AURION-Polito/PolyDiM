@@ -253,7 +253,7 @@ namespace Polydim
             }
           }
 
-          for (unsigned int c = 0; c < 0/*mesh.Cell1DTotalNumber()*/; ++c)
+          for (unsigned int c = 0; c < mesh.Cell1DTotalNumber(); ++c)
           {
             const auto& local_dofs = dofs_data.CellsDOFs[1].at(c);
 
@@ -288,7 +288,7 @@ namespace Polydim
             }
           }
 
-          for (unsigned int c = 0; c < 0/*mesh.Cell2DTotalNumber()*/; ++c)
+          for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); ++c)
           {
             const auto& local_dofs = dofs_data.CellsDOFs[2].at(c);
 
