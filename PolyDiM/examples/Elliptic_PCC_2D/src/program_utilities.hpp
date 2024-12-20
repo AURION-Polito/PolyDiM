@@ -216,6 +216,7 @@ namespace Polydim
         void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration& config,
                          const Gedim::MeshMatricesDAO& mesh,
                          const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                         const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo& mesh_dofs_info,
                          const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
                          const Polydim::examples::Elliptic_PCC_2D::Assembler::Elliptic_PCC_2D_Problem_Data& assembler_data,
                          const Polydim::examples::Elliptic_PCC_2D::Assembler::PostProcess_Data& post_process_data,
@@ -231,15 +232,25 @@ namespace Polydim
           std::list<double> rhs_values;
           std::list<double> dof_global_index_values;
           std::list<double> dof_type_values;
+          std::list<double> dof_cell_index_values;
+          std::list<double> dof_dimension_values;
+          std::list<double> dof_boundary_type_values;
+          std::list<double> dof_boundary_marker_values;
 
           for (unsigned int c = 0; c < mesh.Cell0DTotalNumber(); ++c)
           {
+            const auto& boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(0).at(c);
+
             const auto& local_dofs = dofs_data.CellsDOFs[0].at(c);
 
             for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
             {
               const auto &local_dof = local_dofs.at(loc_i);
 
+              dof_cell_index_values.push_back(c);
+              dof_dimension_values.push_back(0);
+              dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
+              dof_boundary_marker_values.push_back(boundary_info.Marker);
               dofs_coordinate.push_back(mesh.Cell0DCoordinates(c));
               dof_type_values.push_back(static_cast<double>(local_dof.Type));
               dof_global_index_values.push_back(local_dof.Global_Index);
@@ -262,6 +273,8 @@ namespace Polydim
 
           for (unsigned int c = 0; c < mesh.Cell1DTotalNumber(); ++c)
           {
+            const auto& boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(1).at(c);
+
             const auto& local_dofs = dofs_data.CellsDOFs[1].at(c);
 
             const unsigned int num_loc_dofs = local_dofs.size();
@@ -277,6 +290,10 @@ namespace Polydim
             {
               const auto &local_dof = local_dofs.at(loc_i);
 
+              dof_cell_index_values.push_back(c);
+              dof_dimension_values.push_back(1);
+              dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
+              dof_boundary_marker_values.push_back(boundary_info.Marker);
               dofs_coordinate.push_back(edge_origin +
                                         local_edge_coordinates.at(loc_i) *
                                         edge_tangent);
@@ -301,6 +318,8 @@ namespace Polydim
 
           for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); ++c)
           {
+            const auto& boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(2).at(c);
+
             const auto& local_dofs = dofs_data.CellsDOFs[2].at(c);
 
             const unsigned int num_loc_dofs = local_dofs.size();
@@ -316,6 +335,10 @@ namespace Polydim
             {
               const auto &local_dof = local_dofs.at(loc_i);
 
+              dof_cell_index_values.push_back(c);
+              dof_dimension_values.push_back(2);
+              dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
+              dof_boundary_marker_values.push_back(boundary_info.Marker);
               dofs_coordinate.push_back(polygon_centroid +
                                         0.1 * polygon_diameter *
                                         Eigen::Vector3d(cos( 2.0 * M_PI * local_polygon_coordinates.at(loc_i)),
@@ -353,10 +376,42 @@ namespace Polydim
                                                                           dof_global_index_values.end());
             const auto dof_type_values_data = std::vector<double>(dof_type_values.begin(),
                                                                   dof_type_values.end());
+            const auto dof_cell_index_values_data = std::vector<double>(dof_cell_index_values.begin(),
+                                                            dof_cell_index_values.end());
+            const auto dof_dimension_values_data = std::vector<double>(dof_dimension_values.begin(),
+                                                           dof_dimension_values.end());
+            const auto dof_boundary_type_values_data = std::vector<double>(dof_boundary_type_values.begin(),
+                                                                      dof_boundary_type_values.end());
+            const auto dof_boundary_marker_values_data = std::vector<double>(dof_boundary_marker_values.begin(),
+                                                                        dof_boundary_marker_values.end());
 
             Gedim::VTKUtilities exporter;
             exporter.AddPoints(coordinates,
                                {
+                                 {
+                                   "cell_dimension",
+                                   Gedim::VTPProperty::Formats::Points,
+                                   static_cast<unsigned int>(dof_dimension_values_data.size()),
+                                   dof_dimension_values_data.data()
+                                 },
+                                 {
+                                   "cell_index",
+                                   Gedim::VTPProperty::Formats::Points,
+                                   static_cast<unsigned int>(dof_cell_index_values_data.size()),
+                                   dof_cell_index_values_data.data()
+                                 },
+                                 {
+                                   "boundary_type",
+                                   Gedim::VTPProperty::Formats::Points,
+                                   static_cast<unsigned int>(dof_boundary_type_values_data.size()),
+                                   dof_boundary_type_values_data.data()
+                                 },
+                                 {
+                                   "boundary_marker",
+                                   Gedim::VTPProperty::Formats::Points,
+                                   static_cast<unsigned int>(dof_boundary_marker_values_data.size()),
+                                   dof_boundary_marker_values_data.data()
+                                 },
                                  {
                                    "dof_global_index",
                                    Gedim::VTPProperty::Formats::Points,
