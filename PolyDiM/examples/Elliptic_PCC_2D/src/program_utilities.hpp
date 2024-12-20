@@ -347,6 +347,8 @@ namespace Polydim
               coordinates.col(c++)<< dof_coordinate;
             const auto rhs_values_data = std::vector<double>(rhs_values.begin(),
                                                              rhs_values.end());
+            const auto solution_values_data = std::vector<double>(solution_values.begin(),
+                                                                  solution_values.end());
             const auto dof_global_index_values_data = std::vector<double>(dof_global_index_values.begin(),
                                                                           dof_global_index_values.end());
             const auto dof_type_values_data = std::vector<double>(dof_type_values.begin(),
@@ -372,6 +374,12 @@ namespace Polydim
                                    Gedim::VTPProperty::Formats::Points,
                                    static_cast<unsigned int>(rhs_values_data.size()),
                                    rhs_values_data.data()
+                                 },
+                                 {
+                                   "solution",
+                                   Gedim::VTPProperty::Formats::Points,
+                                   static_cast<unsigned int>(solution_values_data.size()),
+                                   solution_values_data.data()
                                  }
                                });
 
