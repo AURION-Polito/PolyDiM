@@ -210,15 +210,6 @@ namespace Polydim
               default:
                 throw std::runtime_error("Unknown DOF Type");
             }
-
-            std::cerr.precision(2);
-            std::cerr<< std::scientific<< "C2D "<< cell2DIndex
-                     << " C1D "<< cell1D_index
-                     << " loc_index "<< localIndex + 2
-                     << " glb_index "<< local_dof_i.Global_Index
-                     << " nm "<< neumannContributions[localIndex + 2]
-                     << " rhs "<< assembler_data.rightHandSide.GetValue(local_dof_i.Global_Index)
-                     << std::endl;
           }
         }
       }
