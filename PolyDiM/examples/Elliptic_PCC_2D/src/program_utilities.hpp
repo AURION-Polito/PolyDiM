@@ -228,6 +228,8 @@ namespace Polydim
 
           std::list<Eigen::Vector3d> dofs_coordinate;
           std::list<double> rhs_values;
+          std::list<double> dof_global_index_values;
+          std::list<double> dof_type_values;
 
           for (unsigned int c = 0; c < mesh.Cell0DTotalNumber(); ++c)
           {
@@ -238,6 +240,8 @@ namespace Polydim
               const auto &local_dof = local_dofs.at(loc_i);
 
               dofs_coordinate.push_back(mesh.Cell0DCoordinates(c));
+              dof_type_values.push_back(local_dof.Type);
+              dof_global_index_values.push_back(local_dof.Global_Index);
 
               switch (local_dof.Type)
               {
@@ -273,6 +277,8 @@ namespace Polydim
               dofs_coordinate.push_back(edge_origin +
                                         local_edge_coordinates.at(loc_i) *
                                         edge_tangent);
+              dof_type_values.push_back(local_dof.Type);
+              dof_global_index_values.push_back(local_dof.Global_Index);
 
               switch (local_dof.Type)
               {
@@ -310,6 +316,8 @@ namespace Polydim
                                         Eigen::Vector3d(cos( 2.0 * M_PI * local_polygon_coordinates.at(loc_i)),
                                                         sin( 2.0 * M_PI * local_polygon_coordinates.at(loc_i)),
                                                         0.0));
+              dof_type_values.push_back(local_dof.Type);
+              dof_global_index_values.push_back(local_dof.Global_Index);
 
               switch (local_dof.Type)
               {
@@ -332,10 +340,26 @@ namespace Polydim
               coordinates.col(c++)<< dof_coordinate;
             const auto rhs_values_data = std::vector<double>(rhs_values.begin(),
                                                              rhs_values.end());
+            const auto dof_global_index_values_data = std::vector<double>(dof_global_index_values.begin(),
+                                                                          dof_global_index_values.end());
+            const auto dof_type_values_data = std::vector<double>(dof_type_values.begin(),
+                                                                  dof_type_values.end());
 
             Gedim::VTKUtilities exporter;
             exporter.AddPoints(coordinates,
                                {
+                                 {
+                                   "dof_global_index",
+                                   Gedim::VTPProperty::Formats::Points,
+                                   static_cast<unsigned int>(dof_global_index_values_data.size()),
+                                   dof_global_index_values_data.data()
+                                 },
+                                 {
+                                   "dof_type",
+                                   Gedim::VTPProperty::Formats::Points,
+                                   static_cast<unsigned int>(dof_type_values_data.size()),
+                                   dof_type_values_data.data()
+                                 },
                                  {
                                    "rhs",
                                    Gedim::VTPProperty::Formats::Points,
