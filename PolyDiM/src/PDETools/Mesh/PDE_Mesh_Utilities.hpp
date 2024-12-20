@@ -64,7 +64,7 @@ inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
     case MeshGenerator_Types_2D::Polygonal: {
         const unsigned num_cells = static_cast<unsigned int>(std::max(1.0, 1.0 / max_relative_area));
 
-        mesh_utilities.CreatePolygonalMesh(geometry_utilities, pde_domain.vertices, num_cells, 10, mesh);
+        mesh_utilities.CreatePolygonalMesh(geometry_utilities, pde_domain.vertices, num_cells, 10, mesh, 10);
     }
     break;
     default:
@@ -96,7 +96,7 @@ inline void create_mesh_3D(const Gedim::GeometryUtilities &geometry_utilities,
         const unsigned num_cells = static_cast<unsigned int>(std::max(1.0, 1.0 / max_relative_volume));
 
         mesh_utilities.CreatePolyhedralMesh(
-            geometry_utilities, pde_domain.vertices, pde_domain.edges, pde_domain.faces, num_cells, 10, mesh);
+            geometry_utilities, pde_domain.vertices, pde_domain.edges, pde_domain.faces, num_cells, 10, mesh, 10);
     }
     break;
     default:
