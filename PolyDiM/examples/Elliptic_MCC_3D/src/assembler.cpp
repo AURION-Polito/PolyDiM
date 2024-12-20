@@ -15,60 +15,67 @@ namespace examples
 namespace Elliptic_MCC_3D
 {
 // ***************************************************************************
-void Assembler::ComputeStrongTerm(const Gedim::MeshMatricesDAO& mesh,
-                                  const unsigned int& cell2DIndex,
-                                  const std::vector<bool>& cell2DEdgeDirections,
-                                  const Eigen::MatrixXd& boundaryQuadraturePoints,
-                                  const Eigen::VectorXd& boundaryQuadratureWeights,
+void Assembler::ComputeStrongTerm(const unsigned int& cell3DIndex,
+                                  const Gedim::MeshMatricesDAO& mesh,
+                                  const Polydim::VEM::MCC::VEM_MCC_3D_Polyhedron_Geometry& polyhedron,
                                   const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo& mesh_dofs_info,
                                   const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
                                   const Polydim::VEM::MCC::VEM_MCC_3D_Velocity_ReferenceElement_Data& reference_element_data,
+                                  const Polydim::VEM::MCC::VEM_MCC_3D_Velocity_LocalSpace_Data& local_space_data,
                                   const test::I_Test& test,
                                   Elliptic_MCC_3D_Problem_Data& assembler_data) const
-{
-    //    // Assemble strong boundary condition on Cell1Ds
-    //    const unsigned int numReferenceSegmentInternalPoints = reference_element_data.Quadrature.ReferenceSegmentInternalPoints.cols();
+{    
 
-    //    for(unsigned int e = 0; e < mesh.Cell2DNumberEdges(cell2DIndex); e ++)
-    //    {
-    //        const unsigned int edgeGlobalId = mesh.Cell2DEdge(cell2DIndex, e);
+    unsigned int offsetQuadraturePoints = 0;
+    for(unsigned int f = 0; f < mesh.Cell3DNumberFaces(cell3DIndex); f++)
+    {
+        const unsigned int cell2D_index = mesh.Cell3DFace(cell3DIndex, f);
+        const unsigned int numFaceQuadraturePoints = local_space_data.BoundaryQuadrature.FacesQuadrature[f].Weights.size();
 
-    //        const auto& boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(1).at(edgeGlobalId);
+        const auto& boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(2).at(cell2D_index);
 
-    //        if (boundary_info.Type !=
-    //            Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong)
-    //            continue;
+        if (boundary_info.Type !=
+            Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong)
+        {
+            offsetQuadraturePoints += numFaceQuadraturePoints;
+            continue;
+        }
 
-    //        // compute values of Neumann condition
-    //        const double direction = cell2DEdgeDirections[e] ? 1.0 : -1.0;
-    //        const VectorXd strong_boundary_values = direction * test.strong_boundary_condition(boundary_info.Marker,
-    //                                                                                           boundaryQuadraturePoints.middleCols(numReferenceSegmentInternalPoints * e,
-    //                                                                                                                               numReferenceSegmentInternalPoints));
+        // compute values of Neumann condition
+        const double globalDirection = polyhedron.FacesGlobalNormalDirection[f] ? 1.0 : -1.0;
 
+        const VectorXd neumannValues = test.strong_boundary_condition(boundary_info.Marker,
+                                                                      local_space_data.BoundaryQuadrature.Quadrature.Points.middleCols(offsetQuadraturePoints,
+                                                                                                                                       numFaceQuadraturePoints));
 
+        const VectorXd strong_boundary_values = (1.0/ polyhedron.FacesMeasure[f]) * globalDirection
+                                                * local_space_data.FacesVanderInternal[f].transpose()
+                                                * local_space_data.BoundaryQuadrature.FacesQuadrature[f].Weights.asDiagonal()
+                                                * neumannValues;
 
-    //        const auto local_dofs = dofs_data.CellsDOFs.at(1).at(edgeGlobalId);
-    //        assert(local_dofs.size() == strong_boundary_values.size());
+        const auto local_dofs = dofs_data.CellsDOFs.at(2).at(cell2D_index);
 
-    //        for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
-    //        {
-    //            const auto& local_dof_i = local_dofs.at(loc_i);
+        for (unsigned int loc_i = 0; loc_i < local_dofs.size(); loc_i++)
+        {
+            const auto& local_dof_i = local_dofs.at(loc_i);
 
-    //            switch (local_dof_i.Type)
-    //            {
-    //            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
-    //            {
-    //                assembler_data.solutionNeumann.SetValue(local_dof_i.Global_Index,
-    //                                                        strong_boundary_values[loc_i]);
-    //            }
-    //            break;
-    //            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-    //                continue;
-    //            default:
-    //                throw std::runtime_error("Unknown DOF Type");
-    //            }
-    //        }
-    //    }
+            switch (local_dof_i.Type)
+            {
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
+                continue;
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+            {
+                assembler_data.solutionNeumann.SetValue(local_dof_i.Global_Index,
+                                                        strong_boundary_values(loc_i));
+            }
+            break;
+            default:
+                throw std::runtime_error("Unknown DOF Type");
+            }
+        }
+
+        offsetQuadraturePoints += numFaceQuadraturePoints;
+    }
 }
 // ***************************************************************************
 void Assembler::ComputeWeakTerm(const unsigned int cell3DIndex,
@@ -104,10 +111,10 @@ void Assembler::ComputeWeakTerm(const unsigned int cell3DIndex,
                                                                       local_space_data.BoundaryQuadrature.Quadrature.Points.middleCols(offsetQuadraturePoints,
                                                                                                                                        numFaceQuadraturePoints));
 
-        const VectorXd dirichletContributions = - globalDirection
-                                                * local_space_data.VanderBasisFunctionValuesOnFace[f].transpose()
-                                                * local_space_data.BoundaryQuadrature.FacesQuadrature[f].Weights.asDiagonal()
-                                                * dirichletValues;
+        const VectorXd weak_boundary_values = - globalDirection
+                                              * local_space_data.VanderBasisFunctionValuesOnFace[f].transpose()
+                                              * local_space_data.BoundaryQuadrature.FacesQuadrature[f].Weights.asDiagonal()
+                                              * dirichletValues;
 
         const auto local_dofs = dofs_data.CellsDOFs.at(2).at(cell2D_index);
 
@@ -122,7 +129,7 @@ void Assembler::ComputeWeakTerm(const unsigned int cell3DIndex,
             case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
             {
                 assembler_data.rightHandSide.AddValue(local_dof_i.Global_Index,
-                                                      dirichletContributions(loc_i));
+                                                      weak_boundary_values(loc_i));
             }
             break;
             default:
@@ -269,16 +276,16 @@ Assembler::Elliptic_MCC_3D_Problem_Data Assembler::Assemble(const Polydim::examp
                         test,
                         result);
 
-        //        ComputeStrongTerm(mesh,
-        //                          c,
-        //                          polygon.EdgesDirection,
-        //                          local_space.BoundaryQuadrature.Quadrature.Points,
-        //                          local_space.BoundaryQuadrature.Quadrature.Weights,
-        //                          mesh_dofs_info[0],
-        //                          dofs_data[0],
-        //                          velocity_reference_element_data,
-        //                          test,
-        //                          result);
+        ComputeStrongTerm(c,
+                          mesh,
+                          polyhedron,
+                          mesh_dofs_info[0],
+                          dofs_data[0],
+                          velocity_reference_element_data,
+                          local_space,
+                          test,
+                          result);
+
     }
 
     result.rightHandSide.Create();

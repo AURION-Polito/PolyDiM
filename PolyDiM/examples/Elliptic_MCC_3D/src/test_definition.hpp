@@ -117,7 +117,7 @@ struct Patch_Test final : public I_Test
             { 18, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
             { 19, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
             { 20, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
-            { 21, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
+            { 21, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
             { 22, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
             { 23, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
             { 24, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
@@ -224,8 +224,24 @@ struct Patch_Test final : public I_Test
     Eigen::VectorXd strong_boundary_condition(const unsigned int marker,
                                               const Eigen::MatrixXd& points) const
     {
+        Eigen::ArrayXd derivatives = Eigen::ArrayXd::Constant(points.cols(), 0.0);
+        Eigen::ArrayXd solution = Eigen::ArrayXd::Constant(points.cols(), 1.0);
+        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + points.row(2).array() + 0.5;
+
+        if(order > 0)
+        {
+            derivatives = Eigen::ArrayXd::Constant(points.cols(), 1.0);
+            for(int i = 0; i < order - 1; i++)
+                derivatives = derivatives * polynomial;
+
+            solution = derivatives * polynomial;
+            derivatives *= order;
+        }
+
         switch(marker)
         {
+        case 1:
+            return 4.0 * derivatives + 2.0 * solution;
         default:
             throw std::runtime_error("Unknown marker");
         }
@@ -261,9 +277,9 @@ struct Patch_Test final : public I_Test
 
         return
             {
-                -derivatives + solution,
-                -2.0 * derivatives - solution,
-                Eigen::VectorXd::Zero(points.cols())
+                derivatives + solution,
+                solution,
+                -4.0 * derivatives - 2.0 * solution
             };
     }
 };

@@ -260,21 +260,22 @@ void VEM_MCC_3D_Velocity_LocalSpace::ComputeValuesOnBoundary(
         const double globalDirection = faceNormalGlobalDirections[f] ? 1.0 : -1.0;
 
         const unsigned int numFaceQuadraturePoints = facesQuadrature[f].Weights.size();
-        localSpace.FacesVanderInternal[f] = monomials2D.Vander(
-            reference_element_data.Monomials2D, facesQuadrature[f].Points, facesCentroids[f], facesDiameters[f]);
+        localSpace.FacesVanderInternal[f] = monomials2D.Vander(reference_element_data.Monomials2D,
+                                                               facesQuadrature[f].Points,
+                                                               facesCentroids[f],
+                                                               facesDiameters[f]);
 
         const VectorXd sqrtFacesQuadratureWeights = facesQuadrature[f].Weights.array().sqrt();
 
         const MatrixXd temp = sqrtFacesQuadratureWeights.asDiagonal() * localSpace.FacesVanderInternal[f];
         const MatrixXd faceHmatrix = temp.transpose() * temp;
 
-        localSpace.VanderBasisFunctionValuesOnFace[f] =
-            facesAreas[f] * localSpace.FacesVanderInternal[f] * faceHmatrix.llt().solve(id);
+        localSpace.VanderBasisFunctionValuesOnFace[f] = facesAreas[f] * localSpace.FacesVanderInternal[f]
+                                                        * faceHmatrix.llt().solve(id);
 
         W2.block(0, f * nk2D, localSpace.Nk, nk2D) =
             globalDirection *
-            localSpace.VanderBoundary.block(offsetQuadraturePoints, 0, numFaceQuadraturePoints, localSpace.Nk)
-                .transpose() *
+            localSpace.VanderBoundary.block(offsetQuadraturePoints, 0, numFaceQuadraturePoints, localSpace.Nk).transpose() *
             facesQuadrature[f].Weights.asDiagonal() * localSpace.VanderBasisFunctionValuesOnFace[f];
 
         B2Nabla.block(0, f * nk2D, localSpace.NkNabla, nk2D) =

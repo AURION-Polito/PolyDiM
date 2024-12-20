@@ -66,15 +66,14 @@ public:
 
 private:
 
-    void ComputeStrongTerm(const Gedim::MeshMatricesDAO& mesh,
-                           const unsigned int &cell2DIndex,
-                           const std::vector<bool> &cell2DEdgeDirections,
-                           const Eigen::MatrixXd &boundaryQuadraturePoints,
-                           const Eigen::VectorXd &boundaryQuadratureWeights,
+    void ComputeStrongTerm(const unsigned int& cell3DIndex,
+                           const Gedim::MeshMatricesDAO& mesh,
+                           const Polydim::VEM::MCC::VEM_MCC_3D_Polyhedron_Geometry& polyhedron,
                            const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo& mesh_dofs_info,
                            const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
                            const Polydim::VEM::MCC::VEM_MCC_3D_Velocity_ReferenceElement_Data& reference_element_data,
-                           const test::I_Test &test,
+                           const Polydim::VEM::MCC::VEM_MCC_3D_Velocity_LocalSpace_Data& local_space_data,
+                           const test::I_Test& test,
                            Elliptic_MCC_3D_Problem_Data& assembler_data) const;
 
     void ComputeWeakTerm(const unsigned int cell3DIndex,
