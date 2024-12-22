@@ -1,4 +1,5 @@
 import os
+import csv
 
 def run_program(program_folder,
                 program_path,
@@ -9,8 +10,7 @@ def run_program(program_folder,
                 mesh_generator,
                 mesh_max_area):
     
-    export_path = os.path.join(".",
-                                program_folder, 
+    export_path = os.path.join(program_folder, 
                                 export_folder,
                                 "{0}_TT{1}".format(
                                     run_folder,
@@ -33,7 +33,24 @@ def run_program(program_folder,
     program_parameters += " MeshMaxArea:double={0}".format(mesh_max_area)
     program_parameters += " ComputeVEMPerformance:bool={0}".format(0)
 
-    os.system(program_path + " " + program_parameters)
+    output_file = os.path.join(program_folder,
+                               "terminal.log")
+
+    print("Run " + export_path + "...")
+    os.system(program_path + " " + program_parameters + "> " + output_file)
+    os.system("mv " + output_file + " " + export_path)
+    print("Run SUCCESS")
+
+    return export_path
+
+def import_errors(export_path):
+    errors_file = os.path.join(export_path,
+                               "Solution",
+                                "Errors.csv")
+    with open(errors_file, newline='') as csvfile:
+        file_reader = csv.reader(csvfile, delimiter=';')
+        data = list(file_reader)
+        #print(data)    
 
 if __name__ == "__main__":
     program_folder = os.path.dirname(os.path.realpath(__file__))
@@ -48,14 +65,15 @@ if __name__ == "__main__":
     mesh_max_area = 0.0
     for vem_type in vem_types:
         for vem_order in vem_orders:
-            run_program(program_folder,
-                        program_path,
-                        "Run_MG{0}".format(mesh_generator),
-                        vem_type,
-                        vem_order, 
-                        test_type,
-                        mesh_generator,
-                        mesh_max_area)
+            export_path = run_program(program_folder,
+                                      program_path,
+                                      "Run_MG{0}".format(mesh_generator),
+                                      vem_type,
+                                      vem_order, 
+                                      test_type,
+                                      mesh_generator,
+                                      mesh_max_area)
+            import_errors(export_path)
             
     test_type = 2
     mesh_generator = 0
@@ -86,3 +104,4 @@ if __name__ == "__main__":
                             test_type,
                             mesh_generator,
                             mesh_max_area)
+
