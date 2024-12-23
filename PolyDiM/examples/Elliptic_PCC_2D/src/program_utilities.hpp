@@ -5,6 +5,7 @@
 #include "program_configuration.hpp"
 #include "DOFsManager.hpp"
 #include "test_definition.hpp"
+#include "VTKUtilities.hpp"
 
 namespace Polydim
 {

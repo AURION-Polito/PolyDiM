@@ -1,8 +1,5 @@
 #include "program_utilities.hpp"
 
-
-#include "VTKUtilities.hpp"
-
 namespace Polydim
 {
 namespace examples
@@ -67,18 +64,6 @@ void create_domain_mesh(const Polydim::examples::Elliptic_PCC_2D::Program_config
                             to_string((unsigned int)config.MeshGenerator()) +
                             " not supported");
     }
-
-//    vector<unsigned int> cell0DMarkers = {1, 2, 3, 4};
-//    vector<unsigned int> cell1DMarkers = {5, 6, 7, 8};
-//    meshUtilities.SetPolygonMeshMarkers(geometryUtilities, domain.vertices, cell0DMarkers, cell1DMarkers, mesh);
-
-//    Gedim::MeshFromCsvUtilities importerUtilities;
-//    Gedim::MeshFromCsvUtilities::Configuration meshImporterConfiguration;
-//    meshImporterConfiguration.Folder = "/home/gioana/Scrivania/Libreria_VEM/PolyDiM/Mesh/AgglomeratedConcaveMesh";
-//    meshImporterConfiguration.Separator = ';';
-//    Gedim::MeshDAOExporterToCsv importer(importerUtilities);
-//    importer.Export(meshImporterConfiguration,
-//                    mesh);
 }
 // ***************************************************************************
 Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_properties(const Polydim::examples::Elliptic_PCC_2D::Program_configuration& config,
@@ -455,5 +440,3 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration
 }
 }
 }
-
-#endif

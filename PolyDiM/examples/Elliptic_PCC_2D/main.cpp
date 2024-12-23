@@ -5,6 +5,7 @@
 #include "test_definition.hpp"
 #include "program_utilities.hpp"
 
+
 unsigned int Polydim::examples::Elliptic_PCC_2D::test::Patch_Test::order;
 
 int main(int argc, char** argv)
