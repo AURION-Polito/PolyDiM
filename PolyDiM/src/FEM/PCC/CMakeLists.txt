@@ -1,7 +1,4 @@
-add_subdirectory(Common)
-add_subdirectory(PDETools)
-add_subdirectory(FEM)
-add_subdirectory(VEM)
+add_subdirectory(2D)
 
 list(APPEND polydim_src_includes ${CMAKE_CURRENT_SOURCE_DIR})
 
