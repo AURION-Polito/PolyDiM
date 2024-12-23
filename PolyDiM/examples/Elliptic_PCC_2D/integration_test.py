@@ -37,7 +37,12 @@ def run_program(program_folder,
     output_file = os.path.join(program_folder,
                                "terminal.log")
 
-    print("Run " + export_path + "...")
+    run_label = "VemType {0}".format(vem_type)
+    run_label += " VemOrder {0}".format(vem_order)
+    run_label += " TestType {0}".format(test_type)
+    run_label += " MeshGenerator {0}".format(mesh_generator)
+    run_label += " MeshMaxArea {0}".format(mesh_max_area)
+    print("Run " + run_label + "...")
     os.system(program_path + " " + program_parameters + "> " + output_file)
     os.system("mv " + output_file + " " + export_path)
     print("Run SUCCESS")
@@ -97,10 +102,12 @@ if __name__ == "__main__":
     program_folder = os.path.dirname(os.path.realpath(__file__))
     program_path = os.path.join(".",program_folder, "Elliptic_PCC_2D")
 
+    remove_folder = True
+
     vem_types = [1, 2, 3]
     vem_orders = [1, 2, 3]
     export_folder = "integration_tests"
-    tol = 1.0e-8
+    tol = 1.0e-12
 
     print("RUN TESTS...")
 
@@ -121,6 +128,8 @@ if __name__ == "__main__":
             test_errors(errors,
                         vem_order,
                         tol)
+            if remove_folder:
+                os.system("rm -rf " + os.path.join(program_folder, export_path))
             
     test_type = 2
     mesh_generator = 0
@@ -140,6 +149,8 @@ if __name__ == "__main__":
             test_errors(errors,
                         vem_order,
                         tol)
+            if remove_folder:
+                os.system("rm -rf " + os.path.join(program_folder, export_path))
     
     test_type = 2
     mesh_generator = 2
@@ -159,7 +170,11 @@ if __name__ == "__main__":
             test_errors(errors,
                         vem_order,
                         tol)
+            if remove_folder:
+                os.system("rm -rf " + os.path.join(program_folder, export_path))
+
+    if remove_folder:
+        os.system("rm -rf " + os.path.join(program_folder, export_folder))
     
-    os.system("rm -rf " + os.path.join(program_folder, export_folder))
     print("TESTS SUCCESS")
 
