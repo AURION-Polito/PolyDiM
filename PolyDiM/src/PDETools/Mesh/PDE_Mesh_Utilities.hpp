@@ -1,6 +1,8 @@
 #ifndef __PDETOOLS_MESH_PDE_Mesh_Utilities_HPP
 #define __PDETOOLS_MESH_PDE_Mesh_Utilities_HPP
 
+#include "MeshDAOImporterFromCsv.hpp"
+#include "MeshFromCsvUtilities.hpp"
 #include "MeshMatricesDAO.hpp"
 #include "MeshUtilities.hpp"
 
@@ -31,7 +33,8 @@ enum struct MeshGenerator_Types_2D
     Triangular = 0, ///< generated triangular mesh
     Minimal = 1,    ///< generated minimal mesh
     Polygonal = 2,  ///< generated voronoi polygonal mesh
-    OFFImporter = 3 ///< imported off mesh
+    OFFImporter = 3, ///< imported off mesh
+    CsvImporter = 4 ///< imported csv mesh
 };
 
 enum struct MeshGenerator_Types_3D
@@ -40,7 +43,8 @@ enum struct MeshGenerator_Types_3D
     Minimal = 1,     ///< generated minimal mesh
     Polyhedral = 2,  ///< generated voronoi polyhedral mesh
     OVMImporter = 3, ///< imported ovm mesh
-    VtkImporter = 4  ///< imported vtk mesh
+    VtkImporter = 4,  ///< imported vtk mesh
+    CsvImporter = 5  ///< imported csv mesh
 };
 
 inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
@@ -113,7 +117,19 @@ inline void import_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
 {
     switch (mesh_type)
     {
-    case MeshGenerator_Types_2D::OFFImporter: {
+    case MeshGenerator_Types_2D::CsvImporter:
+    {
+        Gedim::MeshFromCsvUtilities importerUtilities;
+        Gedim::MeshFromCsvUtilities::Configuration meshImporterConfiguration;
+        meshImporterConfiguration.Folder = file_path;
+        meshImporterConfiguration.Separator = ';';
+        Gedim::MeshDAOImporterFromCsv importer(importerUtilities);
+        importer.Import(meshImporterConfiguration,
+                        mesh);
+    }
+    break;
+    case MeshGenerator_Types_2D::OFFImporter:
+    {
         mesh_utilities.ImportObjectFileFormat(file_path, mesh);
     }
     break;
@@ -131,12 +147,27 @@ inline void import_mesh_3D(const Gedim::GeometryUtilities &geometry_utilities,
 {
     switch (mesh_type)
     {
-    case MeshGenerator_Types_3D::OVMImporter: {
+    case MeshGenerator_Types_3D::CsvImporter:
+    {
+        Gedim::MeshFromCsvUtilities importerUtilities;
+        Gedim::MeshFromCsvUtilities::Configuration meshImporterConfiguration;
+        meshImporterConfiguration.Folder = file_path;
+        meshImporterConfiguration.Separator = ';';
+        Gedim::MeshDAOImporterFromCsv importer(importerUtilities);
+        importer.Import(meshImporterConfiguration,
+                        mesh);
+
+        mesh_utilities.ImportObjectFileFormat(file_path, mesh);
+    }
+    break;
+    case MeshGenerator_Types_3D::OVMImporter:
+    {
         std::vector<std::vector<bool>> meshCell3DsFacesOrientation;
         mesh_utilities.ImportOpenVolumeMesh(file_path, mesh, meshCell3DsFacesOrientation);
     }
     break;
-    case MeshGenerator_Types_3D::VtkImporter: {
+    case MeshGenerator_Types_3D::VtkImporter:
+    {
         mesh_utilities.ImportVtkMesh3D(file_path, mesh);
     }
     default:
