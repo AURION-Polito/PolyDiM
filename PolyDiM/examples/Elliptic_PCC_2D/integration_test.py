@@ -47,10 +47,24 @@ def import_errors(export_path):
     errors_file = os.path.join(export_path,
                                "Solution",
                                 "Errors.csv")
+    errors = []
     with open(errors_file, newline='') as csvfile:
         file_reader = csv.reader(csvfile, delimiter=';')
-        data = list(file_reader)
-        #print(data)    
+        data = list(file_reader)        
+
+        for row in data:
+            errors_row = []
+            errors_row.append(row[4])
+            errors_row.append(row[7])
+            errors_row.append(row[8])
+            errors_row.append(row[9])
+            errors_row.append(row[10])
+            errors.append(errors_row)
+
+    return errors  
+
+def test_errors(errors):
+    exit()  
 
 if __name__ == "__main__":
     program_folder = os.path.dirname(os.path.realpath(__file__))
@@ -73,7 +87,8 @@ if __name__ == "__main__":
                                       test_type,
                                       mesh_generator,
                                       mesh_max_area)
-            import_errors(export_path)
+            errors = import_errors(export_path)
+            test_errors(errors)
             
     test_type = 2
     mesh_generator = 0
@@ -104,4 +119,6 @@ if __name__ == "__main__":
                             test_type,
                             mesh_generator,
                             mesh_max_area)
+    
+    os.system("rm -rf " + os.path.join(program_folder, export_folder))
 
