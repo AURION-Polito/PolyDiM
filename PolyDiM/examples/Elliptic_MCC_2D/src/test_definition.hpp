@@ -65,7 +65,7 @@ struct Patch_Test final : public I_Test
             { 2, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
             { 3, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
             { 4, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0 } },
-            { 5, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
+            { 5, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1 } },
             { 6, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
             { 7, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } },
             { 8, { Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2 } }
@@ -168,8 +168,24 @@ struct Patch_Test final : public I_Test
     Eigen::VectorXd strong_boundary_condition(const unsigned int marker,
                                               const Eigen::MatrixXd& points) const
     {
+        Eigen::ArrayXd derivatives = Eigen::ArrayXd::Constant(points.cols(), 0.0);
+        Eigen::ArrayXd solution = Eigen::ArrayXd::Constant(points.cols(), 1.0);
+        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+
+        if(order > 0)
+        {
+            derivatives = Eigen::ArrayXd::Constant(points.cols(), 1.0);
+            for(int i = 0; i < order - 1; i++)
+                derivatives = derivatives * polynomial;
+
+            solution = derivatives * polynomial;
+            derivatives *= order;
+        }
+
         switch(marker)
         {
+        case 1:
+            return 2.0 * derivatives + solution;
         default:
             throw std::runtime_error("Unknown marker");
         }

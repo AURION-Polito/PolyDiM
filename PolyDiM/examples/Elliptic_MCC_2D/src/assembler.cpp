@@ -45,8 +45,6 @@ void Assembler::ComputeStrongTerm(const Gedim::MeshMatricesDAO& mesh,
                                                                                            boundaryQuadraturePoints.middleCols(numReferenceSegmentInternalPoints * e,
                                                                                                                                numReferenceSegmentInternalPoints));
 
-
-
         const auto local_dofs = dofs_data.CellsDOFs.at(1).at(edgeGlobalId);
         assert(local_dofs.size() == strong_boundary_values.size());
 
