@@ -99,6 +99,7 @@ endif()
 # Insert Sources
 ###############################################################################################
 add_subdirectory(VEM)
+add_subdirectory(FEM)
 
 list(APPEND POLYDIM_LIBRARY_TEST_PUBLIC_HEADERS ${polydim_test_headers})
 list(APPEND POLYDIM_LIBRARY_TEST_SOURCES ${polydim_test_sources})
