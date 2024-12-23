@@ -79,17 +79,17 @@ def test_errors(errors,
     num_rows = len(errors)
 
     if (num_rows == 2):
-        print("CASE 1: ", abs(errors[1][1]), abs(errors[1][2]))
+        print("CASE 1: ", abs(errors[1][1]) / abs(errors[1][3]), abs(errors[1][2]) / abs(errors[1][4]))
         assert abs(errors[1][1]) < tol * abs(errors[1][3])
         assert abs(errors[1][2]) < tol * abs(errors[1][4])
     elif (num_rows == 3):
         slope_L2 = abs(math.log(errors[2][1] / errors[2][3])  - math.log(errors[1][1] / errors[2][3])) / \
-        abs(math.log(errors[2][0]) - math.log(errors[1][0])) * (-2.0)
+        abs(math.log(errors[2][0]) - math.log(errors[1][0])) * 2.0
         slope_H1 = abs(math.log(errors[2][2] / errors[2][4])  - math.log(errors[1][2] / errors[2][4])) / \
-        abs(math.log(errors[2][0]) - math.log(errors[1][0])) * (-2.0)
+        abs(math.log(errors[2][0]) - math.log(errors[1][0])) * 2.0
         print("CASE 2: ", slope_L2, slope_H1)
-        assert slope_L2 < tol * float(vem_order + 1.0)
-        assert slope_H1 < tol * float(vem_order)
+        assert round(slope_L2 - float(vem_order + 1.0)) < tol
+        assert round(slope_H1 - float(vem_order)) < tol
     else:
         raise Exception("Case {0} not managed".format(num_rows))
 
@@ -140,7 +140,6 @@ if __name__ == "__main__":
             test_errors(errors,
                         vem_order,
                         tol)
-            exit()
     
     test_type = 2
     mesh_generator = 2
