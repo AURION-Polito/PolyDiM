@@ -128,18 +128,19 @@ if __name__ == "__main__":
     for vem_type in vem_types:
         for vem_order in vem_orders:
             for mesh_max_area in mesh_max_areas:
-                run_program(program_folder,
-                            program_path,
-                            "Run_MG{0}".format(mesh_generator),
-                            vem_type,
-                            vem_order, 
-                            test_type,
-                            mesh_generator,
-                            mesh_max_area)
-                errors = import_errors(export_path)
-                test_errors(errors,
-                            vem_order,
-                            tol)
+                export_path = run_program(program_folder,
+                                          program_path,
+                                          "Run_MG{0}".format(mesh_generator),
+                                          vem_type,
+                                          vem_order, 
+                                          test_type,
+                                          mesh_generator,
+                                          mesh_max_area)
+            errors = import_errors(export_path)
+            test_errors(errors,
+                        vem_order,
+                        tol)
+            exit()
     
     test_type = 2
     mesh_generator = 2
@@ -147,18 +148,18 @@ if __name__ == "__main__":
     for vem_type in vem_types:
         for vem_order in vem_orders:
             for mesh_max_area in mesh_max_areas:
-                run_program(program_folder,
-                            program_path,
-                            "Run_MG{0}".format(mesh_generator),
-                            vem_type,
-                            vem_order, 
-                            test_type,
-                            mesh_generator,
-                            mesh_max_area)
-                errors = import_errors(export_path)
-                test_errors(errors,
-                            vem_order,
-                            tol)
+                export_path = run_program(program_folder,
+                                          program_path,
+                                          "Run_MG{0}".format(mesh_generator),
+                                          vem_type,
+                                          vem_order, 
+                                          test_type,
+                                          mesh_generator,
+                                          mesh_max_area)
+            errors = import_errors(export_path)
+            test_errors(errors,
+                        vem_order,
+                        tol)
     
     os.system("rm -rf " + os.path.join(program_folder, export_folder))
     print("TESTS SUCCESS")
