@@ -41,6 +41,8 @@ namespace Polydim
 
             if (order == 0)
             {
+              result.Dimension = 2;
+              result.Order = order;
               result.NumDofs0D = 0;
               result.NumDofs1D = 0;
               result.NumDofs2D = 1;
@@ -53,6 +55,8 @@ namespace Polydim
               return result;
             }
 
+            result.Dimension = 2;
+            result.Order = order;
             result.NumBasisFunctions = (order + 1) * (order + 2) / 2;
 
             std::vector<unsigned int> nodeDofs = { 0,

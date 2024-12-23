@@ -23,9 +23,10 @@ namespace Polydim
         const auto reference_element_data = reference_element.Create(o);
 
         const Eigen::MatrixXd dofs = reference_element_data.DofPositions;
-        const unsigned int numDofs = dofs.cols();
 
-        Eigen::MatrixXd points(3, dofs.cols() + referenceQuadraturePoints.cols());
+        Eigen::MatrixXd points(3,
+                               dofs.cols() +
+                               referenceQuadraturePoints.cols());
         points << dofs, referenceQuadraturePoints;
 
         const Eigen::MatrixXd basisValues = reference_element.EvaluateBasisFunctions(points,
