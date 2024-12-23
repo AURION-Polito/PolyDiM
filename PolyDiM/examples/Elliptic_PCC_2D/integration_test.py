@@ -76,10 +76,10 @@ def import_errors(export_path):
 def test_errors(errors,
                 vem_order,
                 tol):
-    print(errors)
     num_rows = len(errors)
 
     if (num_rows == 2):
+        print("CASE 1: ", abs(errors[1][1]), abs(errors[1][2]))
         assert abs(errors[1][1]) < tol * abs(errors[1][3])
         assert abs(errors[1][2]) < tol * abs(errors[1][4])
     elif (num_rows == 3):
@@ -87,7 +87,7 @@ def test_errors(errors,
         abs(math.log(errors[2][0]) - math.log(errors[1][0])) * (-2.0)
         slope_H1 = abs(math.log(errors[2][2] / errors[2][4])  - math.log(errors[1][2] / errors[2][4])) / \
         abs(math.log(errors[2][0]) - math.log(errors[1][0])) * (-2.0)
-        print(slope_L2, slope_H1)
+        print("CASE 2: ", slope_L2, slope_H1)
         assert slope_L2 < tol * float(vem_order + 1.0)
         assert slope_H1 < tol * float(vem_order)
     else:
