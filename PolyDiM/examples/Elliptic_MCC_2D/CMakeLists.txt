@@ -81,19 +81,18 @@ endif()
 # Insert Sources
 #########################################################
 add_subdirectory(src)
-list(APPEND Elliptic_MCC_2D_SOURCES ${elliptic_MCC_2D_sources})
-list(APPEND Elliptic_MCC_2D_SOURCES main.cpp)
+list(APPEND Elliptic_MCC_2D_SOURCES ${elliptic_MCC_2D_sources} main.cpp)
 list(APPEND Elliptic_MCC_2D_HEADERS ${elliptic_MCC_2D_headers})
 list(APPEND Elliptic_MCC_2D_INCLUDE ${elliptic_MCC_2D_includes})
 
 # Add variables for clang anc cppcheck
 ###############################################################################################
-list(APPEND CLANGFORMAT_FILES ${Elliptic_MCC_2D_SOURCES})
-list(APPEND CLANGFORMAT_FILES ${Elliptic_MCC_2D_HEADERS})
+list(APPEND CLANGFORMAT_FILES ${elliptic_MCC_2D_sources} "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
+list(APPEND CLANGFORMAT_FILES ${elliptic_MCC_2D_headers})
 set(CLANGFORMAT_FILES ${CLANGFORMAT_FILES} PARENT_SCOPE)
 
-list(APPEND CPPCHECK_FILES ${Elliptic_MCC_2D_SOURCES})
-list(APPEND CPPCHECK_FILES ${Elliptic_MCC_2D_HEADERS})
+list(APPEND CPPCHECK_FILES ${elliptic_MCC_2D_sources} "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
+list(APPEND CPPCHECK_FILES ${elliptic_MCC_2D_headers})
 set(CPPCHECK_FILES ${CPPCHECK_FILES} PARENT_SCOPE)
 
 # Create library test executable

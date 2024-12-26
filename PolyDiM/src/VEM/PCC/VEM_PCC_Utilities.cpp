@@ -13,8 +13,8 @@ template struct VEM_PCC_Utilities<2>;
 template struct VEM_PCC_Utilities<3>;
 //****************************************************************************
 template <unsigned short dimension>
-Eigen::VectorXd VEM_PCC_Utilities<dimension>::ComputeEdgeBasisCoefficients(
-    const unsigned int &order, const Eigen::VectorXd &edgeInternalPoints) const
+Eigen::VectorXd VEM_PCC_Utilities<dimension>::ComputeEdgeBasisCoefficients(const unsigned int &order,
+                                                                           const Eigen::VectorXd &edgeInternalPoints) const
 {
     // Compute basis function coefficients on the generic edge.
     const unsigned int numPoints = order + 1;
@@ -49,9 +49,7 @@ Eigen::VectorXd VEM_PCC_Utilities<dimension>::ComputeEdgeBasisCoefficients(
 }
 //****************************************************************************
 template <unsigned short dimension>
-MatrixXd VEM_PCC_Utilities<dimension>::ComputeStabilizationMatrix(const MatrixXd &piNabla,
-                                                                  const double &diameter,
-                                                                  const MatrixXd &Dmatrix) const
+MatrixXd VEM_PCC_Utilities<dimension>::ComputeStabilizationMatrix(const MatrixXd &piNabla, const double &diameter, const MatrixXd &Dmatrix) const
 {
     MatrixXd stabMatrix = Dmatrix * piNabla;
     stabMatrix.diagonal().array() -= 1;

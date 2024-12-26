@@ -4,8 +4,8 @@
 #include "Eigen/Eigen"
 #include "I_VEM_MCC_2D_Velocity_LocalSpace.hpp"
 #include "VEM_MCC_2D_ReferenceElement.hpp"
-#include "VEM_MCC_Utilities.hpp"
 #include "VEM_MCC_2D_Velocity_LocalSpace_Data.hpp"
+#include "VEM_MCC_Utilities.hpp"
 #include "VEM_Monomials_2D.hpp"
 #include <vector>
 
@@ -17,7 +17,7 @@ namespace MCC
 {
 class VEM_MCC_2D_Ortho_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_LocalSpace
 {
-private:
+  private:
     VEM_MCC_Utilities<2> utilities;
     Monomials::VEM_Monomials_2D monomials;
 
@@ -34,12 +34,9 @@ private:
                        const Eigen::VectorXd &internalQuadratureWeights,
                        VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const;
 
-    inline void ComputeStabilizationMatrix(const double &polygonMeasure,
-                                           VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const
+    inline void ComputeStabilizationMatrix(const double &polygonMeasure, VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const
     {
-        localSpace.StabMatrix = utilities.ComputeStabilizationMatrix(localSpace.Pi0k,
-                                                                     polygonMeasure,
-                                                                     localSpace.Dmatrix);
+        localSpace.StabMatrix = utilities.ComputeStabilizationMatrix(localSpace.Pi0k, polygonMeasure, localSpace.Dmatrix);
     }
 
     void ComputeValuesOnBoundary(const Eigen::MatrixXd &polytopeVertices,
@@ -72,9 +69,9 @@ private:
                                                                   localSpace.Gmatrix);
     };
 
-public:
+  public:
     VEM_MCC_2D_Velocity_LocalSpace_Data CreateLocalSpace(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
-                                                      const VEM_MCC_2D_Polygon_Geometry &polygon) const;
+                                                         const VEM_MCC_2D_Polygon_Geometry &polygon) const;
 
     inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const
     {
@@ -104,12 +101,8 @@ public:
                                                     const VEM_MCC_2D_Polygon_Geometry &polygon,
                                                     const Eigen::MatrixXd &points) const
     {
-        return monomials.Vander(reference_element_data.MonomialsKp1,
-                                points,
-                                polygon.Centroid,
-                                polygon.Diameter) *
-               localSpace.QmatrixKp1.topLeftCorner(localSpace.Nk,
-                                                   localSpace.Nk).transpose();
+        return monomials.Vander(reference_element_data.MonomialsKp1, points, polygon.Centroid, polygon.Diameter) *
+               localSpace.QmatrixKp1.topLeftCorner(localSpace.Nk, localSpace.Nk).transpose();
     }
 };
 } // namespace MCC

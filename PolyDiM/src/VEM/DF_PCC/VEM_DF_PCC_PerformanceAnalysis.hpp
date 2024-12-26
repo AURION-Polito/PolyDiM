@@ -30,10 +30,7 @@ struct VEM_DF_PCC_PerformanceAnalysis_Data
 
 struct VEM_DF_PCC_PerformanceAnalysis final
 {
-    template <typename VEM_Monomials_Type,
-              typename VEM_Monomials_Data_Type,
-              typename VEM_vem_local_space_data_Type,
-              typename VEM_vem_local_space_dataData_Type>
+    template <typename VEM_Monomials_Type, typename VEM_Monomials_Data_Type, typename VEM_vem_local_space_data_Type, typename VEM_vem_local_space_dataData_Type>
     VEM_DF_PCC_PerformanceAnalysis_Data Compute(const double &polytopeMeasure,
                                                 const double &polytopeDiameter,
                                                 const VEM_Monomials_Type &vem_monomials,
@@ -69,25 +66,22 @@ struct VEM_DF_PCC_PerformanceAnalysis final
         for (unsigned int d1 = 0; d1 < vem_local_space_data.Dimension; d1++)
         {
             result.ErrorPiNabla[d1] = (piNabla[d1] * Dmatrix[d1] - identity).norm() / identity.norm();
-            result.ErrorPi0km2[d1] =
-                (pi0km2[d1] * Dmatrix[d1].leftCols(vem_local_space_data.Nkm2) -
-                 identity.topLeftCorner(vem_local_space_data.Nkm2, vem_local_space_data.Nkm2))
-                    .norm() /
-                identity.topLeftCorner(vem_local_space_data.Nkm2, vem_local_space_data.Nkm2).norm();
+            result.ErrorPi0km2[d1] = (pi0km2[d1] * Dmatrix[d1].leftCols(vem_local_space_data.Nkm2) -
+                                      identity.topLeftCorner(vem_local_space_data.Nkm2, vem_local_space_data.Nkm2))
+                                         .norm() /
+                                     identity.topLeftCorner(vem_local_space_data.Nkm2, vem_local_space_data.Nkm2).norm();
 
             result.ErrorPi0k[d1] = (pi0k[d1] * Dmatrix[d1] - identity).norm() / identity.norm();
 
             for (unsigned int d2 = 0; d2 < vem_local_space_data.Dimension; d2++)
             {
-                const Eigen::MatrixXd &piDerkm1 =
-                    vem_local_space_data.Pi0km1Der[vem_local_space_data.Dimension * d1 + d2];
+                const Eigen::MatrixXd &piDerkm1 = vem_local_space_data.Pi0km1Der[vem_local_space_data.Dimension * d1 + d2];
                 const Eigen::MatrixXd derMatrix =
                     invDiameter * vem_monomials.DerivativeMatrix(vem_monomials_data, d2)
                                       .topLeftCorner(vem_local_space_data.Nk, vem_local_space_data.Nkm1);
 
                 result.ErrorPi0km1Grad[vem_local_space_data.Dimension * d1 + d2] =
-                    (vem_local_space_data.Pi0km1Der[vem_local_space_data.Dimension * d1 + d2] *
-                         vem_local_space_data.Dmatrix[d1] -
+                    (vem_local_space_data.Pi0km1Der[vem_local_space_data.Dimension * d1 + d2] * vem_local_space_data.Dmatrix[d1] -
                      derMatrix.transpose())
                         .norm() /
                     derMatrix.norm();
@@ -99,8 +93,9 @@ struct VEM_DF_PCC_PerformanceAnalysis final
             const Eigen::MatrixXd &stabilizationMatrix = vem_local_space_data.StabMatrix;
             result.StabNorm = vem_local_space_data.StabMatrix.norm();
 
-            Eigen::MatrixXd polynomialBasisDofs = Eigen::MatrixXd::Zero(
-                vem_local_space_data.NumBasisFunctions, vem_local_space_data.Dimension * vem_local_space_data.Nk);
+            Eigen::MatrixXd polynomialBasisDofs =
+                Eigen::MatrixXd::Zero(vem_local_space_data.NumBasisFunctions,
+                                      vem_local_space_data.Dimension * vem_local_space_data.Nk);
             for (unsigned int d = 0; d < vem_local_space_data.Dimension; d++)
                 polynomialBasisDofs.middleCols(d * vem_local_space_data.Nk, vem_local_space_data.Nk) =
                     vem_local_space_data.Dmatrix[d];
@@ -117,9 +112,7 @@ struct VEM_DF_PCC_PerformanceAnalysis final
             const double HMatrixInvNorm = 1.0 / vem_local_space_data.Hmatrix.norm();
             for (unsigned int d1 = 0; d1 < vem_local_space_data.Dimension; d1++)
                 result.ErrorHCD[d1] =
-                    (vem_local_space_data.Hmatrix - vem_local_space_data.Cmatrix[d1] * vem_local_space_data.Dmatrix[d1])
-                        .norm() *
-                    HMatrixInvNorm;
+                    (vem_local_space_data.Hmatrix - vem_local_space_data.Cmatrix[d1] * vem_local_space_data.Dmatrix[d1]).norm() * HMatrixInvNorm;
         }
 
         if (vem_local_space_data.Gmatrix.size() > 0 && vem_local_space_data.Bmatrix.size() > 0)
@@ -127,9 +120,7 @@ struct VEM_DF_PCC_PerformanceAnalysis final
             const double GMatrixInvNorm = 1.0 / vem_local_space_data.Gmatrix.norm();
             for (unsigned int d1 = 0; d1 < vem_local_space_data.Dimension; d1++)
                 result.ErrorGBD[d1] =
-                    (vem_local_space_data.Gmatrix - vem_local_space_data.Bmatrix[d1] * vem_local_space_data.Dmatrix[d1])
-                        .norm() *
-                    GMatrixInvNorm;
+                    (vem_local_space_data.Gmatrix - vem_local_space_data.Bmatrix[d1] * vem_local_space_data.Dmatrix[d1]).norm() * GMatrixInvNorm;
         }
 
         if (vem_local_space_data.Hmatrix.size() > 0 && vem_local_space_data.Ematrix.size() > 0)
@@ -138,18 +129,15 @@ struct VEM_DF_PCC_PerformanceAnalysis final
             {
                 for (unsigned int d2 = 0; d2 < vem_local_space_data.Dimension; d2++)
                 {
-                    const Eigen::MatrixXd &piDerkm1 =
-                        vem_local_space_data.Pi0km1Der[vem_local_space_data.Dimension * d1 + d2];
+                    const Eigen::MatrixXd &piDerkm1 = vem_local_space_data.Pi0km1Der[vem_local_space_data.Dimension * d1 + d2];
                     const Eigen::MatrixXd derMatrix =
                         invDiameter *
                         vem_monomials.DerivativeMatrix(vem_monomials_data, d2)
                             .topLeftCorner(vem_local_space_data.Nk, vem_local_space_data.Nkm1) *
-                        vem_local_space_data.Hmatrix.topLeftCorner(vem_local_space_data.Nkm1,
-                                                                   vem_local_space_data.Nkm1);
+                        vem_local_space_data.Hmatrix.topLeftCorner(vem_local_space_data.Nkm1, vem_local_space_data.Nkm1);
 
                     result.ErrorHED[vem_local_space_data.Dimension * d1 + d2] =
-                        (vem_local_space_data.Ematrix[vem_local_space_data.Dimension * d1 + d2] *
-                             vem_local_space_data.Dmatrix[d1] -
+                        (vem_local_space_data.Ematrix[vem_local_space_data.Dimension * d1 + d2] * vem_local_space_data.Dmatrix[d1] -
                          derMatrix.transpose())
                             .norm() /
                         derMatrix.norm();

@@ -26,10 +26,7 @@ struct VEM_MCC_PerformanceAnalysis_Data
 
 struct VEM_MCC_PerformanceAnalysis final
 {
-    template <typename VEM_Monomials_Type,
-              typename VEM_Monomials_Data_Type,
-              typename VEM_LocalSpace_Type,
-              typename VEM_LocalSpaceData_Type>
+    template <typename VEM_Monomials_Type, typename VEM_Monomials_Data_Type, typename VEM_LocalSpace_Type, typename VEM_LocalSpaceData_Type>
     VEM_MCC_PerformanceAnalysis_Data Compute(const VEM_Monomials_Type &vem_monomials,
                                              const VEM_Monomials_Data_Type &vem_monomials_data,
                                              const VEM_LocalSpace_Type &vem_local_space,
@@ -63,9 +60,8 @@ struct VEM_MCC_PerformanceAnalysis final
         }
 
         if (vem_local_space_data.Gmatrix.size() > 0 && vem_local_space_data.Bmatrix.size() > 0)
-            result.ErrorGBD =
-                (vem_local_space_data.Gmatrix - vem_local_space_data.Bmatrix * polynomialBasisDofs).norm() /
-                vem_local_space_data.Gmatrix.norm();
+            result.ErrorGBD = (vem_local_space_data.Gmatrix - vem_local_space_data.Bmatrix * polynomialBasisDofs).norm() /
+                              vem_local_space_data.Gmatrix.norm();
 
         return result;
     }

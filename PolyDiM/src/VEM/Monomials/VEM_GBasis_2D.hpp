@@ -15,8 +15,7 @@ class VEM_GBasis_2D final
   private:
     VEM_Monomials_2D monomials;
 
-    std::vector<Eigen::Vector2i> VectorDecompositionIndices(const VEM_GBasis_Data &data,
-                                                            const Eigen::VectorXi &expo) const;
+    std::vector<Eigen::Vector2i> VectorDecompositionIndices(const VEM_GBasis_Data &data, const Eigen::VectorXi &expo) const;
 
   public:
     VEM_GBasis_Data Compute(const unsigned int polynomial_degree);

@@ -15,7 +15,7 @@ namespace MCC
 /// \brief Base class for Primal Conforming Virtual Element Method of Constant Degree.
 class VEM_MCC_2D_Pressure_ReferenceElement final : public I_VEM_MCC_2D_Pressure_ReferenceElement
 {
-public:
+  public:
     VEM_MCC_2D_Pressure_ReferenceElement_Data Create(const unsigned int order) const
     {
         Monomials::VEM_Monomials_2D monomials;
@@ -38,7 +38,7 @@ public:
 
 class VEM_MCC_2D_Velocity_ReferenceElement final : public I_VEM_MCC_2D_Velocity_ReferenceElement
 {
-public:
+  public:
     VEM_MCC_2D_Velocity_ReferenceElement_Data Create(const unsigned int order) const
     {
         Monomials::VEM_Monomials_2D monomials;

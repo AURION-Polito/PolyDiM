@@ -27,8 +27,7 @@ enum struct ProjectionTypes
 template <unsigned short dimension> struct VEM_DF_PCC_Utilities final
 {
     /// Compute the Edge basis coefficients
-    Eigen::VectorXd ComputeEdgeBasisCoefficients(const unsigned int &order,
-                                                 const Eigen::VectorXd &edgeInternalPoints) const;
+    Eigen::VectorXd ComputeEdgeBasisCoefficients(const unsigned int &order, const Eigen::VectorXd &edgeInternalPoints) const;
 
     /// \brief Compute the values of the polynomial projection of
     /// derivatives of basis functions at internal quadrature points on
@@ -37,13 +36,12 @@ template <unsigned short dimension> struct VEM_DF_PCC_Utilities final
     /// values. Its length equals \ref Dimension(). Each column of each
     /// matrix will contain the values of a basis function's projected
     /// derivative at internal quadrature points.
-    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(
-        const ProjectionTypes &projectionType,
-        const unsigned int &Nkm1,
-        const Eigen::MatrixXd &vanderInternal,
-        const std::vector<Eigen::MatrixXd> &vanderInternalDerivatives,
-        const std::vector<Eigen::MatrixXd> &piNabla,
-        const std::vector<Eigen::MatrixXd> &pi0km1Der) const
+    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const ProjectionTypes &projectionType,
+                                                                       const unsigned int &Nkm1,
+                                                                       const Eigen::MatrixXd &vanderInternal,
+                                                                       const std::vector<Eigen::MatrixXd> &vanderInternalDerivatives,
+                                                                       const std::vector<Eigen::MatrixXd> &piNabla,
+                                                                       const std::vector<Eigen::MatrixXd> &pi0km1Der) const
     {
         switch (projectionType)
         {
@@ -130,8 +128,7 @@ template <unsigned short dimension> struct VEM_DF_PCC_Utilities final
     /// \brief Compute the values of the derivatives of the basis functions of the polynomial
     /// basis of projectors at internal quadrature points on the geometry.
     /// values of a basis function's derivative at internal quadrature points.
-    inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(
-        const std::vector<Eigen::MatrixXd> &vanderInternalDerivatives) const
+    inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const std::vector<Eigen::MatrixXd> &vanderInternalDerivatives) const
     {
         return vanderInternalDerivatives;
     }

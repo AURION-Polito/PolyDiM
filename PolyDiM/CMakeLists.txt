@@ -91,6 +91,16 @@ list(APPEND POLYDIM_LIBRARY_SOURCES ${polydim_src_sources})
 list(APPEND POLYDIM_LIBRARY_HEADERS ${polydim_src_headers})
 list(APPEND POLYDIM_LIBRARY_INCLUDE ${polydim_src_includes})
 
+# Add variables for clang anc cppcheck
+###############################################################################################
+list(APPEND CLANGFORMAT_FILES ${polydim_src_sources})
+list(APPEND CLANGFORMAT_FILES ${polydim_src_headers})
+set(CLANGFORMAT_FILES ${CLANGFORMAT_FILES} PARENT_SCOPE)
+
+list(APPEND CPPCHECK_FILES ${polydim_src_sources})
+list(APPEND CPPCHECK_FILES ${polydim_src_headers})
+set(CPPCHECK_FILES ${CPPCHECK_FILES} PARENT_SCOPE)
+
 # Create public headers
 ###############################################################################################
 set(POLYDIM_LIBRARY_ADDITIONAL_INCLUDE_PATH ${CMAKE_CURRENT_BINARY_DIR}/PolyDiM_additional_include)
@@ -113,16 +123,6 @@ foreach(header ${POLYDIM_LIBRARY_HEADERS})
 endforeach()
 
 list(APPEND POLYDIM_LIBRARY_INCLUDE ${POLYDIM_LIBRARY_ADDITIONAL_INCLUDE_PATH})
-
-# Add variables for clang anc cppcheck
-###############################################################################################
-list(APPEND CLANGFORMAT_FILES ${POLYDIM_LIBRARY_SOURCES})
-list(APPEND CLANGFORMAT_FILES ${POLYDIM_LIBRARY_HEADERS})
-set(CLANGFORMAT_FILES ${CLANGFORMAT_FILES} PARENT_SCOPE)
-
-list(APPEND CPPCHECK_FILES ${POLYDIM_LIBRARY_SOURCES})
-list(APPEND CPPCHECK_FILES ${POLYDIM_LIBRARY_HEADERS})
-set(CPPCHECK_FILES ${CPPCHECK_FILES} PARENT_SCOPE)
 
 # Create library
 ###############################################################################################

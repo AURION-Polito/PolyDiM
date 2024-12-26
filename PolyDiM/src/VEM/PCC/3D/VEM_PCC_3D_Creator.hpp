@@ -2,8 +2,8 @@
 #define __VEM_PCC_3D_LocalSpace_Creator_HPP
 
 #include "I_VEM_PCC_3D_ReferenceElement.hpp"
-#include "VEM_PCC_3D_ReferenceElement.hpp"
 #include "VEM_PCC_2D_ReferenceElement.hpp"
+#include "VEM_PCC_3D_ReferenceElement.hpp"
 
 #include "I_VEM_PCC_3D_LocalSpace.hpp"
 #include "VEM_PCC_3D_Inertia_LocalSpace.hpp"
@@ -24,8 +24,7 @@ enum struct VEM_PCC_3D_LocalSpace_Types
     VEM_PCC_3D_Ortho_LocalSpace = 3
 };
 
-inline std::unique_ptr<I_VEM_PCC_2D_ReferenceElement> create_VEM_PCC_3D_reference_element_2D(
-    const VEM_PCC_3D_LocalSpace_Types &type)
+inline std::unique_ptr<I_VEM_PCC_2D_ReferenceElement> create_VEM_PCC_3D_reference_element_2D(const VEM_PCC_3D_LocalSpace_Types &type)
 {
     switch (type)
     {
@@ -38,8 +37,7 @@ inline std::unique_ptr<I_VEM_PCC_2D_ReferenceElement> create_VEM_PCC_3D_referenc
     }
 }
 
-inline std::unique_ptr<I_VEM_PCC_3D_ReferenceElement> create_VEM_PCC_3D_reference_element_3D(
-    const VEM_PCC_3D_LocalSpace_Types &type)
+inline std::unique_ptr<I_VEM_PCC_3D_ReferenceElement> create_VEM_PCC_3D_reference_element_3D(const VEM_PCC_3D_LocalSpace_Types &type)
 {
     switch (type)
     {

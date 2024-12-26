@@ -16,8 +16,7 @@ namespace MCC
 /// Mixed Conforming Constant degree Virtual Element Methods.
 class I_VEM_MCC_3D_Velocity_LocalSpace
 {
-
-public:
+  public:
     virtual VEM_MCC_3D_Velocity_LocalSpace_Data CreateLocalSpace(const VEM_MCC_3D_Velocity_ReferenceElement_Data &reference_element_data,
                                                                  const VEM_MCC_3D_Polyhedron_Geometry &polyhedron) const = 0;
 

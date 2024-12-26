@@ -28,26 +28,21 @@ enum struct ProjectionTypes
 template <unsigned short dimension> struct VEM_PCC_Utilities final
 {
     /// Compute the Edge basis coefficients
-    Eigen::VectorXd ComputeEdgeBasisCoefficients(const unsigned int &order,
-                                                 const Eigen::VectorXd &edgeInternalPoints) const;
+    Eigen::VectorXd ComputeEdgeBasisCoefficients(const unsigned int &order, const Eigen::VectorXd &edgeInternalPoints) const;
 
     /// \brief Compute the dofi-dofi stabilization matrix using \ref VEM::PCC::ProjectionTypes::PiNabla projector.
     /// \param piNabla: the projection coefficients related to \ref VEM::PCC::ProjectionTypes::PiNabla
     /// \param diameter: a double representing the diameter of the element
     /// \param DMatrix: matrix containing the polynomials degrees of freedom
     /// \return The dofi-dofi stabilization matrix.
-    Eigen::MatrixXd ComputeStabilizationMatrix(const Eigen::MatrixXd &piNabla,
-                                               const double &diameter,
-                                               const Eigen::MatrixXd &DMatrix) const;
+    Eigen::MatrixXd ComputeStabilizationMatrix(const Eigen::MatrixXd &piNabla, const double &diameter, const Eigen::MatrixXd &DMatrix) const;
 
     /// \brief Compute the dofi-dofi stabilization matrix using \ref VEM::PCC::ProjectionTypes::Pi0k projector.
     /// \param pi0k: the projection coefficients related to \ref VEM::PCC::ProjectionTypes::Pi0k
     /// \param measure: a double representing the measure of the element
     /// \param DMatrix: matrix containing the polynomials degrees of freedom
     /// \return The dofi-dofi stabilization matrix.
-    Eigen::MatrixXd ComputeStabilizationMatrixPi0k(const Eigen::MatrixXd &pi0k,
-                                                   const double &measure,
-                                                   const Eigen::MatrixXd &DMatrix) const;
+    Eigen::MatrixXd ComputeStabilizationMatrixPi0k(const Eigen::MatrixXd &pi0k, const double &measure, const Eigen::MatrixXd &DMatrix) const;
 
     /// \brief Compute matrices of coefficients related to \ref VEM::PCC::ProjectionTypes::Pi0km1 and \ref
     /// VEM::PCC::ProjectionTypes::Pi0k. \param[in] measure: a double representing the measure of the element \param[in]
@@ -76,13 +71,12 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
     /// values. Its length equals \ref Dimension(). Each column of each
     /// matrix will contain the values of a basis function's projected
     /// derivative at internal quadrature points.
-    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(
-        const ProjectionTypes &projectionType,
-        const unsigned int &Nkm1,
-        const Eigen::MatrixXd &vanderInternal,
-        const std::vector<Eigen::MatrixXd> &vanderInternalDerivatives,
-        const Eigen::MatrixXd &piNabla,
-        const std::vector<Eigen::MatrixXd> &pi0km1Der) const
+    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const ProjectionTypes &projectionType,
+                                                                       const unsigned int &Nkm1,
+                                                                       const Eigen::MatrixXd &vanderInternal,
+                                                                       const std::vector<Eigen::MatrixXd> &vanderInternalDerivatives,
+                                                                       const Eigen::MatrixXd &piNabla,
+                                                                       const std::vector<Eigen::MatrixXd> &pi0km1Der) const
     {
         switch (projectionType)
         {
@@ -123,7 +117,6 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
                                                          const std::vector<Eigen::MatrixXd> &vanderInternalDerivatives,
                                                          const std::vector<Eigen::MatrixXd> &pi0km1Der) const
     {
-
         Eigen::MatrixXd basisFunctionsLaplacianValues;
 
         basisFunctionsLaplacianValues = vanderInternalDerivatives[0].leftCols(Nkm1) * pi0km1Der[0];
@@ -179,8 +172,7 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
     /// \brief Compute the values of the derivatives of the basis functions of the polynomial
     /// basis of projectors at internal quadrature points on the geometry.
     /// values of a basis function's derivative at internal quadrature points.
-    inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(
-        const std::vector<Eigen::MatrixXd> &vanderInternalDerivatives) const
+    inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const std::vector<Eigen::MatrixXd> &vanderInternalDerivatives) const
     {
         return vanderInternalDerivatives;
     }

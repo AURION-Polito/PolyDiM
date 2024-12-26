@@ -32,8 +32,7 @@ VEM_Monomials_Data VEM_Monomials_3D::Compute(const unsigned int polynomial_degre
             if (data.Exponents[i - 1](1) == 0)
                 data.Exponents[i] << data.Exponents[i - 1](2) + 1, 0, 0;
             else
-                data.Exponents[i] << data.Exponents[i - 1](0) + data.Exponents[i - 1](1) - 1, 0,
-                    data.Exponents[i - 1](2) + 1;
+                data.Exponents[i] << data.Exponents[i - 1](0) + data.Exponents[i - 1](1) - 1, 0, data.Exponents[i - 1](2) + 1;
         }
         else
             data.Exponents[i] << data.Exponents[i - 1](0) - 1, data.Exponents[i - 1](1) + 1, data.Exponents[i - 1](2);

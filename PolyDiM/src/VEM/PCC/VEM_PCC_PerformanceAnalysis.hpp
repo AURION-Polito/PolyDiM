@@ -30,10 +30,7 @@ struct VEM_PCC_PerformanceAnalysis_Data
 
 struct VEM_PCC_PerformanceAnalysis final
 {
-    template <typename VEM_Monomials_Type,
-              typename VEM_Monomials_Data_Type,
-              typename VEM_LocalSpace_Type,
-              typename VEM_LocalSpaceData_Type>
+    template <typename VEM_Monomials_Type, typename VEM_Monomials_Data_Type, typename VEM_LocalSpace_Type, typename VEM_LocalSpaceData_Type>
     VEM_PCC_PerformanceAnalysis_Data Compute(const VEM_Monomials_Type &vem_monomials,
                                              const VEM_Monomials_Data_Type &vem_monomials_data,
                                              const VEM_LocalSpace_Type &vem_local_space,
@@ -58,9 +55,8 @@ struct VEM_PCC_PerformanceAnalysis final
         const unsigned int Nk = piNabla.rows();
 
         result.ErrorPiNabla = (piNabla * vem_local_space_data.Dmatrix - identity).norm() / identity.norm();
-        result.ErrorPi0km1 =
-            (pi0km1 * vem_local_space_data.Dmatrix.leftCols(Nkm1) - identity.topLeftCorner(Nkm1, Nkm1)).norm() /
-            identity.topLeftCorner(Nkm1, Nkm1).norm();
+        result.ErrorPi0km1 = (pi0km1 * vem_local_space_data.Dmatrix.leftCols(Nkm1) - identity.topLeftCorner(Nkm1, Nkm1)).norm() /
+                             identity.topLeftCorner(Nkm1, Nkm1).norm();
 
         result.ErrorPi0k = (pi0k * vem_local_space_data.Dmatrix - identity).norm() / identity.norm();
 
@@ -74,8 +70,7 @@ struct VEM_PCC_PerformanceAnalysis final
                                vem_local_space_data.QmatrixInv.topLeftCorner(Nkm1, Nkm1))
                                   .transpose();
             double relErrDenominator = (Nkm1 > 1) ? derMatrix.norm() : 1.0;
-            result.ErrorPi0km1Grad[d] =
-                (piDerkm1 * vem_local_space_data.Dmatrix - derMatrix).norm() / relErrDenominator;
+            result.ErrorPi0km1Grad[d] = (piDerkm1 * vem_local_space_data.Dmatrix - derMatrix).norm() / relErrDenominator;
         }
 
         if (vem_local_space_data.StabMatrix.size() > 0)

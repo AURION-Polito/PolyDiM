@@ -41,10 +41,9 @@ VEM_QuadratureData_3D VEM_Quadrature_3D::Compute_MCC_3D(const unsigned int order
     return data;
 }
 //****************************************************************************
-Gedim::Quadrature::QuadratureData VEM_Quadrature_3D::PolyhedronInternalQuadrature(
-    const VEM_QuadratureData_3D &data,
-    const Gedim::GeometryUtilities &geometryUtility,
-    const std::vector<Eigen::MatrixXd> &polyhedronTetrahedronVertices) const
+Gedim::Quadrature::QuadratureData VEM_Quadrature_3D::PolyhedronInternalQuadrature(const VEM_QuadratureData_3D &data,
+                                                                                  const Gedim::GeometryUtilities &geometryUtility,
+                                                                                  const std::vector<Eigen::MatrixXd> &polyhedronTetrahedronVertices) const
 {
     Gedim::Quadrature::QuadratureData result;
 
@@ -101,8 +100,7 @@ VEM_Quadrature_3D::Faces_QuadratureData_PCC VEM_Quadrature_3D::PolyhedronFacesQu
         const unsigned int numFaceQuadraturePoints = facesQuadraturePoints[f].cols();
 
         result.Quadrature.Points.block(0, quadraturePointOffset, 3, numFaceQuadraturePoints) =
-            geometryUtility.RotatePointsFrom2DTo3D(
-                facesQuadraturePoints[f], facesRotationMatrix[f], facesTranslation[f]);
+            geometryUtility.RotatePointsFrom2DTo3D(facesQuadraturePoints[f], facesRotationMatrix[f], facesTranslation[f]);
         result.Quadrature.Weights.segment(quadraturePointOffset, numFaceQuadraturePoints) = facesQuadratureWeights[f];
 
         const double faceNormalDirection = faceNormalDirections[f] ? 1.0 : -1.0;
@@ -133,8 +131,8 @@ VEM_Quadrature_3D::Faces_QuadratureData_MCC VEM_Quadrature_3D::PolyhedronFacesQu
     unsigned int numQuadraturePoints = 0;
     for (unsigned int f = 0; f < numFaces; f++)
     {
-        result.FacesQuadrature[f] = quadrature2D.PolygonInternalQuadrature(
-            data.QuadratureData_2D.ReferenceTriangleQuadrature, facesTriangulations2D[f]);
+        result.FacesQuadrature[f] = quadrature2D.PolygonInternalQuadrature(data.QuadratureData_2D.ReferenceTriangleQuadrature,
+                                                                           facesTriangulations2D[f]);
 
         numQuadraturePoints += result.FacesQuadrature[f].Points.cols();
     }
@@ -148,10 +146,8 @@ VEM_Quadrature_3D::Faces_QuadratureData_MCC VEM_Quadrature_3D::PolyhedronFacesQu
         const unsigned int numFaceQuadraturePoints = result.FacesQuadrature[f].Points.cols();
 
         result.Quadrature.Points.block(0, quadraturePointOffset, 3, numFaceQuadraturePoints) =
-            geometryUtility.RotatePointsFrom2DTo3D(
-                result.FacesQuadrature[f].Points, facesRotationMatrix[f], facesTranslation[f]);
-        result.Quadrature.Weights.segment(quadraturePointOffset, numFaceQuadraturePoints) =
-            result.FacesQuadrature[f].Weights;
+            geometryUtility.RotatePointsFrom2DTo3D(result.FacesQuadrature[f].Points, facesRotationMatrix[f], facesTranslation[f]);
+        result.Quadrature.Weights.segment(quadraturePointOffset, numFaceQuadraturePoints) = result.FacesQuadrature[f].Weights;
 
         quadraturePointOffset += numFaceQuadraturePoints;
     }
@@ -159,12 +155,11 @@ VEM_Quadrature_3D::Faces_QuadratureData_MCC VEM_Quadrature_3D::PolyhedronFacesQu
     return result;
 }
 //****************************************************************************
-Eigen::MatrixXd VEM_Quadrature_3D::PolyhedronInternalEdgesQuadraturePoints(
-    const Eigen::MatrixXd &referenceSegmentInternalPoints,
-    const Eigen::MatrixXd &polyhedronVertices,
-    const Eigen::MatrixXi &polyhedronEdges,
-    const std::vector<bool> &edgeDirections,
-    const MatrixXd &edgeTangents) const
+Eigen::MatrixXd VEM_Quadrature_3D::PolyhedronInternalEdgesQuadraturePoints(const Eigen::MatrixXd &referenceSegmentInternalPoints,
+                                                                           const Eigen::MatrixXd &polyhedronVertices,
+                                                                           const Eigen::MatrixXi &polyhedronEdges,
+                                                                           const std::vector<bool> &edgeDirections,
+                                                                           const MatrixXd &edgeTangents) const
 {
     const unsigned int numEdges = polyhedronEdges.cols();
 

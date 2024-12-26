@@ -46,13 +46,13 @@ struct VEM_MCC_2D_Velocity_ReferenceElement_Data final
 
 class I_VEM_MCC_2D_Velocity_ReferenceElement
 {
-public:
+  public:
     virtual VEM_MCC_2D_Velocity_ReferenceElement_Data Create(const unsigned int order) const = 0;
 };
 
 class I_VEM_MCC_2D_Pressure_ReferenceElement
 {
-public:
+  public:
     virtual VEM_MCC_2D_Pressure_ReferenceElement_Data Create(const unsigned int order) const = 0;
 };
 } // namespace MCC

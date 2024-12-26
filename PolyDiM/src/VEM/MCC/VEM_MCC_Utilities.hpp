@@ -24,9 +24,7 @@ template <unsigned short dimension> struct VEM_MCC_Utilities final
                                                const Eigen::MatrixXd &GkVanderBoundaryTimesNormal,
                                                const Eigen::MatrixXd &Gmatrix) const;
 
-    Eigen::MatrixXd ComputeStabilizationMatrix(const Eigen::MatrixXd &pi0k,
-                                               const double &measure,
-                                               const Eigen::MatrixXd &DMatrix) const;
+    Eigen::MatrixXd ComputeStabilizationMatrix(const Eigen::MatrixXd &pi0k, const double &measure, const Eigen::MatrixXd &DMatrix) const;
 
     void MonomialTraceOnEdges(const unsigned int &polynomialDegree,
                               const Eigen::MatrixXd &polygonVertices,

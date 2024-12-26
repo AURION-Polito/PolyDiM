@@ -4,8 +4,8 @@
 #include "Eigen/Eigen"
 #include "I_VEM_MCC_2D_Velocity_LocalSpace.hpp"
 #include "VEM_MCC_2D_EdgeOrtho_ReferenceElement.hpp"
-#include "VEM_MCC_Utilities.hpp"
 #include "VEM_MCC_2D_Velocity_LocalSpace_Data.hpp"
+#include "VEM_MCC_Utilities.hpp"
 #include "VEM_Monomials_2D.hpp"
 #include <vector>
 
@@ -19,7 +19,7 @@ namespace MCC
 /// Mixed Conforming Constant degree Virtual Element Methods.
 class VEM_MCC_2D_EdgeOrtho_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_LocalSpace
 {
-private:
+  private:
     MCC::VEM_MCC_Utilities<2> utilities;
     Monomials::VEM_Monomials_2D monomials;
 
@@ -32,12 +32,9 @@ private:
                                          const Eigen::MatrixXd &boundaryQuadraturePoints,
                                          VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const;
 
-    inline void ComputeStabilizationMatrix(const double &polygonMeasure,
-                                           VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const
+    inline void ComputeStabilizationMatrix(const double &polygonMeasure, VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const
     {
-        localSpace.StabMatrix = utilities.ComputeStabilizationMatrix(localSpace.Pi0k,
-                                                                     polygonMeasure,
-                                                                     localSpace.Dmatrix);
+        localSpace.StabMatrix = utilities.ComputeStabilizationMatrix(localSpace.Pi0k, polygonMeasure, localSpace.Dmatrix);
     }
 
     void ComputeL2Projectors(const double &polygonMeasure,
@@ -72,7 +69,7 @@ private:
                                                                   localSpace.Gmatrix);
     };
 
-public:
+  public:
     VEM_MCC_2D_Velocity_LocalSpace_Data CreateLocalSpace(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                                                          const VEM_MCC_2D_Polygon_Geometry &polygon) const;
 
@@ -81,8 +78,7 @@ public:
         const unsigned int numQuadrature = localSpace.InternalQuadrature.Points.cols();
         const Eigen::MatrixXd temp = localSpace.GkVanderInternal.transpose() * localSpace.Pi0k;
         std::vector<Eigen::MatrixXd> result(localSpace.Dimension,
-                                            Eigen::MatrixXd::Zero(localSpace.Dimension,
-                                                                  localSpace.NumBasisFunctions));
+                                            Eigen::MatrixXd::Zero(localSpace.Dimension, localSpace.NumBasisFunctions));
 
         for (unsigned int d = 0; d < localSpace.Dimension; d++)
             result[d] = temp.middleRows(numQuadrature * d, numQuadrature);
@@ -105,10 +101,8 @@ public:
                                                     const VEM_MCC_2D_Polygon_Geometry &polygon,
                                                     const Eigen::MatrixXd &points) const
     {
-        return monomials.Vander(reference_element_data.MonomialsKp1,
-                                points,
-                                polygon.Centroid,
-                                polygon.Diameter).leftCols(localSpace.Nk);
+        return monomials.Vander(reference_element_data.MonomialsKp1, points, polygon.Centroid, polygon.Diameter)
+            .leftCols(localSpace.Nk);
     }
 };
 } // namespace MCC

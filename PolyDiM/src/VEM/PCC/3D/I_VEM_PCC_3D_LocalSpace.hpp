@@ -3,8 +3,8 @@
 
 #include "Eigen/Eigen"
 #include "I_VEM_PCC_2D_ReferenceElement.hpp"
-#include "VEM_PCC_3D_LocalSpace_Data.hpp"
 #include "I_VEM_PCC_3D_ReferenceElement.hpp"
+#include "VEM_PCC_3D_LocalSpace_Data.hpp"
 #include "VEM_PCC_Utilities.hpp"
 #include <vector>
 
@@ -24,7 +24,7 @@ namespace PCC
 
 class I_VEM_PCC_3D_LocalSpace
 {
-public:
+  public:
     virtual ~I_VEM_PCC_3D_LocalSpace()
     {
     }

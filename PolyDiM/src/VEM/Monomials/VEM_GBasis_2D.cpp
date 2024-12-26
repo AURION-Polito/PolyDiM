@@ -29,8 +29,7 @@ VEM_GBasis_Data VEM_GBasis_2D::Compute(const unsigned int polynomial_degree)
         if (data.monomials_data.Exponents[i - 1](0) == 0)
             data.MatrixExponents(data.monomials_data.Exponents[i - 1](1) + 1, 0) = i;
         else
-            data.MatrixExponents(data.monomials_data.Exponents[i - 1](0) - 1,
-                                 data.monomials_data.Exponents[i - 1](1) + 1) = i;
+            data.MatrixExponents(data.monomials_data.Exponents[i - 1](0) - 1, data.monomials_data.Exponents[i - 1](1) + 1) = i;
     }
 
     data.VectorDecomposition.resize(data.Dimension);
@@ -47,14 +46,12 @@ VEM_GBasis_Data VEM_GBasis_2D::Compute(const unsigned int polynomial_degree)
         const VectorXi &expo = data.monomials_data.Exponents[j];
         const vector<Vector2i> VectorDecompositionIndex = VectorDecompositionIndices(data, expo);
 
-        data.VectorDecomposition[0][0](j, VectorDecompositionIndex[0](0)) =
-            1.0 / (data.monomials_data.Exponents[j].sum() + 1);
+        data.VectorDecomposition[0][0](j, VectorDecompositionIndex[0](0)) = 1.0 / (data.monomials_data.Exponents[j].sum() + 1);
         if (expo(1) > 0)
             data.VectorDecomposition[0][1](j, VectorDecompositionIndex[0](1)) =
                 ((double)expo(1)) / (data.monomials_data.Exponents[j].sum() + 1);
 
-        data.VectorDecomposition[1][0](j, VectorDecompositionIndex[1](0)) =
-            1.0 / (data.monomials_data.Exponents[j].sum() + 1);
+        data.VectorDecomposition[1][0](j, VectorDecompositionIndex[1](0)) = 1.0 / (data.monomials_data.Exponents[j].sum() + 1);
         if (expo(0) > 0)
             data.VectorDecomposition[1][1](j, VectorDecompositionIndex[1](1)) =
                 -((double)expo(0)) / (data.monomials_data.Exponents[j].sum() + 1);

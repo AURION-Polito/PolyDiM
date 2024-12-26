@@ -13,8 +13,8 @@ template struct VEM_DF_PCC_Utilities<2>;
 template struct VEM_DF_PCC_Utilities<3>;
 //****************************************************************************
 template <unsigned short dimension>
-Eigen::VectorXd VEM_DF_PCC_Utilities<dimension>::ComputeEdgeBasisCoefficients(
-    const unsigned int &order, const Eigen::VectorXd &edgeInternalPoints) const
+Eigen::VectorXd VEM_DF_PCC_Utilities<dimension>::ComputeEdgeBasisCoefficients(const unsigned int &order,
+                                                                              const Eigen::VectorXd &edgeInternalPoints) const
 {
     // Compute basis function coefficients on the generic edge.
     const unsigned int numPoints = order + 1;

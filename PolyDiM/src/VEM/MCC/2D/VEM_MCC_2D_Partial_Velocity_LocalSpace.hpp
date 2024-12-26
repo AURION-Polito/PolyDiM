@@ -4,8 +4,8 @@
 #include "Eigen/Eigen"
 #include "I_VEM_MCC_2D_Velocity_LocalSpace.hpp"
 #include "VEM_MCC_2D_ReferenceElement.hpp"
-#include "VEM_MCC_Utilities.hpp"
 #include "VEM_MCC_2D_Velocity_LocalSpace_Data.hpp"
+#include "VEM_MCC_Utilities.hpp"
 #include "VEM_Monomials_2D.hpp"
 #include <vector>
 
@@ -17,16 +17,13 @@ namespace MCC
 {
 class VEM_MCC_2D_Partial_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_LocalSpace
 {
-private:
+  private:
     VEM_MCC_Utilities<2> utilities;
     Monomials::VEM_Monomials_2D monomials;
 
-    inline void ComputeStabilizationMatrix(const double &polygonMeasure,
-                                           VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const
+    inline void ComputeStabilizationMatrix(const double &polygonMeasure, VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const
     {
-        localSpace.StabMatrix = utilities.ComputeStabilizationMatrix(localSpace.Pi0k,
-                                                                     polygonMeasure,
-                                                                     localSpace.Dmatrix);
+        localSpace.StabMatrix = utilities.ComputeStabilizationMatrix(localSpace.Pi0k, polygonMeasure, localSpace.Dmatrix);
     }
 
     void InitializeProjectorsComputation(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
@@ -72,9 +69,9 @@ private:
                                                                   localSpace.Gmatrix);
     };
 
-public:
+  public:
     VEM_MCC_2D_Velocity_LocalSpace_Data CreateLocalSpace(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
-                                                      const VEM_MCC_2D_Polygon_Geometry &polygon) const;
+                                                         const VEM_MCC_2D_Polygon_Geometry &polygon) const;
 
     inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const
     {
@@ -89,7 +86,7 @@ public:
         return result;
     }
 
-    inline Eigen::MatrixXd ComputeBasisFunctionsDivergenceValues( const VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const
+    inline Eigen::MatrixXd ComputeBasisFunctionsDivergenceValues(const VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const
     {
         return localSpace.VanderInternal * localSpace.Vmatrix;
     }

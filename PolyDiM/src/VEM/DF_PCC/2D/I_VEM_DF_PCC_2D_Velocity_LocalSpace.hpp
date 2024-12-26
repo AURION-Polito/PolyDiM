@@ -23,8 +23,10 @@ namespace DF_PCC
 
 class I_VEM_DF_PCC_2D_Velocity_LocalSpace
 {
-public:
-    virtual ~I_VEM_DF_PCC_2D_Velocity_LocalSpace(){}
+  public:
+    virtual ~I_VEM_DF_PCC_2D_Velocity_LocalSpace()
+    {
+    }
 
     virtual VEM_DF_PCC_2D_Velocity_LocalSpace_Data CreateLocalSpace(const VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                                                                     const VEM_DF_PCC_2D_Polygon_Geometry &polygon) const = 0;
@@ -96,13 +98,11 @@ public:
                                                      const VEM_DF_PCC_2D_Polygon_Geometry &polygon,
                                                      const Eigen::MatrixXd &points) const = 0;
 
-
     /// \brief Compute the values of monomial basis function derivatives at the internal quadrature points.
     /// \param localSpace: an object of type \ref VEM::PCC::VEM_DF_PCC_2D_Velocity_LocalSpace_Data which contains local
     /// matrices. \return A vector of two matrices of size numQuadrature \f$\times\f$ numMonomials whose columns contain
     /// the evaluation of monomials derivatives with respect x and y, respectively, at the internal quadrature points
     virtual std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const = 0;
-
 
     /// \brief Compute the values of monomial basis functions at points.
     /// \param reference_element_data: an object of type \ref VEM::PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data

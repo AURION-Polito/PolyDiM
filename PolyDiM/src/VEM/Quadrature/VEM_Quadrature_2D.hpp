@@ -39,9 +39,8 @@ class VEM_Quadrature_2D final
     VEM_QuadratureData_2D Compute_DF_PCC_2D(const unsigned int order) const;
     VEM_QuadratureData_2D Compute_DF_PCC_3D(const unsigned int order) const;
 
-    Gedim::Quadrature::QuadratureData PolygonInternalQuadrature(
-        const Gedim::Quadrature::QuadratureData &data,
-        const std::vector<Eigen::Matrix3d> &polygonTriangulationVertices) const;
+    Gedim::Quadrature::QuadratureData PolygonInternalQuadrature(const Gedim::Quadrature::QuadratureData &data,
+                                                                const std::vector<Eigen::Matrix3d> &polygonTriangulationVertices) const;
 
     Edges_QuadratureData PolygonEdgesLobattoQuadrature(const Eigen::MatrixXd &ReferenceSegmentInternalPoints,
                                                        const Eigen::VectorXd &ReferenceSegmentInternalWeights,

@@ -88,16 +88,14 @@ VEM_GBasis_Data VEM_GBasis_3D::Compute(const unsigned int polynomial_degree)
         if (expo(0) > 0 && expo(2) > 0)
             data.VectorDecomposition[1][2](j, VectorDecompositionIndex[1](2)) = -((double)expo(2)) * invSumExponent;
         if (expo(0) > 0)
-            data.VectorDecomposition[1][3](j, VectorDecompositionIndex[1](3)) =
-                -((double)(expo(0) + expo(2))) * invSumExponent;
+            data.VectorDecomposition[1][3](j, VectorDecompositionIndex[1](3)) = -((double)(expo(0) + expo(2))) * invSumExponent;
 
         data.VectorDecomposition[2][0](j, VectorDecompositionIndex[2](0)) = invSumExponent;
         if (expo(1) > 0 && expo(0) == 0)
             data.VectorDecomposition[2][1](j, data.MapFirstGroupVectorDecomposition[VectorDecompositionIndex[2](1)]) =
                 -((double)expo(1)) * invSumExponent;
         if (expo(0) > 0)
-            data.VectorDecomposition[2][2](j, VectorDecompositionIndex[2](2)) =
-                ((double)(expo(0) + expo(1))) * invSumExponent;
+            data.VectorDecomposition[2][2](j, VectorDecompositionIndex[2](2)) = ((double)(expo(0) + expo(1))) * invSumExponent;
         if (expo(0) > 0 && expo(1) > 0)
             data.VectorDecomposition[2][3](j, VectorDecompositionIndex[2](3)) = ((double)expo(1)) * invSumExponent;
     }
@@ -114,15 +112,13 @@ vector<Vector4i> VEM_GBasis_3D::VectorDecompositionIndices(const VEM_GBasis_Data
     vectorDecompositionIndices[0](3) = (expo(1) > 0) ? data.MapExponents[expo(0)][expo(1) - 1][expo(2)] : -1;
 
     vectorDecompositionIndices[1](0) = data.MapExponents[expo(0)][expo(1) + 1][expo(2)];
-    vectorDecompositionIndices[1](1) =
-        (expo(0) == 0 && expo(2) > 0) ? data.MapExponents[expo(0)][expo(1)][expo(2) - 1] : -1;
+    vectorDecompositionIndices[1](1) = (expo(0) == 0 && expo(2) > 0) ? data.MapExponents[expo(0)][expo(1)][expo(2) - 1] : -1;
     vectorDecompositionIndices[1](2) =
         (expo(0) > 0 && expo(2) > 0) ? data.MapExponents[expo(0) - 1][expo(1) + 1][expo(2) - 1] : -1;
     vectorDecompositionIndices[1](3) = (expo(0) > 0) ? data.MapExponents[expo(0) - 1][expo(1)][expo(2)] : -1;
 
     vectorDecompositionIndices[2](0) = data.MapExponents[expo(0)][expo(1)][expo(2) + 1];
-    vectorDecompositionIndices[2](1) =
-        (expo(0) == 0 && expo(1) > 0) ? data.MapExponents[expo(0)][expo(1) - 1][expo(2)] : -1;
+    vectorDecompositionIndices[2](1) = (expo(0) == 0 && expo(1) > 0) ? data.MapExponents[expo(0)][expo(1) - 1][expo(2)] : -1;
     vectorDecompositionIndices[2](2) = (expo(0) > 0) ? data.MapExponents[expo(0) - 1][expo(1)][expo(2)] : -1;
     vectorDecompositionIndices[2](3) =
         (expo(0) > 0 && expo(1) > 0) ? data.MapExponents[expo(0) - 1][expo(1) - 1][expo(2) + 1] : -1;
@@ -132,7 +128,6 @@ vector<Vector4i> VEM_GBasis_3D::VectorDecompositionIndices(const VEM_GBasis_Data
 //****************************************************************************
 vector<MatrixXd> VEM_GBasis_3D::VanderGBigOPlus(const VEM_GBasis_Data &data, const MatrixXd &vander) const
 {
-
     const unsigned int numPoints = vander.rows();
     vector<MatrixXd> vanderBigOPlus(3, MatrixXd::Zero(numPoints, data.DimFirstBasis + 2 * data.Nkm1));
 

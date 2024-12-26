@@ -8,4 +8,6 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Elliptic_MCC_2D)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Elliptic_MCC_3D)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Stokes_DF_PCC_2D)
-#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Stokes_DF_PCC_2D)
+#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Stokes_DF_PCC_3D)
+
+set(CLANGFORMAT_FILES ${CLANGFORMAT_FILES} PARENT_SCOPE)

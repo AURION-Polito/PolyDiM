@@ -5,7 +5,6 @@
 #include "VEM_MCC_3D_Velocity_LocalSpace.hpp"
 #include <memory>
 
-
 namespace Polydim
 {
 namespace VEM

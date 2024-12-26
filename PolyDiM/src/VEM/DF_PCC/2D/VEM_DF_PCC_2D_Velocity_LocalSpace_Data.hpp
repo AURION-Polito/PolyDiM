@@ -32,7 +32,6 @@ struct VEM_DF_PCC_2D_Polygon_Geometry final
 /// matrices
 struct VEM_DF_PCC_2D_Velocity_LocalSpace_Data final
 {
-
     unsigned int Order;     ///< Order
     unsigned int Dimension; ///< Geometric dimension
 

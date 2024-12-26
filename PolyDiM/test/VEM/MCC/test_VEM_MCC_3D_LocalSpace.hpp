@@ -42,8 +42,7 @@ Test_VEM_MCC_3D_Polyhedron_Geometry Test_VEM_MCC_3D_Geometry(const Gedim::Geomet
     const Eigen::Vector3d length = Eigen::Vector3d(1.0, 0.0, 0.0);
     const Eigen::Vector3d height = Eigen::Vector3d(0.0, 0.0, 1.0);
     const Eigen::Vector3d width = Eigen::Vector3d(0.0, 1.0, 0.0);
-    Gedim::GeometryUtilities::Polyhedron cube =
-        geometry_utilities.CreateParallelepipedWithOrigin(origin, length, height, width);
+    Gedim::GeometryUtilities::Polyhedron cube = geometry_utilities.CreateParallelepipedWithOrigin(origin, length, height, width);
 
     result.Vertices = cube.Vertices;
 
@@ -51,8 +50,7 @@ Test_VEM_MCC_3D_Polyhedron_Geometry Test_VEM_MCC_3D_Geometry(const Gedim::Geomet
     result.Diameter = sqrt(3.0);
     result.Centroid << 0.5, 0.5, 0.5;
 
-    const std::vector<Eigen::MatrixXd> facesVertices =
-        geometry_utilities.PolyhedronFaceVertices(result.Vertices, cube.Faces);
+    const std::vector<Eigen::MatrixXd> facesVertices = geometry_utilities.PolyhedronFaceVertices(result.Vertices, cube.Faces);
     result.FacesTranslation = geometry_utilities.PolyhedronFaceTranslations(facesVertices);
     result.FacesNormal = geometry_utilities.PolyhedronFaceNormals(facesVertices);
     result.FacesRotationMatrix =
@@ -69,12 +67,12 @@ Test_VEM_MCC_3D_Polyhedron_Geometry Test_VEM_MCC_3D_Geometry(const Gedim::Geomet
 
     for (unsigned int f = 0; f < numFaces; f++)
     {
-        const Eigen::MatrixXd facesVertices2D = geometry_utilities.RotatePointsFrom3DTo2D(
-            facesVertices[f], result.FacesRotationMatrix[f].transpose(), result.FacesTranslation[f]);
-        std::vector<unsigned int> facesTriangulation =
-            geometry_utilities.PolygonTriangulationByFirstVertex(facesVertices2D);
-        result.FacesTriangulationVertices2D[f] =
-            geometry_utilities.ExtractTriangulationPoints(facesVertices2D, facesTriangulation);
+        const Eigen::MatrixXd facesVertices2D =
+            geometry_utilities.RotatePointsFrom3DTo2D(facesVertices[f],
+                                                      result.FacesRotationMatrix[f].transpose(),
+                                                      result.FacesTranslation[f]);
+        std::vector<unsigned int> facesTriangulation = geometry_utilities.PolygonTriangulationByFirstVertex(facesVertices2D);
+        result.FacesTriangulationVertices2D[f] = geometry_utilities.ExtractTriangulationPoints(facesVertices2D, facesTriangulation);
         result.FacesMeasure[f] = geometry_utilities.PolygonArea(facesVertices2D);
         result.FacesDiameter[f] = geometry_utilities.PolygonDiameter(facesVertices2D);
         result.FacesCentroid2D[f] = geometry_utilities.PolygonCentroid(facesVertices2D, result.FacesMeasure[f]);
@@ -83,8 +81,11 @@ Test_VEM_MCC_3D_Polyhedron_Geometry Test_VEM_MCC_3D_Geometry(const Gedim::Geomet
     std::vector<std::vector<unsigned int>> facesTriangulation3D =
         geometry_utilities.PolyhedronFaceTriangulationsByFirstVertex(cube.Faces, facesVertices);
 
-    std::vector<unsigned int> polyhedronTetrahedrons = geometry_utilities.PolyhedronTetrahedronsByFaceTriangulations(
-        result.Vertices, cube.Faces, facesTriangulation3D, result.Centroid);
+    std::vector<unsigned int> polyhedronTetrahedrons =
+        geometry_utilities.PolyhedronTetrahedronsByFaceTriangulations(result.Vertices,
+                                                                      cube.Faces,
+                                                                      facesTriangulation3D,
+                                                                      result.Centroid);
 
     result.TetrahedronVertices =
         geometry_utilities.ExtractTetrahedronPoints(result.Vertices, result.Centroid, polyhedronTetrahedrons);
@@ -137,14 +138,11 @@ TEST(Test_VEM_MCC, Test_VEM_MCC_3D_O0_O1_O2_O3)
                                                         vem_local_space,
                                                         local_space);
 
-        ASSERT_TRUE(
-            geometry_utilities.IsValueGreaterOrEqual(1.0e-10, result.ErrorPi0k, geometry_utilities.Tolerance1D()));
+        ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.0e-10, result.ErrorPi0k, geometry_utilities.Tolerance1D()));
 
-        ASSERT_TRUE(
-            geometry_utilities.IsValueGreaterOrEqual(1.0e-10, result.ErrorGBD, geometry_utilities.Tolerance1D()));
+        ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.0e-10, result.ErrorGBD, geometry_utilities.Tolerance1D()));
 
-        ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(
-            1.0e-10, result.ErrorStabilization, geometry_utilities.Tolerance1D()));
+        ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.0e-10, result.ErrorStabilization, geometry_utilities.Tolerance1D()));
     }
 }
 

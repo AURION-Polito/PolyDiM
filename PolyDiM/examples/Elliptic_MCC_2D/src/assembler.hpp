@@ -1,14 +1,14 @@
 #ifndef __assembler_H
 #define __assembler_H
 
-#include "MeshUtilities.hpp"
-#include "MeshMatricesDAO.hpp"
-#include "Eigen_SparseArray.hpp"
 #include "Eigen_Array.hpp"
+#include "Eigen_SparseArray.hpp"
+#include "MeshMatricesDAO.hpp"
+#include "MeshUtilities.hpp"
 
+#include "DOFsManager.hpp"
 #include "I_VEM_MCC_2D_ReferenceElement.hpp"
 #include "VEM_MCC_PerformanceAnalysis.hpp"
-#include "DOFsManager.hpp"
 
 #include "VEM_MCC_2D_Velocity_LocalSpace_Data.hpp"
 #include "program_configuration.hpp"
@@ -22,8 +22,7 @@ namespace Elliptic_MCC_2D
 
 class Assembler final
 {
-public:
-
+  public:
     struct Elliptic_MCC_2D_Problem_Data final
     {
         Gedim::Eigen_SparseArray<> globalMatrixA;
@@ -64,56 +63,55 @@ public:
         double residual_norm;
     };
 
-private:
-
-    void ComputeStrongTerm(const Gedim::MeshMatricesDAO& mesh,
+  private:
+    void ComputeStrongTerm(const Gedim::MeshMatricesDAO &mesh,
                            const unsigned int &cell2DIndex,
                            const std::vector<bool> &cell2DEdgeDirections,
                            const Eigen::MatrixXd &boundaryQuadraturePoints,
                            const Eigen::VectorXd &boundaryQuadratureWeights,
-                           const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo& mesh_dofs_info,
-                           const Polydim::PDETools::DOFs::DOFsManager::DOFsData& dofs_data,
-                           const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& reference_element_data,
+                           const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                           const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                           const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                            const test::I_Test &test,
-                           Elliptic_MCC_2D_Problem_Data& assembler_data) const;
+                           Elliptic_MCC_2D_Problem_Data &assembler_data) const;
 
     void ComputeWeakTerm(const unsigned int cell2DIndex,
-                         const Gedim::MeshMatricesDAO& mesh,
-                         const Polydim::VEM::MCC::VEM_MCC_2D_Polygon_Geometry& polygon,
+                         const Gedim::MeshMatricesDAO &mesh,
+                         const Polydim::VEM::MCC::VEM_MCC_2D_Polygon_Geometry &polygon,
                          const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
                          const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-                         const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& reference_element_data,
+                         const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                          const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_LocalSpace_Data &local_space_data,
                          const test::I_Test &test,
-                         Elliptic_MCC_2D_Problem_Data& assembler_data) const;
+                         Elliptic_MCC_2D_Problem_Data &assembler_data) const;
 
-public:
-    Elliptic_MCC_2D_Problem_Data Assemble(const Polydim::examples::Elliptic_MCC_2D::Program_configuration& config,
-                                          const Gedim::MeshMatricesDAO& mesh,
-                                          const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
-                                          const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo>& mesh_dofs_info,
-                                          const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData>& dofs_data,
-                                          const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& velocity_reference_element_data,
-                                          const Polydim::VEM::MCC::VEM_MCC_2D_Pressure_ReferenceElement_Data& pressure_reference_element_data,
-                                          const Polydim::examples::Elliptic_MCC_2D::test::I_Test& test) const;
+  public:
+    Elliptic_MCC_2D_Problem_Data Assemble(const Polydim::examples::Elliptic_MCC_2D::Program_configuration &config,
+                                          const Gedim::MeshMatricesDAO &mesh,
+                                          const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                          const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
+                                          const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                                          const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
+                                          const Polydim::VEM::MCC::VEM_MCC_2D_Pressure_ReferenceElement_Data &pressure_reference_element_data,
+                                          const Polydim::examples::Elliptic_MCC_2D::test::I_Test &test) const;
 
-    VEM_Performance_Result ComputeVemPerformance(const Polydim::examples::Elliptic_MCC_2D::Program_configuration& config,
-                                                 const Gedim::MeshMatricesDAO& mesh,
-                                                 const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
-                                                 const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& velocity_reference_element_data) const;
+    VEM_Performance_Result ComputeVemPerformance(const Polydim::examples::Elliptic_MCC_2D::Program_configuration &config,
+                                                 const Gedim::MeshMatricesDAO &mesh,
+                                                 const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                                 const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data) const;
 
-    PostProcess_Data PostProcessSolution(const Polydim::examples::Elliptic_MCC_2D::Program_configuration& config,
-                                         const Gedim::MeshMatricesDAO& mesh,
-                                         const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
-                                         const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData>& dofs_data,
-                                         const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data& velocity_reference_element_data,
-                                         const Polydim::VEM::MCC::VEM_MCC_2D_Pressure_ReferenceElement_Data& pressure_reference_element_data,
-                                         const Elliptic_MCC_2D_Problem_Data& assembler_data,
-                                         const Polydim::examples::Elliptic_MCC_2D::test::I_Test& test) const;
+    PostProcess_Data PostProcessSolution(const Polydim::examples::Elliptic_MCC_2D::Program_configuration &config,
+                                         const Gedim::MeshMatricesDAO &mesh,
+                                         const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                         const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                                         const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
+                                         const Polydim::VEM::MCC::VEM_MCC_2D_Pressure_ReferenceElement_Data &pressure_reference_element_data,
+                                         const Elliptic_MCC_2D_Problem_Data &assembler_data,
+                                         const Polydim::examples::Elliptic_MCC_2D::test::I_Test &test) const;
 };
-}
-}
+} // namespace Elliptic_MCC_2D
+} // namespace examples
 
-}
+} // namespace Polydim
 
 #endif

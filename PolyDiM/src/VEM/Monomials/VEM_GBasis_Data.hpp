@@ -23,8 +23,8 @@ struct VEM_GBasis_Data
     unsigned int Nkp1; ///< Number of monomials in the basis.
     unsigned int NkGBigOPlus;
     unsigned int NkGNabla;
-    std::vector<std::vector<Eigen::MatrixXd>>
-        VectorDecomposition; ///< Matrix used to compute the laplacian of monomials.
+    std::vector<std::vector<Eigen::MatrixXd>> VectorDecomposition; ///< Matrix used to compute the laplacian of
+                                                                   ///< monomials.
 
     Eigen::MatrixXi MatrixExponents; ///< Table of exponents of each monomial.
 

@@ -55,20 +55,19 @@ MatrixXd VEM_MCC_Utilities<dimension>::ComputePolynomialBasisDofs(const double &
 //****************************************************************************
 template <unsigned short dimension>
 void VEM_MCC_Utilities<dimension>::MonomialTraceOnEdges(const unsigned int &polynomialDegree,
-                                                        const Eigen::MatrixXd& polygonVertices,
-                                                        const double& polygonDiameter,
-                                                        const Eigen::Vector3d& polygonCentroid,
-                                                        const std::vector<bool>& edgeDirections,
-                                                        const Eigen::MatrixXd& edgeTangents,
+                                                        const Eigen::MatrixXd &polygonVertices,
+                                                        const double &polygonDiameter,
+                                                        const Eigen::Vector3d &polygonCentroid,
+                                                        const std::vector<bool> &edgeDirections,
+                                                        const Eigen::MatrixXd &edgeTangents,
                                                         std::vector<MatrixXd> &Cmatrixkp1) const
 {
-
     std::vector<Eigen::VectorXd> BinomialCoefficients(polynomialDegree + 2);
 
-    for(unsigned int n = 0; n <= (polynomialDegree + 1); n++)
+    for (unsigned int n = 0; n <= (polynomialDegree + 1); n++)
     {
         BinomialCoefficients[n].resize(n + 2);
-        for(unsigned int k = 0; k <= n; k++)
+        for (unsigned int k = 0; k <= n; k++)
         {
             BinomialCoefficients[n][k] = Gedim::Utilities::BinomialCoefficient(n, k);
         }
@@ -77,18 +76,17 @@ void VEM_MCC_Utilities<dimension>::MonomialTraceOnEdges(const unsigned int &poly
     const unsigned int numVertices = polygonVertices.cols();
     const unsigned int numEdges = numVertices;
 
-    const unsigned int order_1D = (polynomialDegree + 2) ;
+    const unsigned int order_1D = (polynomialDegree + 2);
     const unsigned int nkp1 = (polynomialDegree + 2) * (polynomialDegree + 3) / 2;
 
     Cmatrixkp1.resize(numEdges);
 
-    for(unsigned int e = 0; e < numEdges; ++e)
+    for (unsigned int e = 0; e < numEdges; ++e)
     {
-
         Cmatrixkp1[e] = MatrixXd::Zero(nkp1, order_1D);
 
-        const Vector3d& edgeStart = edgeDirections[e] ? polygonVertices.col(e) : polygonVertices.col((e + 1) % numVertices);
-        const Vector3d& edgeTangent = edgeTangents.col(e);
+        const Vector3d &edgeStart = edgeDirections[e] ? polygonVertices.col(e) : polygonVertices.col((e + 1) % numVertices);
+        const Vector3d &edgeTangent = edgeTangents.col(e);
         const double direction = edgeDirections[e] ? 1.0 : -1.0;
 
         double invDiameter = 1.0 / polygonDiameter;
@@ -99,45 +97,44 @@ void VEM_MCC_Utilities<dimension>::MonomialTraceOnEdges(const unsigned int &poly
         double diffX = direction * edgeTangent(0) / XAminusXC;
         double diffY = direction * edgeTangent(1) / YAminusYC;
 
-        if(abs(XAminusXC) > 1.0e-12 && abs(YAminusYC) > 1.0e-12)
+        if (abs(XAminusXC) > 1.0e-12 && abs(YAminusYC) > 1.0e-12)
         {
             VectorXd vettX = VectorXd::Ones(polynomialDegree + 2); // ((xa - xc)/diam)^{alphax}
             VectorXd vettY = VectorXd::Ones(polynomialDegree + 2); // ((ya - yc)/diam)^{alphay}
             VectorXd vettDiffX = VectorXd::Ones(polynomialDegree + 2);
             VectorXd vettDiffY = VectorXd::Ones(polynomialDegree + 2);
 
-
-            for(unsigned int i = 0; i < (polynomialDegree + 1) ; i++)
+            for (unsigned int i = 0; i < (polynomialDegree + 1); i++)
             {
-                vettX[i+1] = vettX[i] * X;
-                vettY[i+1] = vettY[i] * Y;
-                vettDiffX[i+1] = vettDiffX[i] * diffX;
-                vettDiffY[i+1] = vettDiffY[i] * diffY;
+                vettX[i + 1] = vettX[i] * X;
+                vettY[i + 1] = vettY[i] * Y;
+                vettDiffX[i + 1] = vettDiffX[i] * diffX;
+                vettDiffY[i + 1] = vettDiffY[i] * diffY;
             }
 
-            Cmatrixkp1[e](0,0) = 1.0;
+            Cmatrixkp1[e](0, 0) = 1.0;
             unsigned int offsetRow = 1;
 
-            for(unsigned int N = 1; N <= (polynomialDegree + 1) ; N++)
+            for (unsigned int N = 1; N <= (polynomialDegree + 1); N++)
             {
-                for(unsigned int alphay = 0; alphay <= N; alphay++)
+                for (unsigned int alphay = 0; alphay <= N; alphay++)
                 {
-                    for(unsigned int j = 0; j <= alphay; j++)
+                    for (unsigned int j = 0; j <= alphay; j++)
                     {
-                        for(unsigned int i = 0; i <= (N-alphay); i++)
+                        for (unsigned int i = 0; i <= (N - alphay); i++)
                         {
-                            Cmatrixkp1[e](offsetRow, (j+i)) = Cmatrixkp1[e](offsetRow, (j+i) )
-                                                                + BinomialCoefficients[N - alphay][i] * vettDiffX[i]
-                                                                      * BinomialCoefficients[alphay][j] * vettDiffY[j];
+                            Cmatrixkp1[e](offsetRow, (j + i)) =
+                                Cmatrixkp1[e](offsetRow, (j + i)) + BinomialCoefficients[N - alphay][i] * vettDiffX[i] *
+                                                                        BinomialCoefficients[alphay][j] * vettDiffY[j];
                         }
                     }
-                    Cmatrixkp1[e].block(offsetRow, 0, 1, order_1D) = Cmatrixkp1[e].block(offsetRow, 0, 1, order_1D)
-                                                                     * vettX[N-alphay] * vettY[alphay];
-                    offsetRow ++;
+                    Cmatrixkp1[e].block(offsetRow, 0, 1, order_1D) =
+                        Cmatrixkp1[e].block(offsetRow, 0, 1, order_1D) * vettX[N - alphay] * vettY[alphay];
+                    offsetRow++;
                 }
             }
         }
-        else if(abs(XAminusXC) > 1.0e-12 && abs(YAminusYC) <= 1.0e-12)
+        else if (abs(XAminusXC) > 1.0e-12 && abs(YAminusYC) <= 1.0e-12)
         {
             VectorXd vettX = VectorXd::Ones(polynomialDegree + 2); // ((xa - xc)/diam)^{alphax}
             VectorXd vettY = VectorXd::Ones(polynomialDegree + 2); // ((yB - yA)/diam)^{alphay}
@@ -145,34 +142,34 @@ void VEM_MCC_Utilities<dimension>::MonomialTraceOnEdges(const unsigned int &poly
 
             double YBminusYAForInvDiameter = direction * edgeTangent(1) * invDiameter;
 
-            for(unsigned int i = 0; i < (polynomialDegree + 1) ; i++)
+            for (unsigned int i = 0; i < (polynomialDegree + 1); i++)
             {
-                vettX[i+1] = vettX[i] * X;
-                vettY[i+1] = vettY[i] * YBminusYAForInvDiameter;
-                vettDiffX[i+1] = vettDiffX[i] * diffX;
+                vettX[i + 1] = vettX[i] * X;
+                vettY[i + 1] = vettY[i] * YBminusYAForInvDiameter;
+                vettDiffX[i + 1] = vettDiffX[i] * diffX;
             }
 
-            Cmatrixkp1[e](0,0) = 1.0;
+            Cmatrixkp1[e](0, 0) = 1.0;
             unsigned int offsetRow = 1;
 
-            for(unsigned int N = 1; N <= (polynomialDegree + 1) ; N++)
+            for (unsigned int N = 1; N <= (polynomialDegree + 1); N++)
             {
-                for(unsigned int alphay = 0; alphay <= N; alphay++)
+                for (unsigned int alphay = 0; alphay <= N; alphay++)
                 {
                     unsigned int j = alphay;
-                    for(unsigned int i = 0; i <= (N-alphay); i++)
+                    for (unsigned int i = 0; i <= (N - alphay); i++)
                     {
-                        Cmatrixkp1[e](offsetRow, (j+i)) = Cmatrixkp1[e](offsetRow, (j+i) )
-                                                            + BinomialCoefficients[N - alphay][i] * vettDiffX[i];
+                        Cmatrixkp1[e](offsetRow, (j + i)) =
+                            Cmatrixkp1[e](offsetRow, (j + i)) + BinomialCoefficients[N - alphay][i] * vettDiffX[i];
                     }
 
-                    Cmatrixkp1[e].block(offsetRow, 0, 1, order_1D) = Cmatrixkp1[e].block(offsetRow, 0, 1, order_1D)
-                                                                     * vettX[N-alphay] * vettY[alphay];
-                    offsetRow ++;
+                    Cmatrixkp1[e].block(offsetRow, 0, 1, order_1D) =
+                        Cmatrixkp1[e].block(offsetRow, 0, 1, order_1D) * vettX[N - alphay] * vettY[alphay];
+                    offsetRow++;
                 }
             }
         }
-        else if(abs(XAminusXC) <= 1.0e-12 && abs(YAminusYC) > 1.0e-12)
+        else if (abs(XAminusXC) <= 1.0e-12 && abs(YAminusYC) > 1.0e-12)
         {
             VectorXd vettX = VectorXd::Ones(polynomialDegree + 2); // ((xB - xA)/diam)^{alphax}
             VectorXd vettY = VectorXd::Ones(polynomialDegree + 2); // ((ya - yc)/diam)^{alphay}
@@ -180,33 +177,31 @@ void VEM_MCC_Utilities<dimension>::MonomialTraceOnEdges(const unsigned int &poly
 
             double XBminusXAForInvDiameter = direction * edgeTangent(0) * invDiameter;
 
-            for(unsigned int i = 0; i < (polynomialDegree + 1) ; i++)
+            for (unsigned int i = 0; i < (polynomialDegree + 1); i++)
             {
-                vettX[i+1] = vettX[i] * XBminusXAForInvDiameter;
-                vettY[i+1] = vettY[i] * Y;
-                vettDiffY[i+1] = vettDiffY[i] * diffY;
+                vettX[i + 1] = vettX[i] * XBminusXAForInvDiameter;
+                vettY[i + 1] = vettY[i] * Y;
+                vettDiffY[i + 1] = vettDiffY[i] * diffY;
             }
 
-            Cmatrixkp1[e](0,0) = 1.0;
+            Cmatrixkp1[e](0, 0) = 1.0;
             unsigned int offsetRow = 1;
 
-            for(unsigned int N = 1; N <= (polynomialDegree + 1) ; N++)
+            for (unsigned int N = 1; N <= (polynomialDegree + 1); N++)
             {
-                for(unsigned int alphay = 0; alphay <= N; alphay++)
+                for (unsigned int alphay = 0; alphay <= N; alphay++)
                 {
-                    for(unsigned int j = 0; j <= alphay; j++)
+                    for (unsigned int j = 0; j <= alphay; j++)
                     {
                         unsigned int i = N - alphay;
-                        Cmatrixkp1[e](offsetRow, (j+i)) = Cmatrixkp1[e](offsetRow, (j+i) )
-                                                            + BinomialCoefficients[alphay][j] * vettDiffY[j];
-
+                        Cmatrixkp1[e](offsetRow, (j + i)) =
+                            Cmatrixkp1[e](offsetRow, (j + i)) + BinomialCoefficients[alphay][j] * vettDiffY[j];
                     }
-                    Cmatrixkp1[e].block(offsetRow, 0, 1, order_1D) = Cmatrixkp1[e].block(offsetRow, 0, 1, order_1D)
-                                                                     * vettX[N-alphay] * vettY[alphay];
-                    offsetRow ++;
+                    Cmatrixkp1[e].block(offsetRow, 0, 1, order_1D) =
+                        Cmatrixkp1[e].block(offsetRow, 0, 1, order_1D) * vettX[N - alphay] * vettY[alphay];
+                    offsetRow++;
                 }
             }
-
         }
         else
         {

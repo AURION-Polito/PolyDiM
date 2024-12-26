@@ -48,8 +48,7 @@ VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_PCC_2D(const unsigned int order
 VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_DF_PCC_3D(const unsigned int order) const
 {
     VEM_QuadratureData_2D data;
-    data.ReferenceTriangleQuadrature =
-        Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * (order + 1));
+    data.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * (order + 1));
     return data;
 }
 //****************************************************************************
@@ -79,8 +78,7 @@ VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_DF_PCC_2D(const unsigned int or
             data.ReferenceSegmentQuadrature.Weights.tail<1>();
     }
 
-    data.ReferenceEdgeDOFsQuadrature =
-        Gedim::Quadrature::Quadrature_GaussLobatto1D::FillPointsAndWeights(2 * order - 1);
+    data.ReferenceEdgeDOFsQuadrature = Gedim::Quadrature::Quadrature_GaussLobatto1D::FillPointsAndWeights(2 * order - 1);
 
     if (order == 1)
     {
@@ -107,8 +105,7 @@ VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_MCC_2D(const unsigned int order
 {
     VEM_QuadratureData_2D data;
 
-    data.ReferenceTriangleQuadrature =
-        Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * (order + 1));
+    data.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * (order + 1));
     data.ReferenceSegmentQuadrature = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * order + 1);
     data.ReferenceSegmentInternalPoints = data.ReferenceSegmentQuadrature.Points;
     data.ReferenceSegmentInternalWeights = data.ReferenceSegmentQuadrature.Weights;
@@ -116,9 +113,8 @@ VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_MCC_2D(const unsigned int order
     return data;
 }
 //****************************************************************************
-Gedim::Quadrature::QuadratureData VEM_Quadrature_2D::PolygonInternalQuadrature(
-    const Gedim::Quadrature::QuadratureData &data,
-    const std::vector<Eigen::Matrix3d> &polygonTriangulationVertices) const
+Gedim::Quadrature::QuadratureData VEM_Quadrature_2D::PolygonInternalQuadrature(const Gedim::Quadrature::QuadratureData &data,
+                                                                               const std::vector<Eigen::Matrix3d> &polygonTriangulationVertices) const
 {
     Gedim::Quadrature::QuadratureData result;
 
@@ -185,8 +181,7 @@ VEM_Quadrature_2D::Edges_QuadratureData VEM_Quadrature_2D::PolygonEdgesLobattoQu
         for (unsigned int d = 0; d < 2; ++d)
         {
             result.WeightsTimesNormal[d](i) += outNormalTimesAbsMapDeterminant(d) * refEdgeExtremaWeights(0);
-            result.WeightsTimesNormal[d]((i + 1) % numEdges) +=
-                outNormalTimesAbsMapDeterminant(d) * refEdgeExtremaWeights(1);
+            result.WeightsTimesNormal[d]((i + 1) % numEdges) += outNormalTimesAbsMapDeterminant(d) * refEdgeExtremaWeights(1);
         }
 
         if (ReferenceSegmentInternalWeights.size() > 0)
@@ -194,8 +189,7 @@ VEM_Quadrature_2D::Edges_QuadratureData VEM_Quadrature_2D::PolygonEdgesLobattoQu
             // map edge internal quadrature points
             const VectorXd &refEdgeInternalWeights = ReferenceSegmentInternalWeights;
 
-            const Vector3d &edgeStart =
-                edgeDirections[i] ? polygonVertices.col(i) : polygonVertices.col((i + 1) % numVertices);
+            const Vector3d &edgeStart = edgeDirections[i] ? polygonVertices.col(i) : polygonVertices.col((i + 1) % numVertices);
             const Vector3d &edgeTangent = edgeTangents.col(i);
             const double direction = edgeDirections[i] ? 1.0 : -1.0;
 
@@ -203,16 +197,13 @@ VEM_Quadrature_2D::Edges_QuadratureData VEM_Quadrature_2D::PolygonEdgesLobattoQu
             MatrixXd edgeInternalQuadraturePoints(3, numEdgeInternalQuadraturePoints);
             for (unsigned int q = 0; q < numEdgeInternalQuadraturePoints; q++)
             {
-                edgeInternalQuadraturePoints.col(q) =
-                    edgeStart + direction * ReferenceSegmentInternalPoints(0, q) * edgeTangent;
+                edgeInternalQuadraturePoints.col(q) = edgeStart + direction * ReferenceSegmentInternalPoints(0, q) * edgeTangent;
             }
 
-            result.Quadrature.Points.block(0, edgeInternalPointsOffset, 3, numEdgeInternalQuadraturePoints) =
-                edgeInternalQuadraturePoints;
+            result.Quadrature.Points.block(0, edgeInternalPointsOffset, 3, numEdgeInternalQuadraturePoints) = edgeInternalQuadraturePoints;
             result.Quadrature.Weights.segment(edgeInternalPointsOffset, numEdgeInternalQuadraturePoints) =
                 refEdgeInternalWeights * absMapDeterminant;
-            MatrixXd edgeInternalWeightsTimesNormal =
-                refEdgeInternalWeights * outNormalTimesAbsMapDeterminant.transpose();
+            MatrixXd edgeInternalWeightsTimesNormal = refEdgeInternalWeights * outNormalTimesAbsMapDeterminant.transpose();
             for (unsigned int d = 0; d < 2; ++d)
             {
                 result.WeightsTimesNormal[d].segment(edgeInternalPointsOffset, numEdgeInternalQuadraturePoints) =
@@ -225,13 +216,12 @@ VEM_Quadrature_2D::Edges_QuadratureData VEM_Quadrature_2D::PolygonEdgesLobattoQu
     return result;
 }
 //****************************************************************************
-VEM_Quadrature_2D::Edges_QuadratureData VEM_Quadrature_2D::PolygonEdgesQuadrature(
-    const Gedim::Quadrature::QuadratureData &data,
-    const Eigen::MatrixXd &polygonVertices,
-    const Eigen::VectorXd &edgeLengths,
-    const std::vector<bool> &edgeDirections,
-    const Eigen::MatrixXd &edgeTangents,
-    const Eigen::MatrixXd &edgeNormals) const
+VEM_Quadrature_2D::Edges_QuadratureData VEM_Quadrature_2D::PolygonEdgesQuadrature(const Gedim::Quadrature::QuadratureData &data,
+                                                                                  const Eigen::MatrixXd &polygonVertices,
+                                                                                  const Eigen::VectorXd &edgeLengths,
+                                                                                  const std::vector<bool> &edgeDirections,
+                                                                                  const Eigen::MatrixXd &edgeTangents,
+                                                                                  const Eigen::MatrixXd &edgeNormals) const
 {
     Edges_QuadratureData result;
 
@@ -254,8 +244,7 @@ VEM_Quadrature_2D::Edges_QuadratureData VEM_Quadrature_2D::PolygonEdgesQuadratur
         // map edge internal quadrature points
         const VectorXd &refEdgeInternalWeights = data.Weights;
 
-        const Vector3d &edgeStart =
-            edgeDirections[i] ? polygonVertices.col(i) : polygonVertices.col((i + 1) % numVertices);
+        const Vector3d &edgeStart = edgeDirections[i] ? polygonVertices.col(i) : polygonVertices.col((i + 1) % numVertices);
         const Vector3d &edgeTangent = edgeTangents.col(i);
         const double direction = edgeDirections[i] ? 1.0 : -1.0;
 
@@ -266,8 +255,7 @@ VEM_Quadrature_2D::Edges_QuadratureData VEM_Quadrature_2D::PolygonEdgesQuadratur
             edgeInternalQuadraturePoints.col(q) = edgeStart + direction * data.Points(0, q) * edgeTangent;
         }
 
-        result.Quadrature.Points.block(0, edgeInternalPointsOffset, 3, numEdgeInternalQuadraturePoints) =
-            edgeInternalQuadraturePoints;
+        result.Quadrature.Points.block(0, edgeInternalPointsOffset, 3, numEdgeInternalQuadraturePoints) = edgeInternalQuadraturePoints;
         result.Quadrature.Weights.segment(edgeInternalPointsOffset, numEdgeInternalQuadraturePoints) =
             refEdgeInternalWeights * absMapDeterminant;
         MatrixXd edgeInternalWeightsTimesNormal = refEdgeInternalWeights * outNormalTimesAbsMapDeterminant.transpose();

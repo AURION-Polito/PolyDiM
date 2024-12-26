@@ -1,24 +1,23 @@
+#include "DOFsManager.hpp"
+#include "Eigen_LUSolver.hpp"
+#include "MeshMatricesDAO.hpp"
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
 #include "MeshUtilities.hpp"
 #include "VEM_MCC_2D_ReferenceElement.hpp"
 #include "VTKUtilities.hpp"
-#include "program_configuration.hpp"
-#include "MeshMatricesDAO.hpp"
-#include "DOFsManager.hpp"
-#include "Eigen_LUSolver.hpp"
 #include "assembler.hpp"
+#include "program_configuration.hpp"
 #include "program_utilities.hpp"
 #include "test_definition.hpp"
 
 unsigned int Polydim::examples::Elliptic_MCC_2D::test::Patch_Test::order;
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     Polydim::examples::Elliptic_MCC_2D::Program_configuration config;
 
     if (!Gedim::Output::FileExists("./Parameters.ini"))
-        Gedim::Configurations::ExportToIni("./Parameters.ini",
-                                           false);
+        Gedim::Configurations::ExportToIni("./Parameters.ini", false);
     else
         Gedim::Configurations::InitializeFromIni("./Parameters.ini");
 
@@ -45,8 +44,7 @@ int main(int argc, char** argv)
     Gedim::LogFile::LogFolder = logFolder;
 
     /// Export Configuration of the following Run
-    Gedim::Configurations::ExportToIni(exportFolder + "/Parameters.ini",
-                                       false);
+    Gedim::Configurations::ExportToIni(exportFolder + "/Parameters.ini", false);
 
     /// Set problem
     Gedim::Output::PrintGenericMessage("SetProblem...", true);
@@ -73,10 +71,7 @@ int main(int argc, char** argv)
     Gedim::MeshMatrices meshData;
     Gedim::MeshMatricesDAO mesh(meshData);
 
-
-    Polydim::examples::Elliptic_MCC_2D::program_utilities::create_domain_mesh(config,
-                                                                              domain,
-                                                                              mesh);
+    Polydim::examples::Elliptic_MCC_2D::program_utilities::create_domain_mesh(config, domain, mesh);
     //    const Gedim::MeshFromCsvUtilities utilities;
     //    Gedim::MeshFromCsvUtilities::Configuration configuration;
     //    configuration.Folder = config.ExportFolder() + "/Mesh";
@@ -90,16 +85,14 @@ int main(int argc, char** argv)
     // Export the domain mesh
     {
         Gedim::MeshUtilities meshUtilities;
-        meshUtilities.ExportMeshToVTU(mesh,
-                                      exportVtuFolder,
-                                      "Domain_Mesh");
+        meshUtilities.ExportMeshToVTU(mesh, exportVtuFolder, "Domain_Mesh");
     }
 
     Gedim::Output::PrintGenericMessage("ComputeGeometricProperties...", true);
     Gedim::Profiler::StartTime("ComputeGeometricProperties");
 
-    const auto meshGeometricData = Polydim::examples::Elliptic_MCC_2D::program_utilities::create_domain_mesh_geometric_properties(config,
-                                                                                                                                  mesh);
+    const auto meshGeometricData =
+        Polydim::examples::Elliptic_MCC_2D::program_utilities::create_domain_mesh_geometric_properties(config, mesh);
 
     Gedim::Profiler::StopTime("ComputeGeometricProperties");
     Gedim::Output::PrintStatusProgram("ComputeGeometricProperties");
@@ -109,62 +102,48 @@ int main(int argc, char** argv)
     Gedim::Output::PrintGenericMessage("CreateVEMSpace of order " + to_string(config.VemOrder()) + " and DOFs...", true);
     Gedim::Profiler::StartTime("CreateVEMSpace");
 
-
     const auto vem_pressure_reference_element = Polydim::VEM::MCC::create_VEM_PCC_2D_pressure_reference_element(config.VemType());
     const auto pressure_reference_element_data = vem_pressure_reference_element->Create(config.VemOrder());
     const auto vem_velocity_reference_element = Polydim::VEM::MCC::create_VEM_PCC_2D_velocity_reference_element(config.VemType());
     const auto velocity_reference_element_data = vem_velocity_reference_element->Create(config.VemOrder());
 
-    Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data =
-        { mesh };
+    Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data = {mesh};
 
     Polydim::PDETools::DOFs::DOFsManager dofManager;
     std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> meshDOFsInfo(2);
     std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> dofs_data(2);
 
     meshDOFsInfo[0] = dofManager.Create_Constant_DOFsInfo<2>(mesh_connectivity_data,
-                                                             {
-                                                                 {
-                                                                     velocity_reference_element_data.NumDofs0D,
-                                                                     velocity_reference_element_data.NumDofs1D,
-                                                                     velocity_reference_element_data.NumDofs2D,
-                                                                     0
-                                                                 },
-                                                                 boundary_info
-                                                             });
+                                                             {{velocity_reference_element_data.NumDofs0D,
+                                                               velocity_reference_element_data.NumDofs1D,
+                                                               velocity_reference_element_data.NumDofs2D,
+                                                               0},
+                                                              boundary_info});
 
-    dofs_data[0] = dofManager.CreateDOFs<2>(meshDOFsInfo[0],
-                                            mesh_connectivity_data);
+    dofs_data[0] = dofManager.CreateDOFs<2>(meshDOFsInfo[0], mesh_connectivity_data);
 
     meshDOFsInfo[1] = dofManager.Create_Constant_DOFsInfo<2>(mesh_connectivity_data,
-                                                             {
-                                                                 {
-                                                                     pressure_reference_element_data.NumDofs0D,
-                                                                     pressure_reference_element_data.NumDofs1D,
-                                                                     pressure_reference_element_data.NumDofs2D,
-                                                                     0
-                                                                 },
-                                                                 boundary_info
-                                                             });
+                                                             {{pressure_reference_element_data.NumDofs0D,
+                                                               pressure_reference_element_data.NumDofs1D,
+                                                               pressure_reference_element_data.NumDofs2D,
+                                                               0},
+                                                              boundary_info});
 
-    dofs_data[1] = dofManager.CreateDOFs<2>(meshDOFsInfo[1],
-                                            mesh_connectivity_data);
+    dofs_data[1] = dofManager.CreateDOFs<2>(meshDOFsInfo[1], mesh_connectivity_data);
 
     const unsigned int numDOFHandler = meshDOFsInfo.size();
     unsigned int numberDOFs = 0;
     unsigned int numberStrongs = 0;
     std::vector<unsigned int> offsetDOFs = {0, dofs_data[0].NumberDOFs};
     std::vector<unsigned int> offsetStrongs = {0, dofs_data[0].NumberStrongs};
-    for(unsigned int i = 0; i < numDOFHandler; i++)
+    for (unsigned int i = 0; i < numDOFHandler; i++)
     {
         numberDOFs += dofs_data[i].NumberDOFs;
         numberStrongs += dofs_data[i].NumberStrongs;
     }
 
-
-    Gedim::Output::PrintGenericMessage("VEM Space with " +
-                                           to_string(numberDOFs) + " DOFs and " +
-                                           to_string(numberStrongs) + " STRONGs", true);
+    Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(numberDOFs) + " DOFs and " + to_string(numberStrongs) + " STRONGs",
+                                       true);
 
     Gedim::Profiler::StopTime("CreateVEMSpace");
     Gedim::Output::PrintStatusProgram("CreateVEMSpace");
@@ -172,16 +151,9 @@ int main(int argc, char** argv)
     Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " + to_string(static_cast<unsigned int>(config.VemType())) + "...", true);
     Gedim::Profiler::StartTime("AssembleSystem");
 
-
     Polydim::examples::Elliptic_MCC_2D::Assembler assembler;
-    auto assembler_data = assembler.Assemble(config,
-                                             mesh,
-                                             meshGeometricData,
-                                             meshDOFsInfo,
-                                             dofs_data,
-                                             velocity_reference_element_data,
-                                             pressure_reference_element_data,
-                                             *test);
+    auto assembler_data =
+        assembler.Assemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, velocity_reference_element_data, pressure_reference_element_data, *test);
 
     Gedim::Profiler::StopTime("AssembleSystem");
     Gedim::Output::PrintStatusProgram("AssembleSystem");
@@ -200,8 +172,7 @@ int main(int argc, char** argv)
         Gedim::Output::PrintGenericMessage("Solve...", true);
         Gedim::Profiler::StartTime("Solve");
 
-        solver.Solve(assembler_data.rightHandSide,
-                     assembler_data.solution);
+        solver.Solve(assembler_data.rightHandSide, assembler_data.solution);
 
         Gedim::Profiler::StopTime("Solve");
         Gedim::Output::PrintStatusProgram("Solve");
@@ -225,13 +196,7 @@ int main(int argc, char** argv)
     Gedim::Output::PrintGenericMessage("ExportSolution...", true);
     Gedim::Profiler::StartTime("ExportSolution");
 
-    Polydim::examples::Elliptic_MCC_2D::program_utilities::export_solution(config,
-                                                                           mesh,
-                                                                           dofs_data,
-                                                                           assembler_data,
-                                                                           post_process_data,
-                                                                           exportSolutionFolder,
-                                                                           exportVtuFolder);
+    Polydim::examples::Elliptic_MCC_2D::program_utilities::export_solution(config, mesh, dofs_data, assembler_data, post_process_data, exportSolutionFolder, exportVtuFolder);
 
     Gedim::Profiler::StopTime("ExportSolution");
     Gedim::Output::PrintStatusProgram("ExportSolution");
@@ -241,10 +206,7 @@ int main(int argc, char** argv)
 
     if (config.ComputeVEMPerformance())
     {
-        const auto vemPerformance = assembler.ComputeVemPerformance(config,
-                                                                    mesh,
-                                                                    meshGeometricData,
-                                                                    velocity_reference_element_data);
+        const auto vemPerformance = assembler.ComputeVemPerformance(config, mesh, meshGeometricData, velocity_reference_element_data);
         {
             const char separator = ',';
             /// Export Cell2Ds VEM performance
@@ -256,31 +218,31 @@ int main(int argc, char** argv)
             if (exporter.fail())
                 throw runtime_error("Error on mesh cell2Ds file");
 
-            exporter<< "Cell2D_Index"<< separator;
-            exporter<< "NumQuadPoints_Boundary" << separator;
-            exporter<< "NumQuadPoints_Internal" << separator;
-            exporter<< "Vmatrix_Cond" << separator;
-            exporter<< "Hmatrix_Cond" << separator;
-            exporter<< "Pi0k_Cond" << separator;
-            exporter<< "Gmatrix_Cond" << separator;
-            exporter<< "Pi0k_Error" << separator;
-            exporter<< "GBD_Error" << separator;
-            exporter<< "Stab_Error" << endl;
+            exporter << "Cell2D_Index" << separator;
+            exporter << "NumQuadPoints_Boundary" << separator;
+            exporter << "NumQuadPoints_Internal" << separator;
+            exporter << "Vmatrix_Cond" << separator;
+            exporter << "Hmatrix_Cond" << separator;
+            exporter << "Pi0k_Cond" << separator;
+            exporter << "Gmatrix_Cond" << separator;
+            exporter << "Pi0k_Error" << separator;
+            exporter << "GBD_Error" << separator;
+            exporter << "Stab_Error" << endl;
 
             for (unsigned int v = 0; v < vemPerformance.Cell2DsPerformance.size(); v++)
             {
-                const auto& cell2DPerformance = vemPerformance.Cell2DsPerformance[v].Analysis;
+                const auto &cell2DPerformance = vemPerformance.Cell2DsPerformance[v].Analysis;
 
-                exporter<< scientific<< v << separator;
-                exporter<< scientific<< vemPerformance.Cell2DsPerformance[v].NumBoundaryQuadraturePoints<< separator;
-                exporter<< scientific<< vemPerformance.Cell2DsPerformance[v].NumInternalQuadraturePoints<< separator;
-                exporter<< scientific<< cell2DPerformance.VmatrixConditioning << separator;
-                exporter<< scientific<< cell2DPerformance.HmatrixConditioning << separator;
-                exporter<< scientific<< cell2DPerformance.Pi0kConditioning << separator;
-                exporter<< scientific<< cell2DPerformance.GmatrixConditioning << separator;
-                exporter<< scientific<< cell2DPerformance.ErrorPi0k << separator;
-                exporter<< scientific<< cell2DPerformance.ErrorGBD << separator;
-                exporter<< scientific<< cell2DPerformance.ErrorStabilization << endl;
+                exporter << scientific << v << separator;
+                exporter << scientific << vemPerformance.Cell2DsPerformance[v].NumBoundaryQuadraturePoints << separator;
+                exporter << scientific << vemPerformance.Cell2DsPerformance[v].NumInternalQuadraturePoints << separator;
+                exporter << scientific << cell2DPerformance.VmatrixConditioning << separator;
+                exporter << scientific << cell2DPerformance.HmatrixConditioning << separator;
+                exporter << scientific << cell2DPerformance.Pi0kConditioning << separator;
+                exporter << scientific << cell2DPerformance.GmatrixConditioning << separator;
+                exporter << scientific << cell2DPerformance.ErrorPi0k << separator;
+                exporter << scientific << cell2DPerformance.ErrorGBD << separator;
+                exporter << scientific << cell2DPerformance.ErrorStabilization << endl;
             }
 
             exporter.close();

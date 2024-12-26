@@ -22,7 +22,7 @@ namespace PCC
 /// Primal Conforming Constant degree Virtual Element Methods.
 class VEM_PCC_3D_Inertia_LocalSpace final : public I_VEM_PCC_3D_LocalSpace
 {
-private:
+  private:
     VEM_PCC_Utilities<3> utilities;
     Monomials::VEM_Monomials_3D monomials;
 
@@ -67,15 +67,12 @@ private:
                                       localSpace.Pi0k);
     };
 
-    inline void ComputeStabilizationMatrix(const double &polyhedronDiameter,
-                                           VEM_PCC_3D_LocalSpace_Data &localSpace) const
+    inline void ComputeStabilizationMatrix(const double &polyhedronDiameter, VEM_PCC_3D_LocalSpace_Data &localSpace) const
     {
-        localSpace.StabMatrix =
-            utilities.ComputeStabilizationMatrix(localSpace.PiNabla, polyhedronDiameter, localSpace.Dmatrix);
+        localSpace.StabMatrix = utilities.ComputeStabilizationMatrix(localSpace.PiNabla, polyhedronDiameter, localSpace.Dmatrix);
     }
 
-    inline void ComputeStabilizationMatrixPi0k(const double &polyhedronMeasure,
-                                               VEM_PCC_3D_LocalSpace_Data &localSpace) const
+    inline void ComputeStabilizationMatrixPi0k(const double &polyhedronMeasure, VEM_PCC_3D_LocalSpace_Data &localSpace) const
     {
         localSpace.StabMatrixPi0k =
             utilities.ComputeStabilizationMatrixPi0k(localSpace.Pi0k, polyhedronMeasure, localSpace.Dmatrix);
@@ -101,7 +98,7 @@ private:
                                    const std::vector<Eigen::MatrixXd> &mappedFaces3DVertices,
                                    VEM_PCC_3D_Inertia_Data &inertia_data) const;
 
-public:
+  public:
     VEM_PCC_3D_LocalSpace_Data CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data_2D,
                                                 const VEM_PCC_3D_ReferenceElement_Data &reference_element_data_3D,
                                                 const std::vector<VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
@@ -133,8 +130,7 @@ public:
         case ProjectionTypes::Pi0km1Der: {
             basisFunctionsDerivativeValues.resize(localSpace.Dimension);
             for (unsigned short i = 0; i < localSpace.Dimension; ++i)
-                basisFunctionsDerivativeValues[i] =
-                    localSpace.VanderInternal.leftCols(localSpace.Nkm1) * localSpace.Pi0km1Der[i];
+                basisFunctionsDerivativeValues[i] = localSpace.VanderInternal.leftCols(localSpace.Nkm1) * localSpace.Pi0km1Der[i];
         }
         break;
         default:
@@ -166,15 +162,13 @@ public:
                                                        const ProjectionTypes &projectionType,
                                                        const Eigen::MatrixXd &points) const
     {
-        const Eigen::MatrixXd referencePoints = localSpace.inertia_data.FmatrixInv
-                                                * (points.colwise() - localSpace.inertia_data.translation);
+        const Eigen::MatrixXd referencePoints =
+            localSpace.inertia_data.FmatrixInv * (points.colwise() - localSpace.inertia_data.translation);
         return utilities.ComputeBasisFunctionsValues(projectionType,
                                                      localSpace.Nkm1,
                                                      localSpace.Pi0km1,
                                                      localSpace.Pi0k,
-                                                     ComputePolynomialsValues(reference_element_data,
-                                                                              localSpace,
-                                                                              referencePoints));
+                                                     ComputePolynomialsValues(reference_element_data, localSpace, referencePoints));
     }
 
     inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const VEM_PCC_3D_ReferenceElement_Data &reference_element_data,
@@ -192,8 +186,8 @@ public:
         switch (projectionType)
         {
         case ProjectionTypes::PiNabla: {
-            const std::vector<Eigen::MatrixXd> VanderDerivatives = utilities.ComputePolynomialsDerivativeValues(
-                reference_element_data.Monomials, monomials, localSpace.Diameter, vander);
+            const std::vector<Eigen::MatrixXd> VanderDerivatives =
+                utilities.ComputePolynomialsDerivativeValues(reference_element_data.Monomials, monomials, localSpace.Diameter, vander);
 
             basisFunctionsDerivativeValues.resize(localSpace.Dimension);
             for (unsigned short i = 0; i < localSpace.Dimension; ++i)
@@ -243,8 +237,11 @@ public:
     {
         const Eigen::MatrixXd referencePoints =
             localSpace.inertia_data.FmatrixInv * (points.colwise() - localSpace.inertia_data.translation);
-        return utilities.ComputePolynomialsValues(
-            reference_element_data.Monomials, monomials, localSpace.Centroid, localSpace.Diameter, referencePoints);
+        return utilities.ComputePolynomialsValues(reference_element_data.Monomials,
+                                                  monomials,
+                                                  localSpace.Centroid,
+                                                  localSpace.Diameter,
+                                                  referencePoints);
     }
 
     inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const VEM_PCC_3D_LocalSpace_Data &localSpace) const
@@ -304,12 +301,9 @@ public:
                                                const Eigen::VectorXd &edgeInternalPoints,
                                                const Eigen::VectorXd &pointsCurvilinearCoordinates) const
     {
-        const Eigen::VectorXd edgeBasisCoefficients =
-            utilities.ComputeEdgeBasisCoefficients(localSpace.Order, edgeInternalPoints);
-        return utilities.ComputeValuesOnEdge(
-            edgeInternalPoints.transpose(), localSpace.Order, edgeBasisCoefficients, pointsCurvilinearCoordinates);
+        const Eigen::VectorXd edgeBasisCoefficients = utilities.ComputeEdgeBasisCoefficients(localSpace.Order, edgeInternalPoints);
+        return utilities.ComputeValuesOnEdge(edgeInternalPoints.transpose(), localSpace.Order, edgeBasisCoefficients, pointsCurvilinearCoordinates);
     }
-
 };
 } // namespace PCC
 } // namespace VEM

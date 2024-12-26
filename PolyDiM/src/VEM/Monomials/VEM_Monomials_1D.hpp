@@ -68,9 +68,7 @@ class VEM_Monomials_1D final
     {
         return utilities.VanderDerivatives(data, (*this), vander, diam);
     }
-    inline Eigen::MatrixXd VanderLaplacian(const VEM_Monomials_Data &data,
-                                           const Eigen::MatrixXd &vander,
-                                           const double &diam) const
+    inline Eigen::MatrixXd VanderLaplacian(const VEM_Monomials_Data &data, const Eigen::MatrixXd &vander, const double &diam) const
     {
         return utilities.VanderLaplacian(data, (*this), vander, diam);
     }

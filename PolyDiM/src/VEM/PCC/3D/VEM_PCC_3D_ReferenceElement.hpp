@@ -1,8 +1,8 @@
 #ifndef __VEM_PCC_3D_ReferenceElement_H
 #define __VEM_PCC_3D_ReferenceElement_H
 
-#include "VEM_Monomials_3D.hpp"
 #include "I_VEM_PCC_3D_ReferenceElement.hpp"
+#include "VEM_Monomials_3D.hpp"
 
 namespace Polydim
 {

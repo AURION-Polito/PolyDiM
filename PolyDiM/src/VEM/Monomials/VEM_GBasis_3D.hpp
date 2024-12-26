@@ -15,8 +15,7 @@ class VEM_GBasis_3D final
   private:
     VEM_Monomials_3D monomials;
 
-    std::vector<Eigen::Vector4i> VectorDecompositionIndices(const VEM_GBasis_Data &data,
-                                                            const Eigen::VectorXi &expo) const;
+    std::vector<Eigen::Vector4i> VectorDecompositionIndices(const VEM_GBasis_Data &data, const Eigen::VectorXi &expo) const;
 
   public:
     VEM_GBasis_Data Compute(const unsigned int polynomial_degree);
@@ -31,8 +30,7 @@ class VEM_GBasis_3D final
             result[i].resize(2);
             result[i][0] = data.VectorDecomposition[i][0];
             result[i][1].setZero(data.Nk, 2 * data.Nkm1 + data.DimFirstBasis);
-            result[i][1] << data.VectorDecomposition[i][1], data.VectorDecomposition[i][2],
-                data.VectorDecomposition[i][3];
+            result[i][1] << data.VectorDecomposition[i][1], data.VectorDecomposition[i][2], data.VectorDecomposition[i][3];
         }
         return result;
     }

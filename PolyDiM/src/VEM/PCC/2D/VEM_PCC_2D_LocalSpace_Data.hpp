@@ -52,16 +52,15 @@ struct VEM_PCC_2D_Inertia_Data final
 /// matrices
 struct VEM_PCC_2D_LocalSpace_Data final
 {
-
-    unsigned int Dimension; ///< Geometrical dimension
-    unsigned int Order;     ///< Order of the space
-    unsigned int
-        NumVertexBasisFunctions; ///< Number of basis functions corresponding to degrees of freedom on vertices.
-    unsigned int
-        NumEdgeBasisFunctions; ///< Number of basis functions corresponding to degrees of freedom internal to edges.
-    unsigned int
-        NumBoundaryBasisFunctions; ///< Sum of \ref VEM::PCC::VEM_PCC_2D_LocalSpace_Data::NumVertexBasisFunctions and
-                                   ///< \ref VEM::PCC::VEM_PCC_2D_LocalSpace_Data::NumEdgeBasisFunctions.
+    unsigned int Dimension;               ///< Geometrical dimension
+    unsigned int Order;                   ///< Order of the space
+    unsigned int NumVertexBasisFunctions; ///< Number of basis functions corresponding to degrees of freedom on
+                                          ///< vertices.
+    unsigned int NumEdgeBasisFunctions;   ///< Number of basis functions corresponding to degrees of freedom internal to
+                                          ///< edges.
+    unsigned int NumBoundaryBasisFunctions;  ///< Sum of \ref
+                                             ///< VEM::PCC::VEM_PCC_2D_LocalSpace_Data::NumVertexBasisFunctions and \ref
+                                             ///< VEM::PCC::VEM_PCC_2D_LocalSpace_Data::NumEdgeBasisFunctions.
     unsigned int NumInternalBasisFunctions;  ///< Number of basis functions corresponding to internal moments.
     unsigned int NumBasisFunctions;          ///< Number of basis functions.
     unsigned int NumEdgeDofs;                ///< Num of dofs on each edge
@@ -74,8 +73,8 @@ struct VEM_PCC_2D_LocalSpace_Data final
     Quadrature::VEM_Quadrature_2D::Edges_QuadratureData BoundaryQuadrature; ///< Boundary quadrature points and weights
 
     Gedim::Quadrature::QuadratureData InternalQuadratureKL; ///< Internal quadrature points and weights for e2
-    Quadrature::VEM_Quadrature_2D::Edges_QuadratureData
-        BoundaryQuadratureKL; ///< Boundary quadrature points and weights for e2
+    Quadrature::VEM_Quadrature_2D::Edges_QuadratureData BoundaryQuadratureKL; ///< Boundary quadrature points and
+                                                                              ///< weights for e2
 
     double Diameter;
     Eigen::Vector3d Centroid;

@@ -45,9 +45,8 @@ template <unsigned short dimension> struct VEM_Monomials_Utilities final
                 for (unsigned int i = 0; i < dimension; i++)
                 {
                     if (derIndices[i] >= 0)
-                        vanderDerivatives[i].col(k) = inverseDiam *
-                                                      monomials.DerivativeMatrix(data, i)(k, derIndices[i]) *
-                                                      Vander.col(derIndices[i]);
+                        vanderDerivatives[i].col(k) =
+                            inverseDiam * monomials.DerivativeMatrix(data, i)(k, derIndices[i]) * Vander.col(derIndices[i]);
                     else
                         vanderDerivatives[i].col(k).setZero();
                 }

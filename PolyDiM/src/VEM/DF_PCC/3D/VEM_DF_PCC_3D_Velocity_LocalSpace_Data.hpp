@@ -44,7 +44,6 @@ struct VEM_DF_PCC_3D_Polyhedron_Geometry final
 /// matrices
 struct VEM_DF_PCC_3D_Velocity_LocalSpace_Data final
 {
-
     unsigned int Order;     ///< Order
     unsigned int Dimension; ///< Geometric dimension
 
@@ -75,8 +74,8 @@ struct VEM_DF_PCC_3D_Velocity_LocalSpace_Data final
     Eigen::MatrixXd VanderInternal; ///< Vandermonde matrix of the polynomial basis at internal quadrature points.
     std::vector<Eigen::MatrixXd> VanderInternalDerivatives; ///< Vandermonde matrices of the derivatives of the
                                                             ///< polynomial basis at internal quadrature points.
-    Eigen::MatrixXd
-        VanderBoundary; ///< \brief Vandermonde matrix of the polynomial basis at boundary quadrature points.
+    Eigen::MatrixXd VanderBoundary; ///< \brief Vandermonde matrix of the polynomial basis at boundary quadrature
+                                    ///< points.
     Eigen::MatrixXd VanderBoundaryKL;
 
     std::vector<Eigen::MatrixXd> VanderBoundaryDerivatives;
