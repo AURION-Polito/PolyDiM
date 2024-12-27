@@ -166,45 +166,30 @@ void export_solution(const Polydim::examples::Elliptic_MCC_2D::Program_configura
     }
 
     {
-        //        {
-        //            Gedim::VTKUtilities exporter;
-        //            exporter.AddPolygons(mesh.Cell0DsCoordinates(),
-        //                                 mesh.Cell2DsVertices(),
-        //                                 {
-        //                                     {
-        //                                         "Numeric",
-        //                                         Gedim::VTPProperty::Formats::Points,
-        //                                         static_cast<unsigned
-        //                                         int>(post_process_data.cell0Ds_numeric.size()),
-        //                                         post_process_data.cell0Ds_numeric.data()
-        //                                     },
-        //                                     {
-        //                                         "Exact",
-        //                                         Gedim::VTPProperty::Formats::Points,
-        //                                         static_cast<unsigned
-        //                                         int>(post_process_data.cell0Ds_exact.size()),
-        //                                         post_process_data.cell0Ds_exact.data()
-        //                                     },
-        //                                     {
-        //                                         "ErrorL2",
-        //                                         Gedim::VTPProperty::Formats::Cells,
-        //                                         static_cast<unsigned
-        //                                         int>(post_process_data.cell2Ds_error_L2.size()),
-        //                                         post_process_data.cell2Ds_error_L2.data()
-        //                                     },
-        //                                     {
-        //                                         "ErrorH1",
-        //                                         Gedim::VTPProperty::Formats::Cells,
-        //                                         static_cast<unsigned
-        //                                         int>(post_process_data.cell2Ds_error_H1.size()),
-        //                                         post_process_data.cell2Ds_error_H1.data()
-        //                                     }
-        //                                 });
+        {
+            Gedim::VTKUtilities exporter;
+            exporter.AddPolygons(mesh.Cell0DsCoordinates(),
+                                 mesh.Cell2DsVertices(),
+                                 {{"Pressure_Numeric",
+                                   Gedim::VTPProperty::Formats::Cells,
+                                   static_cast<unsigned int>(post_process_data.cell2Ds_numeric_pressure.size()),
+                                   post_process_data.cell2Ds_numeric_pressure.data()},
+                                  {"Pressure_Exact",
+                                   Gedim::VTPProperty::Formats::Cells,
+                                   static_cast<unsigned int>(post_process_data.cell2Ds_exact_pressure.size()),
+                                   post_process_data.cell2Ds_exact_pressure.data()},
+                                  {"Pressure_ErrorL2",
+                                   Gedim::VTPProperty::Formats::Cells,
+                                   static_cast<unsigned int>(post_process_data.cell2Ds_error_L2_pressure.size()),
+                                   post_process_data.cell2Ds_error_L2_pressure.data()},
+                                  {"Velocity_ErrorL2",
+                                   Gedim::VTPProperty::Formats::Cells,
+                                   static_cast<unsigned int>(post_process_data.cell2Ds_error_L2_velocity.size()),
+                                   post_process_data.cell2Ds_error_L2_velocity.data()}});
 
-        //            exporter.Export(exportVtuFolder + "/Solution_" +
-        //            to_string(TEST_ID) + "_" + to_string(VEM_ID) + +
-        //            "_" + to_string(config.VemOrder()) + ".vtu");
-        //        }
+            exporter.Export(exportVtuFolder + "/Solution_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) + +"_" +
+                            to_string(config.VemOrder()) + ".vtu");
+        }
     }
 }
 // ***************************************************************************
