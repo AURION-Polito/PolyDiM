@@ -3,18 +3,18 @@
 #include "MeshMatricesDAO.hpp"
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
 #include "MeshUtilities.hpp"
-#include "VEM_MCC_2D_ReferenceElement.hpp"
+#include "VEM_DF_PCC_3D_ReferenceElement.hpp"
 #include "VTKUtilities.hpp"
 #include "assembler.hpp"
 #include "program_configuration.hpp"
 #include "program_utilities.hpp"
-#include "test_definition.hpp"
+#include "ranges"
 
-unsigned int Polydim::examples::Elliptic_MCC_2D::test::Patch_Test::order;
+unsigned int Polydim::examples::Stokes_DF_PCC_3D::test::Patch_Test::order;
 
 int main(int argc, char **argv)
 {
-    Polydim::examples::Elliptic_MCC_2D::Program_configuration config;
+    Polydim::examples::Stokes_DF_PCC_3D::Program_configuration config;
 
     if (!Gedim::Output::FileExists("./Parameters.ini"))
         Gedim::Configurations::ExportToIni("./Parameters.ini", false);
@@ -50,7 +50,7 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("SetProblem...", true);
     Gedim::Profiler::StartTime("SetProblem");
 
-    const auto test = Polydim::examples::Elliptic_MCC_2D::program_utilities::create_test(config);
+    const auto test = Polydim::examples::Stokes_DF_PCC_3D::program_utilities::create_test(config);
 
     const auto domain = test->domain();
     const auto boundary_info = test->boundary_info();
@@ -65,13 +65,17 @@ int main(int argc, char **argv)
     Gedim::Profiler::StopTime("SetProblem");
     Gedim::Output::PrintStatusProgram("SetProblem");
 
+    /// Create domain mesh
+    Gedim::Output::PrintGenericMessage("CreateMesh...", true);
+    Gedim::Profiler::StartTime("CreateMesh");
+
     Gedim::Output::PrintGenericMessage("CreateMesh...", true);
     Gedim::Profiler::StartTime("CreateMesh");
 
     Gedim::MeshMatrices meshData;
     Gedim::MeshMatricesDAO mesh(meshData);
 
-    Polydim::examples::Elliptic_MCC_2D::program_utilities::create_domain_mesh(config, domain, mesh);
+    Polydim::examples::Stokes_DF_PCC_3D::program_utilities::create_domain_mesh(config, domain, mesh);
     //    const Gedim::MeshFromCsvUtilities utilities;
     //    Gedim::MeshFromCsvUtilities::Configuration configuration;
     //    configuration.Folder = config.ExportFolder() + "/Mesh";
@@ -92,7 +96,7 @@ int main(int argc, char **argv)
     Gedim::Profiler::StartTime("ComputeGeometricProperties");
 
     const auto meshGeometricData =
-        Polydim::examples::Elliptic_MCC_2D::program_utilities::create_domain_mesh_geometric_properties(config, mesh);
+        Polydim::examples::Stokes_DF_PCC_3D::program_utilities::create_domain_mesh_geometric_properties(config, mesh);
 
     Gedim::Profiler::StopTime("ComputeGeometricProperties");
     Gedim::Output::PrintStatusProgram("ComputeGeometricProperties");
@@ -102,45 +106,70 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("CreateVEMSpace of order " + to_string(config.VemOrder()) + " and DOFs...", true);
     Gedim::Profiler::StartTime("CreateVEMSpace");
 
-    const auto vem_pressure_reference_element = Polydim::VEM::MCC::create_VEM_MCC_2D_pressure_reference_element(config.VemType());
-    const auto pressure_reference_element_data = vem_pressure_reference_element->Create(config.VemOrder());
-    const auto vem_velocity_reference_element = Polydim::VEM::MCC::create_VEM_MCC_2D_velocity_reference_element(config.VemType());
-    const auto velocity_reference_element_data = vem_velocity_reference_element->Create(config.VemOrder());
-
     Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data = {mesh};
 
     Polydim::PDETools::DOFs::DOFsManager dofManager;
-    std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> meshDOFsInfo(2);
-    std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> dofs_data(2);
+    std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> meshDOFsInfo(8);
+    std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> dofs_data(8);
 
-    meshDOFsInfo[0] = dofManager.Create_Constant_DOFsInfo<2>(mesh_connectivity_data,
-                                                             {{velocity_reference_element_data.NumDofs0D,
-                                                               velocity_reference_element_data.NumDofs1D,
-                                                               velocity_reference_element_data.NumDofs2D,
-                                                               0},
-                                                              boundary_info});
+    Polydim::VEM::DF_PCC::VEM_DF_PCC_3D_Velocity_ReferenceElement vem_velocity_reference_element;
+    const auto velocity_reference_element_data = vem_velocity_reference_element.Create(config.VemOrder());
 
-    dofs_data[0] = dofManager.CreateDOFs<2>(meshDOFsInfo[0], mesh_connectivity_data);
+    for (unsigned int i = 0; i < 3; i++)
+    {
+        meshDOFsInfo[i] = dofManager.Create_Constant_DOFsInfo<3>(
+            mesh_connectivity_data,
+            {{velocity_reference_element_data.NumDofs0D, velocity_reference_element_data.NumDofs1D, 0, 0}, boundary_info});
 
-    meshDOFsInfo[1] = dofManager.Create_Constant_DOFsInfo<2>(mesh_connectivity_data,
+        dofs_data[i] = dofManager.CreateDOFs<2>(meshDOFsInfo[i], mesh_connectivity_data);
+    }
+
+    for (unsigned int i = 3; i < 6; i++)
+    {
+        meshDOFsInfo[i] =
+            dofManager.Create_Constant_DOFsInfo<3>(mesh_connectivity_data,
+                                                   {{0, 0, velocity_reference_element_data.NumDofs2D, 0}, boundary_info});
+
+        dofs_data[i] = dofManager.CreateDOFs<2>(meshDOFsInfo[i], mesh_connectivity_data);
+    }
+
+    meshDOFsInfo[7] = dofManager.Create_Constant_DOFsInfo<3>(
+        mesh_connectivity_data,
+        {{0, 0, 0, velocity_reference_element_data.NumDofs3D_BigOPlus + velocity_reference_element_data.NumDofs3D_Divergence},
+         boundary_info});
+
+    dofs_data[7] = dofManager.CreateDOFs<3>(meshDOFsInfo[7], mesh_connectivity_data);
+
+    Polydim::VEM::DF_PCC::VEM_DF_PCC_3D_Pressure_ReferenceElement vem_pressure_reference_element;
+    const auto pressure_reference_element_data = vem_pressure_reference_element.Create(config.VemOrder());
+
+    meshDOFsInfo[8] = dofManager.Create_Constant_DOFsInfo<3>(mesh_connectivity_data,
                                                              {{pressure_reference_element_data.NumDofs0D,
                                                                pressure_reference_element_data.NumDofs1D,
                                                                pressure_reference_element_data.NumDofs2D,
-                                                               0},
+                                                               pressure_reference_element_data.NumDofs3D},
                                                               boundary_info});
 
-    dofs_data[1] = dofManager.CreateDOFs<2>(meshDOFsInfo[1], mesh_connectivity_data);
+    dofs_data[8] = dofManager.CreateDOFs<3>(meshDOFsInfo[8], mesh_connectivity_data);
 
     const unsigned int numDOFHandler = meshDOFsInfo.size();
     unsigned int numberDOFs = 0;
     unsigned int numberStrongs = 0;
-    std::vector<unsigned int> offsetDOFs = {0, dofs_data[0].NumberDOFs};
-    std::vector<unsigned int> offsetStrongs = {0, dofs_data[0].NumberStrongs};
+    std::vector<unsigned int> offsetDOFs = {0,
+                                            dofs_data[0].NumberDOFs,
+                                            dofs_data[0].NumberDOFs + dofs_data[1].NumberDOFs,
+                                            dofs_data[0].NumberDOFs + dofs_data[1].NumberDOFs + dofs_data[2].NumberDOFs};
+    std::vector<unsigned int> offsetStrongs = {0,
+                                               dofs_data[0].NumberStrongs,
+                                               dofs_data[0].NumberStrongs + dofs_data[1].NumberStrongs,
+                                               dofs_data[0].NumberStrongs + dofs_data[1].NumberStrongs + dofs_data[2].NumberStrongs};
     for (unsigned int i = 0; i < numDOFHandler; i++)
     {
         numberDOFs += dofs_data[i].NumberDOFs;
         numberStrongs += dofs_data[i].NumberStrongs;
     }
+
+    numberDOFs += 1; // lagrange
 
     Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(numberDOFs) + " DOFs and " + to_string(numberStrongs) + " STRONGs",
                                        true);
@@ -148,10 +177,10 @@ int main(int argc, char **argv)
     Gedim::Profiler::StopTime("CreateVEMSpace");
     Gedim::Output::PrintStatusProgram("CreateVEMSpace");
 
-    Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " + to_string(static_cast<unsigned int>(config.VemType())) + "...", true);
+    Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " + to_string((unsigned int)config.VemType()) + "...", true);
     Gedim::Profiler::StartTime("AssembleSystem");
 
-    Polydim::examples::Elliptic_MCC_2D::Assembler assembler;
+    Polydim::examples::Stokes_DF_PCC_3D::Assembler assembler;
     auto assembler_data =
         assembler.Assemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, velocity_reference_element_data, pressure_reference_element_data, *test);
 
@@ -196,7 +225,13 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("ExportSolution...", true);
     Gedim::Profiler::StartTime("ExportSolution");
 
-    Polydim::examples::Elliptic_MCC_2D::program_utilities::export_solution(config, mesh, dofs_data, assembler_data, post_process_data, exportSolutionFolder, exportVtuFolder);
+    Polydim::examples::Stokes_DF_PCC_2D::program_utilities::export_solution(config,
+                                                                            mesh,
+                                                                            dofs_data,
+                                                                            assembler_data,
+                                                                            post_process_data,
+                                                                            exportSolutionFolder,
+                                                                            exportVtuFolder);
 
     Gedim::Profiler::StopTime("ExportSolution");
     Gedim::Output::PrintStatusProgram("ExportSolution");
@@ -221,12 +256,12 @@ int main(int argc, char **argv)
             exporter << "Cell2D_Index" << separator;
             exporter << "NumQuadPoints_Boundary" << separator;
             exporter << "NumQuadPoints_Internal" << separator;
-            exporter << "Vmatrix_Cond" << separator;
-            exporter << "Hmatrix_Cond" << separator;
+            exporter << "PiNabla_Cond" << separator;
             exporter << "Pi0k_Cond" << separator;
-            exporter << "Gmatrix_Cond" << separator;
+            exporter << "PiNabla_Error" << separator;
             exporter << "Pi0k_Error" << separator;
             exporter << "GBD_Error" << separator;
+            exporter << "HCD_Error" << separator;
             exporter << "Stab_Error" << endl;
 
             for (unsigned int v = 0; v < vemPerformance.Cell2DsPerformance.size(); v++)
@@ -236,12 +271,24 @@ int main(int argc, char **argv)
                 exporter << scientific << v << separator;
                 exporter << scientific << vemPerformance.Cell2DsPerformance[v].NumBoundaryQuadraturePoints << separator;
                 exporter << scientific << vemPerformance.Cell2DsPerformance[v].NumInternalQuadraturePoints << separator;
-                exporter << scientific << cell2DPerformance.VmatrixConditioning << separator;
-                exporter << scientific << cell2DPerformance.HmatrixConditioning << separator;
-                exporter << scientific << cell2DPerformance.Pi0kConditioning << separator;
-                exporter << scientific << cell2DPerformance.GmatrixConditioning << separator;
-                exporter << scientific << cell2DPerformance.ErrorPi0k << separator;
-                exporter << scientific << cell2DPerformance.ErrorGBD << separator;
+                double sum_of_elems = 0.0;
+                std::ranges::for_each(cell2DPerformance.PiNablaConditioning, [&](int n) { sum_of_elems += n * n; });
+                exporter << scientific << sqrt(sum_of_elems) << separator;
+                sum_of_elems = 0.0;
+                std::ranges::for_each(cell2DPerformance.Pi0kConditioning, [&](int n) { sum_of_elems += n * n; });
+                exporter << scientific << sqrt(sum_of_elems) << separator;
+                sum_of_elems = 0.0;
+                std::ranges::for_each(cell2DPerformance.ErrorPiNabla, [&](int n) { sum_of_elems += n * n; });
+                exporter << scientific << sqrt(sum_of_elems) << separator;
+                sum_of_elems = 0.0;
+                std::ranges::for_each(cell2DPerformance.ErrorPi0k, [&](int n) { sum_of_elems += n * n; });
+                exporter << scientific << sqrt(sum_of_elems) << separator;
+                sum_of_elems = 0.0;
+                std::ranges::for_each(cell2DPerformance.ErrorGBD, [&](int n) { sum_of_elems += n * n; });
+                exporter << scientific << sqrt(sum_of_elems) << separator;
+                sum_of_elems = 0.0;
+                std::ranges::for_each(cell2DPerformance.ErrorHCD, [&](int n) { sum_of_elems += n * n; });
+                exporter << scientific << sqrt(sum_of_elems) << separator;
                 exporter << scientific << cell2DPerformance.ErrorStabilization << endl;
             }
 

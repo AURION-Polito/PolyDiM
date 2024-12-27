@@ -4,6 +4,7 @@ list(APPEND elliptic_PCC_3D_headers ${CMAKE_CURRENT_SOURCE_DIR}/assembler.hpp)
 list(APPEND elliptic_PCC_3D_headers ${CMAKE_CURRENT_SOURCE_DIR}/test_definition.hpp)
 
 list(APPEND elliptic_PCC_3D_sources ${CMAKE_CURRENT_SOURCE_DIR}/assembler.cpp)
+list(APPEND elliptic_PCC_3D_sources ${CMAKE_CURRENT_SOURCE_DIR}/program_utilities.cpp)
 
 list(APPEND elliptic_PCC_3D_includes ${CMAKE_CURRENT_SOURCE_DIR})
 

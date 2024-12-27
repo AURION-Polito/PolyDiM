@@ -174,12 +174,6 @@ void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
         {
             const auto &local_dof_i = local_dofs.at(loc_i);
 
-            // const unsigned int localIndex = polygon.EdgesDirection[ed] ?
-            // loc_i :
-            //                                                              local_dofs.size()
-            //                                                              - 1
-            //                                                              -
-            //                                                              loc_i;
             const unsigned int localIndex = loc_i;
 
             switch (local_dof_i.Type)

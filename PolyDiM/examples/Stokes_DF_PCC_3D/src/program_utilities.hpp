@@ -2,7 +2,7 @@
 #define __program_utilities_H
 
 #include "DOFsManager.hpp"
-#include "PDE_Mesh_Utilities.hpp"
+#include "VTKUtilities.hpp"
 #include "assembler.hpp"
 #include "program_configuration.hpp"
 #include "test_definition.hpp"
@@ -13,30 +13,29 @@ namespace Polydim
 {
 namespace examples
 {
-namespace Elliptic_MCC_2D
+namespace Stokes_DF_PCC_3D
 {
 namespace program_utilities
 {
+unique_ptr<Polydim::examples::Stokes_DF_PCC_3D::test::I_Test> create_test(const Polydim::examples::Stokes_DF_PCC_3D::Program_configuration &config);
 
-std::unique_ptr<Polydim::examples::Elliptic_MCC_2D::test::I_Test> create_test(const Polydim::examples::Elliptic_MCC_2D::Program_configuration &config);
-
-void create_domain_mesh(const Polydim::examples::Elliptic_MCC_2D::Program_configuration &config,
+void create_domain_mesh(const Polydim::examples::Stokes_DF_PCC_3D::Program_configuration &config,
                         const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D &domain,
                         Gedim::MeshMatricesDAO &mesh);
 
-Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_properties(const Polydim::examples::Elliptic_MCC_2D::Program_configuration &config,
+Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_properties(const Polydim::examples::Stokes_DF_PCC_3D::Program_configuration &config,
                                                                                   const Gedim::MeshMatricesDAO &mesh);
 
-void export_solution(const Polydim::examples::Elliptic_MCC_2D::Program_configuration &config,
+void export_solution(const Polydim::examples::Stokes_DF_PCC_3D::Program_configuration &config,
                      const Gedim::MeshMatricesDAO &mesh,
                      const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
-                     const Polydim::examples::Elliptic_MCC_2D::Assembler::Elliptic_MCC_2D_Problem_Data &assembler_data,
-                     const Polydim::examples::Elliptic_MCC_2D::Assembler::PostProcess_Data &post_process_data,
+                     const Polydim::examples::Stokes_DF_PCC_3D::Assembler::Stokes_DF_PCC_3D_Problem_Data &assembler_data,
+                     const Polydim::examples::Stokes_DF_PCC_3D::Assembler::PostProcess_Data &post_process_data,
                      const std::string &exportSolutionFolder,
                      const std::string &exportVtuFolder);
 
 } // namespace program_utilities
-} // namespace Elliptic_MCC_2D
+} // namespace Stokes_DF_PCC_3D
 } // namespace examples
 } // namespace Polydim
 

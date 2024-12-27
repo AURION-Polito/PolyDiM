@@ -4,6 +4,7 @@ list(APPEND stokes_DF_PCC_2D_headers ${CMAKE_CURRENT_SOURCE_DIR}/program_utiliti
 list(APPEND stokes_DF_PCC_2D_headers ${CMAKE_CURRENT_SOURCE_DIR}/assembler.hpp)
 
 list(APPEND stokes_DF_PCC_2D_sources ${CMAKE_CURRENT_SOURCE_DIR}/assembler.cpp)
+list(APPEND stokes_DF_PCC_2D_sources ${CMAKE_CURRENT_SOURCE_DIR}/program_utilities.cpp)
 
 list(APPEND stokes_DF_PCC_2D_includes ${CMAKE_CURRENT_SOURCE_DIR})
 

@@ -98,9 +98,9 @@ int main(int argc, char **argv)
 
     Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data = {mesh};
 
-    const auto vem_pressure_reference_element = Polydim::VEM::MCC::create_VEM_PCC_3D_pressure_reference_element(config.VemType());
+    const auto vem_pressure_reference_element = Polydim::VEM::MCC::create_VEM_MCC_3D_pressure_reference_element(config.VemType());
     const auto pressure_reference_element_data = vem_pressure_reference_element->Create(config.VemOrder());
-    const auto vem_velocity_reference_element = Polydim::VEM::MCC::create_VEM_PCC_3D_velocity_reference_element(config.VemType());
+    const auto vem_velocity_reference_element = Polydim::VEM::MCC::create_VEM_MCC_3D_velocity_reference_element(config.VemType());
     const auto velocity_reference_element_data = vem_velocity_reference_element->Create(config.VemOrder());
 
     Polydim::PDETools::DOFs::DOFsManager dofManager;

@@ -16,7 +16,7 @@ enum struct VEM_MCC_3D_LocalSpace_Types
     VEM_MCC_3D_LocalSpace = 1
 };
 
-inline std::unique_ptr<I_VEM_MCC_3D_Pressure_ReferenceElement> create_VEM_PCC_3D_pressure_reference_element(const VEM_MCC_3D_LocalSpace_Types &type)
+inline std::unique_ptr<I_VEM_MCC_3D_Pressure_ReferenceElement> create_VEM_MCC_3D_pressure_reference_element(const VEM_MCC_3D_LocalSpace_Types &type)
 {
     switch (type)
     {
@@ -27,7 +27,7 @@ inline std::unique_ptr<I_VEM_MCC_3D_Pressure_ReferenceElement> create_VEM_PCC_3D
     }
 }
 
-inline std::unique_ptr<I_VEM_MCC_3D_Velocity_ReferenceElement> create_VEM_PCC_3D_velocity_reference_element(const VEM_MCC_3D_LocalSpace_Types &type)
+inline std::unique_ptr<I_VEM_MCC_3D_Velocity_ReferenceElement> create_VEM_MCC_3D_velocity_reference_element(const VEM_MCC_3D_LocalSpace_Types &type)
 {
     switch (type)
     {

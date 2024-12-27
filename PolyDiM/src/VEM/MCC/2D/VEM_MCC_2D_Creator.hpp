@@ -28,7 +28,7 @@ enum struct VEM_MCC_2D_LocalSpace_Types
     VEM_MCC_2D_Ortho_EdgeOrtho_LocalSpace = 5
 };
 
-inline std::unique_ptr<I_VEM_MCC_2D_Pressure_ReferenceElement> create_VEM_PCC_2D_pressure_reference_element(const VEM_MCC_2D_LocalSpace_Types &type)
+inline std::unique_ptr<I_VEM_MCC_2D_Pressure_ReferenceElement> create_VEM_MCC_2D_pressure_reference_element(const VEM_MCC_2D_LocalSpace_Types &type)
 {
     switch (type)
     {
@@ -44,7 +44,7 @@ inline std::unique_ptr<I_VEM_MCC_2D_Pressure_ReferenceElement> create_VEM_PCC_2D
     }
 }
 
-inline std::unique_ptr<I_VEM_MCC_2D_Velocity_ReferenceElement> create_VEM_PCC_2D_velocity_reference_element(const VEM_MCC_2D_LocalSpace_Types &type)
+inline std::unique_ptr<I_VEM_MCC_2D_Velocity_ReferenceElement> create_VEM_MCC_2D_velocity_reference_element(const VEM_MCC_2D_LocalSpace_Types &type)
 {
     switch (type)
     {

@@ -1,36 +1,26 @@
-#ifndef __program_utilities_H
-#define __program_utilities_H
-
-#include "DOFsManager.hpp"
-#include "VTKUtilities.hpp"
-#include "assembler.hpp"
-#include "program_configuration.hpp"
-#include "test_definition.hpp"
-
-#include <typeindex>
-#include <unordered_map>
+#include "program_utilities.hpp"
 
 namespace Polydim
 {
 namespace examples
 {
-namespace Stokes_DF_PCC_2D
+namespace Stokes_DF_PCC_3D
 {
 namespace program_utilities
 {
 // ***************************************************************************
-unique_ptr<Polydim::examples::Stokes_DF_PCC_2D::test::I_Test> create_test(const Polydim::examples::Stokes_DF_PCC_2D::Program_configuration &config)
+unique_ptr<Polydim::examples::Stokes_DF_PCC_3D::test::I_Test> create_test(const Polydim::examples::Stokes_DF_PCC_3D::Program_configuration &config)
 {
     switch (config.TestType())
     {
-    case Polydim::examples::Stokes_DF_PCC_2D::test::Test_Types::Patch_Test:
-        return make_unique<Polydim::examples::Stokes_DF_PCC_2D::test::Patch_Test>();
+    case Polydim::examples::Stokes_DF_PCC_3D::test::Test_Types::Patch_Test:
+        return make_unique<Polydim::examples::Stokes_DF_PCC_3D::test::Patch_Test>();
     default:
         throw runtime_error("Test type " + to_string((unsigned int)config.TestType()) + " not supported");
     }
 }
 // ***************************************************************************
-void create_domain_mesh(const Polydim::examples::Stokes_DF_PCC_2D::Program_configuration &config,
+void create_domain_mesh(const Polydim::examples::Stokes_DF_PCC_3D::Program_configuration &config,
                         const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D &domain,
                         Gedim::MeshMatricesDAO &mesh)
 {
@@ -67,7 +57,7 @@ void create_domain_mesh(const Polydim::examples::Stokes_DF_PCC_2D::Program_confi
     }
 }
 // ***************************************************************************
-Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_properties(const Polydim::examples::Stokes_DF_PCC_2D::Program_configuration &config,
+Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_properties(const Polydim::examples::Stokes_DF_PCC_3D::Program_configuration &config,
                                                                                   const Gedim::MeshMatricesDAO &mesh)
 {
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
@@ -80,11 +70,11 @@ Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_propertie
     return Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_2D_geometry_data(geometryUtilities, meshUtilities, mesh);
 }
 // ***************************************************************************
-void export_solution(const Polydim::examples::Stokes_DF_PCC_2D::Program_configuration &config,
+void export_solution(const Polydim::examples::Stokes_DF_PCC_3D::Program_configuration &config,
                      const Gedim::MeshMatricesDAO &mesh,
                      const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
-                     const Polydim::examples::Stokes_DF_PCC_2D::Assembler::Stokes_DF_PCC_2D_Problem_Data &assembler_data,
-                     const Polydim::examples::Stokes_DF_PCC_2D::Assembler::PostProcess_Data &post_process_data,
+                     const Polydim::examples::Stokes_DF_PCC_3D::Assembler::Stokes_DF_PCC_3D_Problem_Data &assembler_data,
+                     const Polydim::examples::Stokes_DF_PCC_3D::Assembler::PostProcess_Data &post_process_data,
                      const std::string &exportSolutionFolder,
                      const std::string &exportVtuFolder)
 {
@@ -219,8 +209,6 @@ void export_solution(const Polydim::examples::Stokes_DF_PCC_2D::Program_configur
 }
 // ***************************************************************************
 } // namespace program_utilities
-} // namespace Stokes_DF_PCC_2D
+} // namespace Stokes_DF_PCC_3D
 } // namespace examples
 } // namespace Polydim
-
-#endif

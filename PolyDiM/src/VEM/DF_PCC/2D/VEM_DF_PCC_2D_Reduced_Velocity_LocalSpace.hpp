@@ -1,5 +1,5 @@
-#ifndef __VEM_DF_PCC_2D_Velocity_LocalSpace_HPP
-#define __VEM_DF_PCC_2D_Velocity_LocalSpace_HPP
+#ifndef __VEM_DF_PCC_2D_Reduced_Velocity_LocalSpace_HPP
+#define __VEM_DF_PCC_2D_Reduced_Velocity_LocalSpace_HPP
 
 #include "Eigen/Eigen"
 #include "I_VEM_DF_PCC_2D_ReferenceElement.hpp"
@@ -23,7 +23,7 @@ namespace DF_PCC
 ///     - <a href="https://doi.org/10.1016/j.matcom.2023.10.003">"Improving high-order VEM stability on badly-shaped
 ///     elements. Stefano Berrone, Gioana Teora and Fabio Vicini. (2024)"</a>
 
-class VEM_DF_PCC_2D_Velocity_LocalSpace final : public I_VEM_DF_PCC_2D_Velocity_LocalSpace
+class VEM_DF_PCC_2D_Reduced_Velocity_LocalSpace final : public I_VEM_DF_PCC_2D_Velocity_LocalSpace
 {
   private:
     VEM_DF_PCC_Utilities<2> utilities;
@@ -43,7 +43,8 @@ class VEM_DF_PCC_2D_Velocity_LocalSpace final : public I_VEM_DF_PCC_2D_Velocity_
                                          const Eigen::MatrixXd &referenceEdgeDofInternalPoints,
                                          VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const;
 
-    void ComputeDivergenceCoefficients(const std::vector<Eigen::VectorXd> &boundaryDofQuadratureWeightsTimesNormal,
+    void ComputeDivergenceCoefficients(const double &polygonMeasure,
+                                       const std::vector<Eigen::VectorXd> &boundaryDofQuadratureWeightsTimesNormal,
                                        VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const;
 
     void ComputeStabilizationMatrix(VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const;
@@ -70,7 +71,7 @@ class VEM_DF_PCC_2D_Velocity_LocalSpace final : public I_VEM_DF_PCC_2D_Velocity_
                                           VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const;
 
   public:
-    virtual ~VEM_DF_PCC_2D_Velocity_LocalSpace()
+    virtual ~VEM_DF_PCC_2D_Reduced_Velocity_LocalSpace()
     {
     }
 
@@ -232,7 +233,7 @@ class VEM_DF_PCC_2D_Velocity_LocalSpace final : public I_VEM_DF_PCC_2D_Velocity_
 
     inline Eigen::MatrixXd ComputeBasisFunctionsDivergenceValues(const VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const
     {
-        return utilities.ComputeBasisFunctionsDivergenceValues(localSpace.Nkm1, localSpace.VanderInternal, localSpace.Vmatrix);
+        return utilities.ComputeBasisFunctionsDivergenceValues(1, localSpace.VanderInternal, localSpace.Vmatrix);
     }
 };
 } // namespace DF_PCC

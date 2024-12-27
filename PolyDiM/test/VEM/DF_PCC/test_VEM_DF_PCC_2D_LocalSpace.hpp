@@ -6,6 +6,7 @@
 #include <gtest/gtest.h>
 
 #include "GeometryUtilities.hpp"
+#include "VEM_DF_PCC_2D_ReferenceElement.hpp"
 #include "VEM_DF_PCC_2D_Velocity_LocalSpace.hpp"
 #include "VEM_DF_PCC_PerformanceAnalysis.hpp"
 
