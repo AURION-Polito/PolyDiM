@@ -177,8 +177,8 @@ int main(int argc, char **argv)
                                              dofs_data,
                                              velocity_reference_element_data,
                                              pressure_reference_element_data,
-                                             vem_velocity_local_space,
-                                             vem_pressure_local_space,
+                                             *vem_velocity_local_space,
+                                             *vem_pressure_local_space,
                                              *test);
 
     Gedim::Profiler::StopTime("AssembleSystem");
@@ -213,8 +213,8 @@ int main(int argc, char **argv)
                                                            dofs_data,
                                                            velocity_reference_element_data,
                                                            pressure_reference_element_data,
-                                                           vem_velocity_local_space,
-                                                           vem_pressure_local_space,
+                                                           *vem_velocity_local_space,
+                                                           *vem_pressure_local_space,
                                                            assembler_data,
                                                            *test);
 
@@ -241,7 +241,7 @@ int main(int argc, char **argv)
     if (config.ComputeVEMPerformance())
     {
         const auto vemPerformance =
-            assembler.ComputeVemPerformance(config, mesh, meshGeometricData, velocity_reference_element_data, vem_velocity_local_space);
+            assembler.ComputeVemPerformance(config, mesh, meshGeometricData, velocity_reference_element_data, *vem_velocity_local_space);
         {
             const char separator = ',';
             /// Export Cell2Ds VEM performance
@@ -382,8 +382,8 @@ int main(int argc, char **argv)
                                                       full_dofs_data,
                                                       full_velocity_reference_element_data,
                                                       full_pressure_reference_element_data,
-                                                      vem_full_velocity_local_space,
-                                                      vem_full_pressure_local_space,
+                                                      *vem_full_velocity_local_space,
+                                                      *vem_full_pressure_local_space,
                                                       *test);
 
         Gedim::Profiler::StopTime("AssembleSystem");
@@ -421,10 +421,10 @@ int main(int argc, char **argv)
                                                                                 full_pressure_reference_element_data,
                                                                                 velocity_reference_element_data,
                                                                                 pressure_reference_element_data,
-                                                                                vem_full_velocity_local_space,
-                                                                                vem_full_pressure_local_space,
-                                                                                vem_velocity_local_space,
-                                                                                vem_pressure_local_space,
+                                                                                *vem_full_velocity_local_space,
+                                                                                *vem_full_pressure_local_space,
+                                                                                *vem_velocity_local_space,
+                                                                                *vem_pressure_local_space,
                                                                                 full_assembler_data,
                                                                                 assembler_data);
 

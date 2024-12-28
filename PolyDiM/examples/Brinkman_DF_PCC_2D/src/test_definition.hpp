@@ -28,6 +28,7 @@ struct I_Test
     virtual Eigen::VectorXd fluid_viscosity(const Eigen::MatrixXd &points) const = 0;
     virtual std::array<Eigen::VectorXd, 9> inverse_diffusion_term(const Eigen::MatrixXd &points) const = 0;
     virtual std::array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd &points) const = 0;
+    virtual Eigen::VectorXd divergence_term(const Eigen::MatrixXd &points) const = 0;
     virtual std::array<Eigen::VectorXd, 3> strong_boundary_condition(const unsigned int marker,
                                                                      const Eigen::MatrixXd &points) const = 0;
     virtual Eigen::VectorXd exact_pressure(const Eigen::MatrixXd &points) const = 0;
@@ -80,7 +81,7 @@ struct Patch_Test final : public I_Test
 
     Eigen::VectorXd fluid_viscosity(const Eigen::MatrixXd &points) const
     {
-        return Eigen::VectorXd::Constant(points.cols(), 1.0);
+        return Eigen::VectorXd::Constant(points.cols(), 2.0);
     };
 
     std::array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd &points) const
@@ -91,9 +92,20 @@ struct Patch_Test final : public I_Test
         for (int i = 0; i < order - 2; i++)
             result = result * polynomial;
 
-        return {-2.0 * order * (order - 1) * result - (order - 1) * result,
-                2.0 * order * (order - 1) * result - (order - 1) * result,
+        return {-4.0 * order * (order - 1) * result + (order - 1) * result + 0.8 * result * polynomial * polynomial,
+                -4.0 * order * (order - 1) * result + (order - 1) * result + 0.6 * result * polynomial * polynomial,
                 Eigen::VectorXd::Zero(points.cols())};
+    };
+
+    Eigen::VectorXd divergence_term(const Eigen::MatrixXd &points) const
+    {
+        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array();
+
+        Eigen::ArrayXd result = Eigen::ArrayXd::Constant(points.cols(), 1.0);
+        for (int i = 0; i < order - 1; i++)
+            result = result * polynomial;
+
+        return 2.0 * order * result;
     };
 
     std::array<Eigen::VectorXd, 3> strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
@@ -107,7 +119,7 @@ struct Patch_Test final : public I_Test
         for (int i = 0; i < order; i++)
             result = result * polynomial;
 
-        return {result, -result, Eigen::VectorXd::Zero(points.cols())};
+        return {result, result, Eigen::VectorXd::Zero(points.cols())};
     }
 
     Eigen::VectorXd exact_pressure(const Eigen::MatrixXd &points) const
@@ -137,7 +149,7 @@ struct Patch_Test final : public I_Test
         for (int i = 0; i < order; i++)
             result = result * polynomial;
 
-        return {result, -result, Eigen::VectorXd::Zero(points.cols())};
+        return {result, result, Eigen::VectorXd::Zero(points.cols())};
     }
 
     std::array<Eigen::VectorXd, 9> exact_derivatives_velocity(const Eigen::MatrixXd &points) const
@@ -153,8 +165,8 @@ struct Patch_Test final : public I_Test
         return {result,
                 result,
                 Eigen::VectorXd::Zero(points.cols()),
-                -result,
-                -result,
+                result,
+                result,
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
