@@ -92,9 +92,9 @@ def test_errors(errors,
         abs(math.log(errors[2][0]) - math.log(errors[1][0])) * 2.0
         slope_H1 = abs(math.log(errors[2][2] / errors[2][4])  - math.log(errors[1][2] / errors[2][4])) / \
         abs(math.log(errors[2][0]) - math.log(errors[1][0])) * 2.0
-        print("CASE 2: ", slope_L2, slope_H1)
-        assert round(slope_L2 - float(vem_order + 1.0)) < tol
-        assert round(slope_H1 - float(vem_order)) < tol
+        print("CASE 2: ", round(slope_L2), round(slope_H1))
+        assert round(slope_L2) == round(float(vem_order + 1.0)) 
+        assert round(slope_H1) == round(float(vem_order))
     else:
         raise Exception("Case {0} not managed".format(num_rows))
 
