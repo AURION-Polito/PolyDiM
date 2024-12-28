@@ -18,6 +18,105 @@ struct local_matrix_to_global_matrix_dofs_data final
     std::vector<size_t> global_offsets_Strongs;
 };
 
+struct count_dofs_data final
+{
+    unsigned int num_total_dofs;
+    unsigned int num_total_strong;
+    std::vector<size_t> offsets_DOFs;
+    std::vector<size_t> offsets_Strongs;
+};
+
+struct local_count_dofs_data final
+{
+    unsigned int num_total_dofs;
+    std::vector<size_t> offsets_DOFs;
+};
+
+inline count_dofs_data count_dofs(const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data)
+{
+    count_dofs_data data;
+    data.num_total_dofs = dofs_data[0].NumberDOFs;
+    data.num_total_strong = dofs_data[0].NumberStrongs;
+
+    const unsigned int numDOFHandler = dofs_data.size();
+    data.offsets_DOFs.resize(numDOFHandler);
+    data.offsets_Strongs.resize(numDOFHandler);
+    data.offsets_DOFs[0] = 0;
+    data.offsets_Strongs[0] = 0;
+
+    for (unsigned int i = 1; i < numDOFHandler; i++)
+    {
+        data.num_total_dofs += dofs_data[i].NumberDOFs;
+        data.num_total_strong += dofs_data[i].NumberStrongs;
+
+        data.offsets_DOFs[i] = data.offsets_DOFs[i - 1] + dofs_data[i - 1].NumberDOFs;
+        data.offsets_Strongs[i] = data.offsets_Strongs[i - 1] + dofs_data[i - 1].NumberStrongs;
+    }
+
+    return data;
+}
+
+template <unsigned int dimension>
+inline local_count_dofs_data local_count_dofs(const unsigned int cell_index,
+                                              const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data)
+{
+    local_count_dofs_data data;
+    data.num_total_dofs = dofs_data[0].CellsGlobalDOFs[dimension].at(cell_index).size();
+
+    const unsigned int numDOFHandler = dofs_data.size();
+    data.offsets_DOFs.resize(numDOFHandler);
+    data.offsets_DOFs[0] = 0;
+
+    for (unsigned int i = 1; i < numDOFHandler; i++)
+    {
+        data.num_total_dofs += dofs_data[i].CellsGlobalDOFs[dimension].at(cell_index).size();
+        data.offsets_DOFs[i] = data.offsets_DOFs[i - 1] + dofs_data[i - 1].CellsGlobalDOFs[dimension].at(cell_index).size();
+    }
+
+    return data;
+}
+
+template <unsigned int dimension, typename global_solution_type>
+inline Eigen::VectorXd global_solution_to_local_solution(const unsigned int cell_index,
+                                                         const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                                                         const unsigned int &num_local_DOFs,
+                                                         const std::vector<size_t> &local_offsets_DOFs,
+                                                         const std::vector<size_t> &global_offsets_DOFs,
+                                                         const std::vector<size_t> &global_offsets_Strongs,
+                                                         const global_solution_type &global_solution_DOFs,
+                                                         const global_solution_type &global_solution_Strongs)
+{
+    Eigen::VectorXd local_solution_dofs = Eigen::VectorXd::Zero(num_local_DOFs);
+
+    const unsigned int numDOFHandler = dofs_data.size();
+    for (unsigned int h = 0; h < numDOFHandler; h++)
+    {
+        const auto &global_dof = dofs_data[h].CellsGlobalDOFs[dimension].at(cell_index);
+        for (unsigned int loc_i = 0; loc_i < global_dof.size(); ++loc_i)
+        {
+            const auto &global_dof_i = global_dof.at(loc_i);
+            const auto &local_dof_i =
+                dofs_data[h].CellsDOFs.at(global_dof_i.Dimension).at(global_dof_i.CellIndex).at(global_dof_i.DOFIndex);
+
+            switch (local_dof_i.Type)
+            {
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                local_solution_dofs[loc_i + local_offsets_DOFs[h]] =
+                    global_solution_Strongs.GetValue(local_dof_i.Global_Index + global_offsets_Strongs[h]);
+                break;
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
+                local_solution_dofs[loc_i + local_offsets_DOFs[h]] =
+                    global_solution_DOFs.GetValue(local_dof_i.Global_Index + global_offsets_DOFs[h]);
+                break;
+            default:
+                throw std::runtime_error("Unknown DOF Type");
+            }
+        }
+    }
+
+    return local_solution_dofs;
+}
+
 template <unsigned int dimension, typename local_lhs_type, typename local_rhs_type, typename global_lhs_type, typename global_rhs_type>
 void assemble_local_matrix_to_global_matrix(const unsigned int cell_index,
                                             const local_matrix_to_global_matrix_dofs_data &test_functions_dofs_data,

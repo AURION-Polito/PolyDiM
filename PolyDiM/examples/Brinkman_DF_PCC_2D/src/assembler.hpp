@@ -1,6 +1,7 @@
 #ifndef __assembler_H
 #define __assembler_H
 
+#include "Assembler_Utilities.hpp"
 #include "Eigen_Array.hpp"
 #include "Eigen_SparseArray.hpp"
 #include "MeshMatricesDAO.hpp"
@@ -99,6 +100,7 @@ class Assembler final
         const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
         const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
         const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+        const Polydim::PDETools::Assembler_Utilities::count_dofs_data &counts_dofs,
         const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
         const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &pressure_reference_element_data,
         const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_velocity_local_space,
@@ -116,6 +118,7 @@ class Assembler final
                                          const Gedim::MeshMatricesDAO &mesh,
                                          const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                          const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                                         const Polydim::PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                                          const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
                                          const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &pressure_reference_element_data,
                                          const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_velocity_local_space,
@@ -128,7 +131,9 @@ class Assembler final
         const Gedim::MeshMatricesDAO &mesh,
         const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
         const vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &full_dofs_data,
+        const Polydim::PDETools::Assembler_Utilities::count_dofs_data &full_count_dofs,
         const vector<PDETools::DOFs::DOFsManager::DOFsData> &reduced_dofs_data,
+        const Polydim::PDETools::Assembler_Utilities::count_dofs_data &reduced_count_dofs,
         const VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &full_velocity_reference_element_data,
         const VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &full_pressure_reference_element_data,
         const VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reduced_velocity_reference_element_data,

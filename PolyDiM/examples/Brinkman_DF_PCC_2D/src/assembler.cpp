@@ -1,6 +1,5 @@
 ﻿#include "assembler.hpp"
 
-#include "Assembler_Utilities.hpp"
 #include "EllipticEquation.hpp"
 #include "program_configuration.hpp"
 
@@ -112,36 +111,19 @@ Assembler::Stokes_DF_PCC_2D_Problem_Data Assembler::Assemble(
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
     const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
     const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+    const Polydim::PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
     const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
     const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &pressure_reference_element_data,
     const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_velocity_local_space,
     const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Pressure_LocalSpace &vem_pressure_local_space,
     const Polydim::examples::Brinkman_DF_PCC_2D::test::I_Test &test) const
 {
-    const unsigned int numDOFHandler = mesh_dofs_info.size();
-    unsigned int numberDOFs = 0;
-    unsigned int numberStrongs = 0;
-    std::vector<size_t> offsetDOFs = {0,
-                                      dofs_data[0].NumberDOFs,
-                                      dofs_data[0].NumberDOFs + dofs_data[1].NumberDOFs,
-                                      dofs_data[0].NumberDOFs + dofs_data[1].NumberDOFs + dofs_data[2].NumberDOFs};
-    std::vector<size_t> offsetStrongs = {0,
-                                         dofs_data[0].NumberStrongs,
-                                         dofs_data[0].NumberStrongs + dofs_data[1].NumberStrongs,
-                                         dofs_data[0].NumberStrongs + dofs_data[1].NumberStrongs + dofs_data[2].NumberStrongs};
-
-    for (unsigned int i = 0; i < numDOFHandler; i++)
-    {
-        numberDOFs += dofs_data[i].NumberDOFs;
-        numberStrongs += dofs_data[i].NumberStrongs;
-    }
-
     Stokes_DF_PCC_2D_Problem_Data result;
-    result.globalMatrixA.SetSize(numberDOFs + 1, numberDOFs + 1, Gedim::ISparseArray::SparseArrayTypes::None);
-    result.dirichletMatrixA.SetSize(numberDOFs + 1, numberStrongs);
-    result.rightHandSide.SetSize(numberDOFs + 1);
-    result.solution.SetSize(numberDOFs + 1);
-    result.solutionDirichlet.SetSize(numberStrongs);
+    result.globalMatrixA.SetSize(count_dofs.num_total_dofs, count_dofs.num_total_dofs, Gedim::ISparseArray::SparseArrayTypes::None);
+    result.dirichletMatrixA.SetSize(count_dofs.num_total_dofs, count_dofs.num_total_strong);
+    result.rightHandSide.SetSize(count_dofs.num_total_dofs);
+    result.solution.SetSize(count_dofs.num_total_dofs);
+    result.solutionDirichlet.SetSize(count_dofs.num_total_strong);
 
     Polydim::PDETools::Equations::EllipticEquation equation;
 
@@ -211,39 +193,23 @@ Assembler::Stokes_DF_PCC_2D_Problem_Data Assembler::Assemble(
                                                                pressure_basis_functions_values,
                                                                velocity_local_space.InternalQuadrature.Weights);
 
-        const std::vector<size_t> offset_global_dofs = {
-            0lu,
-            dofs_data[0].CellsGlobalDOFs[2].at(c).size(),
-            dofs_data[0].CellsGlobalDOFs[2].at(c).size() + dofs_data[1].CellsGlobalDOFs[2].at(c).size(),
-            dofs_data[0].CellsGlobalDOFs[2].at(c).size() + dofs_data[1].CellsGlobalDOFs[2].at(c).size() +
-                dofs_data[2].CellsGlobalDOFs[2].at(c).size()};
-        const std::vector<std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData::GlobalCell_DOF>> global_dofs = {
-            dofs_data[0].CellsGlobalDOFs[2].at(c),
-            dofs_data[1].CellsGlobalDOFs[2].at(c),
-            dofs_data[2].CellsGlobalDOFs[2].at(c),
-            dofs_data[3].CellsGlobalDOFs[2].at(c)};
+        const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, dofs_data);
+        const unsigned int num_local_dofs_pressure = dofs_data[3].CellsGlobalDOFs[2].at(c).size();
 
-        Eigen::MatrixXd elemental_matrix =
-            MatrixXd::Zero(global_dofs[0].size() + global_dofs[1].size() + global_dofs[2].size() + global_dofs[3].size(),
-                           global_dofs[0].size() + global_dofs[1].size() + global_dofs[2].size() + global_dofs[3].size());
-        Eigen::VectorXd elemental_rhs =
-            VectorXd::Zero(global_dofs[0].size() + global_dofs[1].size() + global_dofs[2].size() + global_dofs[3].size());
+        Eigen::MatrixXd elemental_matrix = MatrixXd::Zero(local_count_dofs.num_total_dofs, local_count_dofs.num_total_dofs);
+        Eigen::VectorXd elemental_rhs = VectorXd::Zero(local_count_dofs.num_total_dofs);
 
-        elemental_matrix << local_A, -local_B.transpose(), local_B, MatrixXd::Zero(global_dofs[3].size(), global_dofs[3].size());
+        elemental_matrix << local_A, -local_B.transpose(), local_B, MatrixXd::Zero(num_local_dofs_pressure, num_local_dofs_pressure);
 
         elemental_rhs << local_rhs, local_div;
 
-        assert(velocity_local_space.NumBasisFunctions == global_dofs[0].size() + global_dofs[1].size() + global_dofs[2].size());
+        assert(velocity_local_space.NumBasisFunctions == local_count_dofs.num_total_dofs - num_local_dofs_pressure);
 
         Polydim::PDETools::Assembler_Utilities::local_matrix_to_global_matrix_dofs_data local_matrix_to_global_matrix_dofs_data = {
             {std::cref(dofs_data[0]), std::cref(dofs_data[1]), std::cref(dofs_data[2]), std::cref(dofs_data[3])},
-            {0lu,
-             dofs_data[0].CellsGlobalDOFs[2].at(c).size(),
-             dofs_data[0].CellsGlobalDOFs[2].at(c).size() + dofs_data[1].CellsGlobalDOFs[2].at(c).size(),
-             dofs_data[0].CellsGlobalDOFs[2].at(c).size() + dofs_data[1].CellsGlobalDOFs[2].at(c).size() +
-                 dofs_data[2].CellsGlobalDOFs[2].at(c).size()},
-            offsetDOFs,
-            offsetStrongs};
+            local_count_dofs.offsets_DOFs,
+            count_dofs.offsets_DOFs,
+            count_dofs.offsets_Strongs};
 
         Polydim::PDETools::Assembler_Utilities::assemble_local_matrix_to_global_matrix<2>(c,
                                                                                           local_matrix_to_global_matrix_dofs_data,
@@ -260,14 +226,13 @@ Assembler::Stokes_DF_PCC_2D_Problem_Data Assembler::Assemble(
 
         // Mean value condition
         const unsigned int h1 = 3;
-        const unsigned int num_global_offset_lagrange =
-            dofs_data[0].NumberDOFs + dofs_data[1].NumberDOFs + dofs_data[2].NumberDOFs + dofs_data[3].NumberDOFs;
-        for (unsigned int loc_i = 0; loc_i < global_dofs[h1].size(); loc_i++)
+        const unsigned int num_global_offset_lagrange = count_dofs.num_total_dofs - 1;
+        for (unsigned int loc_i = 0; loc_i < dofs_data[h1].CellsGlobalDOFs[2].at(c).size(); loc_i++)
         {
-            const auto global_dof_i = global_dofs[h1].at(loc_i);
+            const auto global_dof_i = dofs_data[h1].CellsGlobalDOFs[2].at(c).at(loc_i);
             const auto local_dof_i =
                 dofs_data[h1].CellsDOFs.at(global_dof_i.Dimension).at(global_dof_i.CellIndex).at(global_dof_i.DOFIndex);
-            const unsigned int global_index_i = local_dof_i.Global_Index + offsetDOFs[h1];
+            const unsigned int global_index_i = local_dof_i.Global_Index + count_dofs.offsets_DOFs[h1];
 
             result.globalMatrixA.Triplet(global_index_i, num_global_offset_lagrange, mean_value_pressure(loc_i));
 
@@ -275,14 +240,14 @@ Assembler::Stokes_DF_PCC_2D_Problem_Data Assembler::Assemble(
         }
     }
 
-    ComputeStrongTerm(mesh, mesh_geometric_data, mesh_dofs_info, dofs_data, offsetStrongs, velocity_reference_element_data, test, result);
+    ComputeStrongTerm(mesh, mesh_geometric_data, mesh_dofs_info, dofs_data, count_dofs.offsets_Strongs, velocity_reference_element_data, test, result);
 
     result.rightHandSide.Create();
     result.solutionDirichlet.Create();
     result.globalMatrixA.Create();
     result.dirichletMatrixA.Create();
 
-    if (numberStrongs > 0)
+    if (count_dofs.num_total_strong > 0)
         result.rightHandSide.SubtractionMultiplication(result.dirichletMatrixA, result.solutionDirichlet);
 
     return result;
@@ -336,7 +301,9 @@ Assembler::DiscrepancyErrors_Data Assembler::ComputeDiscrepancyErrors(
     const Gedim::MeshMatricesDAO &mesh,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
     const vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &full_dofs_data,
-    const vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &reduced_dofs_data,
+    const Polydim::PDETools::Assembler_Utilities::count_dofs_data &full_count_dofs,
+    const vector<PDETools::DOFs::DOFsManager::DOFsData> &reduced_dofs_data,
+    const Polydim::PDETools::Assembler_Utilities::count_dofs_data &reduced_count_dofs,
     const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &full_velocity_reference_element_data,
     const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &full_pressure_reference_element_data,
     const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reduced_velocity_reference_element_data,
@@ -350,52 +317,15 @@ Assembler::DiscrepancyErrors_Data Assembler::ComputeDiscrepancyErrors(
 {
 
     const unsigned int full_numDOFHandler = full_dofs_data.size();
-
-    unsigned int full_numberDOFs = 0;
-    unsigned int full_numberStrongs = 0;
-    std::vector<unsigned int> full_offsetDOFs = {0,
-                                                 full_dofs_data[0].NumberDOFs,
-                                                 full_dofs_data[0].NumberDOFs + full_dofs_data[1].NumberDOFs,
-                                                 full_dofs_data[0].NumberDOFs + full_dofs_data[1].NumberDOFs +
-                                                     full_dofs_data[2].NumberDOFs};
-    std::vector<unsigned int> full_offsetStrongs = {0,
-                                                    full_dofs_data[0].NumberStrongs,
-                                                    full_dofs_data[0].NumberStrongs + full_dofs_data[1].NumberStrongs,
-                                                    full_dofs_data[0].NumberStrongs + full_dofs_data[1].NumberStrongs +
-                                                        full_dofs_data[2].NumberStrongs};
-    for (unsigned int i = 0; i < full_numDOFHandler; i++)
-    {
-        full_numberDOFs += full_dofs_data[i].NumberDOFs;
-        full_numberStrongs += full_dofs_data[i].NumberStrongs;
-    }
-
     const unsigned int reduced_numDOFHandler = reduced_dofs_data.size();
-
-    unsigned int reduced_numberDOFs = 0;
-    unsigned int reduced_numberStrongs = 0;
-    std::vector<unsigned int> reduced_offsetDOFs = {0,
-                                                    reduced_dofs_data[0].NumberDOFs,
-                                                    reduced_dofs_data[0].NumberDOFs + reduced_dofs_data[1].NumberDOFs,
-                                                    reduced_dofs_data[0].NumberDOFs + reduced_dofs_data[1].NumberDOFs +
-                                                        reduced_dofs_data[2].NumberDOFs};
-    std::vector<unsigned int> reduced_offsetStrongs = {
-        0,
-        reduced_dofs_data[0].NumberStrongs,
-        reduced_dofs_data[0].NumberStrongs + reduced_dofs_data[1].NumberStrongs,
-        reduced_dofs_data[0].NumberStrongs + reduced_dofs_data[1].NumberStrongs + reduced_dofs_data[2].NumberStrongs};
-    for (unsigned int i = 0; i < reduced_numDOFHandler; i++)
-    {
-        reduced_numberDOFs += reduced_dofs_data[i].NumberDOFs;
-        reduced_numberStrongs += reduced_dofs_data[i].NumberStrongs;
-    }
 
     DiscrepancyErrors_Data result;
 
     result.residual_norm = 0.0;
-    if (full_numberDOFs > 0)
+    if (full_count_dofs.num_total_dofs > 0)
     {
         Gedim::Eigen_Array<> residual;
-        residual.SetSize(full_numberDOFs + 1);
+        residual.SetSize(full_count_dofs.num_total_dofs);
         residual.SumMultiplication(full_assembler_data.globalMatrixA, full_assembler_data.solution);
         residual -= full_assembler_data.rightHandSide;
 
@@ -403,10 +333,10 @@ Assembler::DiscrepancyErrors_Data Assembler::ComputeDiscrepancyErrors(
     }
 
     result.reduced_residual_norm = 0.0;
-    if (reduced_numberDOFs > 0)
+    if (reduced_count_dofs.num_total_dofs > 0)
     {
         Gedim::Eigen_Array<> residual;
-        residual.SetSize(reduced_numberDOFs + 1);
+        residual.SetSize(reduced_count_dofs.num_total_dofs);
         residual.SumMultiplication(reduced_assembler_data.globalMatrixA, reduced_assembler_data.solution);
         residual -= reduced_assembler_data.rightHandSide;
 
@@ -456,117 +386,42 @@ Assembler::DiscrepancyErrors_Data Assembler::ComputeDiscrepancyErrors(
         const Eigen::MatrixXd reduced_pressure_basis_functions_values =
             vem_reduced_pressure_local_space.ComputeBasisFunctionsValues(reduced_pressure_local_space);
 
-        const std::vector<size_t> full_offset_local_dofs = {
-            0lu,
-            full_dofs_data[0].CellsGlobalDOFs[2].at(c).size(),
-            full_dofs_data[0].CellsGlobalDOFs[2].at(c).size() + full_dofs_data[1].CellsGlobalDOFs[2].at(c).size(),
-            full_dofs_data[0].CellsGlobalDOFs[2].at(c).size() + full_dofs_data[1].CellsGlobalDOFs[2].at(c).size() +
-                full_dofs_data[2].CellsGlobalDOFs[2].at(c).size()};
+        const auto full_local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, full_dofs_data);
+        const unsigned int full_num_local_dofs_pressure = full_dofs_data[3].CellsGlobalDOFs[2].at(c).size();
 
-        const unsigned int num_full_velocity_dof = full_dofs_data[0].CellsGlobalDOFs[2].at(c).size() +
-                                                   full_dofs_data[1].CellsGlobalDOFs[2].at(c).size() +
-                                                   full_dofs_data[2].CellsGlobalDOFs[2].at(c).size();
+        const Eigen::VectorXd full_dofs_values =
+            PDETools::Assembler_Utilities::global_solution_to_local_solution<2>(c,
+                                                                                full_dofs_data,
+                                                                                full_local_count_dofs.num_total_dofs,
+                                                                                full_local_count_dofs.offsets_DOFs,
+                                                                                full_count_dofs.offsets_DOFs,
+                                                                                full_count_dofs.offsets_Strongs,
+                                                                                full_assembler_data.solution,
+                                                                                full_assembler_data.solutionDirichlet);
 
-        Eigen::VectorXd full_velocity_dofs_values = Eigen::VectorXd::Zero(num_full_velocity_dof);
-        for (unsigned int h = 0; h < full_numDOFHandler - 1; h++)
-        {
-            const auto &global_dofs_velocity = full_dofs_data[h].CellsGlobalDOFs[2].at(c);
-            for (unsigned int loc_i = 0; loc_i < global_dofs_velocity.size(); ++loc_i)
-            {
-                const auto &global_dof_i = global_dofs_velocity.at(loc_i);
-                const auto &local_dof_i =
-                    full_dofs_data[h].CellsDOFs.at(global_dof_i.Dimension).at(global_dof_i.CellIndex).at(global_dof_i.DOFIndex);
+        const Eigen::VectorXd full_velocity_dofs_values =
+            full_dofs_values.segment(0, full_local_count_dofs.num_total_dofs - full_num_local_dofs_pressure);
+        const Eigen::VectorXd full_pressure_dofs_values =
+            full_dofs_values.segment(full_local_count_dofs.num_total_dofs - full_num_local_dofs_pressure, full_num_local_dofs_pressure);
 
-                switch (local_dof_i.Type)
-                {
-                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
-                    full_velocity_dofs_values[loc_i + full_offset_local_dofs[h]] =
-                        full_assembler_data.solutionDirichlet.GetValue(local_dof_i.Global_Index + full_offsetStrongs[h]);
-                    break;
-                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-                    full_velocity_dofs_values[loc_i + full_offset_local_dofs[h]] =
-                        full_assembler_data.solution.GetValue(local_dof_i.Global_Index + full_offsetDOFs[h]);
-                    break;
-                default:
-                    throw std::runtime_error("Unknown DOF Type");
-                }
-            }
-        }
+        const auto reduced_local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, reduced_dofs_data);
+        const unsigned int reduced_num_local_dofs_pressure = reduced_dofs_data[3].CellsGlobalDOFs[2].at(c).size();
 
-        const auto &full_pressure_global_dofs = full_dofs_data[3].CellsGlobalDOFs[2].at(c);
-        Eigen::VectorXd full_pressure_dofs_values = Eigen::VectorXd::Zero(full_pressure_global_dofs.size());
-        for (unsigned int loc_i = 0; loc_i < full_pressure_global_dofs.size(); ++loc_i)
-        {
-            const auto &global_dof_i = full_pressure_global_dofs.at(loc_i);
-            const auto &local_dof_i =
-                full_dofs_data[3].CellsDOFs.at(global_dof_i.Dimension).at(global_dof_i.CellIndex).at(global_dof_i.DOFIndex);
+        const Eigen::VectorXd reduced_dofs_values =
+            PDETools::Assembler_Utilities::global_solution_to_local_solution<2>(c,
+                                                                                reduced_dofs_data,
+                                                                                reduced_local_count_dofs.num_total_dofs,
+                                                                                reduced_local_count_dofs.offsets_DOFs,
+                                                                                reduced_count_dofs.offsets_DOFs,
+                                                                                reduced_count_dofs.offsets_Strongs,
+                                                                                reduced_assembler_data.solution,
+                                                                                reduced_assembler_data.solutionDirichlet);
 
-            switch (local_dof_i.Type)
-            {
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-                full_pressure_dofs_values[loc_i] =
-                    full_assembler_data.solution.GetValue(local_dof_i.Global_Index + full_offsetDOFs[3]);
-                break;
-            default:
-                throw std::runtime_error("Unknown DOF Type");
-            }
-        }
-
-        const std::vector<size_t> reduced_offset_local_dofs = {
-            0lu,
-            reduced_dofs_data[0].CellsGlobalDOFs[2].at(c).size(),
-            reduced_dofs_data[0].CellsGlobalDOFs[2].at(c).size() + reduced_dofs_data[1].CellsGlobalDOFs[2].at(c).size(),
-            reduced_dofs_data[0].CellsGlobalDOFs[2].at(c).size() + reduced_dofs_data[1].CellsGlobalDOFs[2].at(c).size() +
-                reduced_dofs_data[2].CellsGlobalDOFs[2].at(c).size()};
-
-        const unsigned int num_reduced_velocity_dof = reduced_dofs_data[0].CellsGlobalDOFs[2].at(c).size() +
-                                                      reduced_dofs_data[1].CellsGlobalDOFs[2].at(c).size() +
-                                                      reduced_dofs_data[2].CellsGlobalDOFs[2].at(c).size();
-
-        Eigen::VectorXd reduced_velocity_dofs_values = Eigen::VectorXd::Zero(num_reduced_velocity_dof);
-        for (unsigned int h = 0; h < reduced_numDOFHandler - 1; h++)
-        {
-            const auto &global_dofs_velocity = reduced_dofs_data[h].CellsGlobalDOFs[2].at(c);
-            for (unsigned int loc_i = 0; loc_i < global_dofs_velocity.size(); ++loc_i)
-            {
-                const auto &global_dof_i = global_dofs_velocity.at(loc_i);
-                const auto &local_dof_i =
-                    reduced_dofs_data[h].CellsDOFs.at(global_dof_i.Dimension).at(global_dof_i.CellIndex).at(global_dof_i.DOFIndex);
-
-                switch (local_dof_i.Type)
-                {
-                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
-                    reduced_velocity_dofs_values[loc_i + reduced_offset_local_dofs[h]] =
-                        reduced_assembler_data.solutionDirichlet.GetValue(local_dof_i.Global_Index + reduced_offsetStrongs[h]);
-                    break;
-                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-                    reduced_velocity_dofs_values[loc_i + reduced_offset_local_dofs[h]] =
-                        reduced_assembler_data.solution.GetValue(local_dof_i.Global_Index + reduced_offsetDOFs[h]);
-                    break;
-                default:
-                    throw std::runtime_error("Unknown DOF Type");
-                }
-            }
-        }
-
-        const auto &reduced_pressure_global_dofs = reduced_dofs_data[3].CellsGlobalDOFs[2].at(c);
-        Eigen::VectorXd reduced_pressure_dofs_values = Eigen::VectorXd::Zero(reduced_pressure_global_dofs.size());
-        for (unsigned int loc_i = 0; loc_i < reduced_pressure_global_dofs.size(); ++loc_i)
-        {
-            const auto &global_dof_i = reduced_pressure_global_dofs.at(loc_i);
-            const auto &local_dof_i =
-                reduced_dofs_data[3].CellsDOFs.at(global_dof_i.Dimension).at(global_dof_i.CellIndex).at(global_dof_i.DOFIndex);
-
-            switch (local_dof_i.Type)
-            {
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-                reduced_pressure_dofs_values[loc_i] =
-                    reduced_assembler_data.solution.GetValue(local_dof_i.Global_Index + reduced_offsetDOFs[3]);
-                break;
-            default:
-                throw std::runtime_error("Unknown DOF Type");
-            }
-        }
+        const Eigen::VectorXd reduced_velocity_dofs_values =
+            reduced_dofs_values.segment(0, reduced_local_count_dofs.num_total_dofs - reduced_num_local_dofs_pressure);
+        const Eigen::VectorXd reduced_pressure_dofs_values =
+            reduced_dofs_values.segment(reduced_local_count_dofs.num_total_dofs - reduced_num_local_dofs_pressure,
+                                        reduced_num_local_dofs_pressure);
 
         const VectorXd full_numeric_pressure_values = full_pressure_basis_functions_values * full_pressure_dofs_values;
         const VectorXd reduced_numeric_pressure_values = reduced_pressure_basis_functions_values * reduced_pressure_dofs_values;
@@ -614,7 +469,7 @@ Assembler::DiscrepancyErrors_Data Assembler::ComputeDiscrepancyErrors(
     result.full_norm_L2_pressure = std::sqrt(result.cell2Ds_full_norm_L2_pressure.sum());
 
     result.pressure_dofs_ratio = ((double)reduced_dofs_data[3].NumberDOFs) / full_dofs_data[3].NumberDOFs;
-    result.velocity_dofs_ratio = ((double)reduced_offsetDOFs[3]) / full_offsetDOFs[3];
+    result.velocity_dofs_ratio = ((double)reduced_count_dofs.offsets_DOFs[3]) / full_count_dofs.offsets_DOFs[3];
 
     return result;
 }
@@ -624,6 +479,7 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
     const Gedim::MeshMatricesDAO &mesh,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
     const vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+    const Polydim::PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
     const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
     const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &pressure_reference_element_data,
     const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_velocity_local_space,
@@ -632,29 +488,14 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
     const Polydim::examples::Brinkman_DF_PCC_2D::test::I_Test &test) const
 {
     const unsigned int numDOFHandler = dofs_data.size();
-    unsigned int numberDOFs = 0;
-    unsigned int numberStrongs = 0;
-    std::vector<unsigned int> offsetDOFs = {0,
-                                            dofs_data[0].NumberDOFs,
-                                            dofs_data[0].NumberDOFs + dofs_data[1].NumberDOFs,
-                                            dofs_data[0].NumberDOFs + dofs_data[1].NumberDOFs + dofs_data[2].NumberDOFs};
-    std::vector<unsigned int> offsetStrongs = {0,
-                                               dofs_data[0].NumberStrongs,
-                                               dofs_data[0].NumberStrongs + dofs_data[1].NumberStrongs,
-                                               dofs_data[0].NumberStrongs + dofs_data[1].NumberStrongs + dofs_data[2].NumberStrongs};
-    for (unsigned int i = 0; i < numDOFHandler; i++)
-    {
-        numberDOFs += dofs_data[i].NumberDOFs;
-        numberStrongs += dofs_data[i].NumberStrongs;
-    }
 
     PostProcess_Data result;
 
     result.residual_norm = 0.0;
-    if (numberDOFs > 0)
+    if (count_dofs.num_total_dofs > 0)
     {
         Gedim::Eigen_Array<> residual;
-        residual.SetSize(numberDOFs + 1);
+        residual.SetSize(count_dofs.num_total_dofs);
         residual.SumMultiplication(assembler_data.globalMatrixA, assembler_data.solution);
         residual -= assembler_data.rightHandSide;
 
@@ -686,11 +527,11 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
                 {
                 case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
                     result.cell0Ds_exact_velocity[d][p] =
-                        assembler_data.solutionDirichlet.GetValue(local_dof_i.Global_Index + offsetStrongs[d]);
+                        assembler_data.solutionDirichlet.GetValue(local_dof_i.Global_Index + count_dofs.offsets_Strongs[d]);
                     break;
                 case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
                     result.cell0Ds_exact_velocity[d][p] =
-                        assembler_data.solution.GetValue(local_dof_i.Global_Index + offsetDOFs[d]);
+                        assembler_data.solution.GetValue(local_dof_i.Global_Index + count_dofs.offsets_DOFs[d]);
                     break;
                 default:
                     throw std::runtime_error("Unknown DOF Type");
@@ -732,60 +573,23 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
         const Eigen::MatrixXd pressure_basis_functions_values =
             vem_pressure_local_space.ComputeBasisFunctionsValues(pressure_local_space);
 
-        const std::vector<size_t> offset_local_dofs = {
-            0lu,
-            dofs_data[0].CellsGlobalDOFs[2].at(c).size(),
-            dofs_data[0].CellsGlobalDOFs[2].at(c).size() + dofs_data[1].CellsGlobalDOFs[2].at(c).size(),
-            dofs_data[0].CellsGlobalDOFs[2].at(c).size() + dofs_data[1].CellsGlobalDOFs[2].at(c).size() +
-                dofs_data[2].CellsGlobalDOFs[2].at(c).size()};
+        const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, dofs_data);
+        const unsigned int num_local_dofs_pressure = dofs_data[3].CellsGlobalDOFs[2].at(c).size();
 
-        const unsigned int num_velocity_dof = dofs_data[0].CellsGlobalDOFs[2].at(c).size() +
-                                              dofs_data[1].CellsGlobalDOFs[2].at(c).size() +
-                                              dofs_data[2].CellsGlobalDOFs[2].at(c).size();
+        const Eigen::VectorXd dofs_values =
+            PDETools::Assembler_Utilities::global_solution_to_local_solution<2>(c,
+                                                                                dofs_data,
+                                                                                local_count_dofs.num_total_dofs,
+                                                                                local_count_dofs.offsets_DOFs,
+                                                                                count_dofs.offsets_DOFs,
+                                                                                count_dofs.offsets_Strongs,
+                                                                                assembler_data.solution,
+                                                                                assembler_data.solutionDirichlet);
 
-        Eigen::VectorXd velocity_dofs_values = Eigen::VectorXd::Zero(num_velocity_dof);
-        for (unsigned int h = 0; h < numDOFHandler - 1; h++)
-        {
-            const auto &global_dofs_velocity = dofs_data[h].CellsGlobalDOFs[2].at(c);
-            for (unsigned int loc_i = 0; loc_i < global_dofs_velocity.size(); ++loc_i)
-            {
-                const auto &global_dof_i = global_dofs_velocity.at(loc_i);
-                const auto &local_dof_i =
-                    dofs_data[h].CellsDOFs.at(global_dof_i.Dimension).at(global_dof_i.CellIndex).at(global_dof_i.DOFIndex);
-
-                switch (local_dof_i.Type)
-                {
-                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
-                    velocity_dofs_values[loc_i + offset_local_dofs[h]] =
-                        assembler_data.solutionDirichlet.GetValue(local_dof_i.Global_Index + offsetStrongs[h]);
-                    break;
-                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-                    velocity_dofs_values[loc_i + offset_local_dofs[h]] =
-                        assembler_data.solution.GetValue(local_dof_i.Global_Index + offsetDOFs[h]);
-                    break;
-                default:
-                    throw std::runtime_error("Unknown DOF Type");
-                }
-            }
-        }
-
-        const auto &pressure_global_dofs = dofs_data[3].CellsGlobalDOFs[2].at(c);
-        Eigen::VectorXd pressure_dofs_values = Eigen::VectorXd::Zero(pressure_global_dofs.size());
-        for (unsigned int loc_i = 0; loc_i < pressure_global_dofs.size(); ++loc_i)
-        {
-            const auto &global_dof_i = pressure_global_dofs.at(loc_i);
-            const auto &local_dof_i =
-                dofs_data[3].CellsDOFs.at(global_dof_i.Dimension).at(global_dof_i.CellIndex).at(global_dof_i.DOFIndex);
-
-            switch (local_dof_i.Type)
-            {
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-                pressure_dofs_values[loc_i] = assembler_data.solution.GetValue(local_dof_i.Global_Index + offsetDOFs[3]);
-                break;
-            default:
-                throw std::runtime_error("Unknown DOF Type");
-            }
-        }
+        const Eigen::VectorXd velocity_dofs_values =
+            dofs_values.segment(0, local_count_dofs.num_total_dofs - num_local_dofs_pressure);
+        const Eigen::VectorXd pressure_dofs_values =
+            dofs_values.segment(local_count_dofs.num_total_dofs - num_local_dofs_pressure, num_local_dofs_pressure);
 
         const VectorXd numeric_pressure_values = pressure_basis_functions_values * pressure_dofs_values;
         const VectorXd exact_pressure_values = test.exact_pressure(velocity_local_space.InternalQuadrature.Points);

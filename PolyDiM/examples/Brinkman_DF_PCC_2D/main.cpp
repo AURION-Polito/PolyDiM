@@ -1,3 +1,4 @@
+#include "Assembler_Utilities.hpp"
 #include "DOFsManager.hpp"
 #include "Eigen_LUSolver.hpp"
 #include "I_VEM_DF_PCC_2D_ReferenceElement.hpp"
@@ -138,26 +139,11 @@ int main(int argc, char **argv)
 
     dofs_data[3] = dofManager.CreateDOFs<2>(meshDOFsInfo[3], mesh_connectivity_data);
 
-    const unsigned int numDOFHandler = meshDOFsInfo.size();
-    unsigned int numberDOFs = 0;
-    unsigned int numberStrongs = 0;
-    std::vector<unsigned int> offsetDOFs = {0,
-                                            dofs_data[0].NumberDOFs,
-                                            dofs_data[0].NumberDOFs + dofs_data[1].NumberDOFs,
-                                            dofs_data[0].NumberDOFs + dofs_data[1].NumberDOFs + dofs_data[2].NumberDOFs};
-    std::vector<unsigned int> offsetStrongs = {0,
-                                               dofs_data[0].NumberStrongs,
-                                               dofs_data[0].NumberStrongs + dofs_data[1].NumberStrongs,
-                                               dofs_data[0].NumberStrongs + dofs_data[1].NumberStrongs + dofs_data[2].NumberStrongs};
-    for (unsigned int i = 0; i < numDOFHandler; i++)
-    {
-        numberDOFs += dofs_data[i].NumberDOFs;
-        numberStrongs += dofs_data[i].NumberStrongs;
-    }
+    auto count_dofs = Polydim::PDETools::Assembler_Utilities::count_dofs(dofs_data);
+    count_dofs.num_total_dofs += 1; // lagrange
 
-    numberDOFs += 1; // lagrange
-
-    Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(numberDOFs) + " DOFs and " + to_string(numberStrongs) + " STRONGs",
+    Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(count_dofs.num_total_dofs) + " DOFs and " +
+                                           to_string(count_dofs.num_total_strong) + " STRONGs",
                                        true);
 
     Gedim::Profiler::StopTime("CreateVEMSpace");
@@ -175,6 +161,7 @@ int main(int argc, char **argv)
                                              meshGeometricData,
                                              meshDOFsInfo,
                                              dofs_data,
+                                             count_dofs,
                                              velocity_reference_element_data,
                                              pressure_reference_element_data,
                                              *vem_velocity_local_space,
@@ -184,7 +171,7 @@ int main(int argc, char **argv)
     Gedim::Profiler::StopTime("AssembleSystem");
     Gedim::Output::PrintStatusProgram("AssembleSystem");
 
-    if (numberDOFs > 0)
+    if (count_dofs.num_total_dofs > 0)
     {
         Gedim::Output::PrintGenericMessage("Factorize...", true);
         Gedim::Profiler::StartTime("Factorize");
@@ -211,6 +198,7 @@ int main(int argc, char **argv)
                                                            mesh,
                                                            meshGeometricData,
                                                            dofs_data,
+                                                           count_dofs,
                                                            velocity_reference_element_data,
                                                            pressure_reference_element_data,
                                                            *vem_velocity_local_space,
@@ -339,29 +327,11 @@ int main(int argc, char **argv)
 
         full_dofs_data[3] = dofManager.CreateDOFs<2>(full_meshDOFsInfo[3], mesh_connectivity_data);
 
-        const unsigned int full_numDOFHandler = full_meshDOFsInfo.size();
-        unsigned int full_numberDOFs = 0;
-        unsigned int full_numberStrongs = 0;
-        std::vector<unsigned int> full_offsetDOFs = {0,
-                                                     full_dofs_data[0].NumberDOFs,
-                                                     full_dofs_data[0].NumberDOFs + full_dofs_data[1].NumberDOFs,
-                                                     full_dofs_data[0].NumberDOFs + full_dofs_data[1].NumberDOFs +
-                                                         full_dofs_data[2].NumberDOFs};
-        std::vector<unsigned int> full_offsetStrongs = {0,
-                                                        full_dofs_data[0].NumberStrongs,
-                                                        full_dofs_data[0].NumberStrongs + full_dofs_data[1].NumberStrongs,
-                                                        full_dofs_data[0].NumberStrongs + full_dofs_data[1].NumberStrongs +
-                                                            full_dofs_data[2].NumberStrongs};
-        for (unsigned int i = 0; i < full_numDOFHandler; i++)
-        {
-            full_numberDOFs += full_dofs_data[i].NumberDOFs;
-            full_numberStrongs += full_dofs_data[i].NumberStrongs;
-        }
+        auto full_count_dofs = Polydim::PDETools::Assembler_Utilities::count_dofs(dofs_data);
+        full_count_dofs.num_total_dofs += 1; // lagrange
 
-        full_numberDOFs += 1; // lagrange
-
-        Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(full_numberDOFs) + " DOFs and " +
-                                               to_string(full_numberStrongs) + " STRONGs",
+        Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(full_count_dofs.num_total_dofs) +
+                                               " DOFs and " + to_string(full_count_dofs.num_total_strong) + " STRONGs",
                                            true);
 
         Gedim::Profiler::StopTime("CreateFULLVEMSpace");
@@ -380,6 +350,7 @@ int main(int argc, char **argv)
                                                       meshGeometricData,
                                                       full_meshDOFsInfo,
                                                       full_dofs_data,
+                                                      full_count_dofs,
                                                       full_velocity_reference_element_data,
                                                       full_pressure_reference_element_data,
                                                       *vem_full_velocity_local_space,
@@ -389,7 +360,7 @@ int main(int argc, char **argv)
         Gedim::Profiler::StopTime("AssembleSystem");
         Gedim::Output::PrintStatusProgram("AssembleSystem");
 
-        if (numberDOFs > 0)
+        if (full_count_dofs.num_total_dofs > 0)
         {
             Gedim::Output::PrintGenericMessage("Factorize...", true);
             Gedim::Profiler::StartTime("Factorize");
@@ -416,7 +387,9 @@ int main(int argc, char **argv)
                                                                                 mesh,
                                                                                 meshGeometricData,
                                                                                 full_dofs_data,
+                                                                                full_count_dofs,
                                                                                 dofs_data,
+                                                                                count_dofs,
                                                                                 full_velocity_reference_element_data,
                                                                                 full_pressure_reference_element_data,
                                                                                 velocity_reference_element_data,

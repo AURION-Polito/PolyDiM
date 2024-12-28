@@ -30,7 +30,7 @@ class VEM_DF_PCC_3D_Pressure_ReferenceElement final : public I_VEM_DF_PCC_3D_Pre
         result.NumDofs0D = 0;
         result.NumDofs1D = 0;
         result.NumDofs2D = 0;
-        result.NumDofs2D = order * (order + 1) * (order + 2) / 6;
+        result.NumDofs3D = order * (order + 1) * (order + 2) / 6;
 
         return result;
     }

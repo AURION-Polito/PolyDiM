@@ -26,7 +26,7 @@ namespace DF_PCC
 class VEM_DF_PCC_3D_Reduced_Pressure_LocalSpace final : public I_VEM_DF_PCC_3D_Pressure_LocalSpace
 {
   private:
-    VEM_DF_PCC_Utilities<2> utilities;
+    VEM_DF_PCC_Utilities<3> utilities;
     Monomials::VEM_Monomials_3D monomials;
 
     void InitializeProjectorsComputation(const VEM_DF_PCC_3D_Pressure_ReferenceElement_Data &reference_element_data,
