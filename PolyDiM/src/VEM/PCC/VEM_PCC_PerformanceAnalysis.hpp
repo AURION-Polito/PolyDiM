@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "LAPACK_utilities.hpp"
+#include "VEM_PCC_Utilities.hpp"
 
 namespace Polydim
 {
@@ -73,12 +74,12 @@ struct VEM_PCC_PerformanceAnalysis final
             result.ErrorPi0km1Grad[d] = (piDerkm1 * vem_local_space_data.Dmatrix - derMatrix).norm() / relErrDenominator;
         }
 
-        if (vem_local_space_data.StabMatrix.size() > 0)
-        {
-            const Eigen::MatrixXd &stabilizationMatrix = vem_local_space_data.StabMatrix;
-            result.StabNorm = vem_local_space_data.StabMatrix.norm();
-            result.ErrorStabilization = (stabilizationMatrix * vem_local_space_data.Dmatrix).norm();
-        }
+        const Eigen::MatrixXd StabMatrix =
+            vem_local_space.ComputeDofiDofiStabilizationMatrix(vem_local_space_data, ProjectionTypes::PiNabla);
+
+        const Eigen::MatrixXd &stabilizationMatrix = StabMatrix;
+        result.StabNorm = StabMatrix.norm();
+        result.ErrorStabilization = (stabilizationMatrix * vem_local_space_data.Dmatrix).norm();
 
         if (vem_local_space_data.Hmatrix.size() > 0 && vem_local_space_data.Cmatrix.size() > 0)
             result.ErrorHCD =

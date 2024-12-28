@@ -30,20 +30,6 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
     /// Compute the Edge basis coefficients
     Eigen::VectorXd ComputeEdgeBasisCoefficients(const unsigned int &order, const Eigen::VectorXd &edgeInternalPoints) const;
 
-    /// \brief Compute the dofi-dofi stabilization matrix using \ref VEM::PCC::ProjectionTypes::PiNabla projector.
-    /// \param piNabla: the projection coefficients related to \ref VEM::PCC::ProjectionTypes::PiNabla
-    /// \param diameter: a double representing the diameter of the element
-    /// \param DMatrix: matrix containing the polynomials degrees of freedom
-    /// \return The dofi-dofi stabilization matrix.
-    Eigen::MatrixXd ComputeStabilizationMatrix(const Eigen::MatrixXd &piNabla, const double &diameter, const Eigen::MatrixXd &DMatrix) const;
-
-    /// \brief Compute the dofi-dofi stabilization matrix using \ref VEM::PCC::ProjectionTypes::Pi0k projector.
-    /// \param pi0k: the projection coefficients related to \ref VEM::PCC::ProjectionTypes::Pi0k
-    /// \param measure: a double representing the measure of the element
-    /// \param DMatrix: matrix containing the polynomials degrees of freedom
-    /// \return The dofi-dofi stabilization matrix.
-    Eigen::MatrixXd ComputeStabilizationMatrixPi0k(const Eigen::MatrixXd &pi0k, const double &measure, const Eigen::MatrixXd &DMatrix) const;
-
     /// \brief Compute matrices of coefficients related to \ref VEM::PCC::ProjectionTypes::Pi0km1 and \ref
     /// VEM::PCC::ProjectionTypes::Pi0k. \param[in] measure: a double representing the measure of the element \param[in]
     /// order: the vem order \param[in] Nkm1: number of polynomials of degree order-1 \param[in] Nk: number of
@@ -219,6 +205,15 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
                                         const unsigned int &order,
                                         const Eigen::VectorXd &edgeBasisCoefficients,
                                         const Eigen::VectorXd &pointsCurvilinearCoordinates) const;
+
+    /// \brief Compute the dofi-dofi stabilization matrix using \ref VEM::PCC::ProjectionTypes projector.
+    /// \param piNabla: the projection coefficients related to \ref VEM::PCC::ProjectionTypes
+    /// \param diameter: a double representing the diameter of the element
+    /// \param DMatrix: matrix containing the polynomials degrees of freedom
+    /// \return The dofi-dofi stabilization matrix.
+    Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const Eigen::MatrixXd &projector,
+                                                       const double &coefficient,
+                                                       const Eigen::MatrixXd &Dmatrix) const;
 };
 } // namespace PCC
 } // namespace VEM

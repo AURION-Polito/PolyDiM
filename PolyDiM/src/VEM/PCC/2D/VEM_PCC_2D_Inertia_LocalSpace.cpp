@@ -3,8 +3,6 @@
 using namespace std;
 using namespace Eigen;
 
-#define TEST
-
 namespace Polydim
 {
 namespace VEM
@@ -85,9 +83,12 @@ VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Inertia_LocalSpace::CreateLocalSpace(const
 
     ComputePolynomialsDofs(localSpace.inertia_data.Measure, localSpace);
 
-    ComputeStabilizationMatrix(localSpace.Diameter, localSpace);
+    localSpace.Diameter = localSpace.inertia_data.Diameter;
+    localSpace.Centroid = localSpace.inertia_data.Centroid;
+    localSpace.Measure = localSpace.inertia_data.Measure;
 
-    ComputeStabilizationMatrixPi0k(polygon.Measure, localSpace);
+    localSpace.inertia_data.constantStiff = 1.0;
+    localSpace.inertia_data.constantMass = polygon.Measure;
 
     return localSpace;
 }
@@ -272,6 +273,13 @@ VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Inertia_LocalSpace::Compute3DUtilities(con
                                                  polygon.EdgesTangent,
                                                  polygon.EdgesNormal);
 
+    localSpace.Diameter = localSpace.inertia_data.Diameter;
+    localSpace.Centroid = localSpace.inertia_data.Centroid;
+    localSpace.Measure = localSpace.inertia_data.Measure;
+
+    localSpace.inertia_data.constantStiff = 1.0;
+    localSpace.inertia_data.constantMass = polygon.Measure;
+
     InitializeProjectorsComputation(reference_element_data,
                                     localSpace.inertia_data.Vertices,
                                     localSpace.inertia_data.Centroid,
@@ -322,9 +330,6 @@ void VEM_PCC_2D_Inertia_LocalSpace::InitializeProjectorsComputation(const VEM_PC
     localSpace.Nkm1 = localSpace.NumProjectorBasisFunctions - reference_element_data.Order - 1;
 
     // Compute Vandermonde matrices.
-    localSpace.Diameter = polygonDiameter;
-    localSpace.Centroid = polygonCentroid;
-
     localSpace.VanderInternal =
         monomials.Vander(reference_element_data.Monomials, internalQuadraturePoints, polygonCentroid, polygonDiameter);
     localSpace.VanderInternalDerivatives =

@@ -198,6 +198,7 @@ typename Assembler::Elliptic_PCC_2D_Problem_Data Assembler::Assemble(
     const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
     const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
     const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+    const Polydim::VEM::PCC::I_VEM_PCC_2D_LocalSpace &vem_local_space,
     const Polydim::examples::Elliptic_PCC_2D::test::I_Test &test) const
 {
     Elliptic_PCC_2D_Problem_Data result;
@@ -224,15 +225,13 @@ typename Assembler::Elliptic_PCC_2D_Problem_Data Assembler::Assemble(
                                                                         mesh_geometric_data.Cell2DsEdgeTangents.at(c),
                                                                         mesh_geometric_data.Cell2DsEdgeNormals.at(c)};
 
-        const auto vem_local_space = Polydim::VEM::PCC::create_VEM_PCC_2D_local_space(config.VemType());
-
-        const auto local_space = vem_local_space->CreateLocalSpace(reference_element_data, polygon);
+        const auto local_space = vem_local_space.CreateLocalSpace(reference_element_data, polygon);
 
         const auto basis_functions_values =
-            vem_local_space->ComputeBasisFunctionsValues(local_space, Polydim::VEM::PCC::ProjectionTypes::Pi0km1);
+            vem_local_space.ComputeBasisFunctionsValues(local_space, Polydim::VEM::PCC::ProjectionTypes::Pi0km1);
 
         const auto basis_functions_derivative_values =
-            vem_local_space->ComputeBasisFunctionsDerivativeValues(local_space, Polydim::VEM::PCC::ProjectionTypes::Pi0km1Der);
+            vem_local_space.ComputeBasisFunctionsDerivativeValues(local_space, Polydim::VEM::PCC::ProjectionTypes::Pi0km1Der);
 
         const auto diffusion_term_values = test.diffusion_term(local_space.InternalQuadrature.Points);
         const auto source_term_values = test.source_term(local_space.InternalQuadrature.Points);
@@ -241,7 +240,9 @@ typename Assembler::Elliptic_PCC_2D_Problem_Data Assembler::Assemble(
                                                                  basis_functions_derivative_values,
                                                                  local_space.InternalQuadrature.Weights);
 
-        const auto local_stab_A = diffusion_term_values.cwiseAbs().maxCoeff() * local_space.StabMatrix;
+        const auto local_stab_A =
+            diffusion_term_values.cwiseAbs().maxCoeff() *
+            vem_local_space.ComputeDofiDofiStabilizationMatrix(local_space, VEM::PCC::ProjectionTypes::PiNabla);
 
         const auto local_rhs =
             equation.ComputeCellForcingTerm(source_term_values, basis_functions_values, local_space.InternalQuadrature.Weights);
@@ -262,7 +263,7 @@ typename Assembler::Elliptic_PCC_2D_Problem_Data Assembler::Assemble(
                                                                                           result.dirichletMatrixA,
                                                                                           result.rightHandSide);
 
-        ComputeWeakTerm(c, mesh, polygon, mesh_dofs_info, dofs_data, reference_element_data, *vem_local_space, test, result);
+        ComputeWeakTerm(c, mesh, polygon, mesh_dofs_info, dofs_data, reference_element_data, vem_local_space, test, result);
     }
 
     ComputeStrongTerm(mesh, mesh_geometric_data, mesh_dofs_info, dofs_data, reference_element_data, test, result);
@@ -282,7 +283,8 @@ Assembler::VEM_Performance_Result Assembler::ComputeVemPerformance(
     const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
     const Gedim::MeshMatricesDAO &mesh,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-    const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data &reference_element_data) const
+    const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+    const Polydim::VEM::PCC::I_VEM_PCC_2D_LocalSpace &vem_local_space) const
 {
     Assembler::VEM_Performance_Result result;
     result.Cell2DsPerformance.resize(mesh.Cell2DTotalNumber());
@@ -302,15 +304,13 @@ Assembler::VEM_Performance_Result Assembler::ComputeVemPerformance(
                                                                         mesh_geometric_data.Cell2DsEdgeTangents.at(c),
                                                                         mesh_geometric_data.Cell2DsEdgeNormals.at(c)};
 
-        const auto vem_local_space = Polydim::VEM::PCC::create_VEM_PCC_2D_local_space(config.VemType());
-
-        const auto local_space = vem_local_space->CreateLocalSpace(reference_element_data, polygon);
+        const auto local_space = vem_local_space.CreateLocalSpace(reference_element_data, polygon);
 
         Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis performanceAnalysis;
 
         result.Cell2DsPerformance[c].Analysis = performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_2D(),
                                                                             reference_element_data.Monomials,
-                                                                            *vem_local_space,
+                                                                            vem_local_space,
                                                                             local_space);
 
         result.Cell2DsPerformance[c].NumInternalQuadraturePoints = local_space.InternalQuadrature.Weights.size();
@@ -325,6 +325,7 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
                                                            const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                                            const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                                                            const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                           const Polydim::VEM::PCC::I_VEM_PCC_2D_LocalSpace &vem_local_space,
                                                            const Elliptic_PCC_2D_Problem_Data &assembler_data,
                                                            const Polydim::examples::Elliptic_PCC_2D::test::I_Test &test) const
 {
@@ -392,15 +393,13 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
                                                                         mesh_geometric_data.Cell2DsEdgeTangents.at(c),
                                                                         mesh_geometric_data.Cell2DsEdgeNormals.at(c)};
 
-        const auto vem_local_space = Polydim::VEM::PCC::create_VEM_PCC_2D_local_space(config.VemType());
-
-        const auto local_space = vem_local_space->CreateLocalSpace(reference_element_data, polygon);
+        const auto local_space = vem_local_space.CreateLocalSpace(reference_element_data, polygon);
 
         const auto basis_functions_values =
-            vem_local_space->ComputeBasisFunctionsValues(local_space, Polydim::VEM::PCC::ProjectionTypes::Pi0k);
+            vem_local_space.ComputeBasisFunctionsValues(local_space, Polydim::VEM::PCC::ProjectionTypes::Pi0k);
 
         const auto basis_functions_derivative_values =
-            vem_local_space->ComputeBasisFunctionsDerivativeValues(local_space, Polydim::VEM::PCC::ProjectionTypes::Pi0km1Der);
+            vem_local_space.ComputeBasisFunctionsDerivativeValues(local_space, Polydim::VEM::PCC::ProjectionTypes::Pi0km1Der);
 
         const auto exact_solution_values = test.exact_solution(local_space.InternalQuadrature.Points);
         const auto exact_derivative_solution_values = test.exact_derivative_solution(local_space.InternalQuadrature.Points);

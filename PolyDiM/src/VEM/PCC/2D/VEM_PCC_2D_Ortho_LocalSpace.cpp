@@ -1,7 +1,6 @@
 #include "VEM_PCC_2D_Ortho_LocalSpace.hpp"
 
 #include "LAPACK_utilities.hpp"
-#include "iostream"
 
 using namespace Eigen;
 
@@ -34,6 +33,7 @@ VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Ortho_LocalSpace::CreateLocalSpace(const V
     InitializeProjectorsComputation(reference_element_data,
                                     polygon.Vertices,
                                     polygon.Centroid,
+                                    polygon.Measure,
                                     polygon.Diameter,
                                     localSpace.InternalQuadrature.Points,
                                     localSpace.InternalQuadrature.Weights,
@@ -57,10 +57,6 @@ VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Ortho_LocalSpace::CreateLocalSpace(const V
                                      localSpace);
 
     ComputePolynomialsDofs(polygon.Measure, localSpace);
-
-    ComputeStabilizationMatrix(polygon.Diameter, localSpace);
-
-    ComputeStabilizationMatrixPi0k(polygon.Measure, localSpace);
 
     return localSpace;
 }
@@ -87,6 +83,7 @@ VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Ortho_LocalSpace::Compute3DUtilities(const
     InitializeProjectorsComputation(reference_element_data,
                                     polygon.Vertices,
                                     polygon.Centroid,
+                                    polygon.Measure,
                                     polygon.Diameter,
                                     localSpace.InternalQuadrature.Points,
                                     localSpace.InternalQuadrature.Weights,
@@ -109,6 +106,7 @@ VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Ortho_LocalSpace::Compute3DUtilities(const
 void VEM_PCC_2D_Ortho_LocalSpace::InitializeProjectorsComputation(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                                                   const Eigen::MatrixXd &polygonVertices,
                                                                   const Eigen::Vector3d &polygonCentroid,
+                                                                  const double &polygonMeasure,
                                                                   const double &polygonDiameter,
                                                                   const Eigen::MatrixXd &internalQuadraturePoints,
                                                                   const Eigen::VectorXd &internalQuadratureWeights,
@@ -137,6 +135,7 @@ void VEM_PCC_2D_Ortho_LocalSpace::InitializeProjectorsComputation(const VEM_PCC_
     // Compute Vandermonde matrices.
     localSpace.Diameter = polygonDiameter;
     localSpace.Centroid = polygonCentroid;
+    localSpace.Measure = polygonMeasure;
     localSpace.VanderInternal =
         monomials.Vander(reference_element_data.Monomials, internalQuadraturePoints, polygonCentroid, polygonDiameter);
     localSpace.VanderInternalDerivatives =

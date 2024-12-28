@@ -27,6 +27,7 @@ class VEM_PCC_2D_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
     void InitializeProjectorsComputation(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                          const Eigen::MatrixXd &polygonVertices,
                                          const Eigen::Vector3d &polygonCentroid,
+                                         const double &polygonMeasure,
                                          const double &polygonDiameter,
                                          const Eigen::MatrixXd &internalQuadraturePoints,
                                          const Eigen::VectorXd &internalQuadratureWeights,
@@ -64,20 +65,11 @@ class VEM_PCC_2D_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
 
     void ComputePolynomialsDofs(const double &polytopeMeasure, VEM_PCC_2D_LocalSpace_Data &localSpace) const;
 
-    inline void ComputeStabilizationMatrix(const double &polygonDiameter, VEM_PCC_2D_LocalSpace_Data &localSpace) const
-    {
-        localSpace.StabMatrix = utilities.ComputeStabilizationMatrix(localSpace.PiNabla, polygonDiameter, localSpace.Dmatrix);
-    }
-
-    inline void ComputeStabilizationMatrixPi0k(const double &polygonMeasure, VEM_PCC_2D_LocalSpace_Data &localSpace) const
-    {
-        localSpace.StabMatrixPi0k = utilities.ComputeStabilizationMatrixPi0k(localSpace.Pi0k, polygonMeasure, localSpace.Dmatrix);
-    }
-
     void InitializeE2ProjectorsComputation(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                            const unsigned int &l,
                                            const Eigen::MatrixXd &polygonVertices,
                                            const Eigen::Vector3d &polygonCentroid,
+                                           const double &polygonMeasure,
                                            const double &polygonDiameter,
                                            const Eigen::MatrixXd &internalQuadraturePoints,
                                            const Eigen::VectorXd &internalQuadratureWeights,
@@ -98,6 +90,20 @@ class VEM_PCC_2D_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
     /// \return An object of type \ref VEM::PCC::VEM_PCC_2D_LocalSpace_Data.
     VEM_PCC_2D_LocalSpace_Data CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                                 const VEM_PCC_2D_Polygon_Geometry &polygon) const;
+
+    inline Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const VEM_PCC_2D_LocalSpace_Data &localSpace,
+                                                              const ProjectionTypes &projectionType) const
+    {
+        switch (projectionType)
+        {
+        case ProjectionTypes::PiNabla:
+            return utilities.ComputeDofiDofiStabilizationMatrix(localSpace.PiNabla, 1.0, localSpace.Dmatrix);
+        case ProjectionTypes::Pi0k:
+            return utilities.ComputeDofiDofiStabilizationMatrix(localSpace.Pi0k, localSpace.Measure, localSpace.Dmatrix);
+        default:
+            throw std::runtime_error("not valid projection type");
+        }
+    }
 
     /// \brief Create and Initialize variables contained in \ref VEM::PCC::VEM_PCC_2D_LocalSpace_Data which are used by
     /// \ref VEM::PCC::VEM_PCC_3D_LocalSpace. \param reference_element_data: an object of type \ref

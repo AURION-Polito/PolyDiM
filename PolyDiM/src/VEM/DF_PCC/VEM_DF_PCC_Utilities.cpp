@@ -85,7 +85,7 @@ MatrixXd VEM_DF_PCC_Utilities<dimension>::ComputeDofiDofiStabilizationMatrix(con
     Eigen::MatrixXd staBmatrix = dmatrix[0] * projector[0];
 
     for (unsigned int d = 1; d < dimension; d++)
-        staBmatrix += dmatrix[1] * projector[1];
+        staBmatrix += dmatrix[d] * projector[d];
 
     staBmatrix.diagonal().array() -= 1;
 

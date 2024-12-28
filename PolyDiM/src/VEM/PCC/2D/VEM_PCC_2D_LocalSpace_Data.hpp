@@ -46,6 +46,9 @@ struct VEM_PCC_2D_Inertia_Data final
     Eigen::Vector3d translation;
     double absDetFmatrix;
     double signDetQ;
+
+    double constantStiff;
+    double constantMass;
 };
 
 /// \brief Structure containing the local matrices and the main variables to compute the vritual element discrete
@@ -94,9 +97,6 @@ struct VEM_PCC_2D_LocalSpace_Data final
     Eigen::MatrixXd Pi0klm1;
     std::vector<Eigen::MatrixXd> Pi0km1Der; ///< Vector of matrices representing the \f$\Pi^0_{\mathrm{order}-1}\f$
                                             ///< operator applied to derivatives of basis functions.
-
-    Eigen::MatrixXd StabMatrix;     ///< Matrix used for stabilizing elliptic bilinear forms.
-    Eigen::MatrixXd StabMatrixPi0k; ///< Matrix used for stabilizing elliptic bilinear forms.
 
     Eigen::MatrixXd Hmatrix; ///< Mass matrix of the polynomial basis: \f$ H_{ij} = \int_E m_i m_j \f$, where \f$ E \f$
                              ///< is the input polygon.

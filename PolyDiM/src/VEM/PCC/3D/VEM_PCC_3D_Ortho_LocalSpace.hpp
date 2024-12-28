@@ -2,13 +2,13 @@
 #define __VEM_PCC_3D_Ortho_LocalSpace_HPP
 
 #include "Eigen/Eigen"
+#include "I_VEM_PCC_2D_ReferenceElement.hpp"
 #include "I_VEM_PCC_3D_LocalSpace.hpp"
+#include "I_VEM_PCC_3D_ReferenceElement.hpp"
 #include "VEM_Monomials_3D.hpp"
 #include "VEM_PCC_2D_LocalSpace_Data.hpp"
 #include "VEM_PCC_2D_Ortho_LocalSpace.hpp"
-#include "VEM_PCC_2D_ReferenceElement.hpp"
 #include "VEM_PCC_3D_LocalSpace_Data.hpp"
-#include "VEM_PCC_3D_ReferenceElement.hpp"
 #include "VEM_PCC_Utilities.hpp"
 #include <vector>
 
@@ -29,6 +29,7 @@ class VEM_PCC_3D_Ortho_LocalSpace final : public I_VEM_PCC_3D_LocalSpace
                                          const Eigen::MatrixXi &polyhedronEdges,
                                          const std::vector<Eigen::MatrixXi> &polyhedronFaces,
                                          const Eigen::Vector3d &polyhedronCentroid,
+                                         const double &polyhedronMeasure,
                                          const double &polyhedronDiameter,
                                          const Eigen::MatrixXd &internalQuadraturePoints,
                                          const Eigen::VectorXd &internalQuadratureWeights,
@@ -65,17 +66,6 @@ class VEM_PCC_3D_Ortho_LocalSpace final : public I_VEM_PCC_3D_LocalSpace
                                       localSpace.Pi0k);
     };
 
-    inline void ComputeStabilizationMatrix(const double &polyhedronDiameter, VEM_PCC_3D_LocalSpace_Data &localSpace) const
-    {
-        localSpace.StabMatrix = utilities.ComputeStabilizationMatrix(localSpace.PiNabla, polyhedronDiameter, localSpace.Dmatrix);
-    }
-
-    inline void ComputeStabilizationMatrixPi0k(const double &polyhedronMeasure, VEM_PCC_3D_LocalSpace_Data &localSpace) const
-    {
-        localSpace.StabMatrixPi0k =
-            utilities.ComputeStabilizationMatrixPi0k(localSpace.Pi0k, polyhedronMeasure, localSpace.Dmatrix);
-    }
-
     void ChangeOfBasis(const Eigen::VectorXd &internalQuadratureWeights, VEM_PCC_3D_LocalSpace_Data &localSpace) const;
 
     void ComputeFaceProjectors(const VEM_PCC_2D_Ortho_LocalSpace &faceVemValues,
@@ -92,6 +82,20 @@ class VEM_PCC_3D_Ortho_LocalSpace final : public I_VEM_PCC_3D_LocalSpace
                                                 const VEM_PCC_3D_ReferenceElement_Data &reference_element_data_3D,
                                                 const std::vector<VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
                                                 const VEM_PCC_3D_Polyhedron_Geometry &polyhedron) const;
+
+    inline Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const VEM_PCC_3D_LocalSpace_Data &localSpace,
+                                                              const ProjectionTypes &projectionType) const
+    {
+        switch (projectionType)
+        {
+        case ProjectionTypes::PiNabla:
+            return utilities.ComputeDofiDofiStabilizationMatrix(localSpace.PiNabla, localSpace.Diameter, localSpace.Dmatrix);
+        case ProjectionTypes::Pi0k:
+            return utilities.ComputeDofiDofiStabilizationMatrix(localSpace.Pi0k, localSpace.Measure, localSpace.Dmatrix);
+        default:
+            throw std::runtime_error("not valid projection type");
+        }
+    }
 
     inline Eigen::MatrixXd ComputeBasisFunctionsValues(const VEM_PCC_3D_LocalSpace_Data &localSpace,
                                                        const ProjectionTypes &projectionType) const

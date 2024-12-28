@@ -98,6 +98,8 @@ int main(int argc, char **argv)
     const auto vem_reference_element_3D = Polydim::VEM::PCC::create_VEM_PCC_3D_reference_element_3D(config.VemType());
     const auto reference_element_data_3D = vem_reference_element_3D->Create(config.VemOrder());
 
+    const auto local_space = Polydim::VEM::PCC::create_VEM_PCC_3D_local_space_3D(config.VemType());
+
     Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data = {mesh};
 
     Polydim::PDETools::DOFs::DOFsManager dofManager;
@@ -122,7 +124,7 @@ int main(int argc, char **argv)
 
     Polydim::examples::Elliptic_PCC_3D::Assembler assembler;
     auto assembler_data =
-        assembler.Assemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, reference_element_data_2D, reference_element_data_3D, *test);
+        assembler.Assemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, reference_element_data_2D, reference_element_data_3D, *local_space, *test);
 
     Gedim::Profiler::StopTime("AssembleSystem");
     Gedim::Output::PrintStatusProgram("AssembleSystem");
@@ -150,8 +152,15 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("ComputeErrors...", true);
     Gedim::Profiler::StartTime("ComputeErrors");
 
-    auto post_process_data =
-        assembler.PostProcessSolution(config, mesh, meshGeometricData, dofs_data, reference_element_data_2D, reference_element_data_3D, assembler_data, *test);
+    auto post_process_data = assembler.PostProcessSolution(config,
+                                                           mesh,
+                                                           meshGeometricData,
+                                                           dofs_data,
+                                                           reference_element_data_2D,
+                                                           reference_element_data_3D,
+                                                           *local_space,
+                                                           assembler_data,
+                                                           *test);
 
     Gedim::Profiler::StopTime("ComputeErrors");
     Gedim::Output::PrintStatusProgram("ComputeErrors");
@@ -169,7 +178,7 @@ int main(int argc, char **argv)
     if (config.ComputeVEMPerformance())
     {
         const auto vemPerformance =
-            assembler.ComputeVemPerformance(config, mesh, meshGeometricData, reference_element_data_2D, reference_element_data_3D);
+            assembler.ComputeVemPerformance(config, mesh, meshGeometricData, reference_element_data_2D, reference_element_data_3D, *local_space);
         {
             const char separator = ',';
             /// Export Cell3Ds VEM performance

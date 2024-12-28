@@ -59,6 +59,9 @@ struct VEM_PCC_3D_Inertia_Data final
     Eigen::Vector3d translation;
     double absDetFmatrix;
     double signDetQ;
+
+    double constantStiff;
+    double constantMass;
 };
 
 struct VEM_PCC_3D_LocalSpace_Data final

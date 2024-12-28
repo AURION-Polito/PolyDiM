@@ -49,30 +49,16 @@ Eigen::VectorXd VEM_PCC_Utilities<dimension>::ComputeEdgeBasisCoefficients(const
 }
 //****************************************************************************
 template <unsigned short dimension>
-MatrixXd VEM_PCC_Utilities<dimension>::ComputeStabilizationMatrix(const MatrixXd &piNabla, const double &diameter, const MatrixXd &Dmatrix) const
+MatrixXd VEM_PCC_Utilities<dimension>::ComputeDofiDofiStabilizationMatrix(const MatrixXd &projector,
+                                                                          const double &coefficient,
+                                                                          const MatrixXd &Dmatrix) const
 {
-    MatrixXd stabMatrix = Dmatrix * piNabla;
+    MatrixXd stabMatrix = Dmatrix * projector;
     stabMatrix.diagonal().array() -= 1;
     // stabMatrix = (\Pi^{\nabla,dofs}_order - I)^T * (\Pi^{\nabla,dofs}_order - I).
-    stabMatrix = stabMatrix.transpose() * stabMatrix;
-
-    if (dimension == 3)
-        stabMatrix *= diameter;
+    stabMatrix = coefficient * stabMatrix.transpose() * stabMatrix;
 
     return stabMatrix;
-}
-//****************************************************************************
-template <unsigned short dimension>
-MatrixXd VEM_PCC_Utilities<dimension>::ComputeStabilizationMatrixPi0k(const MatrixXd &pi0k,
-                                                                      const double &measure,
-                                                                      const Eigen::MatrixXd &DMatrix) const
-{
-    MatrixXd stabMatrixPi0k = DMatrix * pi0k;
-    stabMatrixPi0k.diagonal().array() -= 1;
-    // stabMatrix = (\Pi^{0,dofs}_order - I)^T * (\Pi^{0,dofs}_order - I).
-    stabMatrixPi0k = measure * stabMatrixPi0k.transpose() * stabMatrixPi0k;
-
-    return stabMatrixPi0k;
 }
 //****************************************************************************
 template <unsigned short dimension>

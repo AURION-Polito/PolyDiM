@@ -34,6 +34,9 @@ class I_VEM_PCC_3D_LocalSpace
                                                         const std::vector<VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
                                                         const VEM_PCC_3D_Polyhedron_Geometry &polyhedron) const = 0;
 
+    virtual Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const VEM_PCC_3D_LocalSpace_Data &localSpace,
+                                                               const ProjectionTypes &projectionType) const = 0;
+
     virtual Eigen::MatrixXd ComputeBasisFunctionsValues(const VEM_PCC_3D_LocalSpace_Data &localSpace,
                                                         const ProjectionTypes &projectionType) const = 0;
 

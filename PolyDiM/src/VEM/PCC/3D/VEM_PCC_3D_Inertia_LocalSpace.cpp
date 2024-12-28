@@ -3,8 +3,6 @@
 using namespace std;
 using namespace Eigen;
 
-#define TEST
-
 namespace Polydim
 {
 namespace VEM
@@ -154,8 +152,12 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Inertia_LocalSpace::CreateLocalSpace(const
 
     ComputePolynomialsDofs(localSpace.inertia_data.Measure, localSpace);
 
-    ComputeStabilizationMatrix(polyhedron.Diameter, localSpace);
-    ComputeStabilizationMatrixPi0k(polyhedron.Measure, localSpace);
+    localSpace.Diameter = localSpace.inertia_data.Diameter;
+    localSpace.Centroid = localSpace.inertia_data.Centroid;
+    localSpace.Measure = localSpace.inertia_data.Measure;
+
+    localSpace.inertia_data.constantStiff = polyhedron.Diameter;
+    localSpace.inertia_data.constantMass = polyhedron.Measure;
 
     return localSpace;
 }
@@ -350,9 +352,6 @@ void VEM_PCC_3D_Inertia_LocalSpace::InitializeProjectorsComputation(const VEM_PC
         localSpace.NumVertexBasisFunctions + localSpace.NumEdgeBasisFunctions + localSpace.NumFaceBasisFunctions;
 
     // Compute Vandermonde matrices.
-    localSpace.Diameter = polyhedronDiameter;
-    localSpace.Centroid = polyhedronCentroid;
-
     localSpace.VanderInternal =
         monomials.Vander(reference_element_data.Monomials, internalQuadraturePoints, polyhedronCentroid, polyhedronDiameter);
 

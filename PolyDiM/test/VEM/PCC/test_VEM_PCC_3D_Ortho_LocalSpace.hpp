@@ -7,7 +7,9 @@
 
 #include "GeometryUtilities.hpp"
 #include "VEM_PCC_2D_LocalSpace_Data.hpp"
+#include "VEM_PCC_2D_ReferenceElement.hpp"
 #include "VEM_PCC_3D_Ortho_LocalSpace.hpp"
+#include "VEM_PCC_3D_ReferenceElement.hpp"
 #include "VEM_PCC_PerformanceAnalysis.hpp"
 
 namespace Polydim

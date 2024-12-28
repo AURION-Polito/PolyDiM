@@ -65,16 +65,6 @@ class VEM_PCC_2D_Inertia_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
 
     void ComputePolynomialsDofs(const double &polytopeMeasure, VEM_PCC_2D_LocalSpace_Data &localSpace) const;
 
-    inline void ComputeStabilizationMatrix(const double &polygonDiameter, VEM_PCC_2D_LocalSpace_Data &localSpace) const
-    {
-        localSpace.StabMatrix = utilities.ComputeStabilizationMatrix(localSpace.PiNabla, polygonDiameter, localSpace.Dmatrix);
-    }
-
-    inline void ComputeStabilizationMatrixPi0k(const double &polygonMeasure, VEM_PCC_2D_LocalSpace_Data &localSpace) const
-    {
-        localSpace.StabMatrixPi0k = utilities.ComputeStabilizationMatrixPi0k(localSpace.Pi0k, polygonMeasure, localSpace.Dmatrix);
-    }
-
     void InertiaMapping(const VEM_PCC_2D_Polygon_Geometry &polygon, VEM_PCC_2D_Inertia_Data &inertia_data) const;
 
     void ComputeGeometryProperties(const Gedim::GeometryUtilities &geometryUtilities,
@@ -100,6 +90,24 @@ class VEM_PCC_2D_Inertia_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
     /// \return An object of type \ref VEM::PCC::VEM_PCC_2D_LocalSpace_Data.
     VEM_PCC_2D_LocalSpace_Data Compute3DUtilities(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                                   const VEM_PCC_2D_Polygon_Geometry &polygon) const;
+
+    inline Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const VEM_PCC_2D_LocalSpace_Data &localSpace,
+                                                              const ProjectionTypes &projectionType) const
+    {
+        switch (projectionType)
+        {
+        case ProjectionTypes::PiNabla:
+            return utilities.ComputeDofiDofiStabilizationMatrix(localSpace.PiNabla,
+                                                                localSpace.inertia_data.constantStiff,
+                                                                localSpace.Dmatrix);
+        case ProjectionTypes::Pi0k:
+            return utilities.ComputeDofiDofiStabilizationMatrix(localSpace.Pi0k,
+                                                                localSpace.inertia_data.constantMass,
+                                                                localSpace.Dmatrix);
+        default:
+            throw std::runtime_error("not valid projection type");
+        }
+    }
 
     /// \brief Compute the values of projections of VEM basis functions at the internal quadrature points.
     /// \param localSpace: an object of type \ref VEM::PCC::VEM_PCC_2D_LocalSpace_Data which contains local matrices.
@@ -205,7 +213,10 @@ class VEM_PCC_2D_Inertia_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
         {
         case ProjectionTypes::PiNabla: {
             const std::vector<Eigen::MatrixXd> VanderDerivatives =
-                utilities.ComputePolynomialsDerivativeValues(reference_element_data.Monomials, monomials, localSpace.Diameter, vander);
+                utilities.ComputePolynomialsDerivativeValues(reference_element_data.Monomials,
+                                                             monomials,
+                                                             localSpace.inertia_data.Diameter,
+                                                             vander);
 
             basisFunctionsDerivativeValues.resize(localSpace.Dimension);
             for (unsigned short i = 0; i < localSpace.Dimension; ++i)
@@ -258,8 +269,8 @@ class VEM_PCC_2D_Inertia_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
             localSpace.inertia_data.FmatrixInv * (points.colwise() - localSpace.inertia_data.translation);
         return utilities.ComputePolynomialsValues(reference_element_data.Monomials,
                                                   monomials,
-                                                  localSpace.Centroid,
-                                                  localSpace.Diameter,
+                                                  localSpace.inertia_data.Centroid,
+                                                  localSpace.inertia_data.Diameter,
                                                   referencePoints);
     }
 
@@ -300,7 +311,7 @@ class VEM_PCC_2D_Inertia_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
         const std::vector<Eigen::MatrixXd> polynomialDerivatives = utilities.ComputePolynomialsDerivativeValues(
             reference_element_data.Monomials,
             monomials,
-            localSpace.Diameter,
+            localSpace.inertia_data.Diameter,
             ComputePolynomialsValues(reference_element_data, localSpace, referencePoints));
 
         const Eigen::MatrixXd FmatrixInvTransp = localSpace.inertia_data.FmatrixInv.transpose();
