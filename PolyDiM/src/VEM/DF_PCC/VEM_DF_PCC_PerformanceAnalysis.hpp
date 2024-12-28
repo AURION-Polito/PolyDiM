@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "LAPACK_utilities.hpp"
+#include "VEM_DF_PCC_Utilities.hpp"
 
 namespace Polydim
 {
@@ -31,16 +32,14 @@ struct VEM_DF_PCC_PerformanceAnalysis_Data
 struct VEM_DF_PCC_PerformanceAnalysis final
 {
     template <typename VEM_Monomials_Type, typename VEM_Monomials_Data_Type, typename VEM_vem_local_space_data_Type, typename VEM_vem_local_space_dataData_Type>
-    VEM_DF_PCC_PerformanceAnalysis_Data Compute(const double &polytopeMeasure,
-                                                const double &polytopeDiameter,
-                                                const VEM_Monomials_Type &vem_monomials,
+    VEM_DF_PCC_PerformanceAnalysis_Data Compute(const VEM_Monomials_Type &vem_monomials,
                                                 const VEM_Monomials_Data_Type &vem_monomials_data,
                                                 const VEM_vem_local_space_data_Type &vem_local_space,
                                                 const VEM_vem_local_space_dataData_Type &vem_local_space_data) const
     {
         VEM_DF_PCC_PerformanceAnalysis_Data result;
 
-        const double invDiameter = 1.0 / polytopeDiameter;
+        const double invDiameter = 1.0 / vem_local_space_data.Diameter;
 
         const std::vector<Eigen::MatrixXd> &piNabla = vem_local_space_data.PiNabla;
         const std::vector<Eigen::MatrixXd> &pi0km2 = vem_local_space_data.Pi0km2;
@@ -88,20 +87,20 @@ struct VEM_DF_PCC_PerformanceAnalysis final
             }
         }
 
-        if (vem_local_space_data.StabMatrix.size() > 0)
-        {
-            const Eigen::MatrixXd &stabilizationMatrix = vem_local_space_data.StabMatrix;
-            result.StabNorm = vem_local_space_data.StabMatrix.norm();
+        const Eigen::MatrixXd StabMatrix =
+            vem_local_space.ComputeDofiDofiStabilizationMatrix(vem_local_space_data, ProjectionTypes::PiNabla);
 
-            Eigen::MatrixXd polynomialBasisDofs =
-                Eigen::MatrixXd::Zero(vem_local_space_data.NumBasisFunctions,
-                                      vem_local_space_data.Dimension * vem_local_space_data.Nk);
-            for (unsigned int d = 0; d < vem_local_space_data.Dimension; d++)
-                polynomialBasisDofs.middleCols(d * vem_local_space_data.Nk, vem_local_space_data.Nk) =
-                    vem_local_space_data.Dmatrix[d];
+        const Eigen::MatrixXd &stabilizationMatrix = StabMatrix;
+        result.StabNorm = StabMatrix.norm();
 
-            result.ErrorStabilization = (stabilizationMatrix * polynomialBasisDofs).norm();
-        }
+        Eigen::MatrixXd polynomialBasisDofs =
+            Eigen::MatrixXd::Zero(vem_local_space_data.NumBasisFunctions,
+                                  vem_local_space_data.Dimension * vem_local_space_data.Nk);
+        for (unsigned int d = 0; d < vem_local_space_data.Dimension; d++)
+            polynomialBasisDofs.middleCols(d * vem_local_space_data.Nk, vem_local_space_data.Nk) =
+                vem_local_space_data.Dmatrix[d];
+
+        result.ErrorStabilization = (stabilizationMatrix * polynomialBasisDofs).norm();
 
         result.ErrorHCD.resize(vem_local_space_data.Dimension, 1.0);
         result.ErrorGBD.resize(vem_local_space_data.Dimension, 1.0);

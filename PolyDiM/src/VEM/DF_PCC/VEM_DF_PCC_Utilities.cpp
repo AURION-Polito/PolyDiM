@@ -77,6 +77,24 @@ MatrixXd VEM_DF_PCC_Utilities<dimension>::ComputeValuesOnEdge(const Eigen::RowVe
     return values;
 }
 //****************************************************************************
+template <unsigned short dimension>
+MatrixXd VEM_DF_PCC_Utilities<dimension>::ComputeDofiDofiStabilizationMatrix(const std::vector<MatrixXd> &projector,
+                                                                             const double &coefficient,
+                                                                             const std::vector<Eigen::MatrixXd> &dmatrix) const
+{
+    Eigen::MatrixXd staBmatrix = dmatrix[0] * projector[0];
+
+    for (unsigned int d = 1; d < dimension; d++)
+        staBmatrix += dmatrix[1] * projector[1];
+
+    staBmatrix.diagonal().array() -= 1;
+
+    // staBmatrix = (\Pi^{0,dofs}_order - I)^T * (\Pi^{0,dofs}_order - I).
+    staBmatrix = coefficient * staBmatrix.transpose() * staBmatrix;
+
+    return staBmatrix;
+}
+//****************************************************************************
 } // namespace DF_PCC
 } // namespace VEM
 } // namespace Polydim

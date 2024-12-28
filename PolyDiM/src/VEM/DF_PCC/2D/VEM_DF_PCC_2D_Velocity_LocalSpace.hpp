@@ -33,6 +33,7 @@ class VEM_DF_PCC_2D_Velocity_LocalSpace final : public I_VEM_DF_PCC_2D_Velocity_
     void InitializeProjectorsComputation(const VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                                          const Eigen::MatrixXd &polygonVertices,
                                          const Eigen::Vector3d &polygonCentroid,
+                                         const double &polygonMeasure,
                                          const double &polygonDiameter,
                                          const std::vector<bool> &edgeDirections,
                                          const Eigen::MatrixXd &internalQuadraturePoints,
@@ -45,8 +46,6 @@ class VEM_DF_PCC_2D_Velocity_LocalSpace final : public I_VEM_DF_PCC_2D_Velocity_
 
     void ComputeDivergenceCoefficients(const std::vector<Eigen::VectorXd> &boundaryDofQuadratureWeightsTimesNormal,
                                        VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const;
-
-    void ComputeStabilizationMatrix(VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const;
 
     void ComputePolynomialBasisDofs(const Eigen::VectorXd &internalQuadratureWeights,
                                     VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const;
@@ -76,6 +75,20 @@ class VEM_DF_PCC_2D_Velocity_LocalSpace final : public I_VEM_DF_PCC_2D_Velocity_
 
     VEM_DF_PCC_2D_Velocity_LocalSpace_Data CreateLocalSpace(const VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                                                             const VEM_DF_PCC_2D_Polygon_Geometry &polygon) const;
+
+    inline Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace,
+                                                              const ProjectionTypes &projectionType) const
+    {
+        switch (projectionType)
+        {
+        case ProjectionTypes::PiNabla:
+            return utilities.ComputeDofiDofiStabilizationMatrix(localSpace.PiNabla, 1.0, localSpace.Dmatrix);
+        case ProjectionTypes::Pi0k:
+            return utilities.ComputeDofiDofiStabilizationMatrix(localSpace.Pi0k, localSpace.Measure, localSpace.Dmatrix);
+        default:
+            throw std::runtime_error("not valid projection type");
+        }
+    }
 
     inline Eigen::MatrixXd ComputeValuesOnEdge(const VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                                                const Eigen::VectorXd &pointsCurvilinearCoordinates) const

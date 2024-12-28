@@ -59,6 +59,7 @@ struct VEM_DF_PCC_2D_Velocity_LocalSpace_Data final
     Quadrature::VEM_Quadrature_2D::Edges_QuadratureData EdgesDOFs;          ///< Boundary quadrature points and weights
 
     double Diameter;
+    double Measure;
     Eigen::Vector3d Centroid;
 
     Eigen::MatrixXd VanderInternal; /// Vandermonde matrix of the polynomial basis at internal quadrature points.
@@ -86,8 +87,6 @@ struct VEM_DF_PCC_2D_Velocity_LocalSpace_Data final
     std::vector<Eigen::MatrixXd> Pi0km2;
     std::vector<Eigen::MatrixXd> Pi0k;
     std::vector<Eigen::MatrixXd> Pi0km1Der;
-
-    Eigen::MatrixXd StabMatrix; ///< Matrix used for stabilizing elliptic bilinear forms.
 
     Eigen::MatrixXd Wmatrix;
     Eigen::MatrixXd Vmatrix;

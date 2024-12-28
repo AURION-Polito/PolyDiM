@@ -1,14 +1,14 @@
-#ifndef __VEM_DF_PCC_3D_Velocity_LocalSpace_HPP
-#define __VEM_DF_PCC_3D_Velocity_LocalSpace_HPP
+#ifndef __VEM_DF_PCC_3D_Reduced_Velocity_LocalSpace_HPP
+#define __VEM_DF_PCC_3D_Reduced_Velocity_LocalSpace_HPP
 
 #include "Eigen/Eigen"
+#include "I_VEM_DF_PCC_3D_ReferenceElement.hpp"
 #include "I_VEM_DF_PCC_3D_Velocity_LocalSpace.hpp"
+#include "I_VEM_PCC_2D_ReferenceElement.hpp"
 #include "VEM_DF_PCC_3D_LocalSpace_Data.hpp"
-#include "VEM_DF_PCC_3D_ReferenceElement.hpp"
 #include "VEM_DF_PCC_Utilities.hpp"
 #include "VEM_Monomials_3D.hpp"
 #include "VEM_PCC_2D_LocalSpace.hpp"
-#include "VEM_PCC_2D_ReferenceElement.hpp"
 #include <vector>
 
 namespace Polydim
@@ -25,7 +25,7 @@ namespace DF_PCC
 ///     - <a href="https://doi.org/10.1016/j.matcom.2023.10.003">"Improving high-order VEM stability on badly-shaped
 ///     elements. Stefano Berrone, Gioana Teora and Fabio Vicini. (2024)"</a>
 
-class VEM_DF_PCC_3D_Velocity_LocalSpace final : public I_VEM_DF_PCC_3D_Velocity_LocalSpace
+class VEM_DF_PCC_3D_Reduced_Velocity_LocalSpace final : public I_VEM_DF_PCC_3D_Velocity_LocalSpace
 {
   private:
     VEM_DF_PCC_Utilities<2> utilities;

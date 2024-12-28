@@ -98,6 +98,7 @@ struct VEM_PCC_3D_LocalSpace_Data final
 
     double Diameter;
     Eigen::Vector3d Centroid;
+    double Measure;
 
     /// \brief Coefficients of basis functions on the reference edge.
     Eigen::VectorXd EdgeBasisCoefficients;

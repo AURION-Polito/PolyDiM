@@ -1,5 +1,5 @@
-#ifndef __VEM_DF_PCC_3D_Velocity_LocalSpace_Data_HPP
-#define __VEM_DF_PCC_3D_Velocity_LocalSpace_Data_HPP
+#ifndef __VEM_DF_PCC_3D_LocalSpace_Data_HPP
+#define __VEM_DF_PCC_3D_LocalSpace_Data_HPP
 
 #include "Eigen/Eigen"
 #include "GeometryUtilities.hpp"
@@ -71,6 +71,10 @@ struct VEM_DF_PCC_3D_Velocity_LocalSpace_Data final
     Quadrature::VEM_Quadrature_3D::Faces_QuadratureData_PCC BoundaryQuadrature;
     Quadrature::VEM_Quadrature_3D::Faces_QuadratureData_PCC BoundaryQuadratureKL;
 
+    double Diameter;
+    double Measure;
+    Eigen::Vector3d Centroid;
+
     Eigen::MatrixXd VanderInternal; ///< Vandermonde matrix of the polynomial basis at internal quadrature points.
     std::vector<Eigen::MatrixXd> VanderInternalDerivatives; ///< Vandermonde matrices of the derivatives of the
                                                             ///< polynomial basis at internal quadrature points.
@@ -100,8 +104,6 @@ struct VEM_DF_PCC_3D_Velocity_LocalSpace_Data final
     std::vector<Eigen::MatrixXd> Pi0k;
     std::vector<Eigen::MatrixXd> Pi0km1Der;
 
-    Eigen::MatrixXd StabMatrix; ///< Matrix used for stabilizing elliptic bilinear forms.
-
     Eigen::MatrixXd Wmatrix;
     Eigen::MatrixXd Vmatrix;
     std::vector<Eigen::MatrixXd> Bmatrix;
@@ -111,6 +113,27 @@ struct VEM_DF_PCC_3D_Velocity_LocalSpace_Data final
     std::vector<Eigen::MatrixXd> Cmatrixkm2;
     std::vector<Eigen::MatrixXd> Ematrix;
 };
+
+struct VEM_DF_PCC_3D_Pressure_LocalSpace_Data final
+{
+    unsigned int Order;     ///< Order
+    unsigned int Dimension; ///< Geometric dimension
+
+    unsigned int Nk;
+    unsigned int Nkm1;
+
+    unsigned int NumBasisFunctions; ///< Number of basis functions.
+
+    double Diameter;
+    Eigen::Vector3d Centroid;
+
+    Gedim::Quadrature::QuadratureData InternalQuadrature; ///< Internal quadrature points and weights
+
+    Eigen::MatrixXd VanderInternal; /// Vandermonde matrix of the polynomial basis at internal quadrature points.
+
+    Eigen::MatrixXd Hmatrix; ///< mass matrix of order order
+};
+
 } // namespace DF_PCC
 } // namespace VEM
 } // namespace Polydim

@@ -43,6 +43,7 @@ VEM_DF_PCC_2D_Velocity_LocalSpace_Data VEM_DF_PCC_2D_Reduced_Velocity_LocalSpace
     InitializeProjectorsComputation(reference_element_data,
                                     polygon.Vertices,
                                     polygon.Centroid,
+                                    polygon.Measure,
                                     polygon.Diameter,
                                     polygon.EdgesDirection,
                                     localSpace.InternalQuadrature.Points,
@@ -70,8 +71,6 @@ VEM_DF_PCC_2D_Velocity_LocalSpace_Data VEM_DF_PCC_2D_Reduced_Velocity_LocalSpace
 
     ComputeL2ProjectorsOfDerivatives(reference_element_data, polygon.Diameter, localSpace.EdgesDOFs.WeightsTimesNormal, localSpace);
 
-    ComputeStabilizationMatrix(localSpace);
-
     return localSpace;
 }
 //****************************************************************************
@@ -79,6 +78,7 @@ void VEM_DF_PCC_2D_Reduced_Velocity_LocalSpace::InitializeProjectorsComputation(
     const VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
     const Eigen::MatrixXd &polygonVertices,
     const Eigen::Vector3d &polygonCentroid,
+    const double &polygonMeasure,
     const double &polygonDiameter,
     const std::vector<bool> &edgeDirections,
     const Eigen::MatrixXd &internalQuadraturePoints,
@@ -111,8 +111,9 @@ void VEM_DF_PCC_2D_Reduced_Velocity_LocalSpace::InitializeProjectorsComputation(
     localSpace.Nkm2 = (reference_element_data.Order - 1) * reference_element_data.Order / 2;
     localSpace.Nkm3 = (reference_element_data.Order - 2) * (reference_element_data.Order - 1) / 2;
 
-    localSpace.Centroid = polygonCentroid;
     localSpace.Diameter = polygonDiameter;
+    localSpace.Centroid = polygonCentroid;
+    localSpace.Measure = polygonMeasure;
 
     // Compute Vandermonde matrices.
     const MatrixXd vanderInternalKp1 =
@@ -224,16 +225,6 @@ void VEM_DF_PCC_2D_Reduced_Velocity_LocalSpace::ComputePolynomialBasisDofs(const
         localSpace.Dmatrix[d].middleRows(localSpace.NumBoundaryBasisFunctions, localSpace.NumBigOPlusInternalBasisFunctions) =
             localSpace.VanderGBigOPluskm2[d].transpose() * internalQuadratureWeights.asDiagonal() * localSpace.VanderInternal;
     }
-}
-//****************************************************************************
-void VEM_DF_PCC_2D_Reduced_Velocity_LocalSpace::ComputeStabilizationMatrix(VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const
-{
-    Eigen::MatrixXd staBmatrix = localSpace.Dmatrix[0] * localSpace.PiNabla[0] + localSpace.Dmatrix[1] * localSpace.PiNabla[1];
-
-    staBmatrix.diagonal().array() -= 1;
-
-    // staBmatrix = (\Pi^{0,dofs}_order - I)^T * (\Pi^{0,dofs}_order - I).
-    localSpace.StabMatrix = staBmatrix.transpose() * staBmatrix;
 }
 //****************************************************************************
 void VEM_DF_PCC_2D_Reduced_Velocity_LocalSpace::ComputeCMatrixkm2(const double &polygonDiameter,

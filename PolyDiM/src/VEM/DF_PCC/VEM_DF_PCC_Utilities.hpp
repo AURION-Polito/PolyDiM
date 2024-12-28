@@ -175,6 +175,10 @@ template <unsigned short dimension> struct VEM_DF_PCC_Utilities final
                                         const unsigned int &order,
                                         const Eigen::VectorXd &edgeBasisCoefficients,
                                         const Eigen::VectorXd &pointsCurvilinearCoordinates) const;
+
+    Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const std::vector<Eigen::MatrixXd> &projector,
+                                                       const double &coefficient,
+                                                       const std::vector<Eigen::MatrixXd> &dmatrix) const;
 };
 } // namespace DF_PCC
 } // namespace VEM

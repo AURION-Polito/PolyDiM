@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(Stokes_DF_PCC_2D LANGUAGES CXX C)
+project(Brinkman_DF_PCC_2D LANGUAGES CXX C)
 
 # Create variables
 #########################################################
@@ -15,7 +15,7 @@ endif()
 ## GeDiM
 if (NOT TARGET GeDiM::GeDiM)
       find_package(GeDiM CONFIG REQUIRED)
-      list(APPEND Stokes_DF_PCC_2D_LINKED_LIBRARIES GeDiM::GeDiM)
+      list(APPEND Brinkman_DF_PCC_2D_LINKED_LIBRARIES GeDiM::GeDiM)
 else()
       get_target_property(GEDIM_LIBRARY_HEADERS GeDiM::GeDiM PUBLIC_HEADER)
       get_target_property(GEDIM_LIBRARY_NAME GeDiM::GeDiM EXPORT_NAME)
@@ -23,15 +23,15 @@ else()
       get_target_property(GEDIM_LIBRARY_INCLUDE_DIRECTORIES GeDiM::GeDiM INCLUDE_DIRECTORIES)
       get_target_property(GEDIM_LIBRARY_SOURCES GeDiM::GeDiM SOURCES)
 
-      list(APPEND Stokes_DF_PCC_2D_LINKED_LIBRARIES ${GEDIM_LIBRARY_NAME} ${GEDIM_LIBRARY_LINKED_LIBRARIES})
-      list(APPEND Stokes_DF_PCC_2D_HEADERS ${GEDIM_LIBRARY_HEADERS})
-      list(APPEND Stokes_DF_PCC_2D_INCLUDE ${GEDIM_LIBRARY_INCLUDE_DIRECTORIES})
+      list(APPEND Brinkman_DF_PCC_2D_LINKED_LIBRARIES ${GEDIM_LIBRARY_NAME} ${GEDIM_LIBRARY_LINKED_LIBRARIES})
+      list(APPEND Brinkman_DF_PCC_2D_HEADERS ${GEDIM_LIBRARY_HEADERS})
+      list(APPEND Brinkman_DF_PCC_2D_INCLUDE ${GEDIM_LIBRARY_INCLUDE_DIRECTORIES})
 endif()
 
 ## PolyDiM
 if (NOT TARGET PolyDiM::PolyDiM)
       find_package(PolyDiM CONFIG REQUIRED)
-      list(APPEND Stokes_DF_PCC_2D_LINKED_LIBRARIES PolyDiM::PolyDiM)
+      list(APPEND Brinkman_DF_PCC_2D_LINKED_LIBRARIES PolyDiM::PolyDiM)
 else()
       get_target_property(POLYDIM_LIBRARY_HEADERS PolyDiM::PolyDiM PUBLIC_HEADER)
       get_target_property(POLYDIM_LIBRARY_NAME PolyDiM::PolyDiM EXPORT_NAME)
@@ -39,9 +39,9 @@ else()
       get_target_property(POLYDIM_LIBRARY_INCLUDE_DIRECTORIES PolyDiM::PolyDiM INCLUDE_DIRECTORIES)
       get_target_property(POLYDIM_LIBRARY_SOURCES PolyDiM::PolyDiM SOURCES)
 
-      list(APPEND Stokes_DF_PCC_2D_LINKED_LIBRARIES ${POLYDIM_LIBRARY_NAME} ${POLYDIM_LIBRARY_LINKED_LIBRARIES})
-      list(APPEND Stokes_DF_PCC_2D_HEADERS ${POLYDIM_LIBRARY_HEADERS})
-      list(APPEND Stokes_DF_PCC_2D_INCLUDE ${POLYDIM_LIBRARY_INCLUDE_DIRECTORIES})
+      list(APPEND Brinkman_DF_PCC_2D_LINKED_LIBRARIES ${POLYDIM_LIBRARY_NAME} ${POLYDIM_LIBRARY_LINKED_LIBRARIES})
+      list(APPEND Brinkman_DF_PCC_2D_HEADERS ${POLYDIM_LIBRARY_HEADERS})
+      list(APPEND Brinkman_DF_PCC_2D_INCLUDE ${POLYDIM_LIBRARY_INCLUDE_DIRECTORIES})
 endif()
 
 ## Eigen3
@@ -81,30 +81,30 @@ endif()
 # Insert Sources
 #########################################################
 add_subdirectory(src)
-list(APPEND Stokes_DF_PCC_2D_SOURCES ${stokes_DF_PCC_2D_sources} main.cpp)
-list(APPEND Stokes_DF_PCC_2D_HEADERS ${stokes_DF_PCC_2D_headers})
-list(APPEND Stokes_DF_PCC_2D_INCLUDE ${stokes_DF_PCC_2D_includes})
+list(APPEND Brinkman_DF_PCC_2D_HEADERS ${brinkman_DF_PCC_2D_headers})
+list(APPEND Brinkman_DF_PCC_2D_SOURCES ${brinkman_DF_PCC_2D_sources} main.cpp)
+list(APPEND Brinkman_DF_PCC_2D_INCLUDE ${brinkman_DF_PCC_2D_includes})
 
 # Add variables for clang anc cppcheck
 ###############################################################################################
-list(APPEND CLANGFORMAT_FILES ${stokes_DF_PCC_2D_sources} "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
-list(APPEND CLANGFORMAT_FILES ${stokes_DF_PCC_2D_headers})
+list(APPEND CLANGFORMAT_FILES ${brinkman_DF_PCC_2D_sources} "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
+list(APPEND CLANGFORMAT_FILES ${brinkman_DF_PCC_2D_headers})
 set(CLANGFORMAT_FILES ${CLANGFORMAT_FILES} PARENT_SCOPE)
 
-list(APPEND CPPCHECK_FILES ${stokes_DF_PCC_2D_sources} "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
-list(APPEND CPPCHECK_FILES ${stokes_DF_PCC_2D_headers})
+list(APPEND CPPCHECK_FILES ${brinkman_DF_PCC_2D_sources} "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
+list(APPEND CPPCHECK_FILES ${brinkman_DF_PCC_2D_headers})
 set(CPPCHECK_FILES ${CPPCHECK_FILES} PARENT_SCOPE)
 
 # Create library test executable
 #########################################################
 add_executable(${PROJECT_NAME}
-      ${Stokes_DF_PCC_2D_SOURCES}
-      ${Stokes_DF_PCC_2D_HEADERS})
+      ${Brinkman_DF_PCC_2D_SOURCES}
+      ${Brinkman_DF_PCC_2D_HEADERS})
 
 target_include_directories(${PROJECT_NAME}
-      PRIVATE ${Stokes_DF_PCC_2D_INCLUDE})
+      PRIVATE ${Brinkman_DF_PCC_2D_INCLUDE})
 
-target_link_libraries(${PROJECT_NAME} ${Stokes_DF_PCC_2D_LINKED_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${Brinkman_DF_PCC_2D_LINKED_LIBRARIES})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
       LINKER_LANGUAGE CXX

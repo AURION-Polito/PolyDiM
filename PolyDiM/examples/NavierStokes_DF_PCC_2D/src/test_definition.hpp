@@ -11,7 +11,7 @@ namespace Polydim
 {
 namespace examples
 {
-namespace Stokes_DF_PCC_2D
+namespace NavierStokes_DF_PCC_2D
 {
 namespace test
 {
@@ -25,7 +25,7 @@ struct I_Test
 {
     virtual Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain() const = 0;
     virtual std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info() const = 0;
-    virtual Eigen::VectorXd diffusion_term(const Eigen::MatrixXd &points) const = 0;
+    virtual Eigen::VectorXd fluid_viscosity(const Eigen::MatrixXd &points) const = 0;
     virtual std::array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd &points) const = 0;
     virtual std::array<Eigen::VectorXd, 3> strong_boundary_condition(const unsigned int marker,
                                                                      const Eigen::MatrixXd &points) const = 0;
@@ -64,7 +64,7 @@ struct Patch_Test final : public I_Test
                 {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
     }
 
-    Eigen::VectorXd diffusion_term(const Eigen::MatrixXd &points) const
+    Eigen::VectorXd fluid_viscosity(const Eigen::MatrixXd &points) const
     {
         return Eigen::VectorXd::Constant(points.cols(), 1.0);
     };
@@ -149,7 +149,7 @@ struct Patch_Test final : public I_Test
 };
 // ***************************************************************************
 } // namespace test
-} // namespace Stokes_DF_PCC_2D
+} // namespace NavierStokes_DF_PCC_2D
 } // namespace examples
 } // namespace Polydim
 

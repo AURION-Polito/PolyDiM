@@ -11,7 +11,7 @@ namespace Polydim
 {
 namespace examples
 {
-namespace Stokes_DF_PCC_2D
+namespace Brinkman_DF_PCC_2D
 {
 namespace test
 {
@@ -25,7 +25,8 @@ struct I_Test
 {
     virtual Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain() const = 0;
     virtual std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info() const = 0;
-    virtual Eigen::VectorXd diffusion_term(const Eigen::MatrixXd &points) const = 0;
+    virtual Eigen::VectorXd fluid_viscosity(const Eigen::MatrixXd &points) const = 0;
+    virtual std::array<Eigen::VectorXd, 9> inverse_diffusion_term(const Eigen::MatrixXd &points) const = 0;
     virtual std::array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd &points) const = 0;
     virtual std::array<Eigen::VectorXd, 3> strong_boundary_condition(const unsigned int marker,
                                                                      const Eigen::MatrixXd &points) const = 0;
@@ -54,17 +55,30 @@ struct Patch_Test final : public I_Test
     std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info() const
     {
         return {{0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 1}},
-                {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 1}},
-                {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 1}},
-                {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 1}},
-                {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 1}},
-                {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 1}},
-                {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 1}},
-                {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 1}}};
+                {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
     }
 
-    Eigen::VectorXd diffusion_term(const Eigen::MatrixXd &points) const
+    std::array<Eigen::VectorXd, 9> inverse_diffusion_term(const Eigen::MatrixXd &points) const
+    {
+        return {Eigen::VectorXd::Constant(points.cols(), 0.6),
+                Eigen::VectorXd::Constant(points.cols(), 0.2),
+                Eigen::VectorXd::Zero(points.cols()),
+                Eigen::VectorXd::Constant(points.cols(), 0.2),
+                Eigen::VectorXd::Constant(points.cols(), 0.4),
+                Eigen::VectorXd::Zero(points.cols()),
+                Eigen::VectorXd::Zero(points.cols()),
+                Eigen::VectorXd::Zero(points.cols()),
+                Eigen::VectorXd::Constant(points.cols(), 0.0)};
+    };
+
+    Eigen::VectorXd fluid_viscosity(const Eigen::MatrixXd &points) const
     {
         return Eigen::VectorXd::Constant(points.cols(), 1.0);
     };
@@ -149,7 +163,7 @@ struct Patch_Test final : public I_Test
 };
 // ***************************************************************************
 } // namespace test
-} // namespace Stokes_DF_PCC_2D
+} // namespace Brinkman_DF_PCC_2D
 } // namespace examples
 } // namespace Polydim
 

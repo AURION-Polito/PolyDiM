@@ -77,6 +77,7 @@ struct VEM_PCC_2D_LocalSpace_Data final
                                                                               ///< weights for e2
 
     double Diameter;
+    double Measure;
     Eigen::Vector3d Centroid;
 
     Eigen::MatrixXd VanderInternal;   ///< Vandermonde matrix of the polynomial basis at internal quadrature points.

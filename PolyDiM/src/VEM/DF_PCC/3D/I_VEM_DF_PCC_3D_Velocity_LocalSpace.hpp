@@ -2,8 +2,8 @@
 #define __I_VEM_DF_PCC_3D_Velocity_LocalSpace_HPP
 
 #include "Eigen/Eigen"
-#include "VEM_DF_PCC_3D_ReferenceElement.hpp"
-#include "VEM_DF_PCC_3D_Velocity_LocalSpace_Data.hpp"
+#include "I_VEM_DF_PCC_3D_ReferenceElement.hpp"
+#include "VEM_DF_PCC_3D_LocalSpace_Data.hpp"
 #include "VEM_DF_PCC_Utilities.hpp"
 #include "VEM_Monomials_3D.hpp"
 #include "VEM_PCC_2D_LocalSpace.hpp"
@@ -32,6 +32,9 @@ class I_VEM_DF_PCC_3D_Velocity_LocalSpace
                                                                     const VEM_DF_PCC_3D_Velocity_ReferenceElement_Data &reference_element_data_3D,
                                                                     const std::vector<PCC::VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
                                                                     const VEM_DF_PCC_3D_Polyhedron_Geometry &polyhedron) const = 0;
+
+    virtual Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const VEM_DF_PCC_3D_Velocity_LocalSpace_Data &localSpace,
+                                                               const ProjectionTypes &projectionType) const = 0;
 
     /// \brief Compute the values of projections of VEM basis functions at the internal quadrature points.
     /// \param localSpace: an object of type \ref VEM::PCC::VEM_DF_PCC_3D_Velocity_LocalSpace_Data which contains local

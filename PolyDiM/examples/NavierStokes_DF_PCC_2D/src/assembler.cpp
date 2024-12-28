@@ -2,8 +2,6 @@
 
 #include "Assembler_Utilities.hpp"
 #include "EllipticEquation.hpp"
-#include "MeshMatricesDAO_mesh_connectivity_data.hpp"
-#include "VEM_DF_PCC_2D_Creator.hpp"
 #include "program_configuration.hpp"
 
 using namespace std;
@@ -13,7 +11,7 @@ namespace Polydim
 {
 namespace examples
 {
-namespace Stokes_DF_PCC_2D
+namespace NavierStokes_DF_PCC_2D
 {
 // ***************************************************************************
 void Assembler::ComputeStrongTerm(const Gedim::MeshMatricesDAO &mesh,
@@ -109,14 +107,16 @@ void Assembler::ComputeStrongTerm(const Gedim::MeshMatricesDAO &mesh,
 }
 // ***************************************************************************
 Assembler::Stokes_DF_PCC_2D_Problem_Data Assembler::Assemble(
-    const Polydim::examples::Stokes_DF_PCC_2D::Program_configuration &config,
+    const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config,
     const Gedim::MeshMatricesDAO &mesh,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
     const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
     const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
     const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
     const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &pressure_reference_element_data,
-    const Polydim::examples::Stokes_DF_PCC_2D::test::I_Test &test) const
+    const std::unique_ptr<Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace> &vem_velocity_local_space,
+    const std::unique_ptr<Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Pressure_LocalSpace> &vem_pressure_local_space,
+    const Polydim::examples::NavierStokes_DF_PCC_2D::test::I_Test &test) const
 {
     const unsigned int numDOFHandler = mesh_dofs_info.size();
     unsigned int numberDOFs = 0;
@@ -159,10 +159,7 @@ Assembler::Stokes_DF_PCC_2D_Problem_Data Assembler::Assemble(
                                                                               mesh_geometric_data.Cell2DsEdgeTangents.at(c),
                                                                               mesh_geometric_data.Cell2DsEdgeNormals.at(c)};
 
-        const auto vem_pressure_local_space = Polydim::VEM::DF_PCC::create_VEM_DF_PCC_2D_pressure_local_space(config.VemType());
         const auto pressure_local_space = vem_pressure_local_space->CreateLocalSpace(pressure_reference_element_data, polygon);
-
-        const auto vem_velocity_local_space = Polydim::VEM::DF_PCC::create_VEM_DF_PCC_2D_velocity_local_space(config.VemType());
         const auto velocity_local_space = vem_velocity_local_space->CreateLocalSpace(velocity_reference_element_data, polygon);
 
         const auto velocity_basis_functions_values =
@@ -176,15 +173,16 @@ Assembler::Stokes_DF_PCC_2D_Problem_Data Assembler::Assemble(
 
         const MatrixXd pressure_basis_functions_values = vem_pressure_local_space->ComputeBasisFunctionsValues(pressure_local_space);
 
-        const auto diffusion_term_values = test.diffusion_term(velocity_local_space.InternalQuadrature.Points);
+        const auto fluid_viscosity_values = test.fluid_viscosity(velocity_local_space.InternalQuadrature.Points);
         const auto source_term_values = test.source_term(velocity_local_space.InternalQuadrature.Points);
 
-        auto local_A = equation.ComputeCellDiffusionMatrix(diffusion_term_values,
+        auto local_A = equation.ComputeCellDiffusionMatrix(fluid_viscosity_values,
                                                            velocity_basis_functions_derivatives_values,
                                                            velocity_local_space.InternalQuadrature.Weights);
 
-        double kmax = diffusion_term_values.cwiseAbs().maxCoeff();
-        local_A += kmax * velocity_local_space.StabMatrix;
+        double mu_max = fluid_viscosity_values.cwiseAbs().maxCoeff();
+        local_A += mu_max * vem_velocity_local_space->ComputeDofiDofiStabilizationMatrix(velocity_local_space,
+                                                                                         Polydim::VEM::DF_PCC::ProjectionTypes::PiNabla);
 
         const Eigen::MatrixXd local_B = pressure_basis_functions_values.transpose() *
                                         velocity_local_space.InternalQuadrature.Weights.asDiagonal() *
@@ -272,10 +270,11 @@ Assembler::Stokes_DF_PCC_2D_Problem_Data Assembler::Assemble(
 
 // ***************************************************************************
 Assembler::VEM_Performance_Result Assembler::ComputeVemPerformance(
-    const Polydim::examples::Stokes_DF_PCC_2D::Program_configuration &config,
+    const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config,
     const Gedim::MeshMatricesDAO &mesh,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-    const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data) const
+    const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
+    const std::unique_ptr<Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace> &vem_velocity_local_space) const
 {
     Assembler::VEM_Performance_Result result;
     result.Cell2DsPerformance.resize(mesh.Cell2DTotalNumber());
@@ -295,27 +294,25 @@ Assembler::VEM_Performance_Result Assembler::ComputeVemPerformance(
                                                                               mesh_geometric_data.Cell2DsEdgeTangents.at(c),
                                                                               mesh_geometric_data.Cell2DsEdgeNormals.at(c)};
 
-        const auto vem_local_space = Polydim::VEM::DF_PCC::create_VEM_DF_PCC_2D_velocity_local_space(config.VemType());
-        const auto local_space = vem_local_space->CreateLocalSpace(velocity_reference_element_data, polygon);
+        const auto velocity_local_space = vem_velocity_local_space->CreateLocalSpace(velocity_reference_element_data, polygon);
 
         Polydim::VEM::DF_PCC::VEM_DF_PCC_PerformanceAnalysis performanceAnalysis;
 
-        result.Cell2DsPerformance[c].Analysis = performanceAnalysis.Compute(polygon.Measure,
-                                                                            polygon.Diameter,
-                                                                            Polydim::VEM::Monomials::VEM_Monomials_2D(),
+        result.Cell2DsPerformance[c].Analysis = performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_2D(),
                                                                             velocity_reference_element_data.Monomials,
-                                                                            vem_local_space,
-                                                                            local_space);
+                                                                            *vem_velocity_local_space.get(),
+                                                                            velocity_local_space);
 
-        result.Cell2DsPerformance[c].NumInternalQuadraturePoints = local_space.InternalQuadrature.Weights.size();
-        result.Cell2DsPerformance[c].NumBoundaryQuadraturePoints = local_space.BoundaryQuadrature.Quadrature.Weights.size();
+        result.Cell2DsPerformance[c].NumInternalQuadraturePoints = velocity_local_space.InternalQuadrature.Weights.size();
+        result.Cell2DsPerformance[c].NumBoundaryQuadraturePoints =
+            velocity_local_space.BoundaryQuadrature.Quadrature.Weights.size();
     }
 
     return result;
 }
 // ***************************************************************************
 Assembler::DiscrepancyErrors_Data Assembler::ComputeDiscrepancyErrors(
-    const Polydim::examples::Stokes_DF_PCC_2D::Program_configuration &config,
+    const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config,
     const Gedim::MeshMatricesDAO &mesh,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
     const vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &full_dofs_data,
@@ -324,6 +321,10 @@ Assembler::DiscrepancyErrors_Data Assembler::ComputeDiscrepancyErrors(
     const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &full_pressure_reference_element_data,
     const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reduced_velocity_reference_element_data,
     const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &reduced_pressure_reference_element_data,
+    const std::unique_ptr<Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace> &vem_full_velocity_local_space,
+    const std::unique_ptr<Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Pressure_LocalSpace> &vem_full_pressure_local_space,
+    const std::unique_ptr<Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace> &vem_reduced_velocity_local_space,
+    const std::unique_ptr<Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Pressure_LocalSpace> &vem_reduced_pressure_local_space,
     const Stokes_DF_PCC_2D_Problem_Data &full_assembler_data,
     const Stokes_DF_PCC_2D_Problem_Data &reduced_assembler_data) const
 {
@@ -394,6 +395,8 @@ Assembler::DiscrepancyErrors_Data Assembler::ComputeDiscrepancyErrors(
 
     result.cell2Ds_discrepancy_error_L2_pressure.setZero(mesh.Cell2DTotalNumber());
     result.cell2Ds_discrepancy_error_H1_velocity.setZero(mesh.Cell2DTotalNumber());
+    result.cell2Ds_full_norm_L2_pressure.setZero(mesh.Cell2DTotalNumber());
+    result.cell2Ds_full_norm_H1_velocity.setZero(mesh.Cell2DTotalNumber());
 
     for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
     {
@@ -409,13 +412,9 @@ Assembler::DiscrepancyErrors_Data Assembler::ComputeDiscrepancyErrors(
                                                                               mesh_geometric_data.Cell2DsEdgeTangents.at(c),
                                                                               mesh_geometric_data.Cell2DsEdgeNormals.at(c)};
 
-        const auto vem_full_pressure_local_space =
-            Polydim::VEM::DF_PCC::create_VEM_DF_PCC_2D_full_pressure_local_space(config.VemType());
         const auto full_pressure_local_space =
             vem_full_pressure_local_space->CreateLocalSpace(full_pressure_reference_element_data, polygon);
 
-        const auto vem_full_velocity_local_space =
-            Polydim::VEM::DF_PCC::create_VEM_DF_PCC_2D_full_velocity_local_space(config.VemType());
         const auto full_velocity_local_space =
             vem_full_velocity_local_space->CreateLocalSpace(full_velocity_reference_element_data, polygon);
 
@@ -425,13 +424,9 @@ Assembler::DiscrepancyErrors_Data Assembler::ComputeDiscrepancyErrors(
         const Eigen::MatrixXd full_pressure_basis_functions_values =
             vem_full_pressure_local_space->ComputeBasisFunctionsValues(full_pressure_local_space);
 
-        const auto vem_reduced_pressure_local_space =
-            Polydim::VEM::DF_PCC::create_VEM_DF_PCC_2D_pressure_local_space(config.VemType());
         const auto reduced_pressure_local_space =
             vem_reduced_pressure_local_space->CreateLocalSpace(reduced_pressure_reference_element_data, polygon);
 
-        const auto vem_reduced_velocity_local_space =
-            Polydim::VEM::DF_PCC::create_VEM_DF_PCC_2D_velocity_local_space(config.VemType());
         const auto reduced_velocity_local_space =
             vem_reduced_velocity_local_space->CreateLocalSpace(reduced_velocity_reference_element_data, polygon);
 
@@ -556,9 +551,14 @@ Assembler::DiscrepancyErrors_Data Assembler::ComputeDiscrepancyErrors(
         const VectorXd full_numeric_pressure_values = full_pressure_basis_functions_values * full_pressure_dofs_values;
         const VectorXd reduced_numeric_pressure_values = reduced_pressure_basis_functions_values * reduced_pressure_dofs_values;
 
+        const VectorXd full_numeric_projected_pressure_values =
+            ((1.0 / polygon.Measure) * full_numeric_pressure_values.transpose() *
+             full_pressure_local_space.InternalQuadrature.Weights) *
+            reduced_pressure_basis_functions_values;
+
         const Eigen::VectorXd local_error_L2_pressure =
-            (full_numeric_pressure_values - reduced_numeric_pressure_values).array().square();
-        const Eigen::VectorXd local_norm_L2_pressure = (full_numeric_pressure_values).array().square();
+            (full_numeric_projected_pressure_values - reduced_numeric_pressure_values).array().square();
+        const Eigen::VectorXd local_norm_L2_pressure = (full_numeric_projected_pressure_values).array().square();
 
         result.cell2Ds_discrepancy_error_L2_pressure[c] =
             full_velocity_local_space.InternalQuadrature.Weights.transpose() * local_error_L2_pressure;
@@ -590,22 +590,26 @@ Assembler::DiscrepancyErrors_Data Assembler::ComputeDiscrepancyErrors(
 
     result.discrepancy_error_L2_pressure = std::sqrt(result.cell2Ds_discrepancy_error_L2_pressure.sum());
     result.discrepancy_error_H1_velocity = std::sqrt(result.cell2Ds_discrepancy_error_H1_velocity.sum());
+    result.full_norm_H1_velocity = std::sqrt(result.cell2Ds_full_norm_H1_velocity.sum());
+    result.full_norm_L2_pressure = std::sqrt(result.cell2Ds_full_norm_L2_pressure.sum());
 
     result.pressure_dofs_ratio = ((double)reduced_dofs_data[3].NumberDOFs) / full_dofs_data[3].NumberDOFs;
-    result.velocity_dofs_ratio = ((double)reduced_offsetDOFs[4]) / full_offsetDOFs[4];
+    result.velocity_dofs_ratio = ((double)reduced_offsetDOFs[3]) / full_offsetDOFs[3];
 
     return result;
 }
 // ***************************************************************************
 Assembler::PostProcess_Data Assembler::PostProcessSolution(
-    const Polydim::examples::Stokes_DF_PCC_2D::Program_configuration &config,
+    const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config,
     const Gedim::MeshMatricesDAO &mesh,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
     const vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
     const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
     const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &pressure_reference_element_data,
+    const std::unique_ptr<Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace> &vem_velocity_local_space,
+    const std::unique_ptr<Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Pressure_LocalSpace> &vem_pressure_local_space,
     const Stokes_DF_PCC_2D_Problem_Data &assembler_data,
-    const Polydim::examples::Stokes_DF_PCC_2D::test::I_Test &test) const
+    const Polydim::examples::NavierStokes_DF_PCC_2D::test::I_Test &test) const
 {
     const unsigned int numDOFHandler = dofs_data.size();
     unsigned int numberDOFs = 0;
@@ -639,8 +643,40 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
 
     for (unsigned int d = 0; d < velocity_reference_element_data.Dimension; d++)
     {
-        result.cell0Ds_numeric_velocity[d].resize(mesh.Cell2DTotalNumber());
-        result.cell0Ds_exact_velocity[d].resize(mesh.Cell2DTotalNumber());
+        result.cell0Ds_numeric_velocity[d].resize(mesh.Cell0DTotalNumber());
+        result.cell0Ds_exact_velocity[d].resize(mesh.Cell0DTotalNumber());
+    }
+
+    for (unsigned int p = 0; p < mesh.Cell0DTotalNumber(); p++)
+    {
+        const auto exact_velocity = test.exact_velocity(mesh.Cell0DCoordinates(p));
+
+        for (unsigned int d = 0; d < velocity_reference_element_data.Dimension; d++)
+            result.cell0Ds_exact_velocity[d](p) = exact_velocity[d](0);
+
+        for (unsigned int d = 0; d < velocity_reference_element_data.Dimension; d++)
+        {
+            const auto local_dofs = dofs_data[d].CellsDOFs.at(0).at(p);
+
+            for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
+            {
+                const auto &local_dof_i = local_dofs.at(loc_i);
+
+                switch (local_dof_i.Type)
+                {
+                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                    result.cell0Ds_exact_velocity[d][p] =
+                        assembler_data.solutionDirichlet.GetValue(local_dof_i.Global_Index + offsetStrongs[d]);
+                    break;
+                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
+                    result.cell0Ds_exact_velocity[d][p] =
+                        assembler_data.solution.GetValue(local_dof_i.Global_Index + offsetDOFs[d]);
+                    break;
+                default:
+                    throw std::runtime_error("Unknown DOF Type");
+                }
+            }
+        }
     }
 
     result.cell2Ds_error_L2_pressure.setZero(mesh.Cell2DTotalNumber());
@@ -667,10 +703,7 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
                                                                               mesh_geometric_data.Cell2DsEdgeTangents.at(c),
                                                                               mesh_geometric_data.Cell2DsEdgeNormals.at(c)};
 
-        const auto vem_pressure_local_space = Polydim::VEM::DF_PCC::create_VEM_DF_PCC_2D_pressure_local_space(config.VemType());
         const auto pressure_local_space = vem_pressure_local_space->CreateLocalSpace(pressure_reference_element_data, polygon);
-
-        const auto vem_velocity_local_space = Polydim::VEM::DF_PCC::create_VEM_DF_PCC_2D_velocity_local_space(config.VemType());
         const auto velocity_local_space = vem_velocity_local_space->CreateLocalSpace(velocity_reference_element_data, polygon);
 
         const auto velocity_basis_functions_derivatives_values =
@@ -779,6 +812,6 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
     return result;
 }
 // ***************************************************************************
-} // namespace Stokes_DF_PCC_2D
+} // namespace NavierStokes_DF_PCC_2D
 } // namespace examples
 } // namespace Polydim

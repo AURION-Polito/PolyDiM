@@ -31,6 +31,9 @@ class I_VEM_DF_PCC_2D_Velocity_LocalSpace
     virtual VEM_DF_PCC_2D_Velocity_LocalSpace_Data CreateLocalSpace(const VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                                                                     const VEM_DF_PCC_2D_Polygon_Geometry &polygon) const = 0;
 
+    virtual Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace,
+                                                               const ProjectionTypes &projectionType) const = 0;
+
     virtual Eigen::MatrixXd ComputeValuesOnEdge(const VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                                                 const Eigen::VectorXd &pointsCurvilinearCoordinates) const = 0;
 

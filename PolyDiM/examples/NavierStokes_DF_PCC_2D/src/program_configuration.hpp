@@ -10,15 +10,16 @@ namespace Polydim
 {
 namespace examples
 {
-namespace Stokes_DF_PCC_2D
+namespace NavierStokes_DF_PCC_2D
 {
 struct Program_configuration final
 {
     Program_configuration()
     {
-        Gedim::Configurations::AddProperty("TestType",
-                                           static_cast<unsigned int>(Polydim::examples::Stokes_DF_PCC_2D::test::Test_Types::Patch_Test),
-                                           "Test Type 1 - Patch_Test (Default: 1)");
+        Gedim::Configurations::AddProperty(
+            "TestType",
+            static_cast<unsigned int>(Polydim::examples::NavierStokes_DF_PCC_2D::test::Test_Types::Patch_Test),
+            "Test Type 1 - Patch_Test (Default: 1)");
 
         // Export parameters
         Gedim::Configurations::AddProperty("ExportFolder", "./Run", "Folder where to export data (Default: ./Export)");
@@ -45,9 +46,9 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty("ComputeDiscrepancyError", false, "Compute Discrepancy error (Default: false)");
     }
 
-    inline Polydim::examples::Stokes_DF_PCC_2D::test::Test_Types TestType() const
+    inline Polydim::examples::NavierStokes_DF_PCC_2D::test::Test_Types TestType() const
     {
-        return (Polydim::examples::Stokes_DF_PCC_2D::test::Test_Types)Gedim::Configurations::GetPropertyValue<unsigned int>("TestType");
+        return (Polydim::examples::NavierStokes_DF_PCC_2D::test::Test_Types)Gedim::Configurations::GetPropertyValue<unsigned int>("TestType");
     }
 
     inline string ExportFolder() const
@@ -94,7 +95,7 @@ struct Program_configuration final
         return Gedim::Configurations::GetPropertyValue<unsigned int>("VemOrder");
     }
 };
-} // namespace Stokes_DF_PCC_2D
+} // namespace NavierStokes_DF_PCC_2D
 } // namespace examples
 } // namespace Polydim
 
