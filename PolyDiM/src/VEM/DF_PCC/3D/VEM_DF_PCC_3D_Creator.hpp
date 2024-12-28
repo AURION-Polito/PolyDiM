@@ -21,7 +21,18 @@ enum struct VEM_DF_PCC_3D_LocalSpace_Types
     VEM_DF_PCC_3D_Reduced_LocalSpace = 2
 };
 
-inline std::unique_ptr<I_VEM_DF_PCC_3D_Pressure_ReferenceElement> create_VEM_DF_PCC_3D_full_pressure_reference_element(
+inline std::unique_ptr<PCC::I_VEM_PCC_2D_ReferenceElement> create_VEM_DF_PCC_3D_velocity_reference_element_2D(const VEM_DF_PCC_3D_LocalSpace_Types &type)
+{
+    switch (type)
+    {
+    case VEM_DF_PCC_3D_LocalSpace_Types::VEM_DF_PCC_3D_Reduced_LocalSpace:
+        return std::make_unique<PCC::VEM_PCC_2D_ReferenceElement>();
+    default:
+        throw std::runtime_error("VEM type " + std::to_string((unsigned int)type) + " not supported");
+    }
+}
+
+inline std::unique_ptr<I_VEM_DF_PCC_3D_Pressure_ReferenceElement> create_VEM_DF_PCC_3D_full_pressure_reference_element_3D(
     const VEM_DF_PCC_3D_LocalSpace_Types &type)
 {
     switch (type)
@@ -33,7 +44,7 @@ inline std::unique_ptr<I_VEM_DF_PCC_3D_Pressure_ReferenceElement> create_VEM_DF_
     }
 }
 
-inline std::unique_ptr<I_VEM_DF_PCC_3D_Velocity_ReferenceElement> create_VEM_DF_PCC_3D_full_velocity_reference_element(
+inline std::unique_ptr<I_VEM_DF_PCC_3D_Velocity_ReferenceElement> create_VEM_DF_PCC_3D_full_velocity_reference_element_3D(
     const VEM_DF_PCC_3D_LocalSpace_Types &type)
 {
     switch (type)
@@ -45,7 +56,7 @@ inline std::unique_ptr<I_VEM_DF_PCC_3D_Velocity_ReferenceElement> create_VEM_DF_
     }
 }
 
-inline std::unique_ptr<I_VEM_DF_PCC_3D_Pressure_LocalSpace> create_VEM_DF_PCC_3D_full_pressure_local_space(const VEM_DF_PCC_3D_LocalSpace_Types &type)
+inline std::unique_ptr<I_VEM_DF_PCC_3D_Pressure_LocalSpace> create_VEM_DF_PCC_3D_full_pressure_local_space_3D(const VEM_DF_PCC_3D_LocalSpace_Types &type)
 {
     switch (type)
     {
@@ -56,7 +67,7 @@ inline std::unique_ptr<I_VEM_DF_PCC_3D_Pressure_LocalSpace> create_VEM_DF_PCC_3D
     }
 }
 
-inline std::unique_ptr<I_VEM_DF_PCC_3D_Velocity_LocalSpace> create_VEM_DF_PCC_3D_full_velocity_local_space(const VEM_DF_PCC_3D_LocalSpace_Types &type)
+inline std::unique_ptr<I_VEM_DF_PCC_3D_Velocity_LocalSpace> create_VEM_DF_PCC_3D_full_velocity_local_space_3D(const VEM_DF_PCC_3D_LocalSpace_Types &type)
 {
     switch (type)
     {
@@ -67,7 +78,7 @@ inline std::unique_ptr<I_VEM_DF_PCC_3D_Velocity_LocalSpace> create_VEM_DF_PCC_3D
     }
 }
 
-inline std::unique_ptr<I_VEM_DF_PCC_3D_Pressure_ReferenceElement> create_VEM_DF_PCC_3D_pressure_reference_element(const VEM_DF_PCC_3D_LocalSpace_Types &type)
+inline std::unique_ptr<I_VEM_DF_PCC_3D_Pressure_ReferenceElement> create_VEM_DF_PCC_3D_pressure_reference_element_3D(const VEM_DF_PCC_3D_LocalSpace_Types &type)
 {
     switch (type)
     {
@@ -80,7 +91,7 @@ inline std::unique_ptr<I_VEM_DF_PCC_3D_Pressure_ReferenceElement> create_VEM_DF_
     }
 }
 
-inline std::unique_ptr<I_VEM_DF_PCC_3D_Velocity_ReferenceElement> create_VEM_DF_PCC_3D_velocity_reference_element(const VEM_DF_PCC_3D_LocalSpace_Types &type)
+inline std::unique_ptr<I_VEM_DF_PCC_3D_Velocity_ReferenceElement> create_VEM_DF_PCC_3D_velocity_reference_element_3D(const VEM_DF_PCC_3D_LocalSpace_Types &type)
 {
     switch (type)
     {
@@ -93,7 +104,7 @@ inline std::unique_ptr<I_VEM_DF_PCC_3D_Velocity_ReferenceElement> create_VEM_DF_
     }
 }
 
-inline std::unique_ptr<I_VEM_DF_PCC_3D_Pressure_LocalSpace> create_VEM_DF_PCC_3D_pressure_local_space(const VEM_DF_PCC_3D_LocalSpace_Types &type)
+inline std::unique_ptr<I_VEM_DF_PCC_3D_Pressure_LocalSpace> create_VEM_DF_PCC_3D_pressure_local_space_3D(const VEM_DF_PCC_3D_LocalSpace_Types &type)
 {
     switch (type)
     {
@@ -106,7 +117,7 @@ inline std::unique_ptr<I_VEM_DF_PCC_3D_Pressure_LocalSpace> create_VEM_DF_PCC_3D
     }
 }
 
-inline std::unique_ptr<I_VEM_DF_PCC_3D_Velocity_LocalSpace> create_VEM_DF_PCC_3D_velocity_local_space(const VEM_DF_PCC_3D_LocalSpace_Types &type)
+inline std::unique_ptr<I_VEM_DF_PCC_3D_Velocity_LocalSpace> create_VEM_DF_PCC_3D_velocity_local_space_3D(const VEM_DF_PCC_3D_LocalSpace_Types &type)
 {
     switch (type)
     {

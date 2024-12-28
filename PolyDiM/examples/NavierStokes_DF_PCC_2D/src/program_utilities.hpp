@@ -31,6 +31,7 @@ Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_propertie
 void export_solution(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config,
                      const Gedim::MeshMatricesDAO &mesh,
                      const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                     const Polydim::PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                      const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::Stokes_DF_PCC_2D_Problem_Data &assembler_data,
                      const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::PostProcess_Data &post_process_data,
                      const std::string &exportSolutionFolder,

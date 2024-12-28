@@ -316,9 +316,6 @@ Assembler::DiscrepancyErrors_Data Assembler::ComputeDiscrepancyErrors(
     const Stokes_DF_PCC_2D_Problem_Data &reduced_assembler_data) const
 {
 
-    const unsigned int full_numDOFHandler = full_dofs_data.size();
-    const unsigned int reduced_numDOFHandler = reduced_dofs_data.size();
-
     DiscrepancyErrors_Data result;
 
     result.residual_norm = 0.0;
@@ -487,8 +484,6 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
     const Stokes_DF_PCC_2D_Problem_Data &assembler_data,
     const Polydim::examples::Brinkman_DF_PCC_2D::test::I_Test &test) const
 {
-    const unsigned int numDOFHandler = dofs_data.size();
-
     PostProcess_Data result;
 
     result.residual_norm = 0.0;

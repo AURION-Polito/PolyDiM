@@ -215,6 +215,7 @@ int main(int argc, char **argv)
     Polydim::examples::Brinkman_DF_PCC_2D::program_utilities::export_solution(config,
                                                                               mesh,
                                                                               dofs_data,
+                                                                              count_dofs,
                                                                               assembler_data,
                                                                               post_process_data,
                                                                               exportSolutionFolder,
@@ -327,7 +328,7 @@ int main(int argc, char **argv)
 
         full_dofs_data[3] = dofManager.CreateDOFs<2>(full_meshDOFsInfo[3], mesh_connectivity_data);
 
-        auto full_count_dofs = Polydim::PDETools::Assembler_Utilities::count_dofs(dofs_data);
+        auto full_count_dofs = Polydim::PDETools::Assembler_Utilities::count_dofs(full_dofs_data);
         full_count_dofs.num_total_dofs += 1; // lagrange
 
         Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(full_count_dofs.num_total_dofs) +

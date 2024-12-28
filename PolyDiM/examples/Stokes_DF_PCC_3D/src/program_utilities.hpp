@@ -24,11 +24,12 @@ void create_domain_mesh(const Polydim::examples::Stokes_DF_PCC_3D::Program_confi
                         Gedim::MeshMatricesDAO &mesh);
 
 Gedim::MeshUtilities::MeshGeometricData3D create_domain_mesh_geometric_properties(const Polydim::examples::Stokes_DF_PCC_3D::Program_configuration &config,
-                                                                                  const Gedim::MeshMatricesDAO &mesh);
+                                                                                  Gedim::MeshMatricesDAO &mesh);
 
 void export_solution(const Polydim::examples::Stokes_DF_PCC_3D::Program_configuration &config,
                      const Gedim::MeshMatricesDAO &mesh,
                      const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                     const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                      const Polydim::examples::Stokes_DF_PCC_3D::Assembler::Stokes_DF_PCC_3D_Problem_Data &assembler_data,
                      const Polydim::examples::Stokes_DF_PCC_3D::Assembler::PostProcess_Data &post_process_data,
                      const std::string &exportSolutionFolder,
@@ -36,7 +37,7 @@ void export_solution(const Polydim::examples::Stokes_DF_PCC_3D::Program_configur
 
 void export_velocity_dofs(const Polydim::examples::Stokes_DF_PCC_3D::Program_configuration &config,
                           const Gedim::MeshMatricesDAO &mesh,
-                          const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                          const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
                           const VEM::DF_PCC::VEM_DF_PCC_3D_Velocity_ReferenceElement_Data &vem_velocity_reference_element_data,
                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,

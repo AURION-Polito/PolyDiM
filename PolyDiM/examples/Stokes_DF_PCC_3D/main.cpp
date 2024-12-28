@@ -1,6 +1,5 @@
 #include "DOFsManager.hpp"
 #include "Eigen_LUSolver.hpp"
-#include "I_VEM_DF_PCC_2D_ReferenceElement.hpp"
 #include "MeshMatricesDAO.hpp"
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
 #include "MeshUtilities.hpp"
@@ -102,62 +101,59 @@ int main(int argc, char **argv)
 
     Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data = {mesh};
 
-    const auto vem_pressure_reference_element =
-        Polydim::VEM::DF_PCC::create_VEM_DF_PCC_2D_pressure_reference_element(config.VemType());
-    const auto pressure_reference_element_data = vem_pressure_reference_element->Create(config.VemOrder());
-    const auto vem_velocity_reference_element =
-        Polydim::VEM::DF_PCC::create_VEM_DF_PCC_2D_velocity_reference_element(config.VemType());
-    const auto velocity_reference_element_data = vem_velocity_reference_element->Create(config.VemOrder());
+    const auto vem_velocity_reference_element_2D =
+        Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_velocity_reference_element_2D(config.VemType());
+    const auto velocity_reference_element_data_2D = vem_velocity_reference_element_2D->Create(config.VemOrder());
+    const auto vem_pressure_reference_element_3D =
+        Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_pressure_reference_element_3D(config.VemType());
+    const auto pressure_reference_element_data_3D = vem_pressure_reference_element_3D->Create(config.VemOrder());
+    const auto vem_velocity_reference_element_3D =
+        Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_velocity_reference_element_3D(config.VemType());
+    const auto velocity_reference_element_data_3D = vem_velocity_reference_element_3D->Create(config.VemOrder());
 
     Polydim::PDETools::DOFs::DOFsManager dofManager;
-    std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> meshDOFsInfo(4);
-    std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> dofs_data(4);
+    std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> meshDOFsInfo(8);
+    std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> dofs_data(8);
 
-    for (unsigned int i = 0; i < 2; i++)
+    for (unsigned int i = 0; i < 3; i++)
     {
-        meshDOFsInfo[i] = dofManager.Create_Constant_DOFsInfo<2>(
+        meshDOFsInfo[i] = dofManager.Create_Constant_DOFsInfo<3>(
             mesh_connectivity_data,
-            {{velocity_reference_element_data.NumDofs0D, velocity_reference_element_data.NumDofs1D, 0, 0}, boundary_info});
+            {{velocity_reference_element_data_3D.NumDofs0D, velocity_reference_element_data_3D.NumDofs1D, 0, 0}, boundary_info});
 
-        dofs_data[i] = dofManager.CreateDOFs<2>(meshDOFsInfo[i], mesh_connectivity_data);
+        dofs_data[i] = dofManager.CreateDOFs<3>(meshDOFsInfo[i], mesh_connectivity_data);
     }
 
-    meshDOFsInfo[2] = dofManager.Create_Constant_DOFsInfo<2>(
+    for (unsigned int i = 3; i < 6; i++)
+    {
+        meshDOFsInfo[i] =
+            dofManager.Create_Constant_DOFsInfo<3>(mesh_connectivity_data,
+                                                   {{0, 0, velocity_reference_element_data_3D.NumDofs2D, 0}, boundary_info});
+
+        dofs_data[i] = dofManager.CreateDOFs<3>(meshDOFsInfo[i], mesh_connectivity_data);
+    }
+
+    meshDOFsInfo[6] = dofManager.Create_Constant_DOFsInfo<3>(
         mesh_connectivity_data,
-        {{0, 0, velocity_reference_element_data.NumDofs2D_BigOPlus + velocity_reference_element_data.NumDofs2D_Divergence, 0},
+        {{0, 0, 0, velocity_reference_element_data_3D.NumDofs3D_BigOPlus + velocity_reference_element_data_3D.NumDofs3D_Divergence},
          boundary_info});
 
-    dofs_data[2] = dofManager.CreateDOFs<2>(meshDOFsInfo[2], mesh_connectivity_data);
+    dofs_data[6] = dofManager.CreateDOFs<3>(meshDOFsInfo[6], mesh_connectivity_data);
 
-    meshDOFsInfo[3] = dofManager.Create_Constant_DOFsInfo<2>(mesh_connectivity_data,
-                                                             {{pressure_reference_element_data.NumDofs0D,
-                                                               pressure_reference_element_data.NumDofs1D,
-                                                               pressure_reference_element_data.NumDofs2D,
-                                                               0},
+    meshDOFsInfo[7] = dofManager.Create_Constant_DOFsInfo<3>(mesh_connectivity_data,
+                                                             {{pressure_reference_element_data_3D.NumDofs0D,
+                                                               pressure_reference_element_data_3D.NumDofs1D,
+                                                               pressure_reference_element_data_3D.NumDofs2D,
+                                                               pressure_reference_element_data_3D.NumDofs3D},
                                                               boundary_info});
 
-    dofs_data[3] = dofManager.CreateDOFs<2>(meshDOFsInfo[3], mesh_connectivity_data);
+    dofs_data[7] = dofManager.CreateDOFs<3>(meshDOFsInfo[7], mesh_connectivity_data);
 
-    const unsigned int numDOFHandler = meshDOFsInfo.size();
-    unsigned int numberDOFs = 0;
-    unsigned int numberStrongs = 0;
-    std::vector<unsigned int> offsetDOFs = {0,
-                                            dofs_data[0].NumberDOFs,
-                                            dofs_data[0].NumberDOFs + dofs_data[1].NumberDOFs,
-                                            dofs_data[0].NumberDOFs + dofs_data[1].NumberDOFs + dofs_data[2].NumberDOFs};
-    std::vector<unsigned int> offsetStrongs = {0,
-                                               dofs_data[0].NumberStrongs,
-                                               dofs_data[0].NumberStrongs + dofs_data[1].NumberStrongs,
-                                               dofs_data[0].NumberStrongs + dofs_data[1].NumberStrongs + dofs_data[2].NumberStrongs};
-    for (unsigned int i = 0; i < numDOFHandler; i++)
-    {
-        numberDOFs += dofs_data[i].NumberDOFs;
-        numberStrongs += dofs_data[i].NumberStrongs;
-    }
+    auto count_dofs = Polydim::PDETools::Assembler_Utilities::count_dofs(dofs_data);
+    count_dofs.num_total_dofs += 1; // lagrange
 
-    numberDOFs += 1; // lagrange
-
-    Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(numberDOFs) + " DOFs and " + to_string(numberStrongs) + " STRONGs",
+    Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(count_dofs.num_total_dofs) + " DOFs and " +
+                                           to_string(count_dofs.num_total_strong) + " STRONGs",
                                        true);
 
     Gedim::Profiler::StopTime("CreateVEMSpace");
@@ -166,8 +162,8 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " + to_string((unsigned int)config.VemType()) + "...", true);
     Gedim::Profiler::StartTime("AssembleSystem");
 
-    const auto vem_pressure_local_space = Polydim::VEM::DF_PCC::create_VEM_DF_PCC_2D_pressure_local_space(config.VemType());
-    const auto vem_velocity_local_space = Polydim::VEM::DF_PCC::create_VEM_DF_PCC_2D_velocity_local_space(config.VemType());
+    const auto vem_pressure_local_space = Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_pressure_local_space_3D(config.VemType());
+    const auto vem_velocity_local_space = Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_velocity_local_space_3D(config.VemType());
 
     Polydim::examples::Stokes_DF_PCC_3D::Assembler assembler;
     auto assembler_data = assembler.Assemble(config,
@@ -175,8 +171,10 @@ int main(int argc, char **argv)
                                              meshGeometricData,
                                              meshDOFsInfo,
                                              dofs_data,
-                                             velocity_reference_element_data,
-                                             pressure_reference_element_data,
+                                             count_dofs,
+                                             velocity_reference_element_data_2D,
+                                             velocity_reference_element_data_3D,
+                                             pressure_reference_element_data_3D,
                                              *vem_velocity_local_space,
                                              *vem_pressure_local_space,
                                              *test);
@@ -184,7 +182,7 @@ int main(int argc, char **argv)
     Gedim::Profiler::StopTime("AssembleSystem");
     Gedim::Output::PrintStatusProgram("AssembleSystem");
 
-    if (numberDOFs > 0)
+    if (count_dofs.num_total_dofs > 0)
     {
         Gedim::Output::PrintGenericMessage("Factorize...", true);
         Gedim::Profiler::StartTime("Factorize");
@@ -211,8 +209,10 @@ int main(int argc, char **argv)
                                                            mesh,
                                                            meshGeometricData,
                                                            dofs_data,
-                                                           velocity_reference_element_data,
-                                                           pressure_reference_element_data,
+                                                           count_dofs,
+                                                           velocity_reference_element_data_2D,
+                                                           velocity_reference_element_data_3D,
+                                                           pressure_reference_element_data_3D,
                                                            *vem_velocity_local_space,
                                                            *vem_pressure_local_space,
                                                            assembler_data,
@@ -227,6 +227,7 @@ int main(int argc, char **argv)
     Polydim::examples::Stokes_DF_PCC_3D::program_utilities::export_solution(config,
                                                                             mesh,
                                                                             dofs_data,
+                                                                            count_dofs,
                                                                             assembler_data,
                                                                             post_process_data,
                                                                             exportSolutionFolder,
@@ -240,20 +241,24 @@ int main(int argc, char **argv)
 
     if (config.ComputeVEMPerformance())
     {
-        const auto vemPerformance =
-            assembler.ComputeVemPerformance(config, mesh, meshGeometricData, velocity_reference_element_data, *vem_velocity_local_space);
+        const auto vemPerformance = assembler.ComputeVemPerformance(config,
+                                                                    mesh,
+                                                                    meshGeometricData,
+                                                                    velocity_reference_element_data_2D,
+                                                                    velocity_reference_element_data_3D,
+                                                                    *vem_velocity_local_space);
         {
             const char separator = ',';
             /// Export Cell2Ds VEM performance
             ofstream exporter;
 
-            exporter.open(exportSolutionFolder + "/Cell2Ds_VEMPerformance.csv");
+            exporter.open(exportSolutionFolder + "/Cell3Ds_VEMPerformance.csv");
             exporter.precision(16);
 
             if (exporter.fail())
-                throw runtime_error("Error on mesh cell2Ds file");
+                throw runtime_error("Error on mesh cell3Ds file");
 
-            exporter << "Cell2D_Index" << separator;
+            exporter << "Cell3D_Index" << separator;
             exporter << "NumQuadPoints_Boundary" << separator;
             exporter << "NumQuadPoints_Internal" << separator;
             exporter << "PiNabla_Cond" << separator;
@@ -264,13 +269,13 @@ int main(int argc, char **argv)
             exporter << "HCD_Error" << separator;
             exporter << "Stab_Error" << endl;
 
-            for (unsigned int v = 0; v < vemPerformance.Cell2DsPerformance.size(); v++)
+            for (unsigned int v = 0; v < vemPerformance.Cell3DsPerformance.size(); v++)
             {
-                const auto &cell2DPerformance = vemPerformance.Cell2DsPerformance[v].Analysis;
+                const auto &cell2DPerformance = vemPerformance.Cell3DsPerformance[v].Analysis;
 
                 exporter << scientific << v << separator;
-                exporter << scientific << vemPerformance.Cell2DsPerformance[v].NumBoundaryQuadraturePoints << separator;
-                exporter << scientific << vemPerformance.Cell2DsPerformance[v].NumInternalQuadraturePoints << separator;
+                exporter << scientific << vemPerformance.Cell3DsPerformance[v].NumBoundaryQuadraturePoints << separator;
+                exporter << scientific << vemPerformance.Cell3DsPerformance[v].NumInternalQuadraturePoints << separator;
                 double sum_of_elems = 0.0;
                 std::ranges::for_each(cell2DPerformance.PiNablaConditioning, [&](int n) { sum_of_elems += n * n; });
                 exporter << scientific << sqrt(sum_of_elems) << separator;
@@ -304,64 +309,59 @@ int main(int argc, char **argv)
         Gedim::Output::PrintGenericMessage("Create Full VEM Space of order " + to_string(config.VemOrder()) + " and DOFs...", true);
         Gedim::Profiler::StartTime("CreateFULLVEMSpace");
 
-        const auto vem_full_pressure_reference_element =
-            Polydim::VEM::DF_PCC::create_VEM_DF_PCC_2D_full_pressure_reference_element(config.VemType());
-        const auto full_pressure_reference_element_data = vem_full_pressure_reference_element->Create(config.VemOrder());
-        const auto vem_full_velocity_reference_element =
-            Polydim::VEM::DF_PCC::create_VEM_DF_PCC_2D_full_velocity_reference_element(config.VemType());
-        const auto full_velocity_reference_element_data = vem_full_velocity_reference_element->Create(config.VemOrder());
+        const auto vem_full_pressure_reference_element_3D =
+            Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_full_pressure_reference_element_3D(config.VemType());
+        const auto full_pressure_reference_element_data_3D = vem_full_pressure_reference_element_3D->Create(config.VemOrder());
+        const auto vem_full_velocity_reference_element_3D =
+            Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_full_velocity_reference_element_3D(config.VemType());
+        const auto full_velocity_reference_element_data_3D = vem_full_velocity_reference_element_3D->Create(config.VemOrder());
 
         std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> full_meshDOFsInfo(4);
         std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> full_dofs_data(4);
 
-        for (unsigned int i = 0; i < 2; i++)
+        for (unsigned int i = 0; i < 3; i++)
         {
-            full_meshDOFsInfo[i] = dofManager.Create_Constant_DOFsInfo<2>(
+            full_meshDOFsInfo[i] = dofManager.Create_Constant_DOFsInfo<3>(
                 mesh_connectivity_data,
-                {{full_velocity_reference_element_data.NumDofs0D, full_velocity_reference_element_data.NumDofs1D, 0, 0}, boundary_info});
+                {{full_velocity_reference_element_data_3D.NumDofs0D, full_velocity_reference_element_data_3D.NumDofs1D, 0, 0},
+                 boundary_info});
 
-            full_dofs_data[i] = dofManager.CreateDOFs<2>(full_meshDOFsInfo[i], mesh_connectivity_data);
+            full_dofs_data[i] = dofManager.CreateDOFs<3>(full_meshDOFsInfo[i], mesh_connectivity_data);
         }
 
-        full_meshDOFsInfo[2] = dofManager.Create_Constant_DOFsInfo<2>(
+        for (unsigned int i = 3; i < 6; i++)
+        {
+            full_meshDOFsInfo[i] = dofManager.Create_Constant_DOFsInfo<3>(
+                mesh_connectivity_data,
+                {{0, 0, full_velocity_reference_element_data_3D.NumDofs2D, 0}, boundary_info});
+
+            full_dofs_data[i] = dofManager.CreateDOFs<3>(full_meshDOFsInfo[i], mesh_connectivity_data);
+        }
+
+        full_meshDOFsInfo[6] = dofManager.Create_Constant_DOFsInfo<3>(
             mesh_connectivity_data,
-            {{0, 0, full_velocity_reference_element_data.NumDofs2D_BigOPlus + full_velocity_reference_element_data.NumDofs2D_Divergence, 0},
+            {{0,
+              0,
+              0,
+              full_velocity_reference_element_data_3D.NumDofs3D_BigOPlus + full_velocity_reference_element_data_3D.NumDofs3D_Divergence},
              boundary_info});
 
-        full_dofs_data[2] = dofManager.CreateDOFs<2>(full_meshDOFsInfo[2], mesh_connectivity_data);
+        full_dofs_data[6] = dofManager.CreateDOFs<3>(full_meshDOFsInfo[6], mesh_connectivity_data);
 
-        full_meshDOFsInfo[3] = dofManager.Create_Constant_DOFsInfo<2>(mesh_connectivity_data,
-                                                                      {{full_pressure_reference_element_data.NumDofs0D,
-                                                                        full_pressure_reference_element_data.NumDofs1D,
-                                                                        full_pressure_reference_element_data.NumDofs2D,
-                                                                        0},
+        full_meshDOFsInfo[7] = dofManager.Create_Constant_DOFsInfo<3>(mesh_connectivity_data,
+                                                                      {{full_pressure_reference_element_data_3D.NumDofs0D,
+                                                                        full_pressure_reference_element_data_3D.NumDofs1D,
+                                                                        full_pressure_reference_element_data_3D.NumDofs2D,
+                                                                        full_pressure_reference_element_data_3D.NumDofs3D},
                                                                        boundary_info});
 
-        full_dofs_data[3] = dofManager.CreateDOFs<2>(full_meshDOFsInfo[3], mesh_connectivity_data);
+        full_dofs_data[7] = dofManager.CreateDOFs<3>(full_meshDOFsInfo[7], mesh_connectivity_data);
 
-        const unsigned int full_numDOFHandler = full_meshDOFsInfo.size();
-        unsigned int full_numberDOFs = 0;
-        unsigned int full_numberStrongs = 0;
-        std::vector<unsigned int> full_offsetDOFs = {0,
-                                                     full_dofs_data[0].NumberDOFs,
-                                                     full_dofs_data[0].NumberDOFs + full_dofs_data[1].NumberDOFs,
-                                                     full_dofs_data[0].NumberDOFs + full_dofs_data[1].NumberDOFs +
-                                                         full_dofs_data[2].NumberDOFs};
-        std::vector<unsigned int> full_offsetStrongs = {0,
-                                                        full_dofs_data[0].NumberStrongs,
-                                                        full_dofs_data[0].NumberStrongs + full_dofs_data[1].NumberStrongs,
-                                                        full_dofs_data[0].NumberStrongs + full_dofs_data[1].NumberStrongs +
-                                                            full_dofs_data[2].NumberStrongs};
-        for (unsigned int i = 0; i < full_numDOFHandler; i++)
-        {
-            full_numberDOFs += full_dofs_data[i].NumberDOFs;
-            full_numberStrongs += full_dofs_data[i].NumberStrongs;
-        }
+        auto full_count_dofs = Polydim::PDETools::Assembler_Utilities::count_dofs(full_dofs_data);
+        full_count_dofs.num_total_dofs += 1; // lagrange
 
-        full_numberDOFs += 1; // lagrange
-
-        Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(full_numberDOFs) + " DOFs and " +
-                                               to_string(full_numberStrongs) + " STRONGs",
+        Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(full_count_dofs.num_total_dofs) +
+                                               " DOFs and " + to_string(full_count_dofs.num_total_strong) + " STRONGs",
                                            true);
 
         Gedim::Profiler::StopTime("CreateFULLVEMSpace");
@@ -371,17 +371,19 @@ int main(int argc, char **argv)
         Gedim::Profiler::StartTime("AssembleSystem");
 
         const auto vem_full_pressure_local_space =
-            Polydim::VEM::DF_PCC::create_VEM_DF_PCC_2D_full_pressure_local_space(config.VemType());
+            Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_full_pressure_local_space_3D(config.VemType());
         const auto vem_full_velocity_local_space =
-            Polydim::VEM::DF_PCC::create_VEM_DF_PCC_2D_full_velocity_local_space(config.VemType());
+            Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_full_velocity_local_space_3D(config.VemType());
 
         auto full_assembler_data = assembler.Assemble(config,
                                                       mesh,
                                                       meshGeometricData,
                                                       full_meshDOFsInfo,
                                                       full_dofs_data,
-                                                      full_velocity_reference_element_data,
-                                                      full_pressure_reference_element_data,
+                                                      full_count_dofs,
+                                                      velocity_reference_element_data_2D,
+                                                      full_velocity_reference_element_data_3D,
+                                                      full_pressure_reference_element_data_3D,
                                                       *vem_full_velocity_local_space,
                                                       *vem_full_pressure_local_space,
                                                       *test);
@@ -389,7 +391,7 @@ int main(int argc, char **argv)
         Gedim::Profiler::StopTime("AssembleSystem");
         Gedim::Output::PrintStatusProgram("AssembleSystem");
 
-        if (numberDOFs > 0)
+        if (full_count_dofs.num_total_dofs > 0)
         {
             Gedim::Output::PrintGenericMessage("Factorize...", true);
             Gedim::Profiler::StartTime("Factorize");
@@ -416,11 +418,14 @@ int main(int argc, char **argv)
                                                                                 mesh,
                                                                                 meshGeometricData,
                                                                                 full_dofs_data,
+                                                                                full_count_dofs,
                                                                                 dofs_data,
-                                                                                full_velocity_reference_element_data,
-                                                                                full_pressure_reference_element_data,
-                                                                                velocity_reference_element_data,
-                                                                                pressure_reference_element_data,
+                                                                                count_dofs,
+                                                                                velocity_reference_element_data_2D,
+                                                                                full_velocity_reference_element_data_3D,
+                                                                                full_pressure_reference_element_data_3D,
+                                                                                velocity_reference_element_data_3D,
+                                                                                pressure_reference_element_data_3D,
                                                                                 *vem_full_velocity_local_space,
                                                                                 *vem_full_pressure_local_space,
                                                                                 *vem_velocity_local_space,

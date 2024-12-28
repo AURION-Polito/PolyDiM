@@ -74,6 +74,7 @@ Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_propertie
 void export_solution(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config,
                      const Gedim::MeshMatricesDAO &mesh,
                      const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                     const Polydim::PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                      const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::Stokes_DF_PCC_2D_Problem_Data &assembler_data,
                      const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::PostProcess_Data &post_process_data,
                      const std::string &exportSolutionFolder,
@@ -86,36 +87,32 @@ void export_solution(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_co
         const char separator = ';';
         std::cout << "ProgramType" << separator;
         std::cout << "VemType" << separator;
-        cout << "VemOrder" << separator;
-        cout << "Cell2Ds" << separator;
-        cout << "Dofs" << separator;
-        cout << "Strongs" << separator;
-        cout << "h" << separator;
-        cout << "errorH1Velocity" << separator;
-        cout << "errorL2Pressure" << separator;
-        cout << "normH1Velocity" << separator;
-        cout << "normL2Pressure" << separator;
-        cout << "nnzA" << separator;
-        cout << "residual" << endl;
+        std::cout << "VemOrder" << separator;
+        std::cout << "Cell2Ds" << separator;
+        std::cout << "Dofs" << separator;
+        std::cout << "Strongs" << separator;
+        std::cout << "h" << separator;
+        std::cout << "errorH1Velocity" << separator;
+        std::cout << "errorL2Pressure" << separator;
+        std::cout << "normH1Velocity" << separator;
+        std::cout << "normL2Pressure" << separator;
+        std::cout << "nnzA" << separator;
+        std::cout << "residual" << endl;
 
-        cout.precision(2);
+        std::cout.precision(2);
         std::cout << scientific << TEST_ID << separator;
         std::cout << scientific << VEM_ID << separator;
-        cout << scientific << config.VemOrder() << separator;
-        cout << scientific << mesh.Cell2DTotalNumber() << separator;
-        std::cout << scientific
-                  << dofs_data[0].NumberDOFs + dofs_data[1].NumberDOFs + dofs_data[2].NumberDOFs + dofs_data[3].NumberDOFs
-                  << separator;
-        std::cout << scientific
-                  << dofs_data[0].NumberStrongs + dofs_data[1].NumberStrongs + dofs_data[2].NumberStrongs + dofs_data[3].NumberStrongs
-                  << separator;
-        cout << scientific << post_process_data.mesh_size << separator;
-        cout << scientific << post_process_data.error_H1_velocity << separator;
-        cout << scientific << post_process_data.error_L2_pressure << separator;
-        cout << scientific << post_process_data.norm_H1_velocity << separator;
-        cout << scientific << post_process_data.norm_L2_pressure << separator;
-        cout << scientific << assembler_data.globalMatrixA.NonZeros() << separator;
-        cout << scientific << post_process_data.residual_norm << endl;
+        std::cout << scientific << config.VemOrder() << separator;
+        std::cout << scientific << mesh.Cell2DTotalNumber() << separator;
+        std::cout << scientific << count_dofs.num_total_dofs << separator;
+        std::cout << scientific << count_dofs.num_total_strong << separator;
+        std::cout << scientific << post_process_data.mesh_size << separator;
+        std::cout << scientific << post_process_data.error_H1_velocity << separator;
+        std::cout << scientific << post_process_data.error_L2_pressure << separator;
+        std::cout << scientific << post_process_data.norm_H1_velocity << separator;
+        std::cout << scientific << post_process_data.norm_L2_pressure << separator;
+        std::cout << scientific << assembler_data.globalMatrixA.NonZeros() << separator;
+        std::cout << scientific << post_process_data.residual_norm << endl;
     }
 
     {
@@ -147,12 +144,8 @@ void export_solution(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_co
         errorFile << scientific << VEM_ID << separator;
         errorFile << scientific << config.VemOrder() << separator;
         errorFile << scientific << mesh.Cell2DTotalNumber() << separator;
-        errorFile << scientific
-                  << dofs_data[0].NumberDOFs + dofs_data[1].NumberDOFs + dofs_data[2].NumberDOFs + dofs_data[3].NumberDOFs
-                  << separator;
-        errorFile << scientific
-                  << dofs_data[0].NumberStrongs + dofs_data[1].NumberStrongs + dofs_data[2].NumberStrongs + dofs_data[3].NumberStrongs
-                  << separator;
+        errorFile << scientific << count_dofs.num_total_dofs << separator;
+        errorFile << scientific << count_dofs.num_total_strong << separator;
         errorFile << scientific << post_process_data.mesh_size << separator;
         errorFile << scientific << post_process_data.error_H1_velocity << separator;
         errorFile << scientific << post_process_data.error_L2_pressure << separator;
