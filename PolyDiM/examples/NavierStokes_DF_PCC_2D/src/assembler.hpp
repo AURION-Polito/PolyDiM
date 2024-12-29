@@ -37,7 +37,13 @@ class Assembler final
         {
             unsigned int NumBoundaryQuadraturePoints = 0;
             unsigned int NumInternalQuadraturePoints = 0;
-            Polydim::VEM::DF_PCC::VEM_DF_PCC_PerformanceAnalysis_Data Analysis;
+            double maxPiNablaConditioning;    ///< conditioning of piNabla
+            double maxPi0kConditioning;       ///< conditioning of piNabla
+            double maxErrorPiNabla;           ///< |piNabla * Dofs - I|
+            double maxErrorPi0k;              ///< |pi0k * Dofs - I|
+            double ErrorStabilization = -1.0; ///< |S * Dofs|
+            double maxErrorHCD;               ///< |H - CD|
+            double maxErrorGBD;               ///< |G - BD|
         };
 
         std::vector<Cell2D_Performance> Cell2DsPerformance;

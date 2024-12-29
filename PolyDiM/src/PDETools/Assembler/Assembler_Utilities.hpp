@@ -20,6 +20,7 @@ struct local_matrix_to_global_matrix_dofs_data final
 
 struct count_dofs_data final
 {
+    unsigned int num_total_boundary_dofs;
     unsigned int num_total_dofs;
     unsigned int num_total_strong;
     std::vector<size_t> offsets_DOFs;
@@ -37,6 +38,7 @@ inline count_dofs_data count_dofs(const std::vector<Polydim::PDETools::DOFs::DOF
     count_dofs_data data;
     data.num_total_dofs = dofs_data[0].NumberDOFs;
     data.num_total_strong = dofs_data[0].NumberStrongs;
+    data.num_total_boundary_dofs = dofs_data[0].NumberBoundaryDOFs;
 
     const unsigned int numDOFHandler = dofs_data.size();
     data.offsets_DOFs.resize(numDOFHandler);
@@ -48,6 +50,7 @@ inline count_dofs_data count_dofs(const std::vector<Polydim::PDETools::DOFs::DOF
     {
         data.num_total_dofs += dofs_data[i].NumberDOFs;
         data.num_total_strong += dofs_data[i].NumberStrongs;
+        data.num_total_boundary_dofs += dofs_data[i].NumberBoundaryDOFs;
 
         data.offsets_DOFs[i] = data.offsets_DOFs[i - 1] + dofs_data[i - 1].NumberDOFs;
         data.offsets_Strongs[i] = data.offsets_Strongs[i - 1] + dofs_data[i - 1].NumberStrongs;

@@ -140,7 +140,8 @@ int main(int argc, char **argv)
     dofs_data[3] = dofManager.CreateDOFs<2>(meshDOFsInfo[3], mesh_connectivity_data);
 
     auto count_dofs = Polydim::PDETools::Assembler_Utilities::count_dofs(dofs_data);
-    count_dofs.num_total_dofs += 1; // lagrange
+    if (count_dofs.num_total_boundary_dofs == 0)
+        count_dofs.num_total_dofs += 1; // lagrange
 
     Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(count_dofs.num_total_dofs) + " DOFs and " +
                                            to_string(count_dofs.num_total_strong) + " STRONGs",
@@ -236,7 +237,10 @@ int main(int argc, char **argv)
             /// Export Cell2Ds VEM performance
             ofstream exporter;
 
-            exporter.open(exportSolutionFolder + "/Cell2Ds_VEMPerformance.csv");
+            const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
+            const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
+            exporter.open(exportSolutionFolder + "/Cell2Ds_VEMPerformance_" + to_string(TEST_ID) + "_" +
+                          to_string(VEM_ID) + +"_" + to_string(config.VemOrder()) + ".csv");
             exporter.precision(16);
 
             if (exporter.fail())
@@ -245,39 +249,27 @@ int main(int argc, char **argv)
             exporter << "Cell2D_Index" << separator;
             exporter << "NumQuadPoints_Boundary" << separator;
             exporter << "NumQuadPoints_Internal" << separator;
-            exporter << "PiNabla_Cond" << separator;
-            exporter << "Pi0k_Cond" << separator;
-            exporter << "PiNabla_Error" << separator;
-            exporter << "Pi0k_Error" << separator;
-            exporter << "GBD_Error" << separator;
-            exporter << "HCD_Error" << separator;
+            exporter << "max_PiNabla_Cond" << separator;
+            exporter << "max_Pi0k_Cond" << separator;
+            exporter << "max_PiNabla_Error" << separator;
+            exporter << "max_Pi0k_Error" << separator;
+            exporter << "max_GBD_Error" << separator;
+            exporter << "max_HCD_Error" << separator;
             exporter << "Stab_Error" << endl;
 
             for (unsigned int v = 0; v < vemPerformance.Cell2DsPerformance.size(); v++)
             {
-                const auto &cell2DPerformance = vemPerformance.Cell2DsPerformance[v].Analysis;
+                const auto &cell2DPerformance = vemPerformance.Cell2DsPerformance[v];
 
                 exporter << scientific << v << separator;
-                exporter << scientific << vemPerformance.Cell2DsPerformance[v].NumBoundaryQuadraturePoints << separator;
-                exporter << scientific << vemPerformance.Cell2DsPerformance[v].NumInternalQuadraturePoints << separator;
-                double sum_of_elems = 0.0;
-                std::ranges::for_each(cell2DPerformance.PiNablaConditioning, [&](int n) { sum_of_elems += n * n; });
-                exporter << scientific << sqrt(sum_of_elems) << separator;
-                sum_of_elems = 0.0;
-                std::ranges::for_each(cell2DPerformance.Pi0kConditioning, [&](int n) { sum_of_elems += n * n; });
-                exporter << scientific << sqrt(sum_of_elems) << separator;
-                sum_of_elems = 0.0;
-                std::ranges::for_each(cell2DPerformance.ErrorPiNabla, [&](int n) { sum_of_elems += n * n; });
-                exporter << scientific << sqrt(sum_of_elems) << separator;
-                sum_of_elems = 0.0;
-                std::ranges::for_each(cell2DPerformance.ErrorPi0k, [&](int n) { sum_of_elems += n * n; });
-                exporter << scientific << sqrt(sum_of_elems) << separator;
-                sum_of_elems = 0.0;
-                std::ranges::for_each(cell2DPerformance.ErrorGBD, [&](int n) { sum_of_elems += n * n; });
-                exporter << scientific << sqrt(sum_of_elems) << separator;
-                sum_of_elems = 0.0;
-                std::ranges::for_each(cell2DPerformance.ErrorHCD, [&](int n) { sum_of_elems += n * n; });
-                exporter << scientific << sqrt(sum_of_elems) << separator;
+                exporter << scientific << cell2DPerformance.NumBoundaryQuadraturePoints << separator;
+                exporter << scientific << cell2DPerformance.NumInternalQuadraturePoints << separator;
+                exporter << scientific << cell2DPerformance.maxPiNablaConditioning << separator;
+                exporter << scientific << cell2DPerformance.maxPi0kConditioning << separator;
+                exporter << scientific << cell2DPerformance.maxErrorPiNabla << separator;
+                exporter << scientific << cell2DPerformance.maxErrorPi0k << separator;
+                exporter << scientific << cell2DPerformance.maxErrorGBD << separator;
+                exporter << scientific << cell2DPerformance.maxErrorHCD << separator;
                 exporter << scientific << cell2DPerformance.ErrorStabilization << endl;
             }
 
@@ -329,7 +321,8 @@ int main(int argc, char **argv)
         full_dofs_data[3] = dofManager.CreateDOFs<2>(full_meshDOFsInfo[3], mesh_connectivity_data);
 
         auto full_count_dofs = Polydim::PDETools::Assembler_Utilities::count_dofs(full_dofs_data);
-        full_count_dofs.num_total_dofs += 1; // lagrange
+        if (full_count_dofs.num_total_boundary_dofs == 0)
+            full_count_dofs.num_total_dofs += 1; // lagrange
 
         Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(full_count_dofs.num_total_dofs) +
                                                " DOFs and " + to_string(full_count_dofs.num_total_strong) + " STRONGs",

@@ -18,7 +18,8 @@ struct Program_configuration final
     {
         Gedim::Configurations::AddProperty("TestType",
                                            static_cast<unsigned int>(Polydim::examples::Brinkman_DF_PCC_2D::test::Test_Types::Patch_Test),
-                                           "Test Type 1 - Patch_Test (Default: 1)");
+                                           "Test Type: 1 - Patch_Test; 2 - StokesSinSin; 3 - Stokes_ZeroVelocity_1; 4 "
+                                           "- Stokes_ZeroVelocity_2; 5 - Darcy; 6 - Brinkman (Default: 1)");
 
         // Export parameters
         Gedim::Configurations::AddProperty("ExportFolder", "./Run", "Folder where to export data (Default: ./Export)");
@@ -27,7 +28,7 @@ struct Program_configuration final
             "MeshGenerator",
             static_cast<unsigned int>(Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular),
             "Mesh 2D gereator type, 0 - Triangular; 1 - Minimal; 2 - "
-            "Polygonal; 3 - OFF Importer (Default: 0)");
+            "Polygonal; 3 - OFF Importer; 4 - Csv Importer (semicolon); 5 - Squared (Default: 0)");
         Gedim::Configurations::AddProperty("MeshImportFilePath", "./", "Mesh imported file path (Default: './')");
         Gedim::Configurations::AddProperty("MeshMaxArea", 0.1, "Mesh 2D maximum relative cell area (Default: 0.1)");
 

@@ -34,7 +34,8 @@ enum struct MeshGenerator_Types_2D
     Minimal = 1,     ///< generated minimal mesh
     Polygonal = 2,   ///< generated voronoi polygonal mesh
     OFFImporter = 3, ///< imported off mesh
-    CsvImporter = 4  ///< imported csv mesh
+    CsvImporter = 4, ///< imported csv mesh
+    Squared = 5
 };
 
 enum struct MeshGenerator_Types_3D
@@ -69,6 +70,28 @@ inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
         const unsigned num_cells = static_cast<unsigned int>(std::max(1.0, 1.0 / max_relative_area));
 
         mesh_utilities.CreatePolygonalMesh(geometry_utilities, pde_domain.vertices, num_cells, 10, mesh, 10);
+    }
+    break;
+    case MeshGenerator_Types_2D::Squared: {
+        const double max_cell_area = pde_domain.area * max_relative_area;
+
+        const Eigen::Vector3d rectangleOrigin = pde_domain.vertices.col(0);
+        const Eigen::Vector3d rectangleBaseTangent = pde_domain.vertices.col(1) - rectangleOrigin;
+        const unsigned num_cells_base = ceil(rectangleBaseTangent.norm() / sqrt(max_cell_area));
+        const Eigen::Vector3d rectangleHeightTangent = pde_domain.vertices.rightCols(1) - rectangleOrigin;
+        const unsigned num_cells_height = ceil(rectangleHeightTangent.norm() / sqrt(max_cell_area));
+
+        const vector<double> baseMeshCurvilinearCoordinates =
+            geometry_utilities.EquispaceCoordinates(num_cells_base + 1, 0.0, 1.0, true);
+        const vector<double> heightMeshCurvilinearCoordinates =
+            geometry_utilities.EquispaceCoordinates(num_cells_height + 1, 0.0, 1.0, true);
+
+        mesh_utilities.CreateRectangleMesh(rectangleOrigin,
+                                           rectangleBaseTangent,
+                                           rectangleHeightTangent,
+                                           baseMeshCurvilinearCoordinates,
+                                           heightMeshCurvilinearCoordinates,
+                                           mesh);
     }
     break;
     default:

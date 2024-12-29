@@ -120,7 +120,8 @@ void export_solution(const Polydim::examples::Stokes_DF_PCC_3D::Program_configur
 
     {
         const char separator = ';';
-        const string errorFileName = exportSolutionFolder + "/Errors.csv";
+        const string errorFileName = exportSolutionFolder + "/Errors_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) +
+                                     +"_" + to_string(config.VemOrder()) + ".csv";
         const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
 
         std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);

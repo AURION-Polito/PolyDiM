@@ -1,6 +1,7 @@
 ﻿#include "assembler.hpp"
 
 #include "EllipticEquation.hpp"
+#include "Quadrature_Gauss1D.hpp"
 #include "program_configuration.hpp"
 
 using namespace std;
@@ -97,6 +98,109 @@ void Assembler::ComputeStrongTerm(const Gedim::MeshMatricesDAO &mesh,
                 break;
                 case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
                     continue;
+                default:
+                    throw std::runtime_error("Unknown DOF Type");
+                }
+            }
+        }
+    }
+}
+// ***************************************************************************
+void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
+                                const Gedim::MeshMatricesDAO &mesh,
+                                const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Polygon_Geometry &polygon,
+                                const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
+                                const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                                const Polydim::PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
+                                const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+                                const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_local_space,
+                                const Polydim::examples::Brinkman_DF_PCC_2D::test::I_Test &test,
+                                Stokes_DF_PCC_2D_Problem_Data &assembler_data) const
+{
+    const unsigned numVertices = polygon.Vertices.cols();
+    for (unsigned int h = 0; h < reference_element_data.Dimension; h++)
+    {
+        for (unsigned int ed = 0; ed < numVertices; ed++)
+        {
+            const unsigned int cell1D_index = mesh.Cell2DEdge(cell2DIndex, ed);
+
+            const auto &boundary_info = mesh_dofs_info[h].CellsBoundaryInfo.at(1).at(cell1D_index);
+
+            if (boundary_info.Type != Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak)
+                continue;
+
+            // compute vem values
+            const auto weakReferenceSegment =
+                Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * reference_element_data.Order);
+
+            const Eigen::VectorXd pointsCurvilinearCoordinates = weakReferenceSegment.Points.row(0);
+
+            const auto weak_basis_function_values =
+                vem_local_space.ComputeValuesOnEdge(reference_element_data, pointsCurvilinearCoordinates);
+
+            // map edge internal quadrature points
+            const Eigen::Vector3d &edgeStart = polygon.EdgesDirection[ed] ? polygon.Vertices.col(ed)
+                                                                          : polygon.Vertices.col((ed + 1) % numVertices);
+
+            const Eigen::Vector3d &edgeTangent = polygon.EdgesTangent.col(ed);
+            const double direction = polygon.EdgesDirection[ed] ? 1.0 : -1.0;
+
+            const unsigned int numEdgeWeakQuadraturePoints = weakReferenceSegment.Points.cols();
+            Eigen::MatrixXd weakQuadraturePoints(3, numEdgeWeakQuadraturePoints);
+            for (unsigned int q = 0; q < numEdgeWeakQuadraturePoints; q++)
+            {
+                weakQuadraturePoints.col(q) = edgeStart + direction * weakReferenceSegment.Points(0, q) * edgeTangent;
+            }
+            const double absMapDeterminant = std::abs(polygon.EdgesLength[ed]);
+            const Eigen::MatrixXd weakQuadratureWeights = weakReferenceSegment.Weights * absMapDeterminant;
+
+            const auto neumannValues = test.weak_boundary_condition(boundary_info.Marker, weakQuadraturePoints);
+
+            // compute values of Neumann condition
+            const Eigen::VectorXd neumannContributions =
+                -weak_basis_function_values.transpose() * weakQuadratureWeights.asDiagonal() * neumannValues[h];
+
+            for (unsigned int p = 0; p < 2; ++p)
+            {
+                const unsigned int cell0D_index = mesh.Cell1DVertex(cell1D_index, p);
+
+                const auto local_dofs = dofs_data[h].CellsDOFs.at(0).at(cell0D_index);
+
+                for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
+                {
+                    const auto &local_dof_i = local_dofs.at(loc_i);
+
+                    switch (local_dof_i.Type)
+                    {
+                    case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                        continue;
+                    case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
+                        assembler_data.rightHandSide.AddValue(local_dof_i.Global_Index + count_dofs.offsets_DOFs[h],
+                                                              neumannContributions[p]);
+                    }
+                    break;
+                    default:
+                        throw std::runtime_error("Unknown DOF Type");
+                    }
+                }
+            }
+
+            const auto local_dofs = dofs_data[h].CellsDOFs.at(1).at(cell1D_index);
+            for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
+            {
+                const auto &local_dof_i = local_dofs.at(loc_i);
+
+                const unsigned int localIndex = loc_i;
+
+                switch (local_dof_i.Type)
+                {
+                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                    continue;
+                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
+                    assembler_data.rightHandSide.AddValue(local_dof_i.Global_Index + count_dofs.offsets_DOFs[h],
+                                                          neumannContributions[localIndex + 2]);
+                }
+                break;
                 default:
                     throw std::runtime_error("Unknown DOF Type");
                 }
@@ -220,24 +324,29 @@ Assembler::Stokes_DF_PCC_2D_Problem_Data Assembler::Assemble(
                                                                                           result.dirichletMatrixA,
                                                                                           result.rightHandSide);
 
-        // Compute mean values
-        const VectorXd mean_value_pressure =
-            pressure_basis_functions_values.transpose() * velocity_local_space.InternalQuadrature.Weights;
-
-        // Mean value condition
-        const unsigned int h1 = 3;
-        const unsigned int num_global_offset_lagrange = count_dofs.num_total_dofs - 1;
-        for (unsigned int loc_i = 0; loc_i < dofs_data[h1].CellsGlobalDOFs[2].at(c).size(); loc_i++)
+        if (count_dofs.num_total_boundary_dofs == 0)
         {
-            const auto global_dof_i = dofs_data[h1].CellsGlobalDOFs[2].at(c).at(loc_i);
-            const auto local_dof_i =
-                dofs_data[h1].CellsDOFs.at(global_dof_i.Dimension).at(global_dof_i.CellIndex).at(global_dof_i.DOFIndex);
-            const unsigned int global_index_i = local_dof_i.Global_Index + count_dofs.offsets_DOFs[h1];
+            // Compute mean values
+            const VectorXd mean_value_pressure =
+                pressure_basis_functions_values.transpose() * velocity_local_space.InternalQuadrature.Weights;
 
-            result.globalMatrixA.Triplet(global_index_i, num_global_offset_lagrange, mean_value_pressure(loc_i));
+            // Mean value condition
+            const unsigned int h1 = 3;
+            const unsigned int num_global_offset_lagrange = count_dofs.num_total_dofs - 1;
+            for (unsigned int loc_i = 0; loc_i < dofs_data[h1].CellsGlobalDOFs[2].at(c).size(); loc_i++)
+            {
+                const auto global_dof_i = dofs_data[h1].CellsGlobalDOFs[2].at(c).at(loc_i);
+                const auto local_dof_i =
+                    dofs_data[h1].CellsDOFs.at(global_dof_i.Dimension).at(global_dof_i.CellIndex).at(global_dof_i.DOFIndex);
+                const unsigned int global_index_i = local_dof_i.Global_Index + count_dofs.offsets_DOFs[h1];
 
-            result.globalMatrixA.Triplet(num_global_offset_lagrange, global_index_i, mean_value_pressure(loc_i));
+                result.globalMatrixA.Triplet(global_index_i, num_global_offset_lagrange, mean_value_pressure(loc_i));
+
+                result.globalMatrixA.Triplet(num_global_offset_lagrange, global_index_i, mean_value_pressure(loc_i));
+            }
         }
+
+        ComputeWeakTerm(c, mesh, polygon, mesh_dofs_info, dofs_data, count_dofs, velocity_reference_element_data, vem_velocity_local_space, test, result);
     }
 
     ComputeStrongTerm(mesh, mesh_geometric_data, mesh_dofs_info, dofs_data, count_dofs.offsets_Strongs, velocity_reference_element_data, test, result);
@@ -252,7 +361,6 @@ Assembler::Stokes_DF_PCC_2D_Problem_Data Assembler::Assemble(
 
     return result;
 }
-
 // ***************************************************************************
 Assembler::VEM_Performance_Result Assembler::ComputeVemPerformance(
     const Polydim::examples::Brinkman_DF_PCC_2D::Program_configuration &config,
@@ -283,11 +391,21 @@ Assembler::VEM_Performance_Result Assembler::ComputeVemPerformance(
 
         Polydim::VEM::DF_PCC::VEM_DF_PCC_PerformanceAnalysis performanceAnalysis;
 
-        result.Cell2DsPerformance[c].Analysis = performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_2D(),
-                                                                            velocity_reference_element_data.Monomials,
-                                                                            vem_velocity_local_space,
-                                                                            velocity_local_space);
+        const auto Analysis = performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_2D(),
+                                                          velocity_reference_element_data.Monomials,
+                                                          vem_velocity_local_space,
+                                                          velocity_local_space);
 
+        result.Cell2DsPerformance[c].maxErrorGBD = *std::max_element(Analysis.ErrorGBD.begin(), Analysis.ErrorGBD.end());
+        result.Cell2DsPerformance[c].maxErrorHCD = *std::max_element(Analysis.ErrorHCD.begin(), Analysis.ErrorHCD.end());
+        result.Cell2DsPerformance[c].maxErrorPiNabla =
+            *std::max_element(Analysis.ErrorPiNabla.begin(), Analysis.ErrorPiNabla.end());
+        result.Cell2DsPerformance[c].maxErrorPi0k = *std::max_element(Analysis.ErrorPi0k.begin(), Analysis.ErrorPi0k.end());
+        result.Cell2DsPerformance[c].ErrorStabilization = Analysis.ErrorStabilization;
+        result.Cell2DsPerformance[c].maxPiNablaConditioning =
+            *std::max_element(Analysis.PiNablaConditioning.begin(), Analysis.PiNablaConditioning.end());
+        result.Cell2DsPerformance[c].maxPi0kConditioning =
+            *std::max_element(Analysis.Pi0kConditioning.begin(), Analysis.Pi0kConditioning.end());
         result.Cell2DsPerformance[c].NumInternalQuadraturePoints = velocity_local_space.InternalQuadrature.Weights.size();
         result.Cell2DsPerformance[c].NumBoundaryQuadraturePoints =
             velocity_local_space.BoundaryQuadrature.Quadrature.Weights.size();
@@ -521,11 +639,11 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
                 switch (local_dof_i.Type)
                 {
                 case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
-                    result.cell0Ds_exact_velocity[d][p] =
+                    result.cell0Ds_numeric_velocity[d][p] =
                         assembler_data.solutionDirichlet.GetValue(local_dof_i.Global_Index + count_dofs.offsets_Strongs[d]);
                     break;
                 case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-                    result.cell0Ds_exact_velocity[d][p] =
+                    result.cell0Ds_numeric_velocity[d][p] =
                         assembler_data.solution.GetValue(local_dof_i.Global_Index + count_dofs.offsets_DOFs[d]);
                     break;
                 default:

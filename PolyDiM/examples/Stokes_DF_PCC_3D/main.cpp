@@ -249,10 +249,13 @@ int main(int argc, char **argv)
                                                                     *vem_velocity_local_space);
         {
             const char separator = ',';
-            /// Export Cell2Ds VEM performance
+            /// Export Cell3Ds VEM performance
             ofstream exporter;
 
-            exporter.open(exportSolutionFolder + "/Cell3Ds_VEMPerformance.csv");
+            const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
+            const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
+            exporter.open(exportSolutionFolder + "/Cell3Ds_VEMPerformance_" + to_string(TEST_ID) + "_" +
+                          to_string(VEM_ID) + +"_" + to_string(config.VemOrder()) + ".csv");
             exporter.precision(16);
 
             if (exporter.fail())
@@ -271,30 +274,18 @@ int main(int argc, char **argv)
 
             for (unsigned int v = 0; v < vemPerformance.Cell3DsPerformance.size(); v++)
             {
-                const auto &cell2DPerformance = vemPerformance.Cell3DsPerformance[v].Analysis;
+                const auto &cell3DPerformance = vemPerformance.Cell3DsPerformance[v];
 
                 exporter << scientific << v << separator;
-                exporter << scientific << vemPerformance.Cell3DsPerformance[v].NumBoundaryQuadraturePoints << separator;
-                exporter << scientific << vemPerformance.Cell3DsPerformance[v].NumInternalQuadraturePoints << separator;
-                double sum_of_elems = 0.0;
-                std::ranges::for_each(cell2DPerformance.PiNablaConditioning, [&](int n) { sum_of_elems += n * n; });
-                exporter << scientific << sqrt(sum_of_elems) << separator;
-                sum_of_elems = 0.0;
-                std::ranges::for_each(cell2DPerformance.Pi0kConditioning, [&](int n) { sum_of_elems += n * n; });
-                exporter << scientific << sqrt(sum_of_elems) << separator;
-                sum_of_elems = 0.0;
-                std::ranges::for_each(cell2DPerformance.ErrorPiNabla, [&](int n) { sum_of_elems += n * n; });
-                exporter << scientific << sqrt(sum_of_elems) << separator;
-                sum_of_elems = 0.0;
-                std::ranges::for_each(cell2DPerformance.ErrorPi0k, [&](int n) { sum_of_elems += n * n; });
-                exporter << scientific << sqrt(sum_of_elems) << separator;
-                sum_of_elems = 0.0;
-                std::ranges::for_each(cell2DPerformance.ErrorGBD, [&](int n) { sum_of_elems += n * n; });
-                exporter << scientific << sqrt(sum_of_elems) << separator;
-                sum_of_elems = 0.0;
-                std::ranges::for_each(cell2DPerformance.ErrorHCD, [&](int n) { sum_of_elems += n * n; });
-                exporter << scientific << sqrt(sum_of_elems) << separator;
-                exporter << scientific << cell2DPerformance.ErrorStabilization << endl;
+                exporter << scientific << cell3DPerformance.NumBoundaryQuadraturePoints << separator;
+                exporter << scientific << cell3DPerformance.NumInternalQuadraturePoints << separator;
+                exporter << scientific << cell3DPerformance.maxPiNablaConditioning << separator;
+                exporter << scientific << cell3DPerformance.maxPi0kConditioning << separator;
+                exporter << scientific << cell3DPerformance.maxErrorPiNabla << separator;
+                exporter << scientific << cell3DPerformance.maxErrorPi0k << separator;
+                exporter << scientific << cell3DPerformance.maxErrorGBD << separator;
+                exporter << scientific << cell3DPerformance.maxErrorHCD << separator;
+                exporter << scientific << cell3DPerformance.ErrorStabilization << endl;
             }
 
             exporter.close();

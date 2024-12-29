@@ -94,11 +94,13 @@ class VEM_DF_PCC_2D_Reduced_Velocity_LocalSpace final : public I_VEM_DF_PCC_2D_V
     inline Eigen::MatrixXd ComputeValuesOnEdge(const VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                                                const Eigen::VectorXd &pointsCurvilinearCoordinates) const
     {
-        const Eigen::VectorXd edgeInternalPoints = reference_element_data.Quadrature.ReferenceSegmentInternalPoints;
+        Eigen::RowVectorXd edgeInternalPoints;
+        if (reference_element_data.Quadrature.ReferenceEdgeDOFsInternalPoints.rows() > 0)
+            edgeInternalPoints = reference_element_data.Quadrature.ReferenceEdgeDOFsInternalPoints.row(0);
         const Eigen::VectorXd edgeBasisCoefficients =
             utilities.ComputeEdgeBasisCoefficients(reference_element_data.Order, edgeInternalPoints);
 
-        return utilities.ComputeValuesOnEdge(edgeInternalPoints.transpose(), reference_element_data.Order, edgeBasisCoefficients, pointsCurvilinearCoordinates);
+        return utilities.ComputeValuesOnEdge(edgeInternalPoints, reference_element_data.Order, edgeBasisCoefficients, pointsCurvilinearCoordinates);
     }
 
     /// \brief Compute the values of projections of VEM basis functions at the internal quadrature points.

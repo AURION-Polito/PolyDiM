@@ -339,11 +339,21 @@ Assembler::VEM_Performance_Result Assembler::ComputeVemPerformance(
 
         Polydim::VEM::DF_PCC::VEM_DF_PCC_PerformanceAnalysis performanceAnalysis;
 
-        result.Cell3DsPerformance[c].Analysis = performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_3D(),
-                                                                            velocity_reference_element_data_3D.Monomials,
-                                                                            vem_velocity_local_space,
-                                                                            velocity_local_space);
+        const auto Analysis = performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_3D(),
+                                                          velocity_reference_element_data_3D.Monomials,
+                                                          vem_velocity_local_space,
+                                                          velocity_local_space);
 
+        result.Cell3DsPerformance[c].maxErrorGBD = *std::max_element(Analysis.ErrorGBD.begin(), Analysis.ErrorGBD.end());
+        result.Cell3DsPerformance[c].maxErrorHCD = *std::max_element(Analysis.ErrorHCD.begin(), Analysis.ErrorHCD.end());
+        result.Cell3DsPerformance[c].maxErrorPiNabla =
+            *std::max_element(Analysis.ErrorPiNabla.begin(), Analysis.ErrorPiNabla.end());
+        result.Cell3DsPerformance[c].maxErrorPi0k = *std::max_element(Analysis.ErrorPi0k.begin(), Analysis.ErrorPi0k.end());
+        result.Cell3DsPerformance[c].ErrorStabilization = Analysis.ErrorStabilization;
+        result.Cell3DsPerformance[c].maxPiNablaConditioning =
+            *std::max_element(Analysis.PiNablaConditioning.begin(), Analysis.PiNablaConditioning.end());
+        result.Cell3DsPerformance[c].maxPi0kConditioning =
+            *std::max_element(Analysis.Pi0kConditioning.begin(), Analysis.Pi0kConditioning.end());
         result.Cell3DsPerformance[c].NumInternalQuadraturePoints = velocity_local_space.InternalQuadrature.Weights.size();
         result.Cell3DsPerformance[c].NumBoundaryQuadraturePoints =
             velocity_local_space.BoundaryQuadrature.Quadrature.Weights.size();
@@ -609,11 +619,11 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
                 switch (local_dof_i.Type)
                 {
                 case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
-                    result.cell0Ds_exact_velocity[d][p] =
+                    result.cell0Ds_numeric_velocity[d][p] =
                         assembler_data.solutionDirichlet.GetValue(local_dof_i.Global_Index + count_dofs.offsets_Strongs[d]);
                     break;
                 case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-                    result.cell0Ds_exact_velocity[d][p] =
+                    result.cell0Ds_numeric_velocity[d][p] =
                         assembler_data.solution.GetValue(local_dof_i.Global_Index + count_dofs.offsets_DOFs[d]);
                     break;
                 default:
