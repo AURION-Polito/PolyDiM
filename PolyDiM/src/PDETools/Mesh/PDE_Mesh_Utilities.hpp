@@ -73,13 +73,13 @@ inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
     }
     break;
     case MeshGenerator_Types_2D::Squared: {
-        const double max_cell_area = pde_domain.area * max_relative_area;
+        const double max_cell_edge = sqrt(pde_domain.area * max_relative_area);
 
         const Eigen::Vector3d rectangleOrigin = pde_domain.vertices.col(0);
         const Eigen::Vector3d rectangleBaseTangent = pde_domain.vertices.col(1) - rectangleOrigin;
-        const unsigned num_cells_base = ceil(rectangleBaseTangent.norm() / sqrt(max_cell_area));
+        const unsigned num_cells_base = ceil(rectangleBaseTangent.norm() / max_cell_edge);
         const Eigen::Vector3d rectangleHeightTangent = pde_domain.vertices.rightCols(1) - rectangleOrigin;
-        const unsigned num_cells_height = ceil(rectangleHeightTangent.norm() / sqrt(max_cell_area));
+        const unsigned num_cells_height = ceil(rectangleHeightTangent.norm() / max_cell_edge);
 
         const vector<double> baseMeshCurvilinearCoordinates =
             geometry_utilities.EquispaceCoordinates(num_cells_base + 1, 0.0, 1.0, true);

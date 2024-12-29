@@ -1,5 +1,7 @@
 #include "program_utilities.hpp"
 
+#include "VTKUtilities.hpp"
+
 namespace Polydim
 {
 namespace examples
@@ -15,6 +17,16 @@ unique_ptr<Polydim::examples::Brinkman_DF_PCC_2D::test::I_Test> create_test(cons
     {
     case Polydim::examples::Brinkman_DF_PCC_2D::test::Test_Types::Patch_Test:
         return make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::Patch_Test>();
+    case Polydim::examples::Brinkman_DF_PCC_2D::test::Test_Types::StokesSinSin:
+        return make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::StokesSinSin>();
+    case Polydim::examples::Brinkman_DF_PCC_2D::test::Test_Types::Stokes_ZeroVelocity_1:
+        return make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::Stokes_ZeroVelocity_1>();
+    case Polydim::examples::Brinkman_DF_PCC_2D::test::Test_Types::Stokes_ZeroVelocity_2:
+        return make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::Stokes_ZeroVelocity_2>();
+    case Polydim::examples::Brinkman_DF_PCC_2D::test::Test_Types::Darcy:
+        return make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::Darcy>();
+    case Polydim::examples::Brinkman_DF_PCC_2D::test::Test_Types::Brinkman:
+        return make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::Brinkman>();
     default:
         throw runtime_error("Test type " + to_string((unsigned int)config.TestType()) + " not supported");
     }
@@ -35,7 +47,8 @@ void create_domain_mesh(const Polydim::examples::Brinkman_DF_PCC_2D::Program_con
     {
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular:
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Minimal:
-    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Polygonal: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Polygonal:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Squared: {
         Polydim::PDETools::Mesh::PDE_Mesh_Utilities::create_mesh_2D(geometryUtilities,
                                                                     meshUtilities,
                                                                     config.MeshGenerator(),
@@ -44,7 +57,8 @@ void create_domain_mesh(const Polydim::examples::Brinkman_DF_PCC_2D::Program_con
                                                                     mesh);
     }
     break;
-    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::OFFImporter: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::OFFImporter:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::CsvImporter: {
         Polydim::PDETools::Mesh::PDE_Mesh_Utilities::import_mesh_2D(geometryUtilities,
                                                                     meshUtilities,
                                                                     config.MeshGenerator(),
