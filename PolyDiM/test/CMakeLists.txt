@@ -100,6 +100,7 @@ endif()
 ###############################################################################################
 add_subdirectory(VEM)
 add_subdirectory(FEM)
+add_subdirectory(PDETools)
 
 list(APPEND POLYDIM_LIBRARY_TEST_PUBLIC_HEADERS ${polydim_test_headers})
 list(APPEND POLYDIM_LIBRARY_TEST_SOURCES ${polydim_test_sources} main.cpp)
@@ -125,6 +126,11 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME} ${POLYDIM_LIBRARY_TEST_LINKED_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${POLYDIM_LIBRARY_TEST_INCLUDE})
 
-set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${POLYDIM_LIBRARY_TEST_PUBLIC_HEADERS}")
+set_target_properties(${PROJECT_NAME}
+    PROPERTIES PUBLIC_HEADER "${POLYDIM_LIBRARY_TEST_PUBLIC_HEADERS}"
+    LINKER_LANGUAGE CXX
+    CXX_STANDARD 20
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF)
 
 gtest_discover_tests(${PROJECT_NAME})
