@@ -1,5 +1,5 @@
 add_subdirectory(2D)
-#add_subdirectory(3D) # NOT READY YET; PLEASE DO NOT TOUCH
+add_subdirectory(3D) # NOT READY YET; PLEASE DO NOT TOUCH
 
 list(APPEND polydim_src_includes ${CMAKE_CURRENT_SOURCE_DIR})
 
