@@ -2,7 +2,6 @@
 #define __program_utilities_H
 
 #include "DOFsManager.hpp"
-#include "VTKUtilities.hpp"
 #include "assembler.hpp"
 #include "program_configuration.hpp"
 #include "test_definition.hpp"
@@ -43,6 +42,7 @@ void export_velocity_dofs(const Polydim::examples::NavierStokes_DF_PCC_2D::Progr
                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
                           const VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &vem_velocity_reference_element_data,
                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                          const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                           const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::Stokes_DF_PCC_2D_Problem_Data &assembler_data,
                           const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::PostProcess_Data &post_process_data,
                           const std::string &exportVtuFolder);

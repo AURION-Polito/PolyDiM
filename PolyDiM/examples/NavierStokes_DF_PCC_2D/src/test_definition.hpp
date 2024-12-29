@@ -29,6 +29,8 @@ struct I_Test
     virtual std::array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd &points) const = 0;
     virtual std::array<Eigen::VectorXd, 3> strong_boundary_condition(const unsigned int marker,
                                                                      const Eigen::MatrixXd &points) const = 0;
+    virtual std::array<Eigen::VectorXd, 3> weak_boundary_condition(const unsigned int marker,
+                                                                   const Eigen::MatrixXd &points) const = 0;
     virtual Eigen::VectorXd exact_pressure(const Eigen::MatrixXd &points) const = 0;
     virtual std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd &points) const = 0;
     virtual std::array<Eigen::VectorXd, 9> exact_derivatives_velocity(const Eigen::MatrixXd &points) const = 0;
@@ -58,7 +60,7 @@ struct Patch_Test final : public I_Test
                 {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
                 {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
@@ -94,6 +96,29 @@ struct Patch_Test final : public I_Test
             result = result * polynomial;
 
         return {result, -result, Eigen::VectorXd::Zero(points.cols())};
+    }
+
+    std::array<Eigen::VectorXd, 3> weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
+    {
+        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array();
+        double mean = 0.0;
+
+        Eigen::ArrayXd result = Eigen::ArrayXd::Constant(points.cols(), 1.0);
+        for (int i = 0; i < order - 1; i++)
+        {
+            result = result * polynomial;
+            mean += Gedim::Utilities::BinomialCoefficient(order - 1.0, i) / ((i + 1.0) * (order - i));
+        }
+
+        mean += 1.0 / order;
+
+        switch (marker)
+        {
+        case 2: // co-normal derivatives on the bottom
+            return {-order * result, order * result - (result - mean), Eigen::VectorXd::Zero(points.cols())};
+        default:
+            throw std::runtime_error("Unknown marker");
+        }
     }
 
     Eigen::VectorXd exact_pressure(const Eigen::MatrixXd &points) const

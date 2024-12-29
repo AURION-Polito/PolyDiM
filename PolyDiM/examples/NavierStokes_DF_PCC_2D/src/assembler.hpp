@@ -9,7 +9,6 @@
 
 #include "DOFsManager.hpp"
 #include "I_VEM_DF_PCC_2D_ReferenceElement.hpp"
-#include "VEM_DF_PCC_PerformanceAnalysis.hpp"
 
 #include "program_configuration.hpp"
 
@@ -98,6 +97,17 @@ class Assembler final
                            const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
                            const test::I_Test &test,
                            Stokes_DF_PCC_2D_Problem_Data &assembler_data) const;
+
+    void ComputeWeakTerm(const unsigned int cell2DIndex,
+                         const Gedim::MeshMatricesDAO &mesh,
+                         const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Polygon_Geometry &polygon,
+                         const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
+                         const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                         const Polydim::PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
+                         const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+                         const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_local_space,
+                         const Polydim::examples::NavierStokes_DF_PCC_2D::test::I_Test &test,
+                         Stokes_DF_PCC_2D_Problem_Data &assembler_data) const;
 
   public:
     Stokes_DF_PCC_2D_Problem_Data Assemble(

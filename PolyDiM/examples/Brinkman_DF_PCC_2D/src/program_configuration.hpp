@@ -92,6 +92,9 @@ struct Program_configuration final
     }
     inline unsigned int VemOrder() const
     {
+        if (Gedim::Configurations::GetPropertyValue<unsigned int>("VemOrder") < 2)
+            throw runtime_error("not valid order");
+
         return Gedim::Configurations::GetPropertyValue<unsigned int>("VemOrder");
     }
 };

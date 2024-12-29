@@ -2,7 +2,7 @@
 
 #include "EllipticEquation.hpp"
 #include "Quadrature_Gauss1D.hpp"
-#include "program_configuration.hpp"
+#include "VEM_DF_PCC_PerformanceAnalysis.hpp"
 
 using namespace std;
 using namespace Eigen;

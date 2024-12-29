@@ -28,7 +28,7 @@ struct Program_configuration final
             "MeshGenerator",
             static_cast<unsigned int>(Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular),
             "Mesh 2D gereator type, 0 - Triangular; 1 - Minimal; 2 - "
-            "Polygonal; 3 - OFF Importer (Default: 0)");
+            "Polygonal; 3 - OFF Importer; 4 - Csv Importer (semicolon); 5 - Squared (Default: 0)");
         Gedim::Configurations::AddProperty("MeshImportFilePath", "./", "Mesh imported file path (Default: './')");
         Gedim::Configurations::AddProperty("MeshMaxArea", 0.1, "Mesh 2D maximum relative cell area (Default: 0.1)");
 
@@ -92,6 +92,8 @@ struct Program_configuration final
     }
     inline unsigned int VemOrder() const
     {
+        if (Gedim::Configurations::GetPropertyValue<unsigned int>("VemOrder") < 2)
+            throw runtime_error("not valid order");
         return Gedim::Configurations::GetPropertyValue<unsigned int>("VemOrder");
     }
 };

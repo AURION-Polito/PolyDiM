@@ -311,7 +311,6 @@ void export_velocity_dofs(const Polydim::examples::Brinkman_DF_PCC_2D::Program_c
                 const auto &boundary_info = mesh_dofs_info[h].CellsBoundaryInfo.at(1).at(c);
 
                 const auto &local_dofs = dofs_data[h].CellsDOFs[1].at(c);
-                const unsigned int num_loc_dofs = local_dofs.size();
 
                 const auto &local_dof = local_dofs.at(loc_i);
 
@@ -348,6 +347,9 @@ void export_velocity_dofs(const Polydim::examples::Brinkman_DF_PCC_2D::Program_c
     for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); ++c)
     {
         const unsigned int num_loc_dofs = dofs_data[2].CellsDOFs[2].at(c).size();
+
+        if (num_loc_dofs == 0)
+            break;
 
         const auto local_polygon_coordinates = geometryUtilities.EquispaceCoordinates(num_loc_dofs + 1, 0.0, 1.0, true);
         const Eigen::Vector3d polygon_centroid = mesh_geometric_data.Cell2DsCentroids.at(c);

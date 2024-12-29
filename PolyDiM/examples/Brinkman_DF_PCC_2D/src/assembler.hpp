@@ -9,7 +9,6 @@
 
 #include "DOFsManager.hpp"
 #include "I_VEM_DF_PCC_2D_ReferenceElement.hpp"
-#include "VEM_DF_PCC_PerformanceAnalysis.hpp"
 
 #include "program_configuration.hpp"
 

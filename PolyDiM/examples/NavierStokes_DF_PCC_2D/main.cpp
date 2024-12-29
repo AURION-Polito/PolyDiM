@@ -139,7 +139,8 @@ int main(int argc, char **argv)
     dofs_data[3] = dofManager.CreateDOFs<2>(meshDOFsInfo[3], mesh_connectivity_data);
 
     auto count_dofs = Polydim::PDETools::Assembler_Utilities::count_dofs(dofs_data);
-    count_dofs.num_total_dofs += 1; // lagrange
+    if (count_dofs.num_total_boundary_dofs == 0)
+        count_dofs.num_total_dofs += 1; // lagrange
 
     Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(count_dofs.num_total_dofs) + " DOFs and " +
                                            to_string(count_dofs.num_total_strong) + " STRONGs",
@@ -219,6 +220,17 @@ int main(int argc, char **argv)
                                                                                   post_process_data,
                                                                                   exportSolutionFolder,
                                                                                   exportVtuFolder);
+
+    Polydim::examples::NavierStokes_DF_PCC_2D::program_utilities::export_velocity_dofs(config,
+                                                                                       mesh,
+                                                                                       meshGeometricData,
+                                                                                       meshDOFsInfo,
+                                                                                       velocity_reference_element_data,
+                                                                                       dofs_data,
+                                                                                       count_dofs,
+                                                                                       assembler_data,
+                                                                                       post_process_data,
+                                                                                       exportVtuFolder);
 
     Gedim::Profiler::StopTime("ExportSolution");
     Gedim::Output::PrintStatusProgram("ExportSolution");
@@ -319,7 +331,8 @@ int main(int argc, char **argv)
         full_dofs_data[3] = dofManager.CreateDOFs<2>(full_meshDOFsInfo[3], mesh_connectivity_data);
 
         auto full_count_dofs = Polydim::PDETools::Assembler_Utilities::count_dofs(full_dofs_data);
-        full_count_dofs.num_total_dofs += 1; // lagrange
+        if (full_count_dofs.num_total_boundary_dofs == 0)
+            full_count_dofs.num_total_dofs += 1; // lagrange
 
         Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(full_count_dofs.num_total_dofs) +
                                                " DOFs and " + to_string(full_count_dofs.num_total_strong) + " STRONGs",

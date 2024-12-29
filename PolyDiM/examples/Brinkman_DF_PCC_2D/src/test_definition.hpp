@@ -584,13 +584,6 @@ struct Darcy final : public I_Test
     std::array<Eigen::VectorXd, 3> strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
         throw std::runtime_error("Unknown marker");
-
-        //        if (marker != 1)
-        //            throw std::runtime_error("Unknown marker");
-
-        //        return {M_PI * sin(M_PI * points.row(0).array()) * cos(M_PI * points.row(1).array()),
-        //                M_PI * cos(M_PI * points.row(0).array()) * sin(M_PI * points.row(1).array()),
-        //                Eigen::VectorXd::Zero(points.cols())};
     }
 
     std::array<Eigen::VectorXd, 3> weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
@@ -599,21 +592,13 @@ struct Darcy final : public I_Test
         switch (marker)
         {
         case 2:
-            return {Eigen::VectorXd::Zero(points.cols()),
-                    -pressure,
-                    Eigen::VectorXd::Zero(points.cols())};
+            return {Eigen::VectorXd::Zero(points.cols()), -pressure, Eigen::VectorXd::Zero(points.cols())};
         case 4:
-            return {pressure,
-                    Eigen::VectorXd::Zero(points.cols()),
-                    Eigen::VectorXd::Zero(points.cols())};
+            return {pressure, Eigen::VectorXd::Zero(points.cols()), Eigen::VectorXd::Zero(points.cols())};
         case 6:
-            return {Eigen::VectorXd::Zero(points.cols()),
-                    pressure,
-                    Eigen::VectorXd::Zero(points.cols())};
+            return {Eigen::VectorXd::Zero(points.cols()), pressure, Eigen::VectorXd::Zero(points.cols())};
         case 8:
-            return {-pressure,
-                    Eigen::VectorXd::Zero(points.cols()),
-                    Eigen::VectorXd::Zero(points.cols())};
+            return {-pressure, Eigen::VectorXd::Zero(points.cols()), Eigen::VectorXd::Zero(points.cols())};
         default:
             throw std::runtime_error("Unknown marker");
         }
