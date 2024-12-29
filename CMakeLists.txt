@@ -7,6 +7,10 @@ set(ENABLE_POLYDIM_EXAMPLES OFF CACHE BOOL "Enable Examples")
 # Include dependencies
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/gedim/GeDiM)
 
+if(${ENABLE_GEDIM_UNIT_TESTS})
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/gedim/GeDiM/test)
+endif()
+
 # Include library
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/PolyDiM)
 
