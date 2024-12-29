@@ -520,6 +520,8 @@ class DOFsManager
 
         result.NumberDOFs = 0;
         result.NumberStrongs = 0;
+        result.NumberBoundaryDOFs = 0;
+        result.NumberInternalDOFs = 0;
 
         CreateCell0DDOFs<dimension>(meshDOFsInfo, result);
 
@@ -534,6 +536,8 @@ class DOFsManager
 
         result.NumberDOFs = 0;
         result.NumberStrongs = 0;
+        result.NumberBoundaryDOFs = 0;
+        result.NumberInternalDOFs = 0;
 
         CreateCell0DDOFs<dimension>(meshDOFsInfo, result);
 
@@ -550,6 +554,8 @@ class DOFsManager
 
         result.NumberDOFs = 0;
         result.NumberStrongs = 0;
+        result.NumberBoundaryDOFs = 0;
+        result.NumberInternalDOFs = 0;
 
         CreateCell0DDOFs<dimension>(meshDOFsInfo, result);
 
@@ -568,6 +574,8 @@ class DOFsManager
 
         result.NumberDOFs = 0;
         result.NumberStrongs = 0;
+        result.NumberBoundaryDOFs = 0;
+        result.NumberInternalDOFs = 0;
 
         CreateCell0DDOFs<dimension>(meshDOFsInfo, result);
 
