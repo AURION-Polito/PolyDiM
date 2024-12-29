@@ -2,7 +2,7 @@
 #define __FEM_Tetrahedron_PCC_3D_LocalSpace_HPP
 
 #include "FEM_Tetrahedron_PCC_3D_ReferenceElement.hpp"
-#include "MapTriangle.hpp"
+#include "MapTetrahedron.hpp"
 
 namespace Polydim
 {
@@ -10,26 +10,24 @@ namespace FEM
 {
 namespace PCC
 {
-struct FEM_Tetrahedron_PCC_3D_Polygon_Geometry final
+struct FEM_Tetrahedron_PCC_3D_Polyhedron_Geometry final
 {
     const double Tolerance1D;
     const double Tolerance2D;
+    const double Tolerance3D;
 
-    const Eigen::MatrixXd &Vertices;
-    const std::vector<bool> &EdgesDirection;
+    const Eigen::MatrixXd Vertices;
 };
 
 struct FEM_Tetrahedron_PCC_3D_LocalSpace_Data final
 {
-    Gedim::MapTriangle::MapTriangleData MapData;
+    const double Tolerance1D;
+    const double Tolerance2D;
+    const double Tolerance3D;
+    Gedim::MapTetrahedron::MapTetrahedronData MapData;
     unsigned int Order;                                   ///< Order of the space
     unsigned int NumberOfBasisFunctions;                  ///< Number of basis functions
     Eigen::MatrixXd Dofs;                                 ///< DOFs geometric position
-    std::vector<unsigned int> DofsMeshOrder;              ///< DOFs position depending on mesh directions
-    std::vector<unsigned int> Dof0DsIndex;                ///< local DOF index for each element 0D, size num0D + 1
-    std::vector<unsigned int> Dof1DsIndex;                ///< local DOF index for each element 1D, size num1D + 1
-    std::vector<unsigned int> Dof2DsIndex;                ///< local DOF index for each element 2D, size num2D + 1
-    std::vector<unsigned int> Dof3DsIndex;                ///< local DOF index for each element 3D, size num3D + 1
     Gedim::Quadrature::QuadratureData InternalQuadrature; ///< Internal quadrature points and weights
 };
 
@@ -45,11 +43,11 @@ class FEM_Tetrahedron_PCC_3D_LocalSpace final
                                                      const std::vector<Eigen::MatrixXd> &referenceDerivateValues) const;
 
     Gedim::Quadrature::QuadratureData InternalQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,
-                                                         const Gedim::MapTriangle::MapTriangleData &mapData) const;
+                                                         const Gedim::MapTetrahedron::MapTetrahedronData &mapData) const;
 
   public:
     FEM_Tetrahedron_PCC_3D_LocalSpace_Data CreateLocalSpace(const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
-                                                         const FEM_Tetrahedron_PCC_3D_Polygon_Geometry &polygon) const;
+                                                            const FEM_Tetrahedron_PCC_3D_Polyhedron_Geometry &polyhedron) const;
 
     inline Eigen::MatrixXd ComputeBasisFunctionsValues(const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
                                                        const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &local_space) const
@@ -67,8 +65,14 @@ class FEM_Tetrahedron_PCC_3D_LocalSpace final
                                                        const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &local_space,
                                                        const Eigen::MatrixXd &points) const
     {
-        Gedim::MapTriangle mapTriangle;
-        const Eigen::MatrixXd referencePoints = mapTriangle.FInv(local_space.MapData, points);
+      Gedim::GeometryUtilitiesConfig geometry_utilities_config;
+      geometry_utilities_config.Tolerance1D = local_space.Tolerance1D;
+      geometry_utilities_config.Tolerance2D = local_space.Tolerance2D;
+      geometry_utilities_config.Tolerance3D = local_space.Tolerance3D;
+      Gedim::GeometryUtilities geometry_utilties(geometry_utilities_config);
+
+        Gedim::MapTetrahedron mapTetrahedron(geometry_utilties);
+        const Eigen::MatrixXd referencePoints = mapTetrahedron.FInv(local_space.MapData, points);
 
         FEM_RefElement_Langrange_PCC_Tetrahedron_3D reference_element;
 
@@ -79,8 +83,14 @@ class FEM_Tetrahedron_PCC_3D_LocalSpace final
                                                                               const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &local_space,
                                                                               const Eigen::MatrixXd &points) const
     {
-        Gedim::MapTriangle mapTriangle;
-        const Eigen::MatrixXd referencePoints = mapTriangle.FInv(local_space.MapData, points);
+      Gedim::GeometryUtilitiesConfig geometry_utilities_config;
+      geometry_utilities_config.Tolerance1D = local_space.Tolerance1D;
+      geometry_utilities_config.Tolerance2D = local_space.Tolerance2D;
+      geometry_utilities_config.Tolerance3D = local_space.Tolerance3D;
+      Gedim::GeometryUtilities geometry_utilties(geometry_utilities_config);
+
+        Gedim::MapTetrahedron mapTetrahedron(geometry_utilties);
+        const Eigen::MatrixXd referencePoints = mapTetrahedron.FInv(local_space.MapData, points);
 
         FEM_RefElement_Langrange_PCC_Tetrahedron_3D reference_element;
 
