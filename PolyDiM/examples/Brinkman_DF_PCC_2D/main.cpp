@@ -9,7 +9,6 @@
 #include "assembler.hpp"
 #include "program_configuration.hpp"
 #include "program_utilities.hpp"
-#include "ranges"
 
 unsigned int Polydim::examples::Brinkman_DF_PCC_2D::test::Patch_Test::order;
 
@@ -221,6 +220,17 @@ int main(int argc, char **argv)
                                                                               post_process_data,
                                                                               exportSolutionFolder,
                                                                               exportVtuFolder);
+
+    Polydim::examples::Brinkman_DF_PCC_2D::program_utilities::export_velocity_dofs(config,
+                                                                                   mesh,
+                                                                                   meshGeometricData,
+                                                                                   meshDOFsInfo,
+                                                                                   velocity_reference_element_data,
+                                                                                   dofs_data,
+                                                                                   count_dofs,
+                                                                                   assembler_data,
+                                                                                   post_process_data,
+                                                                                   exportVtuFolder);
 
     Gedim::Profiler::StopTime("ExportSolution");
     Gedim::Output::PrintStatusProgram("ExportSolution");
