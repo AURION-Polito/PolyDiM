@@ -217,7 +217,12 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration
 
         const auto &local_dofs = dofs_data.CellsDOFs[0].at(c);
 
-        for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
+        const unsigned int num_loc_dofs = local_dofs.size();
+
+        if (num_loc_dofs == 0)
+            continue;
+
+        for (unsigned int loc_i = 0; loc_i < num_loc_dofs; ++loc_i)
         {
             const auto &local_dof = local_dofs.at(loc_i);
 
@@ -252,6 +257,10 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration
         const auto &local_dofs = dofs_data.CellsDOFs[1].at(c);
 
         const unsigned int num_loc_dofs = local_dofs.size();
+
+        if (num_loc_dofs == 0)
+            continue;
+
         const Eigen::VectorXd local_edge_coordinates =
             vem_reference_element_data.Quadrature.ReferenceEdgeDOFsInternalPoints.row(0);
         const Eigen::Vector3d edge_origin = mesh.Cell1DOriginCoordinates(c);
@@ -292,6 +301,9 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration
         const auto &local_dofs = dofs_data.CellsDOFs[2].at(c);
 
         const unsigned int num_loc_dofs = local_dofs.size();
+
+        if (num_loc_dofs == 0)
+            continue;
 
         const auto local_polygon_coordinates = geometryUtilities.EquispaceCoordinates(num_loc_dofs + 1, 0.0, 1.0, true);
         const Eigen::Vector3d polygon_centroid = mesh_geometric_data.Cell2DsCentroids.at(c);

@@ -246,7 +246,7 @@ typename Assembler::Elliptic_PCC_2D_Problem_Data Assembler::Assemble(
                                                                  basis_functions_derivative_values,
                                                                  local_space.InternalQuadrature.Weights);
 
-        const auto local_stab_A =
+        const Eigen::MatrixXd local_stab_A =
             diffusion_term_values.cwiseAbs().maxCoeff() *
             vem_local_space.ComputeDofiDofiStabilizationMatrix(local_space, VEM::PCC::ProjectionTypes::PiNabla);
 
