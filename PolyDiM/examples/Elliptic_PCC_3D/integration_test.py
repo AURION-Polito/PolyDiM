@@ -89,9 +89,9 @@ def test_errors(errors,
         assert abs(errors[1][2]) < tol * abs(errors[1][4])
     elif (num_rows == 3):
         slope_L2 = abs(math.log(errors[2][1] / errors[2][3])  - math.log(errors[1][1] / errors[2][3])) / \
-        abs(math.log(errors[2][0]) - math.log(errors[1][0])) * 2.0
+        abs(math.log(errors[2][0]) - math.log(errors[1][0])) * 3.0
         slope_H1 = abs(math.log(errors[2][2] / errors[2][4])  - math.log(errors[1][2] / errors[2][4])) / \
-        abs(math.log(errors[2][0]) - math.log(errors[1][0])) * 2.0
+        abs(math.log(errors[2][0]) - math.log(errors[1][0])) * 3.0
         print("CASE 2: ", round(slope_L2), round(slope_H1))
         assert round(slope_L2) == round(float(vem_order + 1.0)) 
         assert round(slope_H1) == round(float(vem_order))
@@ -134,7 +134,7 @@ if __name__ == "__main__":
             
     test_type = 2
     mesh_generator = 0
-    mesh_max_areas = [0.01, 0.001]
+    mesh_max_areas = [0.001, 0.0001]
     for vem_type in vem_types:
         for vem_order in vem_orders:
             for mesh_max_area in mesh_max_areas:

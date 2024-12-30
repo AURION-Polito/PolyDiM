@@ -59,7 +59,7 @@ void Assembler::ComputeStrongTerm(const unsigned int &cell3DIndex,
     }
 
     // Assemble strong boundary condition on Cell1Ds
-    const auto &referenceSegmentInternalPoints = reference_element_data_2D.Quadrature.ReferenceSegmentInternalPoints;
+    const auto &referenceSegmentInternalPoints = reference_element_data_2D.Quadrature.ReferenceEdgeDOFsInternalPoints;
     const unsigned int numReferenceSegmentInternalPoints = referenceSegmentInternalPoints.cols();
 
     for (unsigned int e = 0; e < mesh.Cell3DNumberEdges(cell3DIndex); ++e)
@@ -340,7 +340,7 @@ typename Assembler::Elliptic_PCC_3D_Problem_Data Assembler::Assemble(
                                                                  basis_functions_derivative_values,
                                                                  local_space.InternalQuadrature.Weights);
 
-        const auto local_stab_A =
+        const Eigen::MatrixXd local_stab_A =
             diffusion_term_values.cwiseAbs().maxCoeff() *
             vem_local_space.ComputeDofiDofiStabilizationMatrix(local_space, VEM::PCC::ProjectionTypes::PiNabla);
 

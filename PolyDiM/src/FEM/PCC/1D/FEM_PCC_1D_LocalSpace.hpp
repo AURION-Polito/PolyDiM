@@ -66,7 +66,7 @@ class FEM_PCC_1D_LocalSpace final
     }
 
     /// \brief map basis function values on element with correct order
-    inline Eigen::MatrixXd MapValues(const FEM_PCC_1D_LocalSpace_Data &local_space, const Eigen::MatrixXd &referenceValues) const
+    inline Eigen::MatrixXd MapValues(const FEM_PCC_1D_LocalSpace_Data &, const Eigen::MatrixXd &referenceValues) const
     {
         return referenceValues;
     }
