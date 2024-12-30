@@ -1,9 +1,10 @@
+#include "Assembler_Utilities.hpp"
 #include "DOFsManager.hpp"
 #include "Eigen_LUSolver.hpp"
+#include "I_VEM_MCC_3D_ReferenceElement.hpp"
 #include "MeshMatricesDAO.hpp"
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
 #include "MeshUtilities.hpp"
-#include "VEM_MCC_3D_ReferenceElement.hpp"
 #include "VTKUtilities.hpp"
 #include "assembler.hpp"
 #include "program_configuration.hpp"
@@ -103,6 +104,9 @@ int main(int argc, char **argv)
     const auto vem_velocity_reference_element = Polydim::VEM::MCC::create_VEM_MCC_3D_velocity_reference_element(config.VemType());
     const auto velocity_reference_element_data = vem_velocity_reference_element->Create(config.VemOrder());
 
+    const auto velocity_space = Polydim::VEM::MCC::create_VEM_MCC_3D_velocity_local_space(config.VemType());
+    const auto pressure_space = Polydim::VEM::MCC::create_VEM_MCC_3D_pressure_local_space(config.VemType());
+
     Polydim::PDETools::DOFs::DOFsManager dofManager;
     std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> meshDOFsInfo(2);
     std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> dofs_data(2);
@@ -127,18 +131,10 @@ int main(int argc, char **argv)
 
     dofs_data[1] = dofManager.CreateDOFs<3>(meshDOFsInfo[1], mesh_connectivity_data);
 
-    const unsigned int numDOFHandler = meshDOFsInfo.size();
-    unsigned int numberDOFs = 0;
-    unsigned int numberStrongs = 0;
-    std::vector<unsigned int> offsetDOFs = {0, dofs_data[0].NumberDOFs};
-    std::vector<unsigned int> offsetStrongs = {0, dofs_data[0].NumberStrongs};
-    for (unsigned int i = 0; i < numDOFHandler; i++)
-    {
-        numberDOFs += dofs_data[i].NumberDOFs;
-        numberStrongs += dofs_data[i].NumberStrongs;
-    }
+    const auto count_dofs = Polydim::PDETools::Assembler_Utilities::count_dofs(dofs_data);
 
-    Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(numberDOFs) + " DOFs and " + to_string(numberStrongs) + " STRONGs",
+    Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(count_dofs.num_total_dofs) + " DOFs and " +
+                                           to_string(count_dofs.num_total_strong) + " STRONGs",
                                        true);
 
     Gedim::Profiler::StopTime("CreateVEMSpace");
@@ -148,13 +144,22 @@ int main(int argc, char **argv)
     Gedim::Profiler::StartTime("AssembleSystem");
 
     Polydim::examples::Elliptic_MCC_3D::Assembler assembler;
-    auto assembler_data =
-        assembler.Assemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, velocity_reference_element_data, pressure_reference_element_data, *test);
+    auto assembler_data = assembler.Assemble(config,
+                                             mesh,
+                                             meshGeometricData,
+                                             meshDOFsInfo,
+                                             dofs_data,
+                                             count_dofs,
+                                             velocity_reference_element_data,
+                                             pressure_reference_element_data,
+                                             *velocity_space,
+                                             *pressure_space,
+                                             *test);
 
     Gedim::Profiler::StopTime("AssembleSystem");
     Gedim::Output::PrintStatusProgram("AssembleSystem");
 
-    if (numberDOFs > 0)
+    if (count_dofs.num_total_dofs > 0)
     {
         Gedim::Output::PrintGenericMessage("Factorize...", true);
         Gedim::Profiler::StartTime("Factorize");
@@ -181,8 +186,11 @@ int main(int argc, char **argv)
                                                            mesh,
                                                            meshGeometricData,
                                                            dofs_data,
+                                                           count_dofs,
                                                            velocity_reference_element_data,
                                                            pressure_reference_element_data,
+                                                           *velocity_space,
+                                                           *pressure_space,
                                                            assembler_data,
                                                            *test);
 
@@ -202,7 +210,8 @@ int main(int argc, char **argv)
 
     if (config.ComputeVEMPerformance())
     {
-        const auto vemPerformance = assembler.ComputeVemPerformance(config, mesh, meshGeometricData, velocity_reference_element_data);
+        const auto vemPerformance =
+            assembler.ComputeVemPerformance(config, mesh, meshGeometricData, velocity_reference_element_data, *velocity_space);
         {
             const char separator = ',';
             /// Export Cell3Ds VEM performance

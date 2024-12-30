@@ -6,6 +6,7 @@
 #include <gtest/gtest.h>
 
 #include "GeometryUtilities.hpp"
+#include "VEM_MCC_3D_ReferenceElement.hpp"
 #include "VEM_MCC_3D_Velocity_LocalSpace.hpp"
 #include "VEM_MCC_PerformanceAnalysis.hpp"
 

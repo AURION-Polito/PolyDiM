@@ -1,16 +1,17 @@
 #ifndef __assembler_H
 #define __assembler_H
 
+#include "Assembler_Utilities.hpp"
 #include "Eigen_Array.hpp"
 #include "Eigen_SparseArray.hpp"
 #include "MeshMatricesDAO.hpp"
 #include "MeshUtilities.hpp"
 
 #include "DOFsManager.hpp"
-#include "VEM_MCC_3D_ReferenceElement.hpp"
+#include "I_VEM_MCC_3D_ReferenceElement.hpp"
 #include "VEM_MCC_PerformanceAnalysis.hpp"
 
-#include "VEM_MCC_3D_Velocity_LocalSpace_Data.hpp"
+#include "VEM_MCC_3D_LocalSpace_Data.hpp"
 #include "program_configuration.hpp"
 
 namespace Polydim
@@ -90,21 +91,28 @@ class Assembler final
                                           const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
                                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
                                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                                          const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                                           const Polydim::VEM::MCC::VEM_MCC_3D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
                                           const Polydim::VEM::MCC::VEM_MCC_3D_Pressure_ReferenceElement_Data &pressure_reference_element_data,
+                                          const Polydim::VEM::MCC::I_VEM_MCC_3D_Velocity_LocalSpace &vem_velocity_space,
+                                          const Polydim::VEM::MCC::I_VEM_MCC_3D_Pressure_LocalSpace &vem_pressure_space,
                                           const Polydim::examples::Elliptic_MCC_3D::test::I_Test &test) const;
 
     VEM_Performance_Result ComputeVemPerformance(const Polydim::examples::Elliptic_MCC_3D::Program_configuration &config,
                                                  const Gedim::MeshMatricesDAO &mesh,
                                                  const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
-                                                 const Polydim::VEM::MCC::VEM_MCC_3D_Velocity_ReferenceElement_Data &velocity_reference_element_data) const;
+                                                 const Polydim::VEM::MCC::VEM_MCC_3D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
+                                                 const Polydim::VEM::MCC::I_VEM_MCC_3D_Velocity_LocalSpace &vem_velocity_space) const;
 
     PostProcess_Data PostProcessSolution(const Polydim::examples::Elliptic_MCC_3D::Program_configuration &config,
                                          const Gedim::MeshMatricesDAO &mesh,
                                          const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
                                          const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                                         const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                                          const Polydim::VEM::MCC::VEM_MCC_3D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
                                          const Polydim::VEM::MCC::VEM_MCC_3D_Pressure_ReferenceElement_Data &pressure_reference_element_data,
+                                         const Polydim::VEM::MCC::I_VEM_MCC_3D_Velocity_LocalSpace &vem_velocity_space,
+                                         const Polydim::VEM::MCC::I_VEM_MCC_3D_Pressure_LocalSpace &vem_pressure_space,
                                          const Elliptic_MCC_3D_Problem_Data &assembler_data,
                                          const Polydim::examples::Elliptic_MCC_3D::test::I_Test &test) const;
 };

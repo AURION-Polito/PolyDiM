@@ -6,6 +6,7 @@
 #include <gtest/gtest.h>
 
 #include "GeometryUtilities.hpp"
+#include "VEM_MCC_2D_EdgeOrtho_ReferenceElement.hpp"
 #include "VEM_MCC_2D_EdgeOrtho_Velocity_LocalSpace.hpp"
 #include "VEM_MCC_2D_Ortho_EdgeOrtho_Velocity_LocalSpace.hpp"
 #include "VEM_MCC_2D_Ortho_Velocity_LocalSpace.hpp"

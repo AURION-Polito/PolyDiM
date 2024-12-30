@@ -2,9 +2,9 @@
 #define __VEM_MCC_2D_Velocity_LocalSpace_HPP
 
 #include "Eigen/Eigen"
+#include "I_VEM_MCC_2D_ReferenceElement.hpp"
 #include "I_VEM_MCC_2D_Velocity_LocalSpace.hpp"
-#include "VEM_MCC_2D_ReferenceElement.hpp"
-#include "VEM_MCC_2D_Velocity_LocalSpace_Data.hpp"
+#include "VEM_MCC_2D_LocalSpace_Data.hpp"
 #include "VEM_MCC_Utilities.hpp"
 #include "VEM_Monomials_2D.hpp"
 #include <vector>
@@ -26,16 +26,12 @@ class VEM_MCC_2D_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_LocalS
     void InitializeProjectorsComputation(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                                          const unsigned int &numEdges,
                                          const Eigen::Vector3d &polygonCentroid,
+                                         const double &polygonMeasure,
                                          const double &polygonDiameter,
                                          const Eigen::MatrixXd &internalQuadraturePoints,
                                          const Eigen::VectorXd &internalQuadratureWeights,
                                          const Eigen::MatrixXd &boundaryQuadraturePoints,
                                          VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const;
-
-    inline void ComputeStabilizationMatrix(const double &polygonMeasure, VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const
-    {
-        localSpace.StabMatrix = utilities.ComputeStabilizationMatrix(localSpace.Pi0k, polygonMeasure, localSpace.Dmatrix);
-    }
 
     void ComputeL2Projectors(const double &polygonMeasure,
                              const Eigen::VectorXd &internalQuadratureWeights,
@@ -71,17 +67,28 @@ class VEM_MCC_2D_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_LocalS
     VEM_MCC_2D_Velocity_LocalSpace_Data CreateLocalSpace(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                                                          const VEM_MCC_2D_Polygon_Geometry &polygon) const;
 
-    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const
+    inline Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace,
+                                                              const ProjectionTypes &projectionType) const
     {
-        const unsigned int numQuadrature = localSpace.InternalQuadrature.Points.cols();
-        const Eigen::MatrixXd temp = localSpace.GkVanderInternal.transpose() * localSpace.Pi0k;
-        std::vector<Eigen::MatrixXd> result(localSpace.Dimension,
-                                            Eigen::MatrixXd::Zero(localSpace.Dimension, localSpace.NumBasisFunctions));
+        switch (projectionType)
+        {
+        case ProjectionTypes::Pi0k:
+            return utilities.ComputeDofiDofiStabilizationMatrix(localSpace.Pi0k, localSpace.Measure, localSpace.Dmatrix);
+        default:
+            throw std::runtime_error("not valid projection type");
+        }
+    }
 
-        for (unsigned int d = 0; d < localSpace.Dimension; d++)
-            result[d] = temp.middleRows(numQuadrature * d, numQuadrature);
-
-        return result;
+    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace,
+                                                                    const ProjectionTypes &projectionType) const
+    {
+        switch (projectionType)
+        {
+        case ProjectionTypes::Pi0k:
+            return utilities.ComputeBasisFunctionsValues(localSpace.Pi0k, localSpace.GkVanderInternal);
+        default:
+            throw std::runtime_error("not valid projectors");
+        }
     }
 
     inline Eigen::MatrixXd ComputeBasisFunctionsDivergenceValues(const VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const
@@ -96,10 +103,9 @@ class VEM_MCC_2D_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_LocalS
 
     inline Eigen::MatrixXd ComputePolynomialsValues(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                                                     const VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace,
-                                                    const VEM_MCC_2D_Polygon_Geometry &polygon,
                                                     const Eigen::MatrixXd &points) const
     {
-        return monomials.Vander(reference_element_data.MonomialsKp1, points, polygon.Centroid, polygon.Diameter)
+        return monomials.Vander(reference_element_data.MonomialsKp1, points, localSpace.Centroid, localSpace.Diameter)
             .leftCols(localSpace.Nk);
     }
 };

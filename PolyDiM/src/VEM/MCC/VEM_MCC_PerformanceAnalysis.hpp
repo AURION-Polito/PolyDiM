@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "LAPACK_utilities.hpp"
+#include "VEM_MCC_Utilities.hpp"
 
 namespace Polydim
 {
@@ -52,12 +53,10 @@ struct VEM_MCC_PerformanceAnalysis final
         const Eigen::MatrixXd &polynomialBasisDofs = vem_local_space_data.Dmatrix;
         result.ErrorPi0k = (pi0k * polynomialBasisDofs - identity).norm() / identity.norm();
 
-        if (vem_local_space_data.StabMatrix.size() > 0)
-        {
-            const Eigen::MatrixXd &stabilizationMatrix = vem_local_space_data.StabMatrix;
-            result.StabNorm = vem_local_space_data.StabMatrix.norm();
-            result.ErrorStabilization = (stabilizationMatrix * polynomialBasisDofs).norm();
-        }
+        const Eigen::MatrixXd stabilizationMatrix =
+            vem_local_space.ComputeDofiDofiStabilizationMatrix(vem_local_space_data, ProjectionTypes::Pi0k);
+        result.StabNorm = stabilizationMatrix.norm();
+        result.ErrorStabilization = (stabilizationMatrix * polynomialBasisDofs).norm();
 
         if (vem_local_space_data.Gmatrix.size() > 0 && vem_local_space_data.Bmatrix.size() > 0)
             result.ErrorGBD = (vem_local_space_data.Gmatrix - vem_local_space_data.Bmatrix * polynomialBasisDofs).norm() /

@@ -1,9 +1,9 @@
-#ifndef __VEM_MCC_2D_Velocity_LocalSpace_Data_HPP
-#define __VEM_MCC_2D_Velocity_LocalSpace_Data_HPP
+#ifndef __VEM_MCC_3D_LocalSpace_Data_HPP
+#define __VEM_MCC_3D_LocalSpace_Data_HPP
 
 #include "Eigen/Eigen"
 #include "QuadratureData.hpp"
-#include "VEM_Quadrature_2D.hpp"
+#include "VEM_Quadrature_3D.hpp"
 
 namespace Polydim
 {
@@ -11,23 +11,31 @@ namespace VEM
 {
 namespace MCC
 {
-struct VEM_MCC_2D_Polygon_Geometry final
+
+struct VEM_MCC_3D_Polyhedron_Geometry final
 {
     const double Tolerance1D;
     const double Tolerance2D;
+    const double Tolerance3D;
 
     const Eigen::MatrixXd &Vertices;
     const Eigen::Vector3d &Centroid;
     const double &Measure;
     const double &Diameter;
-    const std::vector<Eigen::Matrix3d> &TriangulationVertices;
-    const Eigen::VectorXd &EdgesLength;
-    const std::vector<bool> &EdgesDirection;
-    const Eigen::MatrixXd &EdgesTangent;
-    const Eigen::MatrixXd &EdgesNormal;
+    const std::vector<Eigen::MatrixXd> &TetrahedronVertices;
+
+    const std::vector<Eigen::Matrix3d> &FacesRotationMatrix;
+    const std::vector<Eigen::Vector3d> &FacesTranslation;
+    const std::vector<Eigen::Vector3d> &FacesNormal;
+    const std::vector<bool> &FacesNormalDirection;
+    const std::vector<bool> &FacesGlobalNormalDirection;
+    const std::vector<double> &FacesMeasure;
+    const std::vector<Eigen::Vector3d> &FacesCentroid2D;
+    const std::vector<double> &FacesDiameter;
+    const std::vector<std::vector<Eigen::Matrix3d>> &FacesTriangulationVertices2D;
 };
 
-struct VEM_MCC_2D_Velocity_LocalSpace_Data final
+struct VEM_MCC_3D_Velocity_LocalSpace_Data final
 {
     /// Order
     unsigned int Order;
@@ -47,7 +55,7 @@ struct VEM_MCC_2D_Velocity_LocalSpace_Data final
     unsigned int NumBasisFunctions;         ///< Number of basis functions.
 
     Gedim::Quadrature::QuadratureData InternalQuadrature;
-    Quadrature::VEM_Quadrature_2D::Edges_QuadratureData BoundaryQuadrature;
+    Quadrature::VEM_Quadrature_3D::Faces_QuadratureData_MCC BoundaryQuadrature;
 
     /// Vandermonde matrix of the polynomial basis at internal quadrature points.
     Eigen::MatrixXd VanderInternal;
@@ -84,17 +92,41 @@ struct VEM_MCC_2D_Velocity_LocalSpace_Data final
     Eigen::MatrixXd QmatrixTkNablaInv;
     Eigen::MatrixXd QmatrixTkNabla;
 
+    double Diameter;
+    double Measure;
+    Eigen::Vector3d Centroid;
+
     Eigen::MatrixXd TkNablaDof;
 
     Eigen::MatrixXd Bmatrix;
     Eigen::MatrixXd Dmatrix;
     Eigen::MatrixXd Gmatrix;
-    Eigen::MatrixXd StabMatrix;
 
     Eigen::MatrixXd Vmatrix;
 
     std::vector<Eigen::MatrixXd> VanderBasisFunctionValuesOnFace;
 };
+
+struct VEM_MCC_3D_Pressure_LocalSpace_Data final
+{
+    unsigned int Order;     ///< Order
+    unsigned int Dimension; ///< Geometric dimension
+
+    unsigned int Nk;
+    unsigned int Nkm1;
+
+    unsigned int NumBasisFunctions; ///< Number of basis functions.
+
+    double Diameter;
+    Eigen::Vector3d Centroid;
+
+    Gedim::Quadrature::QuadratureData InternalQuadrature; ///< Internal quadrature points and weights
+
+    Eigen::MatrixXd VanderInternal; /// Vandermonde matrix of the polynomial basis at internal quadrature points.
+
+    Eigen::MatrixXd Hmatrix; ///< mass matrix of order order
+};
+
 } // namespace MCC
 } // namespace VEM
 } // namespace Polydim

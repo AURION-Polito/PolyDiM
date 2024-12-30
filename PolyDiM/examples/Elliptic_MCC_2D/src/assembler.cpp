@@ -189,7 +189,6 @@ Assembler::Elliptic_MCC_2D_Problem_Data Assembler::Assemble(
                                                            local_space.InternalQuadrature.Weights);
 
         double kmax = 0.0;
-
         for (const auto &diffusion_term : diffusion_term_values)
         {
             const double max_k = diffusion_term.cwiseAbs().maxCoeff();

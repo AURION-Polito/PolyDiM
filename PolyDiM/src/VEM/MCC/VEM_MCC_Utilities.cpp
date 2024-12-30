@@ -15,14 +15,14 @@ template struct VEM_MCC_Utilities<2>;
 template struct VEM_MCC_Utilities<3>;
 //****************************************************************************
 template <unsigned short dimension>
-MatrixXd VEM_MCC_Utilities<dimension>::ComputeStabilizationMatrix(const MatrixXd &pi0k,
-                                                                  const double &measure,
-                                                                  const Eigen::MatrixXd &DMatrix) const
+MatrixXd VEM_MCC_Utilities<dimension>::ComputeDofiDofiStabilizationMatrix(const MatrixXd &projector,
+                                                                          const double &coefficient,
+                                                                          const Eigen::MatrixXd &DMatrix) const
 {
-    MatrixXd stabMatrixPi0k = DMatrix * pi0k;
+    MatrixXd stabMatrixPi0k = DMatrix * projector;
     stabMatrixPi0k.diagonal().array() -= 1;
     // stabMatrix = (\Pi^{0,dofs}_order - I)^T * (\Pi^{0,dofs}_order - I).
-    stabMatrixPi0k = measure * stabMatrixPi0k.transpose() * stabMatrixPi0k;
+    stabMatrixPi0k = coefficient * stabMatrixPi0k.transpose() * stabMatrixPi0k;
 
     return stabMatrixPi0k;
 }
@@ -51,6 +51,20 @@ MatrixXd VEM_MCC_Utilities<dimension>::ComputePolynomialBasisDofs(const double &
             (1.0 / polytopeMeasure) * Gmatrix.bottomRows(NumBigOPlusInternalBasisFunctions);
     }
     return polynomialBasisDofs;
+}
+//****************************************************************************
+template <unsigned short dimension>
+std::vector<MatrixXd> VEM_MCC_Utilities<dimension>::ComputeBasisFunctionsValues(const Eigen::MatrixXd &projector,
+                                                                                const Eigen::MatrixXd &GVander) const
+{
+    const unsigned int numQuadrature = GVander.cols() / dimension;
+    const Eigen::MatrixXd temp = GVander.transpose() * projector;
+    std::vector<Eigen::MatrixXd> result(dimension, Eigen::MatrixXd::Zero(dimension, projector.cols()));
+
+    for (unsigned int d = 0; d < dimension; d++)
+        result[d] = temp.middleRows(numQuadrature * d, numQuadrature);
+
+    return result;
 }
 //****************************************************************************
 template <unsigned short dimension>

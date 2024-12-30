@@ -35,6 +35,7 @@ VEM_MCC_3D_Velocity_LocalSpace_Data VEM_MCC_3D_Velocity_LocalSpace::CreateLocalS
     InitializeProjectorsComputation(reference_element_data,
                                     polyhedron.FacesMeasure.size(),
                                     polyhedron.Centroid,
+                                    polyhedron.Measure,
                                     polyhedron.Diameter,
                                     localSpace.InternalQuadrature.Points,
                                     localSpace.InternalQuadrature.Weights,
@@ -63,14 +64,13 @@ VEM_MCC_3D_Velocity_LocalSpace_Data VEM_MCC_3D_Velocity_LocalSpace::CreateLocalS
 
     ComputePolynomialBasisDofs(polyhedron.Measure, localSpace);
 
-    ComputeStabilizationMatrix(polyhedron.Measure, localSpace);
-
     return localSpace;
 }
 //****************************************************************************
 void VEM_MCC_3D_Velocity_LocalSpace::InitializeProjectorsComputation(const VEM_MCC_3D_Velocity_ReferenceElement_Data &reference_element_data,
                                                                      const unsigned int &numFaces,
                                                                      const Eigen::Vector3d &polyhedronCentroid,
+                                                                     const double &polyhedronMeasure,
                                                                      const double &polyhedronDiameter,
                                                                      const Eigen::MatrixXd &internalQuadraturePoints,
                                                                      const Eigen::VectorXd &internalQuadratureWeights,
@@ -94,6 +94,11 @@ void VEM_MCC_3D_Velocity_LocalSpace::InitializeProjectorsComputation(const VEM_M
     localSpace.NumBasisFunctions = localSpace.NumBoundaryBasisFunctions + localSpace.NumInternalBasisFunctions;
 
     // Compute Vandermonde matrices.
+
+    localSpace.Centroid = polyhedronCentroid;
+    localSpace.Diameter = polyhedronDiameter;
+    localSpace.Measure = polyhedronMeasure;
+
     localSpace.VanderInternalKp1 =
         monomials3D.Vander(reference_element_data.MonomialsKp1, internalQuadraturePoints, polyhedronCentroid, polyhedronDiameter);
 

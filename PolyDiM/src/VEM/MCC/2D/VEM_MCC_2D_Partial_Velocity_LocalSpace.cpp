@@ -31,6 +31,7 @@ VEM_MCC_2D_Velocity_LocalSpace_Data VEM_MCC_2D_Partial_Velocity_LocalSpace::Crea
     InitializeProjectorsComputation(reference_element_data,
                                     polygon.EdgesLength.size(),
                                     polygon.Centroid,
+                                    polygon.Measure,
                                     polygon.Diameter,
                                     localSpace.InternalQuadrature.Points,
                                     localSpace.InternalQuadrature.Weights,
@@ -53,14 +54,13 @@ VEM_MCC_2D_Velocity_LocalSpace_Data VEM_MCC_2D_Partial_Velocity_LocalSpace::Crea
 
     ComputePolynomialBasisDofs(polygon.Measure, localSpace);
 
-    ComputeStabilizationMatrix(polygon.Measure, localSpace);
-
     return localSpace;
 }
 //****************************************************************************
 void VEM_MCC_2D_Partial_Velocity_LocalSpace::InitializeProjectorsComputation(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                                                                              const unsigned int &numEdges,
                                                                              const Eigen::Vector3d &polygonCentroid,
+                                                                             const double &polygonMeasure,
                                                                              const double &polygonDiameter,
                                                                              const Eigen::MatrixXd &internalQuadraturePoints,
                                                                              const Eigen::VectorXd &internalQuadratureWeights,
@@ -80,6 +80,10 @@ void VEM_MCC_2D_Partial_Velocity_LocalSpace::InitializeProjectorsComputation(con
     localSpace.NumInternalBasisFunctions = localSpace.NumNablaInternalBasisFunctions + localSpace.NumBigOPlusInternalBasisFunctions;
 
     localSpace.NumBasisFunctions = localSpace.NumBoundaryBasisFunctions + localSpace.NumInternalBasisFunctions;
+
+    localSpace.Centroid = polygonCentroid;
+    localSpace.Diameter = polygonDiameter;
+    localSpace.Measure = polygonMeasure;
 
     const MatrixXd VanderInternalMonomials =
         monomials.Vander(reference_element_data.MonomialsKp1, internalQuadraturePoints, polygonCentroid, polygonDiameter);

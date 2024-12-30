@@ -72,12 +72,6 @@ int main(int argc, char **argv)
     Gedim::MeshMatricesDAO mesh(meshData);
 
     Polydim::examples::Elliptic_MCC_2D::program_utilities::create_domain_mesh(config, domain, mesh);
-    //    const Gedim::MeshFromCsvUtilities utilities;
-    //    Gedim::MeshFromCsvUtilities::Configuration configuration;
-    //    configuration.Folder = config.ExportFolder() + "/Mesh";
-    //    Gedim::MeshDAOExporterToCsv exportMesh(utilities);
-    //    exportMesh.Export(configuration,
-    //                      mesh);
 
     Gedim::Profiler::StopTime("CreateMesh");
     Gedim::Output::PrintStatusProgram("CreateMesh");

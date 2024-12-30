@@ -9,6 +9,12 @@ namespace VEM
 {
 namespace MCC
 {
+/// \brief Enumeration for Projector Types
+enum struct ProjectionTypes
+{
+    Pi0k = 1, ///< \f$\Pi^0_{order}\f$ projection to project basis
+};
+
 /// \brief Base class for computing values of basis functions of Mixed Conforming Constant degree
 /// Virtual Element Methods.
 /// \copyright See top level LICENSE file for details.
@@ -24,7 +30,9 @@ template <unsigned short dimension> struct VEM_MCC_Utilities final
                                                const Eigen::MatrixXd &GkVanderBoundaryTimesNormal,
                                                const Eigen::MatrixXd &Gmatrix) const;
 
-    Eigen::MatrixXd ComputeStabilizationMatrix(const Eigen::MatrixXd &pi0k, const double &measure, const Eigen::MatrixXd &DMatrix) const;
+    Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const Eigen::MatrixXd &projector,
+                                                       const double &coefficient,
+                                                       const Eigen::MatrixXd &DMatrix) const;
 
     void MonomialTraceOnEdges(const unsigned int &polynomialDegree,
                               const Eigen::MatrixXd &polygonVertices,
@@ -33,6 +41,8 @@ template <unsigned short dimension> struct VEM_MCC_Utilities final
                               const std::vector<bool> &edgeDirections,
                               const Eigen::MatrixXd &edgeTangents,
                               std::vector<Eigen::MatrixXd> &Cmatrixkp1) const;
+
+    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const Eigen::MatrixXd &projector, const Eigen::MatrixXd &GVander) const;
 };
 } // namespace MCC
 } // namespace VEM
