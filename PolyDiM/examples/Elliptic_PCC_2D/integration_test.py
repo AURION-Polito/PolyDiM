@@ -43,7 +43,7 @@ def run_program(program_folder,
     run_label += " MeshGenerator {0}".format(mesh_generator)
     run_label += " MeshMaxArea {0}".format(mesh_max_area)
     print("Run " + run_label + "...")
-    os.system(program_path + " " + program_parameters + "> " + output_file)
+    os.system(program_path + " " + program_parameters + " > " + output_file)
     os.system("mv " + output_file + " " + export_path)
     print("Run SUCCESS")
 
@@ -128,6 +128,7 @@ if __name__ == "__main__":
             test_errors(errors,
                         vem_order,
                         tol)
+
             if remove_folder:
                 os.system("rm -rf " + os.path.join(program_folder, export_path))
             
