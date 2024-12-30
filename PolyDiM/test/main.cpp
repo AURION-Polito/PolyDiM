@@ -2,6 +2,7 @@
 
 #include "test_DOFsManager.hpp"
 
+#include "test_FEM_PCC_1D_LocalSpace.hpp"
 #include "test_FEM_Tetrahedron_PCC_3D_LocalSpace.hpp"
 #include "test_FEM_Triangle_PCC_2D_LocalSpace.hpp"
 

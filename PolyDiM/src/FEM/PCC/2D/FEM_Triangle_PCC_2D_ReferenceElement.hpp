@@ -32,7 +32,7 @@ struct FEM_Triangle_PCC_2D_ReferenceElement_Data final
     std::vector<Eigen::MatrixXd> ReferenceBasisFunctionDerivativeValues;
 };
 
-class FEM_RefElement_Langrange_PCC_Triangle_2D final
+class FEM_Triangle_PCC_2D_ReferenceElement final
 {
   public:
     FEM_Triangle_PCC_2D_ReferenceElement_Data Create(const unsigned int order) const
@@ -50,6 +50,14 @@ class FEM_RefElement_Langrange_PCC_Triangle_2D final
             result.DofTypes.setZero(3, result.NumBasisFunctions);
             result.DofPositions.setZero(3, result.NumBasisFunctions);
             result.DofPositions.col(0) << 1.0 / 3.0, 1.0 / 3.0, 0.0;
+
+            result.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * order);
+            result.ReferenceSegmentQuadrature = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * order);
+
+            result.ReferenceBasisFunctionValues = EvaluateBasisFunctions(result.ReferenceTriangleQuadrature.Points, result);
+            result.ReferenceBasisFunctionDerivativeValues =
+                EvaluateBasisFunctionDerivatives(result.ReferenceTriangleQuadrature.Points, result);
+
             return result;
         }
 

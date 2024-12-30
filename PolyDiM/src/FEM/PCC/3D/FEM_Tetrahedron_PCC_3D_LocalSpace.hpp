@@ -68,7 +68,7 @@ class FEM_Tetrahedron_PCC_3D_LocalSpace final
     {
         const Eigen::MatrixXd referencePoints = Gedim::MapTetrahedron::FInv(local_space.MapData, points);
 
-        FEM_RefElement_Langrange_PCC_Tetrahedron_3D reference_element;
+        FEM_Tetrahedron_PCC_3D_ReferenceElement reference_element;
 
         return MapValues(local_space, reference_element.EvaluateBasisFunctions(referencePoints, reference_element_data));
     }
@@ -79,7 +79,7 @@ class FEM_Tetrahedron_PCC_3D_LocalSpace final
     {
         const Eigen::MatrixXd referencePoints = Gedim::MapTetrahedron::FInv(local_space.MapData, points);
 
-        FEM_RefElement_Langrange_PCC_Tetrahedron_3D reference_element;
+        FEM_Tetrahedron_PCC_3D_ReferenceElement reference_element;
 
         return MapDerivativeValues(local_space, reference_element.EvaluateBasisFunctionDerivatives(referencePoints, reference_element_data));
     }

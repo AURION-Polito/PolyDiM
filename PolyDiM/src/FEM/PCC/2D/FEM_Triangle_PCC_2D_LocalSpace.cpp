@@ -69,7 +69,7 @@ FEM_Triangle_PCC_2D_LocalSpace_Data FEM_Triangle_PCC_2D_LocalSpace::CreateLocalS
     localSpace.Dof3DsIndex.resize(0, 0);
 
     // reorder basis function values with mesh order
-    localSpace.Dofs = MapValues(localSpace, mapTriangle.F(localSpace.MapData, reference_element_data.DofPositions));
+    localSpace.Dofs = MapValues(localSpace, Gedim::MapTriangle::F(localSpace.MapData, reference_element_data.DofPositions));
 
     localSpace.InternalQuadrature = InternalQuadrature(reference_element_data.ReferenceTriangleQuadrature, localSpace.MapData);
 
@@ -124,9 +124,9 @@ Gedim::Quadrature::QuadratureData FEM_Triangle_PCC_2D_LocalSpace::InternalQuadra
     Gedim::Quadrature::QuadratureData quadrature;
 
     Gedim::MapTriangle mapTriangle;
-    quadrature.Points = mapTriangle.F(mapData, reference_quadrature.Points);
-    quadrature.Weights =
-        reference_quadrature.Weights.array() * mapTriangle.DetJ(mapData, reference_quadrature.Points).array().abs();
+    quadrature.Points = Gedim::MapTriangle::F(mapData, reference_quadrature.Points);
+    quadrature.Weights = reference_quadrature.Weights.array() *
+                         Gedim::MapTriangle::DetJ(mapData, reference_quadrature.Points).array().abs();
 
     return quadrature;
 }
