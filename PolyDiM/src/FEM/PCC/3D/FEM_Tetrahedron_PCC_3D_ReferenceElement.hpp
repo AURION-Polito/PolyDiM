@@ -33,7 +33,7 @@ struct FEM_Tetrahedron_PCC_3D_ReferenceElement_Data final
     std::vector<Eigen::MatrixXd> ReferenceBasisFunctionDerivativeValues;
 };
 
-class FEM_RefElement_Langrange_PCC_Tetrahedron_3D final
+class FEM_Tetrahedron_PCC_3D_ReferenceElement final
 {
   public:
     FEM_Tetrahedron_PCC_3D_ReferenceElement_Data Create(const unsigned int order) const
@@ -42,6 +42,28 @@ class FEM_RefElement_Langrange_PCC_Tetrahedron_3D final
 
         result.Order = order;
         result.Dimension = 3;
+
+        if (order == 0)
+        {
+            result.NumDofs0D = 0;
+            result.NumDofs1D = 0;
+            result.NumDofs2D = 0;
+            result.NumDofs3D = 1;
+            result.NumBasisFunctions = 1;
+            result.DofPositions.setZero(3, result.NumBasisFunctions);
+            result.DofPositions.col(0) << 1.0 / 4.0, 1.0 / 4.0, 1.0 / 4.0;
+
+            result.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * order);
+            result.ReferenceSegmentQuadrature = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * order);
+            result.ReferenceTetrahedronQuadrature =
+                Gedim::Quadrature::Quadrature_Gauss3D_Tetrahedron_PositiveWeights::FillPointsAndWeights(2 * order);
+
+            result.ReferenceBasisFunctionValues = EvaluateBasisFunctions(result.ReferenceTetrahedronQuadrature.Points, result);
+            result.ReferenceBasisFunctionDerivativeValues =
+                EvaluateBasisFunctionDerivatives(result.ReferenceTetrahedronQuadrature.Points, result);
+
+            return result;
+        }
 
         switch (order)
         {

@@ -70,7 +70,7 @@ class FEM_Triangle_PCC_2D_LocalSpace final
         Gedim::MapTriangle mapTriangle;
         const Eigen::MatrixXd referencePoints = mapTriangle.FInv(local_space.MapData, points);
 
-        FEM_RefElement_Langrange_PCC_Triangle_2D reference_element;
+        FEM_Triangle_PCC_2D_ReferenceElement reference_element;
 
         return MapValues(local_space, reference_element.EvaluateBasisFunctions(referencePoints, reference_element_data));
     }
@@ -82,7 +82,7 @@ class FEM_Triangle_PCC_2D_LocalSpace final
         Gedim::MapTriangle mapTriangle;
         const Eigen::MatrixXd referencePoints = mapTriangle.FInv(local_space.MapData, points);
 
-        FEM_RefElement_Langrange_PCC_Triangle_2D reference_element;
+        FEM_Triangle_PCC_2D_ReferenceElement reference_element;
 
         return MapDerivativeValues(local_space, reference_element.EvaluateBasisFunctionDerivatives(referencePoints, reference_element_data));
     }

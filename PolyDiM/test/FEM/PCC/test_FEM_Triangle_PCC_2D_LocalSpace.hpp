@@ -11,9 +11,9 @@ namespace Polydim
 {
 namespace UnitTesting
 {
-TEST(Test_FEM_Triangle_PCC, Test_FEM_Triangle_PCC_2D_Reference_Element)
+TEST(Test_FEM_Triangle_PCC_2D, Test_FEM_Triangle_PCC_2D_Reference_Element)
 {
-    const Polydim::FEM::PCC::FEM_RefElement_Langrange_PCC_Triangle_2D reference_element;
+    const Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement reference_element;
 
     const auto referenceQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(21);
     const Eigen::MatrixXd &referenceQuadraturePoints = referenceQuadrature.Points;
