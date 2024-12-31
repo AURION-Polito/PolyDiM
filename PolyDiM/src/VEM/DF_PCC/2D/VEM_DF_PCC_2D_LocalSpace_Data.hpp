@@ -17,15 +17,15 @@ struct VEM_DF_PCC_2D_Polygon_Geometry final
     const double Tolerance1D;
     const double Tolerance2D;
 
-    const Eigen::MatrixXd &Vertices;
-    const Eigen::Vector3d &Centroid;
-    const double &Measure;
-    const double &Diameter;
-    const std::vector<Eigen::Matrix3d> &TriangulationVertices;
-    const Eigen::VectorXd &EdgesLength;
-    const std::vector<bool> &EdgesDirection;
-    const Eigen::MatrixXd &EdgesTangent;
-    const Eigen::MatrixXd &EdgesNormal;
+    const Eigen::MatrixXd Vertices;
+    const Eigen::Vector3d Centroid;
+    const double Measure;
+    const double Diameter;
+    const std::vector<Eigen::Matrix3d> TriangulationVertices;
+    const Eigen::VectorXd EdgesLength;
+    const std::vector<bool> EdgesDirection;
+    const Eigen::MatrixXd EdgesTangent;
+    const Eigen::MatrixXd EdgesNormal;
 };
 
 /// \brief Structure containing the local matrices and the main variables to compute the vritual element discrete

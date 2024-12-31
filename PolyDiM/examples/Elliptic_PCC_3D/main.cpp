@@ -135,8 +135,7 @@ int main(int argc, char **argv)
         Gedim::Profiler::StartTime("Factorize");
 
         Gedim::Eigen_PCGSolver solver;
-        solver.Initialize(assembler_data.globalMatrixA,
-                          { 20000, 1e-8 });
+        solver.Initialize(assembler_data.globalMatrixA, {20000, 1e-8});
 
         Gedim::Profiler::StopTime("Factorize");
         Gedim::Output::PrintStatusProgram("Factorize");
@@ -147,9 +146,7 @@ int main(int argc, char **argv)
         const auto solver_data = solver.Solve(assembler_data.rightHandSide, assembler_data.solution);
 
         Gedim::Profiler::StopTime("Solve");
-        Gedim::Output::PrintStatusProgram("Solve it: " +
-                                          std::to_string(solver_data.Iterations) +
-                                          " res " +
+        Gedim::Output::PrintStatusProgram("Solve it: " + std::to_string(solver_data.Iterations) + " res " +
                                           std::to_string(solver_data.Residual));
     }
 

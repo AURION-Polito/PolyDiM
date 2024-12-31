@@ -18,21 +18,21 @@ struct VEM_MCC_3D_Polyhedron_Geometry final
     const double Tolerance2D;
     const double Tolerance3D;
 
-    const Eigen::MatrixXd &Vertices;
-    const Eigen::Vector3d &Centroid;
-    const double &Measure;
-    const double &Diameter;
-    const std::vector<Eigen::MatrixXd> &TetrahedronVertices;
+    const Eigen::MatrixXd Vertices;
+    const Eigen::Vector3d Centroid;
+    const double Measure;
+    const double Diameter;
+    const std::vector<Eigen::MatrixXd> TetrahedronVertices;
 
-    const std::vector<Eigen::Matrix3d> &FacesRotationMatrix;
-    const std::vector<Eigen::Vector3d> &FacesTranslation;
-    const std::vector<Eigen::Vector3d> &FacesNormal;
-    const std::vector<bool> &FacesNormalDirection;
-    const std::vector<bool> &FacesGlobalNormalDirection;
-    const std::vector<double> &FacesMeasure;
-    const std::vector<Eigen::Vector3d> &FacesCentroid2D;
-    const std::vector<double> &FacesDiameter;
-    const std::vector<std::vector<Eigen::Matrix3d>> &FacesTriangulationVertices2D;
+    const std::vector<Eigen::Matrix3d> FacesRotationMatrix;
+    const std::vector<Eigen::Vector3d> FacesTranslation;
+    const std::vector<Eigen::Vector3d> FacesNormal;
+    const std::vector<bool> FacesNormalDirection;
+    const std::vector<bool> FacesGlobalNormalDirection;
+    const std::vector<double> FacesMeasure;
+    const std::vector<Eigen::Vector3d> FacesCentroid2D;
+    const std::vector<double> FacesDiameter;
+    const std::vector<std::vector<Eigen::Matrix3d>> FacesTriangulationVertices2D;
 };
 
 struct VEM_MCC_3D_Velocity_LocalSpace_Data final

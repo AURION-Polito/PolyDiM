@@ -20,24 +20,24 @@ struct VEM_DF_PCC_3D_Polyhedron_Geometry final
     const double Tolerance2D;
     const double Tolerance3D;
 
-    const Eigen::MatrixXd &Vertices;
-    const Eigen::MatrixXi &Edges;
-    const std::vector<Eigen::MatrixXi> &Faces;
-    const Eigen::Vector3d &Centroid;
-    const double &Measure;
-    const double &Diameter;
-    const std::vector<Eigen::MatrixXd> &TetrahedronVertices;
+    const Eigen::MatrixXd Vertices;
+    const Eigen::MatrixXi Edges;
+    const std::vector<Eigen::MatrixXi> Faces;
+    const Eigen::Vector3d Centroid;
+    const double Measure;
+    const double Diameter;
+    const std::vector<Eigen::MatrixXd> TetrahedronVertices;
 
-    const std::vector<Eigen::Matrix3d> &FacesRotationMatrix;
-    const std::vector<Eigen::Vector3d> &FacesTranslation;
-    const std::vector<Eigen::Vector3d> &FacesNormal;
-    const std::vector<bool> &FacesNormalDirection;
-    const std::vector<bool> &FacesNormalGlobalDirection;
-    const std::vector<std::array<Eigen::Vector3d, 2>> &FacesTangents;
-    const std::vector<std::array<bool, 2>> &FacesTangentsGlobalDirection;
+    const std::vector<Eigen::Matrix3d> FacesRotationMatrix;
+    const std::vector<Eigen::Vector3d> FacesTranslation;
+    const std::vector<Eigen::Vector3d> FacesNormal;
+    const std::vector<bool> FacesNormalDirection;
+    const std::vector<bool> FacesNormalGlobalDirection;
+    const std::vector<std::array<Eigen::Vector3d, 2>> FacesTangents;
+    const std::vector<std::array<bool, 2>> FacesTangentsGlobalDirection;
 
-    const std::vector<bool> &EdgesDirection;
-    const Eigen::MatrixXd &EdgesTangent;
+    const std::vector<bool> EdgesDirection;
+    const Eigen::MatrixXd EdgesTangent;
 };
 
 /// \brief Structure containing the local matrices and the main variables to compute the vritual element discrete

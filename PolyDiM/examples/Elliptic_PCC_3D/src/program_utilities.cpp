@@ -160,47 +160,32 @@ void export_solution(const Polydim::examples::Elliptic_PCC_3D::Program_configura
         errorFile.close();
     }
 
+    {
         {
-            {
-                Gedim::VTKUtilities exporter;
-                exporter.AddPolyhedrons(mesh.Cell0DsCoordinates(),
-                                     mesh.Cell3DsFacesVertices(),
-                                     {
-                                         {
-                                             "Numeric",
-                                             Gedim::VTPProperty::Formats::Points,
-                                             static_cast<unsigned
-                                             int>(post_process_data.cell0Ds_numeric.size()),
-                                             post_process_data.cell0Ds_numeric.data()
-                                         },
-                                         {
-                                             "Exact",
-                                             Gedim::VTPProperty::Formats::Points,
-                                             static_cast<unsigned
-                                             int>(post_process_data.cell0Ds_exact.size()),
-                                             post_process_data.cell0Ds_exact.data()
-                                         },
-                                         {
-                                             "ErrorL2",
-                                             Gedim::VTPProperty::Formats::Cells,
-                                             static_cast<unsigned
-                                             int>(post_process_data.cell3Ds_error_L2.size()),
-                                             post_process_data.cell3Ds_error_L2.data()
-                                         },
-                                         {
-                                             "ErrorH1",
-                                             Gedim::VTPProperty::Formats::Cells,
-                                             static_cast<unsigned
-                                             int>(post_process_data.cell3Ds_error_H1.size()),
-                                             post_process_data.cell3Ds_error_H1.data()
-                                         }
-                                     });
+            Gedim::VTKUtilities exporter;
+            exporter.AddPolyhedrons(mesh.Cell0DsCoordinates(),
+                                    mesh.Cell3DsFacesVertices(),
+                                    {{"Numeric",
+                                      Gedim::VTPProperty::Formats::Points,
+                                      static_cast<unsigned int>(post_process_data.cell0Ds_numeric.size()),
+                                      post_process_data.cell0Ds_numeric.data()},
+                                     {"Exact",
+                                      Gedim::VTPProperty::Formats::Points,
+                                      static_cast<unsigned int>(post_process_data.cell0Ds_exact.size()),
+                                      post_process_data.cell0Ds_exact.data()},
+                                     {"ErrorL2",
+                                      Gedim::VTPProperty::Formats::Cells,
+                                      static_cast<unsigned int>(post_process_data.cell3Ds_error_L2.size()),
+                                      post_process_data.cell3Ds_error_L2.data()},
+                                     {"ErrorH1",
+                                      Gedim::VTPProperty::Formats::Cells,
+                                      static_cast<unsigned int>(post_process_data.cell3Ds_error_H1.size()),
+                                      post_process_data.cell3Ds_error_H1.data()}});
 
-                exporter.Export(exportVtuFolder + "/Solution_" +
-                to_string(TEST_ID) + "_" + to_string(VEM_ID) + + "_"
-                + to_string(config.VemOrder()) + ".vtu");
-            }
+            exporter.Export(exportVtuFolder + "/Solution_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) + +"_" +
+                            to_string(config.VemOrder()) + ".vtu");
         }
+    }
 }
 // ***************************************************************************
 } // namespace program_utilities
