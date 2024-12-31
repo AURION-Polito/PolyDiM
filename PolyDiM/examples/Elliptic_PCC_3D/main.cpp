@@ -1,4 +1,4 @@
-#include "Eigen_CholeskySolver.hpp"
+#include "Eigen_PCGSolver.hpp"
 
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
 
@@ -134,8 +134,9 @@ int main(int argc, char **argv)
         Gedim::Output::PrintGenericMessage("Factorize...", true);
         Gedim::Profiler::StartTime("Factorize");
 
-        Gedim::Eigen_CholeskySolver solver;
-        solver.Initialize(assembler_data.globalMatrixA);
+        Gedim::Eigen_PCGSolver solver;
+        solver.Initialize(assembler_data.globalMatrixA,
+                          { 20000, 1e-8 });
 
         Gedim::Profiler::StopTime("Factorize");
         Gedim::Output::PrintStatusProgram("Factorize");
@@ -143,10 +144,13 @@ int main(int argc, char **argv)
         Gedim::Output::PrintGenericMessage("Solve...", true);
         Gedim::Profiler::StartTime("Solve");
 
-        solver.Solve(assembler_data.rightHandSide, assembler_data.solution);
+        const auto solver_data = solver.Solve(assembler_data.rightHandSide, assembler_data.solution);
 
         Gedim::Profiler::StopTime("Solve");
-        Gedim::Output::PrintStatusProgram("Solve");
+        Gedim::Output::PrintStatusProgram("Solve it: " +
+                                          std::to_string(solver_data.Iterations) +
+                                          " res " +
+                                          std::to_string(solver_data.Residual));
     }
 
     Gedim::Output::PrintGenericMessage("ComputeErrors...", true);

@@ -1,0 +1,6 @@
+* add Polygon Type in Test DOMAIN 2D
+* add Polyhedron Type in Test DOMAIN 3D
+* add dofs export in PCC VEM 3D
+* check VEM 3D ortho on polyhedral meshes order > 1
+* add FEM 2D and 3D test
+
