@@ -92,7 +92,7 @@ def test_errors(errors,
         abs(math.log(errors[2][0]) - math.log(errors[1][0])) * 3.0
         slope_H1 = abs(math.log(errors[2][2] / errors[2][4])  - math.log(errors[1][2] / errors[2][4])) / \
         abs(math.log(errors[2][0]) - math.log(errors[1][0])) * 3.0
-        print("CASE 2: ", round(slope_L2), round(slope_H1))
+        print("CASE 2: ", slope_L2, slope_H1, round(slope_L2), round(slope_H1))
         assert round(slope_L2) == round(float(vem_order + 1.0)) 
         assert round(slope_H1) == round(float(vem_order))
     else:
@@ -178,5 +178,3 @@ if __name__ == "__main__":
         os.system("rm -rf " + os.path.join(program_folder, export_folder))
     
     print("TESTS SUCCESS")
-
-
