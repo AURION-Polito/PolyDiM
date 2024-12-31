@@ -83,6 +83,8 @@ struct Patch_Test final : public I_Test
         domain.faces[5].row(0) << 3, 2, 6, 7;
         domain.faces[5].row(1) << 2, 10, 6, 11;
 
+        domain.shape_type = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_3D::Domain_Shape_Types::Parallelepiped;
+
         return domain;
     }
 
@@ -239,6 +241,8 @@ struct Poisson_Polynomial_Problem final : public I_Test
 
         domain.faces[5].row(0) << 3, 2, 6, 7;
         domain.faces[5].row(1) << 2, 10, 6, 11;
+
+        domain.shape_type = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_3D::Domain_Shape_Types::Parallelepiped;
 
         return domain;
     }

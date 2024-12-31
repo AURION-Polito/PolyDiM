@@ -50,6 +50,8 @@ struct Patch_Test final : public I_Test
         domain.vertices.row(0) << 0.0, 1.0, 1.0, 0.0;
         domain.vertices.row(1) << 0.0, 0.0, 1.0, 1.0;
 
+        domain.shape_type = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types::Parallelogram;
+
         return domain;
     }
 

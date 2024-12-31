@@ -16,16 +16,30 @@ namespace PDE_Mesh_Utilities
 {
 struct PDE_Domain_2D final
 {
+    enum struct Domain_Shape_Types
+    {
+        Parallelogram = 0,
+        Polygon = 1
+    };
+
     Eigen::MatrixXd vertices;
     double area;
+    Domain_Shape_Types shape_type;
 };
 
 struct PDE_Domain_3D final
 {
+    enum struct Domain_Shape_Types
+    {
+        Parallelepiped = 0,
+        Polygon = 1
+    };
+
     Eigen::MatrixXd vertices;
     Eigen::MatrixXi edges;
     std::vector<Eigen::MatrixXi> faces;
     double volume;
+    Domain_Shape_Types shape_type;
 };
 
 enum struct MeshGenerator_Types_2D
@@ -35,7 +49,7 @@ enum struct MeshGenerator_Types_2D
     Polygonal = 2,   ///< generated voronoi polygonal mesh
     OFFImporter = 3, ///< imported off mesh
     CsvImporter = 4, ///< imported csv mesh
-    Squared = 5
+    Squared = 5      ///<
 };
 
 enum struct MeshGenerator_Types_3D
@@ -73,6 +87,14 @@ inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
     }
     break;
     case MeshGenerator_Types_2D::Squared: {
+        switch (pde_domain.shape_type)
+        {
+        case PDE_Domain_2D::Domain_Shape_Types::Parallelogram:
+            break;
+        default:
+            throw std::runtime_error("Squared mesh cannot be created");
+        }
+
         const double max_cell_edge = sqrt(pde_domain.area * max_relative_area);
 
         const Eigen::Vector3d rectangleOrigin = pde_domain.vertices.col(0);
@@ -169,8 +191,6 @@ inline void import_mesh_3D(const Gedim::GeometryUtilities &geometry_utilities,
         meshImporterConfiguration.Separator = ';';
         Gedim::MeshDAOImporterFromCsv importer(importerUtilities);
         importer.Import(meshImporterConfiguration, mesh);
-
-        mesh_utilities.ImportObjectFileFormat(file_path, mesh);
     }
     break;
     case MeshGenerator_Types_3D::OVMImporter: {
