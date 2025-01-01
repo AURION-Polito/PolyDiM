@@ -49,7 +49,7 @@ enum struct MeshGenerator_Types_2D
     Polygonal = 2,   ///< generated voronoi polygonal mesh
     OFFImporter = 3, ///< imported off mesh
     CsvImporter = 4, ///< imported csv mesh
-    Squared = 5      ///<
+    Squared = 5      ///< squared mesh
 };
 
 enum struct MeshGenerator_Types_3D
@@ -59,7 +59,8 @@ enum struct MeshGenerator_Types_3D
     Polyhedral = 2,  ///< generated voronoi polyhedral mesh
     OVMImporter = 3, ///< imported ovm mesh
     VtkImporter = 4, ///< imported vtk mesh
-    CsvImporter = 5  ///< imported csv mesh
+    CsvImporter = 5, ///< imported csv mesh
+    Cubic = 6        ///< cubic mesh
 };
 
 inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
@@ -97,22 +98,17 @@ inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
 
         const double max_cell_edge = sqrt(pde_domain.area * max_relative_area);
 
-        const Eigen::Vector3d rectangleOrigin = pde_domain.vertices.col(0);
-        const Eigen::Vector3d rectangleBaseTangent = pde_domain.vertices.col(1) - rectangleOrigin;
-        const unsigned num_cells_base = ceil(rectangleBaseTangent.norm() / max_cell_edge);
-        const Eigen::Vector3d rectangleHeightTangent = pde_domain.vertices.rightCols(1) - rectangleOrigin;
-        const unsigned num_cells_height = ceil(rectangleHeightTangent.norm() / max_cell_edge);
+        const Eigen::Vector3d domain_origin = pde_domain.vertices.col(0);
+        const Eigen::Vector3d domain_base_tangent = pde_domain.vertices.col(1) - domain_origin;
+        const Eigen::Vector3d domain_height_tangent = pde_domain.vertices.rightCols(1) - domain_origin;
+        const unsigned num_cells_base = ceil(domain_base_tangent.norm() / max_cell_edge);
+        const unsigned num_cells_height = ceil(domain_height_tangent.norm() / max_cell_edge);
 
-        const vector<double> baseMeshCurvilinearCoordinates =
-            geometry_utilities.EquispaceCoordinates(num_cells_base + 1, 0.0, 1.0, true);
-        const vector<double> heightMeshCurvilinearCoordinates =
-            geometry_utilities.EquispaceCoordinates(num_cells_height + 1, 0.0, 1.0, true);
-
-        mesh_utilities.CreateRectangleMesh(rectangleOrigin,
-                                           rectangleBaseTangent,
-                                           rectangleHeightTangent,
-                                           baseMeshCurvilinearCoordinates,
-                                           heightMeshCurvilinearCoordinates,
+        mesh_utilities.CreateRectangleMesh(domain_origin,
+                                           domain_base_tangent,
+                                           domain_height_tangent,
+                                           geometry_utilities.EquispaceCoordinates(num_cells_base + 1, 0.0, 1.0, true),
+                                           geometry_utilities.EquispaceCoordinates(num_cells_height + 1, 0.0, 1.0, true),
                                            mesh);
     }
     break;
@@ -143,6 +139,35 @@ inline void create_mesh_3D(const Gedim::GeometryUtilities &geometry_utilities,
         const unsigned num_cells = static_cast<unsigned int>(std::max(1.0, 1.0 / max_relative_volume));
 
         mesh_utilities.CreatePolyhedralMesh(geometry_utilities, pde_domain.vertices, pde_domain.edges, pde_domain.faces, num_cells, 10, mesh, 10);
+    }
+    break;
+    case MeshGenerator_Types_3D::Cubic: {
+        switch (pde_domain.shape_type)
+        {
+        case PDE_Domain_3D::Domain_Shape_Types::Parallelepiped:
+            break;
+        default:
+            throw std::runtime_error("Cubic mesh cannot be created");
+        }
+
+        const double max_cell_edge = std::cbrt(pde_domain.volume * max_relative_volume);
+
+        const Eigen::Vector3d domain_origin = pde_domain.vertices.col(0);
+        const Eigen::Vector3d domain_base_tangent = pde_domain.vertices.col(1) - domain_origin;
+        const Eigen::Vector3d domain_width_tangent = pde_domain.vertices.col(4) - domain_origin;
+        const Eigen::Vector3d domain_heigth_tangent = pde_domain.vertices.col(3) - domain_origin;
+        const unsigned num_cells_base = ceil(domain_base_tangent.norm() / max_cell_edge);
+        const unsigned num_cells_width = ceil(domain_width_tangent.norm() / max_cell_edge);
+        const unsigned num_cells_height = ceil(domain_heigth_tangent.norm() / max_cell_edge);
+
+        mesh_utilities.CreateParallelepipedMesh(domain_origin,
+                                                domain_base_tangent,
+                                                domain_heigth_tangent,
+                                                domain_width_tangent,
+                                                geometry_utilities.EquispaceCoordinates(num_cells_base + 1, 0.0, 1.0, true),
+                                                geometry_utilities.EquispaceCoordinates(num_cells_height + 1, 0.0, 1.0, true),
+                                                geometry_utilities.EquispaceCoordinates(num_cells_width + 1, 0.0, 1.0, true),
+                                                mesh);
     }
     break;
     default:

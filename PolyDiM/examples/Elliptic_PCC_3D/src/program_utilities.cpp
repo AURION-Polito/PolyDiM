@@ -38,7 +38,8 @@ void create_domain_mesh(const Polydim::examples::Elliptic_PCC_3D::Program_config
     {
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Tetrahedral:
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Minimal:
-    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Polyhedral: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Polyhedral:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Cubic: {
         Polydim::PDETools::Mesh::PDE_Mesh_Utilities::create_mesh_3D(geometryUtilities,
                                                                     meshUtilities,
                                                                     config.MeshGenerator(),
