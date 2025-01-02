@@ -112,6 +112,7 @@ void export_solution(const Polydim::examples::Elliptic_MCC_2D::Program_configura
         std::cout.precision(2);
         std::cout << scientific << TEST_ID << separator;
         std::cout << scientific << VEM_ID << separator;
+        std::cout << scientific << config.VemOrder() << separator;
         std::cout << scientific << mesh.Cell2DTotalNumber() << separator;
         std::cout << scientific << dofs_data[0].NumberDOFs + dofs_data[1].NumberDOFs << separator;
         std::cout << scientific << dofs_data[0].NumberStrongs + dofs_data[1].NumberStrongs << separator;

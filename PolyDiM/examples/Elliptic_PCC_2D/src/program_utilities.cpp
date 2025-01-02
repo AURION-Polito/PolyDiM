@@ -238,7 +238,7 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration
             {
             case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
                 solution_values.push_back(assembler_data.solutionDirichlet.GetValue(local_dof.Global_Index));
-                rhs_values.push_back(0.0);
+                rhs_values.push_back(std::nan(""));
                 break;
             case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
                 solution_values.push_back(assembler_data.solution.GetValue(local_dof.Global_Index));
@@ -282,7 +282,7 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration
             {
             case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
                 solution_values.push_back(assembler_data.solutionDirichlet.GetValue(local_dof.Global_Index));
-                rhs_values.push_back(0.0);
+                rhs_values.push_back(std::nan(""));
                 break;
             case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
                 solution_values.push_back(assembler_data.solution.GetValue(local_dof.Global_Index));
@@ -332,7 +332,7 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration
             {
             case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
                 solution_values.push_back(assembler_data.solutionDirichlet.GetValue(local_dof.Global_Index));
-                rhs_values.push_back(0.0);
+                rhs_values.push_back(std::nan(""));
                 break;
             case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
                 solution_values.push_back(assembler_data.solution.GetValue(local_dof.Global_Index));

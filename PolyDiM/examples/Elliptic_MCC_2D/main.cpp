@@ -50,6 +50,8 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("SetProblem...", true);
     Gedim::Profiler::StartTime("SetProblem");
 
+    Polydim::examples::Elliptic_MCC_2D::test::Patch_Test::order = config.VemOrder();
+
     const auto test = Polydim::examples::Elliptic_MCC_2D::program_utilities::create_test(config);
 
     const auto domain = test->domain();
@@ -100,6 +102,8 @@ int main(int argc, char **argv)
     const auto pressure_reference_element_data = vem_pressure_reference_element->Create(config.VemOrder());
     const auto vem_velocity_reference_element = Polydim::VEM::MCC::create_VEM_MCC_2D_velocity_reference_element(config.VemType());
     const auto velocity_reference_element_data = vem_velocity_reference_element->Create(config.VemOrder());
+    const auto vem_velocity_local_space = Polydim::VEM::MCC::create_VEM_MCC_2D_velocity_local_space(config.VemType());
+    const auto vem_pressure_local_space = Polydim::VEM::MCC::create_VEM_MCC_2D_pressure_local_space(config.VemType());
 
     Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data = {mesh};
 
@@ -146,8 +150,16 @@ int main(int argc, char **argv)
     Gedim::Profiler::StartTime("AssembleSystem");
 
     Polydim::examples::Elliptic_MCC_2D::Assembler assembler;
-    auto assembler_data =
-        assembler.Assemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, velocity_reference_element_data, pressure_reference_element_data, *test);
+    auto assembler_data = assembler.Assemble(config,
+                                             mesh,
+                                             meshGeometricData,
+                                             meshDOFsInfo,
+                                             dofs_data,
+                                             velocity_reference_element_data,
+                                             pressure_reference_element_data,
+                                             *vem_velocity_local_space,
+                                             *vem_pressure_local_space,
+                                             *test);
 
     Gedim::Profiler::StopTime("AssembleSystem");
     Gedim::Output::PrintStatusProgram("AssembleSystem");
@@ -181,6 +193,8 @@ int main(int argc, char **argv)
                                                            dofs_data,
                                                            velocity_reference_element_data,
                                                            pressure_reference_element_data,
+                                                           *vem_velocity_local_space,
+                                                           *vem_pressure_local_space,
                                                            assembler_data,
                                                            *test);
 
@@ -200,7 +214,8 @@ int main(int argc, char **argv)
 
     if (config.ComputeVEMPerformance())
     {
-        const auto vemPerformance = assembler.ComputeVemPerformance(config, mesh, meshGeometricData, velocity_reference_element_data);
+        const auto vemPerformance =
+            assembler.ComputeVemPerformance(config, mesh, meshGeometricData, velocity_reference_element_data, *vem_velocity_local_space);
         {
             const char separator = ',';
             /// Export Cell2Ds VEM performance

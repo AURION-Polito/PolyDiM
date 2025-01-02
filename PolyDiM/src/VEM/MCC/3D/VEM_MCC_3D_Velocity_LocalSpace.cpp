@@ -94,6 +94,10 @@ void VEM_MCC_3D_Velocity_LocalSpace::InitializeProjectorsComputation(const VEM_M
     localSpace.NumBasisFunctions = localSpace.NumBoundaryBasisFunctions + localSpace.NumInternalBasisFunctions;
 
     // Compute Vandermonde matrices.
+    localSpace.QmatrixKp1 = MatrixXd::Identity(reference_element_data.MonomialsKp1.NumMonomials,
+                                               reference_element_data.MonomialsKp1.NumMonomials);
+    localSpace.QmatrixInvKp1 = MatrixXd::Identity(reference_element_data.MonomialsKp1.NumMonomials,
+                                                  reference_element_data.MonomialsKp1.NumMonomials);
 
     localSpace.Centroid = polyhedronCentroid;
     localSpace.Diameter = polyhedronDiameter;

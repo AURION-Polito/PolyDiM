@@ -3,4 +3,11 @@
 * add dofs export in PCC VEM 3D
 * check VEM 3D ortho on polyhedral meshes order > 1
 * add FEM 2D and 3D test
+* change markers to mesh 3D
+* add superconvergence error in MCC 2D and 3D
+* fix MCC 2D
+* fix navier stokes 2D
+* fix stokes 3D
+
+
 

@@ -47,8 +47,8 @@ class Assembler final
 
     struct PostProcess_Data final
     {
-        std::vector<Eigen::VectorXd> cell0Ds_numeric_pressure;
-        std::vector<Eigen::VectorXd> cell0Ds_exact_pressure;
+        Eigen::VectorXd cell3Ds_numeric_pressure;
+        Eigen::VectorXd cell3Ds_exact_pressure;
 
         Eigen::VectorXd cell3Ds_error_L2_pressure;
         Eigen::VectorXd cell3Ds_norm_L2_pressure;

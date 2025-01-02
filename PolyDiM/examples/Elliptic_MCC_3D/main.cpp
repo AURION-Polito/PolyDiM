@@ -51,6 +51,7 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("SetProblem...", true);
     Gedim::Profiler::StartTime("SetProblem");
 
+    Polydim::examples::Elliptic_MCC_3D::test::Patch_Test::order = config.VemOrder();
     const auto test = Polydim::examples::Elliptic_MCC_3D::program_utilities::create_test(config);
 
     const auto domain = test->domain();
@@ -202,6 +203,16 @@ int main(int argc, char **argv)
 
     Polydim::examples::Elliptic_MCC_3D::program_utilities::export_solution(config, mesh, dofs_data, assembler_data, post_process_data, exportSolutionFolder, exportVtuFolder);
 
+    Polydim::examples::Elliptic_MCC_3D::program_utilities::export_velocity_dofs(config,
+                                                                                mesh,
+                                                                                meshGeometricData,
+                                                                                meshDOFsInfo[0],
+                                                                                velocity_reference_element_data,
+                                                                                dofs_data[0],
+                                                                                assembler_data,
+                                                                                post_process_data,
+                                                                                exportVtuFolder);
+
     Gedim::Profiler::StopTime("ExportSolution");
     Gedim::Output::PrintStatusProgram("ExportSolution");
 
@@ -217,7 +228,10 @@ int main(int argc, char **argv)
             /// Export Cell3Ds VEM performance
             ofstream exporter;
 
-            exporter.open(exportSolutionFolder + "/Cell3Ds_VEMPerformance.csv");
+            const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
+            const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
+            exporter.open(exportSolutionFolder + "/Cell3Ds_VEMPerformance_" + to_string(TEST_ID) + "_" +
+                          to_string(VEM_ID) + +"_" + to_string(config.VemOrder()) + ".csv");
             exporter.precision(16);
 
             if (exporter.fail())

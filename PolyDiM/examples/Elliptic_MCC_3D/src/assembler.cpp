@@ -183,7 +183,7 @@ Assembler::Elliptic_MCC_3D_Problem_Data Assembler::Assemble(
             vem_velocity_space.ComputeBasisFunctionsValues(velocity_local_space_data, VEM::MCC::ProjectionTypes::Pi0k);
         const auto velocity_basis_functions_divergence_values =
             vem_velocity_space.ComputeBasisFunctionsDivergenceValues(velocity_local_space_data);
-        const auto pressure_basis_functions_values = vem_velocity_space.ComputePolynomialsValues(velocity_local_space_data);
+        const auto pressure_basis_functions_values = vem_pressure_space.ComputeBasisFunctionsValues(pressure_local_space_data);
 
         const auto reaction_term_values = test.reaction_term(velocity_local_space_data.InternalQuadrature.Points);
         const auto advection_term_values = test.mixed_advection_term(velocity_local_space_data.InternalQuadrature.Points);
@@ -338,8 +338,8 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
         result.residual_norm = residual.Norm();
     }
 
-    result.cell0Ds_numeric_pressure.resize(mesh.Cell3DTotalNumber());
-    result.cell0Ds_exact_pressure.resize(mesh.Cell3DTotalNumber());
+    result.cell3Ds_numeric_pressure.resize(mesh.Cell3DTotalNumber());
+    result.cell3Ds_exact_pressure.resize(mesh.Cell3DTotalNumber());
 
     result.cell3Ds_error_L2_pressure.setZero(mesh.Cell3DTotalNumber());
     result.cell3Ds_norm_L2_pressure.setZero(mesh.Cell3DTotalNumber());
@@ -377,7 +377,7 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
 
         const auto velocity_basis_functions_values =
             vem_velocity_space.ComputeBasisFunctionsValues(velocity_local_space_data, VEM::MCC::ProjectionTypes::Pi0k);
-        const auto pressure_basis_functions_values = vem_velocity_space.ComputePolynomialsValues(velocity_local_space_data);
+        const auto pressure_basis_functions_values = vem_pressure_space.ComputeBasisFunctionsValues(pressure_local_space_data);
 
         const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<3>(c, dofs_data);
         const unsigned int num_local_dofs_pressure = dofs_data[1].CellsGlobalDOFs[3].at(c).size();
@@ -399,6 +399,13 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
 
         const auto exact_pressure_values = test.exact_pressure(velocity_local_space_data.InternalQuadrature.Points);
         const auto exact_velocity_values = test.exact_velocity(velocity_local_space_data.InternalQuadrature.Points);
+
+        result.cell3Ds_numeric_pressure[c] =
+            ((1.0 / polyhedron.Measure) * (pressure_basis_functions_values * pressure_dofs_values).transpose() *
+             pressure_local_space_data.InternalQuadrature.Weights);
+
+        result.cell3Ds_exact_pressure[c] = ((1.0 / polyhedron.Measure) * (exact_pressure_values).transpose() *
+                                            pressure_local_space_data.InternalQuadrature.Weights);
 
         const Eigen::VectorXd local_error_L2_pressure =
             (pressure_basis_functions_values * pressure_dofs_values - exact_pressure_values).array().square();

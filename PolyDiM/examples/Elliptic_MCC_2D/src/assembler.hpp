@@ -10,7 +10,7 @@
 #include "I_VEM_MCC_2D_ReferenceElement.hpp"
 #include "VEM_MCC_PerformanceAnalysis.hpp"
 
-#include "VEM_MCC_2D_Velocity_LocalSpace_Data.hpp"
+#include "VEM_MCC_2D_LocalSpace_Data.hpp"
 #include "program_configuration.hpp"
 
 namespace Polydim
@@ -93,12 +93,15 @@ class Assembler final
                                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
                                           const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
                                           const Polydim::VEM::MCC::VEM_MCC_2D_Pressure_ReferenceElement_Data &pressure_reference_element_data,
+                                          const Polydim::VEM::MCC::I_VEM_MCC_2D_Velocity_LocalSpace &vem_velocity_local_space,
+                                          const Polydim::VEM::MCC::I_VEM_MCC_2D_Pressure_LocalSpace &vem_Pressure_local_space,
                                           const Polydim::examples::Elliptic_MCC_2D::test::I_Test &test) const;
 
     VEM_Performance_Result ComputeVemPerformance(const Polydim::examples::Elliptic_MCC_2D::Program_configuration &config,
                                                  const Gedim::MeshMatricesDAO &mesh,
                                                  const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-                                                 const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data) const;
+                                                 const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
+                                                 const Polydim::VEM::MCC::I_VEM_MCC_2D_Velocity_LocalSpace &vem_velocity_local_space) const;
 
     PostProcess_Data PostProcessSolution(const Polydim::examples::Elliptic_MCC_2D::Program_configuration &config,
                                          const Gedim::MeshMatricesDAO &mesh,
@@ -106,6 +109,8 @@ class Assembler final
                                          const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
                                          const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
                                          const Polydim::VEM::MCC::VEM_MCC_2D_Pressure_ReferenceElement_Data &pressure_reference_element_data,
+                                         const Polydim::VEM::MCC::I_VEM_MCC_2D_Velocity_LocalSpace &vem_velocity_local_space,
+                                         const Polydim::VEM::MCC::I_VEM_MCC_2D_Pressure_LocalSpace &vem_Pressure_local_space,
                                          const Elliptic_MCC_2D_Problem_Data &assembler_data,
                                          const Polydim::examples::Elliptic_MCC_2D::test::I_Test &test) const;
 };

@@ -61,7 +61,7 @@ inline std::unique_ptr<I_VEM_MCC_2D_Velocity_ReferenceElement> create_VEM_MCC_2D
     }
 }
 
-inline std::unique_ptr<I_VEM_MCC_2D_Velocity_LocalSpace> create_VEM_MCC_2D_pressure_local_space(const VEM_MCC_2D_LocalSpace_Types &type)
+inline std::unique_ptr<I_VEM_MCC_2D_Pressure_LocalSpace> create_VEM_MCC_2D_pressure_local_space(const VEM_MCC_2D_LocalSpace_Types &type)
 {
     switch (type)
     {
