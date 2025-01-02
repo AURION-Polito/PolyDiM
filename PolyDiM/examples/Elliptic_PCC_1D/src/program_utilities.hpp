@@ -1,0 +1,51 @@
+#ifndef __program_utilities_H
+#define __program_utilities_H
+
+#include "DOFsManager.hpp"
+#include "VTKUtilities.hpp"
+#include "assembler.hpp"
+#include "program_configuration.hpp"
+#include "test_definition.hpp"
+
+namespace Polydim
+{
+namespace examples
+{
+namespace Elliptic_PCC_1D
+{
+namespace program_utilities
+{
+
+std::unique_ptr<Polydim::examples::Elliptic_PCC_1D::test::I_Test> create_test(const Polydim::examples::Elliptic_PCC_1D::Program_configuration &config);
+
+void create_domain_mesh(const Polydim::examples::Elliptic_PCC_1D::Program_configuration &config,
+                        const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_1D &domain,
+                        Gedim::MeshMatricesDAO &mesh);
+
+Gedim::MeshUtilities::MeshGeometricData1D create_domain_mesh_geometric_properties(const Polydim::examples::Elliptic_PCC_1D::Program_configuration &config,
+                                                                                  const Gedim::MeshMatricesDAO &mesh);
+
+void export_solution(const Polydim::examples::Elliptic_PCC_1D::Program_configuration &config,
+                     const Gedim::MeshMatricesDAO &mesh,
+                     const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                     const Polydim::examples::Elliptic_PCC_1D::Assembler::Elliptic_PCC_1D_Problem_Data &assembler_data,
+                     const Polydim::examples::Elliptic_PCC_1D::Assembler::PostProcess_Data &post_process_data,
+                     const std::string &exportSolutionFolder,
+                     const std::string &exportVtuFolder);
+
+void export_dofs(const Polydim::examples::Elliptic_PCC_1D::Program_configuration &config,
+                 const Gedim::MeshMatricesDAO &mesh,
+                 const Gedim::MeshUtilities::MeshGeometricData1D &mesh_geometric_data,
+                 const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                 const FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &vem_reference_element_data,
+                 const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                 const Polydim::examples::Elliptic_PCC_1D::Assembler::Elliptic_PCC_1D_Problem_Data &assembler_data,
+                 const Polydim::examples::Elliptic_PCC_1D::Assembler::PostProcess_Data &post_process_data,
+                 const std::string &exportVtuFolder);
+
+} // namespace program_utilities
+} // namespace Elliptic_PCC_1D
+} // namespace examples
+} // namespace Polydim
+
+#endif

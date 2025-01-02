@@ -14,6 +14,12 @@ namespace Mesh
 {
 namespace PDE_Mesh_Utilities
 {
+struct PDE_Domain_1D final
+{
+    Eigen::MatrixXd vertices;
+    double length;
+};
+
 struct PDE_Domain_2D final
 {
     enum struct Domain_Shape_Types
@@ -40,6 +46,12 @@ struct PDE_Domain_3D final
     std::vector<Eigen::MatrixXi> faces;
     double volume;
     Domain_Shape_Types shape_type;
+};
+
+enum struct MeshGenerator_Types_1D
+{
+    Equispaced = 0,  ///< equispaced mesh
+    CsvImporter = 1, ///< imported csv mesh
 };
 
 enum struct MeshGenerator_Types_2D
