@@ -1,5 +1,7 @@
 #include "program_utilities.hpp"
 
+#include "VTKUtilities.hpp"
+
 namespace Polydim
 {
 namespace examples
@@ -123,7 +125,8 @@ void export_solution(const Polydim::examples::Elliptic_PCC_3D::Program_configura
 
     {
         const char separator = ';';
-        const string errorFileName = exportSolutionFolder + "/Errors.csv";
+        const string errorFileName = exportSolutionFolder + "/Errors_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) +
+                                     +"_" + to_string(config.VemOrder()) + ".csv";
         const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
 
         std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);
@@ -187,6 +190,280 @@ void export_solution(const Polydim::examples::Elliptic_PCC_3D::Program_configura
             exporter.Export(exportVtuFolder + "/Solution_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) + +"_" +
                             to_string(config.VemOrder()) + ".vtu");
         }
+    }
+}
+// ***************************************************************************
+void export_dofs(const Polydim::examples::Elliptic_PCC_3D::Program_configuration &config,
+                 const Gedim::MeshMatricesDAO &mesh,
+                 const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
+                 const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                 const VEM::PCC::VEM_PCC_3D_ReferenceElement_Data &vem_reference_element_data,
+                 const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                 const Polydim::examples::Elliptic_PCC_3D::Assembler::Elliptic_PCC_3D_Problem_Data &assembler_data,
+                 const Polydim::examples::Elliptic_PCC_3D::Assembler::PostProcess_Data &post_process_data,
+                 const std::string &exportVtuFolder)
+{
+    Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
+    geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance1D();
+    geometryUtilitiesConfig.Tolerance2D = config.GeometricTolerance2D();
+    Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
+
+    std::list<Eigen::Vector3d> dofs_coordinate;
+    std::list<double> solution_values;
+    std::list<double> rhs_values;
+    std::list<double> dof_global_index_values;
+    std::list<double> dof_type_values;
+    std::list<double> dof_cell_index_values;
+    std::list<double> dof_dimension_values;
+    std::list<double> dof_boundary_type_values;
+    std::list<double> dof_boundary_marker_values;
+
+    for (unsigned int c = 0; c < mesh.Cell0DTotalNumber(); ++c)
+    {
+        const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(0).at(c);
+
+        const auto &local_dofs = dofs_data.CellsDOFs[0].at(c);
+
+        const unsigned int num_loc_dofs = local_dofs.size();
+
+        if (num_loc_dofs == 0)
+            continue;
+
+        for (unsigned int loc_i = 0; loc_i < num_loc_dofs; ++loc_i)
+        {
+            const auto &local_dof = local_dofs.at(loc_i);
+
+            dof_cell_index_values.push_back(c);
+            dof_dimension_values.push_back(0);
+            dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
+            dof_boundary_marker_values.push_back(boundary_info.Marker);
+            dofs_coordinate.push_back(mesh.Cell0DCoordinates(c));
+            dof_type_values.push_back(static_cast<double>(local_dof.Type));
+            dof_global_index_values.push_back(local_dof.Global_Index);
+
+            switch (local_dof.Type)
+            {
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                solution_values.push_back(assembler_data.solutionDirichlet.GetValue(local_dof.Global_Index));
+                rhs_values.push_back(std::nan(""));
+                break;
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
+                solution_values.push_back(assembler_data.solution.GetValue(local_dof.Global_Index));
+                rhs_values.push_back(assembler_data.rightHandSide.GetValue(local_dof.Global_Index));
+                break;
+            default:
+                throw std::runtime_error("Unknown DOF Type");
+            }
+        }
+    }
+
+    for (unsigned int c = 0; c < mesh.Cell1DTotalNumber(); ++c)
+    {
+        const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(1).at(c);
+
+        const auto &local_dofs = dofs_data.CellsDOFs[1].at(c);
+
+        const unsigned int num_loc_dofs = local_dofs.size();
+
+        if (num_loc_dofs == 0)
+            continue;
+
+        const std::vector<double> local_edge_coordinates = geometryUtilities.EquispaceCoordinates(num_loc_dofs, 0.0, 1.0, false);
+        const Eigen::Vector3d edge_origin = mesh.Cell1DOriginCoordinates(c);
+        const Eigen::Vector3d edge_tangent = mesh.Cell1DEndCoordinates(c) - edge_origin;
+
+        for (unsigned int loc_i = 0; loc_i < num_loc_dofs; ++loc_i)
+        {
+            const auto &local_dof = local_dofs.at(loc_i);
+
+            dof_cell_index_values.push_back(c);
+            dof_dimension_values.push_back(1);
+            dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
+            dof_boundary_marker_values.push_back(boundary_info.Marker);
+            dofs_coordinate.push_back(edge_origin + local_edge_coordinates[loc_i] * edge_tangent);
+            dof_type_values.push_back(static_cast<double>(local_dof.Type));
+            dof_global_index_values.push_back(local_dof.Global_Index);
+
+            switch (local_dof.Type)
+            {
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                solution_values.push_back(assembler_data.solutionDirichlet.GetValue(local_dof.Global_Index));
+                rhs_values.push_back(std::nan(""));
+                break;
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
+                solution_values.push_back(assembler_data.solution.GetValue(local_dof.Global_Index));
+                rhs_values.push_back(assembler_data.rightHandSide.GetValue(local_dof.Global_Index));
+                break;
+            default:
+                throw std::runtime_error("Unknown DOF Type");
+            }
+        }
+    }
+
+    for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); ++c)
+    {
+        const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(2).at(c);
+
+        const auto &local_dofs = dofs_data.CellsDOFs[2].at(c);
+
+        const unsigned int num_loc_dofs = local_dofs.size();
+
+        if (num_loc_dofs == 0)
+            continue;
+
+        const std::vector<double> local_polygon_coordinates =
+            geometryUtilities.EquispaceCoordinates(num_loc_dofs + 1, 0.0, 1.0, true);
+
+        unsigned int neigh = mesh.Cell2DNeighbourCell3D(c, 0);
+        if (neigh == std::numeric_limits<unsigned int>::max())
+            neigh = mesh.Cell2DNeighbourCell3D(c, 1);
+
+        const auto local_index_face = mesh.Cell3DFindFace(neigh, c);
+
+        const Eigen::Vector3d polygon_centroid = mesh_geometric_data.Cell3DsFaces2DCentroids.at(neigh)[local_index_face];
+        const auto polygonCentroidEdgesDistance = geometryUtilities.PolygonCentroidEdgesDistance(
+            mesh_geometric_data.Cell3DsFaces2DVertices.at(neigh)[local_index_face],
+            polygon_centroid,
+            mesh_geometric_data.Cell3DsFacesEdge2DNormals.at(neigh)[local_index_face]);
+
+        const double circle_diameter = 0.5 * geometryUtilities.PolygonInRadius(polygonCentroidEdgesDistance);
+
+        for (unsigned int loc_i = 0; loc_i < num_loc_dofs; ++loc_i)
+        {
+            const auto &local_dof = local_dofs.at(loc_i);
+
+            dof_cell_index_values.push_back(c);
+            dof_dimension_values.push_back(2);
+            dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
+            dof_boundary_marker_values.push_back(boundary_info.Marker);
+            if (num_loc_dofs > 1)
+                dofs_coordinate.push_back(geometryUtilities.RotatePointsFrom2DTo3D(
+                    polygon_centroid + circle_diameter * Eigen::Vector3d(cos(2.0 * M_PI * local_polygon_coordinates.at(loc_i)),
+                                                                         sin(2.0 * M_PI * local_polygon_coordinates.at(loc_i)),
+                                                                         0.0),
+                    mesh_geometric_data.Cell3DsFacesRotationMatrices.at(neigh)[local_index_face],
+                    mesh_geometric_data.Cell3DsFacesTranslations.at(neigh)[local_index_face]));
+            else
+                dofs_coordinate.push_back(geometryUtilities.RotatePointsFrom2DTo3D(
+                    polygon_centroid,
+                    mesh_geometric_data.Cell3DsFacesRotationMatrices.at(neigh)[local_index_face],
+                    mesh_geometric_data.Cell3DsFacesTranslations.at(neigh)[local_index_face]));
+
+            dof_type_values.push_back(static_cast<double>(local_dof.Type));
+            dof_global_index_values.push_back(local_dof.Global_Index);
+
+            switch (local_dof.Type)
+            {
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                solution_values.push_back(assembler_data.solutionDirichlet.GetValue(local_dof.Global_Index));
+                rhs_values.push_back(std::nan(""));
+                break;
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
+                solution_values.push_back(assembler_data.solution.GetValue(local_dof.Global_Index));
+                rhs_values.push_back(assembler_data.rightHandSide.GetValue(local_dof.Global_Index));
+                break;
+            default:
+                throw std::runtime_error("Unknown DOF Type");
+            }
+        }
+    }
+
+    for (unsigned int c = 0; c < mesh.Cell3DTotalNumber(); ++c)
+    {
+        const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(3).at(c);
+
+        const auto &local_dofs = dofs_data.CellsDOFs[3].at(c);
+
+        const unsigned int num_loc_dofs = local_dofs.size();
+
+        const auto local_polyhedron_coordinates = geometryUtilities.fibonacci_sphere(num_loc_dofs);
+        const Eigen::Vector3d polyhedron_centroid = mesh_geometric_data.Cell3DsCentroids.at(c);
+        const double sphere_diameter = 0.1 * mesh_geometric_data.Cell3DsDiameters.at(c);
+
+        for (unsigned int loc_i = 0; loc_i < num_loc_dofs; ++loc_i)
+        {
+            const auto &local_dof = local_dofs.at(loc_i);
+
+            dof_cell_index_values.push_back(c);
+            dof_dimension_values.push_back(3);
+            dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
+            dof_boundary_marker_values.push_back(boundary_info.Marker);
+            dofs_coordinate.push_back(polyhedron_centroid + sphere_diameter * local_polyhedron_coordinates.col(loc_i));
+
+            dof_type_values.push_back(static_cast<double>(local_dof.Type));
+            dof_global_index_values.push_back(local_dof.Global_Index);
+
+            switch (local_dof.Type)
+            {
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                solution_values.push_back(assembler_data.solutionDirichlet.GetValue(local_dof.Global_Index));
+                rhs_values.push_back(std::nan(""));
+                break;
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
+                solution_values.push_back(assembler_data.solution.GetValue(local_dof.Global_Index));
+                rhs_values.push_back(assembler_data.rightHandSide.GetValue(local_dof.Global_Index));
+                break;
+            default:
+                throw std::runtime_error("Unknown DOF Type");
+            }
+        }
+    }
+    {
+        Eigen::MatrixXd coordinates(3, dofs_coordinate.size());
+        unsigned int c = 0;
+        for (const auto &dof_coordinate : dofs_coordinate)
+            coordinates.col(c++) << dof_coordinate;
+        const auto rhs_values_data = std::vector<double>(rhs_values.begin(), rhs_values.end());
+        const auto solution_values_data = std::vector<double>(solution_values.begin(), solution_values.end());
+        const auto dof_global_index_values_data =
+            std::vector<double>(dof_global_index_values.begin(), dof_global_index_values.end());
+        const auto dof_type_values_data = std::vector<double>(dof_type_values.begin(), dof_type_values.end());
+        const auto dof_cell_index_values_data = std::vector<double>(dof_cell_index_values.begin(), dof_cell_index_values.end());
+        const auto dof_dimension_values_data = std::vector<double>(dof_dimension_values.begin(), dof_dimension_values.end());
+        const auto dof_boundary_type_values_data =
+            std::vector<double>(dof_boundary_type_values.begin(), dof_boundary_type_values.end());
+        const auto dof_boundary_marker_values_data =
+            std::vector<double>(dof_boundary_marker_values.begin(), dof_boundary_marker_values.end());
+
+        Gedim::VTKUtilities exporter;
+        exporter.AddPoints(coordinates,
+                           {{"cell_dimension",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(dof_dimension_values_data.size()),
+                             dof_dimension_values_data.data()},
+                            {"cell_index",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(dof_cell_index_values_data.size()),
+                             dof_cell_index_values_data.data()},
+                            {"boundary_type",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(dof_boundary_type_values_data.size()),
+                             dof_boundary_type_values_data.data()},
+                            {"boundary_marker",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(dof_boundary_marker_values_data.size()),
+                             dof_boundary_marker_values_data.data()},
+                            {"dof_global_index",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(dof_global_index_values_data.size()),
+                             dof_global_index_values_data.data()},
+                            {"dof_type",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(dof_type_values_data.size()),
+                             dof_type_values_data.data()},
+                            {"rhs",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(rhs_values_data.size()),
+                             rhs_values_data.data()},
+                            {"solution",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(solution_values_data.size()),
+                             solution_values_data.data()}});
+
+        const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
+        const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
+        exporter.Export(exportVtuFolder + "/dofs_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) + +"_" +
+                        to_string(config.VemOrder()) + ".vtu");
     }
 }
 // ***************************************************************************

@@ -40,7 +40,8 @@ void create_domain_mesh(const Polydim::examples::Elliptic_MCC_3D::Program_config
     {
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Tetrahedral:
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Minimal:
-    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Polyhedral: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Polyhedral:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Cubic: {
         Polydim::PDETools::Mesh::PDE_Mesh_Utilities::create_mesh_3D(geometryUtilities,
                                                                     meshUtilities,
                                                                     config.MeshGenerator(),
@@ -99,6 +100,7 @@ void export_solution(const Polydim::examples::Elliptic_MCC_3D::Program_configura
         std::cout << "h" << separator;
         std::cout << "errorL2Velocity" << separator;
         std::cout << "errorL2Pressure" << separator;
+        std::cout << "superErrorL2Pressure" << separator;
         std::cout << "normL2Velocity" << separator;
         std::cout << "normL2Pressure" << separator;
         std::cout << "nnzA" << separator;
@@ -114,6 +116,7 @@ void export_solution(const Polydim::examples::Elliptic_MCC_3D::Program_configura
         std::cout << scientific << post_process_data.mesh_size << separator;
         std::cout << scientific << post_process_data.error_L2_velocity << separator;
         std::cout << scientific << post_process_data.error_L2_pressure << separator;
+        std::cout << scientific << post_process_data.super_error_L2_pressure << separator;
         std::cout << scientific << post_process_data.norm_L2_velocity << separator;
         std::cout << scientific << post_process_data.norm_L2_pressure << separator;
         std::cout << scientific << assembler_data.globalMatrixA.NonZeros() << separator;
@@ -138,6 +141,7 @@ void export_solution(const Polydim::examples::Elliptic_MCC_3D::Program_configura
             errorFile << "h" << separator;
             errorFile << "errorL2Velocity" << separator;
             errorFile << "errorL2Pressure" << separator;
+            errorFile << "superErrorL2Pressure" << separator;
             errorFile << "normL2Velocity" << separator;
             errorFile << "normL2Pressure" << separator;
             errorFile << "nnzA" << separator;
@@ -154,6 +158,7 @@ void export_solution(const Polydim::examples::Elliptic_MCC_3D::Program_configura
         errorFile << scientific << post_process_data.mesh_size << separator;
         errorFile << scientific << post_process_data.error_L2_velocity << separator;
         errorFile << scientific << post_process_data.error_L2_pressure << separator;
+        errorFile << scientific << post_process_data.super_error_L2_pressure << separator;
         errorFile << scientific << post_process_data.norm_L2_velocity << separator;
         errorFile << scientific << post_process_data.norm_L2_pressure << separator;
         errorFile << scientific << assembler_data.globalMatrixA.NonZeros() << separator;
@@ -188,51 +193,6 @@ void export_solution(const Polydim::examples::Elliptic_MCC_3D::Program_configura
                             to_string(config.VemOrder()) + ".vtu");
         }
     }
-}
-// ***************************************************************************
-Eigen::MatrixXd generate_uniform_points_in_sphere(const unsigned int num_points, const double radius = 1.0)
-{
-    // Generate uniformly distributed points inside a sphere.
-
-    // Generate random samples
-    const Eigen::VectorXd u = Eigen::VectorXd::Random(num_points);                    // For radial distribution
-    const Eigen::VectorXd theta = acos(1 - 2.0 * Eigen::ArrayXd::Random(num_points)); // Polar angle
-    const Eigen::VectorXd phi = 2.0 * M_PI * Eigen::VectorXd::Random(num_points);     // Azimuthal angle
-
-    // Convert to Cartesian coordinates
-    const auto r = radius * pow(u.array(), (1.0 / 3.0)); // Uniform radius in volume
-    Eigen::MatrixXd points(3, num_points);
-    points.row(0) = r * sin(theta.array()) * cos(phi.array());
-    points.row(1) = r.array() * sin(theta.array()) * sin(phi.array());
-    points.row(2) = r * cos(theta.array());
-
-    return points;
-}
-// ***************************************************************************
-Eigen::MatrixXd fibonacci_sphere(const unsigned int num_points)
-{
-
-    if (num_points == 0)
-        return Eigen::MatrixXd();
-    else if (num_points == 1)
-        return Eigen::Vector3d::Zero();
-
-    Eigen::MatrixXd points(3, num_points);
-    const double phi = M_PI * (sqrt(5.0) - 1.0); // golden angle in radians
-
-    for (unsigned int i = 0; i < num_points; i++)
-    {
-        const double y = 1.0 - (i / double(num_points - 1.0)) * 2.0; // y goes from 1 to -1
-        const double radius = sqrt(1.0 - y * y);                     // radius at y
-
-        const double theta = phi * i; // golden angle increment
-
-        const double x = cos(theta) * radius;
-        const double z = sin(theta) * radius;
-        points.col(i) << x, y, z;
-    }
-
-    return points;
 }
 // ***************************************************************************
 void export_velocity_dofs(const Polydim::examples::Elliptic_MCC_3D::Program_configuration &config,
@@ -337,7 +297,7 @@ void export_velocity_dofs(const Polydim::examples::Elliptic_MCC_3D::Program_conf
 
         const unsigned int num_loc_dofs = local_dofs.size();
 
-        const auto local_polyhedron_coordinates = fibonacci_sphere(num_loc_dofs);
+        const auto local_polyhedron_coordinates = geometryUtilities.fibonacci_sphere(num_loc_dofs);
         const Eigen::Vector3d polyhedron_centroid = mesh_geometric_data.Cell3DsCentroids.at(c);
         const double sphere_diameter = 0.1 * mesh_geometric_data.Cell3DsDiameters.at(c);
 

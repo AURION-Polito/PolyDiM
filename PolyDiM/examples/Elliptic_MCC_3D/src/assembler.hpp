@@ -51,8 +51,10 @@ class Assembler final
         Eigen::VectorXd cell3Ds_exact_pressure;
 
         Eigen::VectorXd cell3Ds_error_L2_pressure;
+        Eigen::VectorXd cell3Ds_super_error_L2_pressure;
         Eigen::VectorXd cell3Ds_norm_L2_pressure;
         double error_L2_pressure;
+        double super_error_L2_pressure;
         double norm_L2_pressure;
         Eigen::VectorXd cell3Ds_error_L2_velocity;
         Eigen::VectorXd cell3Ds_norm_L2_velocity;

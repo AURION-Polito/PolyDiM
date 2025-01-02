@@ -388,9 +388,10 @@ struct Poisson_Polynomial_Problem final : public I_Test
 
     Eigen::VectorXd source_term(const Eigen::MatrixXd &points) const
     {
-        return 128.0 * (points.row(1).array() * (1.0 - points.row(1).array()) +
-                        points.row(0).array() * (1.0 - points.row(0).array()) +
-                        points.row(2).array() * (1.0 - points.row(2).array()));
+        return 128.0 *
+               (points.row(1).array() * (1.0 - points.row(1).array()) * points.row(2).array() * (1.0 - points.row(2).array()) +
+                points.row(0).array() * (1.0 - points.row(0).array()) * points.row(2).array() * (1.0 - points.row(2).array()) +
+                points.row(0).array() * (1.0 - points.row(0).array()) * points.row(1).array() * (1.0 - points.row(1).array()));
     };
 
     Eigen::VectorXd strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
@@ -407,15 +408,15 @@ struct Poisson_Polynomial_Problem final : public I_Test
         if (marker != 2)
             throw std::runtime_error("Unknown marker");
 
-        return 64.0 * (points.row(1).array() * (1.0 - points.row(1).array()) * points.row(0).array() *
-                       (1.0 - points.row(0).array()) * points.row(2).array() * (1.0 - points.row(2).array())) +
+        return 64.0 * points.row(2).array() * (1.0 - points.row(2).array()) * points.row(1).array() *
+                   (1.0 - points.row(1).array()) * points.row(0).array() * (1.0 - points.row(0).array()) +
                1.7;
     }
 
     Eigen::VectorXd exact_pressure(const Eigen::MatrixXd &points) const
     {
-        return 64.0 * (points.row(1).array() * (1.0 - points.row(1).array()) * points.row(0).array() *
-                       (1.0 - points.row(0).array()) * points.row(2).array() * (1.0 - points.row(2).array())) +
+        return 64.0 * points.row(2).array() * (1.0 - points.row(2).array()) * points.row(1).array() *
+                   (1.0 - points.row(1).array()) * points.row(0).array() * (1.0 - points.row(0).array()) +
                1.7;
     };
 

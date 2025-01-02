@@ -3,6 +3,7 @@
 
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
 
+#include "VTKUtilities.hpp"
 #include "program_utilities.hpp"
 #include "test_definition.hpp"
 
@@ -174,6 +175,17 @@ int main(int argc, char **argv)
     Gedim::Profiler::StartTime("ExportSolution");
 
     Polydim::examples::Elliptic_PCC_3D::program_utilities::export_solution(config, mesh, dofs_data, assembler_data, post_process_data, exportSolutionFolder, exportVtuFolder);
+
+    Polydim::examples::Elliptic_PCC_3D::program_utilities::export_dofs(config,
+                                                                       mesh,
+                                                                       meshGeometricData,
+                                                                       meshDOFsInfo,
+                                                                       reference_element_data_3D,
+                                                                       dofs_data,
+                                                                       assembler_data,
+                                                                       post_process_data,
+                                                                       exportVtuFolder);
+
     Gedim::Profiler::StopTime("ExportSolution");
     Gedim::Output::PrintStatusProgram("ExportSolution");
 
@@ -189,7 +201,10 @@ int main(int argc, char **argv)
             /// Export Cell3Ds VEM performance
             ofstream exporter;
 
-            exporter.open(exportSolutionFolder + "/Cell3Ds_VEMPerformance.csv");
+            const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
+            const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
+            exporter.open(exportSolutionFolder + "/Cell3Ds_VEMPerformance" + to_string(TEST_ID) + "_" +
+                          to_string(VEM_ID) + +"_" + to_string(config.VemOrder()) + ".csv");
             exporter.precision(16);
 
             if (exporter.fail())

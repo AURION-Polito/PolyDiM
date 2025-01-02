@@ -37,7 +37,8 @@ void create_domain_mesh(const Polydim::examples::Elliptic_PCC_2D::Program_config
     {
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular:
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Minimal:
-    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Polygonal: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Polygonal:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Squared: {
         Polydim::PDETools::Mesh::PDE_Mesh_Utilities::create_mesh_2D(geometryUtilities,
                                                                     meshUtilities,
                                                                     config.MeshGenerator(),
@@ -119,7 +120,8 @@ void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configura
 
     {
         const char separator = ';';
-        const string errorFileName = exportSolutionFolder + "/Errors.csv";
+        const string errorFileName = exportSolutionFolder + "/Errors_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) +
+                                     +"_" + to_string(config.VemOrder()) + ".csv";
         const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
 
         std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);
@@ -261,8 +263,7 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration
         if (num_loc_dofs == 0)
             continue;
 
-        const Eigen::VectorXd local_edge_coordinates =
-            vem_reference_element_data.Quadrature.ReferenceEdgeDOFsInternalPoints.row(0);
+        const std::vector<double> local_edge_coordinates = geometryUtilities.EquispaceCoordinates(num_loc_dofs, 0.0, 1.0, false);
         const Eigen::Vector3d edge_origin = mesh.Cell1DOriginCoordinates(c);
         const Eigen::Vector3d edge_tangent = mesh.Cell1DEndCoordinates(c) - edge_origin;
 
@@ -274,7 +275,7 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration
             dof_dimension_values.push_back(1);
             dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
             dof_boundary_marker_values.push_back(boundary_info.Marker);
-            dofs_coordinate.push_back(edge_origin + local_edge_coordinates(loc_i) * edge_tangent);
+            dofs_coordinate.push_back(edge_origin + local_edge_coordinates[loc_i] * edge_tangent);
             dof_type_values.push_back(static_cast<double>(local_dof.Type));
             dof_global_index_values.push_back(local_dof.Global_Index);
 
@@ -396,7 +397,10 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration
                              static_cast<unsigned int>(solution_values_data.size()),
                              solution_values_data.data()}});
 
-        exporter.Export(exportVtuFolder + "/dofs.vtu");
+        const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
+        const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
+        exporter.Export(exportVtuFolder + "/dofs_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) + +"_" +
+                        to_string(config.VemOrder()) + ".vtu");
     }
 }
 // ***************************************************************************

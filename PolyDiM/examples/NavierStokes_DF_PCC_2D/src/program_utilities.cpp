@@ -279,8 +279,8 @@ void export_velocity_dofs(const Polydim::examples::NavierStokes_DF_PCC_2D::Progr
 
     for (unsigned int c = 0; c < mesh.Cell1DTotalNumber(); ++c)
     {
-        const Eigen::VectorXd local_edge_coordinates =
-            vem_velocity_reference_element_data.Quadrature.ReferenceEdgeDOFsInternalPoints.row(0);
+        const std::vector<double> local_edge_coordinates =
+            geometryUtilities.EquispaceCoordinates(dofs_data[0].CellsDOFs[1].at(c).size(), 0.0, 1.0, false);
         const Eigen::Vector3d edge_origin = mesh.Cell1DOriginCoordinates(c);
         const Eigen::Vector3d edge_tangent = mesh.Cell1DEndCoordinates(c) - edge_origin;
 
@@ -293,7 +293,7 @@ void export_velocity_dofs(const Polydim::examples::NavierStokes_DF_PCC_2D::Progr
             std::array<double, 2> dof_boundary_type;
             std::array<double, 2> dof_boundary_marker;
 
-            dofs_coordinate.push_back(edge_origin + local_edge_coordinates(loc_i) * edge_tangent);
+            dofs_coordinate.push_back(edge_origin + local_edge_coordinates[loc_i] * edge_tangent);
             dof_cell_index_values.push_back(c);
             dof_dimension_values.push_back(1);
 
@@ -544,7 +544,8 @@ void export_discrepancy_errors(const Polydim::examples::NavierStokes_DF_PCC_2D::
 
     {
         const char separator = ';';
-        const string errorFileName = exportSolutionFolder + "/Errors.csv";
+        const string errorFileName = exportSolutionFolder + "/DiscrepancyErrors_" + to_string(TEST_ID) + "_" +
+                                     to_string(VEM_ID) + +"_" + to_string(config.VemOrder()) + ".csv";
         const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
 
         std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);

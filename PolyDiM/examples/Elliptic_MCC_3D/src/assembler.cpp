@@ -342,6 +342,7 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
     result.cell3Ds_exact_pressure.resize(mesh.Cell3DTotalNumber());
 
     result.cell3Ds_error_L2_pressure.setZero(mesh.Cell3DTotalNumber());
+    result.cell3Ds_super_error_L2_pressure.setZero(mesh.Cell3DTotalNumber());
     result.cell3Ds_norm_L2_pressure.setZero(mesh.Cell3DTotalNumber());
     result.cell3Ds_error_L2_velocity.setZero(mesh.Cell3DTotalNumber());
     result.cell3Ds_norm_L2_velocity.setZero(mesh.Cell3DTotalNumber());
@@ -407,10 +408,21 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
         result.cell3Ds_exact_pressure[c] = ((1.0 / polyhedron.Measure) * (exact_pressure_values).transpose() *
                                             pressure_local_space_data.InternalQuadrature.Weights);
 
+        // Interpolate Exact Solution
+        const VectorXd rightHandSide = pressure_local_space_data.VanderInternal.transpose() *
+                                       velocity_local_space_data.InternalQuadrature.Weights.asDiagonal() * exact_pressure_values;
+        const VectorXd coeffPolynomial = pressure_local_space_data.Hmatrix.llt().solve(rightHandSide);
+
         const Eigen::VectorXd local_error_L2_pressure =
             (pressure_basis_functions_values * pressure_dofs_values - exact_pressure_values).array().square();
+        const Eigen::VectorXd local_super_error_L2_pressure =
+            (pressure_basis_functions_values * pressure_dofs_values - pressure_local_space_data.VanderInternal * coeffPolynomial)
+                .array()
+                .square();
         const Eigen::VectorXd local_norm_L2_pressure = (pressure_basis_functions_values * pressure_dofs_values).array().square();
 
+        result.cell3Ds_super_error_L2_pressure[c] =
+            velocity_local_space_data.InternalQuadrature.Weights.transpose() * local_super_error_L2_pressure;
         result.cell3Ds_error_L2_pressure[c] = velocity_local_space_data.InternalQuadrature.Weights.transpose() * local_error_L2_pressure;
         result.cell3Ds_norm_L2_pressure[c] = velocity_local_space_data.InternalQuadrature.Weights.transpose() * local_norm_L2_pressure;
 
@@ -429,6 +441,7 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
     }
 
     result.error_L2_pressure = std::sqrt(result.cell3Ds_error_L2_pressure.sum());
+    result.super_error_L2_pressure = std::sqrt(result.cell3Ds_super_error_L2_pressure.sum());
     result.norm_L2_pressure = std::sqrt(result.cell3Ds_norm_L2_pressure.sum());
     result.error_L2_velocity = std::sqrt(result.cell3Ds_error_L2_velocity.sum());
     result.norm_L2_velocity = std::sqrt(result.cell3Ds_norm_L2_velocity.sum());

@@ -181,8 +181,10 @@ int main(int argc, char **argv)
             const char separator = ',';
             /// Export Cell2Ds VEM performance
             ofstream exporter;
-
-            exporter.open(exportSolutionFolder + "/Cell2Ds_VEMPerformance.csv");
+            const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
+            const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
+            exporter.open(exportSolutionFolder + "/Cell2Ds_VEMPerformance_" + to_string(TEST_ID) + "_" +
+                          to_string(VEM_ID) + +"_" + to_string(config.VemOrder()) + ".csv");
             exporter.precision(16);
 
             if (exporter.fail())

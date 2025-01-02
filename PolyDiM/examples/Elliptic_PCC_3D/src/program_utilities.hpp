@@ -2,7 +2,6 @@
 #define __program_utilities_H
 
 #include "DOFsManager.hpp"
-#include "VTKUtilities.hpp"
 #include "assembler.hpp"
 #include "program_configuration.hpp"
 #include "test_definition.hpp"
@@ -32,6 +31,16 @@ void export_solution(const Polydim::examples::Elliptic_PCC_3D::Program_configura
                      const Polydim::examples::Elliptic_PCC_3D::Assembler::PostProcess_Data &post_process_data,
                      const std::string &exportSolutionFolder,
                      const std::string &exportVtuFolder);
+
+void export_dofs(const Polydim::examples::Elliptic_PCC_3D::Program_configuration &config,
+                 const Gedim::MeshMatricesDAO &mesh,
+                 const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
+                 const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                 const VEM::PCC::VEM_PCC_3D_ReferenceElement_Data &vem_reference_element_data,
+                 const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                 const Polydim::examples::Elliptic_PCC_3D::Assembler::Elliptic_PCC_3D_Problem_Data &assembler_data,
+                 const Polydim::examples::Elliptic_PCC_3D::Assembler::PostProcess_Data &post_process_data,
+                 const std::string &exportVtuFolder);
 
 } // namespace program_utilities
 } // namespace Elliptic_PCC_3D
