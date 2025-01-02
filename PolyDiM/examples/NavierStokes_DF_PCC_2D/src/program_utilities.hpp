@@ -16,6 +16,7 @@ namespace NavierStokes_DF_PCC_2D
 {
 namespace program_utilities
 {
+
 unique_ptr<Polydim::examples::NavierStokes_DF_PCC_2D::test::I_Test> create_test(
     const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config);
 
@@ -30,8 +31,8 @@ Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_propertie
 void export_solution(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config,
                      const Gedim::MeshMatricesDAO &mesh,
                      const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
-                     const Polydim::PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
-                     const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::Stokes_DF_PCC_2D_Problem_Data &assembler_data,
+                     const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
+                     const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::NavierStokes_DF_PCC_2D_Problem_Data &assembler_data,
                      const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::PostProcess_Data &post_process_data,
                      const std::string &exportSolutionFolder,
                      const std::string &exportVtuFolder);
@@ -43,15 +44,9 @@ void export_velocity_dofs(const Polydim::examples::NavierStokes_DF_PCC_2D::Progr
                           const VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &vem_velocity_reference_element_data,
                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
                           const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
-                          const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::Stokes_DF_PCC_2D_Problem_Data &assembler_data,
+                          const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::NavierStokes_DF_PCC_2D_Problem_Data &assembler_data,
                           const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::PostProcess_Data &post_process_data,
                           const std::string &exportVtuFolder);
-
-void export_discrepancy_errors(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config,
-                               const Gedim::MeshMatricesDAO &mesh,
-                               const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::DiscrepancyErrors_Data &discrepancy_errors_data,
-                               const std::string &exportSolutionFolder,
-                               const std::string &exportVtuFolder);
 
 } // namespace program_utilities
 } // namespace NavierStokes_DF_PCC_2D

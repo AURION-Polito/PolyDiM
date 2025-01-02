@@ -21,7 +21,7 @@ void Assembler::ComputeStrongTerm(const Gedim::MeshMatricesDAO &mesh,
                                   const std::vector<size_t> &offsetStrongs,
                                   const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
                                   const test::I_Test &test,
-                                  Stokes_DF_PCC_2D_Problem_Data &assembler_data) const
+                                  NavierStokes_DF_PCC_2D_Problem_Data &assembler_data) const
 {
     // Assemble strong boundary condition on Cell0Ds
     for (unsigned int h = 0; h < 2; h++)
@@ -115,7 +115,7 @@ void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
                                 const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                                 const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_local_space,
                                 const Polydim::examples::NavierStokes_DF_PCC_2D::test::I_Test &test,
-                                Stokes_DF_PCC_2D_Problem_Data &assembler_data) const
+                                NavierStokes_DF_PCC_2D_Problem_Data &assembler_data) const
 {
     const unsigned numVertices = polygon.Vertices.cols();
     for (unsigned int h = 0; h < reference_element_data.Dimension; h++)
@@ -209,7 +209,7 @@ void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
     }
 }
 // ***************************************************************************
-Assembler::Stokes_DF_PCC_2D_Problem_Data Assembler::Assemble(
+Assembler::NavierStokes_DF_PCC_2D_Problem_Data Assembler::AssembleStokes(
     const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config,
     const Gedim::MeshMatricesDAO &mesh,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
@@ -222,7 +222,7 @@ Assembler::Stokes_DF_PCC_2D_Problem_Data Assembler::Assemble(
     const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Pressure_LocalSpace &vem_pressure_local_space,
     const Polydim::examples::NavierStokes_DF_PCC_2D::test::I_Test &test) const
 {
-    Stokes_DF_PCC_2D_Problem_Data result;
+    NavierStokes_DF_PCC_2D_Problem_Data result;
     result.globalMatrixA.SetSize(count_dofs.num_total_dofs, count_dofs.num_total_dofs, Gedim::ISparseArray::SparseArrayTypes::None);
     result.dirichletMatrixA.SetSize(count_dofs.num_total_dofs, count_dofs.num_total_strong);
     result.rightHandSide.SetSize(count_dofs.num_total_dofs);
@@ -341,7 +341,207 @@ Assembler::Stokes_DF_PCC_2D_Problem_Data Assembler::Assemble(
 
     return result;
 }
+// ***************************************************************************
+void Assembler::AssembleNavierStokes(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config,
+                                     const Gedim::MeshMatricesDAO &mesh,
+                                     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                     const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
+                                     const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                                     const Polydim::PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
+                                     const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
+                                     const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &pressure_reference_element_data,
+                                     const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_velocity_local_space,
+                                     const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Pressure_LocalSpace &vem_pressure_local_space,
+                                     NavierStokes_DF_PCC_2D_Problem_Data &result)
+{
 
+    result.globalMatrixC.SetSize(count_dofs.num_total_dofs, count_dofs.num_total_dofs, Gedim::ISparseArray::SparseArrayTypes::None);
+    result.dirichletMatrixC.SetSize(count_dofs.num_total_dofs, count_dofs.num_total_strong);
+    result.rightHandSideC.SetSize(count_dofs.num_total_dofs);
+
+    // Assemble equation elements
+    for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
+    {
+        const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Polygon_Geometry polygon = {config.GeometricTolerance1D(),
+                                                                              config.GeometricTolerance2D(),
+                                                                              mesh_geometric_data.Cell2DsVertices.at(c),
+                                                                              mesh_geometric_data.Cell2DsCentroids.at(c),
+                                                                              mesh_geometric_data.Cell2DsAreas.at(c),
+                                                                              mesh_geometric_data.Cell2DsDiameters.at(c),
+                                                                              mesh_geometric_data.Cell2DsTriangulations.at(c),
+                                                                              mesh_geometric_data.Cell2DsEdgeLengths.at(c),
+                                                                              mesh_geometric_data.Cell2DsEdgeDirections.at(c),
+                                                                              mesh_geometric_data.Cell2DsEdgeTangents.at(c),
+                                                                              mesh_geometric_data.Cell2DsEdgeNormals.at(c)};
+
+        const auto pressure_local_space = vem_pressure_local_space.CreateLocalSpace(pressure_reference_element_data, polygon);
+        const auto velocity_local_space = vem_velocity_local_space.CreateLocalSpace(velocity_reference_element_data, polygon);
+
+        const auto velocity_basis_functions_values =
+            vem_velocity_local_space.ComputeBasisFunctionsValues(velocity_local_space, Polydim::VEM::DF_PCC::ProjectionTypes::Pi0k);
+
+        const auto velocity_basis_functions_derivatives_values =
+            vem_velocity_local_space.ComputeBasisFunctionsDerivativeValues(velocity_local_space,
+                                                                           Polydim::VEM::DF_PCC::ProjectionTypes::Pi0km1Der);
+
+        const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, dofs_data);
+        const unsigned int num_local_dofs_pressure = dofs_data[3].CellsGlobalDOFs[2].at(c).size();
+        const unsigned int num_local_dofs_velocity = local_count_dofs.num_total_dofs - num_local_dofs_pressure;
+        MatrixXd cellMatrixC = MatrixXd::Zero(num_local_dofs_velocity, num_local_dofs_velocity);
+        VectorXd cellRightHandSideC = VectorXd::Zero(num_local_dofs_velocity);
+
+        const Eigen::VectorXd dofs_values =
+            PDETools::Assembler_Utilities::global_solution_to_local_solution<2>(c,
+                                                                                dofs_data,
+                                                                                local_count_dofs.num_total_dofs,
+                                                                                local_count_dofs.offsets_DOFs,
+                                                                                count_dofs.offsets_DOFs,
+                                                                                count_dofs.offsets_Strongs,
+                                                                                result.previousIteration,
+                                                                                result.solutionDirichlet);
+
+        const Eigen::VectorXd velocity_dofs_values = dofs_values.segment(0, num_local_dofs_velocity);
+
+        vector<VectorXd> previous_iteration_values(2);
+        for (unsigned int d = 0; d < 2; d++)
+            previous_iteration_values[d] = velocity_basis_functions_values[d] * velocity_dofs_values;
+
+        vector<VectorXd> previous_iteration_derivatives_values(4);
+        for (unsigned int d = 0; d < 4; d++)
+            previous_iteration_derivatives_values[d] = velocity_basis_functions_derivatives_values[d] * velocity_dofs_values;
+
+        // Compute full cell matrix
+        switch (config.ConvectiveForm())
+        {
+        case Program_configuration::ConvectiveFormType::None:
+            break;
+        case Program_configuration::ConvectiveFormType::Conv: {
+            for (unsigned int d1 = 0; d1 < 2; d1++)
+            {
+                for (unsigned int d2 = 0; d2 < 2; d2++)
+                    cellMatrixC +=
+                        velocity_basis_functions_values[d1].transpose() *
+                        velocity_local_space.InternalQuadrature.Weights.cwiseProduct(previous_iteration_values[d2]).asDiagonal() *
+                        velocity_basis_functions_derivatives_values[2 * d1 + d2];
+            }
+
+            for (unsigned int d1 = 0; d1 < 2; d1++)
+            {
+                for (unsigned int d2 = 0; d2 < 2; d2++)
+                    cellMatrixC += velocity_basis_functions_values[d1].transpose() *
+                                   velocity_local_space.InternalQuadrature.Weights
+                                       .cwiseProduct(previous_iteration_derivatives_values[2 * d1 + d2])
+                                       .asDiagonal() *
+                                   velocity_basis_functions_values[d2];
+            }
+
+            for (unsigned int d1 = 0; d1 < 2; d1++)
+            {
+                for (unsigned int d2 = 0; d2 < 2; d2++)
+                    cellRightHandSideC +=
+                        velocity_basis_functions_values[d1].transpose() *
+                        velocity_local_space.InternalQuadrature.Weights.asDiagonal() *
+                        previous_iteration_values[d2].cwiseProduct(previous_iteration_derivatives_values[2 * d1 + d2]);
+            }
+        }
+        break;
+        case Program_configuration::ConvectiveFormType::Skew: {
+            MatrixXd cellCMatrix1 = MatrixXd::Zero(num_local_dofs_velocity, num_local_dofs_velocity);
+            MatrixXd cellCMatrix2 = MatrixXd::Zero(num_local_dofs_velocity, num_local_dofs_velocity);
+
+            for (unsigned int d1 = 0; d1 < 2; d1++)
+            {
+                for (unsigned int d2 = 0; d2 < 2; d2++)
+                    cellCMatrix1 +=
+                        velocity_basis_functions_values[d1].transpose() *
+                        velocity_local_space.InternalQuadrature.Weights.cwiseProduct(previous_iteration_values[d2]).asDiagonal() *
+                        velocity_basis_functions_derivatives_values[2 * d1 + d2];
+            }
+
+            for (unsigned int d1 = 0; d1 < 2; d1++)
+            {
+                for (unsigned int d2 = 0; d2 < 2; d2++)
+                    cellCMatrix1 += velocity_basis_functions_values[d1].transpose() *
+                                    velocity_local_space.InternalQuadrature.Weights
+                                        .cwiseProduct(previous_iteration_derivatives_values[2 * d1 + d2])
+                                        .asDiagonal() *
+                                    velocity_basis_functions_values[d2];
+            }
+
+            for (unsigned int d1 = 0; d1 < 2; d1++)
+            {
+                for (unsigned int d2 = 0; d2 < 2; d2++)
+                    cellCMatrix2 +=
+                        velocity_basis_functions_derivatives_values[2 * d1 + d2].transpose() *
+                        velocity_local_space.InternalQuadrature.Weights.cwiseProduct(previous_iteration_values[d2]).asDiagonal() *
+                        velocity_basis_functions_values[d1];
+            }
+
+            for (unsigned int d1 = 0; d1 < 2; d1++)
+            {
+                for (unsigned int d2 = 0; d2 < 2; d2++)
+                    cellCMatrix2 +=
+                        velocity_basis_functions_derivatives_values[2 * d1 + d2].transpose() *
+                        velocity_local_space.InternalQuadrature.Weights.cwiseProduct(previous_iteration_values[d1]).asDiagonal() *
+                        velocity_basis_functions_values[d2];
+            }
+
+            cellMatrixC = 0.5 * (cellCMatrix1 - cellCMatrix2);
+
+            VectorXd cellRightHandSide1 = VectorXd::Zero(num_local_dofs_velocity);
+            VectorXd cellRightHandSide2 = VectorXd::Zero(num_local_dofs_velocity);
+
+            for (unsigned int d1 = 0; d1 < 2; d1++)
+            {
+                for (unsigned int d2 = 0; d2 < 2; d2++)
+                    cellRightHandSide1 +=
+                        velocity_basis_functions_values[d1].transpose() *
+                        velocity_local_space.InternalQuadrature.Weights.asDiagonal() *
+                        previous_iteration_values[d2].cwiseProduct(previous_iteration_derivatives_values[2 * d1 + d2]);
+            }
+
+            for (unsigned int d1 = 0; d1 < 2; d1++)
+            {
+                for (unsigned int d2 = 0; d2 < 2; d2++)
+                    cellRightHandSide2 += velocity_basis_functions_derivatives_values[2 * d1 + d2].transpose() *
+                                          velocity_local_space.InternalQuadrature.Weights.asDiagonal() *
+                                          previous_iteration_values[d2].cwiseProduct(previous_iteration_values[d1]);
+            }
+
+            cellRightHandSideC = 0.5 * (cellRightHandSide1 - cellRightHandSide2);
+        }
+        break;
+        default:
+            throw runtime_error("Not valid convective form type");
+        }
+
+        assert(velocity_local_space.NumBasisFunctions == num_local_dofs_velocity);
+
+        Polydim::PDETools::Assembler_Utilities::local_matrix_to_global_matrix_dofs_data local_matrix_to_global_matrix_dofs_data = {
+            {std::cref(dofs_data[0]), std::cref(dofs_data[1]), std::cref(dofs_data[2])},
+            local_count_dofs.offsets_DOFs,
+            count_dofs.offsets_DOFs,
+            count_dofs.offsets_Strongs};
+
+        Polydim::PDETools::Assembler_Utilities::assemble_local_matrix_to_global_matrix<2>(c,
+                                                                                          local_matrix_to_global_matrix_dofs_data,
+                                                                                          local_matrix_to_global_matrix_dofs_data,
+                                                                                          cellMatrixC,
+                                                                                          cellRightHandSideC,
+                                                                                          result.globalMatrixC,
+                                                                                          result.dirichletMatrixC,
+                                                                                          result.rightHandSideC);
+    }
+
+    result.rightHandSideC.Create();
+    result.globalMatrixC.Create();
+    result.dirichletMatrixC.Create();
+
+    if (count_dofs.num_total_strong > 0)
+        result.rightHandSideC.SubtractionMultiplication(result.dirichletMatrixC, result.solutionDirichlet);
+    result.rightHandSideC += result.rightHandSide;
+    result.globalMatrixC += result.globalMatrixA;
+}
 // ***************************************************************************
 Assembler::VEM_Performance_Result Assembler::ComputeVemPerformance(
     const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config,
@@ -399,181 +599,6 @@ Assembler::VEM_Performance_Result Assembler::ComputeVemPerformance(
     return result;
 }
 // ***************************************************************************
-Assembler::DiscrepancyErrors_Data Assembler::ComputeDiscrepancyErrors(
-    const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config,
-    const Gedim::MeshMatricesDAO &mesh,
-    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-    const vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &full_dofs_data,
-    const Polydim::PDETools::Assembler_Utilities::count_dofs_data &full_count_dofs,
-    const vector<PDETools::DOFs::DOFsManager::DOFsData> &reduced_dofs_data,
-    const Polydim::PDETools::Assembler_Utilities::count_dofs_data &reduced_count_dofs,
-    const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &full_velocity_reference_element_data,
-    const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &full_pressure_reference_element_data,
-    const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reduced_velocity_reference_element_data,
-    const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &reduced_pressure_reference_element_data,
-    const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_full_velocity_local_space,
-    const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Pressure_LocalSpace &vem_full_pressure_local_space,
-    const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_reduced_velocity_local_space,
-    const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Pressure_LocalSpace &vem_reduced_pressure_local_space,
-    const Stokes_DF_PCC_2D_Problem_Data &full_assembler_data,
-    const Stokes_DF_PCC_2D_Problem_Data &reduced_assembler_data) const
-{
-
-    DiscrepancyErrors_Data result;
-
-    result.residual_norm = 0.0;
-    if (full_count_dofs.num_total_dofs > 0)
-    {
-        Gedim::Eigen_Array<> residual;
-        residual.SetSize(full_count_dofs.num_total_dofs);
-        residual.SumMultiplication(full_assembler_data.globalMatrixA, full_assembler_data.solution);
-        residual -= full_assembler_data.rightHandSide;
-
-        result.residual_norm = residual.Norm();
-    }
-
-    result.reduced_residual_norm = 0.0;
-    if (reduced_count_dofs.num_total_dofs > 0)
-    {
-        Gedim::Eigen_Array<> residual;
-        residual.SetSize(reduced_count_dofs.num_total_dofs);
-        residual.SumMultiplication(reduced_assembler_data.globalMatrixA, reduced_assembler_data.solution);
-        residual -= reduced_assembler_data.rightHandSide;
-
-        result.reduced_residual_norm = residual.Norm();
-    }
-
-    result.cell2Ds_discrepancy_error_L2_pressure.setZero(mesh.Cell2DTotalNumber());
-    result.cell2Ds_discrepancy_error_H1_velocity.setZero(mesh.Cell2DTotalNumber());
-    result.cell2Ds_full_norm_L2_pressure.setZero(mesh.Cell2DTotalNumber());
-    result.cell2Ds_full_norm_H1_velocity.setZero(mesh.Cell2DTotalNumber());
-
-    for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
-    {
-        const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Polygon_Geometry polygon = {config.GeometricTolerance1D(),
-                                                                              config.GeometricTolerance2D(),
-                                                                              mesh_geometric_data.Cell2DsVertices.at(c),
-                                                                              mesh_geometric_data.Cell2DsCentroids.at(c),
-                                                                              mesh_geometric_data.Cell2DsAreas.at(c),
-                                                                              mesh_geometric_data.Cell2DsDiameters.at(c),
-                                                                              mesh_geometric_data.Cell2DsTriangulations.at(c),
-                                                                              mesh_geometric_data.Cell2DsEdgeLengths.at(c),
-                                                                              mesh_geometric_data.Cell2DsEdgeDirections.at(c),
-                                                                              mesh_geometric_data.Cell2DsEdgeTangents.at(c),
-                                                                              mesh_geometric_data.Cell2DsEdgeNormals.at(c)};
-
-        const auto full_pressure_local_space =
-            vem_full_pressure_local_space.CreateLocalSpace(full_pressure_reference_element_data, polygon);
-
-        const auto full_velocity_local_space =
-            vem_full_velocity_local_space.CreateLocalSpace(full_velocity_reference_element_data, polygon);
-
-        const auto full_velocity_basis_functions_derivatives_values =
-            vem_full_velocity_local_space.ComputeBasisFunctionsDerivativeValues(full_velocity_local_space,
-                                                                                Polydim::VEM::DF_PCC::ProjectionTypes::Pi0km1Der);
-        const Eigen::MatrixXd full_pressure_basis_functions_values =
-            vem_full_pressure_local_space.ComputeBasisFunctionsValues(full_pressure_local_space);
-
-        const auto reduced_pressure_local_space =
-            vem_reduced_pressure_local_space.CreateLocalSpace(reduced_pressure_reference_element_data, polygon);
-
-        const auto reduced_velocity_local_space =
-            vem_reduced_velocity_local_space.CreateLocalSpace(reduced_velocity_reference_element_data, polygon);
-
-        const auto reduced_velocity_basis_functions_derivatives_values =
-            vem_reduced_velocity_local_space.ComputeBasisFunctionsDerivativeValues(reduced_velocity_local_space,
-                                                                                   Polydim::VEM::DF_PCC::ProjectionTypes::Pi0km1Der);
-        const Eigen::MatrixXd reduced_pressure_basis_functions_values =
-            vem_reduced_pressure_local_space.ComputeBasisFunctionsValues(reduced_pressure_local_space);
-
-        const auto full_local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, full_dofs_data);
-        const unsigned int full_num_local_dofs_pressure = full_dofs_data[3].CellsGlobalDOFs[2].at(c).size();
-
-        const Eigen::VectorXd full_dofs_values =
-            PDETools::Assembler_Utilities::global_solution_to_local_solution<2>(c,
-                                                                                full_dofs_data,
-                                                                                full_local_count_dofs.num_total_dofs,
-                                                                                full_local_count_dofs.offsets_DOFs,
-                                                                                full_count_dofs.offsets_DOFs,
-                                                                                full_count_dofs.offsets_Strongs,
-                                                                                full_assembler_data.solution,
-                                                                                full_assembler_data.solutionDirichlet);
-
-        const Eigen::VectorXd full_velocity_dofs_values =
-            full_dofs_values.segment(0, full_local_count_dofs.num_total_dofs - full_num_local_dofs_pressure);
-        const Eigen::VectorXd full_pressure_dofs_values =
-            full_dofs_values.segment(full_local_count_dofs.num_total_dofs - full_num_local_dofs_pressure, full_num_local_dofs_pressure);
-
-        const auto reduced_local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, reduced_dofs_data);
-        const unsigned int reduced_num_local_dofs_pressure = reduced_dofs_data[3].CellsGlobalDOFs[2].at(c).size();
-
-        const Eigen::VectorXd reduced_dofs_values =
-            PDETools::Assembler_Utilities::global_solution_to_local_solution<2>(c,
-                                                                                reduced_dofs_data,
-                                                                                reduced_local_count_dofs.num_total_dofs,
-                                                                                reduced_local_count_dofs.offsets_DOFs,
-                                                                                reduced_count_dofs.offsets_DOFs,
-                                                                                reduced_count_dofs.offsets_Strongs,
-                                                                                reduced_assembler_data.solution,
-                                                                                reduced_assembler_data.solutionDirichlet);
-
-        const Eigen::VectorXd reduced_velocity_dofs_values =
-            reduced_dofs_values.segment(0, reduced_local_count_dofs.num_total_dofs - reduced_num_local_dofs_pressure);
-        const Eigen::VectorXd reduced_pressure_dofs_values =
-            reduced_dofs_values.segment(reduced_local_count_dofs.num_total_dofs - reduced_num_local_dofs_pressure,
-                                        reduced_num_local_dofs_pressure);
-
-        const VectorXd full_numeric_pressure_values = full_pressure_basis_functions_values * full_pressure_dofs_values;
-        const VectorXd reduced_numeric_pressure_values = reduced_pressure_basis_functions_values * reduced_pressure_dofs_values;
-
-        const VectorXd full_numeric_projected_pressure_values =
-            ((1.0 / polygon.Measure) * full_numeric_pressure_values.transpose() *
-             full_pressure_local_space.InternalQuadrature.Weights) *
-            reduced_pressure_basis_functions_values;
-
-        const Eigen::VectorXd local_error_L2_pressure =
-            (full_numeric_projected_pressure_values - reduced_numeric_pressure_values).array().square();
-        const Eigen::VectorXd local_norm_L2_pressure = (full_numeric_projected_pressure_values).array().square();
-
-        result.cell2Ds_discrepancy_error_L2_pressure[c] =
-            full_velocity_local_space.InternalQuadrature.Weights.transpose() * local_error_L2_pressure;
-        result.cell2Ds_full_norm_L2_pressure[c] = full_velocity_local_space.InternalQuadrature.Weights.transpose() * local_norm_L2_pressure;
-
-        const unsigned int numQuadraturePoints = full_velocity_local_space.InternalQuadrature.Points.cols();
-        Eigen::VectorXd local_error_H1_velocity = Eigen::VectorXd::Zero(numQuadraturePoints);
-        Eigen::VectorXd local_norm_H1_velocity = Eigen::VectorXd::Zero(numQuadraturePoints);
-        for (unsigned int d1 = 0; d1 < full_velocity_local_space.Dimension; d1++)
-        {
-            for (unsigned int d2 = 0; d2 < full_velocity_local_space.Dimension; d2++)
-            {
-                local_error_H1_velocity.array() +=
-                    (full_velocity_basis_functions_derivatives_values[full_velocity_local_space.Dimension * d1 + d2] * full_velocity_dofs_values -
-                     reduced_velocity_basis_functions_derivatives_values[reduced_velocity_local_space.Dimension * d1 + d2] * reduced_velocity_dofs_values)
-                        .array()
-                        .square();
-
-                local_norm_H1_velocity.array() +=
-                    (full_velocity_basis_functions_derivatives_values[full_velocity_local_space.Dimension * d1 + d2] * full_velocity_dofs_values)
-                        .array()
-                        .square();
-            }
-        }
-        result.cell2Ds_discrepancy_error_H1_velocity[c] =
-            full_velocity_local_space.InternalQuadrature.Weights.transpose() * local_error_H1_velocity;
-        result.cell2Ds_full_norm_H1_velocity[c] = full_velocity_local_space.InternalQuadrature.Weights.transpose() * local_norm_H1_velocity;
-    }
-
-    result.discrepancy_error_L2_pressure = std::sqrt(result.cell2Ds_discrepancy_error_L2_pressure.sum());
-    result.discrepancy_error_H1_velocity = std::sqrt(result.cell2Ds_discrepancy_error_H1_velocity.sum());
-    result.full_norm_H1_velocity = std::sqrt(result.cell2Ds_full_norm_H1_velocity.sum());
-    result.full_norm_L2_pressure = std::sqrt(result.cell2Ds_full_norm_L2_pressure.sum());
-
-    result.pressure_dofs_ratio = ((double)reduced_dofs_data[3].NumberDOFs) / full_dofs_data[3].NumberDOFs;
-    result.velocity_dofs_ratio = ((double)reduced_count_dofs.offsets_DOFs[3]) / full_count_dofs.offsets_DOFs[3];
-
-    return result;
-}
-// ***************************************************************************
 Assembler::PostProcess_Data Assembler::PostProcessSolution(
     const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config,
     const Gedim::MeshMatricesDAO &mesh,
@@ -584,7 +609,7 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
     const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &pressure_reference_element_data,
     const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_velocity_local_space,
     const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Pressure_LocalSpace &vem_pressure_local_space,
-    const Stokes_DF_PCC_2D_Problem_Data &assembler_data,
+    const NavierStokes_DF_PCC_2D_Problem_Data &assembler_data,
     const Polydim::examples::NavierStokes_DF_PCC_2D::test::I_Test &test) const
 {
     PostProcess_Data result;

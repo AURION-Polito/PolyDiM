@@ -17,6 +17,12 @@ unique_ptr<Polydim::examples::NavierStokes_DF_PCC_2D::test::I_Test> create_test(
     {
     case Polydim::examples::NavierStokes_DF_PCC_2D::test::Test_Types::Patch_Test:
         return make_unique<Polydim::examples::NavierStokes_DF_PCC_2D::test::Patch_Test>();
+    case Polydim::examples::NavierStokes_DF_PCC_2D::test::Test_Types::StokesSinSin:
+        return make_unique<Polydim::examples::NavierStokes_DF_PCC_2D::test::StokesSinSin>();
+    case Polydim::examples::NavierStokes_DF_PCC_2D::test::Test_Types::NavierStokes:
+        return make_unique<Polydim::examples::NavierStokes_DF_PCC_2D::test::NavierStokes>();
+    case Polydim::examples::NavierStokes_DF_PCC_2D::test::Test_Types::NavierStokes_VanishingExternalLoad:
+        return make_unique<Polydim::examples::NavierStokes_DF_PCC_2D::test::NavierStokes_VanishingExternalLoad>();
     default:
         throw runtime_error("Test type " + to_string((unsigned int)config.TestType()) + " not supported");
     }
@@ -79,7 +85,7 @@ void export_solution(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_co
                      const Gedim::MeshMatricesDAO &mesh,
                      const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
                      const Polydim::PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
-                     const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::Stokes_DF_PCC_2D_Problem_Data &assembler_data,
+                     const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::NavierStokes_DF_PCC_2D_Problem_Data &assembler_data,
                      const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::PostProcess_Data &post_process_data,
                      const std::string &exportSolutionFolder,
                      const std::string &exportVtuFolder)
@@ -205,7 +211,7 @@ void export_velocity_dofs(const Polydim::examples::NavierStokes_DF_PCC_2D::Progr
                           const VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &vem_velocity_reference_element_data,
                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
                           const Polydim::PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
-                          const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::Stokes_DF_PCC_2D_Problem_Data &assembler_data,
+                          const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::NavierStokes_DF_PCC_2D_Problem_Data &assembler_data,
                           const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::PostProcess_Data &post_process_data,
                           const std::string &exportVtuFolder)
 {
@@ -500,107 +506,6 @@ void export_velocity_dofs(const Polydim::examples::NavierStokes_DF_PCC_2D::Progr
 
         exporter.Export(exportVtuFolder + "/dofs_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) + +"_" +
                         to_string(config.VemOrder()) + ".vtu");
-    }
-}
-// ***************************************************************************
-void export_discrepancy_errors(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config,
-                               const Gedim::MeshMatricesDAO &mesh,
-                               const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::DiscrepancyErrors_Data &discrepancy_errors_data,
-                               const std::string &exportSolutionFolder,
-                               const std::string &exportVtuFolder)
-{
-    const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
-    const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
-
-    {
-        const char separator = ';';
-        std::cout << "ProgramType" << separator;
-        std::cout << "VemType" << separator;
-        std::cout << "VemOrder" << separator;
-        std::cout << "Cell2Ds" << separator;
-        std::cout << "VelocityDofsRatio" << separator;
-        std::cout << "PressureDofsRatio" << separator;
-        std::cout << "errorH1Velocity" << separator;
-        std::cout << "errorL2Pressure" << separator;
-        std::cout << "normH1FULLVelocity" << separator;
-        std::cout << "normL2FULLPressure" << separator;
-        std::cout << "reducedResidual" << separator;
-        std::cout << "fullResidual" << endl;
-
-        std::cout.precision(2);
-        std::cout << scientific << TEST_ID << separator;
-        std::cout << scientific << VEM_ID << separator;
-        std::cout << scientific << config.VemOrder() << separator;
-        std::cout << scientific << mesh.Cell2DTotalNumber() << separator;
-        std::cout << scientific << discrepancy_errors_data.velocity_dofs_ratio << separator;
-        std::cout << scientific << discrepancy_errors_data.pressure_dofs_ratio << separator;
-        std::cout << scientific << discrepancy_errors_data.discrepancy_error_H1_velocity << separator;
-        std::cout << scientific << discrepancy_errors_data.discrepancy_error_L2_pressure << separator;
-        std::cout << scientific << discrepancy_errors_data.full_norm_H1_velocity << separator;
-        std::cout << scientific << discrepancy_errors_data.full_norm_L2_pressure << separator;
-        std::cout << scientific << discrepancy_errors_data.reduced_residual_norm << separator;
-        std::cout << scientific << discrepancy_errors_data.residual_norm << endl;
-    }
-
-    {
-        const char separator = ';';
-        const string errorFileName = exportSolutionFolder + "/DiscrepancyErrors_" + to_string(TEST_ID) + "_" +
-                                     to_string(VEM_ID) + +"_" + to_string(config.VemOrder()) + ".csv";
-        const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
-
-        std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);
-
-        if (!errorFileExists)
-        {
-            errorFile << "ProgramType" << separator;
-            errorFile << "VemType" << separator;
-            errorFile << "VemOrder" << separator;
-            errorFile << "Cell2Ds" << separator;
-            errorFile << "VelocityDofsRatio" << separator;
-            errorFile << "PressureDofsRatio" << separator;
-            errorFile << "errorH1Velocity" << separator;
-            errorFile << "errorL2Pressure" << separator;
-            errorFile << "normH1FULLVelocity" << separator;
-            errorFile << "normL2FULLPressure" << separator;
-            errorFile << "reducedResidual" << separator;
-            errorFile << "fullResidual" << endl;
-        }
-
-        errorFile.precision(16);
-        errorFile << scientific << TEST_ID << separator;
-        errorFile << scientific << VEM_ID << separator;
-        errorFile << scientific << config.VemOrder() << separator;
-        errorFile << scientific << mesh.Cell2DTotalNumber() << separator;
-        errorFile << scientific << discrepancy_errors_data.velocity_dofs_ratio << separator;
-        errorFile << scientific << discrepancy_errors_data.pressure_dofs_ratio << separator;
-        errorFile << scientific << discrepancy_errors_data.discrepancy_error_H1_velocity << separator;
-        errorFile << scientific << discrepancy_errors_data.discrepancy_error_L2_pressure << separator;
-        errorFile << scientific << discrepancy_errors_data.full_norm_H1_velocity << separator;
-        errorFile << scientific << discrepancy_errors_data.full_norm_L2_pressure << separator;
-        errorFile << scientific << discrepancy_errors_data.reduced_residual_norm << separator;
-        errorFile << scientific << discrepancy_errors_data.residual_norm << endl;
-
-        errorFile.close();
-    }
-
-    {
-        {
-            Gedim::VTKUtilities exporter;
-            exporter.AddPolygons(
-                mesh.Cell0DsCoordinates(),
-                mesh.Cell2DsVertices(),
-                {{"ErrorL2Pressure",
-                  Gedim::VTPProperty::Formats::Cells,
-                  static_cast<unsigned int>(discrepancy_errors_data.cell2Ds_discrepancy_error_L2_pressure.size()),
-                  discrepancy_errors_data.cell2Ds_discrepancy_error_L2_pressure.data()},
-                 {"ErrorH1Velocity",
-                  Gedim::VTPProperty::Formats::Cells,
-                  static_cast<unsigned int>(discrepancy_errors_data.cell2Ds_discrepancy_error_H1_velocity.size()),
-                  discrepancy_errors_data.cell2Ds_discrepancy_error_H1_velocity.data()}});
-
-            exporter.Export(exportVtuFolder + "/DiscrepancyErrors_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) +
-                            +"_" + to_string(config.VemOrder()) + ".vtu");
-        }
     }
 }
 // ***************************************************************************
