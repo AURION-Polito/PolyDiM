@@ -21,13 +21,18 @@ namespace NavierStokes_DF_PCC_2D
 class Assembler final
 {
   public:
-    struct Stokes_DF_PCC_2D_Problem_Data final
+    struct NavierStokes_DF_PCC_2D_Problem_Data final
     {
         Gedim::Eigen_SparseArray<> globalMatrixA;
         Gedim::Eigen_SparseArray<> dirichletMatrixA;
         Gedim::Eigen_Array<> rightHandSide;
         Gedim::Eigen_Array<> solution;
         Gedim::Eigen_Array<> solutionDirichlet;
+
+        Gedim::Eigen_Array<> previousIteration;
+        Gedim::Eigen_SparseArray<> globalMatrixC;
+        Gedim::Eigen_SparseArray<> dirichletMatrixC;
+        Gedim::Eigen_Array<> rightHandSideC;
     };
 
     struct VEM_Performance_Result final
@@ -71,23 +76,6 @@ class Assembler final
         double residual_norm;
     };
 
-    struct DiscrepancyErrors_Data final
-    {
-        Eigen::VectorXd cell2Ds_discrepancy_error_L2_pressure;
-        Eigen::VectorXd cell2Ds_discrepancy_error_H1_velocity;
-        Eigen::VectorXd cell2Ds_full_norm_L2_pressure;
-        Eigen::VectorXd cell2Ds_full_norm_H1_velocity;
-        double discrepancy_error_L2_pressure;
-        double discrepancy_error_H1_velocity;
-        double full_norm_L2_pressure;
-        double full_norm_H1_velocity;
-
-        double residual_norm;
-        double reduced_residual_norm;
-        double pressure_dofs_ratio;
-        double velocity_dofs_ratio;
-    };
-
   private:
     void ComputeStrongTerm(const Gedim::MeshMatricesDAO &mesh,
                            const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
@@ -96,7 +84,7 @@ class Assembler final
                            const std::vector<size_t> &offsetStrongs,
                            const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
                            const test::I_Test &test,
-                           Stokes_DF_PCC_2D_Problem_Data &assembler_data) const;
+                           NavierStokes_DF_PCC_2D_Problem_Data &assembler_data) const;
 
     void ComputeWeakTerm(const unsigned int cell2DIndex,
                          const Gedim::MeshMatricesDAO &mesh,
@@ -107,10 +95,10 @@ class Assembler final
                          const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                          const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_local_space,
                          const Polydim::examples::NavierStokes_DF_PCC_2D::test::I_Test &test,
-                         Stokes_DF_PCC_2D_Problem_Data &assembler_data) const;
+                         NavierStokes_DF_PCC_2D_Problem_Data &assembler_data) const;
 
   public:
-    Stokes_DF_PCC_2D_Problem_Data Assemble(
+    NavierStokes_DF_PCC_2D_Problem_Data AssembleStokes(
         const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config,
         const Gedim::MeshMatricesDAO &mesh,
         const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
@@ -139,27 +127,20 @@ class Assembler final
                                          const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &pressure_reference_element_data,
                                          const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_velocity_local_space,
                                          const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Pressure_LocalSpace &vem_pressure_local_space,
-                                         const Stokes_DF_PCC_2D_Problem_Data &assembler_data,
+                                         const NavierStokes_DF_PCC_2D_Problem_Data &assembler_data,
                                          const Polydim::examples::NavierStokes_DF_PCC_2D::test::I_Test &test) const;
 
-    Assembler::DiscrepancyErrors_Data ComputeDiscrepancyErrors(
-        const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config,
-        const Gedim::MeshMatricesDAO &mesh,
-        const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-        const vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &full_dofs_data,
-        const Polydim::PDETools::Assembler_Utilities::count_dofs_data &full_count_dofs,
-        const vector<PDETools::DOFs::DOFsManager::DOFsData> &reduced_dofs_data,
-        const Polydim::PDETools::Assembler_Utilities::count_dofs_data &reduced_count_dofs,
-        const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &full_velocity_reference_element_data,
-        const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &full_pressure_reference_element_data,
-        const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reduced_velocity_reference_element_data,
-        const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &reduced_pressure_reference_element_data,
-        const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_full_velocity_local_space,
-        const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Pressure_LocalSpace &vem_full_pressure_local_space,
-        const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_reduced_velocity_local_space,
-        const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Pressure_LocalSpace &vem_reduced_pressure_local_space,
-        const Stokes_DF_PCC_2D_Problem_Data &full_assembler_data,
-        const Stokes_DF_PCC_2D_Problem_Data &reduced_assembler_data) const;
+    void AssembleNavierStokes(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config,
+                              const Gedim::MeshMatricesDAO &mesh,
+                              const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                              const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
+                              const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                              const Polydim::PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
+                              const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
+                              const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &pressure_reference_element_data,
+                              const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_velocity_local_space,
+                              const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Pressure_LocalSpace &vem_pressure_local_space,
+                              NavierStokes_DF_PCC_2D_Problem_Data &result);
 };
 } // namespace NavierStokes_DF_PCC_2D
 } // namespace examples

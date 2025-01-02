@@ -14,12 +14,20 @@ namespace NavierStokes_DF_PCC_2D
 {
 struct Program_configuration final
 {
+    enum ConvectiveFormType
+    {
+        Conv = 0,
+        Skew = 1,
+        None = 2
+    };
+
     Program_configuration()
     {
         Gedim::Configurations::AddProperty(
             "TestType",
             static_cast<unsigned int>(Polydim::examples::NavierStokes_DF_PCC_2D::test::Test_Types::Patch_Test),
-            "Test Type 1 - Patch_Test (Default: 1)");
+            "Test Type 1 - Patch_Test; 2 - StokesSinSin; 3 - NavierStokes; 4 - NavierStokes_VanishingExternalLoad "
+            "(Default: 1)");
 
         // Export parameters
         Gedim::Configurations::AddProperty("ExportFolder", "./Run", "Folder where to export data (Default: ./Export)");
@@ -40,10 +48,39 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty(
             "VemType",
             static_cast<unsigned int>(Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_LocalSpace_Types::VEM_DF_PCC_2D_LocalSpace),
-            "Vem Type, 1 - Vem; 2 - RVem (Default: 1)");
+            "Vem Type, 1 - Vem; (Default: 1)");
         Gedim::Configurations::AddProperty("VemOrder", static_cast<unsigned int>(2), "VEM order (Default: 2)");
         Gedim::Configurations::AddProperty("ComputeVEMPerformance", true, "Compute VEM Performance (Default: true)");
         Gedim::Configurations::AddProperty("ComputeDiscrepancyError", false, "Compute Discrepancy error (Default: false)");
+
+        /// Solver
+        Gedim::Configurations::AddProperty("ConvectiveForm",
+                                           static_cast<unsigned int>(ConvectiveFormType::Conv),
+                                           "Convective Form, 0 - Conv; 1 - Skew; 2 - None (Default: 0)");
+
+        Gedim::Configurations::AddProperty("NLMaxNumberIterations",
+                                           static_cast<unsigned int>(1),
+                                           "Maximum number of non-linear iterations (Default: 1)");
+
+        Gedim::Configurations::AddProperty("NLAbsChangeInSolutionTolerance",
+                                           1.0e-06,
+                                           "Absolute tolerance for the non-linear method - change in solution "
+                                           "(Default: 1.0e-06)");
+
+        Gedim::Configurations::AddProperty("NLAbsResidualTolerance",
+                                           1.0e-06,
+                                           "Absolute tolerance for the non-linear method - residual (Default: "
+                                           "1.0e-06)");
+
+        Gedim::Configurations::AddProperty("NLRelChangeInSolutionTolerance",
+                                           1.0e-06,
+                                           "Relative tolerance for the non-linear method - change in solution "
+                                           "(Default: 1.0e-06)");
+
+        Gedim::Configurations::AddProperty("NLRelResidualTolerance",
+                                           1.0e-06,
+                                           "Relative tolerance for the non-linear method - residual (Default: "
+                                           "1.0e-06)");
     }
 
     inline Polydim::examples::NavierStokes_DF_PCC_2D::test::Test_Types TestType() const
@@ -80,6 +117,9 @@ struct Program_configuration final
 
     inline Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_LocalSpace_Types VemType() const
     {
+        if (Gedim::Configurations::GetPropertyValue<unsigned int>("VemType") == 2)
+            throw runtime_error("not valid vem type");
+
         return (Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_LocalSpace_Types)Gedim::Configurations::GetPropertyValue<unsigned int>("VemType");
     }
     inline bool ComputeVEMPerformance() const
@@ -95,6 +135,31 @@ struct Program_configuration final
         if (Gedim::Configurations::GetPropertyValue<unsigned int>("VemOrder") < 2)
             throw runtime_error("not valid order");
         return Gedim::Configurations::GetPropertyValue<unsigned int>("VemOrder");
+    }
+
+    inline ConvectiveFormType ConvectiveForm() const
+    {
+        return (ConvectiveFormType)Gedim::Configurations::GetPropertyValue<unsigned int>("ConvectiveForm");
+    }
+    inline unsigned int NLMaxNumberIterations() const
+    {
+        return Gedim::Configurations::GetPropertyValue<unsigned int>("NLMaxNumberIterations");
+    }
+    inline double NLAbsChangeInSolutionTolerance() const
+    {
+        return Gedim::Configurations::GetPropertyValue<double>("NLAbsChangeInSolutionTolerance");
+    }
+    inline double NLAbsResidualTolerance() const
+    {
+        return Gedim::Configurations::GetPropertyValue<double>("NLAbsResidualTolerance");
+    }
+    inline double NLRelChangeInSolutionTolerance() const
+    {
+        return Gedim::Configurations::GetPropertyValue<double>("NLRelChangeInSolutionTolerance");
+    }
+    inline double NLRelResidualTolerance() const
+    {
+        return Gedim::Configurations::GetPropertyValue<double>("NLRelResidualTolerance");
     }
 };
 } // namespace NavierStokes_DF_PCC_2D
