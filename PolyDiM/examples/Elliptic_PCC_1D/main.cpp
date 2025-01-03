@@ -113,7 +113,9 @@ int main(int argc, char **argv)
     Gedim::Profiler::StopTime("CreateSpace");
     Gedim::Output::PrintStatusProgram("CreateSpace");
 
-    Gedim::Output::PrintGenericMessage("AssembleSystem Method Type " + to_string(static_cast<unsigned int>(config.MethodType())) + "...", true);
+    Gedim::Output::PrintGenericMessage("AssembleSystem Method Type " +
+                                           to_string(static_cast<unsigned int>(config.MethodType())) + "...",
+                                       true);
     Gedim::Profiler::StartTime("AssembleSystem");
 
     Polydim::examples::Elliptic_PCC_1D::Assembler assembler;
@@ -169,7 +171,6 @@ int main(int argc, char **argv)
 
     Gedim::Profiler::StopTime("ExportSolution");
     Gedim::Output::PrintStatusProgram("ExportSolution");
-
 
     return 0;
 }

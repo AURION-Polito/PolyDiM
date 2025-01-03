@@ -326,7 +326,7 @@ class DOFsManager
             const auto cell1D_vertices = mesh.Cell1D_vertices(cell1DIndex);
 
             const unsigned int cell1D_origin_cell0DIndex = cell1D_vertices.at(0);
-            const unsigned int cell1D_end_cell0DIndex = cell1D_vertices.at(0);
+            const unsigned int cell1D_end_cell0DIndex = cell1D_vertices.at(1);
 
             const auto &origin_cell0D_DOFs = dofs.CellsDOFs.at(0).at(cell1D_origin_cell0DIndex);
             const auto &end_cell0D_DOFs = dofs.CellsDOFs.at(0).at(cell1D_end_cell0DIndex);

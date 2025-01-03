@@ -53,15 +53,14 @@ void Assembler::ComputeStrongTerm(const Gedim::MeshMatricesDAO &mesh,
     }
 }
 // ***************************************************************************
-Assembler::Elliptic_PCC_1D_Problem_Data Assembler::Assemble(
-    const Polydim::examples::Elliptic_PCC_1D::Program_configuration &config,
-                                              const Gedim::MeshMatricesDAO &mesh,
-                                              const Gedim::MeshUtilities::MeshGeometricData1D &mesh_geometric_data,
-                                              const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
-                                              const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-                                              const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data,
-                                              const Polydim::FEM::PCC::FEM_PCC_1D_LocalSpace &local_space,
-                                              const Polydim::examples::Elliptic_PCC_1D::test::I_Test &test) const
+Assembler::Elliptic_PCC_1D_Problem_Data Assembler::Assemble(const Polydim::examples::Elliptic_PCC_1D::Program_configuration &config,
+                                                            const Gedim::MeshMatricesDAO &mesh,
+                                                            const Gedim::MeshUtilities::MeshGeometricData1D &mesh_geometric_data,
+                                                            const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                                                            const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                                                            const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data,
+                                                            const Polydim::FEM::PCC::FEM_PCC_1D_LocalSpace &local_space,
+                                                            const Polydim::examples::Elliptic_PCC_1D::test::I_Test &test) const
 {
     Elliptic_PCC_1D_Problem_Data result;
 
@@ -75,20 +74,17 @@ Assembler::Elliptic_PCC_1D_Problem_Data Assembler::Assemble(
 
     for (unsigned int c = 0; c < mesh.Cell1DTotalNumber(); ++c)
     {
-      const Polydim::FEM::PCC::FEM_PCC_1D_Segment_Geometry segment = {config.GeometricTolerance1D(),
-                                                                      mesh_geometric_data.Cell1DsVertices.at(c).col(0),
-                                                                      mesh_geometric_data.Cell1DsTangents.at(c),
-                                                                      mesh_geometric_data.Cell1DsLengths.at(c)};
+        const Polydim::FEM::PCC::FEM_PCC_1D_Segment_Geometry segment = {config.GeometricTolerance1D(),
+                                                                        mesh_geometric_data.Cell1DsVertices.at(c).col(0),
+                                                                        mesh_geometric_data.Cell1DsTangents.at(c),
+                                                                        mesh_geometric_data.Cell1DsLengths.at(c)};
 
         const auto local_space_data = local_space.CreateLocalSpace(reference_element_data, segment);
 
-        const auto basis_functions_values =
-            local_space.ComputeBasisFunctionsValues(reference_element_data,
-                                                    local_space_data);
+        const auto basis_functions_values = local_space.ComputeBasisFunctionsValues(reference_element_data, local_space_data);
 
         const auto basis_functions_derivative_values =
-            local_space.ComputeBasisFunctionsDerivativeValues(reference_element_data,
-                                                              local_space_data);
+            local_space.ComputeBasisFunctionsDerivativeValues(reference_element_data, local_space_data);
 
         const auto diffusion_term_values = test.diffusion_term(local_space_data.InternalQuadrature.Points);
         const auto source_term_values = test.source_term(local_space_data.InternalQuadrature.Points);
@@ -97,8 +93,9 @@ Assembler::Elliptic_PCC_1D_Problem_Data Assembler::Assemble(
                                                                  basis_functions_derivative_values,
                                                                  local_space_data.InternalQuadrature.Weights);
 
-        const auto local_rhs =
-            equation.ComputeCellForcingTerm(source_term_values, basis_functions_values, local_space_data.InternalQuadrature.Weights);
+        const auto local_rhs = equation.ComputeCellForcingTerm(source_term_values,
+                                                               basis_functions_values,
+                                                               local_space_data.InternalQuadrature.Weights);
 
         const auto &global_dofs = dofs_data.CellsGlobalDOFs[1].at(c);
 
@@ -115,8 +112,7 @@ Assembler::Elliptic_PCC_1D_Problem_Data Assembler::Assemble(
                                                                                           result.globalMatrixA,
                                                                                           result.dirichletMatrixA,
                                                                                           result.rightHandSide);
-
-      }
+    }
 
     ComputeStrongTerm(mesh, mesh_geometric_data, mesh_dofs_info, dofs_data, reference_element_data, test, result);
 
@@ -199,13 +195,10 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
 
         const auto local_space_data = local_space.CreateLocalSpace(reference_element_data, segment);
 
-        const auto basis_functions_values =
-            local_space.ComputeBasisFunctionsValues(reference_element_data,
-                                                    local_space_data);
+        const auto basis_functions_values = local_space.ComputeBasisFunctionsValues(reference_element_data, local_space_data);
 
         const auto basis_functions_derivative_values =
-            local_space.ComputeBasisFunctionsDerivativeValues(reference_element_data,
-                                                              local_space_data);
+            local_space.ComputeBasisFunctionsDerivativeValues(reference_element_data, local_space_data);
 
         const auto exact_solution_values = test.exact_solution(local_space_data.InternalQuadrature.Points);
         const auto exact_derivative_solution_values = test.exact_derivative_solution(local_space_data.InternalQuadrature.Points);
@@ -240,7 +233,7 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
 
         const Eigen::VectorXd local_error_H1 =
             (basis_functions_derivative_values[0] * dofs_values - exact_derivative_solution_values[0]).array().square();
-            const Eigen::VectorXd local_norm_H1 = (basis_functions_derivative_values[0] * dofs_values).array().square();
+        const Eigen::VectorXd local_norm_H1 = (basis_functions_derivative_values[0] * dofs_values).array().square();
 
         result.cell1Ds_error_H1[c] = local_space_data.InternalQuadrature.Weights.transpose() * local_error_H1;
         result.cell1Ds_norm_H1[c] = local_space_data.InternalQuadrature.Weights.transpose() * local_norm_H1;

@@ -2,8 +2,8 @@
 #define __program_configuration_H
 
 #include "Configurations.hpp"
-#include "PDE_Mesh_Utilities.hpp"
 #include "FEM_PCC_1D_Creator.hpp"
+#include "PDE_Mesh_Utilities.hpp"
 #include "test_definition.hpp"
 
 namespace Polydim
@@ -78,7 +78,16 @@ struct Program_configuration final
     }
     inline Polydim::FEM::PCC::FEM_PCC_1D_LocalSpace_Types MethodType() const
     {
-        return (Polydim::FEM::PCC::FEM_PCC_1D_LocalSpace_Types)Gedim::Configurations::GetPropertyValue<unsigned int>("MethodType");
+        return (Polydim::FEM::PCC::FEM_PCC_1D_LocalSpace_Types)Gedim::Configurations::GetPropertyValue<unsigned int>("M"
+                                                                                                                     "e"
+                                                                                                                     "t"
+                                                                                                                     "h"
+                                                                                                                     "o"
+                                                                                                                     "d"
+                                                                                                                     "T"
+                                                                                                                     "y"
+                                                                                                                     "p"
+                                                                                                                     "e");
     }
 };
 } // namespace Elliptic_PCC_1D

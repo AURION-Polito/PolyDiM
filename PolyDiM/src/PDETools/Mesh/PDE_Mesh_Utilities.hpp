@@ -90,18 +90,16 @@ inline void create_mesh_1D(const Gedim::GeometryUtilities &geometry_utilities,
         const Eigen::Vector3d segment_tangent = pde_domain.vertices.col(1) - segment_origin;
 
         mesh_utilities.FillMesh1D(geometry_utilities,
-                                 segment_origin,
-                                 segment_tangent,
-                                 geometry_utilities.EquispaceCoordinates(max_cell_length,
-                                                                  true),
-                                 mesh);
+                                  segment_origin,
+                                  segment_tangent,
+                                  geometry_utilities.EquispaceCoordinates(max_cell_length, true),
+                                  mesh);
     }
     break;
     default:
         throw std::runtime_error("MeshGenerator_Types_1D " + std::to_string((unsigned int)mesh_type) + " not supported");
     }
 }
-
 
 inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
                            const Gedim::MeshUtilities &mesh_utilities,

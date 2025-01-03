@@ -114,8 +114,8 @@ void export_solution(const Polydim::examples::Elliptic_PCC_1D::Program_configura
 
     {
         const char separator = ';';
-        const string errorFileName = exportSolutionFolder + "/Errors_" + to_string(TEST_ID) + "_" + to_string(METHOD_ID) +
-                                     +"_" + to_string(config.MethodOrder()) + ".csv";
+        const string errorFileName = exportSolutionFolder + "/Errors_" + to_string(TEST_ID) + "_" +
+                                     to_string(METHOD_ID) + +"_" + to_string(config.MethodOrder()) + ".csv";
         const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
 
         std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);

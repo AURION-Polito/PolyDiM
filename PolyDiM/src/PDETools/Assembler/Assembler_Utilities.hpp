@@ -2,6 +2,7 @@
 #define __PDETOOLS_ASSEMBLER_AssemblerUtilities_HPP
 
 #include "DOFsManager.hpp"
+#include <iostream>
 #include <vector>
 
 namespace Polydim

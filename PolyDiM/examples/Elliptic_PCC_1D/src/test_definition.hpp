@@ -171,7 +171,7 @@ struct Poisson_Polynomial_Problem final : public I_Test
     };
 
     std::array<Eigen::VectorXd, 3> exact_derivative_solution(const Eigen::MatrixXd &points) const
-    {      
+    {
         return {4.0 * (1.0 - 2.0 * points.row(0).array()),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols())};
