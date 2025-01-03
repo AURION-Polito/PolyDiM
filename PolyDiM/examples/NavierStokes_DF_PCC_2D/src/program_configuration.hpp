@@ -51,7 +51,6 @@ struct Program_configuration final
             "Vem Type, 1 - Vem; (Default: 1)");
         Gedim::Configurations::AddProperty("VemOrder", static_cast<unsigned int>(2), "VEM order (Default: 2)");
         Gedim::Configurations::AddProperty("ComputeVEMPerformance", true, "Compute VEM Performance (Default: true)");
-        Gedim::Configurations::AddProperty("ComputeDiscrepancyError", false, "Compute Discrepancy error (Default: false)");
 
         /// Solver
         Gedim::Configurations::AddProperty("ConvectiveForm",
@@ -125,10 +124,6 @@ struct Program_configuration final
     inline bool ComputeVEMPerformance() const
     {
         return Gedim::Configurations::GetPropertyValue<bool>("ComputeVEMPerformance");
-    }
-    inline bool ComputeDiscrepancyError() const
-    {
-        return Gedim::Configurations::GetPropertyValue<bool>("ComputeDiscrepancyError");
     }
     inline unsigned int VemOrder() const
     {

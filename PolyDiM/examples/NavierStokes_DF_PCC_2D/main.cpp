@@ -200,6 +200,7 @@ int main(int argc, char **argv)
     const double initial_solution_norm = assembler_data.previousIteration.Norm();
 
     const unsigned int NLMAXNumIterations = config.NLMaxNumberIterations();
+    unsigned int num_nl_iterations;
     for (unsigned int l = 0; l < NLMAXNumIterations; l++)
     {
         Gedim::Output::PrintGenericMessage("AssembleNavierStokesTerm VEM Type " + to_string((unsigned int)config.VemType()) + "...", true);
@@ -257,7 +258,10 @@ int main(int argc, char **argv)
 
         if ((residual_norm <= config.NLRelResidualTolerance() * initial_residual_norm + config.NLAbsResidualTolerance()) &&
             (delta_norm <= config.NLRelChangeInSolutionTolerance() * initial_solution_norm + config.NLAbsChangeInSolutionTolerance()))
+        {
+            num_nl_iterations = l + 1;
             break;
+        }
     }
 
     Gedim::Output::PrintGenericMessage("ComputeErrors...", true);
@@ -287,6 +291,7 @@ int main(int argc, char **argv)
                                                                                   count_dofs,
                                                                                   assembler_data,
                                                                                   post_process_data,
+                                                                                  num_nl_iterations,
                                                                                   exportSolutionFolder,
                                                                                   exportVtuFolder);
 

@@ -87,6 +87,7 @@ void export_solution(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_co
                      const Polydim::PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                      const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::NavierStokes_DF_PCC_2D_Problem_Data &assembler_data,
                      const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::PostProcess_Data &post_process_data,
+                     const unsigned int num_nl_iterations,
                      const std::string &exportSolutionFolder,
                      const std::string &exportVtuFolder)
 {
@@ -107,6 +108,7 @@ void export_solution(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_co
         std::cout << "normH1Velocity" << separator;
         std::cout << "normL2Pressure" << separator;
         std::cout << "nnzA" << separator;
+        std::cout << "num_nl_iterations" << separator;
         std::cout << "residual" << endl;
 
         std::cout.precision(2);
@@ -122,6 +124,7 @@ void export_solution(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_co
         std::cout << scientific << post_process_data.norm_H1_velocity << separator;
         std::cout << scientific << post_process_data.norm_L2_pressure << separator;
         std::cout << scientific << assembler_data.globalMatrixA.NonZeros() << separator;
+        std::cout << scientific << num_nl_iterations << separator;
         std::cout << scientific << post_process_data.residual_norm << endl;
     }
 
@@ -147,6 +150,7 @@ void export_solution(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_co
             errorFile << "normH1Velocity" << separator;
             errorFile << "normL2Pressure" << separator;
             errorFile << "nnzA" << separator;
+            errorFile << "num_nl_iterations" << separator;
             errorFile << "residual" << endl;
         }
 
@@ -163,6 +167,7 @@ void export_solution(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_co
         errorFile << scientific << post_process_data.norm_H1_velocity << separator;
         errorFile << scientific << post_process_data.norm_L2_pressure << separator;
         errorFile << scientific << assembler_data.globalMatrixA.NonZeros() << separator;
+        errorFile << scientific << num_nl_iterations << separator;
         errorFile << scientific << post_process_data.residual_norm << endl;
 
         errorFile.close();

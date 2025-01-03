@@ -34,6 +34,7 @@ void export_solution(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_co
                      const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                      const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::NavierStokes_DF_PCC_2D_Problem_Data &assembler_data,
                      const Polydim::examples::NavierStokes_DF_PCC_2D::Assembler::PostProcess_Data &post_process_data,
+                     const unsigned int num_nl_iterations,
                      const std::string &exportSolutionFolder,
                      const std::string &exportVtuFolder);
 

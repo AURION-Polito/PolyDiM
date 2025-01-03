@@ -227,8 +227,8 @@ struct StokesSinSin final : public I_Test
         pressure_derivatives[0] = cos(points.row(0).array());
         pressure_derivatives[1] = -cos(points.row(1).array());
 
-        return {-laplacian[0] + pressure_derivatives[0],
-                -laplacian[1] + pressure_derivatives[1],
+        return {-laplacian[0] - pressure_derivatives[0],
+                -laplacian[1] - pressure_derivatives[1],
                 Eigen::VectorXd::Zero(points.cols())};
     };
 
