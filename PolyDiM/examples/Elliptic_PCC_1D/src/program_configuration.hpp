@@ -3,6 +3,7 @@
 
 #include "Configurations.hpp"
 #include "PDE_Mesh_Utilities.hpp"
+#include "FEM_PCC_1D_Creator.hpp"
 #include "test_definition.hpp"
 
 namespace Polydim
@@ -33,6 +34,9 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty("GeometricTolerance1D", 1.0e-12, "Geometric Tolerance 1D (Default: 1.0e-12)");
 
         // Method parameters
+        Gedim::Configurations::AddProperty("MethodType",
+                                           static_cast<unsigned int>(Polydim::FEM::PCC::FEM_PCC_1D_LocalSpace_Types::FEM_PCC_1D_LocalSpace),
+                                           "Method Type, 1 - FEM (Default: 1)");
         Gedim::Configurations::AddProperty("MethodOrder", static_cast<unsigned int>(1), "Method order (Default: 1)");
         Gedim::Configurations::AddProperty("ComputeMethodPerformance", true, "Compute Method Performance (Default: true)");
     }
@@ -71,6 +75,10 @@ struct Program_configuration final
     inline unsigned int MethodOrder() const
     {
         return Gedim::Configurations::GetPropertyValue<unsigned int>("MethodOrder");
+    }
+    inline Polydim::FEM::PCC::FEM_PCC_1D_LocalSpace_Types MethodType() const
+    {
+        return (Polydim::FEM::PCC::FEM_PCC_1D_LocalSpace_Types)Gedim::Configurations::GetPropertyValue<unsigned int>("MethodType");
     }
 };
 } // namespace Elliptic_PCC_1D

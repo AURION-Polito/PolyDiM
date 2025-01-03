@@ -75,6 +75,34 @@ enum struct MeshGenerator_Types_3D
     Cubic = 6        ///< cubic mesh
 };
 
+inline void create_mesh_1D(const Gedim::GeometryUtilities &geometry_utilities,
+                           const Gedim::MeshUtilities &mesh_utilities,
+                           const MeshGenerator_Types_1D &mesh_type,
+                           const PDE_Domain_1D &pde_domain,
+                           const double &max_relative_length,
+                           Gedim::MeshMatricesDAO &mesh)
+{
+    switch (mesh_type)
+    {
+    case MeshGenerator_Types_1D::Equispaced: {
+        const double max_cell_length = pde_domain.length * max_relative_length;
+        const Eigen::Vector3d segment_origin = pde_domain.vertices.col(0);
+        const Eigen::Vector3d segment_tangent = pde_domain.vertices.col(1) - segment_origin;
+
+        mesh_utilities.FillMesh1D(geometry_utilities,
+                                 segment_origin,
+                                 segment_tangent,
+                                 geometry_utilities.EquispaceCoordinates(max_cell_length,
+                                                                  true),
+                                 mesh);
+    }
+    break;
+    default:
+        throw std::runtime_error("MeshGenerator_Types_1D " + std::to_string((unsigned int)mesh_type) + " not supported");
+    }
+}
+
+
 inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
                            const Gedim::MeshUtilities &mesh_utilities,
                            const MeshGenerator_Types_2D &mesh_type,
@@ -187,6 +215,28 @@ inline void create_mesh_3D(const Gedim::GeometryUtilities &geometry_utilities,
     }
 }
 
+inline void import_mesh_1D(const Gedim::GeometryUtilities &geometry_utilities,
+                           const Gedim::MeshUtilities &mesh_utilities,
+                           const MeshGenerator_Types_1D &mesh_type,
+                           const std::string &file_path,
+                           Gedim::MeshMatricesDAO &mesh)
+{
+    switch (mesh_type)
+    {
+    case MeshGenerator_Types_1D::CsvImporter: {
+        Gedim::MeshFromCsvUtilities importerUtilities;
+        Gedim::MeshFromCsvUtilities::Configuration meshImporterConfiguration;
+        meshImporterConfiguration.Folder = file_path;
+        meshImporterConfiguration.Separator = ';';
+        Gedim::MeshDAOImporterFromCsv importer(importerUtilities);
+        importer.Import(meshImporterConfiguration, mesh);
+    }
+    break;
+    default:
+        throw std::runtime_error("MeshGenerator_Types_1D " + std::to_string((unsigned int)mesh_type) + " not supported");
+    }
+}
+
 inline void import_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
                            const Gedim::MeshUtilities &mesh_utilities,
                            const MeshGenerator_Types_2D &mesh_type,
@@ -241,6 +291,13 @@ inline void import_mesh_3D(const Gedim::GeometryUtilities &geometry_utilities,
     default:
         throw std::runtime_error("MeshGenerator_Types_3D " + std::to_string((unsigned int)mesh_type) + " not supported");
     }
+}
+
+inline Gedim::MeshUtilities::MeshGeometricData1D compute_mesh_1D_geometry_data(const Gedim::GeometryUtilities &geometry_utilities,
+                                                                               const Gedim::MeshUtilities &mesh_utilities,
+                                                                               const Gedim::MeshMatricesDAO &mesh)
+{
+    return mesh_utilities.FillMesh1DGeometricData(geometry_utilities, mesh);
 }
 
 inline Gedim::MeshUtilities::MeshGeometricData2D compute_mesh_2D_geometry_data(const Gedim::GeometryUtilities &geometry_utilities,

@@ -1,5 +1,6 @@
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/FEM_PCC_1D_ReferenceElement.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/FEM_PCC_1D_LocalSpace.hpp)
+list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/FEM_PCC_1D_Creator.hpp)
 
 list(APPEND polydim_src_sources ${CMAKE_CURRENT_SOURCE_DIR}/FEM_PCC_1D_LocalSpace.cpp)
 

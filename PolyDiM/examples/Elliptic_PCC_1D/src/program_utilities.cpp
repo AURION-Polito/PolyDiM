@@ -4,52 +4,47 @@ namespace Polydim
 {
 namespace examples
 {
-namespace Elliptic_PCC_2D
+namespace Elliptic_PCC_1D
 {
 namespace program_utilities
 {
 // ***************************************************************************
-std::unique_ptr<Polydim::examples::Elliptic_PCC_2D::test::I_Test> create_test(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config)
+std::unique_ptr<Polydim::examples::Elliptic_PCC_1D::test::I_Test> create_test(const Polydim::examples::Elliptic_PCC_1D::Program_configuration &config)
 {
     switch (config.TestType())
     {
-    case Polydim::examples::Elliptic_PCC_2D::test::Test_Types::Patch_Test:
-        return std::make_unique<Polydim::examples::Elliptic_PCC_2D::test::Patch_Test>();
-    case Polydim::examples::Elliptic_PCC_2D::test::Test_Types::Poisson_Polynomial_Problem:
-        return std::make_unique<Polydim::examples::Elliptic_PCC_2D::test::Poisson_Polynomial_Problem>();
+    case Polydim::examples::Elliptic_PCC_1D::test::Test_Types::Patch_Test:
+        return std::make_unique<Polydim::examples::Elliptic_PCC_1D::test::Patch_Test>();
+    case Polydim::examples::Elliptic_PCC_1D::test::Test_Types::Poisson_Polynomial_Problem:
+        return std::make_unique<Polydim::examples::Elliptic_PCC_1D::test::Poisson_Polynomial_Problem>();
     default:
         throw runtime_error("Test type " + to_string((unsigned int)config.TestType()) + " not supported");
     }
 }
 // ***************************************************************************
-void create_domain_mesh(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
-                        const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D &domain,
+void create_domain_mesh(const Polydim::examples::Elliptic_PCC_1D::Program_configuration &config,
+                        const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_1D &domain,
                         Gedim::MeshMatricesDAO &mesh)
 {
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
     geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance1D();
-    geometryUtilitiesConfig.Tolerance2D = config.GeometricTolerance2D();
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
     Gedim::MeshUtilities meshUtilities;
 
     switch (config.MeshGenerator())
     {
-    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular:
-    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Minimal:
-    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Polygonal:
-    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Squared: {
-        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::create_mesh_2D(geometryUtilities,
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_1D::Equispaced: {
+        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::create_mesh_1D(geometryUtilities,
                                                                     meshUtilities,
                                                                     config.MeshGenerator(),
                                                                     domain,
-                                                                    config.MeshMaxArea(),
+                                                                    config.MeshMaxLength(),
                                                                     mesh);
     }
     break;
-    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::CsvImporter:
-    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::OFFImporter: {
-        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::import_mesh_2D(geometryUtilities,
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_1D::CsvImporter: {
+        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::import_mesh_1D(geometryUtilities,
                                                                     meshUtilities,
                                                                     config.MeshGenerator(),
                                                                     config.MeshImportFilePath(),
@@ -61,37 +56,36 @@ void create_domain_mesh(const Polydim::examples::Elliptic_PCC_2D::Program_config
     }
 }
 // ***************************************************************************
-Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_properties(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
+Gedim::MeshUtilities::MeshGeometricData1D create_domain_mesh_geometric_properties(const Polydim::examples::Elliptic_PCC_1D::Program_configuration &config,
                                                                                   const Gedim::MeshMatricesDAO &mesh)
 {
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
     geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance1D();
-    geometryUtilitiesConfig.Tolerance2D = config.GeometricTolerance2D();
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
     Gedim::MeshUtilities meshUtilities;
 
-    return Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_2D_geometry_data(geometryUtilities, meshUtilities, mesh);
+    return Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_1D_geometry_data(geometryUtilities, meshUtilities, mesh);
 }
 // ***************************************************************************
-void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
+void export_solution(const Polydim::examples::Elliptic_PCC_1D::Program_configuration &config,
                      const Gedim::MeshMatricesDAO &mesh,
                      const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-                     const Polydim::examples::Elliptic_PCC_2D::Assembler::Elliptic_PCC_2D_Problem_Data &assembler_data,
-                     const Polydim::examples::Elliptic_PCC_2D::Assembler::PostProcess_Data &post_process_data,
+                     const Polydim::examples::Elliptic_PCC_1D::Assembler::Elliptic_PCC_1D_Problem_Data &assembler_data,
+                     const Polydim::examples::Elliptic_PCC_1D::Assembler::PostProcess_Data &post_process_data,
                      const std::string &exportSolutionFolder,
                      const std::string &exportVtuFolder)
 {
-    const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
+    const unsigned int METHOD_ID = static_cast<unsigned int>(config.MethodType());
     const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
 
     {
         const char separator = ';';
 
         std::cout << "ProgramType" << separator;
-        std::cout << "VemType" << separator;
-        std::cout << "VemOrder" << separator;
-        std::cout << "Cell2Ds" << separator;
+        std::cout << "MethodType" << separator;
+        std::cout << "MethodOrder" << separator;
+        std::cout << "Cell1Ds" << separator;
         std::cout << "Dofs" << separator;
         std::cout << "Strongs" << separator;
         std::cout << "h" << separator;
@@ -104,9 +98,9 @@ void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configura
 
         std::cout.precision(2);
         std::cout << scientific << TEST_ID << separator;
-        std::cout << scientific << VEM_ID << separator;
-        std::cout << scientific << config.VemOrder() << separator;
-        std::cout << scientific << mesh.Cell2DTotalNumber() << separator;
+        std::cout << scientific << METHOD_ID << separator;
+        std::cout << scientific << config.MethodOrder() << separator;
+        std::cout << scientific << mesh.Cell1DTotalNumber() << separator;
         std::cout << scientific << dofs_data.NumberDOFs << separator;
         std::cout << scientific << dofs_data.NumberStrongs << separator;
         std::cout << scientific << post_process_data.mesh_size << separator;
@@ -120,8 +114,8 @@ void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configura
 
     {
         const char separator = ';';
-        const string errorFileName = exportSolutionFolder + "/Errors_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) +
-                                     +"_" + to_string(config.VemOrder()) + ".csv";
+        const string errorFileName = exportSolutionFolder + "/Errors_" + to_string(TEST_ID) + "_" + to_string(METHOD_ID) +
+                                     +"_" + to_string(config.MethodOrder()) + ".csv";
         const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
 
         std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);
@@ -130,7 +124,7 @@ void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configura
             errorFile << "ProgramType" << separator;
             errorFile << "VemType" << separator;
             errorFile << "VemOrder" << separator;
-            errorFile << "Cell2Ds" << separator;
+            errorFile << "Cell1Ds" << separator;
             errorFile << "Dofs" << separator;
             errorFile << "Strongs" << separator;
             errorFile << "h" << separator;
@@ -144,9 +138,9 @@ void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configura
 
         errorFile.precision(16);
         errorFile << scientific << TEST_ID << separator;
-        errorFile << scientific << VEM_ID << separator;
-        errorFile << scientific << config.VemOrder() << separator;
-        errorFile << scientific << mesh.Cell2DTotalNumber() << separator;
+        errorFile << scientific << METHOD_ID << separator;
+        errorFile << scientific << config.MethodOrder() << separator;
+        errorFile << scientific << mesh.Cell1DTotalNumber() << separator;
         errorFile << scientific << dofs_data.NumberDOFs << separator;
         errorFile << scientific << dofs_data.NumberStrongs << separator;
         errorFile << scientific << post_process_data.mesh_size << separator;
@@ -163,8 +157,8 @@ void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configura
     {
         {
             Gedim::VTKUtilities exporter;
-            exporter.AddPolygons(mesh.Cell0DsCoordinates(),
-                                 mesh.Cell2DsVertices(),
+            exporter.AddSegments(mesh.Cell0DsCoordinates(),
+                                 mesh.Cell1DsExtremes(),
                                  {{"Numeric",
                                    Gedim::VTPProperty::Formats::Points,
                                    static_cast<unsigned int>(post_process_data.cell0Ds_numeric.size()),
@@ -175,32 +169,31 @@ void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configura
                                    post_process_data.cell0Ds_exact.data()},
                                   {"ErrorL2",
                                    Gedim::VTPProperty::Formats::Cells,
-                                   static_cast<unsigned int>(post_process_data.cell2Ds_error_L2.size()),
-                                   post_process_data.cell2Ds_error_L2.data()},
+                                   static_cast<unsigned int>(post_process_data.cell1Ds_error_L2.size()),
+                                   post_process_data.cell1Ds_error_L2.data()},
                                   {"ErrorH1",
                                    Gedim::VTPProperty::Formats::Cells,
-                                   static_cast<unsigned int>(post_process_data.cell2Ds_error_H1.size()),
-                                   post_process_data.cell2Ds_error_H1.data()}});
+                                   static_cast<unsigned int>(post_process_data.cell1Ds_error_H1.size()),
+                                   post_process_data.cell1Ds_error_H1.data()}});
 
-            exporter.Export(exportVtuFolder + "/Solution_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) + +"_" +
-                            to_string(config.VemOrder()) + ".vtu");
+            exporter.Export(exportVtuFolder + "/Solution_" + to_string(TEST_ID) + "_" + to_string(TEST_ID) + +"_" +
+                            to_string(config.MethodOrder()) + ".vtu");
         }
     }
 }
 // ***************************************************************************
-void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
+void export_dofs(const Polydim::examples::Elliptic_PCC_1D::Program_configuration &config,
                  const Gedim::MeshMatricesDAO &mesh,
-                 const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                 const Gedim::MeshUtilities::MeshGeometricData1D &mesh_geometric_data,
                  const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
-                 const VEM::PCC::VEM_PCC_2D_ReferenceElement_Data &vem_reference_element_data,
+                 const FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &vem_reference_element_data,
                  const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-                 const Polydim::examples::Elliptic_PCC_2D::Assembler::Elliptic_PCC_2D_Problem_Data &assembler_data,
-                 const Polydim::examples::Elliptic_PCC_2D::Assembler::PostProcess_Data &post_process_data,
+                 const Polydim::examples::Elliptic_PCC_1D::Assembler::Elliptic_PCC_1D_Problem_Data &assembler_data,
+                 const Polydim::examples::Elliptic_PCC_1D::Assembler::PostProcess_Data &post_process_data,
                  const std::string &exportVtuFolder)
 {
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
     geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance1D();
-    geometryUtilitiesConfig.Tolerance2D = config.GeometricTolerance2D();
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
     std::list<Eigen::Vector3d> dofs_coordinate;
@@ -295,56 +288,6 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration
         }
     }
 
-    for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); ++c)
-    {
-        const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(2).at(c);
-
-        const auto &local_dofs = dofs_data.CellsDOFs[2].at(c);
-
-        const unsigned int num_loc_dofs = local_dofs.size();
-
-        if (num_loc_dofs == 0)
-            continue;
-
-        const auto local_polygon_coordinates = geometryUtilities.EquispaceCoordinates(num_loc_dofs + 1, 0.0, 1.0, true);
-        const Eigen::Vector3d polygon_centroid = mesh_geometric_data.Cell2DsCentroids.at(c);
-        const auto polygonCentroidEdgesDistance =
-            geometryUtilities.PolygonCentroidEdgesDistance(mesh_geometric_data.Cell2DsVertices.at(c),
-                                                           mesh_geometric_data.Cell2DsCentroids.at(c),
-                                                           mesh_geometric_data.Cell2DsEdgeNormals.at(c));
-        const double circle_diameter = 0.5 * geometryUtilities.PolygonInRadius(polygonCentroidEdgesDistance);
-
-        for (unsigned int loc_i = 0; loc_i < num_loc_dofs; ++loc_i)
-        {
-            const auto &local_dof = local_dofs.at(loc_i);
-
-            dof_cell_index_values.push_back(c);
-            dof_dimension_values.push_back(2);
-            dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
-            dof_boundary_marker_values.push_back(boundary_info.Marker);
-            dofs_coordinate.push_back(
-                polygon_centroid + circle_diameter * Eigen::Vector3d(cos(2.0 * M_PI * local_polygon_coordinates.at(loc_i)),
-                                                                     sin(2.0 * M_PI * local_polygon_coordinates.at(loc_i)),
-                                                                     0.0));
-            dof_type_values.push_back(static_cast<double>(local_dof.Type));
-            dof_global_index_values.push_back(local_dof.Global_Index);
-
-            switch (local_dof.Type)
-            {
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
-                solution_values.push_back(assembler_data.solutionDirichlet.GetValue(local_dof.Global_Index));
-                rhs_values.push_back(std::nan(""));
-                break;
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-                solution_values.push_back(assembler_data.solution.GetValue(local_dof.Global_Index));
-                rhs_values.push_back(assembler_data.rightHandSide.GetValue(local_dof.Global_Index));
-                break;
-            default:
-                throw std::runtime_error("Unknown DOF Type");
-            }
-        }
-    }
-
     {
         Eigen::MatrixXd coordinates(3, dofs_coordinate.size());
         unsigned int c = 0;
@@ -397,14 +340,14 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration
                              static_cast<unsigned int>(solution_values_data.size()),
                              solution_values_data.data()}});
 
-        const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
+        const unsigned int METHOD_ID = static_cast<unsigned int>(config.MethodType());
         const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
-        exporter.Export(exportVtuFolder + "/dofs_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) + +"_" +
-                        to_string(config.VemOrder()) + ".vtu");
+        exporter.Export(exportVtuFolder + "/dofs_" + to_string(TEST_ID) + "_" + to_string(METHOD_ID) + +"_" +
+                        to_string(config.MethodOrder()) + ".vtu");
     }
 }
 // ***************************************************************************
 } // namespace program_utilities
-} // namespace Elliptic_PCC_2D
+} // namespace Elliptic_PCC_1D
 } // namespace examples
 } // namespace Polydim
