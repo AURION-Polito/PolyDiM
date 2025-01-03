@@ -100,14 +100,14 @@ Assembler::Elliptic_PCC_1D_Problem_Data Assembler::Assemble(
         const auto local_rhs =
             equation.ComputeCellForcingTerm(source_term_values, basis_functions_values, local_space_data.InternalQuadrature.Weights);
 
-        const auto &global_dofs = dofs_data.CellsGlobalDOFs[2].at(c);
+        const auto &global_dofs = dofs_data.CellsGlobalDOFs[1].at(c);
 
         assert(local_space_data.NumberOfBasisFunctions == global_dofs.size());
 
         Polydim::PDETools::Assembler_Utilities::local_matrix_to_global_matrix_dofs_data local_matrix_to_global_matrix_dofs_data =
             {{std::cref(dofs_data)}, {0}, {0}, {0}};
 
-        Polydim::PDETools::Assembler_Utilities::assemble_local_matrix_to_global_matrix<2>(c,
+        Polydim::PDETools::Assembler_Utilities::assemble_local_matrix_to_global_matrix<1>(c,
                                                                                           local_matrix_to_global_matrix_dofs_data,
                                                                                           local_matrix_to_global_matrix_dofs_data,
                                                                                           local_A,
@@ -210,7 +210,7 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
         const auto exact_solution_values = test.exact_solution(local_space_data.InternalQuadrature.Points);
         const auto exact_derivative_solution_values = test.exact_derivative_solution(local_space_data.InternalQuadrature.Points);
 
-        const auto &global_dofs = dofs_data.CellsGlobalDOFs[2].at(c);
+        const auto &global_dofs = dofs_data.CellsGlobalDOFs[1].at(c);
         Eigen::VectorXd dofs_values = Eigen::VectorXd::Zero(global_dofs.size());
 
         for (unsigned int loc_i = 0; loc_i < global_dofs.size(); ++loc_i)
