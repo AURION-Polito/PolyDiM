@@ -45,7 +45,7 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("SetProblem...", true);
     Gedim::Profiler::StartTime("SetProblem");
 
-    Polydim::examples::Elliptic_PCC_2D::test::Patch_Test::order = config.VemOrder();
+    Polydim::examples::Elliptic_PCC_2D::test::Patch_Test::order = config.MethodOrder();
 
     const auto test = Polydim::examples::Elliptic_PCC_2D::program_utilities::create_test(config);
 
@@ -90,12 +90,12 @@ int main(int argc, char **argv)
     Gedim::Output::PrintStatusProgram("ComputeGeometricProperties");
 
     /// Initialize Discrete Space
-    Gedim::Output::PrintGenericMessage("CreateVEMSpace of order " + to_string(config.VemOrder()) + " and DOFs...", true);
-    Gedim::Profiler::StartTime("CreateVEMSpace");
+    Gedim::Output::PrintGenericMessage("CreateDiscreteSpace of order " + to_string(config.MethodOrder()) + " and DOFs...", true);
+    Gedim::Profiler::StartTime("CreateDiscreteSpace");
 
-    const auto vem_reference_element = Polydim::VEM::PCC::create_VEM_PCC_2D_reference_element(config.VemType());
-    const auto reference_element_data = vem_reference_element->Create(config.VemOrder());
-    const auto local_space = Polydim::VEM::PCC::create_VEM_PCC_2D_local_space(config.VemType());
+    const auto vem_reference_element = Polydim::VEM::PCC::create_VEM_PCC_2D_reference_element(config.MethodType());
+    const auto reference_element_data = vem_reference_element->Create(config.MethodOrder());
+    const auto local_space = Polydim::VEM::PCC::create_VEM_PCC_2D_local_space(config.MethodType());
 
     Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data = {mesh};
 
@@ -106,14 +106,14 @@ int main(int argc, char **argv)
 
     const auto dofs_data = dofManager.CreateDOFs<2>(meshDOFsInfo, mesh_connectivity_data);
 
-    Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(dofs_data.NumberDOFs) + " DOFs and " +
+    Gedim::Output::PrintGenericMessage("Discrete Space with " + to_string(dofs_data.NumberDOFs) + " DOFs and " +
                                            to_string(dofs_data.NumberStrongs) + " STRONGs",
                                        true);
 
-    Gedim::Profiler::StopTime("CreateVEMSpace");
-    Gedim::Output::PrintStatusProgram("CreateVEMSpace");
+    Gedim::Profiler::StopTime("CreateDiscreteSpace");
+    Gedim::Output::PrintStatusProgram("CreateDiscreteSpace");
 
-    Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " + to_string(static_cast<unsigned int>(config.VemType())) + "...", true);
+    Gedim::Output::PrintGenericMessage("AssembleSystem Discrete Type " + to_string(static_cast<unsigned int>(config.MethodType())) + "...", true);
     Gedim::Profiler::StartTime("AssembleSystem");
 
     Polydim::examples::Elliptic_PCC_2D::Assembler assembler;
@@ -181,10 +181,10 @@ int main(int argc, char **argv)
             const char separator = ',';
             /// Export Cell2Ds VEM performance
             ofstream exporter;
-            const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
+            const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
             const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
             exporter.open(exportSolutionFolder + "/Cell2Ds_VEMPerformance_" + to_string(TEST_ID) + "_" +
-                          to_string(VEM_ID) + +"_" + to_string(config.VemOrder()) + ".csv");
+                          to_string(Method_ID) + +"_" + to_string(config.MethodOrder()) + ".csv");
             exporter.precision(16);
 
             if (exporter.fail())

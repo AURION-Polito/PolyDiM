@@ -18,6 +18,8 @@
 #include "program_configuration.hpp"
 #include "test_definition.hpp"
 
+#include "local_space.hpp"
+
 namespace Polydim
 {
 namespace examples
@@ -92,7 +94,7 @@ class Assembler final
                                           const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                           const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
                                           const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-                                          const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                          const local_space::ReferenceElement_Data &reference_element_data,
                                           const Polydim::VEM::PCC::I_VEM_PCC_2D_LocalSpace &vem_local_space,
                                           const Polydim::examples::Elliptic_PCC_2D::test::I_Test &test) const;
 

@@ -82,15 +82,15 @@ void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configura
                      const std::string &exportSolutionFolder,
                      const std::string &exportVtuFolder)
 {
-    const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
+    const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
     const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
 
     {
         const char separator = ';';
 
         std::cout << "ProgramType" << separator;
-        std::cout << "VemType" << separator;
-        std::cout << "VemOrder" << separator;
+        std::cout << "MethodType" << separator;
+        std::cout << "MethodOrder" << separator;
         std::cout << "Cell2Ds" << separator;
         std::cout << "Dofs" << separator;
         std::cout << "Strongs" << separator;
@@ -104,8 +104,8 @@ void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configura
 
         std::cout.precision(2);
         std::cout << scientific << TEST_ID << separator;
-        std::cout << scientific << VEM_ID << separator;
-        std::cout << scientific << config.VemOrder() << separator;
+        std::cout << scientific << Method_ID << separator;
+        std::cout << scientific << config.MethodOrder() << separator;
         std::cout << scientific << mesh.Cell2DTotalNumber() << separator;
         std::cout << scientific << dofs_data.NumberDOFs << separator;
         std::cout << scientific << dofs_data.NumberStrongs << separator;
@@ -120,16 +120,16 @@ void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configura
 
     {
         const char separator = ';';
-        const string errorFileName = exportSolutionFolder + "/Errors_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) +
-                                     +"_" + to_string(config.VemOrder()) + ".csv";
+        const string errorFileName = exportSolutionFolder + "/Errors_" + to_string(TEST_ID) + "_" + to_string(Method_ID) +
+                                     +"_" + to_string(config.MethodOrder()) + ".csv";
         const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
 
         std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);
         if (!errorFileExists)
         {
             errorFile << "ProgramType" << separator;
-            errorFile << "VemType" << separator;
-            errorFile << "VemOrder" << separator;
+            errorFile << "MethodType" << separator;
+            errorFile << "MethodOrder" << separator;
             errorFile << "Cell2Ds" << separator;
             errorFile << "Dofs" << separator;
             errorFile << "Strongs" << separator;
@@ -144,8 +144,8 @@ void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configura
 
         errorFile.precision(16);
         errorFile << scientific << TEST_ID << separator;
-        errorFile << scientific << VEM_ID << separator;
-        errorFile << scientific << config.VemOrder() << separator;
+        errorFile << scientific << Method_ID << separator;
+        errorFile << scientific << config.MethodOrder() << separator;
         errorFile << scientific << mesh.Cell2DTotalNumber() << separator;
         errorFile << scientific << dofs_data.NumberDOFs << separator;
         errorFile << scientific << dofs_data.NumberStrongs << separator;
@@ -182,8 +182,8 @@ void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configura
                                    static_cast<unsigned int>(post_process_data.cell2Ds_error_H1.size()),
                                    post_process_data.cell2Ds_error_H1.data()}});
 
-            exporter.Export(exportVtuFolder + "/Solution_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) + +"_" +
-                            to_string(config.VemOrder()) + ".vtu");
+            exporter.Export(exportVtuFolder + "/Solution_" + to_string(TEST_ID) + "_" + to_string(Method_ID) + +"_" +
+                            to_string(config.MethodOrder()) + ".vtu");
         }
     }
 }
@@ -397,10 +397,10 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration
                              static_cast<unsigned int>(solution_values_data.size()),
                              solution_values_data.data()}});
 
-        const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
+        const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
         const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
-        exporter.Export(exportVtuFolder + "/dofs_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) + +"_" +
-                        to_string(config.VemOrder()) + ".vtu");
+        exporter.Export(exportVtuFolder + "/dofs_" + to_string(TEST_ID) + "_" + to_string(Method_ID) + +"_" +
+                        to_string(config.MethodOrder()) + ".vtu");
     }
 }
 // ***************************************************************************
