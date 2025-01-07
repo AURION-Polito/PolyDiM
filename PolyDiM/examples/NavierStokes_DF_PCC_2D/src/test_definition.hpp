@@ -65,7 +65,7 @@ struct Patch_Test final : public I_Test
                 {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
                 {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
@@ -73,7 +73,7 @@ struct Patch_Test final : public I_Test
 
     Eigen::VectorXd fluid_viscosity(const Eigen::MatrixXd &points) const
     {
-        return Eigen::VectorXd::Constant(points.cols(), 1.0);
+        return Eigen::VectorXd::Constant(points.cols(), 2.0);
     };
 
     std::array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd &points) const
@@ -84,8 +84,8 @@ struct Patch_Test final : public I_Test
         for (int i = 0; i < order - 2; i++)
             result = result * polynomial;
 
-        return {-2.0 * order * (order - 1) * result - (order - 1) * result,
-                2.0 * order * (order - 1) * result - (order - 1) * result,
+        return {-4.0 * order * (order - 1) * result - (order - 1) * result,
+                4.0 * order * (order - 1) * result - (order - 1) * result,
                 Eigen::VectorXd::Zero(points.cols())};
     };
 
@@ -117,10 +117,13 @@ struct Patch_Test final : public I_Test
 
         mean += 1.0 / order;
 
+        Eigen::VectorXd r = result;
+        Eigen::VectorXd p = polynomial;
+
         switch (marker)
         {
         case 2: // co-normal derivatives on the bottom
-            return {-order * result, order * result - (result - mean), Eigen::VectorXd::Zero(points.cols())};
+            return {-2.0 * order * result, 2.0 * order * result - (result - mean), Eigen::VectorXd::Zero(points.cols())};
         default:
             throw std::runtime_error("Unknown marker");
         }

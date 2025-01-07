@@ -46,6 +46,11 @@ else()
       list(APPEND ELLIPTIC_PCC_3D_INCLUDE ${POLYDIM_LIBRARY_INCLUDE_DIRECTORIES})
 endif()
 
+## MPI
+if(${USE_MPI})
+    find_package(MPI REQUIRED)
+endif()
+
 ## Eigen3
 find_package(Eigen3 CONFIG REQUIRED)
 
