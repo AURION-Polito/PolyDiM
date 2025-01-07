@@ -403,7 +403,8 @@ namespace Polydim
           }
         }
         // ***************************************************************************
-        void export_performance(const Assembler::Performance_Data& performance_data,
+        void export_performance(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
+                                const Assembler::Performance_Data& performance_data,
                                 const std::string &exportFolder)
         {
           {

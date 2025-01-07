@@ -181,7 +181,8 @@ int main(int argc, char **argv)
                                          meshGeometricData,
                                          reference_element_data);
 
-        Polydim::examples::Elliptic_PCC_2D::program_utilities::export_performance(performance,
+        Polydim::examples::Elliptic_PCC_2D::program_utilities::export_performance(config,
+                                                                                  performance,
                                                                                   exportSolutionFolder);
     }
 
