@@ -42,7 +42,8 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration
                  const Polydim::examples::Elliptic_PCC_2D::Assembler::PostProcess_Data &post_process_data,
                  const std::string &exportVtuFolder);
 
-void export_performance(const Program_configuration& config, const Assembler::Performance_Data& performance_data,
+void export_performance(const Program_configuration &config,
+                        const Assembler::Performance_Data &performance_data,
                         const std::string &exportFolder);
 
 } // namespace program_utilities

@@ -93,17 +93,17 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("CreateDiscreteSpace of order " + to_string(config.MethodOrder()) + " and DOFs...", true);
     Gedim::Profiler::StartTime("CreateDiscreteSpace");
 
-    const auto reference_element_data = Polydim::examples::Elliptic_PCC_2D::local_space::CreateReferenceElement(config.MethodType(),
-                                                                                                           config.MethodOrder());
+    const auto reference_element_data =
+        Polydim::examples::Elliptic_PCC_2D::local_space::CreateReferenceElement(config.MethodType(), config.MethodOrder());
 
     Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data = {mesh};
 
-    const auto reference_element_num_dofs = Polydim::examples::Elliptic_PCC_2D::local_space::ReferenceElementNumDOFs(reference_element_data);
+    const auto reference_element_num_dofs =
+        Polydim::examples::Elliptic_PCC_2D::local_space::ReferenceElementNumDOFs(reference_element_data);
 
     Polydim::PDETools::DOFs::DOFsManager dofManager;
-    const auto meshDOFsInfo = dofManager.Create_Constant_DOFsInfo<2>(
-        mesh_connectivity_data,
-        {reference_element_num_dofs, boundary_info});
+    const auto meshDOFsInfo =
+        dofManager.Create_Constant_DOFsInfo<2>(mesh_connectivity_data, {reference_element_num_dofs, boundary_info});
 
     const auto dofs_data = dofManager.CreateDOFs<2>(meshDOFsInfo, mesh_connectivity_data);
 
@@ -114,7 +114,9 @@ int main(int argc, char **argv)
     Gedim::Profiler::StopTime("CreateDiscreteSpace");
     Gedim::Output::PrintStatusProgram("CreateDiscreteSpace");
 
-    Gedim::Output::PrintGenericMessage("AssembleSystem Discrete Type " + to_string(static_cast<unsigned int>(config.MethodType())) + "...", true);
+    Gedim::Output::PrintGenericMessage("AssembleSystem Discrete Type " +
+                                           to_string(static_cast<unsigned int>(config.MethodType())) + "...",
+                                       true);
     Gedim::Profiler::StartTime("AssembleSystem");
 
     Polydim::examples::Elliptic_PCC_2D::Assembler assembler;
@@ -175,15 +177,9 @@ int main(int argc, char **argv)
 
     if (config.ComputeMethodPerformance())
     {
-        const auto performance =
-            assembler.ComputePerformance(config,
-                                         mesh,
-                                         meshGeometricData,
-                                         reference_element_data);
+        const auto performance = assembler.ComputePerformance(config, mesh, meshGeometricData, reference_element_data);
 
-        Polydim::examples::Elliptic_PCC_2D::program_utilities::export_performance(config,
-                                                                                  performance,
-                                                                                  exportSolutionFolder);
+        Polydim::examples::Elliptic_PCC_2D::program_utilities::export_performance(config, performance, exportSolutionFolder);
     }
 
     Gedim::Profiler::StopTime("ComputeMethodPerformance");

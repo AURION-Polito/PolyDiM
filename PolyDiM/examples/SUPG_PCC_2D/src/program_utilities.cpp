@@ -4,25 +4,25 @@ namespace Polydim
 {
 namespace examples
 {
-namespace Elliptic_PCC_2D
+namespace SUPG_PCC_2D
 {
 namespace program_utilities
 {
 // ***************************************************************************
-std::unique_ptr<Polydim::examples::Elliptic_PCC_2D::test::I_Test> create_test(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config)
+std::unique_ptr<Polydim::examples::SUPG_PCC_2D::test::I_Test> create_test(const Polydim::examples::SUPG_PCC_2D::Program_configuration &config)
 {
     switch (config.TestType())
     {
-    case Polydim::examples::Elliptic_PCC_2D::test::Test_Types::Patch_Test:
-        return std::make_unique<Polydim::examples::Elliptic_PCC_2D::test::Patch_Test>();
-    case Polydim::examples::Elliptic_PCC_2D::test::Test_Types::Poisson_Polynomial_Problem:
-        return std::make_unique<Polydim::examples::Elliptic_PCC_2D::test::Poisson_Polynomial_Problem>();
+    case Polydim::examples::SUPG_PCC_2D::test::Test_Types::Patch_Test:
+        return std::make_unique<Polydim::examples::SUPG_PCC_2D::test::Patch_Test>();
+    case Polydim::examples::SUPG_PCC_2D::test::Test_Types::Poisson_Polynomial_Problem:
+        return std::make_unique<Polydim::examples::SUPG_PCC_2D::test::Poisson_Polynomial_Problem>();
     default:
         throw runtime_error("Test type " + to_string((unsigned int)config.TestType()) + " not supported");
     }
 }
 // ***************************************************************************
-void create_domain_mesh(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
+void create_domain_mesh(const Polydim::examples::SUPG_PCC_2D::Program_configuration &config,
                         const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D &domain,
                         Gedim::MeshMatricesDAO &mesh)
 {
@@ -61,7 +61,7 @@ void create_domain_mesh(const Polydim::examples::Elliptic_PCC_2D::Program_config
     }
 }
 // ***************************************************************************
-Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_properties(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
+Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_properties(const Polydim::examples::SUPG_PCC_2D::Program_configuration &config,
                                                                                   const Gedim::MeshMatricesDAO &mesh)
 {
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
@@ -74,23 +74,23 @@ Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_propertie
     return Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_2D_geometry_data(geometryUtilities, meshUtilities, mesh);
 }
 // ***************************************************************************
-void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
+void export_solution(const Polydim::examples::SUPG_PCC_2D::Program_configuration &config,
                      const Gedim::MeshMatricesDAO &mesh,
                      const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-                     const Polydim::examples::Elliptic_PCC_2D::Assembler::Elliptic_PCC_2D_Problem_Data &assembler_data,
-                     const Polydim::examples::Elliptic_PCC_2D::Assembler::PostProcess_Data &post_process_data,
+                     const Polydim::examples::SUPG_PCC_2D::Assembler::Elliptic_PCC_2D_Problem_Data &assembler_data,
+                     const Polydim::examples::SUPG_PCC_2D::Assembler::PostProcess_Data &post_process_data,
                      const std::string &exportSolutionFolder,
                      const std::string &exportVtuFolder)
 {
-    const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
+    const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
     const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
 
     {
         const char separator = ';';
 
         std::cout << "ProgramType" << separator;
-        std::cout << "MethodType" << separator;
-        std::cout << "MethodOrder" << separator;
+        std::cout << "VemType" << separator;
+        std::cout << "VemOrder" << separator;
         std::cout << "Cell2Ds" << separator;
         std::cout << "Dofs" << separator;
         std::cout << "Strongs" << separator;
@@ -104,8 +104,8 @@ void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configura
 
         std::cout.precision(2);
         std::cout << scientific << TEST_ID << separator;
-        std::cout << scientific << Method_ID << separator;
-        std::cout << scientific << config.MethodOrder() << separator;
+        std::cout << scientific << VEM_ID << separator;
+        std::cout << scientific << config.VemOrder() << separator;
         std::cout << scientific << mesh.Cell2DTotalNumber() << separator;
         std::cout << scientific << dofs_data.NumberDOFs << separator;
         std::cout << scientific << dofs_data.NumberStrongs << separator;
@@ -120,16 +120,16 @@ void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configura
 
     {
         const char separator = ';';
-        const string errorFileName = exportSolutionFolder + "/Errors_" + to_string(TEST_ID) + "_" +
-                                     to_string(Method_ID) + +"_" + to_string(config.MethodOrder()) + ".csv";
+        const string errorFileName = exportSolutionFolder + "/Errors_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) +
+                                     +"_" + to_string(config.VemOrder()) + ".csv";
         const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
 
         std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);
         if (!errorFileExists)
         {
             errorFile << "ProgramType" << separator;
-            errorFile << "MethodType" << separator;
-            errorFile << "MethodOrder" << separator;
+            errorFile << "VemType" << separator;
+            errorFile << "VemOrder" << separator;
             errorFile << "Cell2Ds" << separator;
             errorFile << "Dofs" << separator;
             errorFile << "Strongs" << separator;
@@ -144,8 +144,8 @@ void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configura
 
         errorFile.precision(16);
         errorFile << scientific << TEST_ID << separator;
-        errorFile << scientific << Method_ID << separator;
-        errorFile << scientific << config.MethodOrder() << separator;
+        errorFile << scientific << VEM_ID << separator;
+        errorFile << scientific << config.VemOrder() << separator;
         errorFile << scientific << mesh.Cell2DTotalNumber() << separator;
         errorFile << scientific << dofs_data.NumberDOFs << separator;
         errorFile << scientific << dofs_data.NumberStrongs << separator;
@@ -182,19 +182,20 @@ void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configura
                                    static_cast<unsigned int>(post_process_data.cell2Ds_error_H1.size()),
                                    post_process_data.cell2Ds_error_H1.data()}});
 
-            exporter.Export(exportVtuFolder + "/Solution_" + to_string(TEST_ID) + "_" + to_string(Method_ID) + +"_" +
-                            to_string(config.MethodOrder()) + ".vtu");
+            exporter.Export(exportVtuFolder + "/Solution_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) + +"_" +
+                            to_string(config.VemOrder()) + ".vtu");
         }
     }
 }
 // ***************************************************************************
-void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
+void export_dofs(const Polydim::examples::SUPG_PCC_2D::Program_configuration &config,
                  const Gedim::MeshMatricesDAO &mesh,
                  const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                  const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                 const VEM::PCC::VEM_PCC_2D_ReferenceElement_Data &vem_reference_element_data,
                  const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-                 const Polydim::examples::Elliptic_PCC_2D::Assembler::Elliptic_PCC_2D_Problem_Data &assembler_data,
-                 const Polydim::examples::Elliptic_PCC_2D::Assembler::PostProcess_Data &post_process_data,
+                 const Polydim::examples::SUPG_PCC_2D::Assembler::Elliptic_PCC_2D_Problem_Data &assembler_data,
+                 const Polydim::examples::SUPG_PCC_2D::Assembler::PostProcess_Data &post_process_data,
                  const std::string &exportVtuFolder)
 {
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
@@ -396,65 +397,14 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration
                              static_cast<unsigned int>(solution_values_data.size()),
                              solution_values_data.data()}});
 
-        const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
+        const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
         const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
-        exporter.Export(exportVtuFolder + "/dofs_" + to_string(TEST_ID) + "_" + to_string(Method_ID) + +"_" +
-                        to_string(config.MethodOrder()) + ".vtu");
-    }
-}
-// ***************************************************************************
-void export_performance(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
-                        const Assembler::Performance_Data &performance_data,
-                        const std::string &exportFolder)
-{
-    {
-        const char separator = ',';
-        ofstream exporter;
-        const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
-        const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
-        exporter.open(exportFolder + "/Cell2Ds_MethodPerformance_" + to_string(TEST_ID) + "_" + to_string(Method_ID) +
-                      +"_" + to_string(config.MethodOrder()) + ".csv");
-        exporter.precision(16);
-
-        if (exporter.fail())
-            throw runtime_error("Error on mesh cell2Ds file");
-
-        exporter << "Cell2D_Index" << separator;
-        exporter << "NumQuadPoints_Boundary" << separator;
-        exporter << "NumQuadPoints_Internal" << separator;
-        exporter << "PiNabla_Cond" << separator;
-        exporter << "Pi0k_Cond" << separator;
-        exporter << "Pi0km1_Cond" << separator;
-        exporter << "PiNabla_Error" << separator;
-        exporter << "Pi0k_Error" << separator;
-        exporter << "Pi0km1_Error" << separator;
-        exporter << "HCD_Error" << separator;
-        exporter << "GBD_Error" << separator;
-        exporter << "Stab_Error" << endl;
-
-        for (unsigned int v = 0; v < performance_data.Cell2DsPerformance.size(); v++)
-        {
-            const auto &cell2D_performance = performance_data.Cell2DsPerformance[v].VEM_Performance_Data;
-
-            exporter << scientific << v << separator;
-            exporter << scientific << cell2D_performance.NumBoundaryQuadraturePoints << separator;
-            exporter << scientific << cell2D_performance.NumInternalQuadraturePoints << separator;
-            exporter << scientific << cell2D_performance.Analysis.PiNablaConditioning << separator;
-            exporter << scientific << cell2D_performance.Analysis.Pi0kConditioning << separator;
-            exporter << scientific << cell2D_performance.Analysis.Pi0km1Conditioning << separator;
-            exporter << scientific << cell2D_performance.Analysis.ErrorPiNabla << separator;
-            exporter << scientific << cell2D_performance.Analysis.ErrorPi0k << separator;
-            exporter << scientific << cell2D_performance.Analysis.ErrorPi0km1 << separator;
-            exporter << scientific << cell2D_performance.Analysis.ErrorHCD << separator;
-            exporter << scientific << cell2D_performance.Analysis.ErrorGBD << separator;
-            exporter << scientific << cell2D_performance.Analysis.ErrorStabilization << endl;
-        }
-
-        exporter.close();
+        exporter.Export(exportVtuFolder + "/dofs_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) + +"_" +
+                        to_string(config.VemOrder()) + ".vtu");
     }
 }
 // ***************************************************************************
 } // namespace program_utilities
-} // namespace Elliptic_PCC_2D
+} // namespace SUPG_PCC_2D
 } // namespace examples
 } // namespace Polydim
