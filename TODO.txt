@@ -6,6 +6,7 @@
 * fix MCC 2D
 * fix navier stokes 2D
 * fix stokes 3D
-
+* generalizzare sul solver
+* lettore proprietà geoemtriche
 
 

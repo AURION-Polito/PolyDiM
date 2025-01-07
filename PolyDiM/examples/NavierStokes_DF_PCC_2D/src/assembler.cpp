@@ -158,7 +158,7 @@ void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
 
             // compute values of Neumann condition
             const Eigen::VectorXd neumannContributions =
-                weak_basis_function_values.transpose() * weakQuadratureWeights.asDiagonal() * neumannValues[h];
+                -weak_basis_function_values.transpose() * weakQuadratureWeights.asDiagonal() * neumannValues[h];
 
             for (unsigned int p = 0; p < 2; ++p)
             {
@@ -227,6 +227,7 @@ Assembler::NavierStokes_DF_PCC_2D_Problem_Data Assembler::AssembleStokes(
     result.dirichletMatrixA.SetSize(count_dofs.num_total_dofs, count_dofs.num_total_strong);
     result.rightHandSide.SetSize(count_dofs.num_total_dofs);
     result.solution.SetSize(count_dofs.num_total_dofs);
+    result.previousIteration.SetSize(count_dofs.num_total_dofs);
     result.solutionDirichlet.SetSize(count_dofs.num_total_strong);
 
     Polydim::PDETools::Equations::EllipticEquation equation;
@@ -266,7 +267,7 @@ Assembler::NavierStokes_DF_PCC_2D_Problem_Data Assembler::AssembleStokes(
                                                            velocity_basis_functions_derivatives_values,
                                                            velocity_local_space.InternalQuadrature.Weights);
 
-        double mu_max = fluid_viscosity_values.cwiseAbs().maxCoeff();
+        const double mu_max = fluid_viscosity_values.cwiseAbs().maxCoeff();
         local_A += mu_max * vem_velocity_local_space.ComputeDofiDofiStabilizationMatrix(velocity_local_space,
                                                                                         Polydim::VEM::DF_PCC::ProjectionTypes::PiNabla);
 
@@ -285,6 +286,7 @@ Assembler::NavierStokes_DF_PCC_2D_Problem_Data Assembler::AssembleStokes(
         Eigen::VectorXd elemental_rhs = VectorXd::Zero(local_count_dofs.num_total_dofs);
 
         elemental_matrix << local_A, local_B.transpose(), local_B, MatrixXd::Zero(num_local_dofs_pressure, num_local_dofs_pressure);
+
         elemental_rhs << local_rhs, VectorXd::Zero(num_local_dofs_pressure);
 
         assert(velocity_local_space.NumBasisFunctions == local_count_dofs.num_total_dofs - num_local_dofs_pressure);

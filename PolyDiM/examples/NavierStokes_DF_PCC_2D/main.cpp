@@ -58,6 +58,7 @@ int main(int argc, char **argv)
     const auto boundary_info = test->boundary_info();
 
     // export domain
+    if (domain.vertices.size() > 0)
     {
         Gedim::VTKUtilities vtkUtilities;
         vtkUtilities.AddPolygon(domain.vertices);
@@ -179,17 +180,42 @@ int main(int argc, char **argv)
         Gedim::Eigen_LUSolver solver;
         solver.Initialize(assembler_data.globalMatrixA);
 
+        cout.precision(2);
+        cout << scientific << assembler_data.rightHandSide << endl;
+
         Gedim::Profiler::StopTime("Factorize");
         Gedim::Output::PrintStatusProgram("Factorize");
 
         Gedim::Output::PrintGenericMessage("Solve...", true);
         Gedim::Profiler::StartTime("Solve");
 
-        solver.Solve(assembler_data.rightHandSide, assembler_data.previousIteration);
+        solver.Solve(assembler_data.rightHandSide, assembler_data.solution);
 
         Gedim::Profiler::StopTime("Solve");
         Gedim::Output::PrintStatusProgram("Solve");
     }
+
+    auto post_process_data_2 = assembler.PostProcessSolution(config,
+                                                             mesh,
+                                                             meshGeometricData,
+                                                             dofs_data,
+                                                             count_dofs,
+                                                             velocity_reference_element_data,
+                                                             pressure_reference_element_data,
+                                                             *vem_velocity_local_space,
+                                                             *vem_pressure_local_space,
+                                                             assembler_data,
+                                                             *test);
+
+    Polydim::examples::NavierStokes_DF_PCC_2D::program_utilities::export_solution(config,
+                                                                                  mesh,
+                                                                                  dofs_data,
+                                                                                  count_dofs,
+                                                                                  assembler_data,
+                                                                                  post_process_data_2,
+                                                                                  0,
+                                                                                  exportSolutionFolder,
+                                                                                  exportVtuFolder);
 
     Gedim::Eigen_Array<> residual;
     residual.SetSize(count_dofs.num_total_dofs);
