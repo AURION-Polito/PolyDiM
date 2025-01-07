@@ -6,6 +6,7 @@
 #include "QuadratureData.hpp"
 #include "VEM_PCC_2D_LocalSpace_Data.hpp"
 #include "VEM_PCC_2D_Creator.hpp"
+#include "VEM_PCC_PerformanceAnalysis.hpp"
 #include "program_configuration.hpp"
 
 namespace Polydim
@@ -18,23 +19,44 @@ namespace Polydim
       {
         struct ReferenceElement_Data final
         {
-            Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data VEM_ReferenceElement;
-            Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement_Data FEM_ReferenceElement;
+            Program_configuration::MethodTypes Method_Type;
+
+            std::unique_ptr<Polydim::VEM::PCC::I_VEM_PCC_2D_ReferenceElement> VEM_ReferenceElement;
+            Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data VEM_ReferenceElement_Data;
+            VEM::PCC::VEM_PCC_2D_LocalSpace_Types VEM_Type;
+            std::unique_ptr<VEM::PCC::I_VEM_PCC_2D_LocalSpace> VEM_LocalSpace;
+
+            std::unique_ptr<Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement> FEM_ReferenceElement;
+            Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement_Data FEM_ReferenceElement_Data;
+            std::unique_ptr<FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace> FEM_LocalSpace;
         };
+
 
         struct LocalSpace_Data final
         {
-            Program_configuration::MethodTypes Method_Type;
-
-            VEM::PCC::VEM_PCC_2D_LocalSpace_Types VEM_Type;
             Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry VEM_Geometry;
-            std::unique_ptr<VEM::PCC::I_VEM_PCC_2D_LocalSpace> VEM_LocalSpace;
             Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace_Data VEM_LocalSpace_Data;
 
             Polydim::FEM::PCC::FEM_Triangle_PCC_2D_Polygon_Geometry FEM_Geometry;
-            std::unique_ptr<FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace> FEM_LocalSpace;
             Polydim::FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace_Data FEM_LocalSpace_Data;
         };
+
+        struct Performance_Data final
+        {
+            struct Cell2D_Performance final
+            {
+                unsigned int NumBoundaryQuadraturePoints = 0;
+                unsigned int NumInternalQuadraturePoints = 0;
+                Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis_Data Analysis;
+            };
+
+            Cell2D_Performance VEM_Performance_Data;
+        };
+
+        ReferenceElement_Data CreateReferenceElement(const Program_configuration::MethodTypes& method_type,
+                                                     const unsigned int method_order);
+
+        std::array<unsigned int, 4> ReferenceElementNumDOFs(const ReferenceElement_Data& reference_element_data);
 
         LocalSpace_Data CreateLocalSpace(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
                                          const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
@@ -48,12 +70,22 @@ namespace Polydim
         std::vector<Eigen::MatrixXd> BasisFunctionsDerivativeValues(const ReferenceElement_Data& reference_element_data,
                                                                     const LocalSpace_Data& local_space_data);
 
-        Eigen::MatrixXd StabilizationMatrix(const LocalSpace_Data& local_space_data);
+        Eigen::MatrixXd StabilizationMatrix(const ReferenceElement_Data& reference_element_data,
+                                            const LocalSpace_Data& local_space_data);
+
+        Eigen::MatrixXd EdgeDofsCoordinates(const ReferenceElement_Data& reference_element_data,
+                                            const LocalSpace_Data& local_space_data,
+                                            const unsigned int edge_local_index);
 
 
-        Gedim::Quadrature::QuadratureData InternalQuadrature(const LocalSpace_Data& local_space_data);
+        Gedim::Quadrature::QuadratureData InternalQuadrature(const ReferenceElement_Data& reference_element_data,
+                                                             const LocalSpace_Data& local_space_data);
 
-        unsigned int Size(const LocalSpace_Data& local_space_data);
+        unsigned int Size(const ReferenceElement_Data& reference_element_data,
+                          const LocalSpace_Data& local_space_data);
+
+        Performance_Data ComputePerformance(const ReferenceElement_Data& reference_element_data,
+                                            const LocalSpace_Data& local_space_data);
 
       };
     } // namespace Elliptic_PCC_2D

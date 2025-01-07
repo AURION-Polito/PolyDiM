@@ -37,11 +37,13 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration
                  const Gedim::MeshMatricesDAO &mesh,
                  const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                  const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
-                 const VEM::PCC::VEM_PCC_2D_ReferenceElement_Data &vem_reference_element_data,
                  const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                  const Polydim::examples::Elliptic_PCC_2D::Assembler::Elliptic_PCC_2D_Problem_Data &assembler_data,
                  const Polydim::examples::Elliptic_PCC_2D::Assembler::PostProcess_Data &post_process_data,
                  const std::string &exportVtuFolder);
+
+void export_performance(const Assembler::Performance_Data& performance_data,
+                        const std::string &exportFolder);
 
 } // namespace program_utilities
 } // namespace Elliptic_PCC_2D

@@ -48,7 +48,7 @@ struct Program_configuration final
                                            "Method Type, 0 - FEM_Triangle, 1 - EVem; 2 - EVem_Inertia; 3 - EVem_Ortho (Default: "
                                            "0)");
         Gedim::Configurations::AddProperty("MethodOrder", static_cast<unsigned int>(1), "Method order (Default: 1)");
-        Gedim::Configurations::AddProperty("ComputeVEMPerformance", true, "Compute VEM Performance (Default: true)");
+        Gedim::Configurations::AddProperty("ComputeMethodPerformance", true, "Compute Method Performance (Default: false)");
     }
 
     inline string ExportFolder() const
@@ -86,9 +86,9 @@ struct Program_configuration final
     {
         return static_cast<MethodTypes>(Gedim::Configurations::GetPropertyValue<unsigned int>("MethodType"));
     }
-    inline bool ComputeVEMPerformance() const
+    inline bool ComputeMethodPerformance() const
     {
-        return Gedim::Configurations::GetPropertyValue<bool>("ComputeVEMPerformance");
+        return Gedim::Configurations::GetPropertyValue<bool>("ComputeMethodPerformance");
     }
     inline unsigned int MethodOrder() const
     {
