@@ -180,48 +180,27 @@ int main(int argc, char **argv)
         Gedim::Eigen_LUSolver solver;
         solver.Initialize(assembler_data.globalMatrixA);
 
-        cout.precision(2);
-        cout << scientific << assembler_data.rightHandSide << endl;
-
         Gedim::Profiler::StopTime("Factorize");
         Gedim::Output::PrintStatusProgram("Factorize");
 
         Gedim::Output::PrintGenericMessage("Solve...", true);
         Gedim::Profiler::StartTime("Solve");
 
-        solver.Solve(assembler_data.rightHandSide, assembler_data.solution);
+        solver.Solve(assembler_data.rightHandSide, assembler_data.previousIteration);
 
         Gedim::Profiler::StopTime("Solve");
         Gedim::Output::PrintStatusProgram("Solve");
     }
 
-    auto post_process_data_2 = assembler.PostProcessSolution(config,
-                                                             mesh,
-                                                             meshGeometricData,
-                                                             dofs_data,
-                                                             count_dofs,
-                                                             velocity_reference_element_data,
-                                                             pressure_reference_element_data,
-                                                             *vem_velocity_local_space,
-                                                             *vem_pressure_local_space,
-                                                             assembler_data,
-                                                             *test);
-
-    Polydim::examples::NavierStokes_DF_PCC_2D::program_utilities::export_solution(config,
-                                                                                  mesh,
-                                                                                  dofs_data,
-                                                                                  count_dofs,
-                                                                                  assembler_data,
-                                                                                  post_process_data_2,
-                                                                                  0,
-                                                                                  exportSolutionFolder,
-                                                                                  exportVtuFolder);
+    Gedim::Eigen_Array<> test_res;
+    test_res.SetSize(count_dofs.num_total_dofs);
 
     Gedim::Eigen_Array<> residual;
     residual.SetSize(count_dofs.num_total_dofs);
     residual.SumMultiplication(assembler_data.globalMatrixA, assembler_data.previousIteration);
     residual -= assembler_data.rightHandSide;
 
+    double residual_norm;
     const double initial_residual_norm = residual.Norm();
     const double initial_solution_norm = assembler_data.previousIteration.Norm();
 
@@ -244,6 +223,10 @@ int main(int argc, char **argv)
                                        *vem_pressure_local_space,
                                        assembler_data);
 
+        //        test_res.SumMultiplication(assembler_data.globalMatrixC, assembler_data.previousIteration);
+        //        test_res -= assembler_data.rightHandSideC;
+        //        cout << test_res << endl;
+
         Gedim::Profiler::StopTime("AssembleNavierStokesTerm");
         Gedim::Output::PrintStatusProgram("AssembleNavierStokesTerm");
 
@@ -261,6 +244,7 @@ int main(int argc, char **argv)
             Gedim::Output::PrintGenericMessage("Solve...", true);
             Gedim::Profiler::StartTime("Solve");
 
+            assembler_data.solution.Zeros();
             solver.Solve(assembler_data.rightHandSideC, assembler_data.solution);
 
             Gedim::Profiler::StopTime("Solve");
@@ -270,12 +254,11 @@ int main(int argc, char **argv)
         residual.Zeros();
         residual.SumMultiplication(assembler_data.globalMatrixC, assembler_data.solution);
         residual -= assembler_data.rightHandSideC;
-        const double residual_norm = residual.Norm();
+        residual_norm = residual.Norm();
 
         Gedim::Eigen_Array<> delta;
         delta.Copy(assembler_data.solution);
         delta -= assembler_data.previousIteration;
-
         const double delta_norm = delta.Norm();
 
         assembler_data.previousIteration.Copy(assembler_data.solution);
@@ -303,6 +286,7 @@ int main(int argc, char **argv)
                                                            *vem_velocity_local_space,
                                                            *vem_pressure_local_space,
                                                            assembler_data,
+                                                           residual_norm,
                                                            *test);
 
     Gedim::Profiler::StopTime("ComputeErrors");

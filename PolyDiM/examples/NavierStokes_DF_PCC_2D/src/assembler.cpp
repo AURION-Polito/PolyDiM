@@ -445,6 +445,12 @@ void Assembler::AssembleNavierStokes(const Polydim::examples::NavierStokes_DF_PC
                         velocity_local_space.InternalQuadrature.Weights.asDiagonal() *
                         previous_iteration_values[d2].cwiseProduct(previous_iteration_derivatives_values[2 * d1 + d2]);
             }
+
+            // Test
+            {
+                cout << "cellCMatrix1 * velocity_dofs_values - cellRightHandSide1" << endl;
+                cout << cellRightHandSideC << endl;
+            }
         }
         break;
         case Program_configuration::ConvectiveFormType::Skew: {
@@ -511,6 +517,12 @@ void Assembler::AssembleNavierStokes(const Polydim::examples::NavierStokes_DF_PC
             }
 
             cellRightHandSideC = 0.5 * (cellRightHandSide1 - cellRightHandSide2);
+
+            //            // Test
+            //            {
+            //                cout << "cellCMatrix1 * velocity_dofs_values - cellRightHandSide1" << endl;
+            //                cout << cellCMatrix2 * velocity_dofs_values - cellRightHandSide2 << endl;
+            //            }
         }
         break;
         default:
@@ -541,6 +553,7 @@ void Assembler::AssembleNavierStokes(const Polydim::examples::NavierStokes_DF_PC
 
     if (count_dofs.num_total_strong > 0)
         result.rightHandSideC.SubtractionMultiplication(result.dirichletMatrixC, result.solutionDirichlet);
+
     result.rightHandSideC += result.rightHandSide;
     result.globalMatrixC += result.globalMatrixA;
 }
@@ -612,20 +625,12 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
     const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_velocity_local_space,
     const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Pressure_LocalSpace &vem_pressure_local_space,
     const NavierStokes_DF_PCC_2D_Problem_Data &assembler_data,
+    const double &residual_norm,
     const Polydim::examples::NavierStokes_DF_PCC_2D::test::I_Test &test) const
 {
     PostProcess_Data result;
 
-    result.residual_norm = 0.0;
-    if (count_dofs.num_total_dofs > 0)
-    {
-        Gedim::Eigen_Array<> residual;
-        residual.SetSize(count_dofs.num_total_dofs);
-        residual.SumMultiplication(assembler_data.globalMatrixA, assembler_data.solution);
-        residual -= assembler_data.rightHandSide;
-
-        result.residual_norm = residual.Norm();
-    }
+    result.residual_norm = residual_norm;
 
     for (unsigned int d = 0; d < velocity_reference_element_data.Dimension; d++)
     {

@@ -230,7 +230,7 @@ struct StokesSinSin final : public I_Test
                 {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
                 {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
@@ -294,6 +294,14 @@ struct StokesSinSin final : public I_Test
     {
         switch (marker)
         {
+        case 2:
+            return {-0.5 * cos(points.row(0).array()) * cos(points.row(0).array()) *
+                        (-sin(points.row(1).array()) * sin(points.row(1).array()) +
+                         cos(points.row(1).array()) * cos(points.row(1).array())),
+                    -cos(points.row(1).array()) * sin(points.row(1).array()) * cos(points.row(0).array()) *
+                            sin(points.row(0).array()) -
+                        sin(points.row(0).array()) - sin(points.row(1).array()),
+                    Eigen::VectorXd::Zero(points.cols())};
         default:
             throw std::runtime_error("Unknown marker");
         }

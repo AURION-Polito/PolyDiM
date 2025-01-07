@@ -128,6 +128,7 @@ class Assembler final
                                          const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_velocity_local_space,
                                          const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Pressure_LocalSpace &vem_pressure_local_space,
                                          const NavierStokes_DF_PCC_2D_Problem_Data &assembler_data,
+                                         const double &residual_norm,
                                          const Polydim::examples::NavierStokes_DF_PCC_2D::test::I_Test &test) const;
 
     void AssembleNavierStokes(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config,
