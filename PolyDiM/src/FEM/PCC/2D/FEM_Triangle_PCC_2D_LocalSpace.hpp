@@ -12,11 +12,11 @@ namespace PCC
 {
 struct FEM_Triangle_PCC_2D_Polygon_Geometry final
 {
-    const double Tolerance1D;
-    const double Tolerance2D;
+    double Tolerance1D;
+    double Tolerance2D;
 
-    const Eigen::MatrixXd &Vertices;
-    const std::vector<bool> &EdgesDirection;
+    Eigen::MatrixXd Vertices;
+    std::vector<bool> EdgesDirection;
 };
 
 struct FEM_Triangle_PCC_2D_LocalSpace_Data final
