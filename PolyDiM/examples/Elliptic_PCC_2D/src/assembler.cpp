@@ -1,5 +1,10 @@
 #include "assembler.hpp"
 
+#include "Assembler_Utilities.hpp"
+#include "EllipticEquation.hpp"
+#include "Quadrature_Gauss1D.hpp"
+#include "VEM_PCC_Utilities.hpp"
+
 namespace Polydim
 {
 namespace examples
@@ -140,7 +145,7 @@ void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
 
         const Eigen::VectorXd neumannValues = test.weak_boundary_condition(boundary_info.Marker, weakQuadraturePoints);
         const auto weak_basis_function_values =
-            local_space::BasisFunctionsValuesOnEdges(ed, reference_element_data, local_space_data, pointsCurvilinearCoordinates, weakQuadraturePoints);
+            local_space::BasisFunctionsValuesOnEdges(ed, reference_element_data, local_space_data, pointsCurvilinearCoordinates);
 
         // compute values of Neumann condition
         const Eigen::VectorXd neumannContributions =
@@ -192,14 +197,42 @@ void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
     }
 }
 // ***************************************************************************
-typename Assembler::Elliptic_PCC_2D_Problem_Data Assembler::Assemble(
-    const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
-    const Gedim::MeshMatricesDAO &mesh,
-    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-    const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
-    const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-    const local_space::ReferenceElement_Data &reference_element_data,
-    const Polydim::examples::Elliptic_PCC_2D::test::I_Test &test) const
+Eigen::MatrixXd Assembler::ComputeSUPGMatrix(const std::array<Eigen::VectorXd, 3> &advection_term_values,
+                                             const Eigen::VectorXd &diffusion_term_values,
+                                             const Eigen::MatrixXd &basis_functions_laplacian_values,
+                                             const std::vector<Eigen::MatrixXd> &basis_functions_derivative_values,
+                                             const Eigen::VectorXd &quadrature_weights) const
+{
+    Eigen::MatrixXd vander_beta_matrix = advection_term_values.at(0).asDiagonal() * basis_functions_derivative_values.at(0);
+
+    for (unsigned int d = 1; d < basis_functions_derivative_values.size(); ++d)
+        vander_beta_matrix.noalias() += advection_term_values.at(d).asDiagonal() * basis_functions_derivative_values.at(d);
+
+    return vander_beta_matrix.transpose() *
+           (quadrature_weights.asDiagonal() * vander_beta_matrix -
+            quadrature_weights.cwiseProduct(diffusion_term_values).asDiagonal() * basis_functions_laplacian_values);
+}
+// ***************************************************************************
+Eigen::MatrixXd Assembler::ComputeSUPGForcingTerm(const std::array<Eigen::VectorXd, 3> &advection_term_values,
+                                                  const Eigen::VectorXd &source_term_values,
+                                                  const std::vector<Eigen::MatrixXd> &basis_functions_derivative_values,
+                                                  const Eigen::VectorXd &quadrature_weights) const
+{
+    Eigen::MatrixXd vander_beta_matrix = advection_term_values.at(0).asDiagonal() * basis_functions_derivative_values.at(0);
+
+    for (unsigned int d = 1; d < basis_functions_derivative_values.size(); ++d)
+        vander_beta_matrix.noalias() += advection_term_values.at(d).asDiagonal() * basis_functions_derivative_values.at(d);
+
+    return vander_beta_matrix.transpose() * quadrature_weights.asDiagonal() * source_term_values;
+}
+// ***************************************************************************
+Assembler::Elliptic_PCC_2D_Problem_Data Assembler::Assemble(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
+                                                            const Gedim::MeshMatricesDAO &mesh,
+                                                            const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                                            const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                                                            const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                                                            const local_space::ReferenceElement_Data &reference_element_data,
+                                                            const Polydim::examples::Elliptic_PCC_2D::test::I_Test &test) const
 {
     Elliptic_PCC_2D_Problem_Data result;
 
@@ -208,6 +241,9 @@ typename Assembler::Elliptic_PCC_2D_Problem_Data Assembler::Assemble(
     result.rightHandSide.SetSize(dofs_data.NumberDOFs);
     result.solution.SetSize(dofs_data.NumberDOFs);
     result.solutionDirichlet.SetSize(dofs_data.NumberStrongs);
+
+    result.peclet_number.resize(mesh.Cell2DTotalNumber());
+    result.stability_parameter.resize(mesh.Cell2DTotalNumber());
 
     Polydim::PDETools::Equations::EllipticEquation equation;
 
@@ -223,17 +259,50 @@ typename Assembler::Elliptic_PCC_2D_Problem_Data Assembler::Assemble(
         const auto cell2D_internal_quadrature = local_space::InternalQuadrature(reference_element_data, local_space_data);
 
         const auto diffusion_term_values = test.diffusion_term(cell2D_internal_quadrature.Points);
+        const auto advection_term_values = test.advection_term(cell2D_internal_quadrature.Points);
         const auto source_term_values = test.source_term(cell2D_internal_quadrature.Points);
 
-        const auto local_A = equation.ComputeCellDiffusionMatrix(diffusion_term_values,
-                                                                 basis_functions_derivative_values,
-                                                                 cell2D_internal_quadrature.Weights);
+        const Eigen::MatrixXd local_A = equation.ComputeCellDiffusionMatrix(diffusion_term_values,
+                                                                            basis_functions_derivative_values,
+                                                                            cell2D_internal_quadrature.Weights);
 
-        const Eigen::MatrixXd local_stab_A = diffusion_term_values.cwiseAbs().maxCoeff() *
-                                             local_space::StabilizationMatrix(reference_element_data, local_space_data);
+        Eigen::MatrixXd local_B = equation.ComputeCellAdvectionMatrix(advection_term_values,
+                                                                      basis_functions_values,
+                                                                      basis_functions_derivative_values,
+                                                                      cell2D_internal_quadrature.Weights);
 
-        const auto local_rhs =
+        Eigen::VectorXd local_rhs =
             equation.ComputeCellForcingTerm(source_term_values, basis_functions_values, cell2D_internal_quadrature.Weights);
+
+        const double b_norm = cell2D_internal_quadrature.Weights.transpose() *
+                              (advection_term_values[0].array().square() + advection_term_values[1].array().square()).matrix();
+        const double k_max = diffusion_term_values.cwiseAbs().maxCoeff();
+        const double &diameter = mesh_geometric_data.Cell2DsDiameters.at(c);
+
+        result.peclet_number[c] = config.PecletConstant() * diameter * b_norm / (2.0 * k_max);
+
+        if (config.SUPG())
+        {
+            result.stability_parameter[c] = (diameter / b_norm) * std::min(1.0, result.peclet_number[c]);
+
+            const auto basis_functions_laplacian_values = local_space::BasisFunctionsValues(reference_element_data, local_space_data);
+
+            local_B += result.stability_parameter[c] * ComputeSUPGMatrix(advection_term_values,
+                                                                         diffusion_term_values,
+                                                                         basis_functions_laplacian_values,
+                                                                         basis_functions_derivative_values,
+                                                                         cell2D_internal_quadrature.Weights);
+
+            local_rhs += result.stability_parameter[c] * ComputeSUPGForcingTerm(advection_term_values,
+                                                                                source_term_values,
+                                                                                basis_functions_derivative_values,
+                                                                                cell2D_internal_quadrature.Weights);
+        }
+        else
+            result.stability_parameter[c] = 0.0;
+
+        const Eigen::MatrixXd local_A_stab = (k_max + result.stability_parameter[c] * b_norm) *
+                                             local_space::StabilizationMatrix(reference_element_data, local_space_data);
 
         const auto &global_dofs = dofs_data.CellsGlobalDOFs[2].at(c);
 
@@ -245,7 +314,7 @@ typename Assembler::Elliptic_PCC_2D_Problem_Data Assembler::Assemble(
         Polydim::PDETools::Assembler_Utilities::assemble_local_matrix_to_global_matrix<2>(c,
                                                                                           local_matrix_to_global_matrix_dofs_data,
                                                                                           local_matrix_to_global_matrix_dofs_data,
-                                                                                          local_A + local_stab_A,
+                                                                                          local_A + local_A_stab + local_B,
                                                                                           local_rhs,
                                                                                           result.globalMatrixA,
                                                                                           result.dirichletMatrixA,

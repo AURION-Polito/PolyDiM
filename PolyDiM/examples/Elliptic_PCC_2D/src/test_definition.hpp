@@ -18,7 +18,8 @@ namespace test
 enum struct Test_Types
 {
     Patch_Test = 1,
-    Poisson_Polynomial_Problem = 2
+    Elliptic_Polynomial_Problem = 2,
+    SUPG_AdvDiff_Problem = 3 /// Test 1 - Benedetto 2016
 };
 
 struct I_Test
@@ -26,6 +27,7 @@ struct I_Test
     virtual Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain() const = 0;
     virtual std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info() const = 0;
     virtual Eigen::VectorXd diffusion_term(const Eigen::MatrixXd &points) const = 0;
+    virtual std::array<Eigen::VectorXd, 3> advection_term(const Eigen::MatrixXd &points) const = 0;
     virtual Eigen::VectorXd source_term(const Eigen::MatrixXd &points) const = 0;
     virtual Eigen::VectorXd strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const = 0;
     virtual Eigen::VectorXd weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const = 0;
@@ -68,6 +70,13 @@ struct Patch_Test final : public I_Test
     Eigen::VectorXd diffusion_term(const Eigen::MatrixXd &points) const
     {
         return Eigen::VectorXd::Constant(points.cols(), 1.0);
+    };
+
+    std::array<Eigen::VectorXd, 3> advection_term(const Eigen::MatrixXd &points) const
+    {
+        return {Eigen::VectorXd::Constant(points.cols(), 1.0),
+                Eigen::VectorXd::Constant(points.cols(), -1.0),
+                Eigen::VectorXd::Constant(points.cols(), 0.0)};
     };
 
     Eigen::VectorXd source_term(const Eigen::MatrixXd &points) const
@@ -125,7 +134,7 @@ struct Patch_Test final : public I_Test
     }
 };
 // ***************************************************************************
-struct Poisson_Polynomial_Problem final : public I_Test
+struct Elliptic_Polynomial_Problem final : public I_Test
 {
     Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain() const
     {
@@ -161,10 +170,19 @@ struct Poisson_Polynomial_Problem final : public I_Test
         return Eigen::VectorXd::Constant(points.cols(), k);
     };
 
+    std::array<Eigen::VectorXd, 3> advection_term(const Eigen::MatrixXd &points) const
+    {
+        return {Eigen::VectorXd::Constant(points.cols(), 1.0),
+                Eigen::VectorXd::Constant(points.cols(), -1.0),
+                Eigen::VectorXd::Constant(points.cols(), 0.0)};
+    };
+
     Eigen::VectorXd source_term(const Eigen::MatrixXd &points) const
     {
         return 32.0 * (points.row(1).array() * (1.0 - points.row(1).array()) +
-                       points.row(0).array() * (1.0 - points.row(0).array()));
+                       points.row(0).array() * (1.0 - points.row(0).array())) +
+               16.0 * (1.0 - 2.0 * points.row(0).array()) * points.row(1).array() * (1.0 - points.row(1).array()) -
+               16.0 * (1.0 - 2.0 * points.row(1).array()) * points.row(0).array() * (1.0 - points.row(0).array());
     };
 
     Eigen::VectorXd strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
@@ -201,6 +219,98 @@ struct Poisson_Polynomial_Problem final : public I_Test
     {
         return {16.0 * (1.0 - 2.0 * points.row(0).array()) * points.row(1).array() * (1.0 - points.row(1).array()),
                 16.0 * (1.0 - 2.0 * points.row(1).array()) * points.row(0).array() * (1.0 - points.row(0).array()),
+                Eigen::VectorXd::Zero(points.cols())};
+    }
+};
+// ***************************************************************************
+struct SUPG_AdvDiff_Problem final : public I_Test
+{
+    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain() const
+    {
+        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain;
+
+        domain.area = 1.0;
+
+        domain.vertices = Eigen::MatrixXd::Zero(3, 4);
+        domain.vertices.row(0) << 0.0, 1.0, 1.0, 0.0;
+        domain.vertices.row(1) << 0.0, 0.0, 1.0, 1.0;
+
+        domain.shape_type = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types::Parallelogram;
+
+        return domain;
+    }
+
+    std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info() const
+    {
+        return {{0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
+    }
+
+    Eigen::VectorXd diffusion_term(const Eigen::MatrixXd &points) const
+    {
+        const double k = 1.0e-06;
+        return Eigen::VectorXd::Constant(points.cols(), k);
+    };
+
+    std::array<Eigen::VectorXd, 3> advection_term(const Eigen::MatrixXd &points) const
+    {
+        return {Eigen::VectorXd::Constant(points.cols(), 0.5),
+                Eigen::VectorXd::Constant(points.cols(), -1.0 / 3.0),
+                Eigen::VectorXd::Constant(points.cols(), 0.0)};
+    };
+
+    Eigen::VectorXd source_term(const Eigen::MatrixXd &points) const
+    {
+        return 65536.0 / 729.0 * 1.0e-06 *
+                   ((6.0 - 12.0 * points.row(0).array()) * points.row(0).array() * points.row(1).array() *
+                        points.row(1).array() * points.row(1).array() * (1.0 - points.row(1).array()) +
+                    (6.0 - 12.0 * points.row(1).array()) * points.row(1).array() * points.row(0).array() *
+                        points.row(0).array() * points.row(0).array() * (1.0 - points.row(0).array())) +
+               0.5 * 65536.0 / 729.0 * (3.0 - 4.0 * points.row(0).array()) * points.row(0).array() * points.row(0).array() *
+                   points.row(1).array() * points.row(1).array() * points.row(1).array() * (1.0 - points.row(1).array()) -
+               1.0 / 3.0 * 65536.0 / 729.0 * (3.0 - 4.0 * points.row(1).array()) * points.row(1).array() * points.row(1).array() *
+                   points.row(0).array() * points.row(0).array() * points.row(0).array() * (1.0 - points.row(0).array());
+    };
+
+    Eigen::VectorXd strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
+    {
+        if (marker != 1)
+            throw std::runtime_error("Unknown marker");
+
+        return 65536.0 / 729.0 * points.row(1).array() * points.row(1).array() * points.row(1).array() *
+               (1.0 - points.row(1).array()) * points.row(0).array() * points.row(0).array() * points.row(0).array() *
+               (1.0 - points.row(0).array());
+    };
+
+    Eigen::VectorXd weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
+    {
+        switch (marker)
+        {
+        default:
+            throw std::runtime_error("Unknown marker");
+        }
+    }
+
+    Eigen::VectorXd exact_solution(const Eigen::MatrixXd &points) const
+    {
+        return 65536.0 / 729.0 * points.row(1).array() * points.row(1).array() * points.row(1).array() *
+               (1.0 - points.row(1).array()) * points.row(0).array() * points.row(0).array() * points.row(0).array() *
+               (1.0 - points.row(0).array());
+    };
+
+    std::array<Eigen::VectorXd, 3> exact_derivative_solution(const Eigen::MatrixXd &points) const
+    {
+        return {65536.0 / 729.0 * (3.0 - 4.0 * points.row(0).array()) * points.row(0).array() * points.row(0).array() *
+                    points.row(1).array() * points.row(1).array() * points.row(1).array() * (1.0 - points.row(1).array()),
+                65536.0 / 729.0 * (3.0 - 4.0 * points.row(1).array()) * points.row(1).array() * points.row(1).array() *
+                    points.row(0).array() * points.row(0).array() * points.row(0).array() * (1.0 - points.row(0).array()),
                 Eigen::VectorXd::Zero(points.cols())};
     }
 };

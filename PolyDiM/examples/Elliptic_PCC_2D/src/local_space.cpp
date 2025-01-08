@@ -121,11 +121,30 @@ Eigen::MatrixXd BasisFunctionsValues(const ReferenceElement_Data &reference_elem
     }
 }
 //***************************************************************************
+Eigen::MatrixXd BasisFunctionsLaplacianValues(const ReferenceElement_Data &reference_element_data,
+                                              const LocalSpace_Data &local_space_data,
+                                              const Polydim::VEM::PCC::ProjectionTypes &projectionType)
+{
+    switch (reference_element_data.Method_Type)
+    {
+    case Program_configuration::MethodTypes::FEM_Triangle_PCC: {
+        return reference_element_data.FEM_LocalSpace->ComputeBasisFunctionsValues(reference_element_data.FEM_ReferenceElement_Data,
+                                                                                  local_space_data.FEM_LocalSpace_Data);
+    }
+    case Program_configuration::MethodTypes::VEM_PCC:
+    case Program_configuration::MethodTypes::VEM_PCC_Inertia:
+    case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
+        return reference_element_data.VEM_LocalSpace->ComputeBasisFunctionsValues(local_space_data.VEM_LocalSpace_Data, projectionType);
+    }
+    default:
+        throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
+    }
+}
+//***************************************************************************
 Eigen::MatrixXd BasisFunctionsValuesOnEdges(const unsigned int &edge_local_index,
                                             const ReferenceElement_Data &reference_element_data,
                                             const LocalSpace_Data &local_space_data,
-                                            const Eigen::MatrixXd &pointsCurvilinearCoordinates,
-                                            const Eigen::MatrixXd &weakQuadraturePoints)
+                                            const Eigen::MatrixXd &pointsCurvilinearCoordinates)
 {
     switch (reference_element_data.Method_Type)
     {

@@ -3,7 +3,6 @@ project(PolyDiM_Examples LANGUAGES CXX C VERSION 1.0)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Elliptic_PCC_1D)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Elliptic_PCC_2D)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/SUPG_PCC_2D)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Elliptic_PCC_3D)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Elliptic_MCC_2D)

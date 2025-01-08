@@ -1,20 +1,11 @@
 #ifndef __assembler_H
 #define __assembler_H
 
+#include "DOFsManager.hpp"
 #include "Eigen_Array.hpp"
 #include "Eigen_SparseArray.hpp"
 #include "MeshMatricesDAO.hpp"
 #include "MeshUtilities.hpp"
-#include "Quadrature_Gauss1D.hpp"
-
-#include "Assembler_Utilities.hpp"
-#include "DOFsManager.hpp"
-#include "EllipticEquation.hpp"
-#include "VEM_PCC_2D_Creator.hpp"
-#include "VEM_PCC_2D_LocalSpace_Data.hpp"
-#include "VEM_PCC_2D_ReferenceElement.hpp"
-#include "VEM_PCC_PerformanceAnalysis.hpp"
-#include "VEM_PCC_Utilities.hpp"
 #include "program_configuration.hpp"
 #include "test_definition.hpp"
 
@@ -36,6 +27,9 @@ class Assembler final
         Gedim::Eigen_Array<> rightHandSide;
         Gedim::Eigen_Array<> solution;
         Gedim::Eigen_Array<> solutionDirichlet;
+
+        std::vector<double> stability_parameter;
+        std::vector<double> peclet_number;
     };
 
     struct Performance_Data final
@@ -81,6 +75,17 @@ class Assembler final
                          const local_space::LocalSpace_Data &local_space_data,
                          const Polydim::examples::Elliptic_PCC_2D::test::I_Test &test,
                          Elliptic_PCC_2D_Problem_Data &assembler_data) const;
+
+    Eigen::MatrixXd ComputeSUPGMatrix(const std::array<Eigen::VectorXd, 3> &advection_term_values,
+                                      const Eigen::VectorXd &diffusion_term_values,
+                                      const Eigen::MatrixXd &basis_functions_values,
+                                      const std::vector<Eigen::MatrixXd> &basis_functions_derivative_values,
+                                      const Eigen::VectorXd &quadrature_weights) const;
+
+    Eigen::MatrixXd ComputeSUPGForcingTerm(const std::array<Eigen::VectorXd, 3> &advection_term_values,
+                                           const Eigen::VectorXd &forcing_term_values,
+                                           const std::vector<Eigen::MatrixXd> &basis_functions_derivative_values,
+                                           const Eigen::VectorXd &quadrature_weights) const;
 
   public:
     Elliptic_PCC_2D_Problem_Data Assemble(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
