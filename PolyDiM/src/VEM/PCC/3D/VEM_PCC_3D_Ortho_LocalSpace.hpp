@@ -232,13 +232,14 @@ class VEM_PCC_3D_Ortho_LocalSpace final : public I_VEM_PCC_3D_LocalSpace
         return utilities.ComputeValuesOnEdge(edgeInternalPoints.transpose(), localSpace.Order, edgeBasisCoefficients, pointsCurvilinearCoordinates);
     }
 
-    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_3D_LocalSpace_Data &) const
+    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_3D_LocalSpace_Data &, const ProjectionTypes &) const
     {
         throw std::runtime_error("Unimplemented method");
     }
 
     Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_3D_ReferenceElement_Data &,
                                                          const VEM_PCC_3D_LocalSpace_Data &,
+                                                         const ProjectionTypes &,
                                                          const Eigen::MatrixXd &) const
     {
         throw std::runtime_error("Unimplemented method");

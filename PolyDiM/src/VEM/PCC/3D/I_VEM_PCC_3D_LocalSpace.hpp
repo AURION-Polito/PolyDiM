@@ -43,7 +43,8 @@ class I_VEM_PCC_3D_LocalSpace
     virtual std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const VEM_PCC_3D_LocalSpace_Data &localSpace,
                                                                                const ProjectionTypes &projectionType) const = 0;
 
-    virtual Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_3D_LocalSpace_Data &localSpace) const = 0;
+    virtual Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_3D_LocalSpace_Data &localSpace,
+                                                                 const ProjectionTypes &projectionType) const = 0;
 
     virtual Eigen::MatrixXd ComputeBasisFunctionsValues(const VEM_PCC_3D_ReferenceElement_Data &reference_element_data,
                                                         const VEM_PCC_3D_LocalSpace_Data &localSpace,
@@ -57,6 +58,7 @@ class I_VEM_PCC_3D_LocalSpace
 
     virtual Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_3D_ReferenceElement_Data &reference_element_data,
                                                                  const VEM_PCC_3D_LocalSpace_Data &localSpace,
+                                                                 const ProjectionTypes &projectionType,
                                                                  const Eigen::MatrixXd &points) const = 0;
 
     virtual Eigen::MatrixXd ComputePolynomialsValues(const VEM_PCC_3D_LocalSpace_Data &localSpace) const = 0;

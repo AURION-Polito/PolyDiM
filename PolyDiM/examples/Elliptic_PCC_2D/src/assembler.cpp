@@ -236,7 +236,7 @@ Assembler::Elliptic_PCC_2D_Problem_Data Assembler::Assemble(const Polydim::examp
 {
     Elliptic_PCC_2D_Problem_Data result;
 
-    result.globalMatrixA.SetSize(dofs_data.NumberDOFs, dofs_data.NumberDOFs, Gedim::ISparseArray::SparseArrayTypes::Symmetric);
+    result.globalMatrixA.SetSize(dofs_data.NumberDOFs, dofs_data.NumberDOFs, Gedim::ISparseArray::SparseArrayTypes::None);
     result.dirichletMatrixA.SetSize(dofs_data.NumberDOFs, dofs_data.NumberStrongs);
     result.rightHandSide.SetSize(dofs_data.NumberDOFs);
     result.solution.SetSize(dofs_data.NumberDOFs);
@@ -285,7 +285,8 @@ Assembler::Elliptic_PCC_2D_Problem_Data Assembler::Assemble(const Polydim::examp
         {
             result.stability_parameter[c] = (diameter / b_norm) * std::min(1.0, result.peclet_number[c]);
 
-            const auto basis_functions_laplacian_values = local_space::BasisFunctionsValues(reference_element_data, local_space_data);
+            const auto basis_functions_laplacian_values =
+                local_space::BasisFunctionsLaplacianValues(reference_element_data, local_space_data);
 
             local_B += result.stability_parameter[c] * ComputeSUPGMatrix(advection_term_values,
                                                                          diffusion_term_values,

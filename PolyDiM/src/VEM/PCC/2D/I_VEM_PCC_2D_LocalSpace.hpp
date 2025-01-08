@@ -63,7 +63,8 @@ class I_VEM_PCC_2D_LocalSpace
     /// VEM::PCC::VEM_PCC_2D_LocalSpace_Data which contains local matrices. \return A matrix of size numQuadrature
     /// \f$\times\f$ numDOFs whose columns contain the evaluation of the approximated laplacian at the internal
     /// quadrature points.
-    virtual Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_2D_LocalSpace_Data &localSpace) const = 0;
+    virtual Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_2D_LocalSpace_Data &localSpace,
+                                                                 const ProjectionTypes &projectionType) const = 0;
 
     /// \brief Compute the values of projections of VEM basis functions at points.
     /// \param reference_element_data: an object of type \ref VEM::PCC::VEM_PCC_2D_ReferenceElement_Data which contains
@@ -98,6 +99,7 @@ class I_VEM_PCC_2D_LocalSpace
     /// columns contain the evaluation of the approximated laplacian at points.
     virtual Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                                                  const VEM_PCC_2D_LocalSpace_Data &localSpace,
+                                                                 const ProjectionTypes &projectionType,
                                                                  const Eigen::MatrixXd &points) const = 0;
 
     /// \brief Compute the values of monomial basis functions at the internal quadrature points.

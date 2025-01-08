@@ -25,7 +25,7 @@ struct Program_configuration final
     {
         Gedim::Configurations::AddProperty("TestType",
                                            static_cast<unsigned int>(Polydim::examples::Elliptic_PCC_2D::test::Test_Types::Patch_Test),
-                                           "Test Type 1 - Patch_Test; 2 - Elliptic_Polynomial_Problem "
+                                           "Test Type 1 - Patch_Test; 2 - Elliptic_Polynomial_Problem; 3 - SUPG_AdvDiff_Problem "
                                            "(Default: 1)");
         // Export parameters
         Gedim::Configurations::AddProperty("ExportFolder", "./Run", "Folder where to export data (Default: ./Export)");
@@ -51,7 +51,7 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty("MethodOrder", static_cast<unsigned int>(1), "Method order (Default: 1)");
         Gedim::Configurations::AddProperty("ComputeMethodPerformance", true, "Compute Method Performance (Default: false)");
         Gedim::Configurations::AddProperty("SUPG", false, "Use SUPG (Default: false)");
-        Gedim::Configurations::AddProperty("Peclet constant Ck", 1.0 / 3.0, "Peclet constant (Default: 1.0/3.0)");
+        Gedim::Configurations::AddProperty("PecletConstant", 3.3333333333333331e-01, "Peclet constant Ck (Default: 1.0/3.0)");
     }
 
     inline string ExportFolder() const
@@ -102,9 +102,9 @@ struct Program_configuration final
     {
         return Gedim::Configurations::GetPropertyValue<bool>("SUPG");
     }
-    inline bool PecletConstant() const
+    inline double PecletConstant() const
     {
-        return Gedim::Configurations::GetPropertyValue<bool>("PecletConstant");
+        return Gedim::Configurations::GetPropertyValue<double>("PecletConstant");
     }
 };
 } // namespace Elliptic_PCC_2D

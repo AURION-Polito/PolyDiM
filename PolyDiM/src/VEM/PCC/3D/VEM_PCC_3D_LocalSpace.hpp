@@ -118,9 +118,11 @@ class VEM_PCC_3D_LocalSpace final : public I_VEM_PCC_3D_LocalSpace
                                                                localSpace.Pi0km1Der);
     }
 
-    inline Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_3D_LocalSpace_Data &localSpace) const
+    inline Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_3D_LocalSpace_Data &localSpace,
+                                                                const ProjectionTypes &projectionType) const
     {
-        return utilities.ComputeBasisFunctionsLaplacianValues(localSpace.Nkm1,
+        return utilities.ComputeBasisFunctionsLaplacianValues(projectionType,
+                                                              localSpace.Nkm1,
                                                               localSpace.VanderInternalDerivatives,
                                                               localSpace.Pi0km1Der);
     }
@@ -153,9 +155,11 @@ class VEM_PCC_3D_LocalSpace final : public I_VEM_PCC_3D_LocalSpace
 
     inline Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_3D_ReferenceElement_Data &reference_element_data,
                                                                 const VEM_PCC_3D_LocalSpace_Data &localSpace,
+                                                                const ProjectionTypes &projectionType,
                                                                 const Eigen::MatrixXd &points) const
     {
         return utilities.ComputeBasisFunctionsLaplacianValues(
+            projectionType,
             localSpace.Nkm1,
             localSpace.Pi0km1Der,
             ComputePolynomialsDerivativeValues(reference_element_data, localSpace, points));

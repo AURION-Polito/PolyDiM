@@ -11,7 +11,8 @@ def run_program(program_folder,
                 method_order,
                 test_type,
                 mesh_generator,
-                mesh_max_area):
+                mesh_max_area,
+                supg = False):
     export_path = os.path.join(program_folder,
                                export_folder,
                                "{0}_TT{1}".format(
@@ -34,6 +35,8 @@ def run_program(program_folder,
     program_parameters += " MeshGenerator:uint={0}".format(mesh_generator)
     program_parameters += " MeshMaxArea:double={0}".format(mesh_max_area)
     program_parameters += " ComputeMethodPerformance:bool={0}".format(0)
+    program_parameters += " SUPG:bool={0}".format(supg)
+    program_parameters += " PecletConstant:double={0}".format(1.0/3.0)
 
     output_file = os.path.join(program_folder,
                                "terminal.log")

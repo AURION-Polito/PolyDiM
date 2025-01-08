@@ -159,7 +159,7 @@ class VEM_PCC_3D_Inertia_LocalSpace final : public I_VEM_PCC_3D_LocalSpace
         return fmatrixInvTranspTimesBasisFunctionDerivativeValues;
     }
 
-    inline Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_3D_LocalSpace_Data &) const
+    inline Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_3D_LocalSpace_Data &, const ProjectionTypes &) const
     {
         throw std::runtime_error("Unimplemented method");
     }
@@ -231,6 +231,7 @@ class VEM_PCC_3D_Inertia_LocalSpace final : public I_VEM_PCC_3D_LocalSpace
 
     inline Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_3D_ReferenceElement_Data &,
                                                                 const VEM_PCC_3D_LocalSpace_Data &,
+                                                                const ProjectionTypes &,
                                                                 const Eigen::MatrixXd &) const
     {
         throw std::runtime_error("Unimplemented method");

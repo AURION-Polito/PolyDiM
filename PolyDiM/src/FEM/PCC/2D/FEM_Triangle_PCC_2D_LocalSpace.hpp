@@ -57,6 +57,12 @@ class FEM_Triangle_PCC_2D_LocalSpace final
         return MapValues(local_space, reference_element_data.ReferenceBasisFunctionValues);
     }
 
+    inline Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const FEM_Triangle_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                                const FEM_Triangle_PCC_2D_LocalSpace_Data &local_space) const
+    {
+        return MapValues(local_space, reference_element_data.ReferenceBasisFunctionValues);
+    }
+
     inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const FEM_Triangle_PCC_2D_ReferenceElement_Data &reference_element_data,
                                                                               const FEM_Triangle_PCC_2D_LocalSpace_Data &local_space) const
     {

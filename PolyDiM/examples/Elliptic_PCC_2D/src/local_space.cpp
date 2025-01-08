@@ -128,13 +128,14 @@ Eigen::MatrixXd BasisFunctionsLaplacianValues(const ReferenceElement_Data &refer
     switch (reference_element_data.Method_Type)
     {
     case Program_configuration::MethodTypes::FEM_Triangle_PCC: {
-        return reference_element_data.FEM_LocalSpace->ComputeBasisFunctionsValues(reference_element_data.FEM_ReferenceElement_Data,
-                                                                                  local_space_data.FEM_LocalSpace_Data);
+        return reference_element_data.FEM_LocalSpace->ComputeBasisFunctionsLaplacianValues(reference_element_data.FEM_ReferenceElement_Data,
+                                                                                           local_space_data.FEM_LocalSpace_Data);
     }
     case Program_configuration::MethodTypes::VEM_PCC:
     case Program_configuration::MethodTypes::VEM_PCC_Inertia:
     case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
-        return reference_element_data.VEM_LocalSpace->ComputeBasisFunctionsValues(local_space_data.VEM_LocalSpace_Data, projectionType);
+        return reference_element_data.VEM_LocalSpace->ComputeBasisFunctionsLaplacianValues(local_space_data.VEM_LocalSpace_Data,
+                                                                                           projectionType);
     }
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
@@ -175,7 +176,8 @@ Eigen::MatrixXd BasisFunctionsValuesOnEdges(const unsigned int &edge_local_index
 }
 //***************************************************************************
 std::vector<Eigen::MatrixXd> BasisFunctionsDerivativeValues(const ReferenceElement_Data &reference_element_data,
-                                                            const LocalSpace_Data &local_space_data)
+                                                            const LocalSpace_Data &local_space_data,
+                                                            const VEM::PCC::ProjectionTypes &projectionType)
 {
     switch (reference_element_data.Method_Type)
     {
@@ -186,9 +188,8 @@ std::vector<Eigen::MatrixXd> BasisFunctionsDerivativeValues(const ReferenceEleme
     case Program_configuration::MethodTypes::VEM_PCC:
     case Program_configuration::MethodTypes::VEM_PCC_Inertia:
     case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
-        return reference_element_data.VEM_LocalSpace->ComputeBasisFunctionsDerivativeValues(
-            local_space_data.VEM_LocalSpace_Data,
-            Polydim::VEM::PCC::ProjectionTypes::Pi0km1Der);
+        return reference_element_data.VEM_LocalSpace->ComputeBasisFunctionsDerivativeValues(local_space_data.VEM_LocalSpace_Data,
+                                                                                            projectionType);
     }
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
@@ -230,7 +231,9 @@ unsigned int Size(const ReferenceElement_Data &reference_element_data, const Loc
     }
 }
 //***************************************************************************
-Eigen::MatrixXd StabilizationMatrix(const ReferenceElement_Data &reference_element_data, const LocalSpace_Data &local_space_data)
+Eigen::MatrixXd StabilizationMatrix(const ReferenceElement_Data &reference_element_data,
+                                    const LocalSpace_Data &local_space_data,
+                                    const VEM::PCC::ProjectionTypes &projectionType)
 {
     switch (reference_element_data.Method_Type)
     {
@@ -242,7 +245,7 @@ Eigen::MatrixXd StabilizationMatrix(const ReferenceElement_Data &reference_eleme
     case Program_configuration::MethodTypes::VEM_PCC_Inertia:
     case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
         return reference_element_data.VEM_LocalSpace->ComputeDofiDofiStabilizationMatrix(local_space_data.VEM_LocalSpace_Data,
-                                                                                         VEM::PCC::ProjectionTypes::PiNabla);
+                                                                                         projectionType);
     }
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");

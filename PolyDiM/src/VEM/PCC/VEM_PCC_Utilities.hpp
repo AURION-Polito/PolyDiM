@@ -99,17 +99,23 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
     /// values. Each column will contain the values
     /// of the projected laplacian of a basis function at internal quadrature points.
     /// \sa \ref ComputeInternalQuadratureWeights().
-    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const unsigned int &Nkm1,
+    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const ProjectionTypes &projectionType,
+                                                         const unsigned int &Nkm1,
                                                          const std::vector<Eigen::MatrixXd> &vanderInternalDerivatives,
                                                          const std::vector<Eigen::MatrixXd> &pi0km1Der) const
     {
-        Eigen::MatrixXd basisFunctionsLaplacianValues;
+        switch (projectionType)
+        {
+        case ProjectionTypes::Pi0km1Der: {
+            Eigen::MatrixXd basisFunctionsLaplacianValues = vanderInternalDerivatives[0].leftCols(Nkm1) * pi0km1Der[0];
+            for (unsigned int d = 1; d < dimension; ++d)
+                basisFunctionsLaplacianValues += vanderInternalDerivatives[d].leftCols(Nkm1) * pi0km1Der[d];
 
-        basisFunctionsLaplacianValues = vanderInternalDerivatives[0].leftCols(Nkm1) * pi0km1Der[0];
-        for (unsigned int d = 1; d < dimension; ++d)
-            basisFunctionsLaplacianValues += vanderInternalDerivatives[d].leftCols(Nkm1) * pi0km1Der[d];
-
-        return basisFunctionsLaplacianValues;
+            return basisFunctionsLaplacianValues;
+        }
+        default:
+            throw std::runtime_error("Unknown projector type");
+        }
     }
 
     /// \brief Compute the values of the polynomial projection of basis functions at internal

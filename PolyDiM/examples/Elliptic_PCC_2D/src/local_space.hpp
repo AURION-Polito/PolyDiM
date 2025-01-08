@@ -71,10 +71,18 @@ Eigen::MatrixXd BasisFunctionsValuesOnEdges(const unsigned int &edge_local_index
                                             const LocalSpace_Data &local_space_data,
                                             const Eigen::MatrixXd &pointsCurvilinearCoordinates);
 
-std::vector<Eigen::MatrixXd> BasisFunctionsDerivativeValues(const ReferenceElement_Data &reference_element_data,
-                                                            const LocalSpace_Data &local_space_data);
+std::vector<Eigen::MatrixXd> BasisFunctionsDerivativeValues(
+    const ReferenceElement_Data &reference_element_data,
+    const LocalSpace_Data &local_space_data,
+    const Polydim::VEM::PCC::ProjectionTypes &projectionType = Polydim::VEM::PCC::ProjectionTypes::Pi0km1Der);
 
-Eigen::MatrixXd StabilizationMatrix(const ReferenceElement_Data &reference_element_data, const LocalSpace_Data &local_space_data);
+Eigen::MatrixXd BasisFunctionsLaplacianValues(const ReferenceElement_Data &reference_element_data,
+                                              const LocalSpace_Data &local_space_data,
+                                              const Polydim::VEM::PCC::ProjectionTypes &projectionType = Polydim::VEM::PCC::ProjectionTypes::Pi0km1Der);
+
+Eigen::MatrixXd StabilizationMatrix(const ReferenceElement_Data &reference_element_data,
+                                    const LocalSpace_Data &local_space_data,
+                                    const Polydim::VEM::PCC::ProjectionTypes &projectionType = Polydim::VEM::PCC::ProjectionTypes::PiNabla);
 
 Eigen::MatrixXd EdgeDofsCoordinates(const ReferenceElement_Data &reference_element_data,
                                     const LocalSpace_Data &local_space_data,

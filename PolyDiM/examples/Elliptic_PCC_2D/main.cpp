@@ -1,7 +1,5 @@
-#include "Eigen_CholeskySolver.hpp"
-
+#include "Eigen_LUSolver.hpp"
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
-
 #include "program_utilities.hpp"
 #include "test_definition.hpp"
 
@@ -131,7 +129,7 @@ int main(int argc, char **argv)
         Gedim::Output::PrintGenericMessage("Factorize...", true);
         Gedim::Profiler::StartTime("Factorize");
 
-        Gedim::Eigen_CholeskySolver solver;
+        Gedim::Eigen_LUSolver solver;
         solver.Initialize(assembler_data.globalMatrixA);
 
         Gedim::Profiler::StopTime("Factorize");
