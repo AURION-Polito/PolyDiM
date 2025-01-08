@@ -30,15 +30,26 @@ TEST(Test_FEM_Triangle_PCC_2D, Test_FEM_Triangle_PCC_2D_Reference_Element)
         const Eigen::MatrixXd basisValues = reference_element.EvaluateBasisFunctions(points, reference_element_data);
         const std::vector<Eigen::MatrixXd> gradBasisValues =
             reference_element.EvaluateBasisFunctionDerivatives(points, reference_element_data);
+        const std::array<Eigen::MatrixXd, 4> secondDerBasisValues =
+            reference_element.EvaluateBasisFunctionSecondDerivatives(points, reference_element_data);
 
         const Eigen::VectorXd sumBasisValues = basisValues.rowwise().sum();
         const Eigen::VectorXd sumGradXValues = gradBasisValues[0].rowwise().sum();
         const Eigen::VectorXd sumGradYValues = gradBasisValues[1].rowwise().sum();
+        const Eigen::VectorXd sumDerXXValues = secondDerBasisValues[0].rowwise().sum();
+        const Eigen::VectorXd sumDerXYValues = secondDerBasisValues[1].rowwise().sum();
+        const Eigen::VectorXd sumDerYXValues = secondDerBasisValues[2].rowwise().sum();
+        const Eigen::VectorXd sumDerYYValues = secondDerBasisValues[3].rowwise().sum();
+
         for (unsigned int q = 0; q < points.cols(); q++)
         {
             ASSERT_TRUE(abs(sumBasisValues[q] - 1.0) < 1.0e-14);
             ASSERT_TRUE(abs(sumGradXValues[q]) < 1.0e-14);
             ASSERT_TRUE(abs(sumGradYValues[q]) < 1.0e-14);
+            ASSERT_TRUE(abs(sumDerXXValues[q]) < 1.0e-14);
+            ASSERT_TRUE(abs(sumDerXYValues[q]) < 1.0e-14);
+            ASSERT_TRUE(abs(sumDerYXValues[q]) < 1.0e-14);
+            ASSERT_TRUE(abs(sumDerYYValues[q]) < 1.0e-14);
         }
     }
 }

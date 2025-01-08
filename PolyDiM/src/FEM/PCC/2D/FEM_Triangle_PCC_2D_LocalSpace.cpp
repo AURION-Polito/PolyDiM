@@ -17,6 +17,7 @@ FEM_Triangle_PCC_2D_LocalSpace_Data FEM_Triangle_PCC_2D_LocalSpace::CreateLocalS
 
     Gedim::MapTriangle mapTriangle;
     localSpace.MapData = mapTriangle.Compute(polygon.Vertices);
+    localSpace.B_lap = localSpace.MapData.BInv * localSpace.MapData.BInv.transpose();
 
     localSpace.Order = reference_element_data.Order;
     localSpace.NumberOfBasisFunctions = reference_element_data.NumBasisFunctions;
@@ -116,6 +117,20 @@ std::vector<MatrixXd> FEM_Triangle_PCC_2D_LocalSpace::MapDerivativeValues(const 
     }
 
     return basisFunctionsDerivativeValuesOrdered;
+}
+// ***************************************************************************
+Eigen::MatrixXd FEM_Triangle_PCC_2D_LocalSpace::MapLaplacianValues(const FEM_Triangle_PCC_2D_LocalSpace_Data &local_space,
+                                                                   const std::array<Eigen::MatrixXd, 4> &referenceSecondDerivateValues) const
+{
+    Eigen::MatrixXd laplacian_values =
+        Eigen::MatrixXd::Zero(referenceSecondDerivateValues.at(0).rows(), local_space.NumberOfBasisFunctions);
+
+    laplacian_values = local_space.B_lap(0, 0) * referenceSecondDerivateValues.at(0) +
+                       local_space.B_lap(0, 1) * referenceSecondDerivateValues.at(1) +
+                       local_space.B_lap(1, 0) * referenceSecondDerivateValues.at(2) +
+                       local_space.B_lap(1, 1) * referenceSecondDerivateValues.at(3);
+
+    return laplacian_values;
 }
 // ***************************************************************************
 Gedim::Quadrature::QuadratureData FEM_Triangle_PCC_2D_LocalSpace::InternalQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,

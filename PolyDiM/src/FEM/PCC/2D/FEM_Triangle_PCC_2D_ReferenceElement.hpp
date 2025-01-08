@@ -30,6 +30,7 @@ struct FEM_Triangle_PCC_2D_ReferenceElement_Data final
 
     Eigen::MatrixXd ReferenceBasisFunctionValues;
     std::vector<Eigen::MatrixXd> ReferenceBasisFunctionDerivativeValues;
+    std::array<Eigen::MatrixXd, 4> ReferenceBasisFunctionSecondDerivativeValues;
 };
 
 class FEM_Triangle_PCC_2D_ReferenceElement final
@@ -57,6 +58,8 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
             result.ReferenceBasisFunctionValues = EvaluateBasisFunctions(result.ReferenceTriangleQuadrature.Points, result);
             result.ReferenceBasisFunctionDerivativeValues =
                 EvaluateBasisFunctionDerivatives(result.ReferenceTriangleQuadrature.Points, result);
+            result.ReferenceBasisFunctionSecondDerivativeValues =
+                EvaluateBasisFunctionSecondDerivatives(result.ReferenceTriangleQuadrature.Points, result);
 
             return result;
         }
@@ -136,6 +139,8 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
         result.ReferenceBasisFunctionValues = EvaluateBasisFunctions(result.ReferenceTriangleQuadrature.Points, result);
         result.ReferenceBasisFunctionDerivativeValues =
             EvaluateBasisFunctionDerivatives(result.ReferenceTriangleQuadrature.Points, result);
+        result.ReferenceBasisFunctionSecondDerivativeValues =
+            EvaluateBasisFunctionSecondDerivatives(result.ReferenceTriangleQuadrature.Points, result);
 
         return result;
     }
@@ -256,6 +261,61 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
             }
 
             return gradValues;
+        }
+        }
+    }
+    // ***************************************************************************
+    std::array<Eigen::MatrixXd, 4> EvaluateBasisFunctionSecondDerivatives(const Eigen::MatrixXd &points,
+                                                                          const FEM_Triangle_PCC_2D_ReferenceElement_Data &reference_element_data) const
+    {
+        switch (reference_element_data.Order)
+        {
+        case 0:
+        case 1: {
+            const Eigen::MatrixXd zero_matrix = Eigen::MatrixXd::Zero(points.cols(), reference_element_data.NumBasisFunctions);
+            return {zero_matrix, zero_matrix, zero_matrix, zero_matrix};
+        }
+        case 2: {
+            std::array<Eigen::MatrixXd, 4> constant_laplacian;
+
+            for (unsigned int der = 0; der < 4; ++der)
+                constant_laplacian[der] = Eigen::MatrixXd::Zero(points.cols(), reference_element_data.NumBasisFunctions);
+
+            constant_laplacian[0].col(0) = Eigen::VectorXd::Constant(points.cols(), +4.0);
+            constant_laplacian[1].col(0) = Eigen::VectorXd::Constant(points.cols(), +4.0);
+            constant_laplacian[2].col(0) = Eigen::VectorXd::Constant(points.cols(), +4.0);
+            constant_laplacian[3].col(0) = Eigen::VectorXd::Constant(points.cols(), +4.0);
+
+            constant_laplacian[0].col(1) = Eigen::VectorXd::Constant(points.cols(), +4.0);
+            constant_laplacian[1].col(1) = Eigen::VectorXd::Constant(points.cols(), +0.0);
+            constant_laplacian[2].col(1) = Eigen::VectorXd::Constant(points.cols(), +0.0);
+            constant_laplacian[3].col(1) = Eigen::VectorXd::Constant(points.cols(), +0.0);
+
+            constant_laplacian[0].col(2) = Eigen::VectorXd::Constant(points.cols(), +0.0);
+            constant_laplacian[1].col(2) = Eigen::VectorXd::Constant(points.cols(), +0.0);
+            constant_laplacian[2].col(2) = Eigen::VectorXd::Constant(points.cols(), +0.0);
+            constant_laplacian[3].col(2) = Eigen::VectorXd::Constant(points.cols(), +4.0);
+
+            constant_laplacian[0].col(3) = Eigen::VectorXd::Constant(points.cols(), -8.0);
+            constant_laplacian[1].col(3) = Eigen::VectorXd::Constant(points.cols(), -4.0);
+            constant_laplacian[2].col(3) = Eigen::VectorXd::Constant(points.cols(), -4.0);
+            constant_laplacian[3].col(3) = Eigen::VectorXd::Constant(points.cols(), +0.0);
+
+            constant_laplacian[0].col(4) = Eigen::VectorXd::Constant(points.cols(), +0.0);
+            constant_laplacian[1].col(4) = Eigen::VectorXd::Constant(points.cols(), +4.0);
+            constant_laplacian[2].col(4) = Eigen::VectorXd::Constant(points.cols(), +4.0);
+            constant_laplacian[3].col(4) = Eigen::VectorXd::Constant(points.cols(), +0.0);
+
+            constant_laplacian[0].col(5) = Eigen::VectorXd::Constant(points.cols(), +0.0);
+            constant_laplacian[1].col(5) = Eigen::VectorXd::Constant(points.cols(), -4.0);
+            constant_laplacian[2].col(5) = Eigen::VectorXd::Constant(points.cols(), -4.0);
+            constant_laplacian[3].col(5) = Eigen::VectorXd::Constant(points.cols(), -8.0);
+
+            return constant_laplacian;
+        }
+        default: {
+            const Eigen::MatrixXd zero_matrix = Eigen::MatrixXd::Zero(points.cols(), reference_element_data.NumBasisFunctions);
+            return {zero_matrix, zero_matrix, zero_matrix, zero_matrix};
         }
         }
     }

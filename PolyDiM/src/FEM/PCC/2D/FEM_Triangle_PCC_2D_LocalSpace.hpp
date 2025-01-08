@@ -22,6 +22,7 @@ struct FEM_Triangle_PCC_2D_Polygon_Geometry final
 struct FEM_Triangle_PCC_2D_LocalSpace_Data final
 {
     Gedim::MapTriangle::MapTriangleData MapData;
+    Eigen::Matrix3d B_lap;
     unsigned int Order;                                   ///< Order of the space
     unsigned int NumberOfBasisFunctions;                  ///< Number of basis functions
     Eigen::MatrixXd Dofs;                                 ///< DOFs geometric position
@@ -44,6 +45,10 @@ class FEM_Triangle_PCC_2D_LocalSpace final
     std::vector<Eigen::MatrixXd> MapDerivativeValues(const FEM_Triangle_PCC_2D_LocalSpace_Data &local_space,
                                                      const std::vector<Eigen::MatrixXd> &referenceDerivateValues) const;
 
+    /// \brief map basis function derivative values on element with correct order
+    Eigen::MatrixXd MapLaplacianValues(const FEM_Triangle_PCC_2D_LocalSpace_Data &local_space,
+                                       const std::array<Eigen::MatrixXd, 4> &referenceSecondDerivateValues) const;
+
     Gedim::Quadrature::QuadratureData InternalQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,
                                                          const Gedim::MapTriangle::MapTriangleData &mapData) const;
 
@@ -60,7 +65,10 @@ class FEM_Triangle_PCC_2D_LocalSpace final
     inline Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const FEM_Triangle_PCC_2D_ReferenceElement_Data &reference_element_data,
                                                                 const FEM_Triangle_PCC_2D_LocalSpace_Data &local_space) const
     {
-        return MapValues(local_space, reference_element_data.ReferenceBasisFunctionValues);
+        if (local_space.Order > 2)
+            throw std::runtime_error("Unsupported order");
+
+        return MapLaplacianValues(local_space, reference_element_data.ReferenceBasisFunctionSecondDerivativeValues);
     }
 
     inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const FEM_Triangle_PCC_2D_ReferenceElement_Data &reference_element_data,
