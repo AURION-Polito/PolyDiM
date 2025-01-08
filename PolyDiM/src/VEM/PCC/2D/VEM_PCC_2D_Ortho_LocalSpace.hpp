@@ -219,9 +219,25 @@ class VEM_PCC_2D_Ortho_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
         return utilities.ComputeValuesOnEdge(edgeInternalPoints.transpose(), reference_element_data.Order, edgeBasisCoefficients, pointsCurvilinearCoordinates);
     }
 
-    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_2D_LocalSpace_Data &, const ProjectionTypes &) const
+    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_2D_LocalSpace_Data &localSpace,
+                                                         const ProjectionTypes &projectionType) const
     {
-        throw std::runtime_error("Unimplemented method");
+        switch (projectionType)
+        {
+        case ProjectionTypes::Pi0km1Der: {
+            Eigen::MatrixXd basisFunctionsLaplacianValues =
+                localSpace.VanderInternalDerivatives[0].leftCols(localSpace.Nkm1) *
+                localSpace.Qmatrix.topLeftCorner(localSpace.Nkm1, localSpace.Nkm1).transpose() * localSpace.Pi0km1Der[0];
+            for (unsigned int d = 1; d < localSpace.Dimension; ++d)
+                basisFunctionsLaplacianValues +=
+                    localSpace.VanderInternalDerivatives[d].leftCols(localSpace.Nkm1) *
+                    localSpace.Qmatrix.topLeftCorner(localSpace.Nkm1, localSpace.Nkm1).transpose() * localSpace.Pi0km1Der[d];
+
+            return basisFunctionsLaplacianValues;
+        }
+        default:
+            throw std::runtime_error("Unknown projector type");
+        }
     }
     Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_2D_ReferenceElement_Data &,
                                                          const VEM_PCC_2D_LocalSpace_Data &,

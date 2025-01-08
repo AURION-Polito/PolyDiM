@@ -115,13 +115,11 @@ class VEM_PCC_2D_Inertia_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
         switch (projectionType)
         {
         case ProjectionTypes::PiNabla: {
-            basisFunctionsDerivativeValues.resize(localSpace.Dimension);
             for (unsigned short i = 0; i < localSpace.Dimension; ++i)
                 basisFunctionsDerivativeValues[i] = localSpace.VanderInternalDerivatives[i] * localSpace.PiNabla;
         }
         break;
         case ProjectionTypes::Pi0km1Der: {
-            basisFunctionsDerivativeValues.resize(localSpace.Dimension);
             for (unsigned short i = 0; i < localSpace.Dimension; ++i)
                 basisFunctionsDerivativeValues[i] = localSpace.VanderInternal.leftCols(localSpace.Nkm1) * localSpace.Pi0km1Der[i];
         }
@@ -286,10 +284,31 @@ class VEM_PCC_2D_Inertia_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
         return utilities.ComputeValuesOnEdge(edgeInternalPoints.transpose(), reference_element_data.Order, edgeBasisCoefficients, pointsCurvilinearCoordinates);
     }
 
-    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_2D_LocalSpace_Data &, const ProjectionTypes &) const
+    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_2D_LocalSpace_Data &localSpace,
+                                                         const ProjectionTypes &projectionType) const
     {
-        throw std::runtime_error("Unimplemented method");
+        const Eigen::MatrixXd FmatrixInvTimesFmatrixInvTransp =
+            localSpace.inertia_data.FmatrixInv * localSpace.inertia_data.FmatrixInv.transpose();
+
+        switch (projectionType)
+        {
+        case ProjectionTypes::Pi0km1Der: {
+            Eigen::MatrixXd basisFunctionsLaplacianValues =
+                Eigen::MatrixXd::Zero(localSpace.VanderInternalDerivatives[0].rows(), localSpace.NumBasisFunctions);
+
+            for (unsigned short d1 = 0; d1 < localSpace.Dimension; d1++)
+                for (unsigned short d2 = 0; d2 < localSpace.Dimension; d2++)
+                    basisFunctionsLaplacianValues += FmatrixInvTimesFmatrixInvTransp(d2, d1) *
+                                                     localSpace.VanderInternalDerivatives[d1].leftCols(localSpace.Nkm1) *
+                                                     localSpace.Pi0km1Der[d2];
+
+            return basisFunctionsLaplacianValues;
+        }
+        default:
+            throw std::runtime_error("Unknown projector type");
+        }
     }
+
     Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_2D_ReferenceElement_Data &,
                                                          const VEM_PCC_2D_LocalSpace_Data &,
                                                          const ProjectionTypes &,
