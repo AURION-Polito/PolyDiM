@@ -308,9 +308,9 @@ inline Gedim::MeshUtilities::MeshGeometricData2D compute_mesh_2D_geometry_data(c
 }
 
 inline Gedim::MeshUtilities::MeshGeometricData3D compute_mesh_3D_geometry_data(const Gedim::GeometryUtilities &geometry_utilities,
-                                                                               const Gedim::MeshUtilities &mesh_utilities,
                                                                                Gedim::MeshMatricesDAO &mesh)
 {
+    Gedim::MeshUtilities mesh_utilities;
     mesh_utilities.ComputeCell2DCell3DNeighbours(mesh);
     return mesh_utilities.FillMesh3DGeometricData(geometry_utilities, mesh);
 }

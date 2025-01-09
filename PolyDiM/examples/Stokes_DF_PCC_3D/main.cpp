@@ -7,9 +7,10 @@
 #include "assembler.hpp"
 #include "program_configuration.hpp"
 #include "program_utilities.hpp"
-#include "ranges"
 
 unsigned int Polydim::examples::Stokes_DF_PCC_3D::test::Patch_Test::order;
+unsigned int Polydim::examples::Stokes_DF_PCC_3D::test::Stokes_Benchmark_1::order;
+unsigned int Polydim::examples::Stokes_DF_PCC_3D::test::Stokes_Benchmark_2::order;
 
 int main(int argc, char **argv)
 {
@@ -50,6 +51,8 @@ int main(int argc, char **argv)
     Gedim::Profiler::StartTime("SetProblem");
 
     Polydim::examples::Stokes_DF_PCC_3D::test::Patch_Test::order = config.VemOrder();
+    Polydim::examples::Stokes_DF_PCC_3D::test::Stokes_Benchmark_1::order = config.VemOrder();
+    Polydim::examples::Stokes_DF_PCC_3D::test::Stokes_Benchmark_2::order = config.VemOrder();
 
     const auto test = Polydim::examples::Stokes_DF_PCC_3D::program_utilities::create_test(config);
 
@@ -90,7 +93,7 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("ComputeGeometricProperties...", true);
     Gedim::Profiler::StartTime("ComputeGeometricProperties");
 
-    const auto meshGeometricData =
+    const auto mesh_geometric_data =
         Polydim::examples::Stokes_DF_PCC_3D::program_utilities::create_domain_mesh_geometric_properties(config, mesh);
 
     Gedim::Profiler::StopTime("ComputeGeometricProperties");
@@ -112,45 +115,46 @@ int main(int argc, char **argv)
     const auto velocity_reference_element_data_3D = vem_velocity_reference_element_3D->Create(config.VemOrder());
 
     Polydim::PDETools::DOFs::DOFsManager dofManager;
-    std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> meshDOFsInfo(8);
+    std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> mesh_dofs_info(8);
     std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> dofs_data(8);
 
     for (unsigned int i = 0; i < 3; i++)
     {
-        meshDOFsInfo[i] = dofManager.Create_Constant_DOFsInfo<3>(
+        mesh_dofs_info[i] = dofManager.Create_Constant_DOFsInfo<3>(
             mesh_connectivity_data,
             {{velocity_reference_element_data_3D.NumDofs0D, velocity_reference_element_data_3D.NumDofs1D, 0, 0}, boundary_info});
 
-        dofs_data[i] = dofManager.CreateDOFs<3>(meshDOFsInfo[i], mesh_connectivity_data);
+        dofs_data[i] = dofManager.CreateDOFs<3>(mesh_dofs_info[i], mesh_connectivity_data);
     }
 
     for (unsigned int i = 3; i < 6; i++)
     {
-        meshDOFsInfo[i] =
+        mesh_dofs_info[i] =
             dofManager.Create_Constant_DOFsInfo<3>(mesh_connectivity_data,
                                                    {{0, 0, velocity_reference_element_data_3D.NumDofs2D, 0}, boundary_info});
 
-        dofs_data[i] = dofManager.CreateDOFs<3>(meshDOFsInfo[i], mesh_connectivity_data);
+        dofs_data[i] = dofManager.CreateDOFs<3>(mesh_dofs_info[i], mesh_connectivity_data);
     }
 
-    meshDOFsInfo[6] = dofManager.Create_Constant_DOFsInfo<3>(
+    mesh_dofs_info[6] = dofManager.Create_Constant_DOFsInfo<3>(
         mesh_connectivity_data,
         {{0, 0, 0, velocity_reference_element_data_3D.NumDofs3D_BigOPlus + velocity_reference_element_data_3D.NumDofs3D_Divergence},
          boundary_info});
 
-    dofs_data[6] = dofManager.CreateDOFs<3>(meshDOFsInfo[6], mesh_connectivity_data);
+    dofs_data[6] = dofManager.CreateDOFs<3>(mesh_dofs_info[6], mesh_connectivity_data);
 
-    meshDOFsInfo[7] = dofManager.Create_Constant_DOFsInfo<3>(mesh_connectivity_data,
-                                                             {{pressure_reference_element_data_3D.NumDofs0D,
-                                                               pressure_reference_element_data_3D.NumDofs1D,
-                                                               pressure_reference_element_data_3D.NumDofs2D,
-                                                               pressure_reference_element_data_3D.NumDofs3D},
-                                                              boundary_info});
+    mesh_dofs_info[7] = dofManager.Create_Constant_DOFsInfo<3>(mesh_connectivity_data,
+                                                               {{pressure_reference_element_data_3D.NumDofs0D,
+                                                                 pressure_reference_element_data_3D.NumDofs1D,
+                                                                 pressure_reference_element_data_3D.NumDofs2D,
+                                                                 pressure_reference_element_data_3D.NumDofs3D},
+                                                                boundary_info});
 
-    dofs_data[7] = dofManager.CreateDOFs<3>(meshDOFsInfo[7], mesh_connectivity_data);
+    dofs_data[7] = dofManager.CreateDOFs<3>(mesh_dofs_info[7], mesh_connectivity_data);
 
     auto count_dofs = Polydim::PDETools::Assembler_Utilities::count_dofs(dofs_data);
-    count_dofs.num_total_dofs += 1; // lagrange
+    if (count_dofs.num_total_boundary_dofs == 0)
+        count_dofs.num_total_dofs += 1; // lagrange
 
     Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(count_dofs.num_total_dofs) + " DOFs and " +
                                            to_string(count_dofs.num_total_strong) + " STRONGs",
@@ -168,8 +172,8 @@ int main(int argc, char **argv)
     Polydim::examples::Stokes_DF_PCC_3D::Assembler assembler;
     auto assembler_data = assembler.Assemble(config,
                                              mesh,
-                                             meshGeometricData,
-                                             meshDOFsInfo,
+                                             mesh_geometric_data,
+                                             mesh_dofs_info,
                                              dofs_data,
                                              count_dofs,
                                              velocity_reference_element_data_2D,
@@ -196,7 +200,7 @@ int main(int argc, char **argv)
         Gedim::Output::PrintGenericMessage("Solve...", true);
         Gedim::Profiler::StartTime("Solve");
 
-        solver.Solve(assembler_data.rightHandSide, assembler_data.solution);
+        const auto solver_data = solver.Solve(assembler_data.rightHandSide, assembler_data.solution);
 
         Gedim::Profiler::StopTime("Solve");
         Gedim::Output::PrintStatusProgram("Solve");
@@ -207,7 +211,7 @@ int main(int argc, char **argv)
 
     auto post_process_data = assembler.PostProcessSolution(config,
                                                            mesh,
-                                                           meshGeometricData,
+                                                           mesh_geometric_data,
                                                            dofs_data,
                                                            count_dofs,
                                                            velocity_reference_element_data_2D,
@@ -233,6 +237,17 @@ int main(int argc, char **argv)
                                                                             exportSolutionFolder,
                                                                             exportVtuFolder);
 
+    Polydim::examples::Stokes_DF_PCC_3D::program_utilities::export_velocity_dofs(config,
+                                                                                 mesh,
+                                                                                 mesh_geometric_data,
+                                                                                 mesh_dofs_info,
+                                                                                 velocity_reference_element_data_3D,
+                                                                                 dofs_data,
+                                                                                 count_dofs,
+                                                                                 assembler_data,
+                                                                                 post_process_data,
+                                                                                 exportVtuFolder);
+
     Gedim::Profiler::StopTime("ExportSolution");
     Gedim::Output::PrintStatusProgram("ExportSolution");
 
@@ -241,55 +256,13 @@ int main(int argc, char **argv)
 
     if (config.ComputeVEMPerformance())
     {
-        const auto vemPerformance = assembler.ComputeVemPerformance(config,
-                                                                    mesh,
-                                                                    meshGeometricData,
-                                                                    velocity_reference_element_data_2D,
-                                                                    velocity_reference_element_data_3D,
-                                                                    *vem_velocity_local_space);
-        {
-            const char separator = ',';
-            /// Export Cell3Ds VEM performance
-            ofstream exporter;
-
-            const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
-            const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
-            exporter.open(exportSolutionFolder + "/Cell3Ds_VEMPerformance_" + to_string(TEST_ID) + "_" +
-                          to_string(VEM_ID) + +"_" + to_string(config.VemOrder()) + ".csv");
-            exporter.precision(16);
-
-            if (exporter.fail())
-                throw runtime_error("Error on mesh cell3Ds file");
-
-            exporter << "Cell3D_Index" << separator;
-            exporter << "NumQuadPoints_Boundary" << separator;
-            exporter << "NumQuadPoints_Internal" << separator;
-            exporter << "PiNabla_Cond" << separator;
-            exporter << "Pi0k_Cond" << separator;
-            exporter << "PiNabla_Error" << separator;
-            exporter << "Pi0k_Error" << separator;
-            exporter << "GBD_Error" << separator;
-            exporter << "HCD_Error" << separator;
-            exporter << "Stab_Error" << endl;
-
-            for (unsigned int v = 0; v < vemPerformance.Cell3DsPerformance.size(); v++)
-            {
-                const auto &cell3DPerformance = vemPerformance.Cell3DsPerformance[v];
-
-                exporter << scientific << v << separator;
-                exporter << scientific << cell3DPerformance.NumBoundaryQuadraturePoints << separator;
-                exporter << scientific << cell3DPerformance.NumInternalQuadraturePoints << separator;
-                exporter << scientific << cell3DPerformance.maxPiNablaConditioning << separator;
-                exporter << scientific << cell3DPerformance.maxPi0kConditioning << separator;
-                exporter << scientific << cell3DPerformance.maxErrorPiNabla << separator;
-                exporter << scientific << cell3DPerformance.maxErrorPi0k << separator;
-                exporter << scientific << cell3DPerformance.maxErrorGBD << separator;
-                exporter << scientific << cell3DPerformance.maxErrorHCD << separator;
-                exporter << scientific << cell3DPerformance.ErrorStabilization << endl;
-            }
-
-            exporter.close();
-        }
+        const auto performance = assembler.ComputeVemPerformance(config,
+                                                                 mesh,
+                                                                 mesh_geometric_data,
+                                                                 velocity_reference_element_data_2D,
+                                                                 velocity_reference_element_data_3D,
+                                                                 *vem_velocity_local_space);
+        Polydim::examples::Stokes_DF_PCC_3D::program_utilities::export_performance(config, performance, exportSolutionFolder);
     }
 
     Gedim::Profiler::StopTime("ComputeVEMPerformance");
@@ -307,29 +280,29 @@ int main(int argc, char **argv)
             Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_full_velocity_reference_element_3D(config.VemType());
         const auto full_velocity_reference_element_data_3D = vem_full_velocity_reference_element_3D->Create(config.VemOrder());
 
-        std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> full_meshDOFsInfo(4);
+        std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> full_mesh_dofs_info(4);
         std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> full_dofs_data(4);
 
         for (unsigned int i = 0; i < 3; i++)
         {
-            full_meshDOFsInfo[i] = dofManager.Create_Constant_DOFsInfo<3>(
+            full_mesh_dofs_info[i] = dofManager.Create_Constant_DOFsInfo<3>(
                 mesh_connectivity_data,
                 {{full_velocity_reference_element_data_3D.NumDofs0D, full_velocity_reference_element_data_3D.NumDofs1D, 0, 0},
                  boundary_info});
 
-            full_dofs_data[i] = dofManager.CreateDOFs<3>(full_meshDOFsInfo[i], mesh_connectivity_data);
+            full_dofs_data[i] = dofManager.CreateDOFs<3>(full_mesh_dofs_info[i], mesh_connectivity_data);
         }
 
         for (unsigned int i = 3; i < 6; i++)
         {
-            full_meshDOFsInfo[i] = dofManager.Create_Constant_DOFsInfo<3>(
+            full_mesh_dofs_info[i] = dofManager.Create_Constant_DOFsInfo<3>(
                 mesh_connectivity_data,
                 {{0, 0, full_velocity_reference_element_data_3D.NumDofs2D, 0}, boundary_info});
 
-            full_dofs_data[i] = dofManager.CreateDOFs<3>(full_meshDOFsInfo[i], mesh_connectivity_data);
+            full_dofs_data[i] = dofManager.CreateDOFs<3>(full_mesh_dofs_info[i], mesh_connectivity_data);
         }
 
-        full_meshDOFsInfo[6] = dofManager.Create_Constant_DOFsInfo<3>(
+        full_mesh_dofs_info[6] = dofManager.Create_Constant_DOFsInfo<3>(
             mesh_connectivity_data,
             {{0,
               0,
@@ -337,19 +310,20 @@ int main(int argc, char **argv)
               full_velocity_reference_element_data_3D.NumDofs3D_BigOPlus + full_velocity_reference_element_data_3D.NumDofs3D_Divergence},
              boundary_info});
 
-        full_dofs_data[6] = dofManager.CreateDOFs<3>(full_meshDOFsInfo[6], mesh_connectivity_data);
+        full_dofs_data[6] = dofManager.CreateDOFs<3>(full_mesh_dofs_info[6], mesh_connectivity_data);
 
-        full_meshDOFsInfo[7] = dofManager.Create_Constant_DOFsInfo<3>(mesh_connectivity_data,
-                                                                      {{full_pressure_reference_element_data_3D.NumDofs0D,
-                                                                        full_pressure_reference_element_data_3D.NumDofs1D,
-                                                                        full_pressure_reference_element_data_3D.NumDofs2D,
-                                                                        full_pressure_reference_element_data_3D.NumDofs3D},
-                                                                       boundary_info});
+        full_mesh_dofs_info[7] = dofManager.Create_Constant_DOFsInfo<3>(mesh_connectivity_data,
+                                                                        {{full_pressure_reference_element_data_3D.NumDofs0D,
+                                                                          full_pressure_reference_element_data_3D.NumDofs1D,
+                                                                          full_pressure_reference_element_data_3D.NumDofs2D,
+                                                                          full_pressure_reference_element_data_3D.NumDofs3D},
+                                                                         boundary_info});
 
-        full_dofs_data[7] = dofManager.CreateDOFs<3>(full_meshDOFsInfo[7], mesh_connectivity_data);
+        full_dofs_data[7] = dofManager.CreateDOFs<3>(full_mesh_dofs_info[7], mesh_connectivity_data);
 
         auto full_count_dofs = Polydim::PDETools::Assembler_Utilities::count_dofs(full_dofs_data);
-        full_count_dofs.num_total_dofs += 1; // lagrange
+        if (full_count_dofs.num_total_boundary_dofs == 0)
+            full_count_dofs.num_total_dofs += 1; // lagrange
 
         Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(full_count_dofs.num_total_dofs) +
                                                " DOFs and " + to_string(full_count_dofs.num_total_strong) + " STRONGs",
@@ -368,8 +342,8 @@ int main(int argc, char **argv)
 
         auto full_assembler_data = assembler.Assemble(config,
                                                       mesh,
-                                                      meshGeometricData,
-                                                      full_meshDOFsInfo,
+                                                      mesh_geometric_data,
+                                                      full_mesh_dofs_info,
                                                       full_dofs_data,
                                                       full_count_dofs,
                                                       velocity_reference_element_data_2D,
@@ -407,7 +381,7 @@ int main(int argc, char **argv)
 
         const auto discrepancy_errors_data = assembler.ComputeDiscrepancyErrors(config,
                                                                                 mesh,
-                                                                                meshGeometricData,
+                                                                                mesh_geometric_data,
                                                                                 full_dofs_data,
                                                                                 full_count_dofs,
                                                                                 dofs_data,

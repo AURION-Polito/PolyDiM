@@ -74,8 +74,7 @@ Gedim::MeshUtilities::MeshGeometricData3D create_domain_mesh_geometric_propertie
     geometryUtilitiesConfig.Tolerance3D = config.GeometricTolerance3D();
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
-    Gedim::MeshUtilities meshUtilities;
-    return Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_3D_geometry_data(geometryUtilities, meshUtilities, mesh);
+    return Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_3D_geometry_data(geometryUtilities, mesh);
 }
 // ***************************************************************************
 void export_solution(const Polydim::examples::Elliptic_MCC_3D::Program_configuration &config,

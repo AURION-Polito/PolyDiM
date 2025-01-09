@@ -25,6 +25,7 @@ inline std::unique_ptr<PCC::I_VEM_PCC_2D_ReferenceElement> create_VEM_DF_PCC_3D_
 {
     switch (type)
     {
+    case VEM_DF_PCC_3D_LocalSpace_Types::VEM_DF_PCC_3D_LocalSpace:
     case VEM_DF_PCC_3D_LocalSpace_Types::VEM_DF_PCC_3D_Reduced_LocalSpace:
         return std::make_unique<PCC::VEM_PCC_2D_ReferenceElement>();
     default:

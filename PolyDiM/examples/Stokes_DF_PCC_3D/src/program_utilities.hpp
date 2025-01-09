@@ -2,7 +2,6 @@
 #define __program_utilities_H
 
 #include "DOFsManager.hpp"
-#include "VTKUtilities.hpp"
 #include "assembler.hpp"
 #include "program_configuration.hpp"
 #include "test_definition.hpp"
@@ -41,9 +40,14 @@ void export_velocity_dofs(const Polydim::examples::Stokes_DF_PCC_3D::Program_con
                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
                           const VEM::DF_PCC::VEM_DF_PCC_3D_Velocity_ReferenceElement_Data &vem_velocity_reference_element_data,
                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                          const Polydim::PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                           const Polydim::examples::Stokes_DF_PCC_3D::Assembler::Stokes_DF_PCC_3D_Problem_Data &assembler_data,
                           const Polydim::examples::Stokes_DF_PCC_3D::Assembler::PostProcess_Data &post_process_data,
                           const std::string &exportVtuFolder);
+
+void export_performance(const Polydim::examples::Stokes_DF_PCC_3D::Program_configuration &config,
+                        const Assembler::VEM_Performance_Result &performance_data,
+                        const std::string &exportFolder);
 
 void export_discrepancy_errors(const Polydim::examples::Stokes_DF_PCC_3D::Program_configuration &config,
                                const Gedim::MeshMatricesDAO &mesh,

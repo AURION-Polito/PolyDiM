@@ -139,7 +139,7 @@ int main(int argc, char **argv)
         Gedim::Output::PrintGenericMessage("Solve...", true);
         Gedim::Profiler::StartTime("Solve");
 
-        const auto solver_data = solver.Solve(assembler_data.rightHandSide, assembler_data.solution);
+        solver.Solve(assembler_data.rightHandSide, assembler_data.solution);
 
         Gedim::Profiler::StopTime("Solve");
         Gedim::Output::PrintStatusProgram("Solve");

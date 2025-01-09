@@ -9,7 +9,6 @@
 
 #include "DOFsManager.hpp"
 #include "I_VEM_DF_PCC_3D_ReferenceElement.hpp"
-#include "VEM_DF_PCC_PerformanceAnalysis.hpp"
 
 #include "program_configuration.hpp"
 
@@ -90,14 +89,29 @@ class Assembler final
     };
 
   private:
-    void ComputeStrongTerm(const Gedim::MeshMatricesDAO &mesh,
+    void ComputeStrongTerm(const unsigned int &cell3DIndex,
+                           const Gedim::MeshMatricesDAO &mesh,
                            const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
                            const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
                            const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
-                           const std::vector<size_t> &offsetStrongs,
-                           const Polydim::VEM::DF_PCC::VEM_DF_PCC_3D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
+                           const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
+                           const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data &velocity_reference_element_data_2D,
+                           const Polydim::VEM::DF_PCC::VEM_DF_PCC_3D_Velocity_ReferenceElement_Data &velocity_reference_element_data_3D,
+                           const VEM::DF_PCC::VEM_DF_PCC_3D_Velocity_LocalSpace_Data &local_space_data,
                            const test::I_Test &test,
                            Stokes_DF_PCC_3D_Problem_Data &assembler_data) const;
+
+    void ComputeWeakTerm(const unsigned int &cell3DIndex,
+                         const Gedim::MeshMatricesDAO &mesh,
+                         const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
+                         const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
+                         const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                         const Polydim::PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
+                         const VEM::PCC::VEM_PCC_2D_ReferenceElement_Data &velocity_reference_element_data_2D,
+                         const VEM::DF_PCC::VEM_DF_PCC_3D_Velocity_ReferenceElement_Data &velocity_reference_element_data_3D,
+                         const VEM::DF_PCC::VEM_DF_PCC_3D_Velocity_LocalSpace_Data &local_space_data,
+                         const test::I_Test &test,
+                         Stokes_DF_PCC_3D_Problem_Data &assembler_data) const;
 
   public:
     Stokes_DF_PCC_3D_Problem_Data Assemble(
