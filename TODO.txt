@@ -1,5 +1,4 @@
 * add FEM 1D, 2D and 3D test
-* add SUPG
 * add elasticity
 * change markers to mesh 3D
 * add superconvergence error in MCC 2D

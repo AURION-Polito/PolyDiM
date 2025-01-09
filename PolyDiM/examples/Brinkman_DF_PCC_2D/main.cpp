@@ -179,9 +179,6 @@ int main(int argc, char **argv)
         Gedim::Eigen_LUSolver solver;
         solver.Initialize(assembler_data.globalMatrixA);
 
-        cout.precision(2);
-        cout << scientific << assembler_data.rightHandSide << endl;
-
         Gedim::Profiler::StopTime("Factorize");
         Gedim::Output::PrintStatusProgram("Factorize");
 

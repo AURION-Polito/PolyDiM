@@ -12,11 +12,11 @@ namespace PCC
 {
 struct FEM_Tetrahedron_PCC_3D_Polyhedron_Geometry final
 {
-    const double Tolerance1D;
-    const double Tolerance2D;
-    const double Tolerance3D;
+    double Tolerance1D;
+    double Tolerance2D;
+    double Tolerance3D;
 
-    const Eigen::MatrixXd Vertices;
+    Eigen::MatrixXd Vertices;
 };
 
 struct FEM_Tetrahedron_PCC_3D_LocalSpace_Data final

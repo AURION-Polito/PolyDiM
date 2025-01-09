@@ -3,7 +3,6 @@
 
 #include "Configurations.hpp"
 #include "PDE_Mesh_Utilities.hpp"
-#include "VEM_PCC_3D_Creator.hpp"
 #include "test_definition.hpp"
 
 namespace Polydim
@@ -14,6 +13,14 @@ namespace Elliptic_PCC_3D
 {
 struct Program_configuration final
 {
+    enum struct MethodTypes
+    {
+        FEM_Tetrahedron_PCC = 0,
+        VEM_PCC = 1,
+        VEM_PCC_Inertia = 2,
+        VEM_PCC_Ortho = 3
+    };
+
   public:
     Program_configuration()
     {
@@ -40,12 +47,13 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty("GeometricTolerance3D", 1.0e-15, "Geometric Tolerance 3D (Default: 1.0e-15)");
 
         // Method parameters
-        Gedim::Configurations::AddProperty("VemType",
-                                           static_cast<unsigned int>(Polydim::VEM::PCC::VEM_PCC_3D_LocalSpace_Types::VEM_PCC_3D_LocalSpace),
-                                           "Vem Type, 1 - EVem; 2 - EVem_Inertia; 3 - EVem_Ortho (Default: "
-                                           "1)");
-        Gedim::Configurations::AddProperty("VemOrder", static_cast<unsigned int>(1), "VEM order (Default: 1)");
-        Gedim::Configurations::AddProperty("ComputeVEMPerformance", true, "Compute VEM Performance (Default: true)");
+        Gedim::Configurations::AddProperty("MethodType",
+                                           static_cast<unsigned int>(MethodTypes::FEM_Tetrahedron_PCC),
+                                           "Method Type, 0 - FEM_Tetrahedron_PCC; 1 - EVem; 2 - EVem_Inertia; 3 - "
+                                           "EVem_Ortho (Default: "
+                                           "0)");
+        Gedim::Configurations::AddProperty("MethodOrder", static_cast<unsigned int>(1), "Method order (Default: 1)");
+        Gedim::Configurations::AddProperty("ComputeMethodPerformance", true, "Compute Method Performance (Default: true)");
     }
 
     inline string ExportFolder() const
@@ -83,23 +91,17 @@ struct Program_configuration final
         return Gedim::Configurations::GetPropertyValue<double>("GeometricTolerance3D");
     }
 
-    inline Polydim::VEM::PCC::VEM_PCC_3D_LocalSpace_Types VemType() const
+    inline MethodTypes MethodType() const
     {
-        return (Polydim::VEM::PCC::VEM_PCC_3D_LocalSpace_Types)Gedim::Configurations::GetPropertyValue<unsigned int>("V"
-                                                                                                                     "e"
-                                                                                                                     "m"
-                                                                                                                     "T"
-                                                                                                                     "y"
-                                                                                                                     "p"
-                                                                                                                     "e");
+        return (MethodTypes)Gedim::Configurations::GetPropertyValue<unsigned int>("MethodType");
     }
-    inline bool ComputeVEMPerformance() const
+    inline bool ComputeMethodPerformance() const
     {
-        return Gedim::Configurations::GetPropertyValue<bool>("ComputeVEMPerformance");
+        return Gedim::Configurations::GetPropertyValue<bool>("ComputeMethodPerformance");
     }
-    inline unsigned int VemOrder() const
+    inline unsigned int MethodOrder() const
     {
-        return Gedim::Configurations::GetPropertyValue<unsigned int>("VemOrder");
+        return Gedim::Configurations::GetPropertyValue<unsigned int>("MethodOrder");
     }
 };
 } // namespace Elliptic_PCC_3D

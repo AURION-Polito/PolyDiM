@@ -137,9 +137,8 @@ void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
         const unsigned int numEdgeWeakQuadraturePoints = weakReferenceSegment.Points.cols();
         Eigen::MatrixXd weakQuadraturePoints(3, numEdgeWeakQuadraturePoints);
         for (unsigned int q = 0; q < numEdgeWeakQuadraturePoints; q++)
-        {
             weakQuadraturePoints.col(q) = edgeStart + direction * weakReferenceSegment.Points(0, q) * edgeTangent;
-        }
+
         const double absMapDeterminant = std::abs(mesh_geometric_data.Cell2DsEdgeLengths.at(cell2DIndex)[ed]);
         const Eigen::MatrixXd weakQuadratureWeights = weakReferenceSegment.Weights * absMapDeterminant;
 
@@ -429,27 +428,16 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
         const auto exact_solution_values = test.exact_solution(cell2D_internal_quadrature.Points);
         const auto exact_derivative_solution_values = test.exact_derivative_solution(cell2D_internal_quadrature.Points);
 
-        const auto &global_dofs = dofs_data.CellsGlobalDOFs[2].at(c);
-        Eigen::VectorXd dofs_values = Eigen::VectorXd::Zero(global_dofs.size());
-
-        for (unsigned int loc_i = 0; loc_i < global_dofs.size(); ++loc_i)
-        {
-            const auto &global_dof_i = global_dofs.at(loc_i);
-            const auto &local_dof_i =
-                dofs_data.CellsDOFs.at(global_dof_i.Dimension).at(global_dof_i.CellIndex).at(global_dof_i.DOFIndex);
-
-            switch (local_dof_i.Type)
-            {
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
-                dofs_values[loc_i] = assembler_data.solutionDirichlet.GetValue(local_dof_i.Global_Index);
-                break;
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-                dofs_values[loc_i] = assembler_data.solution.GetValue(local_dof_i.Global_Index);
-                break;
-            default:
-                throw std::runtime_error("Unknown DOF Type");
-            }
-        }
+        const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, {std::cref(dofs_data)});
+        const Eigen::VectorXd dofs_values =
+            PDETools::Assembler_Utilities::global_solution_to_local_solution<2>(c,
+                                                                                {std::cref(dofs_data)},
+                                                                                local_count_dofs.num_total_dofs,
+                                                                                local_count_dofs.offsets_DOFs,
+                                                                                {0},
+                                                                                {0},
+                                                                                assembler_data.solution,
+                                                                                assembler_data.solutionDirichlet);
 
         const Eigen::VectorXd local_error_L2 = (basis_functions_values * dofs_values - exact_solution_values).array().square();
         const Eigen::VectorXd local_norm_L2 = (basis_functions_values * dofs_values).array().square();

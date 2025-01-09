@@ -2,7 +2,6 @@
 #define __VEM_DF_PCC_3D_LocalSpace_Data_HPP
 
 #include "Eigen/Eigen"
-#include "GeometryUtilities.hpp"
 #include "VEM_PCC_2D_LocalSpace_Data.hpp"
 #include "VEM_Quadrature_3D.hpp"
 
@@ -16,28 +15,28 @@ namespace DF_PCC
 /// \brief Structure containing the geometric properties of the element
 struct VEM_DF_PCC_3D_Polyhedron_Geometry final
 {
-    const double Tolerance1D;
-    const double Tolerance2D;
-    const double Tolerance3D;
+    double Tolerance1D;
+    double Tolerance2D;
+    double Tolerance3D;
 
-    const Eigen::MatrixXd Vertices;
-    const Eigen::MatrixXi Edges;
-    const std::vector<Eigen::MatrixXi> Faces;
-    const Eigen::Vector3d Centroid;
-    const double Measure;
-    const double Diameter;
-    const std::vector<Eigen::MatrixXd> TetrahedronVertices;
+    Eigen::MatrixXd Vertices;
+    Eigen::MatrixXi Edges;
+    std::vector<Eigen::MatrixXi> Faces;
+    Eigen::Vector3d Centroid;
+    double Measure;
+    double Diameter;
+    std::vector<Eigen::MatrixXd> TetrahedronVertices;
 
-    const std::vector<Eigen::Matrix3d> FacesRotationMatrix;
-    const std::vector<Eigen::Vector3d> FacesTranslation;
-    const std::vector<Eigen::Vector3d> FacesNormal;
-    const std::vector<bool> FacesNormalDirection;
-    const std::vector<bool> FacesNormalGlobalDirection;
-    const std::vector<std::array<Eigen::Vector3d, 2>> FacesTangents;
-    const std::vector<std::array<bool, 2>> FacesTangentsGlobalDirection;
+    std::vector<Eigen::Matrix3d> FacesRotationMatrix;
+    std::vector<Eigen::Vector3d> FacesTranslation;
+    std::vector<Eigen::Vector3d> FacesNormal;
+    std::vector<bool> FacesNormalDirection;
+    std::vector<bool> FacesNormalGlobalDirection;
+    std::vector<std::array<Eigen::Vector3d, 2>> FacesTangents;
+    std::vector<std::array<bool, 2>> FacesTangentsGlobalDirection;
 
-    const std::vector<bool> EdgesDirection;
-    const Eigen::MatrixXd EdgesTangent;
+    std::vector<bool> EdgesDirection;
+    Eigen::MatrixXd EdgesTangent;
 };
 
 /// \brief Structure containing the local matrices and the main variables to compute the vritual element discrete

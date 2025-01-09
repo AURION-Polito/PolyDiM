@@ -19,7 +19,7 @@ enum struct Test_Types
 {
     Patch_Test = 1,
     Elliptic_Polynomial_Problem = 2,
-    SUPG_AdvDiff_Problem = 3, /// Test 1 - Benedetto 2016
+    SUPG_AdvDiff_Problem = 3 /// Test 1 - Benedetto 2016
 };
 
 struct I_Test

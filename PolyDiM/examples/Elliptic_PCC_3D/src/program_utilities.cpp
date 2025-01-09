@@ -87,15 +87,15 @@ void export_solution(const Polydim::examples::Elliptic_PCC_3D::Program_configura
                      const std::string &exportSolutionFolder,
                      const std::string &exportVtuFolder)
 {
-    const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
+    const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
     const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
 
     {
         const char separator = ';';
 
         std::cout << "ProgramType" << separator;
-        std::cout << "VemType" << separator;
-        std::cout << "VemOrder" << separator;
+        std::cout << "MethodType" << separator;
+        std::cout << "MethodOrder" << separator;
         std::cout << "Cell3Ds" << separator;
         std::cout << "Dofs" << separator;
         std::cout << "Strongs" << separator;
@@ -109,8 +109,8 @@ void export_solution(const Polydim::examples::Elliptic_PCC_3D::Program_configura
 
         std::cout.precision(2);
         std::cout << scientific << TEST_ID << separator;
-        std::cout << scientific << VEM_ID << separator;
-        std::cout << scientific << config.VemOrder() << separator;
+        std::cout << scientific << Method_ID << separator;
+        std::cout << scientific << config.MethodOrder() << separator;
         std::cout << scientific << mesh.Cell3DTotalNumber() << separator;
         std::cout << scientific << dofs_data.NumberDOFs << separator;
         std::cout << scientific << dofs_data.NumberStrongs << separator;
@@ -125,8 +125,8 @@ void export_solution(const Polydim::examples::Elliptic_PCC_3D::Program_configura
 
     {
         const char separator = ';';
-        const string errorFileName = exportSolutionFolder + "/Errors_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) +
-                                     +"_" + to_string(config.VemOrder()) + ".csv";
+        const string errorFileName = exportSolutionFolder + "/Errors_" + to_string(TEST_ID) + "_" +
+                                     to_string(Method_ID) + +"_" + to_string(config.MethodOrder()) + ".csv";
         const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
 
         std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);
@@ -149,8 +149,8 @@ void export_solution(const Polydim::examples::Elliptic_PCC_3D::Program_configura
 
         errorFile.precision(16);
         errorFile << scientific << TEST_ID << separator;
-        errorFile << scientific << VEM_ID << separator;
-        errorFile << scientific << config.VemOrder() << separator;
+        errorFile << scientific << Method_ID << separator;
+        errorFile << scientific << config.MethodOrder() << separator;
         errorFile << scientific << mesh.Cell3DTotalNumber() << separator;
         errorFile << scientific << dofs_data.NumberDOFs << separator;
         errorFile << scientific << dofs_data.NumberStrongs << separator;
@@ -187,9 +187,60 @@ void export_solution(const Polydim::examples::Elliptic_PCC_3D::Program_configura
                                       static_cast<unsigned int>(post_process_data.cell3Ds_error_H1.size()),
                                       post_process_data.cell3Ds_error_H1.data()}});
 
-            exporter.Export(exportVtuFolder + "/Solution_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) + +"_" +
-                            to_string(config.VemOrder()) + ".vtu");
+            exporter.Export(exportVtuFolder + "/Solution_" + to_string(TEST_ID) + "_" + to_string(Method_ID) + +"_" +
+                            to_string(config.MethodOrder()) + ".vtu");
         }
+    }
+}
+// ***************************************************************************
+void export_performance(const Polydim::examples::Elliptic_PCC_3D::Program_configuration &config,
+                        const Assembler::Performance_Data &performance_data,
+                        const std::string &exportFolder)
+{
+    {
+        const char separator = ',';
+        ofstream exporter;
+        const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
+        const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
+        exporter.open(exportFolder + "/Cell3Ds_MethodPerformance_" + to_string(TEST_ID) + "_" + to_string(Method_ID) +
+                      +"_" + to_string(config.MethodOrder()) + ".csv");
+        exporter.precision(16);
+
+        if (exporter.fail())
+            throw runtime_error("Error on mesh cell2Ds file");
+
+        exporter << "Cell3D_Index" << separator;
+        exporter << "NumQuadPoints_Boundary" << separator;
+        exporter << "NumQuadPoints_Internal" << separator;
+        exporter << "PiNabla_Cond" << separator;
+        exporter << "Pi0k_Cond" << separator;
+        exporter << "Pi0km1_Cond" << separator;
+        exporter << "PiNabla_Error" << separator;
+        exporter << "Pi0k_Error" << separator;
+        exporter << "Pi0km1_Error" << separator;
+        exporter << "HCD_Error" << separator;
+        exporter << "GBD_Error" << separator;
+        exporter << "Stab_Error" << endl;
+
+        for (unsigned int v = 0; v < performance_data.Cell3DsPerformance.size(); v++)
+        {
+            const auto &cell3D_performance = performance_data.Cell3DsPerformance[v].VEM_Performance_Data;
+
+            exporter << scientific << v << separator;
+            exporter << scientific << cell3D_performance.NumBoundaryQuadraturePoints << separator;
+            exporter << scientific << cell3D_performance.NumInternalQuadraturePoints << separator;
+            exporter << scientific << cell3D_performance.Analysis.PiNablaConditioning << separator;
+            exporter << scientific << cell3D_performance.Analysis.Pi0kConditioning << separator;
+            exporter << scientific << cell3D_performance.Analysis.Pi0km1Conditioning << separator;
+            exporter << scientific << cell3D_performance.Analysis.ErrorPiNabla << separator;
+            exporter << scientific << cell3D_performance.Analysis.ErrorPi0k << separator;
+            exporter << scientific << cell3D_performance.Analysis.ErrorPi0km1 << separator;
+            exporter << scientific << cell3D_performance.Analysis.ErrorHCD << separator;
+            exporter << scientific << cell3D_performance.Analysis.ErrorGBD << separator;
+            exporter << scientific << cell3D_performance.Analysis.ErrorStabilization << endl;
+        }
+
+        exporter.close();
     }
 }
 // ***************************************************************************
@@ -197,7 +248,6 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_3D::Program_configuration
                  const Gedim::MeshMatricesDAO &mesh,
                  const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
                  const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
-                 const VEM::PCC::VEM_PCC_3D_ReferenceElement_Data &vem_reference_element_data,
                  const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                  const Polydim::examples::Elliptic_PCC_3D::Assembler::Elliptic_PCC_3D_Problem_Data &assembler_data,
                  const Polydim::examples::Elliptic_PCC_3D::Assembler::PostProcess_Data &post_process_data,
@@ -206,6 +256,7 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_3D::Program_configuration
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
     geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance1D();
     geometryUtilitiesConfig.Tolerance2D = config.GeometricTolerance2D();
+    geometryUtilitiesConfig.Tolerance3D = config.GeometricTolerance3D();
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
     std::list<Eigen::Vector3d> dofs_coordinate;
@@ -460,10 +511,10 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_3D::Program_configuration
                              static_cast<unsigned int>(solution_values_data.size()),
                              solution_values_data.data()}});
 
-        const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
+        const unsigned int METHOD_ID = static_cast<unsigned int>(config.MethodType());
         const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
-        exporter.Export(exportVtuFolder + "/dofs_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) + +"_" +
-                        to_string(config.VemOrder()) + ".vtu");
+        exporter.Export(exportVtuFolder + "/dofs_" + to_string(TEST_ID) + "_" + to_string(METHOD_ID) + +"_" +
+                        to_string(config.MethodOrder()) + ".vtu");
     }
 }
 // ***************************************************************************

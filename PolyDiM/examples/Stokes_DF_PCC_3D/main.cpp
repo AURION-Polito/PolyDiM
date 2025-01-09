@@ -59,7 +59,7 @@ int main(int argc, char **argv)
     // export domain
     {
         Gedim::VTKUtilities vtkUtilities;
-        vtkUtilities.AddPolygon(domain.vertices);
+        vtkUtilities.AddPolyhedron(domain.vertices, domain.edges, domain.faces);
         vtkUtilities.Export(exportVtuFolder + "/Domain.vtu");
     }
 
