@@ -1,5 +1,7 @@
 #include "program_utilities.hpp"
 
+#include "VTKUtilities.hpp"
+
 namespace Polydim
 {
 namespace examples

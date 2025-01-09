@@ -1,5 +1,6 @@
 #include "Eigen_LUSolver.hpp"
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
+#include "VTKUtilities.hpp"
 #include "program_utilities.hpp"
 #include "test_definition.hpp"
 

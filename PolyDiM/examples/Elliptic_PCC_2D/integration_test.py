@@ -203,6 +203,54 @@ if __name__ == "__main__":
             if remove_folder:
                 os.system("rm -rf " + os.path.join(program_folder, export_path))
 
+    test_type = 3
+    mesh_generator = 0
+    method_orders = [1, 2]
+    method_types = [0, 1, 2, 3]
+    mesh_max_areas = [0.01, 0.001]
+    for method_type in method_types:
+        for method_order in method_orders:
+            for mesh_max_area in mesh_max_areas:
+                export_path = run_program(program_folder,
+                                          program_path,
+                                          "Run_MG{0}".format(mesh_generator),
+                                          method_type,
+                                          method_order,
+                                          test_type,
+                                          mesh_generator,
+                                          mesh_max_area,
+                                          supg = True)
+            errors = import_errors(export_path, method_type, method_order, test_type)
+            test_errors(errors,
+                        method_order,
+                        tol)
+            if remove_folder:
+                os.system("rm -rf " + os.path.join(program_folder, export_path))
+
+    test_type = 3
+    mesh_generator = 2
+    method_orders = [1, 2, 3]
+    method_types = [1, 2, 3]
+    mesh_max_areas = [0.01, 0.001]
+    for method_type in method_types:
+        for method_order in method_orders:
+            for mesh_max_area in mesh_max_areas:
+                export_path = run_program(program_folder,
+                                          program_path,
+                                          "Run_MG{0}".format(mesh_generator),
+                                          method_type,
+                                          method_order,
+                                          test_type,
+                                          mesh_generator,
+                                          mesh_max_area,
+                                          supg = True)
+            errors = import_errors(export_path, method_type, method_order, test_type)
+            test_errors(errors,
+                        method_order,
+                        tol)
+            if remove_folder:
+                os.system("rm -rf " + os.path.join(program_folder, export_path))
+
     if remove_folder:
         os.system("rm -rf " + os.path.join(program_folder, export_folder))
 

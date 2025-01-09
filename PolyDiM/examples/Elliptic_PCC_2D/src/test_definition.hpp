@@ -19,7 +19,7 @@ enum struct Test_Types
 {
     Patch_Test = 1,
     Elliptic_Polynomial_Problem = 2,
-    SUPG_AdvDiff_Problem = 3 /// Test 1 - Benedetto 2016
+    SUPG_AdvDiff_Problem = 3, /// Test 1 - Benedetto 2016
 };
 
 struct I_Test
@@ -268,7 +268,7 @@ struct SUPG_AdvDiff_Problem final : public I_Test
 
     Eigen::VectorXd source_term(const Eigen::MatrixXd &points) const
     {
-        return 65536.0 / 729.0 * 1.0e-06 *
+        return -65536.0 / 729.0 * 1.0e-06 *
                    ((6.0 - 12.0 * points.row(0).array()) * points.row(0).array() * points.row(1).array() *
                         points.row(1).array() * points.row(1).array() * (1.0 - points.row(1).array()) +
                     (6.0 - 12.0 * points.row(1).array()) * points.row(1).array() * points.row(0).array() *
