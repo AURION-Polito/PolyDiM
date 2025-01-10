@@ -340,7 +340,18 @@ Eigen::MatrixXd EdgeDofsCoordinates(const ReferenceElement_Data &reference_eleme
     switch (reference_element_data.Method_Type)
     {
     case Program_configuration::MethodTypes::FEM_Tetrahedron_PCC: {
-        throw runtime_error("not valid method");
+        const auto &dof_coordinates = local_space_data.FEM_LocalSpace_Data.Dofs;
+
+        const unsigned int cell1DStartingLocalIdex = local_space_data.FEM_LocalSpace_Data.Dof1DsIndex.at(edge_local_index);
+        const unsigned int cell1DEndingLocalIdex = local_space_data.FEM_LocalSpace_Data.Dof1DsIndex.at(edge_local_index + 1);
+        const unsigned int num_edge_dofs = cell1DEndingLocalIdex - cell1DStartingLocalIdex;
+
+        if (num_edge_dofs == 0)
+            return Eigen::MatrixXd(0, 0);
+
+        const Eigen::MatrixXd edge_dofs_coordinates = dof_coordinates.block(0, cell1DStartingLocalIdex, 3, num_edge_dofs);
+
+        return edge_dofs_coordinates;
     }
     case Program_configuration::MethodTypes::VEM_PCC:
     case Program_configuration::MethodTypes::VEM_PCC_Inertia:
