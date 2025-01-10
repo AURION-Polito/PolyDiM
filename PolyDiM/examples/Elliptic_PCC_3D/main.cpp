@@ -90,8 +90,8 @@ int main(int argc, char **argv)
     Gedim::Output::PrintStatusProgram("ComputeGeometricProperties");
 
     /// Initialize Discrete Space
-    Gedim::Output::PrintGenericMessage("CreateVEMSpace of order " + to_string(config.MethodOrder()) + " and DOFs...", true);
-    Gedim::Profiler::StartTime("CreateVEMSpace");
+    Gedim::Output::PrintGenericMessage("CreateDiscreteSpace of order " + to_string(config.MethodOrder()) + " and DOFs...", true);
+    Gedim::Profiler::StartTime("CreateDiscreteSpace");
 
     const auto reference_element_data =
         Polydim::examples::Elliptic_PCC_3D::local_space::CreateReferenceElement(config.MethodType(), config.MethodOrder());
@@ -107,14 +107,14 @@ int main(int argc, char **argv)
 
     const auto dofs_data = dofManager.CreateDOFs<3>(meshDOFsInfo, mesh_connectivity_data);
 
-    Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(dofs_data.NumberDOFs) + " DOFs and " +
+    Gedim::Output::PrintGenericMessage("Discrete Space with " + to_string(dofs_data.NumberDOFs) + " DOFs and " +
                                            to_string(dofs_data.NumberStrongs) + " STRONGs",
                                        true);
 
-    Gedim::Profiler::StopTime("CreateVEMSpace");
-    Gedim::Output::PrintStatusProgram("CreateVEMSpace");
+    Gedim::Profiler::StopTime("CreateDiscreteSpace");
+    Gedim::Output::PrintStatusProgram("CreateDiscreteSpace");
 
-    Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " + to_string(static_cast<unsigned int>(config.MethodType())) + "...",
+    Gedim::Output::PrintGenericMessage("AssembleSystem Method Type " + to_string(static_cast<unsigned int>(config.MethodType())) + "...",
                                        true);
     Gedim::Profiler::StartTime("AssembleSystem");
 
@@ -171,8 +171,8 @@ int main(int argc, char **argv)
     Gedim::Profiler::StopTime("ExportSolution");
     Gedim::Output::PrintStatusProgram("ExportSolution");
 
-    Gedim::Output::PrintGenericMessage("ComputeVEMPerformance...", true);
-    Gedim::Profiler::StartTime("ComputeVEMPerformance");
+    Gedim::Output::PrintGenericMessage("ComputeMethodPerformance...", true);
+    Gedim::Profiler::StartTime("ComputeMethodPerformance");
 
     if (config.ComputeMethodPerformance())
     {
@@ -180,8 +180,8 @@ int main(int argc, char **argv)
         Polydim::examples::Elliptic_PCC_3D::program_utilities::export_performance(config, performance, exportSolutionFolder);
     }
 
-    Gedim::Profiler::StopTime("ComputeVEMPerformance");
-    Gedim::Output::PrintStatusProgram("ComputeVEMPerformance");
+    Gedim::Profiler::StopTime("ComputeMethodPerformance");
+    Gedim::Output::PrintStatusProgram("ComputeMethodPerformance");
 
     return 0;
 }

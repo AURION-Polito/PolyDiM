@@ -26,11 +26,10 @@ struct FEM_Triangle_PCC_2D_LocalSpace_Data final
     unsigned int Order;                                   ///< Order of the space
     unsigned int NumberOfBasisFunctions;                  ///< Number of basis functions
     Eigen::MatrixXd Dofs;                                 ///< DOFs geometric position
-    std::vector<unsigned int> DofsMeshOrder;              ///< DOFs position depending on mesh directions
-    std::vector<unsigned int> Dof0DsIndex;                ///< local DOF index for each element 0D, size num0D + 1
-    std::vector<unsigned int> Dof1DsIndex;                ///< local DOF index for each element 1D, size num1D + 1
-    std::vector<unsigned int> Dof2DsIndex;                ///< local DOF index for each element 2D, size num2D + 1
-    std::vector<unsigned int> Dof3DsIndex;                ///< local DOF index for each element 3D, size num3D + 1
+    std::vector<unsigned int> DofsMeshOrder;              ///< DOFs position depending on element
+    std::array<unsigned int, 4> Dof0DsIndex;                ///< local DOF index for each element 0D
+    std::array<unsigned int, 4> Dof1DsIndex;                ///< local DOF index for each element 1D
+    std::array<unsigned int, 2> Dof2DsIndex;                ///< local DOF index for each element 2D
     Gedim::Quadrature::QuadratureData InternalQuadrature; ///< Internal quadrature points and weights
 };
 

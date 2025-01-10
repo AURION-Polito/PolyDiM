@@ -27,7 +27,74 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
     localSpace.Order = reference_element_data.Order;
     localSpace.NumberOfBasisFunctions = reference_element_data.NumBasisFunctions;
 
-    // reorder basis function values with mesh order
+    localSpace.DofsMeshOrder.resize(localSpace.NumberOfBasisFunctions, 0);
+    unsigned int dofCounter = 0;
+    localSpace.Dof0DsIndex.fill(0);
+    for (unsigned int v = 0; v < 4; v++)
+    {
+        localSpace.Dof0DsIndex[v + 1] = localSpace.Dof0DsIndex[v] + reference_element_data.NumDofs0D;
+
+        for (unsigned int d = localSpace.Dof0DsIndex[v]; d < localSpace.Dof0DsIndex[v + 1]; d++)
+        {
+            localSpace.DofsMeshOrder[dofCounter] = d;
+            dofCounter++;
+        }
+    }
+
+    localSpace.Dof1DsIndex.fill(localSpace.Dof0DsIndex[4]);
+    for (unsigned int e = 0; e < 6; e++)
+    {
+        localSpace.Dof1DsIndex[e + 1] = localSpace.Dof1DsIndex[e] + reference_element_data.NumDofs1D;
+
+        if (polyhedron.EdgesDirection.at(e))
+        {
+            for (unsigned int d = localSpace.Dof1DsIndex[e]; d < localSpace.Dof1DsIndex[e + 1]; d++)
+            {
+                localSpace.DofsMeshOrder[dofCounter] = d;
+                dofCounter++;
+            }
+        }
+        else
+        {
+            for (unsigned int d = localSpace.Dof1DsIndex[e + 1] - 1; d < UINT_MAX && d >= localSpace.Dof1DsIndex[e]; d--)
+            {
+                localSpace.DofsMeshOrder[dofCounter] = d;
+                dofCounter++;
+            }
+        }
+    }
+
+    localSpace.Dof2DsIndex.fill(localSpace.Dof1DsIndex[6]);
+    for (unsigned int f = 0; f < 4; f++)
+    {
+        localSpace.Dof2DsIndex[f + 1] = localSpace.Dof2DsIndex[f] + reference_element_data.NumDofs2D;
+
+        if (polyhedron.FacesDirection.at(f))
+        {
+            for (unsigned int d = localSpace.Dof2DsIndex[f]; d < localSpace.Dof2DsIndex[f + 1]; d++)
+            {
+                localSpace.DofsMeshOrder[dofCounter] = d;
+                dofCounter++;
+            }
+        }
+        else
+        {
+            for (unsigned int d = localSpace.Dof2DsIndex[f + 1] - 1; d < UINT_MAX && d >= localSpace.Dof2DsIndex[f]; d--)
+            {
+                localSpace.DofsMeshOrder[dofCounter] = d;
+                dofCounter++;
+            }
+        }
+    }
+
+    localSpace.Dof3DsIndex.fill(localSpace.Dof2DsIndex[4]);
+    localSpace.Dof3DsIndex[1] = localSpace.Dof3DsIndex[0] + reference_element_data.NumDofs3D;
+    for (unsigned int d = localSpace.Dof3DsIndex[0]; d < localSpace.Dof3DsIndex[1]; d++)
+    {
+        localSpace.DofsMeshOrder[dofCounter] = d;
+        dofCounter++;
+    }
+
     localSpace.Dofs = MapValues(localSpace, Gedim::MapTetrahedron::F(localSpace.MapData, reference_element_data.DofPositions));
 
     localSpace.InternalQuadrature = InternalQuadrature(reference_element_data.ReferenceTetrahedronQuadrature, localSpace.MapData);

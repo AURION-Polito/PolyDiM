@@ -24,7 +24,7 @@ FEM_Triangle_PCC_2D_LocalSpace_Data FEM_Triangle_PCC_2D_LocalSpace::CreateLocalS
 
     localSpace.DofsMeshOrder.resize(localSpace.NumberOfBasisFunctions, 0);
     unsigned int dofCounter = 0;
-    localSpace.Dof0DsIndex.resize(4, 0);
+    localSpace.Dof0DsIndex.fill(0);
     for (unsigned int v = 0; v < 3; v++)
     {
         localSpace.Dof0DsIndex[v + 1] = localSpace.Dof0DsIndex[v] + reference_element_data.NumDofs0D;
@@ -36,7 +36,7 @@ FEM_Triangle_PCC_2D_LocalSpace_Data FEM_Triangle_PCC_2D_LocalSpace::CreateLocalS
         }
     }
 
-    localSpace.Dof1DsIndex.resize(4, localSpace.Dof0DsIndex[3]);
+    localSpace.Dof1DsIndex.fill(localSpace.Dof0DsIndex[3]);
     for (unsigned int e = 0; e < 3; e++)
     {
         localSpace.Dof1DsIndex[e + 1] = localSpace.Dof1DsIndex[e] + reference_element_data.NumDofs1D;
@@ -59,15 +59,13 @@ FEM_Triangle_PCC_2D_LocalSpace_Data FEM_Triangle_PCC_2D_LocalSpace::CreateLocalS
         }
     }
 
-    localSpace.Dof2DsIndex.resize(2, localSpace.Dof1DsIndex[3]);
+    localSpace.Dof2DsIndex.fill(localSpace.Dof1DsIndex[3]);
     localSpace.Dof2DsIndex[1] = localSpace.Dof2DsIndex[0] + reference_element_data.NumDofs2D;
     for (unsigned int d = localSpace.Dof2DsIndex[0]; d < localSpace.Dof2DsIndex[1]; d++)
     {
         localSpace.DofsMeshOrder[dofCounter] = d;
         dofCounter++;
     }
-
-    localSpace.Dof3DsIndex.resize(0, 0);
 
     // reorder basis function values with mesh order
     localSpace.Dofs = MapValues(localSpace, Gedim::MapTriangle::F(localSpace.MapData, reference_element_data.DofPositions));
