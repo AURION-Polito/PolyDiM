@@ -19,7 +19,7 @@ struct Program_configuration final
         VEM_MCC = 1,
         VEM_MCC_Partial = 2,
         VEM_MCC_Ortho = 3,
-        VEM_MCC_Edge = 4,
+        VEM_MCC_EdgeOrtho = 4,
         VEM_MCC_Ortho_EdgeOrtho = 5
     };
 
@@ -49,7 +49,7 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty("MethodType",
                                            static_cast<unsigned int>(MethodTypes::VEM_MCC),
                                            "Method Type, 1 - Vem; 2 - Vem_Partial; 3 - Vem_Ortho; 4 - "
-                                           "Method_EdgeOrtho; 5 - Vem_Ortho_EdgeOrtho (Default: "
+                                           "Vem_EdgeOrtho; 5 - Vem_Ortho_EdgeOrtho (Default: "
                                            "1)");
         Gedim::Configurations::AddProperty("MethodOrder", static_cast<unsigned int>(0), "Method order (Default: 0)");
         Gedim::Configurations::AddProperty("ComputeMethodPerformance", true, "Compute Method Performance (Default: true)");

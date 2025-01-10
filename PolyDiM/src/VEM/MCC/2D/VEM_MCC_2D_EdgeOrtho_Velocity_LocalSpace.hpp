@@ -44,6 +44,7 @@ class VEM_MCC_2D_EdgeOrtho_Velocity_LocalSpace final : public I_VEM_MCC_2D_Veloc
 
     void ComputeValuesOnBoundary(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                                  const Eigen::MatrixXd &polytopeVertices,
+                                 const Eigen::VectorXd &edgeLengths,
                                  const Eigen::MatrixXd &edgeNormals,
                                  const std::vector<bool> &edgeDirections,
                                  const Eigen::VectorXd &boundaryQuadratureWeights,

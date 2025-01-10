@@ -23,48 +23,6 @@ MatrixXi VEM_Monomials_Utilities<dimension>::Exponents(const VEM_Monomials_Data 
 
     return exponents;
 }
-// ***************************************************************************
-template <unsigned short dimension>
-MatrixXd VEM_Monomials_Utilities<dimension>::Vander(const VEM_Monomials_Data &data,
-                                                    const vector<VectorXd> &points,
-                                                    const VectorXd &centroid,
-                                                    const double &diam) const
-{
-    MatrixXd vander;
-    const unsigned int numMonomials = data.NumMonomials;
-    const unsigned int nQ = points.size();
-    vector<MatrixXd> VanderPartial;
-    if (numMonomials > 1)
-    {
-        const unsigned int polynomialDegree = data.PolynomialDegree;
-        const double inverseDiam = 1.0 / diam;
-        VanderPartial.resize(dimension);
-        for (unsigned int i = 0; i < dimension; i++)
-        {
-            VanderPartial[i].resize(nQ, polynomialDegree + 1);
-            // first column is set to one
-            VanderPartial[i].col(0).setConstant(1);
-            // second column has (x-xc)/he
-            for (unsigned int k = 0; k < nQ; k++)
-                VanderPartial[i](k, 1) = (points[k](i) - centroid(i)) * inverseDiam;
-            // other columns are computed by multiplication of VanderPartial columns
-            for (unsigned int k = 2; k <= polynomialDegree; k++)
-                VanderPartial[i].col(k) = VanderPartial[i].col(k - 1).cwiseProduct(VanderPartial[i].col(1));
-        }
-    }
-
-    // Compute Vander using VanderPartial
-    vander.resize(nQ, numMonomials);
-    vander.col(0).setConstant(1);
-    for (unsigned int k = 1; k < numMonomials; k++)
-    {
-        const VectorXi expo = data.Exponents[k];
-        vander.col(k) = VanderPartial[0].col(expo(0)).cwiseProduct(VanderPartial[1].col(expo(1)));
-        if (dimension == 3)
-            vander.col(k) = vander.col(k).cwiseProduct(VanderPartial[2].col(expo(2)));
-    }
-    return vander;
-}
 //****************************************************************************
 template <unsigned short dimension>
 MatrixXd VEM_Monomials_Utilities<dimension>::Vander(const VEM_Monomials_Data &data,

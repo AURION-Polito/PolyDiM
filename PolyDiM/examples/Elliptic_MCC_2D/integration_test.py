@@ -141,6 +141,7 @@ if __name__ == "__main__":
 
     test_type = 2
     mesh_generator = 0
+    vem_orders = [0, 1, 2]
     mesh_max_areas = [0.01, 0.001]
     for vem_type in vem_types:
         for vem_order in vem_orders:
