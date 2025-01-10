@@ -18,7 +18,10 @@ struct FEM_Tetrahedron_PCC_3D_Polyhedron_Geometry final
 
     Eigen::MatrixXd Vertices;
     std::vector<bool> EdgesDirection;
+    std::vector<bool> FacesArea;
     std::vector<bool> FacesDirection;
+    std::vector<Eigen::Matrix3d> FacesRotationMatrix;
+    std::vector<Eigen::Vector3d> FacesTranslation;
 };
 
 struct FEM_Tetrahedron_PCC_3D_LocalSpace_Data final
@@ -33,6 +36,7 @@ struct FEM_Tetrahedron_PCC_3D_LocalSpace_Data final
     std::array<unsigned int, 5> Dof2DsIndex;              ///< local DOF index for each element 2D
     std::array<unsigned int, 2> Dof3DsIndex;              ///< local DOF index for each element 3D
     Gedim::Quadrature::QuadratureData InternalQuadrature; ///< Internal quadrature points and weights
+    std::vector<Gedim::Quadrature::QuadratureData> BoundaryQuadrature; ///< Boundary quadrature points and weights on each face
 };
 
 /// \brief Interface used to FEM Values computation

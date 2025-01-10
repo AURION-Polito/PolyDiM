@@ -1,6 +1,7 @@
 #ifndef __local_space_H
 #define __local_space_H
 
+#include "FEM_Triangle_PCC_2D_ReferenceElement.hpp"
 #include "FEM_Tetrahedron_PCC_3D_LocalSpace.hpp"
 #include "I_VEM_PCC_3D_ReferenceElement.hpp"
 #include "QuadratureData.hpp"
@@ -29,8 +30,10 @@ struct ReferenceElement_Data final
     VEM::PCC::VEM_PCC_3D_LocalSpace_Types VEM_Type;
     std::unique_ptr<VEM::PCC::I_VEM_PCC_3D_LocalSpace> VEM_LocalSpace;
 
-    std::unique_ptr<Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_ReferenceElement> FEM_ReferenceElement;
-    Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_ReferenceElement_Data FEM_ReferenceElement_Data;
+    std::unique_ptr<Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement> FEM_ReferenceElement_2D;
+    Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement_Data FEM_ReferenceElement_Data_2D;
+    std::unique_ptr<Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_ReferenceElement> FEM_ReferenceElement_3D;
+    Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_ReferenceElement_Data FEM_ReferenceElement_Data_3D;
     std::unique_ptr<FEM::PCC::FEM_Tetrahedron_PCC_3D_LocalSpace> FEM_LocalSpace;
 };
 

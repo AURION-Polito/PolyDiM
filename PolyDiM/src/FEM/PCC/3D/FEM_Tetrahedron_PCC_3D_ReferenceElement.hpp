@@ -6,6 +6,7 @@
 #include "Quadrature_Gauss1D.hpp"
 #include "Quadrature_Gauss2D_Triangle.hpp"
 #include "Quadrature_Gauss3D_Tetrahedron_PositiveWeights.hpp"
+#include "FEM_Triangle_PCC_2D_ReferenceElement.hpp"
 
 namespace Polydim
 {
@@ -25,12 +26,12 @@ struct FEM_Tetrahedron_PCC_3D_ReferenceElement_Data final
     unsigned int NumBasisFunctions; ///< Number of total basis functions
     Eigen::MatrixXd DofPositions;   ///< reference element dof points
 
-    Gedim::Quadrature::QuadratureData ReferenceSegmentQuadrature;
-    Gedim::Quadrature::QuadratureData ReferenceTriangleQuadrature;
     Gedim::Quadrature::QuadratureData ReferenceTetrahedronQuadrature;
 
     Eigen::MatrixXd ReferenceBasisFunctionValues;
     std::vector<Eigen::MatrixXd> ReferenceBasisFunctionDerivativeValues;
+
+    FEM_Triangle_PCC_2D_ReferenceElement_Data BoundaryReferenceElement_Data;
 };
 
 class FEM_Tetrahedron_PCC_3D_ReferenceElement final
@@ -53,8 +54,9 @@ class FEM_Tetrahedron_PCC_3D_ReferenceElement final
             result.DofPositions.setZero(3, result.NumBasisFunctions);
             result.DofPositions.col(0) << 1.0 / 4.0, 1.0 / 4.0, 1.0 / 4.0;
 
-            result.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * order);
-            result.ReferenceSegmentQuadrature = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * order);
+            FEM_Triangle_PCC_2D_ReferenceElement boundary_reference_element;
+            result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order);
+
             result.ReferenceTetrahedronQuadrature =
                 Gedim::Quadrature::Quadrature_Gauss3D_Tetrahedron_PositiveWeights::FillPointsAndWeights(2 * order);
 
@@ -85,10 +87,11 @@ class FEM_Tetrahedron_PCC_3D_ReferenceElement final
             throw std::runtime_error("order " + std::to_string(order) + "not supported yet");
         }
 
+        FEM_Triangle_PCC_2D_ReferenceElement boundary_reference_element;
+        result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order);
+
         result.ReferenceTetrahedronQuadrature =
             Gedim::Quadrature::Quadrature_Gauss3D_Tetrahedron_PositiveWeights::FillPointsAndWeights(2 * order);
-        result.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * order);
-        result.ReferenceSegmentQuadrature = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * order);
 
         result.ReferenceBasisFunctionValues = EvaluateBasisFunctions(result.ReferenceTetrahedronQuadrature.Points, result);
         result.ReferenceBasisFunctionDerivativeValues =

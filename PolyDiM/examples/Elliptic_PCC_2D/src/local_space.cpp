@@ -142,7 +142,7 @@ Eigen::MatrixXd BasisFunctionsLaplacianValues(const ReferenceElement_Data &refer
     }
 }
 //***************************************************************************
-Eigen::MatrixXd BasisFunctionsValuesOnEdges(const unsigned int &edge_local_index,
+Eigen::MatrixXd BasisFunctionsValuesOnEdge(const unsigned int &edge_local_index,
                                             const ReferenceElement_Data &reference_element_data,
                                             const LocalSpace_Data &local_space_data,
                                             const Eigen::MatrixXd &pointsCurvilinearCoordinates)
