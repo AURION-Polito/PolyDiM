@@ -33,13 +33,13 @@ def run_program(program_folder,
     program_parameters += " TestType:uint={0}".format(test_type)
     program_parameters += " MeshGenerator:uint={0}".format(mesh_generator)
     program_parameters += " MeshMaxArea:double={0}".format(mesh_max_area)
-    program_parameters += " ComputeVEMPerformance:bool={0}".format(0)
+    program_parameters += " ComputeMethodPerformance:bool={0}".format(0)
 
     output_file = os.path.join(program_folder,
                                "terminal.log")
 
-    run_label = "VemType {0}".format(vem_type)
-    run_label += " VemOrder {0}".format(vem_order)
+    run_label = "MethodType {0}".format(vem_type)
+    run_label += " MethodOrder {0}".format(vem_order)
     run_label += " TestType {0}".format(test_type)
     run_label += " MeshGenerator {0}".format(mesh_generator)
     run_label += " MeshMaxArea {0}".format(mesh_max_area)
@@ -51,10 +51,10 @@ def run_program(program_folder,
     return export_path
 
 
-def import_errors(export_path):
+def import_errors(export_path, vem_type, vem_order, test_type):
     errors_file = os.path.join(export_path,
                                "Solution",
-                               "Errors.csv")
+                               "Errors_" + str(test_type) + "_" + str(vem_type) + "_" + str(vem_order) + ".csv")
     errors = []
     with open(errors_file, newline='') as csvfile:
         file_reader = csv.reader(csvfile, delimiter=';')
@@ -64,17 +64,19 @@ def import_errors(export_path):
         for row in data:
             errors_row = []
             if counter == 0:
-                errors_row.append(row[4])
+                errors_row.append(row[6])
                 errors_row.append(row[7])
                 errors_row.append(row[8])
                 errors_row.append(row[9])
                 errors_row.append(row[10])
+                errors_row.append(row[11])
             else:
-                errors_row.append(float(row[4]))
+                errors_row.append(float(row[6]))
                 errors_row.append(float(row[7]))
                 errors_row.append(float(row[8]))
                 errors_row.append(float(row[9]))
                 errors_row.append(float(row[10]))
+                errors_row.append(float(row[11]))
             errors.append(errors_row)
             counter += 1
 
@@ -86,19 +88,21 @@ def test_errors(errors,
                 tol):
     num_rows = len(errors)
 
-    if (num_rows == 2):
-        print("CASE 1: ", abs(errors[1][1]) / abs(errors[1][3]), abs(errors[1][2]) / abs(errors[1][4]))
-        assert abs(errors[1][1]) < tol * abs(errors[1][3])
-        assert abs(errors[1][2]) < tol * abs(errors[1][4])
-    elif (num_rows == 3):
-        errors = np.array(errors[1:])
-        slope_velocity_L2 = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 1]), 1)[0]
-        slope_pressure_L2 = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 2]), 1)[0]
-        print("CASE 2: ", round(slope_velocity_L2), round(slope_pressure_L2))
-        assert round(slope_velocity_L2) == round(float(vem_order + 1.0))
-        assert round(slope_pressure_L2) == round(float(vem_order))
+    if num_rows == 2:
+        print("Num. Ref. 1: ", abs(errors[1][1]) / abs(errors[1][4]), abs(errors[1][2]) / abs(errors[1][5]),
+              abs(errors[1][3]) / abs(errors[1][5]))
+        assert abs(errors[1][1]) < tol * abs(errors[1][4])
+        assert abs(errors[1][2]) < tol * abs(errors[1][5])
+        assert abs(errors[1][3]) < tol * abs(errors[1][5])
     else:
-        raise Exception("Case {0} not managed".format(num_rows))
+        errors = np.array(errors[1:])
+        slope_L2_vel = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 1]), 1)[0]
+        slope_L2_pres = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 2]), 1)[0]
+        slope_super_L2_pres = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 3]), 1)[0]
+        print("Num. Ref. ", str(num_rows - 1), ": ", slope_L2_vel, slope_L2_pres, slope_super_L2_pres)
+        assert round(slope_L2_vel) == round(float(vem_order + 1.0))
+        assert round(slope_L2_pres) == round(float(vem_order + 1.0))
+        assert round(slope_super_L2_pres) >= round(float(vem_order + 2.0))
 
 
 if __name__ == "__main__":
@@ -128,7 +132,7 @@ if __name__ == "__main__":
                                       test_type,
                                       mesh_generator,
                                       mesh_max_area)
-            errors = import_errors(export_path)
+            errors = import_errors(export_path, vem_type, vem_order, test_type)
             test_errors(errors,
                         vem_order,
                         tol)
@@ -149,7 +153,7 @@ if __name__ == "__main__":
                                           test_type,
                                           mesh_generator,
                                           mesh_max_area)
-            errors = import_errors(export_path)
+            errors = import_errors(export_path, vem_type, vem_order, test_type)
             test_errors(errors,
                         vem_order,
                         tol)
@@ -170,7 +174,7 @@ if __name__ == "__main__":
                                           test_type,
                                           mesh_generator,
                                           mesh_max_area)
-            errors = import_errors(export_path)
+            errors = import_errors(export_path, vem_type, vem_order, test_type)
             test_errors(errors,
                         vem_order,
                         tol)

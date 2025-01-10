@@ -226,10 +226,10 @@ struct Poisson_Polynomial_Problem final : public I_Test
     std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info() const
     {
         return {{0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 0}},
-                {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 0}},
-                {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 0}},
-                {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 0}},
+                {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
                 {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
                 {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
@@ -288,9 +288,9 @@ struct Poisson_Polynomial_Problem final : public I_Test
         switch (marker)
         {
         case 1: // co-normal derivatives on the right
-            return 16.0 * (1.0 - 2.0 * points.row(0).array()) * points.row(1).array() * (1.0 - points.row(1).array());
-        case 3: // co-normal derivatives on the left
             return -16.0 * (1.0 - 2.0 * points.row(0).array()) * points.row(1).array() * (1.0 - points.row(1).array());
+        case 3: // co-normal derivatives on the left
+            return 16.0 * (1.0 - 2.0 * points.row(0).array()) * points.row(1).array() * (1.0 - points.row(1).array());
         default:
             throw std::runtime_error("Unknown marker");
         }
