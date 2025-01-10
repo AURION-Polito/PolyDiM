@@ -5,11 +5,8 @@
 #include "DOFsManager.hpp"
 #include "Eigen_Array.hpp"
 #include "Eigen_SparseArray.hpp"
-#include "I_VEM_MCC_2D_ReferenceElement.hpp"
 #include "MeshMatricesDAO.hpp"
 #include "MeshUtilities.hpp"
-#include "VEM_MCC_2D_LocalSpace_Data.hpp"
-#include "VEM_MCC_PerformanceAnalysis.hpp"
 #include "local_space.hpp"
 #include "program_configuration.hpp"
 

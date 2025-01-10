@@ -318,16 +318,16 @@ Gedim::Quadrature::QuadratureData EdgeDofsCoordinates(const ReferenceElement_Dat
     }
     case Program_configuration::MethodTypes::VEM_MCC_EdgeOrtho:
     case Program_configuration::MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
-        unsigned int num_edge_dofs = reference_element_data.VEM_ReferenceElement_Data_Velocity.NumDofs1D;
-
-        Gedim::Quadrature::QuadratureData edge_dofs_coordinates;
-        edge_dofs_coordinates.Points =
-            local_space_data.VEM_LocalSpace_Data_Velocity.BoundaryQuadrature.Quadrature.Points.middleCols(num_edge_dofs * edge_local_index,
-                                                                                                          num_edge_dofs);
-        edge_dofs_coordinates.Weights =
-            local_space_data.VEM_LocalSpace_Data_Velocity.BoundaryQuadrature.Quadrature.Weights.segment(num_edge_dofs * edge_local_index,
-                                                                                                        num_edge_dofs);
-        return edge_dofs_coordinates;
+        Gedim::Quadrature::QuadratureData quadrature;
+        unsigned int num_quadrature_points =
+            reference_element_data.VEM_ReferenceElement_Data_Velocity.Quadrature.ReferenceSegmentQuadrature.Points.cols();
+        quadrature.Points = local_space_data.VEM_LocalSpace_Data_Velocity.BoundaryQuadrature.Quadrature.Points.middleCols(
+            num_quadrature_points * edge_local_index,
+            num_quadrature_points);
+        quadrature.Weights = local_space_data.VEM_LocalSpace_Data_Velocity.BoundaryQuadrature.Quadrature.Weights.segment(
+            num_quadrature_points * edge_local_index,
+            num_quadrature_points);
+        return quadrature;
     }
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
