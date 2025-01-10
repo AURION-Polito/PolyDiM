@@ -63,7 +63,7 @@ struct Patch_Test final : public I_Test
 
     Eigen::VectorXd source_term(const Eigen::MatrixXd &points) const
     {
-        Eigen::VectorXd source_term = Eigen::VectorXd::Constant(points.cols(), 2.0 * order * (order - 1));
+        Eigen::VectorXd source_term = Eigen::VectorXd::Constant(points.cols(), order * (order - 1));
         const Eigen::ArrayXd polynomial = points.row(0).array() + 0.5;
 
         const int max_order = order - 2;
@@ -112,7 +112,7 @@ struct Patch_Test final : public I_Test
         for (int i = 0; i < max_order; ++i)
             derivatives.array() *= polynomial;
 
-        return {derivatives, derivatives, Eigen::VectorXd::Zero(points.cols())};
+        return {derivatives, Eigen::VectorXd::Zero(points.cols()), Eigen::VectorXd::Zero(points.cols())};
     }
 };
 // ***************************************************************************
