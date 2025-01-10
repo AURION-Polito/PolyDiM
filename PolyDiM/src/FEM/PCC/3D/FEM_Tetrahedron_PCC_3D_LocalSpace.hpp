@@ -18,7 +18,7 @@ struct FEM_Tetrahedron_PCC_3D_Polyhedron_Geometry final
 
     Eigen::MatrixXd Vertices;
     std::vector<bool> EdgesDirection;
-    std::vector<bool> FacesArea;
+    std::vector<double> FacesArea;
     std::vector<bool> FacesDirection;
     std::vector<Eigen::Matrix3d> FacesRotationMatrix;
     std::vector<Eigen::Vector3d> FacesTranslation;
