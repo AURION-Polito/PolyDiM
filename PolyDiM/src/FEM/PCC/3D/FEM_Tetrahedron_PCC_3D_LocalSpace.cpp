@@ -102,7 +102,8 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
     return localSpace;
 }
 // ***************************************************************************
-MatrixXd FEM_Tetrahedron_PCC_3D_LocalSpace::MapValues(const FEM_Tetrahedron_PCC_3D_LocalSpace_Data& local_space, const Eigen::MatrixXd& referenceValues) const
+MatrixXd FEM_Tetrahedron_PCC_3D_LocalSpace::MapValues(const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &local_space,
+                                                      const Eigen::MatrixXd &referenceValues) const
 {
     Eigen::MatrixXd basisFunctionValuesOrdered(referenceValues.rows(), local_space.NumberOfBasisFunctions);
 

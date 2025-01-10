@@ -3,7 +3,6 @@
 
 #include "Configurations.hpp"
 #include "PDE_Mesh_Utilities.hpp"
-#include "VEM_MCC_2D_Creator.hpp"
 #include "test_definition.hpp"
 
 namespace Polydim
@@ -14,6 +13,16 @@ namespace Elliptic_MCC_2D
 {
 struct Program_configuration final
 {
+
+    enum struct MethodTypes
+    {
+        VEM_MCC = 1,
+        VEM_MCC_Partial = 2,
+        VEM_MCC_Ortho = 3,
+        VEM_MCC_Edge = 4,
+        VEM_MCC_Ortho_EdgeOrtho = 5
+    };
+
     Program_configuration()
     {
         Gedim::Configurations::AddProperty("TestType",
@@ -28,7 +37,7 @@ struct Program_configuration final
             "MeshGenerator",
             static_cast<unsigned int>(Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular),
             "Mesh 2D gereator type, 0 - Triangular; 1 - Minimal; 2 - "
-            "Polygonal; 3 - OFF Importer (Default: 0)");
+            "Polygonal; 3 - OFF Importer; 4 - CsvImporter (; separator); 5 - Squared (Default: 0)");
         Gedim::Configurations::AddProperty("MeshImportFilePath", "./", "Mesh imported file path (Default: './')");
         Gedim::Configurations::AddProperty("MeshMaxArea", 0.1, "Mesh 2D maximum relative cell area (Default: 0.1)");
 
@@ -37,13 +46,13 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty("GeometricTolerance2D", 1.0e-14, "Geometric Tolerance 2D (Default: 1.0e-14)");
 
         /// Method parameters
-        Gedim::Configurations::AddProperty("VemType",
-                                           static_cast<unsigned int>(Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_LocalSpace),
-                                           "Vem Type, 1 - Vem; 2 - Vem_Partial; 3 - Vem_Ortho; 4 - "
-                                           "Vem_EdgeOrtho; 5 - Vem_Ortho_EdgeOrtho (Default: "
+        Gedim::Configurations::AddProperty("MethodType",
+                                           static_cast<unsigned int>(MethodTypes::VEM_MCC),
+                                           "Method Type, 1 - Vem; 2 - Vem_Partial; 3 - Vem_Ortho; 4 - "
+                                           "Method_EdgeOrtho; 5 - Vem_Ortho_EdgeOrtho (Default: "
                                            "1)");
-        Gedim::Configurations::AddProperty("VemOrder", static_cast<unsigned int>(0), "VEM order (Default: 0)");
-        Gedim::Configurations::AddProperty("ComputeVEMPerformance", true, "Compute VEM Performance (Default: true)");
+        Gedim::Configurations::AddProperty("MethodOrder", static_cast<unsigned int>(0), "Method order (Default: 0)");
+        Gedim::Configurations::AddProperty("ComputeMethodPerformance", true, "Compute Method Performance (Default: true)");
     }
 
     inline Polydim::examples::Elliptic_MCC_2D::test::Test_Types TestType() const
@@ -78,23 +87,17 @@ struct Program_configuration final
         return Gedim::Configurations::GetPropertyValue<double>("GeometricTolerance2D");
     }
 
-    inline Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types VemType() const
+    inline MethodTypes MethodType() const
     {
-        return (Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types)Gedim::Configurations::GetPropertyValue<unsigned int>("V"
-                                                                                                                     "e"
-                                                                                                                     "m"
-                                                                                                                     "T"
-                                                                                                                     "y"
-                                                                                                                     "p"
-                                                                                                                     "e");
+        return (MethodTypes)Gedim::Configurations::GetPropertyValue<unsigned int>("MethodType");
     }
-    inline bool ComputeVEMPerformance() const
+    inline bool ComputeMethodPerformance() const
     {
-        return Gedim::Configurations::GetPropertyValue<bool>("ComputeVEMPerformance");
+        return Gedim::Configurations::GetPropertyValue<bool>("ComputeMethodPerformance");
     }
-    inline unsigned int VemOrder() const
+    inline unsigned int MethodOrder() const
     {
-        return Gedim::Configurations::GetPropertyValue<unsigned int>("VemOrder");
+        return Gedim::Configurations::GetPropertyValue<unsigned int>("MethodOrder");
     }
 };
 } // namespace Elliptic_MCC_2D

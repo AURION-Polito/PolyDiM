@@ -198,7 +198,6 @@ void export_velocity_dofs(const Polydim::examples::Elliptic_MCC_3D::Program_conf
                           const Gedim::MeshMatricesDAO &mesh,
                           const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
                           const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
-                          const VEM::MCC::VEM_MCC_3D_Velocity_ReferenceElement_Data &vem_reference_element_data,
                           const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                           const Polydim::examples::Elliptic_MCC_3D::Assembler::Elliptic_MCC_3D_Problem_Data &assembler_data,
                           const Polydim::examples::Elliptic_MCC_3D::Assembler::PostProcess_Data &post_process_data,
@@ -298,7 +297,13 @@ void export_velocity_dofs(const Polydim::examples::Elliptic_MCC_3D::Program_conf
 
         const auto local_polyhedron_coordinates = geometryUtilities.fibonacci_sphere(num_loc_dofs);
         const Eigen::Vector3d polyhedron_centroid = mesh_geometric_data.Cell3DsCentroids.at(c);
-        const double sphere_diameter = 0.1 * mesh_geometric_data.Cell3DsDiameters.at(c);
+        const auto polyhedron_centroid_faces_distance =
+            geometryUtilities.PolyhedronCentroidFacesDistance(polyhedron_centroid,
+                                                              mesh_geometric_data.Cell3DsFacesNormals.at(c),
+                                                              mesh_geometric_data.Cell3DsFaces3DVertices.at(c));
+        const double polyhedron_in_radius = geometryUtilities.PolyhedronInRadius(polyhedron_centroid_faces_distance);
+
+        const double sphere_diameter = 0.5 * polyhedron_in_radius;
 
         for (unsigned int loc_i = 0; loc_i < num_loc_dofs; ++loc_i)
         {

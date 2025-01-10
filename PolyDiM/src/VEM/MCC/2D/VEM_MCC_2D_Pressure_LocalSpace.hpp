@@ -37,26 +37,28 @@ class VEM_MCC_2D_Pressure_LocalSpace final : public I_VEM_MCC_2D_Pressure_LocalS
 
     inline Eigen::MatrixXd ComputeBasisFunctionsValues(const VEM_MCC_2D_Pressure_LocalSpace_Data &localSpace) const
     {
-        return localSpace.VanderInternal;
+        return localSpace.VanderInternal * localSpace.Qmatrix.transpose();
     }
 
     inline Eigen::MatrixXd ComputeBasisFunctionsValues(const VEM_MCC_2D_Pressure_ReferenceElement_Data &reference_element_data,
                                                        const VEM_MCC_2D_Pressure_LocalSpace_Data &localSpace,
                                                        const Eigen::MatrixXd &points) const
     {
-        return monomials.Vander(reference_element_data.Monomials, points, localSpace.Centroid, localSpace.Diameter);
+        return monomials.Vander(reference_element_data.Monomials, points, localSpace.Centroid, localSpace.Diameter) *
+               localSpace.Qmatrix.transpose();
     }
 
     inline Eigen::MatrixXd ComputePolynomialsValues(const VEM_MCC_2D_Pressure_LocalSpace_Data &localSpace) const
     {
-        return localSpace.VanderInternal;
+        return localSpace.VanderInternal * localSpace.Qmatrix.transpose();
     }
 
     inline Eigen::MatrixXd ComputePolynomialsValues(const VEM_MCC_2D_Pressure_ReferenceElement_Data &reference_element_data,
                                                     const VEM_MCC_2D_Pressure_LocalSpace_Data &localSpace,
                                                     const Eigen::MatrixXd &points) const
     {
-        return monomials.Vander(reference_element_data.Monomials, points, localSpace.Centroid, localSpace.Diameter);
+        return monomials.Vander(reference_element_data.Monomials, points, localSpace.Centroid, localSpace.Diameter) *
+               localSpace.Qmatrix.transpose();
     }
 };
 } // namespace MCC

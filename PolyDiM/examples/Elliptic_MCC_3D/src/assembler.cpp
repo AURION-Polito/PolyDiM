@@ -221,19 +221,19 @@ Assembler::Elliptic_MCC_3D_Problem_Data Assembler::Assemble(
                                                                pressure_basis_functions_values,
                                                                velocity_local_space_data.InternalQuadrature.Weights);
 
-        const unsigned int num_local_dofs =
-            dofs_data[0].CellsGlobalDOFs[3].at(c).size() + dofs_data[1].CellsGlobalDOFs[3].at(c).size();
+        const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<3>(c, dofs_data);
+        const unsigned int num_local_dofs_pressure = dofs_data[1].CellsGlobalDOFs[3].at(c).size();
 
-        Eigen::MatrixXd elemental_matrix = MatrixXd::Zero(num_local_dofs, num_local_dofs);
-        Eigen::VectorXd elemental_rhs = VectorXd::Zero(num_local_dofs);
+        Eigen::MatrixXd elemental_matrix = MatrixXd::Zero(local_count_dofs.num_total_dofs, local_count_dofs.num_total_dofs);
+        Eigen::VectorXd elemental_rhs = VectorXd::Zero(local_count_dofs.num_total_dofs);
         elemental_matrix << local_A, -(local_B + local_T).transpose(), local_B, local_M;
-        elemental_rhs << VectorXd::Zero(dofs_data[0].CellsGlobalDOFs[3].at(c).size()), local_rhs;
+        elemental_rhs << VectorXd::Zero(local_count_dofs.num_total_dofs - num_local_dofs_pressure), local_rhs;
 
-        assert(velocity_local_space_data.NumBasisFunctions == dofs_data[0].CellsGlobalDOFs[3].at(c).size());
+        assert(velocity_local_space_data.NumBasisFunctions == local_count_dofs.num_total_dofs - num_local_dofs_pressure);
 
         Polydim::PDETools::Assembler_Utilities::local_matrix_to_global_matrix_dofs_data local_matrix_to_global_matrix_dofs_data = {
             {std::cref(dofs_data[0]), std::cref(dofs_data[1])},
-            {0lu, dofs_data[0].CellsGlobalDOFs[3].at(c).size()},
+            local_count_dofs.offsets_DOFs,
             count_dofs.offsets_DOFs,
             count_dofs.offsets_Strongs};
 
@@ -346,10 +346,6 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
     result.cell3Ds_norm_L2_pressure.setZero(mesh.Cell3DTotalNumber());
     result.cell3Ds_error_L2_velocity.setZero(mesh.Cell3DTotalNumber());
     result.cell3Ds_norm_L2_velocity.setZero(mesh.Cell3DTotalNumber());
-    result.error_L2_pressure = 0.0;
-    result.norm_L2_pressure = 0.0;
-    result.error_L2_velocity = 0.0;
-    result.norm_L2_velocity = 0.0;
     result.mesh_size = 0.0;
 
     for (unsigned int c = 0; c < mesh.Cell3DTotalNumber(); c++)
@@ -410,7 +406,7 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
 
         // Interpolate Exact Solution
         const VectorXd rightHandSide = pressure_local_space_data.VanderInternal.transpose() *
-                                       velocity_local_space_data.InternalQuadrature.Weights.asDiagonal() * exact_pressure_values;
+                                       pressure_local_space_data.InternalQuadrature.Weights.asDiagonal() * exact_pressure_values;
         const VectorXd coeffPolynomial = pressure_local_space_data.Hmatrix.llt().solve(rightHandSide);
 
         const Eigen::VectorXd local_error_L2_pressure =

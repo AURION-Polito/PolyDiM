@@ -1,16 +1,16 @@
 #ifndef __assembler_H
 #define __assembler_H
 
+#include "Assembler_Utilities.hpp"
+#include "DOFsManager.hpp"
 #include "Eigen_Array.hpp"
 #include "Eigen_SparseArray.hpp"
+#include "I_VEM_MCC_2D_ReferenceElement.hpp"
 #include "MeshMatricesDAO.hpp"
 #include "MeshUtilities.hpp"
-
-#include "DOFsManager.hpp"
-#include "I_VEM_MCC_2D_ReferenceElement.hpp"
-#include "VEM_MCC_PerformanceAnalysis.hpp"
-
 #include "VEM_MCC_2D_LocalSpace_Data.hpp"
+#include "VEM_MCC_PerformanceAnalysis.hpp"
+#include "local_space.hpp"
 #include "program_configuration.hpp"
 
 namespace Polydim
@@ -32,16 +32,9 @@ class Assembler final
         Gedim::Eigen_Array<> solutionNeumann;
     };
 
-    struct VEM_Performance_Result final
+    struct Performance_Data final
     {
-        struct Cell2D_Performance final
-        {
-            unsigned int NumBoundaryQuadraturePoints = 0;
-            unsigned int NumInternalQuadraturePoints = 0;
-            Polydim::VEM::MCC::VEM_MCC_PerformanceAnalysis_Data Analysis;
-        };
-
-        std::vector<Cell2D_Performance> Cell2DsPerformance;
+        std::vector<local_space::Performance_Data> Cell2DsPerformance;
     };
 
     struct PostProcess_Data final
@@ -50,8 +43,10 @@ class Assembler final
         Eigen::VectorXd cell2Ds_exact_pressure;
 
         Eigen::VectorXd cell2Ds_error_L2_pressure;
+        Eigen::VectorXd cell2Ds_super_error_L2_pressure;
         Eigen::VectorXd cell2Ds_norm_L2_pressure;
         double error_L2_pressure;
+        double super_error_L2_pressure;
         double norm_L2_pressure;
         Eigen::VectorXd cell2Ds_error_L2_velocity;
         Eigen::VectorXd cell2Ds_norm_L2_velocity;
@@ -64,24 +59,23 @@ class Assembler final
     };
 
   private:
-    void ComputeStrongTerm(const Gedim::MeshMatricesDAO &mesh,
-                           const unsigned int &cell2DIndex,
-                           const std::vector<bool> &cell2DEdgeDirections,
-                           const Eigen::MatrixXd &boundaryQuadraturePoints,
-                           const Eigen::VectorXd &boundaryQuadratureWeights,
+    void ComputeStrongTerm(const unsigned int &cell2DIndex,
+                           const Gedim::MeshMatricesDAO &mesh,
                            const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
                            const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-                           const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+                           const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
+                           const local_space::ReferenceElement_Data &reference_element_data,
+                           const local_space::LocalSpace_Data &local_space_data,
                            const test::I_Test &test,
                            Elliptic_MCC_2D_Problem_Data &assembler_data) const;
 
     void ComputeWeakTerm(const unsigned int cell2DIndex,
                          const Gedim::MeshMatricesDAO &mesh,
-                         const Polydim::VEM::MCC::VEM_MCC_2D_Polygon_Geometry &polygon,
                          const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
                          const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-                         const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
-                         const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_LocalSpace_Data &local_space_data,
+                         const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
+                         const local_space::ReferenceElement_Data &reference_element_data,
+                         const local_space::LocalSpace_Data &local_space_data,
                          const test::I_Test &test,
                          Elliptic_MCC_2D_Problem_Data &assembler_data) const;
 
@@ -91,26 +85,21 @@ class Assembler final
                                           const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
                                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
-                                          const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
-                                          const Polydim::VEM::MCC::VEM_MCC_2D_Pressure_ReferenceElement_Data &pressure_reference_element_data,
-                                          const Polydim::VEM::MCC::I_VEM_MCC_2D_Velocity_LocalSpace &vem_velocity_local_space,
-                                          const Polydim::VEM::MCC::I_VEM_MCC_2D_Pressure_LocalSpace &vem_Pressure_local_space,
+                                          const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
+                                          const local_space::ReferenceElement_Data &reference_element_data,
                                           const Polydim::examples::Elliptic_MCC_2D::test::I_Test &test) const;
 
-    VEM_Performance_Result ComputeVemPerformance(const Polydim::examples::Elliptic_MCC_2D::Program_configuration &config,
-                                                 const Gedim::MeshMatricesDAO &mesh,
-                                                 const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-                                                 const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
-                                                 const Polydim::VEM::MCC::I_VEM_MCC_2D_Velocity_LocalSpace &vem_velocity_local_space) const;
+    Assembler::Performance_Data ComputePerformance(const Polydim::examples::Elliptic_MCC_2D::Program_configuration &config,
+                                                   const Gedim::MeshMatricesDAO &mesh,
+                                                   const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                                   const local_space::ReferenceElement_Data &reference_element_data) const;
 
     PostProcess_Data PostProcessSolution(const Polydim::examples::Elliptic_MCC_2D::Program_configuration &config,
                                          const Gedim::MeshMatricesDAO &mesh,
                                          const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                          const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
-                                         const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
-                                         const Polydim::VEM::MCC::VEM_MCC_2D_Pressure_ReferenceElement_Data &pressure_reference_element_data,
-                                         const Polydim::VEM::MCC::I_VEM_MCC_2D_Velocity_LocalSpace &vem_velocity_local_space,
-                                         const Polydim::VEM::MCC::I_VEM_MCC_2D_Pressure_LocalSpace &vem_Pressure_local_space,
+                                         const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
+                                         const local_space::ReferenceElement_Data &reference_element_data,
                                          const Elliptic_MCC_2D_Problem_Data &assembler_data,
                                          const Polydim::examples::Elliptic_MCC_2D::test::I_Test &test) const;
 };

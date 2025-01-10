@@ -28,10 +28,10 @@ struct FEM_Tetrahedron_PCC_3D_LocalSpace_Data final
     unsigned int NumberOfBasisFunctions;                  ///< Number of basis functions
     Eigen::MatrixXd Dofs;                                 ///< DOFs geometric position
     std::vector<unsigned int> DofsMeshOrder;              ///< DOFs position depending on element
-    std::array<unsigned int, 5> Dof0DsIndex;                ///< local DOF index for each element 0D
-    std::array<unsigned int, 7> Dof1DsIndex;                ///< local DOF index for each element 1D
-    std::array<unsigned int, 5> Dof2DsIndex;                ///< local DOF index for each element 2D
-    std::array<unsigned int, 2> Dof3DsIndex;                ///< local DOF index for each element 3D
+    std::array<unsigned int, 5> Dof0DsIndex;              ///< local DOF index for each element 0D
+    std::array<unsigned int, 7> Dof1DsIndex;              ///< local DOF index for each element 1D
+    std::array<unsigned int, 5> Dof2DsIndex;              ///< local DOF index for each element 2D
+    std::array<unsigned int, 2> Dof3DsIndex;              ///< local DOF index for each element 3D
     Gedim::Quadrature::QuadratureData InternalQuadrature; ///< Internal quadrature points and weights
 };
 
@@ -41,7 +41,7 @@ class FEM_Tetrahedron_PCC_3D_LocalSpace final
   private:
     /// \brief map basis function values on element with correct order
     /// \note local_space not used for order 1
-    Eigen::MatrixXd MapValues(const FEM_Tetrahedron_PCC_3D_LocalSpace_Data & local_space, const Eigen::MatrixXd &referenceValues) const;
+    Eigen::MatrixXd MapValues(const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &local_space, const Eigen::MatrixXd &referenceValues) const;
 
     /// \brief map basis function derivative values on element with correct order
     std::vector<Eigen::MatrixXd> MapDerivativeValues(const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &local_space,

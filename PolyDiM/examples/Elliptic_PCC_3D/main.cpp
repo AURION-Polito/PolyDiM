@@ -114,7 +114,8 @@ int main(int argc, char **argv)
     Gedim::Profiler::StopTime("CreateDiscreteSpace");
     Gedim::Output::PrintStatusProgram("CreateDiscreteSpace");
 
-    Gedim::Output::PrintGenericMessage("AssembleSystem Method Type " + to_string(static_cast<unsigned int>(config.MethodType())) + "...",
+    Gedim::Output::PrintGenericMessage("AssembleSystem Method Type " +
+                                           to_string(static_cast<unsigned int>(config.MethodType())) + "...",
                                        true);
     Gedim::Profiler::StartTime("AssembleSystem");
 

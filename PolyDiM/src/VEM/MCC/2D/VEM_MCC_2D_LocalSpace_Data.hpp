@@ -115,7 +115,7 @@ struct VEM_MCC_2D_Pressure_LocalSpace_Data final
     Gedim::Quadrature::QuadratureData InternalQuadrature; ///< Internal quadrature points and weights
 
     Eigen::MatrixXd VanderInternal; /// Vandermonde matrix of the polynomial basis at internal quadrature points.
-
+    Eigen::MatrixXd Qmatrix;
     Eigen::MatrixXd Hmatrix; ///< mass matrix of order order
 };
 

@@ -35,6 +35,15 @@ void export_solution(const Polydim::examples::Elliptic_MCC_2D::Program_configura
                      const std::string &exportSolutionFolder,
                      const std::string &exportVtuFolder);
 
+void export_velocity_dofs(const Polydim::examples::Elliptic_MCC_2D::Program_configuration &config,
+                          const Gedim::MeshMatricesDAO &mesh,
+                          const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                          const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                          const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                          const Polydim::examples::Elliptic_MCC_2D::Assembler::Elliptic_MCC_2D_Problem_Data &assembler_data,
+                          const Polydim::examples::Elliptic_MCC_2D::Assembler::PostProcess_Data &post_process_data,
+                          const std::string &exportVtuFolder);
+
 } // namespace program_utilities
 } // namespace Elliptic_MCC_2D
 } // namespace examples

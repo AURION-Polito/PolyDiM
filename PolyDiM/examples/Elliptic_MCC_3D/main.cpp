@@ -207,7 +207,6 @@ int main(int argc, char **argv)
                                                                                 mesh,
                                                                                 meshGeometricData,
                                                                                 meshDOFsInfo[0],
-                                                                                velocity_reference_element_data,
                                                                                 dofs_data[0],
                                                                                 assembler_data,
                                                                                 post_process_data,
