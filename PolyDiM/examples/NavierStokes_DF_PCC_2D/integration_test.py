@@ -116,7 +116,7 @@ def test_errors(errors,
         slope_H1_vel = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 1]), 1)[0]
         print("Num. Ref. ", str(num_rows-1), " : ", slope_H1_vel, slope_L2_pres, errors[:, 5], errors[:, 6])
         assert round(slope_L2_pres) >= round(float(vem_order))
-        if test_type == 4 and conv_form == 1:
+        if test_type == 4 and conv_form == 0:
             assert round(slope_H1_vel) >= round(float(vem_order + 2))
         else:
             assert round(slope_H1_vel) >= round(float(vem_order))
