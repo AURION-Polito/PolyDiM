@@ -74,7 +74,9 @@ LocalSpace_Data CreateLocalSpace(const Polydim::examples::Elliptic_PCC_3D::Progr
         local_space_data.FEM_Geometry = {config.GeometricTolerance1D(),
                                          config.GeometricTolerance2D(),
                                          config.GeometricTolerance3D(),
-                                         mesh_geometric_data.Cell3DsVertices.at(cell3D_index)};
+                                         mesh_geometric_data.Cell3DsVertices.at(cell3D_index),
+                                        mesh_geometric_data.Cell3DsEdgeDirections.at(cell3D_index),
+                                        mesh_geometric_data.Cell3DsFacesNormalGlobalDirection.at(cell3D_index)};
 
         local_space_data.FEM_LocalSpace_Data =
             reference_element_data.FEM_LocalSpace->CreateLocalSpace(reference_element_data.FEM_ReferenceElement_Data,
