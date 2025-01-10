@@ -97,6 +97,28 @@ class Assembler final
                          const Polydim::examples::NavierStokes_DF_PCC_2D::test::I_Test &test,
                          NavierStokes_DF_PCC_2D_Problem_Data &assembler_data) const;
 
+    Eigen::MatrixXd ComputeConvectiveMatrix(const std::vector<Eigen::VectorXd> &previous_iteration_values,
+                                            const std::vector<Eigen::VectorXd> &previous_iteration_derivatives_values,
+                                            const std::vector<Eigen::MatrixXd> &basis_functions_values,
+                                            const std::vector<Eigen::MatrixXd> &basis_functions_derivatives_values,
+                                            const Eigen::VectorXd &quadrature_weights) const;
+
+    Eigen::VectorXd ComputeConvectiveRightHandSideTerm(const std::vector<Eigen::VectorXd> &previous_iteration_values,
+                                                       const std::vector<Eigen::VectorXd> &previous_iteration_derivatives_values,
+                                                       const std::vector<Eigen::MatrixXd> &basis_functions_values,
+                                                       const Eigen::VectorXd &quadrature_weights) const;
+
+    Eigen::MatrixXd ComputeSkewMatrix(const std::vector<Eigen::VectorXd> &previous_iteration_values,
+                                      const std::vector<Eigen::VectorXd> &previous_iteration_derivatives_values,
+                                      const std::vector<Eigen::MatrixXd> &basis_functions_values,
+                                      const std::vector<Eigen::MatrixXd> &basis_functions_derivatives_values,
+                                      const Eigen::VectorXd &quadrature_weights) const;
+
+    Eigen::VectorXd ComputeSkewRightHandSideTerm(const std::vector<Eigen::VectorXd> &previous_iteration_values,
+                                                 const std::vector<Eigen::VectorXd> &previous_iteration_derivatives_values,
+                                                 const std::vector<Eigen::MatrixXd> &basis_functions_derivatives_values,
+                                                 const Eigen::VectorXd &quadrature_weights) const;
+
   public:
     NavierStokes_DF_PCC_2D_Problem_Data AssembleStokes(
         const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config,

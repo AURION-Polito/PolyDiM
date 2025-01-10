@@ -344,6 +344,94 @@ Assembler::NavierStokes_DF_PCC_2D_Problem_Data Assembler::AssembleStokes(
     return result;
 }
 // ***************************************************************************
+Eigen::MatrixXd Assembler::ComputeConvectiveMatrix(const std::vector<Eigen::VectorXd> &previous_iteration_values,
+                                                   const std::vector<Eigen::VectorXd> &previous_iteration_derivatives_values,
+                                                   const std::vector<Eigen::MatrixXd> &basis_functions_values,
+                                                   const std::vector<Eigen::MatrixXd> &basis_functions_derivatives_values,
+                                                   const Eigen::VectorXd &quadrature_weights) const
+{
+    MatrixXd cellCMatrix = MatrixXd::Zero(basis_functions_values[0].cols(), basis_functions_values[0].cols());
+
+    for (unsigned int d1 = 0; d1 < 2; d1++)
+    {
+        for (unsigned int d2 = 0; d2 < 2; d2++)
+            cellCMatrix += basis_functions_values[d1].transpose() *
+                           quadrature_weights.cwiseProduct(previous_iteration_values[d2]).asDiagonal() *
+                           basis_functions_derivatives_values[2 * d1 + d2];
+    }
+
+    for (unsigned int d1 = 0; d1 < 2; d1++)
+    {
+        for (unsigned int d2 = 0; d2 < 2; d2++)
+            cellCMatrix += basis_functions_values[d1].transpose() *
+                           quadrature_weights.cwiseProduct(previous_iteration_derivatives_values[2 * d1 + d2]).asDiagonal() *
+                           basis_functions_values[d2];
+    }
+
+    return cellCMatrix;
+}
+// ***************************************************************************
+Eigen::VectorXd Assembler::ComputeConvectiveRightHandSideTerm(const std::vector<Eigen::VectorXd> &previous_iteration_values,
+                                                              const std::vector<Eigen::VectorXd> &previous_iteration_derivatives_values,
+                                                              const std::vector<Eigen::MatrixXd> &basis_functions_values,
+                                                              const Eigen::VectorXd &quadrature_weights) const
+{
+    VectorXd cellRightHandSide = VectorXd::Zero(basis_functions_values[0].cols());
+
+    for (unsigned int d1 = 0; d1 < 2; d1++)
+    {
+        for (unsigned int d2 = 0; d2 < 2; d2++)
+            cellRightHandSide += basis_functions_values[d1].transpose() * quadrature_weights.asDiagonal() *
+                                 previous_iteration_values[d2].cwiseProduct(previous_iteration_derivatives_values[2 * d1 + d2]);
+    }
+
+    return cellRightHandSide;
+}
+// ***************************************************************************
+Eigen::MatrixXd Assembler::ComputeSkewMatrix(const std::vector<Eigen::VectorXd> &previous_iteration_values,
+                                             const std::vector<Eigen::VectorXd> &previous_iteration_derivatives_values,
+                                             const std::vector<Eigen::MatrixXd> &basis_functions_values,
+                                             const std::vector<Eigen::MatrixXd> &basis_functions_derivatives_values,
+                                             const Eigen::VectorXd &quadrature_weights) const
+{
+    MatrixXd cellCMatrix = MatrixXd::Zero(basis_functions_values[0].cols(), basis_functions_values[0].cols());
+
+    for (unsigned int d1 = 0; d1 < 2; d1++)
+    {
+        for (unsigned int d2 = 0; d2 < 2; d2++)
+            cellCMatrix += basis_functions_derivatives_values[2 * d1 + d2].transpose() *
+                           quadrature_weights.cwiseProduct(previous_iteration_values[d2]).asDiagonal() *
+                           basis_functions_values[d1];
+    }
+
+    for (unsigned int d1 = 0; d1 < 2; d1++)
+    {
+        for (unsigned int d2 = 0; d2 < 2; d2++)
+            cellCMatrix += basis_functions_derivatives_values[2 * d1 + d2].transpose() *
+                           quadrature_weights.cwiseProduct(previous_iteration_values[d1]).asDiagonal() *
+                           basis_functions_values[d2];
+    }
+
+    return cellCMatrix;
+}
+// ***************************************************************************
+Eigen::VectorXd Assembler::ComputeSkewRightHandSideTerm(const std::vector<Eigen::VectorXd> &previous_iteration_values,
+                                                        const std::vector<Eigen::VectorXd> &previous_iteration_derivatives_values,
+                                                        const std::vector<Eigen::MatrixXd> &basis_functions_derivatives_values,
+                                                        const Eigen::VectorXd &quadrature_weights) const
+{
+    VectorXd cellRightHandSide = VectorXd::Zero(basis_functions_derivatives_values[0].cols());
+
+    for (unsigned int d1 = 0; d1 < 2; d1++)
+    {
+        for (unsigned int d2 = 0; d2 < 2; d2++)
+            cellRightHandSide += basis_functions_derivatives_values[2 * d1 + d2].transpose() * quadrature_weights.asDiagonal() *
+                                 previous_iteration_values[d2].cwiseProduct(previous_iteration_values[d1]);
+    }
+
+    return cellRightHandSide;
+}
+// ***************************************************************************
 void Assembler::AssembleNavierStokes(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config,
                                      const Gedim::MeshMatricesDAO &mesh,
                                      const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
@@ -389,9 +477,6 @@ void Assembler::AssembleNavierStokes(const Polydim::examples::NavierStokes_DF_PC
         const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, dofs_data);
         const unsigned int num_local_dofs_pressure = dofs_data[3].CellsGlobalDOFs[2].at(c).size();
         const unsigned int num_local_dofs_velocity = local_count_dofs.num_total_dofs - num_local_dofs_pressure;
-        MatrixXd cellMatrixC = MatrixXd::Zero(num_local_dofs_velocity, num_local_dofs_velocity);
-        VectorXd cellRightHandSideC = VectorXd::Zero(num_local_dofs_velocity);
-
         const Eigen::VectorXd dofs_values =
             PDETools::Assembler_Utilities::global_solution_to_local_solution<2>(c,
                                                                                 dofs_data,
@@ -413,116 +498,54 @@ void Assembler::AssembleNavierStokes(const Polydim::examples::NavierStokes_DF_PC
             previous_iteration_derivatives_values[d] = velocity_basis_functions_derivatives_values[d] * velocity_dofs_values;
 
         // Compute full cell matrix
+        MatrixXd cellMatrixC = MatrixXd::Zero(num_local_dofs_velocity, num_local_dofs_velocity);
+        VectorXd cellRightHandSideC = VectorXd::Zero(num_local_dofs_velocity);
+
         switch (config.ConvectiveForm())
         {
         case Program_configuration::ConvectiveFormType::None:
             break;
         case Program_configuration::ConvectiveFormType::Conv: {
-            for (unsigned int d1 = 0; d1 < 2; d1++)
-            {
-                for (unsigned int d2 = 0; d2 < 2; d2++)
-                    cellMatrixC +=
-                        velocity_basis_functions_values[d1].transpose() *
-                        velocity_local_space.InternalQuadrature.Weights.cwiseProduct(previous_iteration_values[d2]).asDiagonal() *
-                        velocity_basis_functions_derivatives_values[2 * d1 + d2];
-            }
 
-            for (unsigned int d1 = 0; d1 < 2; d1++)
-            {
-                for (unsigned int d2 = 0; d2 < 2; d2++)
-                    cellMatrixC += velocity_basis_functions_values[d1].transpose() *
-                                   velocity_local_space.InternalQuadrature.Weights
-                                       .cwiseProduct(previous_iteration_derivatives_values[2 * d1 + d2])
-                                       .asDiagonal() *
-                                   velocity_basis_functions_values[d2];
-            }
+            cellMatrixC = ComputeConvectiveMatrix(previous_iteration_values,
+                                                  previous_iteration_derivatives_values,
+                                                  velocity_basis_functions_values,
+                                                  velocity_basis_functions_derivatives_values,
+                                                  velocity_local_space.InternalQuadrature.Weights);
 
-            for (unsigned int d1 = 0; d1 < 2; d1++)
-            {
-                for (unsigned int d2 = 0; d2 < 2; d2++)
-                    cellRightHandSideC +=
-                        velocity_basis_functions_values[d1].transpose() *
-                        velocity_local_space.InternalQuadrature.Weights.asDiagonal() *
-                        previous_iteration_values[d2].cwiseProduct(previous_iteration_derivatives_values[2 * d1 + d2]);
-            }
-
-            // Test
-            {
-                cout << "cellCMatrix1 * velocity_dofs_values - cellRightHandSide1" << endl;
-                cout << cellRightHandSideC << endl;
-            }
+            cellRightHandSideC = ComputeConvectiveRightHandSideTerm(previous_iteration_values,
+                                                                    previous_iteration_derivatives_values,
+                                                                    velocity_basis_functions_values,
+                                                                    velocity_local_space.InternalQuadrature.Weights);
         }
         break;
         case Program_configuration::ConvectiveFormType::Skew: {
-            MatrixXd cellCMatrix1 = MatrixXd::Zero(num_local_dofs_velocity, num_local_dofs_velocity);
-            MatrixXd cellCMatrix2 = MatrixXd::Zero(num_local_dofs_velocity, num_local_dofs_velocity);
 
-            for (unsigned int d1 = 0; d1 < 2; d1++)
-            {
-                for (unsigned int d2 = 0; d2 < 2; d2++)
-                    cellCMatrix1 +=
-                        velocity_basis_functions_values[d1].transpose() *
-                        velocity_local_space.InternalQuadrature.Weights.cwiseProduct(previous_iteration_values[d2]).asDiagonal() *
-                        velocity_basis_functions_derivatives_values[2 * d1 + d2];
-            }
+            const MatrixXd cellCMatrix1 = ComputeConvectiveMatrix(previous_iteration_values,
+                                                                  previous_iteration_derivatives_values,
+                                                                  velocity_basis_functions_values,
+                                                                  velocity_basis_functions_derivatives_values,
+                                                                  velocity_local_space.InternalQuadrature.Weights);
 
-            for (unsigned int d1 = 0; d1 < 2; d1++)
-            {
-                for (unsigned int d2 = 0; d2 < 2; d2++)
-                    cellCMatrix1 += velocity_basis_functions_values[d1].transpose() *
-                                    velocity_local_space.InternalQuadrature.Weights
-                                        .cwiseProduct(previous_iteration_derivatives_values[2 * d1 + d2])
-                                        .asDiagonal() *
-                                    velocity_basis_functions_values[d2];
-            }
-
-            for (unsigned int d1 = 0; d1 < 2; d1++)
-            {
-                for (unsigned int d2 = 0; d2 < 2; d2++)
-                    cellCMatrix2 +=
-                        velocity_basis_functions_derivatives_values[2 * d1 + d2].transpose() *
-                        velocity_local_space.InternalQuadrature.Weights.cwiseProduct(previous_iteration_values[d2]).asDiagonal() *
-                        velocity_basis_functions_values[d1];
-            }
-
-            for (unsigned int d1 = 0; d1 < 2; d1++)
-            {
-                for (unsigned int d2 = 0; d2 < 2; d2++)
-                    cellCMatrix2 +=
-                        velocity_basis_functions_derivatives_values[2 * d1 + d2].transpose() *
-                        velocity_local_space.InternalQuadrature.Weights.cwiseProduct(previous_iteration_values[d1]).asDiagonal() *
-                        velocity_basis_functions_values[d2];
-            }
+            const MatrixXd cellCMatrix2 = ComputeSkewMatrix(previous_iteration_values,
+                                                            previous_iteration_derivatives_values,
+                                                            velocity_basis_functions_values,
+                                                            velocity_basis_functions_derivatives_values,
+                                                            velocity_local_space.InternalQuadrature.Weights);
 
             cellMatrixC = 0.5 * (cellCMatrix1 - cellCMatrix2);
 
-            VectorXd cellRightHandSide1 = VectorXd::Zero(num_local_dofs_velocity);
-            VectorXd cellRightHandSide2 = VectorXd::Zero(num_local_dofs_velocity);
-
-            for (unsigned int d1 = 0; d1 < 2; d1++)
-            {
-                for (unsigned int d2 = 0; d2 < 2; d2++)
-                    cellRightHandSide1 +=
-                        velocity_basis_functions_values[d1].transpose() *
-                        velocity_local_space.InternalQuadrature.Weights.asDiagonal() *
-                        previous_iteration_values[d2].cwiseProduct(previous_iteration_derivatives_values[2 * d1 + d2]);
-            }
-
-            for (unsigned int d1 = 0; d1 < 2; d1++)
-            {
-                for (unsigned int d2 = 0; d2 < 2; d2++)
-                    cellRightHandSide2 += velocity_basis_functions_derivatives_values[2 * d1 + d2].transpose() *
-                                          velocity_local_space.InternalQuadrature.Weights.asDiagonal() *
-                                          previous_iteration_values[d2].cwiseProduct(previous_iteration_values[d1]);
-            }
+            const VectorXd cellRightHandSide1 =
+                ComputeConvectiveRightHandSideTerm(previous_iteration_values,
+                                                   previous_iteration_derivatives_values,
+                                                   velocity_basis_functions_values,
+                                                   velocity_local_space.InternalQuadrature.Weights);
+            const VectorXd cellRightHandSide2 = ComputeSkewRightHandSideTerm(previous_iteration_values,
+                                                                             previous_iteration_derivatives_values,
+                                                                             velocity_basis_functions_derivatives_values,
+                                                                             velocity_local_space.InternalQuadrature.Weights);
 
             cellRightHandSideC = 0.5 * (cellRightHandSide1 - cellRightHandSide2);
-
-            //            // Test
-            //            {
-            //                cout << "cellCMatrix1 * velocity_dofs_values - cellRightHandSide1" << endl;
-            //                cout << cellCMatrix2 * velocity_dofs_values - cellRightHandSide2 << endl;
-            //            }
         }
         break;
         default:

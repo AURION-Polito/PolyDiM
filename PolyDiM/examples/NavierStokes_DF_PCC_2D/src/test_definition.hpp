@@ -19,9 +19,9 @@ namespace test
 enum struct Test_Types
 {
     Patch_Test = 1,
-    StokesSinSin = 2,
-    NavierStokes = 3,
-    NavierStokes_VanishingExternalLoad = 4
+    StokesSinSin = 2,                      /// Test 6.1 - Da Veiga Lovadina 2017
+    NavierStokes = 3,                      /// Test 5.3 - Da Veiga Lovadina 2018
+    NavierStokes_VanishingExternalLoad = 4 /// Test 5.2 - Da Veiga Lovadina 2018
 };
 // ***************************************************************************
 struct I_Test
