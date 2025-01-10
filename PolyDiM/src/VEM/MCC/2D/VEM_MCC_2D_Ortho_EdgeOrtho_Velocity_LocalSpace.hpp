@@ -40,7 +40,6 @@ class VEM_MCC_2D_Ortho_EdgeOrtho_Velocity_LocalSpace final : public I_VEM_MCC_2D
                                  const Eigen::VectorXd &edgeLengths,
                                  const Eigen::MatrixXd &edgeNormals,
                                  const std::vector<bool> &edgeDirections,
-                                 const Eigen::VectorXd &boundaryQuadratureWeights,
                                  const std::vector<Eigen::MatrixXd> &Cmatrixkp1,
                                  Eigen::MatrixXd &W2,
                                  Eigen::MatrixXd &B2Nabla,

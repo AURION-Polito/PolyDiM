@@ -64,7 +64,7 @@ struct Patch_Test final : public I_Test
                 {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
                 {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
                 {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
                 {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
                 {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
                 {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}}};
@@ -231,9 +231,9 @@ struct Poisson_Polynomial_Problem final : public I_Test
                 {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
                 {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
                 {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
-                {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
                 {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
-                {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}}};
+                {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}}};
     }
 
     std::array<Eigen::VectorXd, 3> advection_term(const Eigen::MatrixXd &points) const

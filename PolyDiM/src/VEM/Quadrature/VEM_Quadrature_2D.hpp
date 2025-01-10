@@ -36,6 +36,7 @@ class VEM_Quadrature_2D final
 
     VEM_QuadratureData_2D Compute_PCC_2D(const unsigned int order) const;
     VEM_QuadratureData_2D Compute_MCC_2D(const unsigned int order) const;
+    VEM_QuadratureData_2D Compute_MCC_EdgeOrtho_2D(const unsigned int order) const;
     VEM_QuadratureData_2D Compute_DF_PCC_2D(const unsigned int order) const;
     VEM_QuadratureData_2D Compute_DF_PCC_3D(const unsigned int order) const;
 

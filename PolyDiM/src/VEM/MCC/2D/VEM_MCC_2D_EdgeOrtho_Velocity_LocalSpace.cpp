@@ -54,7 +54,6 @@ VEM_MCC_2D_Velocity_LocalSpace_Data VEM_MCC_2D_EdgeOrtho_Velocity_LocalSpace::Cr
                             polygon.EdgesLength,
                             polygon.EdgesNormal,
                             polygon.EdgesDirection,
-                            localSpace.BoundaryQuadrature.Quadrature.Weights,
                             Cmatrix,
                             W2,
                             B2Nabla,
@@ -200,7 +199,6 @@ void VEM_MCC_2D_EdgeOrtho_Velocity_LocalSpace::ComputeValuesOnBoundary(const VEM
                                                                        const VectorXd &edgeLengths,
                                                                        const Eigen::MatrixXd &edgeNormals,
                                                                        const std::vector<bool> &edgeDirections,
-                                                                       const Eigen::VectorXd &boundaryQuadratureWeights,
                                                                        const vector<Eigen::MatrixXd> &Cmatrixkp1,
                                                                        MatrixXd &W2,
                                                                        MatrixXd &B2Nabla,
@@ -264,16 +262,16 @@ void VEM_MCC_2D_EdgeOrtho_Velocity_LocalSpace::ComputeValuesOnBoundary(const VEM
     const MatrixXd temp2 = edgeNormalsVector[1].asDiagonal();
     concatenateEdgeNormalMatrix << temp1, temp2;
 
-    MatrixXd EdgeMoments2k(localSpace.Dimension * localSpace.Nk, localSpace.Dimension * boundaryQuadratureWeights.size());
+    MatrixXd EdgeMoments2k(localSpace.Dimension * localSpace.Nk, localSpace.Dimension * localSpace.NumBoundaryBasisFunctions);
 
-    EdgeMoments2k << EdgeMoments, MatrixXd::Zero(localSpace.VanderBoundary.cols(), localSpace.VanderBoundary.rows()),
-        MatrixXd::Zero(localSpace.VanderBoundary.cols(), localSpace.VanderBoundary.rows()), EdgeMoments;
+    EdgeMoments2k << EdgeMoments, MatrixXd::Zero(localSpace.Nk, localSpace.NumBoundaryBasisFunctions),
+        MatrixXd::Zero(localSpace.Nk, localSpace.NumBoundaryBasisFunctions), EdgeMoments;
 
     const MatrixXd GkNablaMoments = localSpace.TkNabla * EdgeMoments2k;
 
     const MatrixXd GkBigOPlusMoments = localSpace.TkBigOPlus * EdgeMoments2k;
 
-    MatrixXd GkMoments(localSpace.Dimension * localSpace.Nk, localSpace.Dimension * boundaryQuadratureWeights.size());
+    MatrixXd GkMoments(localSpace.Dimension * localSpace.Nk, localSpace.Dimension * localSpace.NumBoundaryBasisFunctions);
     GkMoments << GkNablaMoments, GkBigOPlusMoments;
 
     localSpace.GkVanderBoundaryTimesNormal = (GkMoments * concatenateEdgeNormalMatrix).transpose();

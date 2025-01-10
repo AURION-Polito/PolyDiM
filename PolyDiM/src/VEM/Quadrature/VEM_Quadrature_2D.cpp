@@ -113,6 +113,18 @@ VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_MCC_2D(const unsigned int order
     return data;
 }
 //****************************************************************************
+VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_MCC_EdgeOrtho_2D(const unsigned int order) const
+{
+    VEM_QuadratureData_2D data;
+
+    data.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * (order + 1));
+    data.ReferenceSegmentQuadrature = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * order + 2);
+    data.ReferenceSegmentInternalPoints = data.ReferenceSegmentQuadrature.Points;
+    data.ReferenceSegmentInternalWeights = data.ReferenceSegmentQuadrature.Weights;
+
+    return data;
+}
+//****************************************************************************
 Gedim::Quadrature::QuadratureData VEM_Quadrature_2D::PolygonInternalQuadrature(const Gedim::Quadrature::QuadratureData &data,
                                                                                const std::vector<Eigen::Matrix3d> &polygonTriangulationVertices) const
 {

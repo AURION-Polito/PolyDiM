@@ -167,7 +167,7 @@ Eigen::MatrixXd VelocityBasisFunctionsDivergenceValues(const ReferenceElement_Da
 Eigen::MatrixXd VelocityBasisFunctionsValuesOnEdges(const unsigned int &edge_local_index,
                                                     const ReferenceElement_Data &reference_element_data,
                                                     const LocalSpace_Data &local_space_data,
-                                                    const Eigen::MatrixXd &pointsCurvilinearCoordinates)
+                                                    const Eigen::MatrixXd &edge_quadrature_points)
 {
     switch (reference_element_data.Method_Type)
     {
@@ -188,7 +188,6 @@ Eigen::MatrixXd VelocityBasisFunctionsValuesOnEdges(const unsigned int &edge_loc
 
         const double direction = local_space_data.VEM_Geometry.EdgesDirection[edge_local_index] ? 1.0 : -1.0;
         const unsigned int num_vertices = local_space_data.VEM_Geometry.Vertices.cols();
-        VEM::Monomials::VEM_Monomials_1D monomials_1D;
         const Eigen::Vector3d origin = local_space_data.VEM_Geometry.EdgesDirection[edge_local_index]
                                            ? local_space_data.VEM_Geometry.Vertices.col(edge_local_index)
                                            : local_space_data.VEM_Geometry.Vertices.col((edge_local_index + 1) % num_vertices);
@@ -196,22 +195,25 @@ Eigen::MatrixXd VelocityBasisFunctionsValuesOnEdges(const unsigned int &edge_loc
                                         ? local_space_data.VEM_Geometry.Vertices.col((edge_local_index + 1) % num_vertices)
                                         : local_space_data.VEM_Geometry.Vertices.col(edge_local_index);
 
-        Eigen::MatrixXd point_curvilinear_coordinates = Eigen::MatrixXd::Zero(3, pointsCurvilinearCoordinates.cols());
-        for (unsigned int p = 0; p < pointsCurvilinearCoordinates.cols(); p++)
+        Eigen::MatrixXd point_curvilinear_coordinates = Eigen::MatrixXd::Zero(3, edge_quadrature_points.cols());
+        for (unsigned int p = 0; p < edge_quadrature_points.cols(); p++)
             point_curvilinear_coordinates(0, p) =
-                geometryUtilities.PointCurvilinearCoordinate(pointsCurvilinearCoordinates.col(p), origin, end);
+                geometryUtilities.PointCurvilinearCoordinate(edge_quadrature_points.col(p), origin, end);
 
-        const Eigen::MatrixXd VanderBoundary1Dkp1 =
-            monomials_1D.Vander(reference_element_data.VEM_ReferenceElement_Data_Velocity.MonomialsKp1,
-                                point_curvilinear_coordinates,
-                                Eigen::Vector3d::Constant(0.0),
-                                1.0);
+        VEM::Monomials::VEM_Monomials_1D monomials_1D;
+        const Eigen::MatrixXd VanderBoundary1D =
+            monomials_1D
+                .Vander(reference_element_data.VEM_ReferenceElement_Data_Velocity.Monomials_1D,
+                        point_curvilinear_coordinates,
+                        Eigen::Vector3d::Constant(0.0),
+                        1.0)
+                .leftCols(reference_element_data.VEM_ReferenceElement_Data_Velocity.Order + 1) *
+            reference_element_data.VEM_ReferenceElement_Data_Velocity.edge_ortho.QmatrixKp1_1D
+                .topLeftCorner(reference_element_data.VEM_ReferenceElement_Data_Velocity.Order + 1,
+                               reference_element_data.VEM_ReferenceElement_Data_Velocity.Order + 1)
+                .transpose();
 
-        return (1.0 / local_space_data.VEM_Geometry.EdgesLength(edge_local_index)) * direction *
-               VanderBoundary1Dkp1.leftCols(reference_element_data.VEM_ReferenceElement_Data_Velocity.Order + 1) *
-               reference_element_data.VEM_ReferenceElement_Data_Velocity.edge_ortho.QmatrixKp1_1D.topLeftCorner(
-                   reference_element_data.VEM_ReferenceElement_Data_Velocity.Order + 1,
-                   reference_element_data.VEM_ReferenceElement_Data_Velocity.Order + 1);
+        return (1.0 / local_space_data.VEM_Geometry.EdgesLength(edge_local_index)) * direction * VanderBoundary1D;
     }
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
@@ -357,7 +359,6 @@ Eigen::VectorXd EdgeDofs(const ReferenceElement_Data &reference_element_data,
 
         const double direction = local_space_data.VEM_Geometry.EdgesDirection[edge_local_index] ? 1.0 : -1.0;
         const unsigned int num_vertices = local_space_data.VEM_Geometry.Vertices.cols();
-        VEM::Monomials::VEM_Monomials_1D monomials_1D;
         const Eigen::Vector3d origin = local_space_data.VEM_Geometry.EdgesDirection[edge_local_index]
                                            ? local_space_data.VEM_Geometry.Vertices.col(edge_local_index)
                                            : local_space_data.VEM_Geometry.Vertices.col((edge_local_index + 1) % num_vertices);
@@ -370,18 +371,20 @@ Eigen::VectorXd EdgeDofs(const ReferenceElement_Data &reference_element_data,
             point_curvilinear_coordinates(0, p) =
                 geometryUtilities.PointCurvilinearCoordinate(edge_dofs_coordinates.Points.col(p), origin, end);
 
-        const Eigen::MatrixXd VanderBoundary1Dkp1 =
-            monomials_1D.Vander(reference_element_data.VEM_ReferenceElement_Data_Velocity.MonomialsKp1,
-                                point_curvilinear_coordinates,
-                                Eigen::Vector3d::Constant(0.0),
-                                1.0);
+        VEM::Monomials::VEM_Monomials_1D monomials_1D;
+        const Eigen::MatrixXd VanderBoundary1D =
+            monomials_1D
+                .Vander(reference_element_data.VEM_ReferenceElement_Data_Velocity.Monomials_1D,
+                        point_curvilinear_coordinates,
+                        Eigen::Vector3d::Constant(0.0),
+                        1.0)
+                .leftCols(reference_element_data.VEM_ReferenceElement_Data_Velocity.Order + 1) *
+            reference_element_data.VEM_ReferenceElement_Data_Velocity.edge_ortho.QmatrixKp1_1D
+                .topLeftCorner(reference_element_data.VEM_ReferenceElement_Data_Velocity.Order + 1,
+                               reference_element_data.VEM_ReferenceElement_Data_Velocity.Order + 1)
+                .transpose();
 
-        return direction * VanderBoundary1Dkp1.leftCols(reference_element_data.VEM_ReferenceElement_Data_Velocity.Order + 1) *
-               reference_element_data.VEM_ReferenceElement_Data_Velocity.edge_ortho.QmatrixKp1_1D
-                   .topLeftCorner(reference_element_data.VEM_ReferenceElement_Data_Velocity.Order + 1,
-                                  reference_element_data.VEM_ReferenceElement_Data_Velocity.Order + 1)
-                   .transpose() *
-               edge_dofs_coordinates.Weights.asDiagonal() * strong_values;
+        return direction * VanderBoundary1D.transpose() * edge_dofs_coordinates.Weights.asDiagonal() * strong_values;
     }
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
