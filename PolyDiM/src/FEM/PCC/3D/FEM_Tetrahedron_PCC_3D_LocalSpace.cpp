@@ -102,6 +102,16 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
     return localSpace;
 }
 // ***************************************************************************
+MatrixXd FEM_Tetrahedron_PCC_3D_LocalSpace::MapValues(const FEM_Tetrahedron_PCC_3D_LocalSpace_Data& local_space, const Eigen::MatrixXd& referenceValues) const
+{
+    Eigen::MatrixXd basisFunctionValuesOrdered(referenceValues.rows(), local_space.NumberOfBasisFunctions);
+
+    for (unsigned int d = 0; d < local_space.NumberOfBasisFunctions; d++)
+        basisFunctionValuesOrdered.col(local_space.DofsMeshOrder.at(d)) << referenceValues.col(d);
+
+    return basisFunctionValuesOrdered;
+}
+// ***************************************************************************
 std::vector<MatrixXd> FEM_Tetrahedron_PCC_3D_LocalSpace::MapDerivativeValues(const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &local_space,
                                                                              const std::vector<Eigen::MatrixXd> &referenceDerivateValues) const
 {
@@ -119,7 +129,18 @@ std::vector<MatrixXd> FEM_Tetrahedron_PCC_3D_LocalSpace::MapDerivativeValues(con
         }
     }
 
-    return basisFunctionsDerivativeValues;
+    std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValuesOrdered(
+        2,
+        Eigen::MatrixXd(referenceDerivateValues.at(0).rows(), local_space.NumberOfBasisFunctions));
+
+    for (unsigned int d = 0; d < local_space.NumberOfBasisFunctions; d++)
+    {
+        const unsigned int &dofOrder = local_space.DofsMeshOrder.at(d);
+        basisFunctionsDerivativeValuesOrdered.at(0).col(dofOrder) << basisFunctionsDerivativeValues.at(0).col(d);
+        basisFunctionsDerivativeValuesOrdered.at(1).col(dofOrder) << basisFunctionsDerivativeValues.at(1).col(d);
+    }
+
+    return basisFunctionsDerivativeValuesOrdered;
 }
 // ***************************************************************************
 Gedim::Quadrature::QuadratureData FEM_Tetrahedron_PCC_3D_LocalSpace::InternalQuadrature(

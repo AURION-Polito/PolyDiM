@@ -41,10 +41,7 @@ class FEM_Tetrahedron_PCC_3D_LocalSpace final
   private:
     /// \brief map basis function values on element with correct order
     /// \note local_space not used for order 1
-    inline Eigen::MatrixXd MapValues(const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &, const Eigen::MatrixXd &referenceValues) const
-    {
-        return referenceValues;
-    }
+    Eigen::MatrixXd MapValues(const FEM_Tetrahedron_PCC_3D_LocalSpace_Data & local_space, const Eigen::MatrixXd &referenceValues) const;
 
     /// \brief map basis function derivative values on element with correct order
     std::vector<Eigen::MatrixXd> MapDerivativeValues(const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &local_space,
