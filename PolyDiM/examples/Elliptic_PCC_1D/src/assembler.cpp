@@ -1,5 +1,8 @@
 #include "assembler.hpp"
 
+#include "Assembler_Utilities.hpp"
+#include "EllipticEquation.hpp"
+
 namespace Polydim
 {
 namespace examples

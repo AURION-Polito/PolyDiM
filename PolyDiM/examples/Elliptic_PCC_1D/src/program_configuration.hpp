@@ -27,7 +27,7 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty(
             "MeshGenerator",
             static_cast<unsigned int>(Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_1D::Equispaced),
-            "Mesh 1D gereator type, 0 - Equispaced; 1 - Imported; (Default: 0)");
+            "Mesh 1D gereator type, 0 - Equispaced; 1 - Imported; 2 - Minimal (Default: 0)");
         Gedim::Configurations::AddProperty("MeshImportFilePath", "./", "Mesh imported file path (Default: './')");
         Gedim::Configurations::AddProperty("MeshMaxLength", 0.1, "Mesh 1D maximum relative cell length (Default: 0.1)");
 

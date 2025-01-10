@@ -42,26 +42,11 @@ class VEM_DF_PCC_2D_Reduced_Pressure_LocalSpace final : public I_VEM_DF_PCC_2D_P
     VEM_DF_PCC_2D_Pressure_LocalSpace_Data CreateLocalSpace(const VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &reference_element_data,
                                                             const VEM_DF_PCC_2D_Polygon_Geometry &polygon) const;
 
-    /// \brief Compute the values of projections of VEM basis functions at the internal quadrature points.
-    /// \param localSpace: an object of type \ref VEM::PCC::VEM_DF_PCC_2D_Pressure_LocalSpace_Data which contains local
-    /// matrices. \param projectionType: the \ref VEM::PCC::ProjectionTypes reporting the kind of projector used to
-    /// access to the point-wise evalution of VE basis functions. \return A matrix of size numQuadrature \f$\times\f$
-    /// numDOFs whose columns contain the evaluation of the projection of each basis function at the internal quadrature
-    /// points.
     inline Eigen::MatrixXd ComputeBasisFunctionsValues(const VEM_DF_PCC_2D_Pressure_LocalSpace_Data &localSpace) const
     {
         return localSpace.VanderInternal;
     }
 
-    /// \brief Compute the values of projections of VEM basis functions at points.
-    /// \param reference_element_data: an object of type \ref VEM::PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data
-    /// which contains monomials stuff. \param polygon: an object of type \ref VEM::PCC::VEM_DF_PCC_2D_Polygon_Geometry
-    /// which contains the geoemtric properties of the elements. \param localSpace: an object of type \ref
-    /// VEM::PCC::VEM_DF_PCC_2D_Pressure_LocalSpace_Data which contains local matrices. \param projectionType: the \ref
-    /// VEM::PCC::ProjectionTypes reporting the kind of projector used to access to the point-wise evalution of VE basis
-    /// functions. \param points: a matrix 3 \f$\times\f$ numPoints reporting the coordinates of points. \return A
-    /// matrix of size numPoints \f$\times\f$ numDOFs whose columns contain the evaluation of the projection of each
-    /// basis function at points.
     inline Eigen::MatrixXd ComputeBasisFunctionsValues(const VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &reference_element_data,
                                                        const VEM_DF_PCC_2D_Pressure_LocalSpace_Data &localSpace,
                                                        const Eigen::MatrixXd &points) const
@@ -69,21 +54,11 @@ class VEM_DF_PCC_2D_Reduced_Pressure_LocalSpace final : public I_VEM_DF_PCC_2D_P
         return monomials.Vander(reference_element_data.Monomials, points, localSpace.Centroid, localSpace.Diameter);
     }
 
-    /// \brief Compute the values of monomial basis functions at the internal quadrature points.
-    /// \param localSpace: an object of type \ref VEM::PCC::VEM_DF_PCC_2D_Pressure_LocalSpace_Data which contains local
-    /// matrices. \return A matrix of size numQuadrature \f$\times\f$ numMonomials whose columns contain the evaluation
-    /// of monomials at the internal quadrature points.
     inline Eigen::MatrixXd ComputePolynomialsValues(const VEM_DF_PCC_2D_Pressure_LocalSpace_Data &localSpace) const
     {
         return localSpace.VanderInternal;
     }
 
-    /// \brief Compute the values of monomial basis functions at points.
-    /// \param reference_element_data: an object of type \ref VEM::PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data
-    /// which contains monomials stuff. \param polygon: an object of type \ref VEM::PCC::VEM_DF_PCC_2D_Polygon_Geometry
-    /// which contains the geoemtric properties of the elements. \param points: a matrix 3 \f$\times\f$ numPoints
-    /// reporting the coordinates of points. \return A matrix of size numPoints \f$\times\f$ numMonomials whose columns
-    /// contain the evaluation of monomials at points.
     inline Eigen::MatrixXd ComputePolynomialsValues(const VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &reference_element_data,
                                                     const VEM_DF_PCC_2D_Pressure_LocalSpace_Data &localSpace,
                                                     const Eigen::MatrixXd &points) const

@@ -1,18 +1,12 @@
 #ifndef __assembler_H
 #define __assembler_H
 
+#include "DOFsManager.hpp"
 #include "Eigen_Array.hpp"
 #include "Eigen_SparseArray.hpp"
+#include "FEM_PCC_1D_LocalSpace.hpp"
 #include "MeshMatricesDAO.hpp"
 #include "MeshUtilities.hpp"
-#include "Quadrature_Gauss1D.hpp"
-
-#include "Assembler_Utilities.hpp"
-#include "DOFsManager.hpp"
-#include "EllipticEquation.hpp"
-
-#include "FEM_PCC_1D_LocalSpace.hpp"
-
 #include "program_configuration.hpp"
 #include "test_definition.hpp"
 

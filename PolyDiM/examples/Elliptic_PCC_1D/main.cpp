@@ -145,6 +145,12 @@ int main(int argc, char **argv)
         Gedim::Output::PrintStatusProgram("Solve");
     }
 
+    cout << assembler_data.dirichletMatrixA << endl;
+    cout << assembler_data.globalMatrixA << endl;
+    cout << assembler_data.rightHandSide << endl;
+    cout << assembler_data.solution << endl;
+    cout << assembler_data.solutionDirichlet << endl;
+
     Gedim::Output::PrintGenericMessage("ComputeErrors...", true);
     Gedim::Profiler::StartTime("ComputeErrors");
 

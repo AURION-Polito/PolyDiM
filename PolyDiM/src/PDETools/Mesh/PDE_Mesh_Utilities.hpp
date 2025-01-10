@@ -51,6 +51,7 @@ struct PDE_Domain_3D final
 enum struct MeshGenerator_Types_1D
 {
     Equispaced = 0,  ///< equispaced mesh
+    Minimal = 2,     ///< minimal mesh
     CsvImporter = 1, ///< imported csv mesh
 };
 
@@ -84,6 +85,13 @@ inline void create_mesh_1D(const Gedim::GeometryUtilities &geometry_utilities,
 {
     switch (mesh_type)
     {
+    case MeshGenerator_Types_1D::Minimal: {
+        const Eigen::Vector3d segment_origin = pde_domain.vertices.col(0);
+        const Eigen::Vector3d segment_tangent = pde_domain.vertices.col(1) - segment_origin;
+
+        mesh_utilities.FillMesh1D(geometry_utilities, segment_origin, segment_tangent, {0.0, 1.0}, mesh);
+    }
+    break;
     case MeshGenerator_Types_1D::Equispaced: {
         const double max_cell_length = pde_domain.length * max_relative_length;
         const Eigen::Vector3d segment_origin = pde_domain.vertices.col(0);

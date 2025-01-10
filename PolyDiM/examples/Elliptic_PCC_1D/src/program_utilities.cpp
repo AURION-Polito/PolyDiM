@@ -34,6 +34,7 @@ void create_domain_mesh(const Polydim::examples::Elliptic_PCC_1D::Program_config
 
     switch (config.MeshGenerator())
     {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_1D::Minimal:
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_1D::Equispaced: {
         Polydim::PDETools::Mesh::PDE_Mesh_Utilities::create_mesh_1D(geometryUtilities,
                                                                     meshUtilities,

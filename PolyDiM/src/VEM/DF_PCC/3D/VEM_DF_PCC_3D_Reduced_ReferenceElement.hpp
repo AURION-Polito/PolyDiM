@@ -22,7 +22,7 @@ class VEM_DF_PCC_3D_Reduced_Pressure_ReferenceElement final : public I_VEM_DF_PC
 
         VEM_DF_PCC_3D_Pressure_ReferenceElement_Data result;
 
-        result.Monomials = monomials.Compute(order - 1);
+        result.Monomials = monomials.Compute(0);
         result.Quadrature = quadrature.Compute_DF_PCC_3D(order);
 
         result.Dimension = 3;
@@ -57,7 +57,7 @@ class VEM_DF_PCC_3D_Reduced_Velocity_ReferenceElement final : public I_VEM_DF_PC
         result.NumDofs1D = order - 1;
         result.NumDofs2D = order * (order - 1) / 2;
         result.NumDofs3D_Divergence = 0;
-        result.NumDofs3D_BigOPlus = order * (order + 1) * (order - 1) / 2 - result.NumDofs3D_Divergence;
+        result.NumDofs3D_BigOPlus = 0.5 * (order - 1) * order * (order + 1) - (1.0 / 6.0) * order * (order + 1) * (order + 2) + 1;
 
         return result;
     }

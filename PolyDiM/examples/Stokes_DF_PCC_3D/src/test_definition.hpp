@@ -132,15 +132,15 @@ struct Patch_Test final : public I_Test
 
     std::array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd &points) const
     {
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array();
+        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + points.row(2).array();
 
         Eigen::ArrayXd result = Eigen::ArrayXd::Constant(points.cols(), 1.0);
         for (int i = 0; i < order - 2; i++)
             result = result * polynomial;
 
-        return {-2.0 * order * (order - 1) * result - (order - 1) * result,
-                2.0 * order * (order - 1) * result - (order - 1) * result,
-                Eigen::VectorXd::Zero(points.cols())};
+        return {-3.0 * order * (order - 1) * result - (order - 1) * result,
+                -3.0 * order * (order - 1) * result - (order - 1) * result,
+                6.0 * order * (order - 1) * result - (order - 1) * result};
     };
 
     std::array<Eigen::VectorXd, 3> strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
@@ -148,13 +148,13 @@ struct Patch_Test final : public I_Test
         if (marker != 1)
             throw std::runtime_error("Unknown marker");
 
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array();
+        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + points.row(2).array();
 
         Eigen::ArrayXd result = Eigen::ArrayXd::Constant(points.cols(), 1.0);
         for (int i = 0; i < order; i++)
             result = result * polynomial;
 
-        return {result, -result, Eigen::VectorXd::Zero(points.cols())};
+        return {result, result, -2.0 * result};
     }
 
     std::array<Eigen::VectorXd, 3> weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
@@ -173,7 +173,8 @@ struct Patch_Test final : public I_Test
             result = result * polynomial;
 
             for (int j = 0; j <= order - 1 - i; j++)
-                mean += Gedim::Utilities::BinomialCoefficient(order - 1.0, i) / ((i + 1.0) * (j + 1.0) * (order - i - j));
+                mean += std::tgamma(order) / (std::tgamma(i + 1) * std::tgamma(j + 1) * std::tgamma(order - i - j) *
+                                              (i + 1.0) * (j + 1.0) * (order - i - j));
         }
 
         mean += 1.0 / order;
@@ -185,18 +186,18 @@ struct Patch_Test final : public I_Test
 
     std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd &points) const
     {
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array();
+        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + points.row(2).array();
 
         Eigen::ArrayXd result = Eigen::ArrayXd::Constant(points.cols(), 1.0);
         for (int i = 0; i < order; i++)
             result = result * polynomial;
 
-        return {result, -result, Eigen::VectorXd::Zero(points.cols())};
+        return {result, result, -2.0 * result};
     }
 
     std::array<Eigen::VectorXd, 9> exact_derivatives_velocity(const Eigen::MatrixXd &points) const
     {
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array();
+        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + points.row(2).array();
 
         Eigen::ArrayXd result = Eigen::ArrayXd::Constant(points.cols(), 1.0);
         for (int i = 0; i < order - 1; i++)
@@ -204,15 +205,7 @@ struct Patch_Test final : public I_Test
 
         result *= order;
 
-        return {result,
-                result,
-                Eigen::VectorXd::Zero(points.cols()),
-                -result,
-                -result,
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols())};
+        return {result, result, result, result, result, result, -2.0 * result, -2.0 * result, -2.0 * result};
     }
 };
 // ***************************************************************************
