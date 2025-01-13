@@ -1,8 +1,5 @@
-add_subdirectory(Common)
-add_subdirectory(Interpolation)
-add_subdirectory(PDETools)
-add_subdirectory(FEM)
-add_subdirectory(VEM)
+list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/lagrange_1D.hpp)
+list(APPEND polydim_src_sources ${CMAKE_CURRENT_SOURCE_DIR}/lagrange_1D.cpp)
 
 list(APPEND polydim_src_includes ${CMAKE_CURRENT_SOURCE_DIR})
 
