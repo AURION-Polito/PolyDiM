@@ -46,13 +46,7 @@ class VEM_Monomials_3D final
     int Index(const Eigen::VectorXi &exponents) const;
     std::vector<int> DerivativeIndices(const VEM_Monomials_Data &data, const unsigned int &index) const;
     std::vector<int> SecondDerivativeIndices(const VEM_Monomials_Data &data, const unsigned int &index) const;
-    inline Eigen::MatrixXd Vander(const VEM_Monomials_Data &data,
-                                  const std::vector<Eigen::VectorXd> &points,
-                                  const Eigen::VectorXd &centroid,
-                                  const double &diam) const
-    {
-        return utilities.Vander(data, points, centroid, diam);
-    }
+
     inline Eigen::MatrixXd Vander(const VEM_Monomials_Data &data,
                                   const Eigen::MatrixXd &points,
                                   const Eigen::Vector3d &centroid,

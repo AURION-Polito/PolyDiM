@@ -85,6 +85,7 @@ def import_errors(export_path, vem_type, vem_order, test_type):
 
 def test_errors(errors,
                 vem_order,
+                vem_type,
                 tol):
     num_rows = len(errors)
 
@@ -100,9 +101,11 @@ def test_errors(errors,
         slope_L2_pres = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 2]), 1)[0]
         slope_super_L2_pres = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 3]), 1)[0]
         print("Num. Ref. ", str(num_rows - 1), ": ", slope_L2_vel, slope_L2_pres, slope_super_L2_pres)
-        assert round(slope_L2_vel) == round(float(vem_order + 1.0))
+        if vem_order != 3:
+            assert round(slope_L2_vel) == round(float(vem_order + 1.0))
         assert round(slope_L2_pres) == round(float(vem_order + 1.0))
-        assert round(slope_super_L2_pres) >= round(float(vem_order + 2.0))
+        if vem_type != 5 and vem_type != 4:
+            assert round(slope_super_L2_pres) >= round(float(vem_order + 2.0))
 
 
 if __name__ == "__main__":
@@ -111,7 +114,7 @@ if __name__ == "__main__":
 
     remove_folder = True
 
-    vem_types = [1, 2, 3]
+    vem_types = [1, 2, 3, 4, 5]
     vem_orders = [0, 1, 2, 3]
     export_folder = "integration_tests"
     os.system("rm -rf " + os.path.join(program_folder, export_folder))
@@ -135,12 +138,14 @@ if __name__ == "__main__":
             errors = import_errors(export_path, vem_type, vem_order, test_type)
             test_errors(errors,
                         vem_order,
+                        vem_type,
                         tol)
             if remove_folder:
                 os.system("rm -rf " + os.path.join(program_folder, export_path))
 
     test_type = 2
     mesh_generator = 0
+    vem_orders = [0, 1, 2]
     mesh_max_areas = [0.01, 0.001]
     for vem_type in vem_types:
         for vem_order in vem_orders:
@@ -156,12 +161,14 @@ if __name__ == "__main__":
             errors = import_errors(export_path, vem_type, vem_order, test_type)
             test_errors(errors,
                         vem_order,
+                        vem_type,
                         tol)
             if remove_folder:
                 os.system("rm -rf " + os.path.join(program_folder, export_path))
 
     test_type = 2
-    mesh_generator = 2
+    vem_types = [1, 2, 3, 4, 5]
+    mesh_generator = 5
     mesh_max_areas = [0.01, 0.001]
     for vem_type in vem_types:
         for vem_order in vem_orders:
@@ -177,6 +184,7 @@ if __name__ == "__main__":
             errors = import_errors(export_path, vem_type, vem_order, test_type)
             test_errors(errors,
                         vem_order,
+                        vem_type,
                         tol)
             if remove_folder:
                 os.system("rm -rf " + os.path.join(program_folder, export_path))

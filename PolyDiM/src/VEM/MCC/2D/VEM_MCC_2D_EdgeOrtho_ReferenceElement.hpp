@@ -3,7 +3,6 @@
 
 #include "I_VEM_MCC_2D_ReferenceElement.hpp"
 #include "LAPACK_utilities.hpp"
-#include "Quadrature/Quadrature_Gauss1D.hpp"
 #include "VEM_Monomials_1D.hpp"
 #include "VEM_Monomials_2D.hpp"
 #include "VEM_Quadrature_2D.hpp"
@@ -26,7 +25,7 @@ class VEM_MCC_2D_EdgeOrtho_Pressure_ReferenceElement final : public I_VEM_MCC_2D
         VEM_MCC_2D_Pressure_ReferenceElement_Data result;
 
         result.Monomials = monomials.Compute(order);
-        result.Quadrature = quadrature.Compute_MCC_2D(order);
+        result.Quadrature = quadrature.Compute_MCC_EdgeOrtho_2D(order);
 
         result.Dimension = 2;
         result.Order = order;
@@ -51,7 +50,7 @@ class VEM_MCC_2D_EdgeOrtho_Velocity_ReferenceElement final : public I_VEM_MCC_2D
 
         result.Monomials_1D = monomials_1D.Compute(order + 1);
         result.MonomialsKp1 = monomials_2D.Compute(order + 1);
-        result.Quadrature = quadrature.Compute_MCC_2D(order);
+        result.Quadrature = quadrature.Compute_MCC_EdgeOrtho_2D(order);
 
         result.Dimension = 2;
         result.Order = order;
@@ -60,8 +59,7 @@ class VEM_MCC_2D_EdgeOrtho_Velocity_ReferenceElement final : public I_VEM_MCC_2D
         result.NumDofs2D = order * (order + 2);
 
         {
-            Gedim::Quadrature::QuadratureData referenceQuadrature1D =
-                Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * order + 2);
+            Gedim::Quadrature::QuadratureData referenceQuadrature1D = result.Quadrature.ReferenceSegmentQuadrature;
 
             const Eigen::VectorXd sqrtInternalQuadratureWeights1D = referenceQuadrature1D.Weights.array().sqrt();
             const Eigen::MatrixXd VanderBoundary1Dkp1 =

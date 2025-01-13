@@ -85,7 +85,7 @@ Eigen::VectorXd EdgeDofs(const ReferenceElement_Data &reference_element_data,
 Eigen::MatrixXd VelocityBasisFunctionsValuesOnEdges(const unsigned int &edge_local_index,
                                                     const ReferenceElement_Data &reference_element_data,
                                                     const LocalSpace_Data &local_space_data,
-                                                    const Eigen::MatrixXd &pointsCurvilinearCoordinates);
+                                                    const Eigen::MatrixXd &edge_quadrature_points);
 
 Gedim::Quadrature::QuadratureData EdgeQuadrature(const ReferenceElement_Data &reference_element_data,
                                                  const LocalSpace_Data &local_space_data,

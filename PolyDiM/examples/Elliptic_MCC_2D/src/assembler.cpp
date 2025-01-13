@@ -7,6 +7,8 @@
 #include <string>
 
 #include "EllipticEquation.hpp"
+#include "I_VEM_MCC_2D_ReferenceElement.hpp"
+#include "VEM_MCC_2D_LocalSpace_Data.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -315,9 +317,12 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
 
         // Interpolate Exact Solution
         const VectorXd rightHandSide =
-            local_space_data.VEM_LocalSpace_Data_Pressure.VanderInternal.transpose() *
+            pressure_basis_functions_values.transpose() *
             local_space_data.VEM_LocalSpace_Data_Pressure.InternalQuadrature.Weights.asDiagonal() * exact_pressure_values;
-        const VectorXd coeffPolynomial = local_space_data.VEM_LocalSpace_Data_Pressure.Hmatrix.llt().solve(rightHandSide);
+        const MatrixXd Hmatrix = pressure_basis_functions_values.transpose() *
+                                 local_space_data.VEM_LocalSpace_Data_Pressure.InternalQuadrature.Weights.asDiagonal() *
+                                 pressure_basis_functions_values;
+        const VectorXd coeffPolynomial = Hmatrix.llt().solve(rightHandSide);
 
         result.cell2Ds_numeric_pressure[c] =
             cell2D_internal_quadrature.Weights.transpose() * (pressure_basis_functions_values * pressure_dofs_values);
@@ -326,8 +331,7 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
         const Eigen::VectorXd local_error_L2_pressure =
             (pressure_basis_functions_values * pressure_dofs_values - exact_pressure_values).array().square();
         const Eigen::VectorXd local_super_error_L2_pressure =
-            (pressure_basis_functions_values * pressure_dofs_values -
-             local_space_data.VEM_LocalSpace_Data_Pressure.VanderInternal * coeffPolynomial)
+            (pressure_basis_functions_values * pressure_dofs_values - pressure_basis_functions_values * coeffPolynomial)
                 .array()
                 .square();
         const Eigen::VectorXd local_norm_L2_pressure = (pressure_basis_functions_values * pressure_dofs_values).array().square();

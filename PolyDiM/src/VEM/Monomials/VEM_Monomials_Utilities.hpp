@@ -14,11 +14,6 @@ template <unsigned short dimension> struct VEM_Monomials_Utilities final
     Eigen::MatrixXi Exponents(const VEM_Monomials_Data &data) const;
 
     Eigen::MatrixXd Vander(const VEM_Monomials_Data &data,
-                           const std::vector<Eigen::VectorXd> &points,
-                           const Eigen::VectorXd &centroid,
-                           const double &diam) const;
-
-    Eigen::MatrixXd Vander(const VEM_Monomials_Data &data,
                            const Eigen::MatrixXd &points,
                            const Eigen::Vector3d &centroid,
                            const double &diam) const;
