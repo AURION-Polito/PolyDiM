@@ -88,8 +88,6 @@ namespace Polydim
 
         for (unsigned int i = 0; i < num_interpolation_points; ++i)
         {
-          values.col(i).setZero();
-
           for (unsigned int j = 0; j < num_interpolation_points; ++j)
           {
             if (j == i)
@@ -100,10 +98,10 @@ namespace Polydim
 
             for (unsigned int k = 0; k < num_interpolation_points; ++k)
             {
-              if (k == j)
+              if (k == j || k == i)
                 continue;
 
-              col_value = col_value.cwiseProduct(differences.col(j));
+              col_value = col_value.cwiseProduct(differences.col(k));
             }
 
             values.col(i) += col_value;
