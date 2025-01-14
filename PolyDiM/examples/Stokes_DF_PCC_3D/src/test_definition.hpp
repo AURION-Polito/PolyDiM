@@ -1,7 +1,6 @@
 #ifndef __test_definition_H
 #define __test_definition_H
 
-#include "CommonUtilities.hpp"
 #include "DOFsManager.hpp"
 #include "PDE_Mesh_Utilities.hpp"
 

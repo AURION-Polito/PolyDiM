@@ -32,7 +32,7 @@ def run_program(program_folder,
     program_parameters += " ExportFolder:string={0}".format(export_path)
     program_parameters += " TestType:uint={0}".format(test_type)
     program_parameters += " MeshGenerator:uint={0}".format(mesh_generator)
-    program_parameters += " MeshMaxArea:double={0}".format(mesh_max_area)
+    program_parameters += " MeshMaxVolume:double={0}".format(mesh_max_area)
     program_parameters += " ComputeVEMPerformance:bool={0}".format(0)
     program_parameters += " ComputeDiscrepancyError:bool={0}".format(compute_discrepancy)
 
@@ -43,7 +43,7 @@ def run_program(program_folder,
     run_label += " VemOrder {0}".format(vem_order)
     run_label += " TestType {0}".format(test_type)
     run_label += " MeshGenerator {0}".format(mesh_generator)
-    run_label += " MeshMaxArea {0}".format(mesh_max_area)
+    run_label += " MeshMaxVolume {0}".format(mesh_max_area)
     print("Run " + run_label + "...")
     os.system(program_path + " " + program_parameters + "> " + output_file)
     os.system("mv " + output_file + " " + export_path)

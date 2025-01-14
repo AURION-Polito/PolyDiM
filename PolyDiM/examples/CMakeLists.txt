@@ -12,4 +12,6 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Brinkman_DF_PCC_2D)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/NavierStokes_DF_PCC_2D)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Stokes_DF_PCC_3D)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Elastic_PCC_2D)
+
 set(CLANGFORMAT_FILES ${CLANGFORMAT_FILES} PARENT_SCOPE)
