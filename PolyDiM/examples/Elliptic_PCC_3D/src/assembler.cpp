@@ -314,6 +314,8 @@ typename Assembler::Elliptic_PCC_3D_Problem_Data Assembler::Assemble(
     if (dofs_data.NumberStrongs > 0)
         result.rightHandSide.SubtractionMultiplication(result.dirichletMatrixA, result.solutionDirichlet);
 
+    cout << result.solutionDirichlet << endl;
+
     return result;
 }
 // ***************************************************************************

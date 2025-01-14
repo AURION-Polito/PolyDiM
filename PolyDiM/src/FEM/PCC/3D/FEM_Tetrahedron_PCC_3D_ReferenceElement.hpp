@@ -83,6 +83,56 @@ class FEM_Tetrahedron_PCC_3D_ReferenceElement final
             result.DofPositions.col(3) << 0.0, 0.0, 1.0;
         }
         break;
+        case 2: {
+            result.NumDofs0D = 1;
+            result.NumDofs1D = 1;
+            result.NumDofs2D = 0;
+            result.NumDofs3D = 0;
+            result.NumBasisFunctions = 10;
+
+            result.DofPositions.resize(result.Dimension, result.NumBasisFunctions);
+            result.DofPositions.col(0) << 0.0, 0.0, 0.0;
+            result.DofPositions.col(1) << 1.0, 0.0, 0.0;
+            result.DofPositions.col(2) << 0.0, 1.0, 0.0;
+            result.DofPositions.col(3) << 0.0, 0.0, 1.0;
+            result.DofPositions.col(4) << 0.5, 0.0, 0.0;
+            result.DofPositions.col(5) << 0.5, 0.5, 0.0;
+            result.DofPositions.col(6) << 0.0, 0.5, 0.0;
+            result.DofPositions.col(7) << 0.0, 0.0, 0.5;
+            result.DofPositions.col(8) << 0.5, 0.0, 0.5;
+            result.DofPositions.col(9) << 0.0, 0.5, 0.5;
+        }
+        break;
+        case 3: {
+            result.NumDofs0D = 1;
+            result.NumDofs1D = 2;
+            result.NumDofs2D = 1;
+            result.NumDofs3D = 0;
+            result.NumBasisFunctions = 20;
+
+            result.DofPositions.resize(result.Dimension, result.NumBasisFunctions);
+            result.DofPositions.col(0) << 0.0, 0.0, 0.0;
+            result.DofPositions.col(1) << 1.0, 0.0, 0.0;
+            result.DofPositions.col(2) << 0.0, 1.0, 0.0;
+            result.DofPositions.col(3) << 0.0, 0.0, 1.0;
+            result.DofPositions.col(4) << 1.0 / 3.0, 0.0, 0.0;
+            result.DofPositions.col(5) << 2.0 / 3.0, 0.0, 0.0;
+            result.DofPositions.col(6) << 2.0 / 3.0, 1.0 / 3.0, 0.0;
+            result.DofPositions.col(7) << 1.0 / 3.0, 2.0 / 3.0, 0.0;
+            result.DofPositions.col(8) << 0.0, 2.0 / 3.0, 0.0;
+            result.DofPositions.col(9) << 0.0, 1.0 / 3.0, 0.0;
+            result.DofPositions.col(10) << 0.0, 0.0, 1.0 / 3.0;
+            result.DofPositions.col(11) << 0.0, 0.0, 2.0 / 3.0;
+            result.DofPositions.col(12) << 1.0 / 3.0, 0.0, 2.0 / 3.0;
+            result.DofPositions.col(13) << 2.0 / 3.0, 0.0, 1.0 / 3.0;
+            result.DofPositions.col(14) << 0.0, 1.0 / 3.0, 2.0 / 3.0;
+            result.DofPositions.col(15) << 0.0, 2.0 / 3.0, 1.0 / 3.0;
+            result.DofPositions.col(16) << 1.0 / 3.0, 1.0 / 3.0, 0.0;
+            result.DofPositions.col(17) << 1.0 / 3.0, 0.0, 1.0 / 3.0;
+            result.DofPositions.col(18) << 0.0, 1.0 / 3.0, 1.0 / 3.0;
+            result.DofPositions.col(19) << 1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0;
+        }
+        break;
         default:
             throw std::runtime_error("order " + std::to_string(order) + "not supported yet");
         }
@@ -143,10 +193,26 @@ class FEM_Tetrahedron_PCC_3D_ReferenceElement final
     Eigen::MatrixXd EvaluateBasisFunctions(const Eigen::MatrixXd &points,
                                            const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data) const
     {
+
+        const Eigen::MatrixXd lambda_functions = EvaluateLambda(points);
         switch (reference_element_data.Order)
         {
         case 1:
-            return EvaluateLambda(points);
+            return lambda_functions;
+        case 2: {
+            Eigen::MatrixXd basis_functions_values = Eigen::MatrixXd::Zero(points.cols(), reference_element_data.NumBasisFunctions);
+            basis_functions_values.col(0) = 2.0 * lambda_functions.col(0).array() * (lambda_functions.col(0).array() - 0.5);
+            basis_functions_values.col(1) = 2.0 * lambda_functions.col(1).array() * (lambda_functions.col(1).array() - 0.5);
+            basis_functions_values.col(2) = 2.0 * lambda_functions.col(2).array() * (lambda_functions.col(2).array() - 0.5);
+            basis_functions_values.col(3) = 2.0 * lambda_functions.col(3).array() * (lambda_functions.col(3).array() - 0.5);
+            basis_functions_values.col(4) = 4.0 * lambda_functions.col(0).array() * lambda_functions.col(1).array();
+            basis_functions_values.col(5) = 4.0 * lambda_functions.col(1).array() * lambda_functions.col(2).array();
+            basis_functions_values.col(6) = 4.0 * lambda_functions.col(2).array() * lambda_functions.col(0).array();
+            basis_functions_values.col(7) = 4.0 * lambda_functions.col(0).array() * lambda_functions.col(3).array();
+            basis_functions_values.col(8) = 4.0 * lambda_functions.col(1).array() * lambda_functions.col(3).array();
+            basis_functions_values.col(9) = 4.0 * lambda_functions.col(2).array() * lambda_functions.col(3).array();
+            return basis_functions_values;
+        }
         default:
             throw std::runtime_error("order " + std::to_string(reference_element_data.Order) + "not supported yet");
         }
@@ -155,22 +221,50 @@ class FEM_Tetrahedron_PCC_3D_ReferenceElement final
     std::vector<Eigen::MatrixXd> EvaluateBasisFunctionDerivatives(const Eigen::MatrixXd &points,
                                                                   const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data) const
     {
-        std::vector<Eigen::MatrixXd> values(reference_element_data.Dimension);
-        for (unsigned int d = 0; d < reference_element_data.Dimension; d++)
-            values[d].resize(points.cols(), reference_element_data.NumBasisFunctions);
-
+        std::vector<Eigen::MatrixXd> values(reference_element_data.Dimension,
+                                            Eigen::MatrixXd(points.cols(), reference_element_data.NumBasisFunctions));
         const auto grad_lambda = EvaluateGradLambda(points);
 
         switch (reference_element_data.Order)
         {
-        case 1:
+        case 1: {
             for (unsigned int i = 0; i < reference_element_data.Dimension; i++)
                 values[i] = grad_lambda[i];
+        }
+        break;
+        case 2: {
+            const Eigen::MatrixXd lambda_functions = 4.0 * EvaluateLambda(points);
 
-            return values;
+            values[0].col(0) = -4.0 * lambda_functions.col(0).array() + 1.0;
+            values[0].col(1) = 4.0 * lambda_functions.col(1).array() - 1.0;
+            values[0].col(4) = -4.0 * lambda_functions.col(1).array() + 4.0 * lambda_functions.col(0).array();
+            values[0].col(5) = 4.0 * lambda_functions.col(2).array();
+            values[0].col(6) = -4.0 * lambda_functions.col(2).array();
+            values[0].col(7) = -4.0 * lambda_functions.col(3).array();
+            values[0].col(8) = 4.0 * lambda_functions.col(3).array();
+
+            values[1].col(0) = -4.0 * lambda_functions.col(0).array() + 1.0;
+            values[1].col(2) = 4.0 * lambda_functions.col(2).array() - 1.0;
+            values[1].col(4) = -4.0 * lambda_functions.col(1).array();
+            values[1].col(5) = 4.0 * lambda_functions.col(1).array();
+            values[1].col(6) = -4.0 * lambda_functions.col(2).array() + 4.0 * lambda_functions.col(0).array();
+            values[1].col(7) = -4.0 * lambda_functions.col(3).array();
+            values[1].col(9) = 4.0 * lambda_functions.col(3).array();
+
+            values[2].col(0) = -4.0 * lambda_functions.col(0).array() + 1.0;
+            values[2].col(3) = 4.0 * lambda_functions.col(3).array() - 1.0;
+            values[2].col(4) = -4.0 * lambda_functions.col(1).array();
+            values[2].col(6) = -4.0 * lambda_functions.col(2).array();
+            values[2].col(7) = -4.0 * lambda_functions.col(3).array() + 4.0 * lambda_functions.col(0).array();
+            values[2].col(8) = 4.0 * lambda_functions.col(1).array();
+            values[2].col(9) = 4.0 * lambda_functions.col(2).array();
+        }
+        break;
         default:
             throw std::runtime_error("order " + std::to_string(reference_element_data.Order) + "not supported yet");
         }
+
+        return values;
     }
 };
 } // namespace PCC
