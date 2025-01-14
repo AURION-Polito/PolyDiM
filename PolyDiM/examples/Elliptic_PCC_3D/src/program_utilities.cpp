@@ -131,8 +131,8 @@ void export_solution(const Polydim::examples::Elliptic_PCC_3D::Program_configura
         if (!errorFileExists)
         {
             errorFile << "ProgramType" << separator;
-            errorFile << "VemType" << separator;
-            errorFile << "VemOrder" << separator;
+            errorFile << "MethodType" << separator;
+            errorFile << "MethodOrder" << separator;
             errorFile << "Cell3Ds" << separator;
             errorFile << "Dofs" << separator;
             errorFile << "Strongs" << separator;

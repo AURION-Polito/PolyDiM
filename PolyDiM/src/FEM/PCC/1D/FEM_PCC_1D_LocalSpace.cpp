@@ -36,7 +36,7 @@ FEM_PCC_1D_LocalSpace_Data FEM_PCC_1D_LocalSpace::CreateLocalSpace(const FEM_PCC
         }
     }
 
-    localSpace.Dof1DsIndex.fill(localSpace.Dof0DsIndex[3]);
+    localSpace.Dof1DsIndex.fill(localSpace.Dof0DsIndex[2]);
     localSpace.Dof1DsIndex[1] = localSpace.Dof1DsIndex[0] + reference_element_data.NumDofs1D;
     for (unsigned int d = localSpace.Dof1DsIndex[0]; d < localSpace.Dof1DsIndex[1]; d++)
     {
