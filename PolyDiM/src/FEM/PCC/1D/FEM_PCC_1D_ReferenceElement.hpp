@@ -149,35 +149,9 @@ namespace Polydim
           Eigen::MatrixXd EvaluateBasisFunctions(const Eigen::MatrixXd &points,
                                                  const FEM_PCC_1D_ReferenceElement_Data &reference_element_data) const
           {
-            Eigen::MatrixXd values(points.cols(), reference_element_data.NumBasisFunctions);
-
-            const auto lambda = EvaluateLambda(points);
-
-            switch (reference_element_data.Order)
-            {
-              case 0:
-                values.col(0) << Eigen::VectorXd::Constant(points.cols(), 1.0);
-                break;
-              case 1:
-                values.col(0) << lambda.col(0);
-                values.col(1) << lambda.col(1);
-                break;
-              case 2:
-                values.col(0) << 2.0 * lambda.col(0).array() * (lambda.col(0).array() - 0.5);
-                values.col(1) << 2.0 * lambda.col(1).array() * (lambda.col(1).array() - 0.5);
-                values.col(2) << 4.0 * lambda.col(0).array() * lambda.col(1).array();
-                break;
-              default:
-                throw std::runtime_error("Order not supported yet");
-            }
-
-            const auto basis_values = Interpolation::Lagrange::Lagrange_1D_values(reference_element_data.DofPositions.row(0).transpose(),
-                                                                                  reference_element_data.Interpolation_coefficients,
-                                                                                  points.row(0).transpose());
-
-            assert((values - basis_values).norm() < values.norm() * 1.0e-15);
-
-            return values;
+            return Interpolation::Lagrange::Lagrange_1D_values(reference_element_data.DofPositions.row(0).transpose(),
+                                                               reference_element_data.Interpolation_coefficients,
+                                                               points.row(0).transpose());
           }
           // ***************************************************************************
           std::vector<Eigen::MatrixXd> EvaluateBasisFunctionDerivatives(const Eigen::MatrixXd &points,
@@ -186,38 +160,11 @@ namespace Polydim
             std::vector<Eigen::MatrixXd> values(reference_element_data.Dimension);
 
             for (unsigned int d = 0; d < reference_element_data.Dimension; d++)
-              values[d].resize(points.cols(), reference_element_data.NumBasisFunctions);
+              values[d].setZero(points.cols(), reference_element_data.NumBasisFunctions);
 
-            const auto lambda = EvaluateLambda(points);
-            const auto gradLambda = EvaluateGradLambda(points);
-
-            switch (reference_element_data.Order)
-            {
-              case 0:
-                values[0].col(0) = Eigen::VectorXd::Zero(points.cols());
-                break;
-              case 1:
-                values[0].col(0) = gradLambda[0].col(0);
-                values[0].col(1) = gradLambda[0].col(1);
-                break;
-              case 2:
-                values[0].col(0) = 2.0 * gradLambda[0].col(0).array() * (lambda.col(0).array() - 0.5) +
-                    2.0 * lambda.col(0).array() * gradLambda[0].col(0).array();
-                values[0].col(1) = 2.0 * gradLambda[0].col(1).array() * (lambda.col(1).array() - 0.5) +
-                    2.0 * lambda.col(1).array() * gradLambda[0].col(1).array();
-                values[0].col(2) = 4.0 * gradLambda[0].col(0).array() * lambda.col(1).array() +
-                    4.0 * lambda.col(0).array() * gradLambda[0].col(1).array();
-                break;
-              default:
-                throw std::runtime_error("Order not supported yet");
-            }
-
-            const auto basis_derivative_values = Interpolation::Lagrange::Lagrange_1D_derivative_values(reference_element_data.DofPositions.row(0).transpose(),
-                                                                                                        reference_element_data.Interpolation_coefficients,
-                                                                                                        points.row(0).transpose());
-
-
-            assert((values[0] - basis_derivative_values).norm() < values[0].norm() * 1.0e-15);
+            values[0] = Interpolation::Lagrange::Lagrange_1D_derivative_values(reference_element_data.DofPositions.row(0).transpose(),
+                                                                                                                    reference_element_data.Interpolation_coefficients,
+                                                                                                                    points.row(0).transpose());
 
             return values;
           }

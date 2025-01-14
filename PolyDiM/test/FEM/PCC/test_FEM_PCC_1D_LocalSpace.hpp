@@ -18,7 +18,7 @@ TEST(Test_FEM_PCC_1D, Test_FEM_PCC_1D_Reference_Element)
     const auto referenceQuadrature = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(10);
     const Eigen::MatrixXd &referenceQuadraturePoints = referenceQuadrature.Points;
 
-    for (unsigned int o = 0; o < 3; o++)
+    for (unsigned int o = 0; o < 5; o++)
     {
         const auto reference_element_data = reference_element.Create(o);
 
@@ -35,7 +35,7 @@ TEST(Test_FEM_PCC_1D, Test_FEM_PCC_1D_Reference_Element)
         const Eigen::VectorXd sumGradXValues = gradBasisValues[0].rowwise().sum();
         for (unsigned int q = 0; q < points.cols(); q++)
         {
-            ASSERT_TRUE(abs(sumBasisValues[q] - 1.0) < 1.0e-14);
+             ASSERT_TRUE(abs(sumBasisValues[q] - 1.0) < 1.0e-14);
             ASSERT_TRUE(abs(sumGradXValues[q]) < 1.0e-14);
         }
     }
