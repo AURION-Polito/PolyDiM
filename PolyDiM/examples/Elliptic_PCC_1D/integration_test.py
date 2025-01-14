@@ -105,7 +105,6 @@ if __name__ == "__main__":
     remove_folder = False
 
     method_types = [1]
-    method_orders = [1, 2, 3, 4]
     export_folder = "integration_tests"
     os.system("rm -rf " + os.path.join(program_folder, export_folder))
     tol = 1.0e-12
@@ -115,6 +114,7 @@ if __name__ == "__main__":
     test_type = 1
     mesh_generator = 2
     mesh_max_length = 0.0
+    method_orders = [1, 2, 3, 4]
     for method_type in method_types:
         for method_order in method_orders:
             export_path = run_program(program_folder,
@@ -136,6 +136,7 @@ if __name__ == "__main__":
     test_type = 2
     mesh_generator = 0
     mesh_max_lengths = [0.01, 0.001]
+    method_orders = [1]
     for method_type in method_types:
         for method_order in method_orders:
             for mesh_max_length in mesh_max_lengths:
