@@ -6,6 +6,7 @@
 #include "Quadrature_Gauss1D.hpp"
 #include "Quadrature_Gauss2D_Triangle.hpp"
 #include "lagrange_1D.hpp"
+#include <iostream>
 
 namespace Polydim
 {
@@ -174,7 +175,7 @@ namespace Polydim
                                                                                   reference_element_data.Interpolation_coefficients,
                                                                                   points.row(0).transpose());
 
-            assert(values == basis_values);
+            assert((values - basis_values).norm() < values.norm() * 1.0e-15);
 
             return values;
           }
@@ -215,7 +216,8 @@ namespace Polydim
                                                                                                         reference_element_data.Interpolation_coefficients,
                                                                                                         points.row(0).transpose());
 
-            assert(values[0] == basis_derivative_values);
+
+            assert((values[0] - basis_derivative_values).norm() < values[0].norm() * 1.0e-15);
 
             return values;
           }
