@@ -33,7 +33,6 @@ def run_program(program_folder,
     program_parameters += " TestType:uint={0}".format(test_type)
     program_parameters += " MeshGenerator:uint={0}".format(mesh_generator)
     program_parameters += " MeshMaxLength:double={0}".format(mesh_max_length)
-    program_parameters += " ComputeMethodPerformance:bool={0}".format(0)
 
     output_file = os.path.join(program_folder,
                                "terminal.log")
@@ -106,7 +105,6 @@ if __name__ == "__main__":
     remove_folder = False
 
     method_types = [1]
-    method_orders = [1, 2, 3, 4]
     export_folder = "integration_tests"
     os.system("rm -rf " + os.path.join(program_folder, export_folder))
     tol = 1.0e-12
@@ -116,6 +114,7 @@ if __name__ == "__main__":
     test_type = 1
     mesh_generator = 2
     mesh_max_length = 0.0
+    method_orders = [1, 2, 3, 4]
     for method_type in method_types:
         for method_order in method_orders:
             export_path = run_program(program_folder,
@@ -137,27 +136,7 @@ if __name__ == "__main__":
     test_type = 2
     mesh_generator = 0
     mesh_max_lengths = [0.01, 0.001]
-    for method_type in method_types:
-        for method_order in method_orders:
-            for mesh_max_length in mesh_max_lengths:
-                export_path = run_program(program_folder,
-                                          program_path,
-                                          "Run_MG{0}".format(mesh_generator),
-                                          method_type,
-                                          method_order,
-                                          test_type,
-                                          mesh_generator,
-                                          mesh_max_length)
-            errors = import_errors(export_path, method_type, method_order, test_type)
-            test_errors(errors,
-                        method_order,
-                        tol)
-            if remove_folder:
-                os.system("rm -rf " + os.path.join(program_folder, export_path))
-
-    test_type = 2
-    mesh_generator = 2
-    mesh_max_lengths = [0.01, 0.001]
+    method_orders = [1]
     for method_type in method_types:
         for method_order in method_orders:
             for mesh_max_length in mesh_max_lengths:

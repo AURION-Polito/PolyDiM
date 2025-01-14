@@ -2,6 +2,7 @@
 #define __FEM_Triangle_PCC_2D_ReferenceElement_H
 
 #include "Eigen/Eigen"
+#include "FEM_PCC_1D_ReferenceElement.hpp"
 #include "QuadratureData.hpp"
 #include "Quadrature_Gauss1D.hpp"
 #include "Quadrature_Gauss2D_Triangle.hpp"
@@ -25,12 +26,13 @@ struct FEM_Triangle_PCC_2D_ReferenceElement_Data final
     Eigen::MatrixXd DofPositions;   ///< reference element dof points
     Eigen::MatrixXi DofTypes;       ///< dof type [num oblique edges, num vertical edges, num horizontal edges]
 
-    Gedim::Quadrature::QuadratureData ReferenceSegmentQuadrature;
     Gedim::Quadrature::QuadratureData ReferenceTriangleQuadrature;
 
     Eigen::MatrixXd ReferenceBasisFunctionValues;
     std::vector<Eigen::MatrixXd> ReferenceBasisFunctionDerivativeValues;
     std::array<Eigen::MatrixXd, 4> ReferenceBasisFunctionSecondDerivativeValues;
+
+    FEM_PCC_1D_ReferenceElement_Data BoundaryReferenceElement_Data;
 };
 
 class FEM_Triangle_PCC_2D_ReferenceElement final
@@ -52,8 +54,10 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
             result.DofPositions.setZero(3, result.NumBasisFunctions);
             result.DofPositions.col(0) << 1.0 / 3.0, 1.0 / 3.0, 0.0;
 
+            FEM_PCC_1D_ReferenceElement boundary_reference_element;
+            result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order);
+
             result.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * order);
-            result.ReferenceSegmentQuadrature = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * order);
 
             result.ReferenceBasisFunctionValues = EvaluateBasisFunctions(result.ReferenceTriangleQuadrature.Points, result);
             result.ReferenceBasisFunctionDerivativeValues =
@@ -133,8 +137,10 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
             dof++;
         }
 
+        FEM_PCC_1D_ReferenceElement boundary_reference_element;
+        result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order);
+
         result.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * order);
-        result.ReferenceSegmentQuadrature = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * order);
 
         result.ReferenceBasisFunctionValues = EvaluateBasisFunctions(result.ReferenceTriangleQuadrature.Points, result);
         result.ReferenceBasisFunctionDerivativeValues =

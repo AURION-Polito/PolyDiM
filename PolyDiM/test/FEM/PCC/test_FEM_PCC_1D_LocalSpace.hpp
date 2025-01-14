@@ -18,7 +18,7 @@ TEST(Test_FEM_PCC_1D, Test_FEM_PCC_1D_Reference_Element)
     const auto referenceQuadrature = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(10);
     const Eigen::MatrixXd &referenceQuadraturePoints = referenceQuadrature.Points;
 
-    for (unsigned int o = 0; o < 3; o++)
+    for (unsigned int o = 0; o < 5; o++)
     {
         const auto reference_element_data = reference_element.Create(o);
 

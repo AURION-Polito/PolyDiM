@@ -5,6 +5,8 @@
 #include "QuadratureData.hpp"
 #include "Quadrature_Gauss1D.hpp"
 #include "Quadrature_Gauss2D_Triangle.hpp"
+#include "lagrange_1D.hpp"
+#include <iostream>
 
 namespace Polydim
 {
@@ -22,6 +24,7 @@ struct FEM_PCC_1D_ReferenceElement_Data final
 
     unsigned int NumBasisFunctions; ///< Number of total basis functions
     Eigen::MatrixXd DofPositions;   ///< reference element dof points
+    Eigen::VectorXd Interpolation_coefficients;
 
     Gedim::Quadrature::QuadratureData ReferenceSegmentQuadrature;
 
@@ -47,6 +50,8 @@ class FEM_PCC_1D_ReferenceElement final
             result.DofPositions = (Eigen::MatrixXd(3, 1) << 0.5, 0.0, 0.0).finished();
 
             result.ReferenceSegmentQuadrature = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * order);
+
+            result.Interpolation_coefficients = Eigen::VectorXd::Zero(1);
 
             result.ReferenceBasisFunctionValues = EvaluateBasisFunctions(result.ReferenceSegmentQuadrature.Points, result);
             result.ReferenceBasisFunctionDerivativeValues =
@@ -108,6 +113,9 @@ class FEM_PCC_1D_ReferenceElement final
         for (unsigned int c = 0; c < cellDofs.size(); c++)
             result.DofPositions.col(dofCounter++) << dofPositions.col(cellDofs[c]);
 
+        result.Interpolation_coefficients =
+            Interpolation::Lagrange::Lagrange_1D_cofficients(result.DofPositions.row(0).transpose());
+
         result.ReferenceSegmentQuadrature = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * order);
 
         result.ReferenceBasisFunctionValues = EvaluateBasisFunctions(result.ReferenceSegmentQuadrature.Points, result);
@@ -141,29 +149,9 @@ class FEM_PCC_1D_ReferenceElement final
     // ***************************************************************************
     Eigen::MatrixXd EvaluateBasisFunctions(const Eigen::MatrixXd &points, const FEM_PCC_1D_ReferenceElement_Data &reference_element_data) const
     {
-        Eigen::MatrixXd values(points.cols(), reference_element_data.NumBasisFunctions);
-
-        const auto lambda = EvaluateLambda(points);
-
-        switch (reference_element_data.Order)
-        {
-        case 0:
-            values.col(0) << Eigen::VectorXd::Constant(points.cols(), 1.0);
-            break;
-        case 1:
-            values.col(0) << lambda.col(0);
-            values.col(1) << lambda.col(1);
-            break;
-        case 2:
-            values.col(0) << 2.0 * lambda.col(0).array() * (lambda.col(0).array() - 0.5);
-            values.col(1) << 2.0 * lambda.col(1).array() * (lambda.col(1).array() - 0.5);
-            values.col(2) << 4.0 * lambda.col(0).array() * lambda.col(1).array();
-            break;
-        default:
-            throw std::runtime_error("Order not supported yet");
-        }
-
-        return values;
+        return Interpolation::Lagrange::Lagrange_1D_values(reference_element_data.DofPositions.row(0).transpose(),
+                                                           reference_element_data.Interpolation_coefficients,
+                                                           points.row(0).transpose());
     }
     // ***************************************************************************
     std::vector<Eigen::MatrixXd> EvaluateBasisFunctionDerivatives(const Eigen::MatrixXd &points,
@@ -172,31 +160,11 @@ class FEM_PCC_1D_ReferenceElement final
         std::vector<Eigen::MatrixXd> values(reference_element_data.Dimension);
 
         for (unsigned int d = 0; d < reference_element_data.Dimension; d++)
-            values[d].resize(points.cols(), reference_element_data.NumBasisFunctions);
+            values[d].setZero(points.cols(), reference_element_data.NumBasisFunctions);
 
-        const auto lambda = EvaluateLambda(points);
-        const auto gradLambda = EvaluateGradLambda(points);
-
-        switch (reference_element_data.Order)
-        {
-        case 0:
-            values[0].col(0) = Eigen::VectorXd::Zero(points.cols());
-            break;
-        case 1:
-            values[0].col(0) = gradLambda[0].col(0);
-            values[0].col(1) = gradLambda[0].col(1);
-            break;
-        case 2:
-            values[0].col(0) = 2.0 * gradLambda[0].col(0).array() * (lambda.col(0).array() - 0.5) +
-                               2.0 * lambda.col(0).array() * gradLambda[0].col(0).array();
-            values[0].col(1) = 2.0 * gradLambda[0].col(1).array() * (lambda.col(1).array() - 0.5) +
-                               2.0 * lambda.col(1).array() * gradLambda[0].col(1).array();
-            values[0].col(2) = 4.0 * gradLambda[0].col(0).array() * lambda.col(1).array() +
-                               4.0 * lambda.col(0).array() * gradLambda[0].col(1).array();
-            break;
-        default:
-            throw std::runtime_error("Order not supported yet");
-        }
+        values[0] = Interpolation::Lagrange::Lagrange_1D_derivative_values(reference_element_data.DofPositions.row(0).transpose(),
+                                                                           reference_element_data.Interpolation_coefficients,
+                                                                           points.row(0).transpose());
 
         return values;
     }

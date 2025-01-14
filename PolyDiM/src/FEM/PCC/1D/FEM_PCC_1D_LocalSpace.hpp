@@ -33,6 +33,9 @@ struct FEM_PCC_1D_LocalSpace_Data final
     unsigned int Order;
     unsigned int NumberOfBasisFunctions;
     Eigen::MatrixXd Dofs;
+    std::vector<unsigned int> DofsMeshOrder; ///< DOFs position depending on element
+    std::array<unsigned int, 3> Dof0DsIndex; ///< local DOF index for each element 0D
+    std::array<unsigned int, 2> Dof1DsIndex; ///< local DOF index for each element 1D
     Gedim::Quadrature::QuadratureData InternalQuadrature;
 };
 
@@ -66,21 +69,11 @@ class FEM_PCC_1D_LocalSpace final
     }
 
     /// \brief map basis function values on element with correct order
-    inline Eigen::MatrixXd MapValues(const FEM_PCC_1D_LocalSpace_Data &, const Eigen::MatrixXd &referenceValues) const
-    {
-        return referenceValues;
-    }
+    Eigen::MatrixXd MapValues(const FEM_PCC_1D_LocalSpace_Data &local_space, const Eigen::MatrixXd &referenceValues) const;
 
     /// \brief map basis function derivative values on element with correct order
-    inline std::vector<Eigen::MatrixXd> MapDerivativeValues(const FEM_PCC_1D_LocalSpace_Data &local_space,
-                                                            const std::vector<Eigen::MatrixXd> &referenceDerivateValues) const
-    {
-        std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValues(1);
-
-        basisFunctionsDerivativeValues[0] = referenceDerivateValues[0] / local_space.MapData.Length;
-
-        return basisFunctionsDerivativeValues;
-    }
+    std::vector<Eigen::MatrixXd> MapDerivativeValues(const FEM_PCC_1D_LocalSpace_Data &local_space,
+                                                     const std::vector<Eigen::MatrixXd> &referenceDerivateValues) const;
 
     Gedim::Quadrature::QuadratureData InternalQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,
                                                          const FEM_PCC_1D_LocalSpace_Data::SegmentMapData &mapData) const;

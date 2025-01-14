@@ -71,6 +71,8 @@ FEM_Triangle_PCC_2D_LocalSpace_Data FEM_Triangle_PCC_2D_LocalSpace::CreateLocalS
     localSpace.Dofs = MapValues(localSpace, Gedim::MapTriangle::F(localSpace.MapData, reference_element_data.DofPositions));
 
     localSpace.InternalQuadrature = InternalQuadrature(reference_element_data.ReferenceTriangleQuadrature, localSpace.MapData);
+    localSpace.BoundaryQuadrature =
+        BoundaryQuadrature(reference_element_data.BoundaryReferenceElement_Data.ReferenceSegmentQuadrature, polygon);
 
     return localSpace;
 }
@@ -142,6 +144,34 @@ Gedim::Quadrature::QuadratureData FEM_Triangle_PCC_2D_LocalSpace::InternalQuadra
                          Gedim::MapTriangle::DetJ(mapData, reference_quadrature.Points).array().abs();
 
     return quadrature;
+}
+// ***************************************************************************
+std::vector<Gedim::Quadrature::QuadratureData> FEM_Triangle_PCC_2D_LocalSpace::BoundaryQuadrature(
+    const Gedim::Quadrature::QuadratureData &reference_quadrature,
+    const FEM_Triangle_PCC_2D_Polygon_Geometry &polygon) const
+{
+    const unsigned int num_edges = polygon.EdgesDirection.size();
+    std::vector<Gedim::Quadrature::QuadratureData> edges_quadrature(num_edges);
+
+    for (unsigned int e = 0; e < num_edges; ++e)
+    {
+        auto &edge_quadrature = edges_quadrature.at(e);
+        const bool edge_direction = polygon.EdgesDirection.at(e);
+        const double edge_length = polygon.EdgesLength[e];
+        const Eigen::Vector3d edge_origin = edge_direction ? polygon.Vertices.col(e) : polygon.Vertices.col((e + 1) % num_edges);
+
+        const Eigen::Vector3d edge_tangent = edge_direction ? +1.0 * polygon.EdgesTangent.col(e)
+                                                            : -1.0 * polygon.EdgesTangent.col(e);
+
+        const unsigned int num_quadrature_points = reference_quadrature.Points.cols();
+        edge_quadrature.Points.resize(3, num_quadrature_points);
+        for (unsigned int q = 0; q < num_quadrature_points; q++)
+            edge_quadrature.Points.col(q) = edge_origin + reference_quadrature.Points(0, q) * edge_tangent;
+
+        edge_quadrature.Weights = reference_quadrature.Weights * std::abs(edge_length);
+    }
+
+    return edges_quadrature;
 }
 // ***************************************************************************
 } // namespace PCC

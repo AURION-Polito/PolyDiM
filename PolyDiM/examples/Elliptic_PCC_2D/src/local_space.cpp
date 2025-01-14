@@ -68,7 +68,9 @@ LocalSpace_Data CreateLocalSpace(const Polydim::examples::Elliptic_PCC_2D::Progr
         local_space_data.FEM_Geometry = {config.GeometricTolerance1D(),
                                          config.GeometricTolerance2D(),
                                          mesh_geometric_data.Cell2DsVertices.at(cell2D_index),
-                                         mesh_geometric_data.Cell2DsEdgeDirections.at(cell2D_index)};
+                                         mesh_geometric_data.Cell2DsEdgeDirections.at(cell2D_index),
+                                         mesh_geometric_data.Cell2DsEdgeTangents.at(cell2D_index),
+                                         mesh_geometric_data.Cell2DsEdgeLengths.at(cell2D_index)};
 
         local_space_data.FEM_LocalSpace_Data =
             reference_element_data.FEM_LocalSpace->CreateLocalSpace(reference_element_data.FEM_ReferenceElement_Data,
@@ -142,14 +144,17 @@ Eigen::MatrixXd BasisFunctionsLaplacianValues(const ReferenceElement_Data &refer
     }
 }
 //***************************************************************************
-Eigen::MatrixXd BasisFunctionsValuesOnEdges(const unsigned int &edge_local_index,
-                                            const ReferenceElement_Data &reference_element_data,
-                                            const LocalSpace_Data &local_space_data,
-                                            const Eigen::MatrixXd &pointsCurvilinearCoordinates)
+Eigen::MatrixXd BasisFunctionsValuesOnEdge(const unsigned int &edge_local_index,
+                                           const ReferenceElement_Data &reference_element_data,
+                                           const LocalSpace_Data &local_space_data,
+                                           const Eigen::MatrixXd &pointsCurvilinearCoordinates)
 {
     switch (reference_element_data.Method_Type)
     {
     case Program_configuration::MethodTypes::FEM_Triangle_PCC: {
+        const auto basis_values_on_edge = reference_element_data.FEM_LocalSpace->ComputeBasisFunctionsValuesOnEdge(
+            reference_element_data.FEM_ReferenceElement_Data);
+
         VEM::PCC::VEM_PCC_Utilities<2> utilities;
 
         const auto &dof_coordinates = local_space_data.FEM_LocalSpace_Data.Dofs;
@@ -162,7 +167,14 @@ Eigen::MatrixXd BasisFunctionsValuesOnEdges(const unsigned int &edge_local_index
         const Eigen::VectorXd edgeBasisCoefficients =
             utilities.ComputeEdgeBasisCoefficients(reference_element_data.Order, edgeInternalPoints);
 
-        return utilities.ComputeValuesOnEdge(edgeInternalPoints.transpose(), reference_element_data.Order, edgeBasisCoefficients, pointsCurvilinearCoordinates);
+        const auto vem_basis_on_edge = utilities.ComputeValuesOnEdge(edgeInternalPoints.transpose(),
+                                                                     reference_element_data.Order,
+                                                                     edgeBasisCoefficients,
+                                                                     pointsCurvilinearCoordinates);
+
+        assert((vem_basis_on_edge - basis_values_on_edge).norm() < 1.e-15 * vem_basis_on_edge.norm());
+
+        return vem_basis_on_edge;
     }
     case Program_configuration::MethodTypes::VEM_PCC:
     case Program_configuration::MethodTypes::VEM_PCC_Inertia:

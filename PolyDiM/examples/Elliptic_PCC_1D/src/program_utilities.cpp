@@ -123,8 +123,8 @@ void export_solution(const Polydim::examples::Elliptic_PCC_1D::Program_configura
         if (!errorFileExists)
         {
             errorFile << "ProgramType" << separator;
-            errorFile << "VemType" << separator;
-            errorFile << "VemOrder" << separator;
+            errorFile << "MethodType" << separator;
+            errorFile << "MethodOrder" << separator;
             errorFile << "Cell1Ds" << separator;
             errorFile << "Dofs" << separator;
             errorFile << "Strongs" << separator;

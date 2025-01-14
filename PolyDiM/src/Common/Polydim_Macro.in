@@ -1,3 +1,22 @@
+// ---------------------------------------------------------------------
+// Copyright (C) 2019 - 2025 by the PolyDiM authors.
+//
+// This file is part of PolyDiM.
+//
+// PolyDiM is free software; you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// PolyDiM is distributed to be used, but WITHOUT ANY WARRANTY;
+// without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// See top level LICENSE, COPYRIGHT, CONTRIBUTORS, NOTICE, and ACKNOWLEDGEMENTS files for more details.
+// See https://github.com/GEOS-DEV/GEOS/tree/develop for more info (TOBE REMOVED!)
+// ---------------------------------------------------------------------
+
 #ifndef __POLYDIM_MACRO_H
 #define __POLYDIM_MACRO_H
 

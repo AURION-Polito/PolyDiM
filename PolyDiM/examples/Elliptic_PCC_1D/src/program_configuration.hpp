@@ -38,7 +38,6 @@ struct Program_configuration final
                                            static_cast<unsigned int>(Polydim::FEM::PCC::FEM_PCC_1D_LocalSpace_Types::FEM_PCC_1D_LocalSpace),
                                            "Method Type, 1 - FEM (Default: 1)");
         Gedim::Configurations::AddProperty("MethodOrder", static_cast<unsigned int>(1), "Method order (Default: 1)");
-        Gedim::Configurations::AddProperty("ComputeMethodPerformance", true, "Compute Method Performance (Default: true)");
     }
 
     inline string ExportFolder() const
@@ -68,10 +67,6 @@ struct Program_configuration final
         return Gedim::Configurations::GetPropertyValue<double>("GeometricTolerance1D");
     }
 
-    inline bool ComputeMethodPerformance() const
-    {
-        return Gedim::Configurations::GetPropertyValue<bool>("ComputeMethodPerformance");
-    }
     inline unsigned int MethodOrder() const
     {
         return Gedim::Configurations::GetPropertyValue<unsigned int>("MethodOrder");

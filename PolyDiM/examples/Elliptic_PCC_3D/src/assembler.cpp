@@ -103,12 +103,12 @@ void Assembler::ComputeStrongTerm(const unsigned int &cell3DIndex,
         const auto local_dofs = dofs_data.CellsDOFs.at(2).at(cell2D_index);
         const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(2).at(cell2D_index);
 
-        const auto face_dofs_coordinates =
-            local_space::FaceDofsCoordinates(reference_element_data, local_space_data, f, quadraturePointOffset);
-
         if (boundary_info.Type != Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong ||
             local_dofs.size() == 0)
             continue;
+
+        const auto face_dofs_coordinates =
+            local_space::FaceDofsCoordinates(reference_element_data, local_space_data, f, quadraturePointOffset);
 
         const Eigen::VectorXd dirichletValues =
             test.strong_boundary_condition(boundary_info.Marker, face_dofs_coordinates.Points);

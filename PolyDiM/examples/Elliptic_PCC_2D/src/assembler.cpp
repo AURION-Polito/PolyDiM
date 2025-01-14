@@ -144,7 +144,7 @@ void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
 
         const Eigen::VectorXd neumannValues = test.weak_boundary_condition(boundary_info.Marker, weakQuadraturePoints);
         const auto weak_basis_function_values =
-            local_space::BasisFunctionsValuesOnEdges(ed, reference_element_data, local_space_data, pointsCurvilinearCoordinates);
+            local_space::BasisFunctionsValuesOnEdge(ed, reference_element_data, local_space_data, pointsCurvilinearCoordinates);
 
         // compute values of Neumann condition
         const Eigen::VectorXd neumannContributions =

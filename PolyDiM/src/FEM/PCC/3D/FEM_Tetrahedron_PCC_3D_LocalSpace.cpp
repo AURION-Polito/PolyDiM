@@ -131,7 +131,7 @@ std::vector<MatrixXd> FEM_Tetrahedron_PCC_3D_LocalSpace::MapDerivativeValues(con
     }
 
     std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValuesOrdered(
-        2,
+        3,
         Eigen::MatrixXd(referenceDerivateValues.at(0).rows(), local_space.NumberOfBasisFunctions));
 
     for (unsigned int d = 0; d < local_space.NumberOfBasisFunctions; d++)
@@ -139,6 +139,7 @@ std::vector<MatrixXd> FEM_Tetrahedron_PCC_3D_LocalSpace::MapDerivativeValues(con
         const unsigned int &dofOrder = local_space.DofsMeshOrder.at(d);
         basisFunctionsDerivativeValuesOrdered.at(0).col(dofOrder) << basisFunctionsDerivativeValues.at(0).col(d);
         basisFunctionsDerivativeValuesOrdered.at(1).col(dofOrder) << basisFunctionsDerivativeValues.at(1).col(d);
+        basisFunctionsDerivativeValuesOrdered.at(2).col(dofOrder) << basisFunctionsDerivativeValues.at(2).col(d);
     }
 
     return basisFunctionsDerivativeValuesOrdered;
