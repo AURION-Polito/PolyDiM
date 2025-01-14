@@ -53,7 +53,7 @@ struct Patch_Test final : public I_Test
     {
         return {{0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
                 {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
+                {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}}};
     }
 
     Eigen::VectorXd diffusion_term(const Eigen::MatrixXd &points) const
@@ -89,7 +89,17 @@ struct Patch_Test final : public I_Test
 
     Eigen::VectorXd weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
-        throw std::runtime_error("Not supported");
+        if (marker != 2)
+            throw std::runtime_error("Unknown marker");
+
+        Eigen::VectorXd derivatives = Eigen::VectorXd::Constant(points.cols(), order);
+        const Eigen::ArrayXd polynomial = points.row(0).array() + 0.5;
+
+        const int max_order = order - 1;
+        for (int i = 0; i < max_order; ++i)
+            derivatives.array() *= polynomial;
+
+        return derivatives;
     }
 
     Eigen::VectorXd exact_solution(const Eigen::MatrixXd &points) const
@@ -133,19 +143,18 @@ struct Poisson_Polynomial_Problem final : public I_Test
     std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info() const
     {
         return {{0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
                 {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
     }
 
     Eigen::VectorXd diffusion_term(const Eigen::MatrixXd &points) const
     {
-        const double k = 1.0;
-        return Eigen::VectorXd::Constant(points.cols(), k);
+        return Eigen::VectorXd::Constant(points.cols(), 2.0);
     };
 
     Eigen::VectorXd source_term(const Eigen::MatrixXd &points) const
     {
-        return Eigen::VectorXd::Constant(points.cols(), 8.0);
+        return 2.0 * M_PI * M_PI * sin(M_PI * points.row(0).array());
     };
 
     Eigen::VectorXd strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
@@ -153,26 +162,25 @@ struct Poisson_Polynomial_Problem final : public I_Test
         if (marker != 1)
             throw std::runtime_error("Unknown marker");
 
-        return 4.0 * points.row(0).array() * (1.0 - points.row(0).array()) + 1.5;
+        return sin(M_PI * points.row(0).array());
     };
 
     Eigen::VectorXd weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
-        switch (marker)
-        {
-        default:
+        if (marker != 2)
             throw std::runtime_error("Unknown marker");
-        }
+
+        return 2.0 * M_PI * cos(M_PI * points.row(0).array());
     }
 
     Eigen::VectorXd exact_solution(const Eigen::MatrixXd &points) const
     {
-        return 4.0 * points.row(0).array() * (1.0 - points.row(0).array()) + 1.5;
+        return sin(M_PI * points.row(0).array());
     };
 
     std::array<Eigen::VectorXd, 3> exact_derivative_solution(const Eigen::MatrixXd &points) const
     {
-        return {4.0 * (1.0 - 2.0 * points.row(0).array()),
+        return {M_PI * cos(M_PI * points.row(0).array()),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols())};
     }

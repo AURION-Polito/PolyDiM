@@ -55,6 +55,54 @@ void Assembler::ComputeStrongTerm(const Gedim::MeshMatricesDAO &mesh,
         }
     }
 }
+//***************************************************************************
+void Assembler::ComputeWeakTerm(const unsigned int cell1DIndex,
+                                const Gedim::MeshMatricesDAO &mesh,
+                                const Gedim::MeshUtilities::MeshGeometricData1D &mesh_geometric_data,
+                                const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                                const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                                const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data,
+                                const Polydim::examples::Elliptic_PCC_1D::test::I_Test &test,
+                                Elliptic_PCC_1D_Problem_Data &assembler_data) const
+{
+    if (dofs_data.NumberBoundaryDOFs == 0)
+        return;
+
+    for (unsigned int p = 0; p < 2; ++p)
+    {
+        const unsigned int cell0D_index = mesh.Cell1DVertex(cell1DIndex, p);
+        const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(0).at(cell0D_index);
+
+        if (boundary_info.Type != Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak)
+            continue;
+
+        const auto coordinates = mesh.Cell0DCoordinates(cell0D_index);
+        const double direction = p == 0 ? -1.0 : 1.0;
+
+        const Eigen::VectorXd weak_boundary_values = direction * test.weak_boundary_condition(boundary_info.Marker, coordinates);
+
+        const auto local_dofs = dofs_data.CellsDOFs.at(0).at(cell0D_index);
+
+        assert(local_dofs.size() == weak_boundary_values.size());
+
+        for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
+        {
+            const auto &local_dof_i = local_dofs.at(loc_i);
+
+            switch (local_dof_i.Type)
+            {
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                continue;
+                break;
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
+                assembler_data.rightHandSide.AddValue(local_dof_i.Global_Index, weak_boundary_values[loc_i]);
+                break;
+            default:
+                throw std::runtime_error("Unknown DOF Type");
+            }
+        }
+    }
+}
 // ***************************************************************************
 Assembler::Elliptic_PCC_1D_Problem_Data Assembler::Assemble(const Polydim::examples::Elliptic_PCC_1D::Program_configuration &config,
                                                             const Gedim::MeshMatricesDAO &mesh,
@@ -115,6 +163,8 @@ Assembler::Elliptic_PCC_1D_Problem_Data Assembler::Assemble(const Polydim::examp
                                                                                           result.globalMatrixA,
                                                                                           result.dirichletMatrixA,
                                                                                           result.rightHandSide);
+
+        ComputeWeakTerm(c, mesh, mesh_geometric_data, mesh_dofs_info, dofs_data, reference_element_data, test, result);
     }
 
     ComputeStrongTerm(mesh, mesh_geometric_data, mesh_dofs_info, dofs_data, reference_element_data, test, result);
@@ -206,27 +256,16 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
         const auto exact_solution_values = test.exact_solution(local_space_data.InternalQuadrature.Points);
         const auto exact_derivative_solution_values = test.exact_derivative_solution(local_space_data.InternalQuadrature.Points);
 
-        const auto &global_dofs = dofs_data.CellsGlobalDOFs[1].at(c);
-        Eigen::VectorXd dofs_values = Eigen::VectorXd::Zero(global_dofs.size());
-
-        for (unsigned int loc_i = 0; loc_i < global_dofs.size(); ++loc_i)
-        {
-            const auto &global_dof_i = global_dofs.at(loc_i);
-            const auto &local_dof_i =
-                dofs_data.CellsDOFs.at(global_dof_i.Dimension).at(global_dof_i.CellIndex).at(global_dof_i.DOFIndex);
-
-            switch (local_dof_i.Type)
-            {
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
-                dofs_values[loc_i] = assembler_data.solutionDirichlet.GetValue(local_dof_i.Global_Index);
-                break;
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-                dofs_values[loc_i] = assembler_data.solution.GetValue(local_dof_i.Global_Index);
-                break;
-            default:
-                throw std::runtime_error("Unknown DOF Type");
-            }
-        }
+        const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<1>(c, {std::cref(dofs_data)});
+        const Eigen::VectorXd dofs_values =
+            PDETools::Assembler_Utilities::global_solution_to_local_solution<1>(c,
+                                                                                {std::cref(dofs_data)},
+                                                                                local_count_dofs.num_total_dofs,
+                                                                                local_count_dofs.offsets_DOFs,
+                                                                                {0},
+                                                                                {0},
+                                                                                assembler_data.solution,
+                                                                                assembler_data.solutionDirichlet);
 
         const Eigen::VectorXd local_error_L2 = (basis_functions_values * dofs_values - exact_solution_values).array().square();
         const Eigen::VectorXd local_norm_L2 = (basis_functions_values * dofs_values).array().square();

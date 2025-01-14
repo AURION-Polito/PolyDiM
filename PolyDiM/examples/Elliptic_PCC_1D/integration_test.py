@@ -135,8 +135,7 @@ if __name__ == "__main__":
 
     test_type = 2
     mesh_generator = 0
-    mesh_max_lengths = [0.01, 0.001]
-    method_orders = [1]
+    mesh_max_lengths = [0.1, 0.05, 0.025]
     for method_type in method_types:
         for method_order in method_orders:
             for mesh_max_length in mesh_max_lengths:

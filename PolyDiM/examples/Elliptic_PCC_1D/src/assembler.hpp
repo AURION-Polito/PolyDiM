@@ -56,6 +56,15 @@ class Assembler final
                            const Polydim::examples::Elliptic_PCC_1D::test::I_Test &test,
                            Elliptic_PCC_1D_Problem_Data &assembler_data) const;
 
+    void ComputeWeakTerm(const unsigned int cell1DIndex,
+                         const Gedim::MeshMatricesDAO &mesh,
+                         const Gedim::MeshUtilities::MeshGeometricData1D &mesh_geometric_data,
+                         const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                         const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                         const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data,
+                         const Polydim::examples::Elliptic_PCC_1D::test::I_Test &test,
+                         Elliptic_PCC_1D_Problem_Data &assembler_data) const;
+
   public:
     Elliptic_PCC_1D_Problem_Data Assemble(const Polydim::examples::Elliptic_PCC_1D::Program_configuration &config,
                                           const Gedim::MeshMatricesDAO &mesh,

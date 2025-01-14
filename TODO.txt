@@ -1,4 +1,4 @@
-* add FEM 1D, 3D test
+* add FEM 3D test
 * add elasticity
 * change markers to mesh 3D
 * fix MCC 2D
