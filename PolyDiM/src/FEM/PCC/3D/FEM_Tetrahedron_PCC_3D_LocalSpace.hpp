@@ -27,16 +27,17 @@ struct FEM_Tetrahedron_PCC_3D_Polyhedron_Geometry final
 struct FEM_Tetrahedron_PCC_3D_LocalSpace_Data final
 {
     Gedim::MapTetrahedron::MapTetrahedronData MapData;
-    unsigned int Order;                                   ///< Order of the space
-    unsigned int NumberOfBasisFunctions;                  ///< Number of basis functions
-    Eigen::MatrixXd Dofs;                                 ///< DOFs geometric position
-    std::vector<unsigned int> DofsMeshOrder;              ///< DOFs position depending on element
-    std::array<unsigned int, 5> Dof0DsIndex;              ///< local DOF index for each element 0D
-    std::array<unsigned int, 7> Dof1DsIndex;              ///< local DOF index for each element 1D
-    std::array<unsigned int, 5> Dof2DsIndex;              ///< local DOF index for each element 2D
-    std::array<unsigned int, 2> Dof3DsIndex;              ///< local DOF index for each element 3D
-    Gedim::Quadrature::QuadratureData InternalQuadrature; ///< Internal quadrature points and weights
-    std::vector<Gedim::Quadrature::QuadratureData> BoundaryQuadrature; ///< Boundary quadrature points and weights on each face
+    unsigned int Order;                                                ///< Order of the space
+    unsigned int NumberOfBasisFunctions;                               ///< Number of basis functions
+    Eigen::MatrixXd Dofs;                                              ///< DOFs geometric position
+    std::vector<unsigned int> DofsMeshOrder;                           ///< DOFs position depending on element
+    std::array<unsigned int, 5> Dof0DsIndex;                           ///< local DOF index for each element 0D
+    std::array<unsigned int, 7> Dof1DsIndex;                           ///< local DOF index for each element 1D
+    std::array<unsigned int, 5> Dof2DsIndex;                           ///< local DOF index for each element 2D
+    std::array<unsigned int, 2> Dof3DsIndex;                           ///< local DOF index for each element 3D
+    Gedim::Quadrature::QuadratureData InternalQuadrature;              ///< Internal quadrature points and weights
+    std::vector<Gedim::Quadrature::QuadratureData> BoundaryQuadrature; ///< Boundary quadrature points and weights on
+                                                                       ///< each face
 };
 
 /// \brief Interface used to FEM Values computation

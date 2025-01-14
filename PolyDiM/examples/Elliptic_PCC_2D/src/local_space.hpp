@@ -67,9 +67,9 @@ Eigen::MatrixXd BasisFunctionsValues(const ReferenceElement_Data &reference_elem
                                      const Polydim::VEM::PCC::ProjectionTypes &projectionType = Polydim::VEM::PCC::ProjectionTypes::Pi0km1);
 
 Eigen::MatrixXd BasisFunctionsValuesOnEdge(const unsigned int &edge_local_index,
-                                            const ReferenceElement_Data &reference_element_data,
-                                            const LocalSpace_Data &local_space_data,
-                                            const Eigen::MatrixXd &pointsCurvilinearCoordinates);
+                                           const ReferenceElement_Data &reference_element_data,
+                                           const LocalSpace_Data &local_space_data,
+                                           const Eigen::MatrixXd &pointsCurvilinearCoordinates);
 
 std::vector<Eigen::MatrixXd> BasisFunctionsDerivativeValues(
     const ReferenceElement_Data &reference_element_data,

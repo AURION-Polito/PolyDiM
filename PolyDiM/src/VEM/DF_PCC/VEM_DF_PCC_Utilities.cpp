@@ -17,10 +17,10 @@ template <unsigned short dimension>
 Eigen::VectorXd VEM_DF_PCC_Utilities<dimension>::ComputeEdgeBasisCoefficients(const unsigned int &order,
                                                                               const Eigen::VectorXd &edgeInternalPoints) const
 {
-  // Compute basis function coefficients on the generic edge.
-  VectorXd interpolation_points_x(order + 1);
-  interpolation_points_x << 0.0, 1.0, edgeInternalPoints;
-  return Interpolation::Lagrange::Lagrange_1D_cofficients(interpolation_points_x);
+    // Compute basis function coefficients on the generic edge.
+    VectorXd interpolation_points_x(order + 1);
+    interpolation_points_x << 0.0, 1.0, edgeInternalPoints;
+    return Interpolation::Lagrange::Lagrange_1D_cofficients(interpolation_points_x);
 }
 //****************************************************************************
 template <unsigned short dimension>
@@ -31,9 +31,7 @@ MatrixXd VEM_DF_PCC_Utilities<dimension>::ComputeValuesOnEdge(const Eigen::RowVe
 {
     VectorXd interpolation_points_x(order + 1);
     interpolation_points_x << 0.0, 1.0, edgeInternalPoints.transpose();
-    return Interpolation::Lagrange::Lagrange_1D_values(interpolation_points_x,
-                                                       edgeBasisCoefficients,
-                                                       pointsCurvilinearCoordinates);
+    return Interpolation::Lagrange::Lagrange_1D_values(interpolation_points_x, edgeBasisCoefficients, pointsCurvilinearCoordinates);
 }
 //****************************************************************************
 template <unsigned short dimension>

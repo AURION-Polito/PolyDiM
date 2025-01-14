@@ -52,41 +52,42 @@ FEM_PCC_1D_LocalSpace_Data FEM_PCC_1D_LocalSpace::CreateLocalSpace(const FEM_PCC
     return localSpace;
 }
 // ***************************************************************************
-MatrixXd FEM_PCC_1D_LocalSpace::MapValues(const FEM_PCC_1D_LocalSpace_Data& local_space, const Eigen::MatrixXd& referenceValues) const
+MatrixXd FEM_PCC_1D_LocalSpace::MapValues(const FEM_PCC_1D_LocalSpace_Data &local_space, const Eigen::MatrixXd &referenceValues) const
 {
-  Eigen::MatrixXd basisFunctionValuesOrdered(referenceValues.rows(), local_space.NumberOfBasisFunctions);
+    Eigen::MatrixXd basisFunctionValuesOrdered(referenceValues.rows(), local_space.NumberOfBasisFunctions);
 
-  for (unsigned int d = 0; d < local_space.NumberOfBasisFunctions; d++)
-      basisFunctionValuesOrdered.col(local_space.DofsMeshOrder.at(d)) << referenceValues.col(d);
+    for (unsigned int d = 0; d < local_space.NumberOfBasisFunctions; d++)
+        basisFunctionValuesOrdered.col(local_space.DofsMeshOrder.at(d)) << referenceValues.col(d);
 
-  return basisFunctionValuesOrdered;
+    return basisFunctionValuesOrdered;
 }
 // ***************************************************************************
-std::vector<MatrixXd> FEM_PCC_1D_LocalSpace::MapDerivativeValues(const FEM_PCC_1D_LocalSpace_Data& local_space, const std::vector<Eigen::MatrixXd>& referenceDerivateValues) const
+std::vector<MatrixXd> FEM_PCC_1D_LocalSpace::MapDerivativeValues(const FEM_PCC_1D_LocalSpace_Data &local_space,
+                                                                 const std::vector<Eigen::MatrixXd> &referenceDerivateValues) const
 {
-  std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValues(1);
+    std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValues(1);
 
-  basisFunctionsDerivativeValues[0] = referenceDerivateValues[0] / local_space.MapData.Length;
+    basisFunctionsDerivativeValues[0] = referenceDerivateValues[0] / local_space.MapData.Length;
 
-  std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValuesOrdered(
-      1,
-      Eigen::MatrixXd(referenceDerivateValues.at(0).rows(), local_space.NumberOfBasisFunctions));
+    std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValuesOrdered(
+        1,
+        Eigen::MatrixXd(referenceDerivateValues.at(0).rows(), local_space.NumberOfBasisFunctions));
 
-  for (unsigned int d = 0; d < local_space.NumberOfBasisFunctions; d++)
-  {
-      const unsigned int &dofOrder = local_space.DofsMeshOrder.at(d);
-      basisFunctionsDerivativeValuesOrdered.at(0).col(dofOrder) << basisFunctionsDerivativeValues.at(0).col(d);
-  }
+    for (unsigned int d = 0; d < local_space.NumberOfBasisFunctions; d++)
+    {
+        const unsigned int &dofOrder = local_space.DofsMeshOrder.at(d);
+        basisFunctionsDerivativeValuesOrdered.at(0).col(dofOrder) << basisFunctionsDerivativeValues.at(0).col(d);
+    }
 
-  return basisFunctionsDerivativeValuesOrdered;
+    return basisFunctionsDerivativeValuesOrdered;
 }
 // ***************************************************************************
 Gedim::Quadrature::QuadratureData FEM_PCC_1D_LocalSpace::InternalQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,
                                                                             const FEM_PCC_1D_LocalSpace_Data::SegmentMapData &mapData) const
 {
-  Gedim::Quadrature::QuadratureData quadrature;
+    Gedim::Quadrature::QuadratureData quadrature;
 
-  quadrature.Points = F(mapData, reference_quadrature.Points);
+    quadrature.Points = F(mapData, reference_quadrature.Points);
     quadrature.Weights = reference_quadrature.Weights.array() * DetJ(mapData, reference_quadrature.Points).array().abs();
 
     return quadrature;

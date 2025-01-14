@@ -271,7 +271,7 @@ Eigen::MatrixXd BasisFunctionsValuesOnFace(const unsigned int &face_local_index,
                                            const LocalSpace_Data &local_space_data,
                                            const Eigen::MatrixXd &quadrature_points)
 {
-  // basis function of face including vertices, edges and face evaluated in quadrature_points
+    // basis function of face including vertices, edges and face evaluated in quadrature_points
     switch (reference_element_data.Method_Type)
     {
     case Program_configuration::MethodTypes::FEM_Tetrahedron_PCC: {
@@ -302,12 +302,8 @@ Gedim::Quadrature::QuadratureData FaceDofsCoordinates(const ReferenceElement_Dat
         const unsigned int cell2DEndingLocalIdex = local_space_data.FEM_LocalSpace_Data.Dof2DsIndex.at(face_local_index + 1);
         const unsigned int num_face_dofs = cell2DEndingLocalIdex - cell2DStartingLocalIdex;
 
-            face_dofs_coordinates.Points = (num_face_dofs == 0) ?
-                                             Eigen::MatrixXd(0, 0) :
-                                             dof_coordinates.block(0,
-                                                                   cell2DStartingLocalIdex,
-                                                                   3,
-                                                                   num_face_dofs);
+        face_dofs_coordinates.Points =
+            (num_face_dofs == 0) ? Eigen::MatrixXd(0, 0) : dof_coordinates.block(0, cell2DStartingLocalIdex, 3, num_face_dofs);
 
         return face_dofs_coordinates;
     }

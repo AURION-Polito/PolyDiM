@@ -73,9 +73,7 @@ MatrixXd VEM_PCC_Utilities<dimension>::ComputeValuesOnEdge(const Eigen::RowVecto
 {
     VectorXd interpolation_points_x(order + 1);
     interpolation_points_x << 0.0, 1.0, edgeInternalPoints.transpose();
-    return Interpolation::Lagrange::Lagrange_1D_values(interpolation_points_x,
-                                                       edgeBasisCoefficients,
-                                                       pointsCurvilinearCoordinates);
+    return Interpolation::Lagrange::Lagrange_1D_values(interpolation_points_x, edgeBasisCoefficients, pointsCurvilinearCoordinates);
 }
 //****************************************************************************
 } // namespace PCC
