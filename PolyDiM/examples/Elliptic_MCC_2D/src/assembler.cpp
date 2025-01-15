@@ -30,9 +30,6 @@ void Assembler::ComputeStrongTerm(const unsigned int &cell2DIndex,
                                   const test::I_Test &test,
                                   Elliptic_MCC_2D_Problem_Data &assembler_data) const
 {
-    if (count_dofs.num_total_strong == 0)
-        return;
-
     for (unsigned int e = 0; e < mesh.Cell2DNumberEdges(cell2DIndex); e++)
     {
         const unsigned int cell1D_index = mesh.Cell2DEdge(cell2DIndex, e);
@@ -81,9 +78,6 @@ void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
                                 const test::I_Test &test,
                                 Elliptic_MCC_2D_Problem_Data &assembler_data) const
 {
-    if (count_dofs.num_total_boundary_dofs == 0)
-        return;
-
     for (unsigned int e = 0; e < mesh.Cell2DNumberEdges(cell2DIndex); e++)
     {
         const unsigned int cell1D_index = mesh.Cell2DEdge(cell2DIndex, e);

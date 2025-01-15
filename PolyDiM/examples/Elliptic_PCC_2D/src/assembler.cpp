@@ -21,9 +21,6 @@ void Assembler::ComputeStrongTerm(const unsigned int cell2D_index,
                                   const test::I_Test &test,
                                   Elliptic_PCC_2D_Problem_Data &assembler_data) const
 {
-    if (dofs_data.NumberStrongs == 0)
-        return;
-
     // Assemble strong boundary condition on Cell0Ds
     for (unsigned int v = 0; v < mesh.Cell2DNumberVertices(cell2D_index); ++v)
     {
@@ -106,9 +103,6 @@ void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
                                 const Polydim::examples::Elliptic_PCC_2D::test::I_Test &test,
                                 Elliptic_PCC_2D_Problem_Data &assembler_data) const
 {
-    if (dofs_data.NumberBoundaryDOFs == 0)
-        return;
-
     const unsigned numVertices = mesh_geometric_data.Cell2DsVertices.at(cell2DIndex).cols();
 
     for (unsigned int ed = 0; ed < numVertices; ed++)
