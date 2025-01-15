@@ -17,6 +17,8 @@ std::unique_ptr<Polydim::examples::Elastic_PCC_2D::test::I_Test> create_test(con
     {
     case Polydim::examples::Elastic_PCC_2D::test::Test_Types::Patch_Test:
         return std::make_unique<Polydim::examples::Elastic_PCC_2D::test::Patch_Test>();
+    case Polydim::examples::Elastic_PCC_2D::test::Test_Types::LinearElasticity:
+        return std::make_unique<Polydim::examples::Elastic_PCC_2D::test::LinearElasticity>();
     default:
         throw runtime_error("Test type " + to_string((unsigned int)config.TestType()) + " not supported");
     }
@@ -162,10 +164,33 @@ void export_solution(const Polydim::examples::Elastic_PCC_2D::Program_configurat
     }
 
     {
-        Eigen::MatrixXd coorinates = mesh.Cell0DsCoordinates();
+        Eigen::MatrixXd coordinates = mesh.Cell0DsCoordinates();
+        for (unsigned int d = 0; d < 2; d++)
+            coordinates.row(d) += post_process_data.cell0Ds_exact_displacement[d];
 
         Gedim::VTKUtilities exporter;
-        exporter.AddPolygons(coorinates,
+        exporter.AddPolygons(coordinates,
+                             mesh.Cell2DsVertices(),
+                             {{"Exact Displacement - X",
+                               Gedim::VTPProperty::Formats::Points,
+                               static_cast<unsigned int>(post_process_data.cell0Ds_exact_displacement[0].size()),
+                               post_process_data.cell0Ds_exact_displacement[0].data()},
+                              {"Exact Displacement - Y",
+                               Gedim::VTPProperty::Formats::Points,
+                               static_cast<unsigned int>(post_process_data.cell0Ds_exact_displacement[1].size()),
+                               post_process_data.cell0Ds_exact_displacement[1].data()}});
+
+        exporter.Export(exportVtuFolder + "/Exact_Solution_" + to_string(TEST_ID) + "_" + to_string(Method_ID) + +"_" +
+                        to_string(config.MethodOrder()) + ".vtu");
+    }
+
+    {
+        Eigen::MatrixXd coordinates = mesh.Cell0DsCoordinates();
+        for (unsigned int d = 0; d < 2; d++)
+            coordinates.row(d) += post_process_data.cell0Ds_numeric_displacement[d];
+
+        Gedim::VTKUtilities exporter;
+        exporter.AddPolygons(coordinates,
                              mesh.Cell2DsVertices(),
                              {{"Numeric Displacement - X",
                                Gedim::VTPProperty::Formats::Points,
@@ -175,14 +200,6 @@ void export_solution(const Polydim::examples::Elastic_PCC_2D::Program_configurat
                                Gedim::VTPProperty::Formats::Points,
                                static_cast<unsigned int>(post_process_data.cell0Ds_numeric_displacement[1].size()),
                                post_process_data.cell0Ds_numeric_displacement[1].data()},
-                              {"Exact Displacement - X",
-                               Gedim::VTPProperty::Formats::Points,
-                               static_cast<unsigned int>(post_process_data.cell0Ds_exact_displacement[0].size()),
-                               post_process_data.cell0Ds_exact_displacement[0].data()},
-                              {"Exact Displacement - Y",
-                               Gedim::VTPProperty::Formats::Points,
-                               static_cast<unsigned int>(post_process_data.cell0Ds_exact_displacement[1].size()),
-                               post_process_data.cell0Ds_exact_displacement[1].data()},
                               {"ErrorL2",
                                Gedim::VTPProperty::Formats::Cells,
                                static_cast<unsigned int>(post_process_data.cell2Ds_error_L2.size()),
@@ -192,8 +209,8 @@ void export_solution(const Polydim::examples::Elastic_PCC_2D::Program_configurat
                                static_cast<unsigned int>(post_process_data.cell2Ds_error_H1.size()),
                                post_process_data.cell2Ds_error_H1.data()}});
 
-        exporter.Export(exportVtuFolder + "/Solution_" + to_string(TEST_ID) + "_" + to_string(Method_ID) + +"_" +
-                        to_string(config.MethodOrder()) + ".vtu");
+        exporter.Export(exportVtuFolder + "/Numeric_Solution_" + to_string(TEST_ID) + "_" + to_string(Method_ID) +
+                        +"_" + to_string(config.MethodOrder()) + ".vtu");
     }
 }
 // ***************************************************************************

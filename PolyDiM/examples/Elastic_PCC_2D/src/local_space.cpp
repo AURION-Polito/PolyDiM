@@ -70,7 +70,9 @@ LocalSpace_Data CreateLocalSpace(const Polydim::examples::Elastic_PCC_2D::Progra
         local_space_data.FEM_Geometry = {config.GeometricTolerance1D(),
                                          config.GeometricTolerance2D(),
                                          mesh_geometric_data.Cell2DsVertices.at(cell2D_index),
-                                         mesh_geometric_data.Cell2DsEdgeDirections.at(cell2D_index)};
+                                         mesh_geometric_data.Cell2DsEdgeDirections.at(cell2D_index),
+                                         mesh_geometric_data.Cell2DsEdgeTangents.at(cell2D_index),
+                                         mesh_geometric_data.Cell2DsEdgeLengths.at(cell2D_index)};
 
         local_space_data.FEM_LocalSpace_Data =
             reference_element_data.FEM_LocalSpace->CreateLocalSpace(reference_element_data.FEM_ReferenceElement_Data,
