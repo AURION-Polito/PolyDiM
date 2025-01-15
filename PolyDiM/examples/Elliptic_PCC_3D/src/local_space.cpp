@@ -19,8 +19,6 @@ ReferenceElement_Data CreateReferenceElement(const Program_configuration::Method
     switch (reference_element_data.Method_Type)
     {
     case Program_configuration::MethodTypes::FEM_Tetrahedron_PCC: {
-        reference_element_data.FEM_ReferenceElement_2D = std::make_unique<FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement>();
-        reference_element_data.FEM_ReferenceElement_Data_2D = reference_element_data.FEM_ReferenceElement_2D->Create(method_order);
         reference_element_data.FEM_ReferenceElement_3D = std::make_unique<FEM::PCC::FEM_Tetrahedron_PCC_3D_ReferenceElement>();
         reference_element_data.FEM_ReferenceElement_Data_3D = reference_element_data.FEM_ReferenceElement_3D->Create(method_order);
         reference_element_data.FEM_LocalSpace = std::make_unique<FEM::PCC::FEM_Tetrahedron_PCC_3D_LocalSpace>();
@@ -277,6 +275,7 @@ Eigen::MatrixXd BasisFunctionsValuesOnFace(const unsigned int &face_local_index,
     switch (reference_element_data.Method_Type)
     {
     case Program_configuration::MethodTypes::FEM_Tetrahedron_PCC: {
+        return reference_element_data.FEM_LocalSpace->ComputeBasisFunctionsValuesOnFace(reference_element_data.FEM_ReferenceElement_Data_3D);
     }
     case Program_configuration::MethodTypes::VEM_PCC:
     case Program_configuration::MethodTypes::VEM_PCC_Inertia:

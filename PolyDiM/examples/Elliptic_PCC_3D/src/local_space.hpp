@@ -30,8 +30,6 @@ struct ReferenceElement_Data final
     VEM::PCC::VEM_PCC_3D_LocalSpace_Types VEM_Type;
     std::unique_ptr<VEM::PCC::I_VEM_PCC_3D_LocalSpace> VEM_LocalSpace;
 
-    std::unique_ptr<Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement> FEM_ReferenceElement_2D;
-    Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement_Data FEM_ReferenceElement_Data_2D;
     std::unique_ptr<Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_ReferenceElement> FEM_ReferenceElement_3D;
     Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_ReferenceElement_Data FEM_ReferenceElement_Data_3D;
     std::unique_ptr<FEM::PCC::FEM_Tetrahedron_PCC_3D_LocalSpace> FEM_LocalSpace;

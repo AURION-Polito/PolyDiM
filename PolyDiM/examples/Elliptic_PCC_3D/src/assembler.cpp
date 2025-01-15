@@ -19,9 +19,6 @@ void Assembler::ComputeStrongTerm(const unsigned int &cell3DIndex,
                                   const test::I_Test &test,
                                   Elliptic_PCC_3D_Problem_Data &assembler_data) const
 {
-    if (dofs_data.NumberStrongs == 0)
-        return;
-
     // Assemble strong boundary condition on Cell0Ds
     for (unsigned int p = 0; p < mesh.Cell3DNumberVertices(cell3DIndex); ++p)
     {
@@ -71,6 +68,11 @@ void Assembler::ComputeStrongTerm(const unsigned int &cell3DIndex,
             continue;
 
         const auto edge_dofs_coordinates = local_space::EdgeDofsCoordinates(reference_element_data, local_space_data, e);
+
+        const Eigen::VectorXd edge_barycenter = 0.5 * (mesh.Cell1DOriginCoordinates(cell1D_index) +
+                                                       mesh.Cell1DEndCoordinates(cell1D_index));
+
+        assert((edge_barycenter - edge_dofs_coordinates).norm() < 1.0e-15 * edge_barycenter.norm());
 
         const auto strong_boundary_values = test.strong_boundary_condition(boundary_info.Marker, edge_dofs_coordinates);
 
@@ -146,9 +148,6 @@ void Assembler::ComputeWeakTerm(const unsigned int cell3DIndex,
                                 const Polydim::examples::Elliptic_PCC_3D::test::I_Test &test,
                                 Elliptic_PCC_3D_Problem_Data &assembler_data) const
 {
-    if (dofs_data.NumberBoundaryDOFs == 0)
-        return;
-
     // Assemble strong boundary condition on Cell2Ds
     unsigned int quadraturePointOffset = 0;
     for (unsigned int f = 0; f < mesh.Cell3DNumberFaces(cell3DIndex); f++)
