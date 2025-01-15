@@ -136,6 +136,8 @@ namespace Polydim
         localSpace.Dofs = MapValues(localSpace, Gedim::MapTetrahedron::F(localSpace.MapData, reference_element_data.DofPositions));
 
         localSpace.InternalQuadrature = InternalQuadrature(reference_element_data.ReferenceTetrahedronQuadrature, localSpace.MapData);
+        localSpace.BoundaryQuadrature = BoundaryQuadrature(reference_element_data.BoundaryReferenceElement_Data.ReferenceTriangleQuadrature,
+                                                           polyhedron);
 
         return localSpace;
       }
@@ -194,6 +196,27 @@ namespace Polydim
                              Gedim::MapTetrahedron::DetJ(mapData, reference_quadrature.Points).array().abs();
 
         return quadrature;
+      }
+// ***************************************************************************
+      std::vector<Gedim::Quadrature::QuadratureData> FEM_Tetrahedron_PCC_3D_LocalSpace::BoundaryQuadrature(const Gedim::Quadrature::QuadratureData& reference_quadrature,
+                                                                                                           const FEM_Tetrahedron_PCC_3D_Polyhedron_Geometry& polyhedron) const
+      {
+        const unsigned int num_faces = polyhedron.Faces.size();
+        std::vector<Gedim::Quadrature::QuadratureData> faces_quadrature(num_faces);
+
+        for (unsigned int f = 0; f < num_faces; ++f)
+        {
+            auto &face_quadrature = faces_quadrature.at(f);
+
+            const double face_area = polyhedron.FacesArea[f];
+            const Eigen::Vector3d& face_translation = polyhedron.FacesTranslation[f];
+            const Eigen::Matrix3d& face_rotation = polyhedron.FacesRotationMatrix[f];
+
+            face_quadrature.Points = (face_rotation * reference_quadrature.Points).colwise() + face_translation;
+            face_quadrature.Weights = reference_quadrature.Weights * std::abs(face_area);
+        }
+
+        return faces_quadrature;
       }
       // ***************************************************************************
     } // namespace PCC

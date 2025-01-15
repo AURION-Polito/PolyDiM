@@ -246,7 +246,7 @@ Gedim::Quadrature::QuadratureData FaceQuadrature(const ReferenceElement_Data &re
     switch (reference_element_data.Method_Type)
     {
     case Program_configuration::MethodTypes::FEM_Tetrahedron_PCC: {
-        throw runtime_error("not valid method");
+        return local_space_data.FEM_LocalSpace_Data.BoundaryQuadrature.at(face_local_index);
     }
     case Program_configuration::MethodTypes::VEM_PCC:
     case Program_configuration::MethodTypes::VEM_PCC_Inertia:
