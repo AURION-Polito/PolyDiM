@@ -27,10 +27,6 @@ void Assembler::ComputeStrongTerm(const unsigned int &cell3DIndex,
                                   const test::I_Test &test,
                                   Stokes_DF_PCC_3D_Problem_Data &assembler_data) const
 {
-
-    if (count_dofs.num_total_strong == 0)
-        return;
-
     // Assemble strong boundary condition on Cell0Ds
     for (unsigned int h = 0; h < 3; h++)
     {

@@ -18,9 +18,6 @@ void Assembler::ComputeStrongTerm(const Gedim::MeshMatricesDAO &mesh,
                                   const Polydim::examples::Elliptic_PCC_1D::test::I_Test &test,
                                   Elliptic_PCC_1D_Problem_Data &assembler_data) const
 {
-    if (dofs_data.NumberStrongs == 0)
-        return;
-
     // Assemble strong boundary condition on Cell0Ds
     for (unsigned int p = 0; p < mesh.Cell0DTotalNumber(); ++p)
     {
@@ -65,9 +62,6 @@ void Assembler::ComputeWeakTerm(const unsigned int cell1DIndex,
                                 const Polydim::examples::Elliptic_PCC_1D::test::I_Test &test,
                                 Elliptic_PCC_1D_Problem_Data &assembler_data) const
 {
-    if (dofs_data.NumberBoundaryDOFs == 0)
-        return;
-
     for (unsigned int p = 0; p < 2; ++p)
     {
         const unsigned int cell0D_index = mesh.Cell1DVertex(cell1DIndex, p);

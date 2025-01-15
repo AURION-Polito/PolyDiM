@@ -22,9 +22,6 @@ void Assembler::ComputeStrongTerm(const unsigned int cell2D_index,
                                   const test::I_Test &test,
                                   Elastic_PCC_2D_Problem_Data &assembler_data) const
 {
-    if (count_dofs.num_total_strong == 0)
-        return;
-
     // Assemble strong boundary condition on Cell0Ds
     for (unsigned int v = 0; v < mesh.Cell2DNumberVertices(cell2D_index); ++v)
     {
@@ -116,11 +113,6 @@ void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
                                 const Polydim::examples::Elastic_PCC_2D::test::I_Test &test,
                                 Elastic_PCC_2D_Problem_Data &assembler_data) const
 {
-    if (count_dofs.num_total_boundary_dofs == 0)
-        return;
-
-    throw std::runtime_error("not implemented method");
-
     const unsigned numVertices = mesh_geometric_data.Cell2DsVertices.at(cell2DIndex).cols();
 
     for (unsigned int ed = 0; ed < numVertices; ed++)
@@ -354,10 +346,19 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
 
     for (unsigned int p = 0; p < mesh.Cell0DTotalNumber(); p++)
     {
-        const auto exact_displacement = test.exact_displacement(mesh.Cell0DCoordinates(p));
 
-        for (unsigned int d = 0; d < reference_element_data.Dimension; d++)
-            result.cell0Ds_exact_displacement[d](p) = exact_displacement[d](0);
+        try
+        {
+            const auto exact_displacement = test.exact_displacement(mesh.Cell0DCoordinates(p));
+
+            for (unsigned int d = 0; d < reference_element_data.Dimension; d++)
+                result.cell0Ds_exact_displacement[d](p) = exact_displacement[d](0);
+        }
+        catch (...)
+        {
+            for (unsigned int d = 0; d < reference_element_data.Dimension; d++)
+                result.cell0Ds_exact_displacement[d](p) = std::nan("");
+        }
 
         for (unsigned int d = 0; d < reference_element_data.Dimension; d++)
         {
@@ -401,9 +402,6 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
 
         const auto cell2D_internal_quadrature = local_space::InternalQuadrature(reference_element_data, local_space_data);
 
-        const auto exact_solution_values = test.exact_displacement(cell2D_internal_quadrature.Points);
-        const auto exact_derivative_displacement_values = test.exact_derivatives_displacement(cell2D_internal_quadrature.Points);
-
         const auto local_count_dofs =
             Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, {std::cref(dofs_data), std::cref(dofs_data)});
 
@@ -422,32 +420,61 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
         Eigen::VectorXd local_norm_L2_displacement = Eigen::VectorXd::Zero(numQuadraturePoints);
         Eigen::VectorXd local_error_H1_displacement = Eigen::VectorXd::Zero(numQuadraturePoints);
         Eigen::VectorXd local_norm_H1_displacement = Eigen::VectorXd::Zero(numQuadraturePoints);
-        for (unsigned int d1 = 0; d1 < reference_element_data.Dimension; d1++)
+
+        try
         {
-            local_error_L2_displacement.array() +=
-                (basis_functions_values[d1] * dofs_values - exact_solution_values[d1]).array().square();
-            local_norm_L2_displacement.array() += (basis_functions_values[d1] * dofs_values).array().square();
+            const auto exact_solution_values = test.exact_displacement(cell2D_internal_quadrature.Points);
+            const auto exact_derivative_displacement_values =
+                test.exact_derivatives_displacement(cell2D_internal_quadrature.Points);
 
-            for (unsigned int d2 = 0; d2 < reference_element_data.Dimension; d2++)
+            for (unsigned int d1 = 0; d1 < reference_element_data.Dimension; d1++)
             {
-                local_error_H1_displacement.array() +=
-                    (basis_functions_derivative_values[reference_element_data.Dimension * d1 + d2] * dofs_values -
-                     exact_derivative_displacement_values[3 * d1 + d2])
-                        .array()
-                        .square();
+                local_error_L2_displacement.array() +=
+                    (basis_functions_values[d1] * dofs_values - exact_solution_values[d1]).array().square();
+                local_norm_L2_displacement.array() += (basis_functions_values[d1] * dofs_values).array().square();
 
-                local_norm_H1_displacement.array() +=
-                    (basis_functions_derivative_values[reference_element_data.Dimension * d1 + d2] * dofs_values)
-                        .array()
-                        .square();
+                for (unsigned int d2 = 0; d2 < reference_element_data.Dimension; d2++)
+                {
+                    local_error_H1_displacement.array() +=
+                        (basis_functions_derivative_values[reference_element_data.Dimension * d1 + d2] * dofs_values -
+                         exact_derivative_displacement_values[3 * d1 + d2])
+                            .array()
+                            .square();
+
+                    local_norm_H1_displacement.array() +=
+                        (basis_functions_derivative_values[reference_element_data.Dimension * d1 + d2] * dofs_values)
+                            .array()
+                            .square();
+                }
             }
+
+            result.cell2Ds_error_L2[c] = cell2D_internal_quadrature.Weights.transpose() * local_error_L2_displacement;
+            result.cell2Ds_norm_L2[c] = cell2D_internal_quadrature.Weights.transpose() * local_norm_L2_displacement;
+
+            result.cell2Ds_error_H1[c] = cell2D_internal_quadrature.Weights.transpose() * local_error_H1_displacement;
+            result.cell2Ds_norm_H1[c] = cell2D_internal_quadrature.Weights.transpose() * local_norm_H1_displacement;
         }
+        catch (...)
+        {
 
-        result.cell2Ds_error_L2[c] = cell2D_internal_quadrature.Weights.transpose() * local_error_L2_displacement;
-        result.cell2Ds_norm_L2[c] = cell2D_internal_quadrature.Weights.transpose() * local_norm_L2_displacement;
+            for (unsigned int d1 = 0; d1 < reference_element_data.Dimension; d1++)
+            {
 
-        result.cell2Ds_error_H1[c] = cell2D_internal_quadrature.Weights.transpose() * local_error_H1_displacement;
-        result.cell2Ds_norm_H1[c] = cell2D_internal_quadrature.Weights.transpose() * local_norm_H1_displacement;
+                local_norm_L2_displacement.array() += (basis_functions_values[d1] * dofs_values).array().square();
+
+                for (unsigned int d2 = 0; d2 < reference_element_data.Dimension; d2++)
+                    local_norm_H1_displacement.array() +=
+                        (basis_functions_derivative_values[reference_element_data.Dimension * d1 + d2] * dofs_values)
+                            .array()
+                            .square();
+            }
+
+            result.cell2Ds_error_L2[c] = std::nan("");
+            result.cell2Ds_norm_L2[c] = cell2D_internal_quadrature.Weights.transpose() * local_norm_L2_displacement;
+
+            result.cell2Ds_error_H1[c] = std::nan("");
+            result.cell2Ds_norm_H1[c] = cell2D_internal_quadrature.Weights.transpose() * local_norm_H1_displacement;
+        }
 
         if (mesh_geometric_data.Cell2DsDiameters.at(c) > result.mesh_size)
             result.mesh_size = mesh_geometric_data.Cell2DsDiameters.at(c);
