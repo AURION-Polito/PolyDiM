@@ -241,6 +241,12 @@ Assembler::Elastic_PCC_2D_Problem_Data Assembler::Assemble(const Polydim::exampl
         const auto basis_functions_derivative_values =
             local_space::BasisFunctionsDerivativeValues(reference_element_data, local_space_data);
 
+        std::vector<Eigen::MatrixXd> symmetric_gardient(4);
+        for (unsigned int d1 = 0; d1 < 2; d1++)
+            for (unsigned int d2 = 0; d2 < 2; d2++)
+                symmetric_gardient[2 * d1 + d2] =
+                    0.5 * (basis_functions_derivative_values[2 * d1 + d2] + basis_functions_derivative_values[2 * d2 + d1]);
+
         const auto cell2D_internal_quadrature = local_space::InternalQuadrature(reference_element_data, local_space_data);
 
         const auto lame_coefficients_values = test.lame_coefficients(cell2D_internal_quadrature.Points);
@@ -251,7 +257,7 @@ Assembler::Elastic_PCC_2D_Problem_Data Assembler::Assemble(const Polydim::exampl
 
         const Eigen::MatrixXd local_A =
             2.0 * equation.ComputeCellDiffusionMatrix(lame_coefficients_values[0],
-                                                      basis_functions_derivative_values,
+                                                      symmetric_gardient,
                                                       cell2D_internal_quadrature.Weights) +
             equation.ComputeCellReactionMatrix(lame_coefficients_values[1],
                                                basis_functions_derivative_values[0] + basis_functions_derivative_values[3],

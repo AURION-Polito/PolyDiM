@@ -186,17 +186,19 @@ struct LinearElasticity final : public I_Test
 
     std::array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd &points) const
     {
-        const double E = 7675.0;
-        const double nu = 0.3;
-        const double mu = E / (2.0 * (1.0 + nu));
-        const double lambda = E * nu / ((1.0 + nu) * (1.0 - 2.0 * nu));
+        const double mu = 1.5;
+        const double lambda = 3.0;
 
-        return {2.0 * (lambda + 2.0 * mu) * points.row(1).array() * (1.0 - points.row(1).array()) -
-                    5.0 * (lambda + mu) * (1.0 - 2.0 * points.row(0).array()) * (1.0 - 2.0 * points.row(1).array()) +
-                    2.0 * mu * points.row(0).array() * (1.0 - points.row(0).array()),
-                10.0 * (lambda + 2.0 * mu) * points.row(0).array() * (1.0 - points.row(0).array()) -
-                    (lambda + mu) * (1.0 - 2.0 * points.row(0).array()) * (1.0 - 2.0 * points.row(1).array()) +
-                    10.0 * mu * points.row(1).array() * (1.0 - points.row(1).array()),
+        const Eigen::VectorXd u_1_xx = -32.0 * points.row(1).array() * (1.0 - points.row(1).array());
+        const Eigen::VectorXd u_1_xy = 16.0 * (1.0 - 2.0 * points.row(1).array()) * (1.0 - 2.0 * points.row(0).array());
+        const Eigen::VectorXd u_1_yy = -32.0 * points.row(0).array() * (1.0 - points.row(0).array());
+
+        const Eigen::VectorXd u_2_xx = 5.0 * u_1_xx;
+        const Eigen::VectorXd u_2_xy = 5.0 * u_1_xy;
+        const Eigen::VectorXd u_2_yy = 5.0 * u_1_yy;
+
+        return {-(2.0 * mu * (u_1_xx + 0.5 * (u_1_yy + u_2_xy)) + lambda * (u_1_xx + u_2_xy)),
+                -(2.0 * mu * (0.5 * (u_1_xy + u_2_xx) + u_2_yy) + lambda * (u_1_xy + u_2_yy)),
                 Eigen::VectorXd::Zero(points.cols())};
     };
 
@@ -205,9 +207,9 @@ struct LinearElasticity final : public I_Test
         if (marker != 1)
             throw std::runtime_error("Unknown marker");
 
-        const Eigen::VectorXd g =
-            points.row(0).array() * (1.0 - points.row(0).array()) * points.row(1).array() * (1.0 - points.row(1).array());
-
+        const Eigen::VectorXd g = 16.0 * points.row(0).array() * (1.0 - points.row(0).array()) * points.row(1).array() *
+                                      (1.0 - points.row(1).array()) +
+                                  1.1;
         return {g, 5.0 * g, Eigen::VectorXd::Zero(points.cols())};
     }
 
@@ -222,28 +224,27 @@ struct LinearElasticity final : public I_Test
 
     std::array<Eigen::VectorXd, 2> lame_coefficients(const Eigen::MatrixXd &points) const
     {
-        const double E = 7675.0;
-        const double nu = 0.3;
-        const double mu = E / (2.0 * (1.0 + nu));
-        const double lambda = E * nu / ((1.0 + nu) * (1.0 - 2.0 * nu));
+        const double mu = 1.5;
+        const double lambda = 3.0;
         return {Eigen::ArrayXd::Constant(points.cols(), mu), Eigen::ArrayXd::Constant(points.cols(), lambda)};
     }
 
     std::array<Eigen::VectorXd, 3> exact_displacement(const Eigen::MatrixXd &points) const
     {
-        const Eigen::VectorXd g =
-            points.row(0).array() * (1.0 - points.row(0).array()) * points.row(1).array() * (1.0 - points.row(1).array());
+        const Eigen::VectorXd g = 16.0 * points.row(0).array() * (1.0 - points.row(0).array()) * points.row(1).array() *
+                                      (1.0 - points.row(1).array()) +
+                                  1.1;
 
         return {g, 5.0 * g, Eigen::VectorXd::Zero(points.cols())};
     }
 
     std::array<Eigen::VectorXd, 9> exact_derivatives_displacement(const Eigen::MatrixXd &points) const
     {
-        return {(1.0 - 2.0 * points.row(0).array()) * points.row(1).array() * (1.0 - points.row(1).array()),
-                (1.0 - 2.0 * points.row(1).array()) * points.row(0).array() * (1.0 - points.row(0).array()),
+        return {16.0 * (1.0 - 2.0 * points.row(0).array()) * points.row(1).array() * (1.0 - points.row(1).array()),
+                16.0 * (1.0 - 2.0 * points.row(1).array()) * points.row(0).array() * (1.0 - points.row(0).array()),
                 Eigen::VectorXd::Zero(points.cols()),
-                5.0 * (1.0 - 2.0 * points.row(0).array()) * points.row(1).array() * (1.0 - points.row(1).array()),
-                5.0 * (1.0 - 2.0 * points.row(1).array()) * points.row(0).array() * (1.0 - points.row(0).array()),
+                5.0 * 16.0 * (1.0 - 2.0 * points.row(0).array()) * points.row(1).array() * (1.0 - points.row(1).array()),
+                5.0 * 16.0 * (1.0 - 2.0 * points.row(1).array()) * points.row(0).array() * (1.0 - points.row(0).array()),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
