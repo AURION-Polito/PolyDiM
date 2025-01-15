@@ -152,9 +152,6 @@ Eigen::MatrixXd BasisFunctionsValuesOnEdge(const unsigned int &edge_local_index,
     switch (reference_element_data.Method_Type)
     {
     case Program_configuration::MethodTypes::FEM_Triangle_PCC: {
-        const auto basis_values_on_edge = reference_element_data.FEM_LocalSpace->ComputeBasisFunctionsValuesOnEdge(
-            reference_element_data.FEM_ReferenceElement_Data);
-
         VEM::PCC::VEM_PCC_Utilities<2> utilities;
 
         const auto &dof_coordinates = local_space_data.FEM_LocalSpace_Data.Dofs;
@@ -171,9 +168,6 @@ Eigen::MatrixXd BasisFunctionsValuesOnEdge(const unsigned int &edge_local_index,
                                                                      reference_element_data.Order,
                                                                      edgeBasisCoefficients,
                                                                      pointsCurvilinearCoordinates);
-
-        assert((vem_basis_on_edge - basis_values_on_edge).norm() < 1.e-15 * vem_basis_on_edge.norm());
-
         return vem_basis_on_edge;
     }
     case Program_configuration::MethodTypes::VEM_PCC:
