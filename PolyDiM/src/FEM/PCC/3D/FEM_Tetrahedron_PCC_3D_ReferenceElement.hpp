@@ -213,6 +213,36 @@ class FEM_Tetrahedron_PCC_3D_ReferenceElement final
             basis_functions_values.col(9) = 4.0 * lambda_functions.col(2).array() * lambda_functions.col(3).array();
             return basis_functions_values;
         }
+        case 3: {
+            Eigen::MatrixXd basis_functions_values = Eigen::MatrixXd::Zero(points.cols(), reference_element_data.NumBasisFunctions);
+
+            const Eigen::ArrayXd xyz = lambda_functions.col(0);
+            const Eigen::ArrayXd x = lambda_functions.col(1);
+            const Eigen::ArrayXd y = lambda_functions.col(2);
+            const Eigen::ArrayXd z = lambda_functions.col(3);
+
+            basis_functions_values.col(0) = 9.0 / 2.0 * xyz * (xyz - 1.0 / 3.0) * (xyz - 2.0 / 3.0);
+            basis_functions_values.col(1) = 9.0 / 2.0 * x * (x - 1.0 / 3.0) * (x - 2.0 / 3.0);
+            basis_functions_values.col(2) = 9.0 / 2.0 * y * (y - 1.0 / 3.0) * (y - 2.0 / 3.0);
+            basis_functions_values.col(3) = 9.0 / 2.0 * z * (z - 1.0 / 3.0) * (z - 2.0 / 3.0);
+            basis_functions_values.col(4) = 27.0 / 2.0 * x * xyz * (xyz - 1.0 / 3.0);
+            basis_functions_values.col(5) = 27.0 / 2.0 * x * xyz * (x - 1.0 / 3.0);
+            basis_functions_values.col(6) = 27.0 / 2.0 * y * x * (x - 1.0 / 3.0);
+            basis_functions_values.col(7) = 27.0 / 2.0 * x * y * (y - 1.0 / 3.0);
+            basis_functions_values.col(8) = 27.0 / 2.0 * y * (y - 1.0 / 3.0) * xyz;
+            basis_functions_values.col(9) = 27.0 / 2.0 * y * xyz * (xyz - 1.0 / 3.0);
+            basis_functions_values.col(10) = 27.0 / 2.0 * z * (xyz - 1.0 / 3.0) * xyz;
+            basis_functions_values.col(11) = 27.0 / 2.0 * z * xyz * (z - 1.0 / 3.0);
+            basis_functions_values.col(12) = 27.0 / 2.0 * x * z * (z - 1.0 / 3.0);
+            basis_functions_values.col(13) = 27.0 / 2.0 * z * x * (x - 1.0 / 3.0);
+            basis_functions_values.col(14) = 27.0 / 2.0 * y * z * (z - 1.0 / 3.0);
+            basis_functions_values.col(15) = 27.0 / 2.0 * z * y * (y - 1.0 / 3.0);
+            basis_functions_values.col(16) = 27.0 * x * y * xyz;
+            basis_functions_values.col(17) = 27.0 * x * z * xyz;
+            basis_functions_values.col(18) = 27.0 * y * z * xyz;
+            basis_functions_values.col(19) = 27.0 * x * y * z;
+            return basis_functions_values;
+        }
         default:
             throw std::runtime_error("order " + std::to_string(reference_element_data.Order) + "not supported yet");
         }
@@ -258,6 +288,69 @@ class FEM_Tetrahedron_PCC_3D_ReferenceElement final
             values[2].col(7) = -4.0 * lambda_functions.col(3).array() + 4.0 * lambda_functions.col(0).array();
             values[2].col(8) = 4.0 * lambda_functions.col(1).array();
             values[2].col(9) = 4.0 * lambda_functions.col(2).array();
+        }
+        break;
+        case 3: {
+            const Eigen::MatrixXd lambda_functions = 4.0 * EvaluateLambda(points);
+
+            const Eigen::ArrayXd xyz = lambda_functions.col(0);
+            const Eigen::ArrayXd x = lambda_functions.col(1);
+            const Eigen::ArrayXd y = lambda_functions.col(2);
+            const Eigen::ArrayXd z = lambda_functions.col(3);
+
+            values[0].col(0) = -9.0 / 2.0 * (xyz - 1.0 / 3.0) * (xyz - 2.0 / 3.0) -
+                               9.0 / 2.0 * xyz * (xyz - 2.0 / 3.0) - 9.0 / 2.0 * xyz * (xyz - 1.0 / 3.0);
+            values[0].col(1) = 9.0 / 2.0 * x * (3.0 * x - 2.0) + 1.0;
+            values[0].col(4) = 27.0 / 2.0 * xyz * (xyz - 1.0 / 3.0) - 27.0 / 2.0 * x * (xyz - 1.0 / 3.0) - 27.0 / 2.0 * x * xyz;
+            values[0].col(5) = 27.0 / 2.0 * xyz * (x - 1.0 / 3.0) + 27.0 / 2.0 * x * xyz - 27.0 / 2.0 * x * (x - 1.0 / 3.0);
+            values[0].col(6) = 27.0 / 2.0 * y * (x - 1.0 / 3.0) + 27.0 / 2.0 * y * x;
+            values[0].col(7) = 27.0 / 2.0 * y * (y - 1.0 / 3.0);
+            values[0].col(8) = -27.0 / 2.0 * y * (y - 1.0 / 3.0);
+            values[0].col(9) = -27.0 / 2.0 * y * (xyz - 1.0 / 3.0) - 27.0 / 2.0 * y * xyz;
+            values[0].col(10) = -27.0 / 2.0 * z * (xyz - 1.0 / 3.0) - 27.0 / 2.0 * z * xyz;
+            values[0].col(11) = -27.0 / 2.0 * z * (z - 1.0 / 3.0);
+            values[0].col(12) = 27.0 / 2.0 * z * (z - 1.0 / 3.0);
+            values[0].col(13) = 27.0 / 2.0 * z * (x - 1.0 / 3.0) + 27.0 / 2.0 * z * x;
+            values[0].col(16) = 27.0 * y * xyz - 27.0 * x * y;
+            values[0].col(17) = 27.0 * z * xyz - 27.0 * x * z;
+            values[0].col(18) = -27.0 * y * z;
+            values[0].col(19) = 27.0 * y * z;
+
+            values[1].col(0) = -9.0 / 2.0 * (xyz - 1.0 / 3.0) * (xyz - 2.0 / 3.0) -
+                               9.0 / 2.0 * xyz * (xyz - 2.0 / 3.0) - 9.0 / 2.0 * xyz * (xyz - 1.0 / 3.0);
+            values[1].col(2) = 9.0 / 2.0 * y * (3.0 * y - 2.0) + 1.0;
+            values[1].col(4) = -27.0 / 2.0 * x * (xyz - 1.0 / 3.0) - 27.0 / 2.0 * x * xyz;
+            values[1].col(5) = -27.0 / 2.0 * x * (x - 1.0 / 3.0);
+            values[1].col(6) = 27.0 / 2.0 * x * (x - 1.0 / 3.0);
+            values[1].col(7) = 27.0 / 2.0 * x * (y - 1.0 / 3.0) + 27.0 / 2.0 * x * y;
+            values[1].col(8) = 27.0 / 2.0 * (y - 1.0 / 3.0) * xyz + 27.0 / 2.0 * y * xyz - 27.0 / 2.0 * y * (y - 1.0 / 3.0);
+            values[1].col(9) = 27.0 / 2.0 * xyz * (xyz - 1.0 / 3.0) - 27.0 / 2.0 * y * (xyz - 1.0 / 3.0) - 27.0 / 2.0 * y * xyz;
+            values[1].col(10) = -27.0 / 2.0 * z * (xyz - 1.0 / 3.0) - 27.0 / 2.0 * z * xyz;
+            values[1].col(11) = -27.0 / 2.0 * z * (z - 1.0 / 3.0);
+            values[1].col(14) = 27.0 / 2.0 * z * (z - 1.0 / 3.0);
+            values[1].col(15) = 27.0 / 2.0 * z * (y - 1.0 / 3.0) + 27.0 / 2.0 * z * y;
+            values[1].col(16) = 27.0 * x * xyz - 27.0 * x * y;
+            values[1].col(17) = -27.0 * x * z;
+            values[1].col(18) = 27.0 * z * xyz - 27.0 * y * z;
+            values[1].col(19) = 27.0 * x * z;
+
+            values[2].col(0) = -9.0 / 2.0 * (xyz - 1.0 / 3.0) * (xyz - 2.0 / 3.0) -
+                               9.0 / 2.0 * xyz * (xyz - 2.0 / 3.0) - 9.0 / 2.0 * xyz * (xyz - 1.0 / 3.0);
+            values[2].col(3) = 9.0 / 2.0 * z * (3.0 * z - 2.0) + 1.0;
+            values[2].col(4) = -27.0 / 2.0 * x * (xyz - 1.0 / 3.0) - 27.0 / 2.0 * x * xyz;
+            values[2].col(5) = -27.0 / 2.0 * x * (x - 1.0 / 3.0);
+            values[2].col(8) = -27.0 / 2.0 * y * (y - 1.0 / 3.0);
+            values[2].col(9) = -27.0 / 2.0 * y * (xyz - 1.0 / 3.0) - 27.0 / 2.0 * y * xyz;
+            values[2].col(10) = 27.0 / 2.0 * (xyz - 1.0 / 3.0) * xyz - 27.0 / 2.0 * z * xyz - 27.0 / 2.0 * z * (xyz - 1.0 / 3.0);
+            values[2].col(11) = 27.0 / 2.0 * xyz * (z - 1.0 / 3.0) + 27.0 / 2.0 * z * xyz - 27.0 / 2.0 * z * (z - 1.0 / 3.0);
+            values[2].col(12) = 27.0 / 2.0 * x * (z - 1.0 / 3.0) + 27.0 / 2.0 * x * z;
+            values[2].col(13) = 27.0 / 2.0 * x * (x - 1.0 / 3.0);
+            values[2].col(14) = 27.0 / 2.0 * y * (z - 1.0 / 3.0) + 27.0 / 2.0 * y * z;
+            values[2].col(15) = 27.0 / 2.0 * y * (y - 1.0 / 3.0);
+            values[2].col(16) = -27.0 * x * y;
+            values[2].col(17) = 27.0 * x * xyz - 27.0 * x * z;
+            values[2].col(18) = 27.0 * y * xyz - 27.0 * y * z;
+            values[2].col(19) = 27.0 * x * y;
         }
         break;
         default:

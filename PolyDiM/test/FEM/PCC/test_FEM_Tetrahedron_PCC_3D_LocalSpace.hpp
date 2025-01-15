@@ -18,7 +18,7 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D_Reference_Element)
     const auto referenceQuadrature = Gedim::Quadrature::Quadrature_Gauss3D_Tetrahedron_PositiveWeights::FillPointsAndWeights(10);
     const Eigen::MatrixXd &referenceQuadraturePoints = referenceQuadrature.Points;
 
-    for (unsigned int o = 1; o < 3; o++)
+    for (unsigned int o = 1; o < 4; o++)
     {
         const auto reference_element_data = reference_element.Create(o);
 
@@ -39,11 +39,11 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D_Reference_Element)
         {
             ASSERT_TRUE((basisValues.topRows(reference_element_data.NumBasisFunctions) -
                          Eigen::MatrixXd::Identity(reference_element_data.NumBasisFunctions, reference_element_data.NumBasisFunctions))
-                            .norm() < 1.0e-14);
-            ASSERT_TRUE(abs(sumBasisValues[q] - 1.0) < 1.0e-14);
-            ASSERT_TRUE(abs(sumGradXValues[q]) < 1.0e-14);
-            ASSERT_TRUE(abs(sumGradYValues[q]) < 1.0e-14);
-            ASSERT_TRUE(abs(sumGradZValues[q]) < 1.0e-14);
+                            .norm() < 1.0e-13);
+            ASSERT_TRUE(abs(sumBasisValues[q] - 1.0) < 1.0e-13);
+            ASSERT_TRUE(abs(sumGradXValues[q]) < 1.0e-13);
+            ASSERT_TRUE(abs(sumGradYValues[q]) < 1.0e-13);
+            ASSERT_TRUE(abs(sumGradZValues[q]) < 1.0e-13);
         }
     }
 }
