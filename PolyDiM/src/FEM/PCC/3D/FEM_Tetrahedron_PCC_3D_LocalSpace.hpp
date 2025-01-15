@@ -29,9 +29,9 @@ struct FEM_Tetrahedron_PCC_3D_Polyhedron_Geometry final
 struct FEM_Tetrahedron_PCC_3D_LocalSpace_Data final
 {
     Gedim::MapTetrahedron::MapTetrahedronData MapData;
-    unsigned int Order;                                                ///< Order of the space
-    unsigned int NumberOfBasisFunctions;                               ///< Number of basis functions
-    Eigen::MatrixXd Dofs;                                              ///< DOFs geometric position
+    unsigned int Order;                  ///< Order of the space
+    unsigned int NumberOfBasisFunctions; ///< Number of basis functions
+    Eigen::MatrixXd Dofs;                ///< DOFs geometric position
     std::array<unsigned int, 6> polyhedron_to_reference_edge_index;
     std::array<unsigned int, 4> polyhedron_to_reference_face_index;
     std::vector<unsigned int> DofsMeshOrder;                           ///< DOFs position depending on element
@@ -60,7 +60,6 @@ class FEM_Tetrahedron_PCC_3D_LocalSpace final
                                                          const Gedim::MapTetrahedron::MapTetrahedronData &mapData) const;
     std::vector<Gedim::Quadrature::QuadratureData> BoundaryQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,
                                                                       const FEM_Tetrahedron_PCC_3D_Polyhedron_Geometry &polyhedron) const;
-
 
   public:
     FEM_Tetrahedron_PCC_3D_LocalSpace_Data CreateLocalSpace(const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,

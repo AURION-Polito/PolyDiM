@@ -27,19 +27,19 @@ def run_program(program_folder,
                                    vem_type,
                                    vem_order))
 
-    program_parameters = "VemType:uint={0}".format(vem_type)
-    program_parameters += " VemOrder:uint={0}".format(vem_order)
+    program_parameters = "MethodType:uint={0}".format(vem_type)
+    program_parameters += " MethodOrder:uint={0}".format(vem_order)
     program_parameters += " ExportFolder:string={0}".format(export_path)
     program_parameters += " TestType:uint={0}".format(test_type)
     program_parameters += " MeshGenerator:uint={0}".format(mesh_generator)
     program_parameters += " MeshMaxVolume:double={0}".format(mesh_max_volume)
-    program_parameters += " ComputeVEMPerformance:bool={0}".format(0)
+    program_parameters += " ComputeMethodPerformance:bool={0}".format(0)
 
     output_file = os.path.join(program_folder,
                                "terminal.log")
 
-    run_label = "VemType {0}".format(vem_type)
-    run_label += " VemOrder {0}".format(vem_order)
+    run_label = "MethodType {0}".format(vem_type)
+    run_label += " MethodOrder {0}".format(vem_order)
     run_label += " TestType {0}".format(test_type)
     run_label += " MeshGenerator {0}".format(mesh_generator)
     run_label += " MeshMaxVolume {0}".format(mesh_max_volume)
@@ -103,8 +103,7 @@ if __name__ == "__main__":
     program_folder = os.path.dirname(os.path.realpath(__file__))
     program_path = os.path.join(".", program_folder, "Elliptic_PCC_3D")
 
-    remove_folder = False
-
+    remove_folder = True
 
     vem_orders = [1, 2, 3]
     export_folder = "integration_tests"
