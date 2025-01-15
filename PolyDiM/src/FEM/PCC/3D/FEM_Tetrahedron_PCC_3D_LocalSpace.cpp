@@ -42,11 +42,12 @@ namespace Polydim
         for (unsigned int f = 0; f < 4; ++f)
         {
           const unsigned int face_edge_index = polyhedron.Faces[f](1, 0);
+          const unsigned int face_reference_edge_index = localSpace.polyhedron_to_reference_edge_index[face_edge_index];
           const unsigned int face_vertex_index = polyhedron.Faces[f](0, 2);
 
           localSpace.polyhedron_to_reference_face_index[f] =
               reference_element_data.Faces_by_edge_vertex.at({
-                                                            face_edge_index,
+                                                            face_reference_edge_index,
                                                             face_vertex_index
                                                           });
         }
