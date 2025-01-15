@@ -105,7 +105,7 @@ if __name__ == "__main__":
 
     remove_folder = False
 
-    vem_types = [1, 2, 3]
+
     vem_orders = [1, 2, 3]
     export_folder = "integration_tests"
     os.system("rm -rf " + os.path.join(program_folder, export_folder))
@@ -116,6 +116,29 @@ if __name__ == "__main__":
     test_type = 1
     mesh_generator = 1
     mesh_max_volume = 0.0
+    vem_types = [1, 2, 3]
+    for vem_type in vem_types:
+        for vem_order in vem_orders:
+            export_path = run_program(program_folder,
+                                      program_path,
+                                      "Run_MG{0}".format(mesh_generator),
+                                      vem_type,
+                                      vem_order,
+                                      test_type,
+                                      mesh_generator,
+                                      mesh_max_volume)
+            errors = import_errors(export_path, vem_type, vem_order, test_type)
+            test_errors(errors,
+                        vem_order,
+                        tol)
+
+            if remove_folder:
+                os.system("rm -rf " + os.path.join(program_folder, export_path))
+
+    test_type = 1
+    mesh_generator = 0
+    mesh_max_volume = 0.1
+    vem_types = [0]
     for vem_type in vem_types:
         for vem_order in vem_orders:
             export_path = run_program(program_folder,
@@ -135,8 +158,31 @@ if __name__ == "__main__":
                 os.system("rm -rf " + os.path.join(program_folder, export_path))
 
     test_type = 2
+    mesh_generator = 0
+    mesh_max_volumes = [0.005, 0.001]
+    vem_types = [0, 1, 2, 3]
+    for vem_type in vem_types:
+        for vem_order in vem_orders:
+            for mesh_max_volume in mesh_max_volumes:
+                export_path = run_program(program_folder,
+                                          program_path,
+                                          "Run_MG{0}".format(mesh_generator),
+                                          vem_type,
+                                          vem_order,
+                                          test_type,
+                                          mesh_generator,
+                                          mesh_max_volume)
+            errors = import_errors(export_path, vem_type, vem_order, test_type)
+            test_errors(errors,
+                        vem_order,
+                        tol)
+            if remove_folder:
+                os.system("rm -rf " + os.path.join(program_folder, export_path))
+
+    test_type = 2
     mesh_generator = 6
     mesh_max_volumes = [0.005, 0.001]
+    vem_types = [1, 2, 3]
     for vem_type in vem_types:
         for vem_order in vem_orders:
             for mesh_max_volume in mesh_max_volumes:

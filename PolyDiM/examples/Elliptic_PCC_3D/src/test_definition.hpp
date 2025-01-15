@@ -90,34 +90,6 @@ struct Patch_Test final : public I_Test
 
     std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info() const
     {
-        //        return {{0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-        //                {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        //                {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        //                {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        //                {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        //                {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        //                {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        //                {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        //                {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        //                {9, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        //                {10, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        //                {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-        //                {12, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        //                {13, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        //                {14, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        //                {15, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        //                {16, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        //                {17, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        //                {18, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        //                {19, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        //                {20, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        //                {21, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
-        //                {22, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        //                {23, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        //                {24, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        //                {25, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        //                {26, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 4}}};
-
         return {{0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
                 {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
@@ -129,7 +101,7 @@ struct Patch_Test final : public I_Test
                 {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {9, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {10, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
                 {12, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {13, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {14, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
@@ -139,12 +111,12 @@ struct Patch_Test final : public I_Test
                 {18, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {19, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {20, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {21, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {21, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
                 {22, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {23, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {24, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {25, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {26, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
+                {26, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 4}}};
     }
 
     Eigen::VectorXd diffusion_term(const Eigen::MatrixXd &points) const
