@@ -69,11 +69,6 @@ void Assembler::ComputeStrongTerm(const unsigned int &cell3DIndex,
 
         const auto edge_dofs_coordinates = local_space::EdgeDofsCoordinates(reference_element_data, local_space_data, e);
 
-        const Eigen::VectorXd edge_barycenter = 0.5 * (mesh.Cell1DOriginCoordinates(cell1D_index) +
-                                                       mesh.Cell1DEndCoordinates(cell1D_index));
-
-        assert((edge_barycenter - edge_dofs_coordinates).norm() < 1.0e-15 * edge_barycenter.norm());
-
         const auto strong_boundary_values = test.strong_boundary_condition(boundary_info.Marker, edge_dofs_coordinates);
 
         assert(local_dofs.size() == strong_boundary_values.size());
