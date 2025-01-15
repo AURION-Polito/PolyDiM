@@ -17,6 +17,8 @@ std::unique_ptr<Polydim::examples::Elastic_PCC_2D::test::I_Test> create_test(con
     {
     case Polydim::examples::Elastic_PCC_2D::test::Test_Types::Patch_Test:
         return std::make_unique<Polydim::examples::Elastic_PCC_2D::test::Patch_Test>();
+    case Polydim::examples::Elastic_PCC_2D::test::Test_Types::LinearElasticity:
+        return std::make_unique<Polydim::examples::Elastic_PCC_2D::test::LinearElasticity>();
     default:
         throw runtime_error("Test type " + to_string((unsigned int)config.TestType()) + " not supported");
     }

@@ -121,95 +121,96 @@ void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
 
     throw std::runtime_error("not implemented method");
 
-    //    const unsigned numVertices = mesh_geometric_data.Cell2DsVertices.at(cell2DIndex).cols();
+    const unsigned numVertices = mesh_geometric_data.Cell2DsVertices.at(cell2DIndex).cols();
 
-    //    for (unsigned int ed = 0; ed < numVertices; ed++)
-    //    {
-    //        const unsigned int cell1D_index = mesh.Cell2DEdge(cell2DIndex, ed);
+    for (unsigned int ed = 0; ed < numVertices; ed++)
+    {
+        const unsigned int cell1D_index = mesh.Cell2DEdge(cell2DIndex, ed);
 
-    //        const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(1).at(cell1D_index);
+        const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(1).at(cell1D_index);
 
-    //        if (boundary_info.Type !=
-    //        Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak)
-    //            continue;
+        if (boundary_info.Type != Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak)
+            continue;
 
-    //        // compute vem values
-    //        const auto weakReferenceSegment =
-    //            Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * reference_element_data.Order);
+        // compute vem values
+        const auto weakReferenceSegment =
+            Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * reference_element_data.Order);
 
-    //        const Eigen::VectorXd pointsCurvilinearCoordinates = weakReferenceSegment.Points.row(0);
+        const Eigen::VectorXd pointsCurvilinearCoordinates = weakReferenceSegment.Points.row(0);
 
-    //        // map edge internal quadrature points
-    //        const Eigen::Vector3d &edgeStart = mesh_geometric_data.Cell2DsEdgeDirections.at(cell2DIndex)[ed]
-    //                                               ? mesh_geometric_data.Cell2DsVertices.at(cell2DIndex).col(ed)
-    //                                               : mesh_geometric_data.Cell2DsVertices.at(cell2DIndex).col((ed + 1)
-    //                                               % numVertices);
+        // map edge internal quadrature points
+        const Eigen::Vector3d &edgeStart = mesh_geometric_data.Cell2DsEdgeDirections.at(cell2DIndex)[ed]
+                                               ? mesh_geometric_data.Cell2DsVertices.at(cell2DIndex).col(ed)
+                                               : mesh_geometric_data.Cell2DsVertices.at(cell2DIndex).col((ed + 1) % numVertices);
 
-    //        const Eigen::Vector3d &edgeTangent = mesh_geometric_data.Cell2DsEdgeTangents.at(cell2DIndex).col(ed);
-    //        const double direction = mesh_geometric_data.Cell2DsEdgeDirections.at(cell2DIndex)[ed] ? 1.0 : -1.0;
+        const Eigen::Vector3d &edgeTangent = mesh_geometric_data.Cell2DsEdgeTangents.at(cell2DIndex).col(ed);
+        const double direction = mesh_geometric_data.Cell2DsEdgeDirections.at(cell2DIndex)[ed] ? 1.0 : -1.0;
 
-    //        const unsigned int numEdgeWeakQuadraturePoints = weakReferenceSegment.Points.cols();
-    //        Eigen::MatrixXd weakQuadraturePoints(3, numEdgeWeakQuadraturePoints);
-    //        for (unsigned int q = 0; q < numEdgeWeakQuadraturePoints; q++)
-    //            weakQuadraturePoints.col(q) = edgeStart + direction * weakReferenceSegment.Points(0, q) * edgeTangent;
+        const unsigned int numEdgeWeakQuadraturePoints = weakReferenceSegment.Points.cols();
+        Eigen::MatrixXd weakQuadraturePoints(3, numEdgeWeakQuadraturePoints);
+        for (unsigned int q = 0; q < numEdgeWeakQuadraturePoints; q++)
+            weakQuadraturePoints.col(q) = edgeStart + direction * weakReferenceSegment.Points(0, q) * edgeTangent;
 
-    //        const double absMapDeterminant = std::abs(mesh_geometric_data.Cell2DsEdgeLengths.at(cell2DIndex)[ed]);
-    //        const Eigen::MatrixXd weakQuadratureWeights = weakReferenceSegment.Weights * absMapDeterminant;
+        const double absMapDeterminant = std::abs(mesh_geometric_data.Cell2DsEdgeLengths.at(cell2DIndex)[ed]);
+        const Eigen::MatrixXd weakQuadratureWeights = weakReferenceSegment.Weights * absMapDeterminant;
 
-    //        const Eigen::VectorXd neumannValues = test.weak_boundary_condition(boundary_info.Marker,
-    //        weakQuadraturePoints); const auto weak_basis_function_values =
-    //            local_space::BasisFunctionsValuesOnEdges(ed, reference_element_data, local_space_data,
-    //            pointsCurvilinearCoordinates);
+        const auto neumannValues = test.weak_boundary_condition(boundary_info.Marker, weakQuadraturePoints);
+        const auto weak_basis_function_values =
+            local_space::BasisFunctionsValuesOnEdges(ed, reference_element_data, local_space_data, pointsCurvilinearCoordinates);
 
-    //        // compute values of Neumann condition
-    //        const Eigen::VectorXd neumannContributions =
-    //            weak_basis_function_values.transpose() * weakQuadratureWeights.asDiagonal() * neumannValues;
+        for (unsigned int h = 0; h < 2; h++)
+        {
+            // compute values of Neumann condition
+            const Eigen::VectorXd neumannContributions =
+                weak_basis_function_values.transpose() * weakQuadratureWeights.asDiagonal() * neumannValues[h];
 
-    //        for (unsigned int p = 0; p < 2; ++p)
-    //        {
-    //            const unsigned int cell0D_index = mesh.Cell1DVertex(cell1D_index, p);
+            for (unsigned int p = 0; p < 2; ++p)
+            {
+                const unsigned int cell0D_index = mesh.Cell1DVertex(cell1D_index, p);
 
-    //            const auto local_dofs = dofs_data.CellsDOFs.at(0).at(cell0D_index);
+                const auto local_dofs = dofs_data.CellsDOFs.at(0).at(cell0D_index);
 
-    //            for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
-    //            {
-    //                const auto &local_dof_i = local_dofs.at(loc_i);
+                for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
+                {
+                    const auto &local_dof_i = local_dofs.at(loc_i);
 
-    //                switch (local_dof_i.Type)
-    //                {
-    //                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
-    //                    continue;
-    //                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
-    //                    assembler_data.rightHandSide.AddValue(local_dof_i.Global_Index, neumannContributions[p]);
-    //                }
-    //                break;
-    //                default:
-    //                    throw std::runtime_error("Unknown DOF Type");
-    //                }
-    //            }
-    //        }
+                    switch (local_dof_i.Type)
+                    {
+                    case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                        continue;
+                    case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
+                        assembler_data.rightHandSide.AddValue(local_dof_i.Global_Index + count_dofs.offsets_DOFs[h],
+                                                              neumannContributions[p]);
+                    }
+                    break;
+                    default:
+                        throw std::runtime_error("Unknown DOF Type");
+                    }
+                }
+            }
 
-    //        const auto local_dofs = dofs_data.CellsDOFs.at(1).at(cell1D_index);
-    //        for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
-    //        {
-    //            const auto &local_dof_i = local_dofs.at(loc_i);
+            const auto local_dofs = dofs_data.CellsDOFs.at(1).at(cell1D_index);
+            for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
+            {
+                const auto &local_dof_i = local_dofs.at(loc_i);
 
-    //            const unsigned int localIndex = loc_i;
+                const unsigned int localIndex = loc_i;
 
-    //            switch (local_dof_i.Type)
-    //            {
-    //            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
-    //                continue;
-    //            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
-    //                assembler_data.rightHandSide.AddValue(local_dof_i.Global_Index, neumannContributions[localIndex +
-    //                2]);
-    //            }
-    //            break;
-    //            default:
-    //                throw std::runtime_error("Unknown DOF Type");
-    //            }
-    //        }
-    //    }
+                switch (local_dof_i.Type)
+                {
+                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                    continue;
+                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
+                    assembler_data.rightHandSide.AddValue(local_dof_i.Global_Index + count_dofs.offsets_DOFs[h],
+                                                          neumannContributions[localIndex + 2]);
+                }
+                break;
+                default:
+                    throw std::runtime_error("Unknown DOF Type");
+                }
+            }
+        }
+    }
 }
 // ***************************************************************************
 Assembler::Elastic_PCC_2D_Problem_Data Assembler::Assemble(const Polydim::examples::Elastic_PCC_2D::Program_configuration &config,
