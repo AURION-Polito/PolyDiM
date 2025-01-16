@@ -87,7 +87,7 @@ Test_FEM_PCC_3D_Tetrahedron_Geometry Test_FEM_PCC_3D_Geometry(const Gedim::Geome
     result.FacesNormal = geometry_utilities.PolyhedronFaceNormals(facesVertices);
 
     const Eigen::Vector3d barycenter = geometry_utilities.PolyhedronBarycenter(result.Vertices);
-    result.FacesNormalDirection = geometry_utilities.PolyhedronFaceNormalDirections(result.Vertices,
+    result.FacesNormalDirection = geometry_utilities.PolyhedronFaceNormalDirections(facesVertices,
                                                                                     barycenter,
                                                                                     result.FacesNormal);
     result.FacesRotationMatrix =
