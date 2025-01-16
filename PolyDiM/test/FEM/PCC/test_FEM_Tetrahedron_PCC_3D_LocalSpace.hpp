@@ -50,7 +50,7 @@ Test_FEM_PCC_3D_Tetrahedron_Geometry Test_FEM_PCC_3D_Geometry(const Gedim::Geome
         result.Edges.col(4)<< 1, 3;
         result.Edges.col(5)<< 2, 3;
 
-        result.Faces.resize(4, Eigen::MatrixXd(2, 3));
+        result.Faces.resize(4, Eigen::MatrixXi(2, 3));
         result.Faces[0].row(0)<< 0, 1, 2;
         result.Faces[0].row(1)<< 0, 1, 2;
         result.Faces[1].row(0)<< 0, 1, 3;
