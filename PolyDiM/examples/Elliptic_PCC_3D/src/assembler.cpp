@@ -268,28 +268,62 @@ namespace Polydim
             const auto& fem_reference_data = reference_element_data.FEM_ReferenceElement_Data_3D;
             const auto& fem_local_data = local_space_data.FEM_LocalSpace_Data;
 
-            if (fem_local_data.Order == 2)
+            Eigen::MatrixXd dofs_computed(3, fem_local_data.NumberOfBasisFunctions);
+            for (unsigned int v = 0; v < 4; ++v)
+              dofs_computed.col(v)<< mesh.Cell3DVertexCoordinates(c, v);
+
+            for (unsigned int e = 0; e < 6; ++e)
             {
-              Eigen::MatrixXd dofs_computed(3, 10);
-              for (unsigned int v = 0; v < 4; ++v)
-                dofs_computed.col(v)<< mesh.Cell3DVertexCoordinates(c, v);
-              for (unsigned int e = 0; e < 6; ++e)
+              const unsigned int cell1D_index = mesh.Cell3DEdge(c, e);
+              const Eigen::Vector3d cell1D_origin = mesh.Cell1DOriginCoordinates(cell1D_index);
+              const Eigen::Vector3d cell1D_end = mesh.Cell1DEndCoordinates(cell1D_index);
+              const Eigen::Vector3d cell1D_tangent = cell1D_end - cell1D_origin;
+
+              switch (fem_local_data.Order)
               {
-                const unsigned int cell1D_index = mesh.Cell3DEdge(c, e);
-                const Eigen::Vector3d cell1D_origin = mesh.Cell1DOriginCoordinates(cell1D_index);
-                const Eigen::Vector3d cell1D_end = mesh.Cell1DEndCoordinates(cell1D_index);
-
-                dofs_computed.col(e + 4)<< 0.5 * (cell1D_origin + cell1D_end);
+                case 1:
+                  break;
+                case 2:
+                  dofs_computed.col(e + 4)<< 0.5 * (cell1D_origin + cell1D_end);
+                  break;
+                case 3:
+                {
+                  dofs_computed.col(2 * e + 4)<< 0.25 * (cell1D_origin + cell1D_end);
+                  dofs_computed.col(2 * e + 1 + 4)<< 0.75 * (cell1D_origin + cell1D_end);
+                }
+                  break;
+                default:
+                  throw std::runtime_error("unsupported order");
               }
-
-              assert((dofs_computed - fem_local_data.Dofs).norm() < 1.0e-15 * dofs_computed.norm());
-
-              const Eigen::MatrixXd values = fem_local_space.ComputeBasisFunctionsValues(fem_reference_data,
-                                                                                         fem_local_data,
-                                                                                         dofs_computed);
-              const Eigen::MatrixXd exact_values = Eigen::MatrixXd::Identity(10, 10);
-              assert((values - exact_values).norm() < 1.0e-15 * exact_values.norm());
             }
+
+            for (unsigned int f = 0; f < 4; ++f)
+            {
+              const unsigned int cell2D_index = mesh.Cell3DFace(c, f);
+              const auto face_vertices = mesh_geometric_data.Cell3DsFaces3DVertices[c][f];
+
+              switch (fem_local_data.Order)
+              {
+                case 1:
+                  break;
+                case 2:
+                  break;
+                case 3:
+                  dofs_computed.col(f + 2 * 6 + 4)<< (face_vertices.col(0) + face_vertices.col(1) + face_vertices.col(2)) / 3.0;
+                  break;
+                default:
+                  throw std::runtime_error("unsupported order");
+              }
+            }
+
+            assert((dofs_computed - fem_local_data.Dofs).norm() < 1.0e-15 * dofs_computed.norm());
+
+            const Eigen::MatrixXd values = fem_local_space.ComputeBasisFunctionsValues(fem_reference_data,
+                                                                                       fem_local_data,
+                                                                                       dofs_computed);
+            const Eigen::MatrixXd exact_values = Eigen::MatrixXd::Identity(fem_local_data.NumberOfBasisFunctions,
+                                                                           fem_local_data.NumberOfBasisFunctions);
+            assert((values - exact_values).norm() < 1.0e-15 * exact_values.norm());
 
             Eigen::VectorXd boundary_integral = Eigen::VectorXd::Zero(fem_local_data.NumberOfBasisFunctions);
             for (unsigned int b = 0; b < polyedron_faces_normal.size(); ++b)
