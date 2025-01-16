@@ -288,8 +288,8 @@ namespace Polydim
                   break;
                 case 3:
                 {
-                  dofs_computed.col(2 * e + 4)<< 0.25 * (cell1D_origin + cell1D_end);
-                  dofs_computed.col(2 * e + 1 + 4)<< 0.75 * (cell1D_origin + cell1D_end);
+                  dofs_computed.col(2 * e + 4)<< cell1D_origin + 0.25 * cell1D_tangent;
+                  dofs_computed.col(2 * e + 1 + 4)<< cell1D_origin + 0.75 * cell1D_tangent;
                 }
                   break;
                 default:
@@ -299,7 +299,6 @@ namespace Polydim
 
             for (unsigned int f = 0; f < 4; ++f)
             {
-              const unsigned int cell2D_index = mesh.Cell3DFace(c, f);
               const auto face_vertices = mesh_geometric_data.Cell3DsFaces3DVertices[c][f];
 
               switch (fem_local_data.Order)
