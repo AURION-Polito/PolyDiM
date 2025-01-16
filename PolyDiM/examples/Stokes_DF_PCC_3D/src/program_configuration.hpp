@@ -14,6 +14,12 @@ namespace Stokes_DF_PCC_3D
 {
 struct Program_configuration final
 {
+    enum struct Solver_Types
+    {
+        EigenLU = 0,
+        EigenBICGSTAB = 1
+    };
+
     Program_configuration()
     {
         Gedim::Configurations::AddProperty("TestType",
@@ -44,6 +50,15 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty("VemOrder", static_cast<unsigned int>(2), "VEM order (Default: 2)");
         Gedim::Configurations::AddProperty("ComputeVEMPerformance", true, "Compute VEM Performance (Default: true)");
         Gedim::Configurations::AddProperty("ComputeDiscrepancyError", false, "Compute Discrepancy error (Default: false)");
+
+        /// Solver
+        Gedim::Configurations::AddProperty("SolverType",
+                                           static_cast<unsigned int>(Solver_Types::EigenLU),
+                                           "Solver Type, 0 - EigenLU; 1 - EigenBICGSTAB (Default: 0)");
+
+        Gedim::Configurations::AddProperty("MaxNumberIterations", static_cast<unsigned int>(10), "Maximum number of iterations (Default: 10)");
+
+        Gedim::Configurations::AddProperty("RelResidualTolerance", 1.0e-12, "Relative Residual tolerance for the solver (Default: 1.0e-12)");
     }
 
     inline Polydim::examples::Stokes_DF_PCC_3D::test::Test_Types TestType() const
@@ -100,6 +115,20 @@ struct Program_configuration final
             throw runtime_error("not valid order");
 
         return Gedim::Configurations::GetPropertyValue<unsigned int>("VemOrder");
+    }
+
+    /// Solver parameters
+    inline Solver_Types SolverType() const
+    {
+        return (Solver_Types)Gedim::Configurations::GetPropertyValue<unsigned int>("SolverType");
+    }
+    inline unsigned int MaxNumberIterations() const
+    {
+        return Gedim::Configurations::GetPropertyValue<unsigned int>("MaxNumberIterations");
+    }
+    inline double RelResidualTolerance() const
+    {
+        return Gedim::Configurations::GetPropertyValue<double>("RelResidualTolerance");
     }
 };
 } // namespace Stokes_DF_PCC_3D

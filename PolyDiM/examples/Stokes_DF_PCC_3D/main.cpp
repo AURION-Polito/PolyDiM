@@ -186,25 +186,14 @@ int main(int argc, char **argv)
     Gedim::Profiler::StopTime("AssembleSystem");
     Gedim::Output::PrintStatusProgram("AssembleSystem");
 
+    Gedim::Output::PrintGenericMessage("Solve...", true);
+    Gedim::Profiler::StartTime("Solve");
+
     if (count_dofs.num_total_dofs > 0)
-    {
-        Gedim::Output::PrintGenericMessage("Factorize...", true);
-        Gedim::Profiler::StartTime("Factorize");
+        Polydim::examples::Stokes_DF_PCC_3D::program_utilities::solve_stokes(config, assembler_data);
 
-        Gedim::Eigen_LUSolver solver;
-        solver.Initialize(assembler_data.globalMatrixA);
-
-        Gedim::Profiler::StopTime("Factorize");
-        Gedim::Output::PrintStatusProgram("Factorize");
-
-        Gedim::Output::PrintGenericMessage("Solve...", true);
-        Gedim::Profiler::StartTime("Solve");
-
-        const auto solver_data = solver.Solve(assembler_data.rightHandSide, assembler_data.solution);
-
-        Gedim::Profiler::StopTime("Solve");
-        Gedim::Output::PrintStatusProgram("Solve");
-    }
+    Gedim::Profiler::StopTime("Solve");
+    Gedim::Output::PrintStatusProgram("Solve");
 
     Gedim::Output::PrintGenericMessage("ComputeErrors...", true);
     Gedim::Profiler::StartTime("ComputeErrors");
@@ -280,8 +269,8 @@ int main(int argc, char **argv)
             Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_full_velocity_reference_element_3D(config.VemType());
         const auto full_velocity_reference_element_data_3D = vem_full_velocity_reference_element_3D->Create(config.VemOrder());
 
-        std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> full_mesh_dofs_info(4);
-        std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> full_dofs_data(4);
+        std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> full_mesh_dofs_info(8);
+        std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> full_dofs_data(8);
 
         for (unsigned int i = 0; i < 3; i++)
         {
@@ -356,25 +345,14 @@ int main(int argc, char **argv)
         Gedim::Profiler::StopTime("AssembleSystem");
         Gedim::Output::PrintStatusProgram("AssembleSystem");
 
+        Gedim::Output::PrintGenericMessage("Solve...", true);
+        Gedim::Profiler::StartTime("Solve");
+
         if (full_count_dofs.num_total_dofs > 0)
-        {
-            Gedim::Output::PrintGenericMessage("Factorize...", true);
-            Gedim::Profiler::StartTime("Factorize");
+            Polydim::examples::Stokes_DF_PCC_3D::program_utilities::solve_stokes(config, full_assembler_data);
 
-            Gedim::Eigen_LUSolver solver;
-            solver.Initialize(full_assembler_data.globalMatrixA);
-
-            Gedim::Profiler::StopTime("Factorize");
-            Gedim::Output::PrintStatusProgram("Factorize");
-
-            Gedim::Output::PrintGenericMessage("Solve...", true);
-            Gedim::Profiler::StartTime("Solve");
-
-            solver.Solve(full_assembler_data.rightHandSide, full_assembler_data.solution);
-
-            Gedim::Profiler::StopTime("Solve");
-            Gedim::Output::PrintStatusProgram("Solve");
-        }
+        Gedim::Profiler::StopTime("Solve");
+        Gedim::Output::PrintStatusProgram("Solve");
 
         Gedim::Output::PrintGenericMessage("ComputeDiscrepancyErrors...", true);
         Gedim::Profiler::StartTime("ComputeDiscrepancyErrors");

@@ -1,5 +1,7 @@
 #include "program_utilities.hpp"
 
+#include "Eigen_BiCGSTABSolver.hpp"
+#include "Eigen_LUSolver.hpp"
 #include "VTKUtilities.hpp"
 
 namespace Polydim
@@ -25,6 +27,43 @@ unique_ptr<Polydim::examples::Stokes_DF_PCC_3D::test::I_Test> create_test(const 
         return make_unique<Polydim::examples::Stokes_DF_PCC_3D::test::Stokes_Benchmark_2>();
     default:
         throw runtime_error("Test type " + to_string((unsigned int)config.TestType()) + " not supported");
+    }
+}
+// ***************************************************************************
+void solve_stokes(const Polydim::examples::Stokes_DF_PCC_3D::Program_configuration &config,
+                  Polydim::examples::Stokes_DF_PCC_3D::Assembler::Stokes_DF_PCC_3D_Problem_Data &assembler_data)
+{
+    switch (config.SolverType())
+    {
+    case Program_configuration::Solver_Types::EigenLU: {
+        Gedim::Output::PrintGenericMessage("Factorize...", true);
+        Gedim::Profiler::StartTime("Factorize");
+
+        Gedim::Eigen_LUSolver solver;
+        solver.Initialize(assembler_data.globalMatrixA);
+
+        Gedim::Profiler::StopTime("Factorize");
+        Gedim::Output::PrintStatusProgram("Factorize");
+
+        solver.Solve(assembler_data.rightHandSide, assembler_data.solution);
+    }
+    break;
+    case Program_configuration::Solver_Types::EigenBICGSTAB: {
+        Gedim::Eigen_BiCGSTABSolver<Eigen::VectorXd, Eigen::SparseMatrix<double>, Eigen::BiCGSTAB<Eigen::SparseMatrix<double>, Eigen::IncompleteLUT<double>>> solver;
+
+        solver.Initialize(assembler_data.globalMatrixA,
+                          assembler_data.rightHandSide,
+                          assembler_data.solution,
+                          {config.MaxNumberIterations(), config.RelResidualTolerance()});
+
+        const auto solver_data = solver.Solve();
+
+        cerr << "EigenBICGSTAB Iterative solver: " << solver_data.Iterations << " " << solver_data.Residual << endl;
+    }
+    break;
+    default:
+        throw runtime_error("not valid solver");
+        break;
     }
 }
 // ***************************************************************************
@@ -667,8 +706,8 @@ void export_discrepancy_errors(const Polydim::examples::Stokes_DF_PCC_3D::Progra
         std::cout << "Cell3Ds" << separator;
         std::cout << "VelocityDofsRatio" << separator;
         std::cout << "PressureDofsRatio" << separator;
-        std::cout << "errorH1Velocity" << separator;
-        std::cout << "errorL2Pressure" << separator;
+        std::cout << "discrepancyErrorH1Velocity" << separator;
+        std::cout << "discrepancyErrorL2Pressure" << separator;
         std::cout << "normH1FULLVelocity" << separator;
         std::cout << "normL2FULLPressure" << separator;
         std::cout << "reducedResidual" << separator;
@@ -705,8 +744,8 @@ void export_discrepancy_errors(const Polydim::examples::Stokes_DF_PCC_3D::Progra
             errorFile << "Cell3Ds" << separator;
             errorFile << "VelocityDofsRatio" << separator;
             errorFile << "PressureDofsRatio" << separator;
-            errorFile << "errorH1Velocity" << separator;
-            errorFile << "errorL2Pressure" << separator;
+            errorFile << "discrepancyErrorH1Velocity" << separator;
+            errorFile << "discrepancyErrorL2Pressure" << separator;
             errorFile << "normH1FULLVelocity" << separator;
             errorFile << "normL2FULLPressure" << separator;
             errorFile << "reducedResidual" << separator;

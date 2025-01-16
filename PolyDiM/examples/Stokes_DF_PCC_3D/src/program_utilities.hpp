@@ -22,6 +22,9 @@ void create_domain_mesh(const Polydim::examples::Stokes_DF_PCC_3D::Program_confi
                         const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_3D &domain,
                         Gedim::MeshMatricesDAO &mesh);
 
+void solve_stokes(const Polydim::examples::Stokes_DF_PCC_3D::Program_configuration &config,
+                  Assembler::Stokes_DF_PCC_3D_Problem_Data &assembler_data);
+
 Gedim::MeshUtilities::MeshGeometricData3D create_domain_mesh_geometric_properties(const Polydim::examples::Stokes_DF_PCC_3D::Program_configuration &config,
                                                                                   Gedim::MeshMatricesDAO &mesh);
 
