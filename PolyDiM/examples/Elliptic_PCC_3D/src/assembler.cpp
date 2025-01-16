@@ -81,6 +81,7 @@ void Assembler::ComputeStrongTerm(const unsigned int &cell3DIndex,
             {
             case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong: {
                 assembler_data.solutionDirichlet.SetValue(local_dof_i.Global_Index, strong_boundary_values[loc_i]);
+
             }
             break;
             case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
