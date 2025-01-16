@@ -77,8 +77,8 @@ LocalSpace_Data CreateLocalSpace(const Polydim::examples::Elliptic_PCC_3D::Progr
                                          mesh_geometric_data.Cell3DsVertices.at(cell3D_index),
                                          mesh_geometric_data.Cell3DsEdges.at(cell3D_index),
                                          mesh_geometric_data.Cell3DsFaces.at(cell3D_index),
+                                         mesh_geometric_data.Cell3DsFaces2DVertices.at(cell3D_index),
                                          mesh_geometric_data.Cell3DsEdgeDirections.at(cell3D_index),
-                                         mesh_geometric_data.Cell3DsFacesAreas.at(cell3D_index),
                                          mesh_geometric_data.Cell3DsFacesNormalGlobalDirection.at(cell3D_index),
                                          mesh_geometric_data.Cell3DsFacesRotationMatrices.at(cell3D_index),
                                          mesh_geometric_data.Cell3DsFacesTranslations.at(cell3D_index)};

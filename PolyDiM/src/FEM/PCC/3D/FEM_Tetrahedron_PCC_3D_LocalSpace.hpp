@@ -3,6 +3,7 @@
 
 #include "FEM_Tetrahedron_PCC_3D_ReferenceElement.hpp"
 #include "MapTetrahedron.hpp"
+#include "MapTriangle.hpp"
 
 namespace Polydim
 {
@@ -19,8 +20,8 @@ struct FEM_Tetrahedron_PCC_3D_Geometry final
     Eigen::MatrixXd Vertices;
     Eigen::MatrixXi Edges;
     std::vector<Eigen::MatrixXi> Faces;
+    std::vector<Eigen::MatrixXd> Faces_2D_Vertices;
     std::vector<bool> EdgesDirection;
-    std::vector<double> FacesArea;
     std::vector<bool> FacesDirection;
     std::vector<Eigen::Matrix3d> FacesRotationMatrix;
     std::vector<Eigen::Vector3d> FacesTranslation;
@@ -29,6 +30,7 @@ struct FEM_Tetrahedron_PCC_3D_Geometry final
 struct FEM_Tetrahedron_PCC_3D_LocalSpace_Data final
 {
     Gedim::MapTetrahedron::MapTetrahedronData MapData;
+    std::array<Gedim::MapTriangle::MapTriangleData, 4> Faces_MapData;
     unsigned int Order;                  ///< Order of the space
     unsigned int NumberOfBasisFunctions; ///< Number of basis functions
     Eigen::MatrixXd Dofs;                ///< DOFs geometric position
@@ -40,7 +42,7 @@ struct FEM_Tetrahedron_PCC_3D_LocalSpace_Data final
     std::array<unsigned int, 5> Dof2DsIndex;                           ///< local DOF index for each element 2D
     std::array<unsigned int, 2> Dof3DsIndex;                           ///< local DOF index for each element 3D
     Gedim::Quadrature::QuadratureData InternalQuadrature;              ///< Internal quadrature points and weights
-    std::vector<Gedim::Quadrature::QuadratureData> BoundaryQuadrature; ///< Boundary quadrature points and weights on
+    std::array<Gedim::Quadrature::QuadratureData, 4> BoundaryQuadrature; ///< Boundary quadrature points and weights on
                                                                        ///< each face
 };
 
@@ -58,8 +60,9 @@ class FEM_Tetrahedron_PCC_3D_LocalSpace final
 
     Gedim::Quadrature::QuadratureData InternalQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,
                                                          const Gedim::MapTetrahedron::MapTetrahedronData &mapData) const;
-    std::vector<Gedim::Quadrature::QuadratureData> BoundaryQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,
-                                                                      const FEM_Tetrahedron_PCC_3D_Geometry &polyhedron) const;
+    std::array<Gedim::Quadrature::QuadratureData, 4> BoundaryQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,
+        const std::array<Gedim::MapTriangle::MapTriangleData, 4> &faces_mapData,
+        const FEM_Tetrahedron_PCC_3D_Geometry &polyhedron) const;
 
   public:
     FEM_Tetrahedron_PCC_3D_LocalSpace_Data CreateLocalSpace(const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,

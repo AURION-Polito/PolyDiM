@@ -22,10 +22,12 @@ struct Test_FEM_PCC_3D_Tetrahedron_Geometry final
     std::vector<bool> EdgesDirection;
     std::vector<double> FacesArea;
     std::vector<bool> FacesDirection;
+    std::vector<Eigen::MatrixXd> FacesRotatedVertices;
     std::vector<Eigen::Matrix3d> FacesRotationMatrix;
     std::vector<Eigen::Vector3d> FacesTranslation;
     std::vector<Eigen::Vector3d> FacesNormal;
     std::vector<bool> FacesNormalDirection;
+    double Volume;
 };
 
 Test_FEM_PCC_3D_Tetrahedron_Geometry Test_FEM_PCC_3D_Geometry(const Gedim::GeometryUtilities &geometry_utilities,
@@ -93,16 +95,15 @@ Test_FEM_PCC_3D_Tetrahedron_Geometry Test_FEM_PCC_3D_Geometry(const Gedim::Geome
     result.FacesRotationMatrix =
         geometry_utilities.PolyhedronFaceRotationMatrices(facesVertices, result.FacesNormal, result.FacesTranslation);
 
+    result.FacesRotatedVertices = geometry_utilities.PolyhedronFaceRotatedVertices(facesVertices,
+                                                                                   result.FacesTranslation,
+                                                                                   result.FacesRotationMatrix);
     const unsigned int numFaces = result.Faces.size();
     result.FacesArea.resize(numFaces);
-
     for (unsigned int f = 0; f < numFaces; f++)
-    {
-        const auto faceVertices = geometry_utilities.RotatePointsFrom3DTo2D(facesVertices[f],
-                                                                            result.FacesRotationMatrix[f].transpose(),
-                                                                            result.FacesTranslation[f]);
-        result.FacesArea[f] = geometry_utilities.PolygonArea(faceVertices);
-    }
+        result.FacesArea[f] = geometry_utilities.PolygonArea(result.FacesRotatedVertices.at(f));
+
+    result.Volume = geometry_utilities.PolyhedronVolumeByInternalIntegral({ result.Vertices });
 
     return result;
 }
@@ -183,13 +184,14 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D)
                                                                          tetrahedron_data.Vertices,
                                                                          tetrahedron_data.Edges,
                                                                          tetrahedron_data.Faces,
+                                                                         tetrahedron_data.FacesRotatedVertices,
                                                                          tetrahedron_data.EdgesDirection,
-                                                                         tetrahedron_data.FacesArea,
                                                                          tetrahedron_data.FacesDirection,
                                                                          tetrahedron_data.FacesRotationMatrix,
                                                                          tetrahedron_data.FacesTranslation};
     const auto polyedron_faces_normal = tetrahedron_data.FacesNormal;
     const auto polyhedron_faces_normal_direction = tetrahedron_data.FacesNormalDirection;
+    const auto polyhedron_volume = tetrahedron_data.Volume;
 
     for (unsigned int k = 1; k < 4; k++)
     {
@@ -230,6 +232,16 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D)
         for (unsigned int dim = 0; dim < reference_element_data.Dimension; ++dim)
           internal_integral += derivative_values[dim].transpose() * internal_quadrature.Weights;
 
+        if (k == 1)
+        {
+          Eigen::VectorXd exact_internal_integral = Eigen::VectorXd::Zero(reference_element_data.NumBasisFunctions);
+          exact_internal_integral[0] = polyhedron_volume * -3.0;
+          exact_internal_integral[1] = polyhedron_volume;
+          exact_internal_integral[2] = polyhedron_volume;
+          exact_internal_integral[3] = polyhedron_volume;
+          ASSERT_TRUE((internal_integral - exact_internal_integral).norm() < 1.0e-14 * std::max(1.0, exact_internal_integral.norm()));
+        }
+
         Eigen::VectorXd boundary_integral = Eigen::VectorXd::Zero(reference_element_data.NumBasisFunctions);
         for (unsigned int b = 0; b < polyedron_faces_normal.size(); ++b)
         {
@@ -243,9 +255,6 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D)
                                boundary_quadrature.Weights *
                                boundary_normal.sum();
         }
-
-        std::cout.precision(2);
-        std::cout<< std::scientific<< "o "<< k<< " diff "<< (internal_integral - boundary_integral).norm() / std::max(1.0, internal_integral.norm())<< std::endl;
 
         ASSERT_TRUE((internal_integral - boundary_integral).norm() < 1.0e-14 * std::max(1.0, boundary_integral.norm()));
 
