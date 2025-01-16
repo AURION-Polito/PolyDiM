@@ -25,6 +25,7 @@ struct Test_FEM_PCC_3D_Tetrahedron_Geometry final
     std::vector<Eigen::Matrix3d> FacesRotationMatrix;
     std::vector<Eigen::Vector3d> FacesTranslation;
     std::vector<Eigen::Vector3d> FacesNormal;
+    std::vector<bool> FacesNormalDirection;
 };
 
 Test_FEM_PCC_3D_Tetrahedron_Geometry Test_FEM_PCC_3D_Geometry(const Gedim::GeometryUtilities &geometry_utilities,
@@ -84,6 +85,11 @@ Test_FEM_PCC_3D_Tetrahedron_Geometry Test_FEM_PCC_3D_Geometry(const Gedim::Geome
     const std::vector<Eigen::MatrixXd> facesVertices = geometry_utilities.PolyhedronFaceVertices(result.Vertices, result.Faces);
     result.FacesTranslation = geometry_utilities.PolyhedronFaceTranslations(facesVertices);
     result.FacesNormal = geometry_utilities.PolyhedronFaceNormals(facesVertices);
+
+    const Eigen::Vector3d barycenter = geometry_utilities.PolyhedronBarycenter(result.Vertices);
+    result.FacesNormalDirection = geometry_utilities.PolyhedronFaceNormalDirections(result.Vertices,
+                                                                                    barycenter,
+                                                                                    result.FacesNormal);
     result.FacesRotationMatrix =
         geometry_utilities.PolyhedronFaceRotationMatrices(facesVertices, result.FacesNormal, result.FacesTranslation);
 
@@ -183,6 +189,7 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D)
                                                                          tetrahedron_data.FacesRotationMatrix,
                                                                          tetrahedron_data.FacesTranslation};
     const auto polyedron_faces_normal = tetrahedron_data.FacesNormal;
+    const auto polyhedron_faces_normal_direction = tetrahedron_data.FacesNormalDirection;
 
     for (unsigned int k = 1; k < 4; k++)
     {
@@ -226,7 +233,9 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D)
         Eigen::VectorXd boundary_integral = Eigen::VectorXd::Zero(reference_element_data.NumBasisFunctions);
         for (unsigned int b = 0; b < polyedron_faces_normal.size(); ++b)
         {
-          const Eigen::Vector3d boundary_normal = polyedron_faces_normal[b];
+          const Eigen::Vector3d boundary_normal = polyhedron_faces_normal_direction[b] ?
+                                                    +1.0 * polyedron_faces_normal[b] :
+                                                    -1.0 * polyedron_faces_normal[b];
           const auto& boundary_quadrature = local_space_data.BoundaryQuadrature[b];
           const auto boundary_values = reference_element.EvaluateBasisFunctions(boundary_quadrature.Points,
                                                                                 reference_element_data);
