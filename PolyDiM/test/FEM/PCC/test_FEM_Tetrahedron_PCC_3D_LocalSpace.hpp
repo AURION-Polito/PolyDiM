@@ -176,7 +176,7 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D)
     Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
 
     const Test_FEM_PCC_3D_Tetrahedron_Geometry tetrahedron_data = Test_FEM_PCC_3D_Geometry(geometry_utilities,
-                                                                                           0);
+                                                                                           1);
 
     Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_Geometry tetra_geometry = {geometry_utilities_config.Tolerance1D,
                                                                          geometry_utilities_config.Tolerance2D,
@@ -234,7 +234,7 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D)
 
         if (k == 1)
         {
-          Eigen::VectorXd exact_internal_integral = Eigen::VectorXd::Zero(reference_element_data.NumBasisFunctions);
+          Eigen::VectorXd exact_internal_integral = Eigen::VectorXd::Zero(local_space_data.NumberOfBasisFunctions);
           exact_internal_integral[0] = polyhedron_volume * -3.0;
           exact_internal_integral[1] = polyhedron_volume;
           exact_internal_integral[2] = polyhedron_volume;
@@ -242,19 +242,23 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D)
           ASSERT_TRUE((internal_integral - exact_internal_integral).norm() < 1.0e-14 * std::max(1.0, exact_internal_integral.norm()));
         }
 
-        Eigen::VectorXd boundary_integral = Eigen::VectorXd::Zero(reference_element_data.NumBasisFunctions);
+        Eigen::VectorXd boundary_integral = Eigen::VectorXd::Zero(local_space_data.NumberOfBasisFunctions);
         for (unsigned int b = 0; b < polyedron_faces_normal.size(); ++b)
         {
           const Eigen::Vector3d boundary_normal = polyhedron_faces_normal_direction[b] ?
                                                     +1.0 * polyedron_faces_normal[b] :
                                                     -1.0 * polyedron_faces_normal[b];
           const auto& boundary_quadrature = local_space_data.BoundaryQuadrature[b];
-          const auto boundary_values = reference_element.EvaluateBasisFunctions(boundary_quadrature.Points,
-                                                                                reference_element_data);
+          const auto boundary_values = local_space.ComputeBasisFunctionsValues(reference_element_data,
+                                                                               local_space_data,
+                                                                               boundary_quadrature.Points);
           boundary_integral += boundary_values.transpose() *
                                boundary_quadrature.Weights *
                                boundary_normal.sum();
         }
+
+        std::cout.precision(2);
+        std::cout<< std::scientific<< "k "<< k<< " diff "<< (internal_integral - boundary_integral).norm() / std::max(1.0, boundary_integral.norm())<< std::endl;
 
         ASSERT_TRUE((internal_integral - boundary_integral).norm() < 1.0e-14 * std::max(1.0, boundary_integral.norm()));
 
