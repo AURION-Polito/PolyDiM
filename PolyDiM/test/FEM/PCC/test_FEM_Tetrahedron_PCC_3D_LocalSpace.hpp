@@ -257,9 +257,6 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D)
                                boundary_normal.sum();
         }
 
-        std::cout.precision(2);
-        std::cout<< std::scientific<< "k "<< k<< " diff "<< (internal_integral - boundary_integral).norm() / std::max(1.0, boundary_integral.norm())<< std::endl;
-
         ASSERT_TRUE((internal_integral - boundary_integral).norm() < 1.0e-14 * std::max(1.0, boundary_integral.norm()));
 
 
