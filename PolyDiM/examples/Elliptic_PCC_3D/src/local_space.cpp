@@ -315,10 +315,11 @@ Gedim::Quadrature::QuadratureData FaceDofsCoordinates(const ReferenceElement_Dat
             local_space_data.VEM_LocalSpace_Data.facesLocalSpace.at(face_local_index).InternalQuadrature.Weights.size();
         face_dofs_coordinates.Points =
             local_space_data.VEM_LocalSpace_Data.BoundaryQuadrature.Quadrature.Points.block(0, quadrature_offset, 3, num_face_quadrature_points);
-        ;
+
         face_dofs_coordinates.Weights =
-            local_space_data.VEM_LocalSpace_Data.facesLocalSpace[face_local_index].InternalQuadrature.Weights;
+            local_space_data.VEM_LocalSpace_Data.BoundaryQuadrature.Quadrature.Weights.segment(quadrature_offset, num_face_quadrature_points);
         quadrature_offset += num_face_quadrature_points;
+
         return face_dofs_coordinates;
     }
     default:
