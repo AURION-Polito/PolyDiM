@@ -155,7 +155,7 @@ namespace Polydim
           internal_integral += derivative_values[dim].transpose() * internal_quadrature.Weights;
 
         Eigen::VectorXd boundary_integral = Eigen::VectorXd::Zero(reference_element_data.NumBasisFunctions);
-        for (unsigned int b = 0; b < polygon_edges_normal.size(); ++b)
+        for (unsigned int b = 0; b < polygon_edges_normal.cols(); ++b)
         {
           const Eigen::Vector3d boundary_normal = polygon_edges_normal.col(b);
           const auto& boundary_quadrature = local_space_data.BoundaryQuadrature[b];
