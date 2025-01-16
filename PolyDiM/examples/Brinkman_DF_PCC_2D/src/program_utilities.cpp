@@ -529,10 +529,10 @@ void export_discrepancy_errors(const Polydim::examples::Brinkman_DF_PCC_2D::Prog
         std::cout << "Cell2Ds" << separator;
         std::cout << "VelocityDofsRatio" << separator;
         std::cout << "PressureDofsRatio" << separator;
-        std::cout << "errorH1Velocity" << separator;
-        std::cout << "errorL2Pressure" << separator;
+        std::cout << "discrepancyErrorH1Velocity" << separator;
+        std::cout << "discrepancyErrorL2Pressure" << separator;
         std::cout << "normH1FULLVelocity" << separator;
-        std::cout << "normL2FULLPressure" << separator;
+        std::cout << "normL2FULLProjectedPressure" << separator;
         std::cout << "reducedResidual" << separator;
         std::cout << "fullResidual" << endl;
 
@@ -567,10 +567,10 @@ void export_discrepancy_errors(const Polydim::examples::Brinkman_DF_PCC_2D::Prog
             errorFile << "Cell2Ds" << separator;
             errorFile << "VelocityDofsRatio" << separator;
             errorFile << "PressureDofsRatio" << separator;
-            errorFile << "errorH1Velocity" << separator;
-            errorFile << "errorL2Pressure" << separator;
+            errorFile << "discrepancyErrorH1Velocity" << separator;
+            errorFile << "discrepancyErrorL2Pressure" << separator;
             errorFile << "normH1FULLVelocity" << separator;
-            errorFile << "normL2FULLPressure" << separator;
+            errorFile << "normL2FULLProjectedPressure" << separator;
             errorFile << "reducedResidual" << separator;
             errorFile << "fullResidual" << endl;
         }

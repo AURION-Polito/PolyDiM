@@ -688,7 +688,6 @@ void export_velocity_dofs(const Polydim::examples::Stokes_DF_PCC_3D::Program_con
     }
 }
 // ***************************************************************************
-// ***************************************************************************
 void export_discrepancy_errors(const Polydim::examples::Stokes_DF_PCC_3D::Program_configuration &config,
                                const Gedim::MeshMatricesDAO &mesh,
                                const Polydim::examples::Stokes_DF_PCC_3D::Assembler::DiscrepancyErrors_Data &discrepancy_errors_data,
@@ -709,7 +708,7 @@ void export_discrepancy_errors(const Polydim::examples::Stokes_DF_PCC_3D::Progra
         std::cout << "discrepancyErrorH1Velocity" << separator;
         std::cout << "discrepancyErrorL2Pressure" << separator;
         std::cout << "normH1FULLVelocity" << separator;
-        std::cout << "normL2FULLPressure" << separator;
+        std::cout << "normL2FULLProjectedPressure" << separator;
         std::cout << "reducedResidual" << separator;
         std::cout << "fullResidual" << endl;
 
@@ -747,7 +746,7 @@ void export_discrepancy_errors(const Polydim::examples::Stokes_DF_PCC_3D::Progra
             errorFile << "discrepancyErrorH1Velocity" << separator;
             errorFile << "discrepancyErrorL2Pressure" << separator;
             errorFile << "normH1FULLVelocity" << separator;
-            errorFile << "normL2FULLPressure" << separator;
+            errorFile << "normL2FULLProjectedPressure" << separator;
             errorFile << "reducedResidual" << separator;
             errorFile << "fullResidual" << endl;
         }

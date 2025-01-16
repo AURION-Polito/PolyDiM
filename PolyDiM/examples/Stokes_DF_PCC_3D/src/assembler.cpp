@@ -192,7 +192,7 @@ void Assembler::ComputeWeakTerm(const unsigned int &cell3DIndex,
     if (count_dofs.num_total_boundary_dofs == 0)
         return;
 
-    throw runtime_error("not implemented method");
+    throw runtime_error("not implemented neumann boundary conditions");
 }
 // ***************************************************************************
 Assembler::Stokes_DF_PCC_3D_Problem_Data Assembler::Assemble(

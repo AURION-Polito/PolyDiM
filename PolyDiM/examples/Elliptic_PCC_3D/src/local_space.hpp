@@ -46,7 +46,7 @@ struct LocalSpace_Data final
     VEM_Geometry VEM_Geometry;
     Polydim::VEM::PCC::VEM_PCC_3D_LocalSpace_Data VEM_LocalSpace_Data;
 
-    Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_Polyhedron_Geometry FEM_Geometry;
+    Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_Geometry FEM_Geometry;
     Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_LocalSpace_Data;
 };
 

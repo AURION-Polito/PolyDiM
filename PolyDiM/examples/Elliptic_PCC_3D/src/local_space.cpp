@@ -317,7 +317,8 @@ Gedim::Quadrature::QuadratureData FaceDofsCoordinates(const ReferenceElement_Dat
             local_space_data.VEM_LocalSpace_Data.BoundaryQuadrature.Quadrature.Points.block(0, quadrature_offset, 3, num_face_quadrature_points);
 
         face_dofs_coordinates.Weights =
-            local_space_data.VEM_LocalSpace_Data.BoundaryQuadrature.Quadrature.Weights.segment(quadrature_offset, num_face_quadrature_points);
+            local_space_data.VEM_LocalSpace_Data.BoundaryQuadrature.Quadrature.Weights.segment(quadrature_offset,
+                                                                                               num_face_quadrature_points);
         quadrature_offset += num_face_quadrature_points;
 
         return face_dofs_coordinates;

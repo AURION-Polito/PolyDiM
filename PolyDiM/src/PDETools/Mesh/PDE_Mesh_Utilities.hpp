@@ -214,6 +214,8 @@ inline void create_mesh_3D(const Gedim::GeometryUtilities &geometry_utilities,
                                                 geometry_utilities.EquispaceCoordinates(num_cells_height + 1, 0.0, 1.0, true),
                                                 geometry_utilities.EquispaceCoordinates(num_cells_width + 1, 0.0, 1.0, true),
                                                 mesh);
+
+        cout << num_cells_base << " " << num_cells_width << " " << num_cells_height << " " << mesh.Cell3DTotalNumber() << endl;
     }
     break;
     default:

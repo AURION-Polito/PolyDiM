@@ -11,7 +11,7 @@ namespace PCC
 // ***************************************************************************
 FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::CreateLocalSpace(
     const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
-    const FEM_Tetrahedron_PCC_3D_Polyhedron_Geometry &polyhedron) const
+    const FEM_Tetrahedron_PCC_3D_Geometry &polyhedron) const
 {
     FEM_Tetrahedron_PCC_3D_LocalSpace_Data localSpace;
 
@@ -191,7 +191,7 @@ Gedim::Quadrature::QuadratureData FEM_Tetrahedron_PCC_3D_LocalSpace::InternalQua
 // ***************************************************************************
 std::vector<Gedim::Quadrature::QuadratureData> FEM_Tetrahedron_PCC_3D_LocalSpace::BoundaryQuadrature(
     const Gedim::Quadrature::QuadratureData &reference_quadrature,
-    const FEM_Tetrahedron_PCC_3D_Polyhedron_Geometry &polyhedron) const
+    const FEM_Tetrahedron_PCC_3D_Geometry &polyhedron) const
 {
     const unsigned int num_faces = polyhedron.Faces.size();
     std::vector<Gedim::Quadrature::QuadratureData> faces_quadrature(num_faces);

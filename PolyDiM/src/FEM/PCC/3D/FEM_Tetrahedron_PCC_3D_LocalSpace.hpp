@@ -10,7 +10,7 @@ namespace FEM
 {
 namespace PCC
 {
-struct FEM_Tetrahedron_PCC_3D_Polyhedron_Geometry final
+struct FEM_Tetrahedron_PCC_3D_Geometry final
 {
     double Tolerance1D;
     double Tolerance2D;
@@ -59,11 +59,11 @@ class FEM_Tetrahedron_PCC_3D_LocalSpace final
     Gedim::Quadrature::QuadratureData InternalQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,
                                                          const Gedim::MapTetrahedron::MapTetrahedronData &mapData) const;
     std::vector<Gedim::Quadrature::QuadratureData> BoundaryQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,
-                                                                      const FEM_Tetrahedron_PCC_3D_Polyhedron_Geometry &polyhedron) const;
+                                                                      const FEM_Tetrahedron_PCC_3D_Geometry &polyhedron) const;
 
   public:
     FEM_Tetrahedron_PCC_3D_LocalSpace_Data CreateLocalSpace(const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
-                                                            const FEM_Tetrahedron_PCC_3D_Polyhedron_Geometry &polyhedron) const;
+                                                            const FEM_Tetrahedron_PCC_3D_Geometry &polyhedron) const;
 
     inline Eigen::MatrixXd ComputeBasisFunctionsValues(const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
                                                        const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &local_space) const
