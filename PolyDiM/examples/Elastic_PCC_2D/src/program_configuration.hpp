@@ -52,9 +52,9 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty("ComputeMethodPerformance", true, "Compute Method Performance (Default: false)");
     }
 
-    inline string ExportFolder() const
+    inline std::string ExportFolder() const
     {
-        return Gedim::Configurations::GetPropertyValue<string>("ExportFolder");
+        return Gedim::Configurations::GetPropertyValue<std::string>("ExportFolder");
     }
 
     inline Polydim::examples::Elastic_PCC_2D::test::Test_Types TestType() const
@@ -69,7 +69,7 @@ struct Program_configuration final
     }
     inline std::string MeshImportFilePath() const
     {
-        return Gedim::Configurations::GetPropertyValue<string>("MeshImportFilePath");
+        return Gedim::Configurations::GetPropertyValue<std::string>("MeshImportFilePath");
     }
     inline double MeshMaxArea() const
     {

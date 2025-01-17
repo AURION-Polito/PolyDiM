@@ -17,7 +17,7 @@ namespace NavierStokes_DF_PCC_2D
 namespace program_utilities
 {
 
-unique_ptr<Polydim::examples::NavierStokes_DF_PCC_2D::test::I_Test> create_test(
+std::unique_ptr<Polydim::examples::NavierStokes_DF_PCC_2D::test::I_Test> create_test(
     const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config);
 
 void create_domain_mesh(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config,

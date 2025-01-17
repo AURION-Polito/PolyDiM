@@ -40,9 +40,9 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty("MethodOrder", static_cast<unsigned int>(1), "Method order (Default: 1)");
     }
 
-    inline string ExportFolder() const
+    inline std::string ExportFolder() const
     {
-        return Gedim::Configurations::GetPropertyValue<string>("ExportFolder");
+        return Gedim::Configurations::GetPropertyValue<std::string>("ExportFolder");
     }
 
     inline Polydim::examples::Elliptic_PCC_1D::test::Test_Types TestType() const
@@ -56,7 +56,7 @@ struct Program_configuration final
     }
     inline std::string MeshImportFilePath() const
     {
-        return Gedim::Configurations::GetPropertyValue<string>("MeshImportFilePath");
+        return Gedim::Configurations::GetPropertyValue<std::string>("MeshImportFilePath");
     }
     inline double MeshMaxLength() const
     {

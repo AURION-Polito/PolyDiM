@@ -24,17 +24,17 @@ int main(int argc, char **argv)
     Gedim::Configurations::Initialize(argc, argv);
 
     /// Create folders
-    const string exportFolder = config.ExportFolder();
+    const std::string exportFolder = config.ExportFolder();
     Gedim::Output::CreateFolder(exportFolder);
 
-    const string exportCsvFolder = exportFolder + "/Mesh";
+    const std::string exportCsvFolder = exportFolder + "/Mesh";
     Gedim::Output::CreateFolder(exportCsvFolder);
-    const string exportVtuFolder = exportFolder + "/Paraview";
+    const std::string exportVtuFolder = exportFolder + "/Paraview";
     Gedim::Output::CreateFolder(exportVtuFolder);
-    const string exportSolutionFolder = exportFolder + "/Solution";
+    const std::string exportSolutionFolder = exportFolder + "/Solution";
     Gedim::Output::CreateFolder(exportSolutionFolder);
 
-    const string logFolder = exportFolder + "/Log";
+    const std::string logFolder = exportFolder + "/Log";
 
     /// Set Profiler
     Gedim::Profiler::ActivateProfiler = true;
@@ -95,7 +95,7 @@ int main(int argc, char **argv)
 
     /// Initialize Discrete Space
 
-    Gedim::Output::PrintGenericMessage("CreateVEMSpace of order " + to_string(config.MethodOrder()) + " and DOFs...", true);
+    Gedim::Output::PrintGenericMessage("CreateVEMSpace of order " + std::to_string(config.MethodOrder()) + " and DOFs...", true);
     Gedim::Profiler::StartTime("CreateVEMSpace");
 
     const auto reference_element_data =
@@ -120,14 +120,15 @@ int main(int argc, char **argv)
 
     const auto count_dofs = Polydim::PDETools::Assembler_Utilities::count_dofs(dofs_data);
 
-    Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(count_dofs.num_total_dofs) + " DOFs and " +
-                                           to_string(count_dofs.num_total_strong) + " STRONGs",
+    Gedim::Output::PrintGenericMessage("VEM Space with " + std::to_string(count_dofs.num_total_dofs) + " DOFs and " +
+                                           std::to_string(count_dofs.num_total_strong) + " STRONGs",
                                        true);
 
     Gedim::Profiler::StopTime("CreateVEMSpace");
     Gedim::Output::PrintStatusProgram("CreateVEMSpace");
 
-    Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " + to_string(static_cast<unsigned int>(config.MethodType())) + "...",
+    Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " +
+                                           std::to_string(static_cast<unsigned int>(config.MethodType())) + "...",
                                        true);
     Gedim::Profiler::StartTime("AssembleSystem");
 
@@ -192,13 +193,13 @@ int main(int argc, char **argv)
         {
             const char separator = ',';
             /// Export Cell2Ds VEM performance
-            ofstream exporter;
+            std::ofstream exporter;
 
             exporter.open(exportSolutionFolder + "/Cell2Ds_VEMPerformance.csv");
             exporter.precision(16);
 
             if (exporter.fail())
-                throw runtime_error("Error on mesh cell2Ds file");
+                throw std::runtime_error("Error on mesh cell2Ds file");
 
             exporter << "Cell2D_Index" << separator;
             exporter << "NumQuadPoints_Boundary" << separator;
@@ -215,18 +216,18 @@ int main(int argc, char **argv)
             {
                 const auto &cell2DPerformance = vemPerformance.Cell2DsPerformance[v].VEM_Performance_Data.Analysis;
 
-                exporter << scientific << v << separator;
-                exporter << scientific << vemPerformance.Cell2DsPerformance[v].VEM_Performance_Data.NumBoundaryQuadraturePoints
+                exporter << std::scientific << v << separator;
+                exporter << std::scientific << vemPerformance.Cell2DsPerformance[v].VEM_Performance_Data.NumBoundaryQuadraturePoints
                          << separator;
-                exporter << scientific << vemPerformance.Cell2DsPerformance[v].VEM_Performance_Data.NumInternalQuadraturePoints
+                exporter << std::scientific << vemPerformance.Cell2DsPerformance[v].VEM_Performance_Data.NumInternalQuadraturePoints
                          << separator;
-                exporter << scientific << cell2DPerformance.VmatrixConditioning << separator;
-                exporter << scientific << cell2DPerformance.HmatrixConditioning << separator;
-                exporter << scientific << cell2DPerformance.Pi0kConditioning << separator;
-                exporter << scientific << cell2DPerformance.GmatrixConditioning << separator;
-                exporter << scientific << cell2DPerformance.ErrorPi0k << separator;
-                exporter << scientific << cell2DPerformance.ErrorGBD << separator;
-                exporter << scientific << cell2DPerformance.ErrorStabilization << endl;
+                exporter << std::scientific << cell2DPerformance.VmatrixConditioning << separator;
+                exporter << std::scientific << cell2DPerformance.HmatrixConditioning << separator;
+                exporter << std::scientific << cell2DPerformance.Pi0kConditioning << separator;
+                exporter << std::scientific << cell2DPerformance.GmatrixConditioning << separator;
+                exporter << std::scientific << cell2DPerformance.ErrorPi0k << separator;
+                exporter << std::scientific << cell2DPerformance.ErrorGBD << separator;
+                exporter << std::scientific << cell2DPerformance.ErrorStabilization << endl;
             }
 
             exporter.close();

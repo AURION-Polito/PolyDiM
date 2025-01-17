@@ -158,7 +158,7 @@ struct Patch_Test final : public I_Test
 
     std::array<Eigen::VectorXd, 3> weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
-        throw runtime_error("not implemented method");
+        throw std::runtime_error("not implemented method");
     }
 
     Eigen::VectorXd exact_pressure(const Eigen::MatrixXd &points) const
@@ -334,7 +334,7 @@ struct Stokes final : public I_Test
 
     std::array<Eigen::VectorXd, 3> weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
-        throw runtime_error("not implemented method");
+        throw std::runtime_error("not implemented method");
     }
 
     Eigen::VectorXd exact_pressure(const Eigen::MatrixXd &points) const
@@ -536,7 +536,7 @@ struct Stokes_Benchmark_1 final : public I_Test
 
     std::array<Eigen::VectorXd, 3> weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
-        throw runtime_error("not implemented method");
+        throw std::runtime_error("not implemented method");
     }
 
     Eigen::VectorXd exact_pressure(const Eigen::MatrixXd &points) const
@@ -767,7 +767,7 @@ struct Stokes_Benchmark_2 final : public I_Test
 
     std::array<Eigen::VectorXd, 3> weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
-        throw runtime_error("not implemented method");
+        throw std::runtime_error("not implemented method");
     }
 
     Eigen::VectorXd exact_pressure(const Eigen::MatrixXd &points) const

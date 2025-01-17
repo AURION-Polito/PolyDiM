@@ -19,17 +19,17 @@ int main(int argc, char **argv)
     Gedim::Configurations::Initialize(argc, argv);
 
     /// Create folders
-    const string exportFolder = config.ExportFolder();
+    const std::string exportFolder = config.ExportFolder();
     Gedim::Output::CreateFolder(exportFolder);
 
-    const string exportCsvFolder = exportFolder + "/Mesh";
+    const std::string exportCsvFolder = exportFolder + "/Mesh";
     Gedim::Output::CreateFolder(exportCsvFolder);
-    const string exportVtuFolder = exportFolder + "/Paraview";
+    const std::string exportVtuFolder = exportFolder + "/Paraview";
     Gedim::Output::CreateFolder(exportVtuFolder);
-    const string exportSolutionFolder = exportFolder + "/Solution";
+    const std::string exportSolutionFolder = exportFolder + "/Solution";
     Gedim::Output::CreateFolder(exportSolutionFolder);
 
-    const string logFolder = exportFolder + "/Log";
+    const std::string logFolder = exportFolder + "/Log";
 
     /// Set Profiler
     Gedim::Profiler::ActivateProfiler = true;
@@ -90,7 +90,7 @@ int main(int argc, char **argv)
     Gedim::Output::PrintStatusProgram("ComputeGeometricProperties");
 
     /// Initialize Discrete Space
-    Gedim::Output::PrintGenericMessage("CreateDiscreteSpace of order " + to_string(config.MethodOrder()) + " and DOFs...", true);
+    Gedim::Output::PrintGenericMessage("CreateDiscreteSpace of order " + std::to_string(config.MethodOrder()) + " and DOFs...", true);
     Gedim::Profiler::StartTime("CreateDiscreteSpace");
 
     const auto reference_element_data =
@@ -109,15 +109,15 @@ int main(int argc, char **argv)
 
     const auto count_dofs = Polydim::PDETools::Assembler_Utilities::count_dofs({std::cref(dofs_data), std::cref(dofs_data)});
 
-    Gedim::Output::PrintGenericMessage("Discrete Space with " + to_string(count_dofs.num_total_dofs) + " DOFs and " +
-                                           to_string(count_dofs.num_total_strong) + " STRONGs",
+    Gedim::Output::PrintGenericMessage("Discrete Space with " + std::to_string(count_dofs.num_total_dofs) +
+                                           " DOFs and " + std::to_string(count_dofs.num_total_strong) + " STRONGs",
                                        true);
 
     Gedim::Profiler::StopTime("CreateDiscreteSpace");
     Gedim::Output::PrintStatusProgram("CreateDiscreteSpace");
 
     Gedim::Output::PrintGenericMessage("AssembleSystem Discrete Type " +
-                                           to_string(static_cast<unsigned int>(config.MethodType())) + "...",
+                                           std::to_string(static_cast<unsigned int>(config.MethodType())) + "...",
                                        true);
     Gedim::Profiler::StartTime("AssembleSystem");
 

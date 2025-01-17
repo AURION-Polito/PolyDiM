@@ -143,7 +143,7 @@ class Assembler final
     PostProcess_Data PostProcessSolution(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_configuration &config,
                                          const Gedim::MeshMatricesDAO &mesh,
                                          const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-                                         const vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                                         const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
                                          const Polydim::PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                                          const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
                                          const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &pressure_reference_element_data,

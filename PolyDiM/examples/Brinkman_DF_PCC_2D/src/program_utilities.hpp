@@ -16,7 +16,8 @@ namespace Brinkman_DF_PCC_2D
 {
 namespace program_utilities
 {
-unique_ptr<Polydim::examples::Brinkman_DF_PCC_2D::test::I_Test> create_test(const Polydim::examples::Brinkman_DF_PCC_2D::Program_configuration &config);
+std::unique_ptr<Polydim::examples::Brinkman_DF_PCC_2D::test::I_Test> create_test(
+    const Polydim::examples::Brinkman_DF_PCC_2D::Program_configuration &config);
 
 void create_domain_mesh(const Polydim::examples::Brinkman_DF_PCC_2D::Program_configuration &config,
                         const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D &domain,

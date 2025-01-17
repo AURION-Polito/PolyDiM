@@ -11,24 +11,24 @@ namespace Brinkman_DF_PCC_2D
 namespace program_utilities
 {
 // ***************************************************************************
-unique_ptr<Polydim::examples::Brinkman_DF_PCC_2D::test::I_Test> create_test(const Polydim::examples::Brinkman_DF_PCC_2D::Program_configuration &config)
+std::unique_ptr<Polydim::examples::Brinkman_DF_PCC_2D::test::I_Test> create_test(const Polydim::examples::Brinkman_DF_PCC_2D::Program_configuration &config)
 {
     switch (config.TestType())
     {
     case Polydim::examples::Brinkman_DF_PCC_2D::test::Test_Types::Patch_Test:
-        return make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::Patch_Test>();
+        return std::make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::Patch_Test>();
     case Polydim::examples::Brinkman_DF_PCC_2D::test::Test_Types::StokesSinSin:
-        return make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::StokesSinSin>();
+        return std::make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::StokesSinSin>();
     case Polydim::examples::Brinkman_DF_PCC_2D::test::Test_Types::Stokes_ZeroVelocity_1:
-        return make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::Stokes_ZeroVelocity_1>();
+        return std::make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::Stokes_ZeroVelocity_1>();
     case Polydim::examples::Brinkman_DF_PCC_2D::test::Test_Types::Stokes_ZeroVelocity_2:
-        return make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::Stokes_ZeroVelocity_2>();
+        return std::make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::Stokes_ZeroVelocity_2>();
     case Polydim::examples::Brinkman_DF_PCC_2D::test::Test_Types::Darcy:
-        return make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::Darcy>();
+        return std::make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::Darcy>();
     case Polydim::examples::Brinkman_DF_PCC_2D::test::Test_Types::Brinkman:
-        return make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::Brinkman>();
+        return std::make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::Brinkman>();
     default:
-        throw runtime_error("Test type " + to_string((unsigned int)config.TestType()) + " not supported");
+        throw std::runtime_error("Test type " + std::to_string((unsigned int)config.TestType()) + " not supported");
     }
 }
 // ***************************************************************************
@@ -67,7 +67,7 @@ void create_domain_mesh(const Polydim::examples::Brinkman_DF_PCC_2D::Program_con
     }
     break;
     default:
-        throw runtime_error("MeshGenerator " + to_string((unsigned int)config.MeshGenerator()) + " not supported");
+        throw std::runtime_error("MeshGenerator " + std::to_string((unsigned int)config.MeshGenerator()) + " not supported");
     }
 }
 // ***************************************************************************
@@ -113,25 +113,25 @@ void export_solution(const Polydim::examples::Brinkman_DF_PCC_2D::Program_config
         std::cout << "residual" << endl;
 
         std::cout.precision(2);
-        std::cout << scientific << TEST_ID << separator;
-        std::cout << scientific << VEM_ID << separator;
-        std::cout << scientific << config.VemOrder() << separator;
-        std::cout << scientific << mesh.Cell2DTotalNumber() << separator;
-        std::cout << scientific << count_dofs.num_total_dofs << separator;
-        std::cout << scientific << count_dofs.num_total_strong << separator;
-        std::cout << scientific << post_process_data.mesh_size << separator;
-        std::cout << scientific << post_process_data.error_H1_velocity << separator;
-        std::cout << scientific << post_process_data.error_L2_pressure << separator;
-        std::cout << scientific << post_process_data.norm_H1_velocity << separator;
-        std::cout << scientific << post_process_data.norm_L2_pressure << separator;
-        std::cout << scientific << assembler_data.globalMatrixA.NonZeros() << separator;
-        std::cout << scientific << post_process_data.residual_norm << endl;
+        std::cout << std::scientific << TEST_ID << separator;
+        std::cout << std::scientific << VEM_ID << separator;
+        std::cout << std::scientific << config.VemOrder() << separator;
+        std::cout << std::scientific << mesh.Cell2DTotalNumber() << separator;
+        std::cout << std::scientific << count_dofs.num_total_dofs << separator;
+        std::cout << std::scientific << count_dofs.num_total_strong << separator;
+        std::cout << std::scientific << post_process_data.mesh_size << separator;
+        std::cout << std::scientific << post_process_data.error_H1_velocity << separator;
+        std::cout << std::scientific << post_process_data.error_L2_pressure << separator;
+        std::cout << std::scientific << post_process_data.norm_H1_velocity << separator;
+        std::cout << std::scientific << post_process_data.norm_L2_pressure << separator;
+        std::cout << std::scientific << assembler_data.globalMatrixA.NonZeros() << separator;
+        std::cout << std::scientific << post_process_data.residual_norm << endl;
     }
 
     {
         const char separator = ';';
-        const string errorFileName = exportSolutionFolder + "/Errors_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) +
-                                     +"_" + to_string(config.VemOrder()) + ".csv";
+        const std::string errorFileName = exportSolutionFolder + "/Errors_" + std::to_string(TEST_ID) + "_" +
+                                          std::to_string(VEM_ID) + +"_" + std::to_string(config.VemOrder()) + ".csv";
         const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
 
         std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);
@@ -154,19 +154,19 @@ void export_solution(const Polydim::examples::Brinkman_DF_PCC_2D::Program_config
         }
 
         errorFile.precision(16);
-        errorFile << scientific << TEST_ID << separator;
-        errorFile << scientific << VEM_ID << separator;
-        errorFile << scientific << config.VemOrder() << separator;
-        errorFile << scientific << mesh.Cell2DTotalNumber() << separator;
-        errorFile << scientific << count_dofs.num_total_dofs << separator;
-        errorFile << scientific << count_dofs.num_total_strong << separator;
-        errorFile << scientific << post_process_data.mesh_size << separator;
-        errorFile << scientific << post_process_data.error_H1_velocity << separator;
-        errorFile << scientific << post_process_data.error_L2_pressure << separator;
-        errorFile << scientific << post_process_data.norm_H1_velocity << separator;
-        errorFile << scientific << post_process_data.norm_L2_pressure << separator;
-        errorFile << scientific << assembler_data.globalMatrixA.NonZeros() << separator;
-        errorFile << scientific << post_process_data.residual_norm << endl;
+        errorFile << std::scientific << TEST_ID << separator;
+        errorFile << std::scientific << VEM_ID << separator;
+        errorFile << std::scientific << config.VemOrder() << separator;
+        errorFile << std::scientific << mesh.Cell2DTotalNumber() << separator;
+        errorFile << std::scientific << count_dofs.num_total_dofs << separator;
+        errorFile << std::scientific << count_dofs.num_total_strong << separator;
+        errorFile << std::scientific << post_process_data.mesh_size << separator;
+        errorFile << std::scientific << post_process_data.error_H1_velocity << separator;
+        errorFile << std::scientific << post_process_data.error_L2_pressure << separator;
+        errorFile << std::scientific << post_process_data.norm_H1_velocity << separator;
+        errorFile << std::scientific << post_process_data.norm_L2_pressure << separator;
+        errorFile << std::scientific << assembler_data.globalMatrixA.NonZeros() << separator;
+        errorFile << std::scientific << post_process_data.residual_norm << endl;
 
         errorFile.close();
     }
@@ -201,8 +201,8 @@ void export_solution(const Polydim::examples::Brinkman_DF_PCC_2D::Program_config
                                    static_cast<unsigned int>(post_process_data.cell2Ds_error_H1_velocity.size()),
                                    post_process_data.cell2Ds_error_H1_velocity.data()}});
 
-            exporter.Export(exportVtuFolder + "/Solution_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) + +"_" +
-                            to_string(config.VemOrder()) + ".vtu");
+            exporter.Export(exportVtuFolder + "/Solution_" + std::to_string(TEST_ID) + "_" + std::to_string(VEM_ID) +
+                            +"_" + std::to_string(config.VemOrder()) + ".vtu");
         }
     }
 }
@@ -507,8 +507,8 @@ void export_velocity_dofs(const Polydim::examples::Brinkman_DF_PCC_2D::Program_c
         const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
         const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
 
-        exporter.Export(exportVtuFolder + "/dofs_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) + +"_" +
-                        to_string(config.VemOrder()) + ".vtu");
+        exporter.Export(exportVtuFolder + "/dofs_" + std::to_string(TEST_ID) + "_" + std::to_string(VEM_ID) + +"_" +
+                        std::to_string(config.VemOrder()) + ".vtu");
     }
 }
 // ***************************************************************************
@@ -537,24 +537,24 @@ void export_discrepancy_errors(const Polydim::examples::Brinkman_DF_PCC_2D::Prog
         std::cout << "fullResidual" << endl;
 
         std::cout.precision(2);
-        std::cout << scientific << TEST_ID << separator;
-        std::cout << scientific << VEM_ID << separator;
-        std::cout << scientific << config.VemOrder() << separator;
-        std::cout << scientific << mesh.Cell2DTotalNumber() << separator;
-        std::cout << scientific << discrepancy_errors_data.velocity_dofs_ratio << separator;
-        std::cout << scientific << discrepancy_errors_data.pressure_dofs_ratio << separator;
-        std::cout << scientific << discrepancy_errors_data.discrepancy_error_H1_velocity << separator;
-        std::cout << scientific << discrepancy_errors_data.discrepancy_error_L2_pressure << separator;
-        std::cout << scientific << discrepancy_errors_data.full_norm_H1_velocity << separator;
-        std::cout << scientific << discrepancy_errors_data.full_norm_L2_pressure << separator;
-        std::cout << scientific << discrepancy_errors_data.reduced_residual_norm << separator;
-        std::cout << scientific << discrepancy_errors_data.residual_norm << endl;
+        std::cout << std::scientific << TEST_ID << separator;
+        std::cout << std::scientific << VEM_ID << separator;
+        std::cout << std::scientific << config.VemOrder() << separator;
+        std::cout << std::scientific << mesh.Cell2DTotalNumber() << separator;
+        std::cout << std::scientific << discrepancy_errors_data.velocity_dofs_ratio << separator;
+        std::cout << std::scientific << discrepancy_errors_data.pressure_dofs_ratio << separator;
+        std::cout << std::scientific << discrepancy_errors_data.discrepancy_error_H1_velocity << separator;
+        std::cout << std::scientific << discrepancy_errors_data.discrepancy_error_L2_pressure << separator;
+        std::cout << std::scientific << discrepancy_errors_data.full_norm_H1_velocity << separator;
+        std::cout << std::scientific << discrepancy_errors_data.full_norm_L2_pressure << separator;
+        std::cout << std::scientific << discrepancy_errors_data.reduced_residual_norm << separator;
+        std::cout << std::scientific << discrepancy_errors_data.residual_norm << endl;
     }
 
     {
         const char separator = ';';
-        const string errorFileName = exportSolutionFolder + "/DiscrepancyErrors_" + to_string(TEST_ID) + "_" +
-                                     to_string(VEM_ID) + +"_" + to_string(config.VemOrder()) + ".csv";
+        const std::string errorFileName = exportSolutionFolder + "/DiscrepancyErrors_" + std::to_string(TEST_ID) + "_" +
+                                          std::to_string(VEM_ID) + +"_" + std::to_string(config.VemOrder()) + ".csv";
         const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
 
         std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);
@@ -576,18 +576,18 @@ void export_discrepancy_errors(const Polydim::examples::Brinkman_DF_PCC_2D::Prog
         }
 
         errorFile.precision(16);
-        errorFile << scientific << TEST_ID << separator;
-        errorFile << scientific << VEM_ID << separator;
-        errorFile << scientific << config.VemOrder() << separator;
-        errorFile << scientific << mesh.Cell2DTotalNumber() << separator;
-        errorFile << scientific << discrepancy_errors_data.velocity_dofs_ratio << separator;
-        errorFile << scientific << discrepancy_errors_data.pressure_dofs_ratio << separator;
-        errorFile << scientific << discrepancy_errors_data.discrepancy_error_H1_velocity << separator;
-        errorFile << scientific << discrepancy_errors_data.discrepancy_error_L2_pressure << separator;
-        errorFile << scientific << discrepancy_errors_data.full_norm_H1_velocity << separator;
-        errorFile << scientific << discrepancy_errors_data.full_norm_L2_pressure << separator;
-        errorFile << scientific << discrepancy_errors_data.reduced_residual_norm << separator;
-        errorFile << scientific << discrepancy_errors_data.residual_norm << endl;
+        errorFile << std::scientific << TEST_ID << separator;
+        errorFile << std::scientific << VEM_ID << separator;
+        errorFile << std::scientific << config.VemOrder() << separator;
+        errorFile << std::scientific << mesh.Cell2DTotalNumber() << separator;
+        errorFile << std::scientific << discrepancy_errors_data.velocity_dofs_ratio << separator;
+        errorFile << std::scientific << discrepancy_errors_data.pressure_dofs_ratio << separator;
+        errorFile << std::scientific << discrepancy_errors_data.discrepancy_error_H1_velocity << separator;
+        errorFile << std::scientific << discrepancy_errors_data.discrepancy_error_L2_pressure << separator;
+        errorFile << std::scientific << discrepancy_errors_data.full_norm_H1_velocity << separator;
+        errorFile << std::scientific << discrepancy_errors_data.full_norm_L2_pressure << separator;
+        errorFile << std::scientific << discrepancy_errors_data.reduced_residual_norm << separator;
+        errorFile << std::scientific << discrepancy_errors_data.residual_norm << endl;
 
         errorFile.close();
     }
@@ -607,8 +607,8 @@ void export_discrepancy_errors(const Polydim::examples::Brinkman_DF_PCC_2D::Prog
                   static_cast<unsigned int>(discrepancy_errors_data.cell2Ds_discrepancy_error_H1_velocity.size()),
                   discrepancy_errors_data.cell2Ds_discrepancy_error_H1_velocity.data()}});
 
-            exporter.Export(exportVtuFolder + "/DiscrepancyErrors_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) +
-                            +"_" + to_string(config.VemOrder()) + ".vtu");
+            exporter.Export(exportVtuFolder + "/DiscrepancyErrors_" + std::to_string(TEST_ID) + "_" +
+                            std::to_string(VEM_ID) + +"_" + std::to_string(config.VemOrder()) + ".vtu");
         }
     }
 }

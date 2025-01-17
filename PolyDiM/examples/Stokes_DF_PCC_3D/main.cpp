@@ -23,17 +23,17 @@ int main(int argc, char **argv)
     Gedim::Configurations::Initialize(argc, argv);
 
     /// Create folders
-    const string exportFolder = config.ExportFolder();
+    const std::string exportFolder = config.ExportFolder();
     Gedim::Output::CreateFolder(exportFolder);
 
-    const string exportCsvFolder = exportFolder + "/Mesh";
+    const std::string exportCsvFolder = exportFolder + "/Mesh";
     Gedim::Output::CreateFolder(exportCsvFolder);
-    const string exportVtuFolder = exportFolder + "/Paraview";
+    const std::string exportVtuFolder = exportFolder + "/Paraview";
     Gedim::Output::CreateFolder(exportVtuFolder);
-    const string exportSolutionFolder = exportFolder + "/Solution";
+    const std::string exportSolutionFolder = exportFolder + "/Solution";
     Gedim::Output::CreateFolder(exportSolutionFolder);
 
-    const string logFolder = exportFolder + "/Log";
+    const std::string logFolder = exportFolder + "/Log";
 
     /// Set Profiler
     Gedim::Profiler::ActivateProfiler = true;
@@ -98,7 +98,7 @@ int main(int argc, char **argv)
     Gedim::Profiler::StopTime("ComputeGeometricProperties");
     Gedim::Output::PrintStatusProgram("ComputeGeometricProperties");
 
-    Gedim::Output::PrintGenericMessage("CreateVEMSpace of order " + to_string(config.VemOrder()) + " and DOFs...", true);
+    Gedim::Output::PrintGenericMessage("CreateVEMSpace of order " + std::to_string(config.VemOrder()) + " and DOFs...", true);
     Gedim::Profiler::StartTime("CreateVEMSpace");
 
     Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data = {mesh};
@@ -155,14 +155,14 @@ int main(int argc, char **argv)
     if (count_dofs.num_total_boundary_dofs == 0)
         count_dofs.num_total_dofs += 1; // lagrange
 
-    Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(count_dofs.num_total_dofs) + " DOFs and " +
-                                           to_string(count_dofs.num_total_strong) + " STRONGs",
+    Gedim::Output::PrintGenericMessage("VEM Space with " + std::to_string(count_dofs.num_total_dofs) + " DOFs and " +
+                                           std::to_string(count_dofs.num_total_strong) + " STRONGs",
                                        true);
 
     Gedim::Profiler::StopTime("CreateVEMSpace");
     Gedim::Output::PrintStatusProgram("CreateVEMSpace");
 
-    Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " + to_string((unsigned int)config.VemType()) + "...", true);
+    Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " + std::to_string((unsigned int)config.VemType()) + "...", true);
     Gedim::Profiler::StartTime("AssembleSystem");
 
     const auto vem_pressure_local_space = Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_pressure_local_space_3D(config.VemType());
@@ -258,7 +258,7 @@ int main(int argc, char **argv)
 
     if (config.ComputeDiscrepancyError())
     {
-        Gedim::Output::PrintGenericMessage("Create Full VEM Space of order " + to_string(config.VemOrder()) + " and DOFs...", true);
+        Gedim::Output::PrintGenericMessage("Create Full VEM Space of order " + std::to_string(config.VemOrder()) + " and DOFs...", true);
         Gedim::Profiler::StartTime("CreateFULLVEMSpace");
 
         const auto vem_full_pressure_reference_element_3D =
@@ -313,14 +313,14 @@ int main(int argc, char **argv)
         if (full_count_dofs.num_total_boundary_dofs == 0)
             full_count_dofs.num_total_dofs += 1; // lagrange
 
-        Gedim::Output::PrintGenericMessage("VEM Space with " + to_string(full_count_dofs.num_total_dofs) +
-                                               " DOFs and " + to_string(full_count_dofs.num_total_strong) + " STRONGs",
+        Gedim::Output::PrintGenericMessage("VEM Space with " + std::to_string(full_count_dofs.num_total_dofs) +
+                                               " DOFs and " + std::to_string(full_count_dofs.num_total_strong) + " STRONGs",
                                            true);
 
         Gedim::Profiler::StopTime("CreateFULLVEMSpace");
         Gedim::Output::PrintStatusProgram("CreateFULLVEMSpace");
 
-        Gedim::Output::PrintGenericMessage("AssembleSystem FULL VEM Type " + to_string((unsigned int)config.VemType()) + "...", true);
+        Gedim::Output::PrintGenericMessage("AssembleSystem FULL VEM Type " + std::to_string((unsigned int)config.VemType()) + "...", true);
         Gedim::Profiler::StartTime("AssembleSystem");
 
         const auto vem_full_pressure_local_space =

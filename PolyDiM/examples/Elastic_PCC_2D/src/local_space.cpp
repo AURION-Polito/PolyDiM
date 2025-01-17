@@ -132,7 +132,7 @@ std::vector<Eigen::MatrixXd> BasisFunctionsValues(const ReferenceElement_Data &r
     }
 
     const unsigned int num_local_dofs_component = basis_functions_values.cols();
-    vector<Eigen::MatrixXd> basis_functions_displacement_values(
+    std::vector<Eigen::MatrixXd> basis_functions_displacement_values(
         reference_element_data.Dimension,
         Eigen::MatrixXd::Zero(basis_functions_values.rows(), reference_element_data.Dimension * num_local_dofs_component));
     for (unsigned int d = 0; d < reference_element_data.Dimension; d++)
@@ -200,7 +200,7 @@ std::vector<Eigen::MatrixXd> BasisFunctionsDerivativeValues(const ReferenceEleme
                                                             const VEM::PCC::ProjectionTypes &projectionType)
 {
 
-    vector<Eigen::MatrixXd> basis_functions_derivatives_values;
+    std::vector<Eigen::MatrixXd> basis_functions_derivatives_values;
 
     switch (reference_element_data.Method_Type)
     {
@@ -222,7 +222,7 @@ std::vector<Eigen::MatrixXd> BasisFunctionsDerivativeValues(const ReferenceEleme
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
     }
     const unsigned int num_local_dofs_component = basis_functions_derivatives_values.at(0).cols();
-    vector<Eigen::MatrixXd> basis_functions_derivatives_displacement_values(
+    std::vector<Eigen::MatrixXd> basis_functions_derivatives_displacement_values(
         reference_element_data.Dimension * reference_element_data.Dimension,
         Eigen::MatrixXd::Zero(basis_functions_derivatives_values.at(0).rows(),
                               reference_element_data.Dimension * num_local_dofs_component));

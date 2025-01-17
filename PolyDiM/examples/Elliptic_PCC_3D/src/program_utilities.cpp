@@ -20,7 +20,7 @@ std::unique_ptr<Polydim::examples::Elliptic_PCC_3D::test::I_Test> create_test(co
     case Polydim::examples::Elliptic_PCC_3D::test::Test_Types::Poisson_Polynomial_Problem:
         return std::make_unique<Polydim::examples::Elliptic_PCC_3D::test::Poisson_Polynomial_Problem>();
     default:
-        throw runtime_error("Test type " + to_string((unsigned int)config.TestType()) + " not supported");
+        throw std::runtime_error("Test type " + std::to_string((unsigned int)config.TestType()) + " not supported");
     }
 }
 // ***************************************************************************
@@ -61,7 +61,7 @@ void create_domain_mesh(const Polydim::examples::Elliptic_PCC_3D::Program_config
     }
     break;
     default:
-        throw runtime_error("MeshGenerator " + to_string((unsigned int)config.MeshGenerator()) + " not supported");
+        throw std::runtime_error("MeshGenerator " + std::to_string((unsigned int)config.MeshGenerator()) + " not supported");
     }
 }
 // ***************************************************************************
@@ -106,25 +106,25 @@ void export_solution(const Polydim::examples::Elliptic_PCC_3D::Program_configura
         std::cout << "residual" << std::endl;
 
         std::cout.precision(2);
-        std::cout << scientific << TEST_ID << separator;
-        std::cout << scientific << Method_ID << separator;
-        std::cout << scientific << config.MethodOrder() << separator;
-        std::cout << scientific << mesh.Cell3DTotalNumber() << separator;
-        std::cout << scientific << dofs_data.NumberDOFs << separator;
-        std::cout << scientific << dofs_data.NumberStrongs << separator;
-        std::cout << scientific << post_process_data.mesh_size << separator;
-        std::cout << scientific << post_process_data.error_L2 << separator;
-        std::cout << scientific << post_process_data.error_H1 << separator;
-        std::cout << scientific << post_process_data.norm_L2 << separator;
-        std::cout << scientific << post_process_data.norm_H1 << separator;
-        std::cout << scientific << assembler_data.globalMatrixA.NonZeros() << separator;
-        std::cout << scientific << post_process_data.residual_norm << std::endl;
+        std::cout << std::scientific << TEST_ID << separator;
+        std::cout << std::scientific << Method_ID << separator;
+        std::cout << std::scientific << config.MethodOrder() << separator;
+        std::cout << std::scientific << mesh.Cell3DTotalNumber() << separator;
+        std::cout << std::scientific << dofs_data.NumberDOFs << separator;
+        std::cout << std::scientific << dofs_data.NumberStrongs << separator;
+        std::cout << std::scientific << post_process_data.mesh_size << separator;
+        std::cout << std::scientific << post_process_data.error_L2 << separator;
+        std::cout << std::scientific << post_process_data.error_H1 << separator;
+        std::cout << std::scientific << post_process_data.norm_L2 << separator;
+        std::cout << std::scientific << post_process_data.norm_H1 << separator;
+        std::cout << std::scientific << assembler_data.globalMatrixA.NonZeros() << separator;
+        std::cout << std::scientific << post_process_data.residual_norm << std::endl;
     }
 
     {
         const char separator = ';';
-        const string errorFileName = exportSolutionFolder + "/Errors_" + to_string(TEST_ID) + "_" +
-                                     to_string(Method_ID) + +"_" + to_string(config.MethodOrder()) + ".csv";
+        const std::string errorFileName = exportSolutionFolder + "/Errors_" + std::to_string(TEST_ID) + "_" +
+                                          std::to_string(Method_ID) + +"_" + std::to_string(config.MethodOrder()) + ".csv";
         const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
 
         std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);
@@ -146,19 +146,19 @@ void export_solution(const Polydim::examples::Elliptic_PCC_3D::Program_configura
         }
 
         errorFile.precision(16);
-        errorFile << scientific << TEST_ID << separator;
-        errorFile << scientific << Method_ID << separator;
-        errorFile << scientific << config.MethodOrder() << separator;
-        errorFile << scientific << mesh.Cell3DTotalNumber() << separator;
-        errorFile << scientific << dofs_data.NumberDOFs << separator;
-        errorFile << scientific << dofs_data.NumberStrongs << separator;
-        errorFile << scientific << post_process_data.mesh_size << separator;
-        errorFile << scientific << post_process_data.error_L2 << separator;
-        errorFile << scientific << post_process_data.error_H1 << separator;
-        errorFile << scientific << post_process_data.norm_L2 << separator;
-        errorFile << scientific << post_process_data.norm_H1 << separator;
-        errorFile << scientific << assembler_data.globalMatrixA.NonZeros() << separator;
-        errorFile << scientific << post_process_data.residual_norm << std::endl;
+        errorFile << std::scientific << TEST_ID << separator;
+        errorFile << std::scientific << Method_ID << separator;
+        errorFile << std::scientific << config.MethodOrder() << separator;
+        errorFile << std::scientific << mesh.Cell3DTotalNumber() << separator;
+        errorFile << std::scientific << dofs_data.NumberDOFs << separator;
+        errorFile << std::scientific << dofs_data.NumberStrongs << separator;
+        errorFile << std::scientific << post_process_data.mesh_size << separator;
+        errorFile << std::scientific << post_process_data.error_L2 << separator;
+        errorFile << std::scientific << post_process_data.error_H1 << separator;
+        errorFile << std::scientific << post_process_data.norm_L2 << separator;
+        errorFile << std::scientific << post_process_data.norm_H1 << separator;
+        errorFile << std::scientific << assembler_data.globalMatrixA.NonZeros() << separator;
+        errorFile << std::scientific << post_process_data.residual_norm << std::endl;
 
         errorFile.close();
     }
@@ -185,8 +185,8 @@ void export_solution(const Polydim::examples::Elliptic_PCC_3D::Program_configura
                                       static_cast<unsigned int>(post_process_data.cell3Ds_error_H1.size()),
                                       post_process_data.cell3Ds_error_H1.data()}});
 
-            exporter.Export(exportVtuFolder + "/Solution_" + to_string(TEST_ID) + "_" + to_string(Method_ID) + +"_" +
-                            to_string(config.MethodOrder()) + ".vtu");
+            exporter.Export(exportVtuFolder + "/Solution_" + std::to_string(TEST_ID) + "_" + std::to_string(Method_ID) +
+                            +"_" + std::to_string(config.MethodOrder()) + ".vtu");
         }
     }
 }
@@ -197,15 +197,15 @@ void export_performance(const Polydim::examples::Elliptic_PCC_3D::Program_config
 {
     {
         const char separator = ',';
-        ofstream exporter;
+        std::ofstream exporter;
         const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
         const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
-        exporter.open(exportFolder + "/Cell3Ds_MethodPerformance_" + to_string(TEST_ID) + "_" + to_string(Method_ID) +
-                      +"_" + to_string(config.MethodOrder()) + ".csv");
+        exporter.open(exportFolder + "/Cell3Ds_MethodPerformance_" + std::to_string(TEST_ID) + "_" +
+                      std::to_string(Method_ID) + +"_" + std::to_string(config.MethodOrder()) + ".csv");
         exporter.precision(16);
 
         if (exporter.fail())
-            throw runtime_error("Error on mesh cell2Ds file");
+            throw std::runtime_error("Error on mesh cell2Ds file");
 
         exporter << "Cell3D_Index" << separator;
         exporter << "NumQuadPoints_Boundary" << separator;
@@ -224,18 +224,18 @@ void export_performance(const Polydim::examples::Elliptic_PCC_3D::Program_config
         {
             const auto &cell3D_performance = performance_data.Cell3DsPerformance[v].VEM_Performance_Data;
 
-            exporter << scientific << v << separator;
-            exporter << scientific << cell3D_performance.NumBoundaryQuadraturePoints << separator;
-            exporter << scientific << cell3D_performance.NumInternalQuadraturePoints << separator;
-            exporter << scientific << cell3D_performance.Analysis.PiNablaConditioning << separator;
-            exporter << scientific << cell3D_performance.Analysis.Pi0kConditioning << separator;
-            exporter << scientific << cell3D_performance.Analysis.Pi0km1Conditioning << separator;
-            exporter << scientific << cell3D_performance.Analysis.ErrorPiNabla << separator;
-            exporter << scientific << cell3D_performance.Analysis.ErrorPi0k << separator;
-            exporter << scientific << cell3D_performance.Analysis.ErrorPi0km1 << separator;
-            exporter << scientific << cell3D_performance.Analysis.ErrorHCD << separator;
-            exporter << scientific << cell3D_performance.Analysis.ErrorGBD << separator;
-            exporter << scientific << cell3D_performance.Analysis.ErrorStabilization << endl;
+            exporter << std::scientific << v << separator;
+            exporter << std::scientific << cell3D_performance.NumBoundaryQuadraturePoints << separator;
+            exporter << std::scientific << cell3D_performance.NumInternalQuadraturePoints << separator;
+            exporter << std::scientific << cell3D_performance.Analysis.PiNablaConditioning << separator;
+            exporter << std::scientific << cell3D_performance.Analysis.Pi0kConditioning << separator;
+            exporter << std::scientific << cell3D_performance.Analysis.Pi0km1Conditioning << separator;
+            exporter << std::scientific << cell3D_performance.Analysis.ErrorPiNabla << separator;
+            exporter << std::scientific << cell3D_performance.Analysis.ErrorPi0k << separator;
+            exporter << std::scientific << cell3D_performance.Analysis.ErrorPi0km1 << separator;
+            exporter << std::scientific << cell3D_performance.Analysis.ErrorHCD << separator;
+            exporter << std::scientific << cell3D_performance.Analysis.ErrorGBD << separator;
+            exporter << std::scientific << cell3D_performance.Analysis.ErrorStabilization << endl;
         }
 
         exporter.close();
@@ -536,8 +536,8 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_3D::Program_configuration
 
         const unsigned int METHOD_ID = static_cast<unsigned int>(config.MethodType());
         const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
-        exporter.Export(exportVtuFolder + "/dofs_" + to_string(TEST_ID) + "_" + to_string(METHOD_ID) + +"_" +
-                        to_string(config.MethodOrder()) + ".vtu");
+        exporter.Export(exportVtuFolder + "/dofs_" + std::to_string(TEST_ID) + "_" + std::to_string(METHOD_ID) + +"_" +
+                        std::to_string(config.MethodOrder()) + ".vtu");
     }
 }
 // ***************************************************************************

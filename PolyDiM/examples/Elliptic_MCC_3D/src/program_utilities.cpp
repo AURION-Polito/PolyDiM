@@ -20,7 +20,7 @@ std::unique_ptr<Polydim::examples::Elliptic_MCC_3D::test::I_Test> create_test(co
     case Polydim::examples::Elliptic_MCC_3D::test::Test_Types::Poisson_Polynomial_Problem:
         return std::make_unique<Polydim::examples::Elliptic_MCC_3D::test::Poisson_Polynomial_Problem>();
     default:
-        throw runtime_error("Test type " + to_string((unsigned int)config.TestType()) + " not supported");
+        throw std::runtime_error("Test type " + std::to_string((unsigned int)config.TestType()) + " not supported");
     }
 }
 // ***************************************************************************
@@ -61,7 +61,7 @@ void create_domain_mesh(const Polydim::examples::Elliptic_MCC_3D::Program_config
     }
     break;
     default:
-        throw runtime_error("MeshGenerator " + to_string((unsigned int)config.MeshGenerator()) + " not supported");
+        throw std::runtime_error("MeshGenerator " + std::to_string((unsigned int)config.MeshGenerator()) + " not supported");
     }
 }
 // ***************************************************************************
@@ -106,26 +106,26 @@ void export_solution(const Polydim::examples::Elliptic_MCC_3D::Program_configura
         std::cout << "residual" << endl;
 
         std::cout.precision(2);
-        std::cout << scientific << TEST_ID << separator;
-        std::cout << scientific << VEM_ID << separator;
-        std::cout << scientific << config.VemOrder() << separator;
-        std::cout << scientific << mesh.Cell3DTotalNumber() << separator;
-        std::cout << scientific << dofs_data[0].NumberDOFs + dofs_data[1].NumberDOFs << separator;
-        std::cout << scientific << dofs_data[0].NumberStrongs + dofs_data[1].NumberStrongs << separator;
-        std::cout << scientific << post_process_data.mesh_size << separator;
-        std::cout << scientific << post_process_data.error_L2_velocity << separator;
-        std::cout << scientific << post_process_data.error_L2_pressure << separator;
-        std::cout << scientific << post_process_data.super_error_L2_pressure << separator;
-        std::cout << scientific << post_process_data.norm_L2_velocity << separator;
-        std::cout << scientific << post_process_data.norm_L2_pressure << separator;
-        std::cout << scientific << assembler_data.globalMatrixA.NonZeros() << separator;
-        std::cout << scientific << post_process_data.residual_norm << endl;
+        std::cout << std::scientific << TEST_ID << separator;
+        std::cout << std::scientific << VEM_ID << separator;
+        std::cout << std::scientific << config.VemOrder() << separator;
+        std::cout << std::scientific << mesh.Cell3DTotalNumber() << separator;
+        std::cout << std::scientific << dofs_data[0].NumberDOFs + dofs_data[1].NumberDOFs << separator;
+        std::cout << std::scientific << dofs_data[0].NumberStrongs + dofs_data[1].NumberStrongs << separator;
+        std::cout << std::scientific << post_process_data.mesh_size << separator;
+        std::cout << std::scientific << post_process_data.error_L2_velocity << separator;
+        std::cout << std::scientific << post_process_data.error_L2_pressure << separator;
+        std::cout << std::scientific << post_process_data.super_error_L2_pressure << separator;
+        std::cout << std::scientific << post_process_data.norm_L2_velocity << separator;
+        std::cout << std::scientific << post_process_data.norm_L2_pressure << separator;
+        std::cout << std::scientific << assembler_data.globalMatrixA.NonZeros() << separator;
+        std::cout << std::scientific << post_process_data.residual_norm << endl;
     }
 
     {
         const char separator = ';';
-        const string errorFileName = exportSolutionFolder + "/Errors_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) +
-                                     +"_" + to_string(config.VemOrder()) + ".csv";
+        const std::string errorFileName = exportSolutionFolder + "/Errors_" + std::to_string(TEST_ID) + "_" +
+                                          std::to_string(VEM_ID) + +"_" + std::to_string(config.VemOrder()) + ".csv";
         const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
 
         std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);
@@ -148,20 +148,20 @@ void export_solution(const Polydim::examples::Elliptic_MCC_3D::Program_configura
         }
 
         errorFile.precision(16);
-        errorFile << scientific << TEST_ID << separator;
-        errorFile << scientific << VEM_ID << separator;
-        errorFile << scientific << config.VemOrder() << separator;
-        errorFile << scientific << mesh.Cell3DTotalNumber() << separator;
-        errorFile << scientific << dofs_data[0].NumberDOFs + dofs_data[1].NumberDOFs << separator;
-        errorFile << scientific << dofs_data[0].NumberStrongs + dofs_data[1].NumberStrongs << separator;
-        errorFile << scientific << post_process_data.mesh_size << separator;
-        errorFile << scientific << post_process_data.error_L2_velocity << separator;
-        errorFile << scientific << post_process_data.error_L2_pressure << separator;
-        errorFile << scientific << post_process_data.super_error_L2_pressure << separator;
-        errorFile << scientific << post_process_data.norm_L2_velocity << separator;
-        errorFile << scientific << post_process_data.norm_L2_pressure << separator;
-        errorFile << scientific << assembler_data.globalMatrixA.NonZeros() << separator;
-        errorFile << scientific << post_process_data.residual_norm << endl;
+        errorFile << std::scientific << TEST_ID << separator;
+        errorFile << std::scientific << VEM_ID << separator;
+        errorFile << std::scientific << config.VemOrder() << separator;
+        errorFile << std::scientific << mesh.Cell3DTotalNumber() << separator;
+        errorFile << std::scientific << dofs_data[0].NumberDOFs + dofs_data[1].NumberDOFs << separator;
+        errorFile << std::scientific << dofs_data[0].NumberStrongs + dofs_data[1].NumberStrongs << separator;
+        errorFile << std::scientific << post_process_data.mesh_size << separator;
+        errorFile << std::scientific << post_process_data.error_L2_velocity << separator;
+        errorFile << std::scientific << post_process_data.error_L2_pressure << separator;
+        errorFile << std::scientific << post_process_data.super_error_L2_pressure << separator;
+        errorFile << std::scientific << post_process_data.norm_L2_velocity << separator;
+        errorFile << std::scientific << post_process_data.norm_L2_pressure << separator;
+        errorFile << std::scientific << assembler_data.globalMatrixA.NonZeros() << separator;
+        errorFile << std::scientific << post_process_data.residual_norm << endl;
 
         errorFile.close();
     }
@@ -188,8 +188,8 @@ void export_solution(const Polydim::examples::Elliptic_MCC_3D::Program_configura
                                       static_cast<unsigned int>(post_process_data.cell3Ds_error_L2_velocity.size()),
                                       post_process_data.cell3Ds_error_L2_velocity.data()}});
 
-            exporter.Export(exportVtuFolder + "/Solution_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) + +"_" +
-                            to_string(config.VemOrder()) + ".vtu");
+            exporter.Export(exportVtuFolder + "/Solution_" + std::to_string(TEST_ID) + "_" + std::to_string(VEM_ID) +
+                            +"_" + std::to_string(config.VemOrder()) + ".vtu");
         }
     }
 }
@@ -388,8 +388,8 @@ void export_velocity_dofs(const Polydim::examples::Elliptic_MCC_3D::Program_conf
 
         const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
         const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
-        exporter.Export(exportVtuFolder + "/dofs_" + to_string(TEST_ID) + "_" + to_string(VEM_ID) + +"_" +
-                        to_string(config.VemOrder()) + ".vtu");
+        exporter.Export(exportVtuFolder + "/dofs_" + std::to_string(TEST_ID) + "_" + std::to_string(VEM_ID) + +"_" +
+                        std::to_string(config.VemOrder()) + ".vtu");
     }
 }
 // ***************************************************************************

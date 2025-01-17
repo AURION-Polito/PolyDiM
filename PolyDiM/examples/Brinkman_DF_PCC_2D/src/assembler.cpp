@@ -418,7 +418,7 @@ Assembler::DiscrepancyErrors_Data Assembler::ComputeDiscrepancyErrors(
     const Polydim::examples::Brinkman_DF_PCC_2D::Program_configuration &config,
     const Gedim::MeshMatricesDAO &mesh,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-    const vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &full_dofs_data,
+    const std::vector<PDETools::DOFs::DOFsManager::DOFsData> &full_dofs_data,
     const Polydim::PDETools::Assembler_Utilities::count_dofs_data &full_count_dofs,
     const vector<PDETools::DOFs::DOFsManager::DOFsData> &reduced_dofs_data,
     const Polydim::PDETools::Assembler_Utilities::count_dofs_data &reduced_count_dofs,

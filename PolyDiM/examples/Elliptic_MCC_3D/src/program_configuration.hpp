@@ -52,9 +52,9 @@ struct Program_configuration final
         return (Polydim::examples::Elliptic_MCC_3D::test::Test_Types)Gedim::Configurations::GetPropertyValue<unsigned int>("TestType");
     }
 
-    inline string ExportFolder() const
+    inline std::string ExportFolder() const
     {
-        return Gedim::Configurations::GetPropertyValue<string>("ExportFolder");
+        return Gedim::Configurations::GetPropertyValue<std::string>("ExportFolder");
     }
 
     inline Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D MeshGenerator() const
@@ -64,7 +64,7 @@ struct Program_configuration final
     }
     inline std::string MeshImportFilePath() const
     {
-        return Gedim::Configurations::GetPropertyValue<string>("MeshImportFilePath");
+        return Gedim::Configurations::GetPropertyValue<std::string>("MeshImportFilePath");
     }
     inline double MeshMaxVolume() const
     {

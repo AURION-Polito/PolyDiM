@@ -55,9 +55,9 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty("PecletConstant", 3.3333333333333331e-01, "Peclet constant Ck (Default: 1.0/3.0)");
     }
 
-    inline string ExportFolder() const
+    inline std::string ExportFolder() const
     {
-        return Gedim::Configurations::GetPropertyValue<string>("ExportFolder");
+        return Gedim::Configurations::GetPropertyValue<std::string>("ExportFolder");
     }
 
     inline Polydim::examples::Elliptic_PCC_2D::test::Test_Types TestType() const
@@ -72,7 +72,7 @@ struct Program_configuration final
     }
     inline std::string MeshImportFilePath() const
     {
-        return Gedim::Configurations::GetPropertyValue<string>("MeshImportFilePath");
+        return Gedim::Configurations::GetPropertyValue<std::string>("MeshImportFilePath");
     }
     inline double MeshMaxArea() const
     {

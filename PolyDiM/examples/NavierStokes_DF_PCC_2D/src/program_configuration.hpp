@@ -87,9 +87,9 @@ struct Program_configuration final
         return (Polydim::examples::NavierStokes_DF_PCC_2D::test::Test_Types)Gedim::Configurations::GetPropertyValue<unsigned int>("TestType");
     }
 
-    inline string ExportFolder() const
+    inline std::string ExportFolder() const
     {
-        return Gedim::Configurations::GetPropertyValue<string>("ExportFolder");
+        return Gedim::Configurations::GetPropertyValue<std::string>("ExportFolder");
     }
 
     inline Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D MeshGenerator() const
@@ -99,7 +99,7 @@ struct Program_configuration final
     }
     inline std::string MeshImportFilePath() const
     {
-        return Gedim::Configurations::GetPropertyValue<string>("MeshImportFilePath");
+        return Gedim::Configurations::GetPropertyValue<std::string>("MeshImportFilePath");
     }
     inline double MeshMaxArea() const
     {
@@ -117,7 +117,7 @@ struct Program_configuration final
     inline Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_LocalSpace_Types VemType() const
     {
         if (Gedim::Configurations::GetPropertyValue<unsigned int>("VemType") == 2)
-            throw runtime_error("not valid vem type");
+            throw std::runtime_error("not valid vem type");
 
         return (Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_LocalSpace_Types)Gedim::Configurations::GetPropertyValue<unsigned int>("VemType");
     }
@@ -128,7 +128,7 @@ struct Program_configuration final
     inline unsigned int VemOrder() const
     {
         if (Gedim::Configurations::GetPropertyValue<unsigned int>("VemOrder") < 2)
-            throw runtime_error("not valid order");
+            throw std::runtime_error("not valid order");
         return Gedim::Configurations::GetPropertyValue<unsigned int>("VemOrder");
     }
 
