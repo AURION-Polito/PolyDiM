@@ -87,13 +87,11 @@ LocalSpace_Data CreateLocalSpace(const Polydim::examples::Elliptic_PCC_3D::Progr
         local_space_data.FEM_Geometry.Faces_2D_Geometry.resize(numFaces);
         for (unsigned int f = 0; f < numFaces; f++)
         {
-            local_space_data.FEM_Geometry.Faces_2D_Geometry[f] =
-            {
-              mesh_geometric_data.Cell3DsFaces2DVertices.at(cell3D_index)[f],
-              mesh_geometric_data.Cell3DsFacesEdgeDirections.at(cell3D_index)[f],
-              mesh_geometric_data.Cell3DsFacesEdge2DTangents.at(cell3D_index)[f],
-              mesh_geometric_data.Cell3DsFacesEdgeLengths.at(cell3D_index)[f]
-            };
+            local_space_data.FEM_Geometry.Faces_2D_Geometry[f] = {
+                mesh_geometric_data.Cell3DsFaces2DVertices.at(cell3D_index)[f],
+                mesh_geometric_data.Cell3DsFacesEdgeDirections.at(cell3D_index)[f],
+                mesh_geometric_data.Cell3DsFacesEdge2DTangents.at(cell3D_index)[f],
+                mesh_geometric_data.Cell3DsFacesEdgeLengths.at(cell3D_index)[f]};
         }
 
         local_space_data.FEM_LocalSpace_Data =

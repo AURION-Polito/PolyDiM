@@ -249,7 +249,7 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_3D::Program_configuration
                  const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                  const Polydim::examples::Elliptic_PCC_3D::Assembler::Elliptic_PCC_3D_Problem_Data &assembler_data,
                  const Polydim::examples::Elliptic_PCC_3D::Assembler::PostProcess_Data &post_process_data,
-                 const test::I_Test& test,
+                 const test::I_Test &test,
                  const std::string &exportVtuFolder)
 {
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
@@ -532,8 +532,7 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_3D::Program_configuration
                             {"exact_solution",
                              Gedim::VTPProperty::Formats::Points,
                              static_cast<unsigned int>(exact_solution_values_data.size()),
-                             exact_solution_values_data.data()}
-                           });
+                             exact_solution_values_data.data()}});
 
         const unsigned int METHOD_ID = static_cast<unsigned int>(config.MethodType());
         const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());

@@ -47,18 +47,18 @@ class FEM_Tetrahedron_PCC_3D_ReferenceElement final
         result.Order = order;
         result.Dimension = 3;
 
-        result.Edges_by_vertices = {{{0, 1}, {0,true}},
-                                    {{1, 0}, {0,false}},
-                                    {{1, 2}, {1,true}},
-                                    {{2, 1}, {1,false}},
-                                    {{2, 0}, {2,true}},
-                                    {{0, 2}, {2,false}},
-                                    {{0, 3}, {3,true}},
-                                    {{3, 0}, {3,false}},
-                                    {{1, 3}, {4,false}},
-                                    {{3, 1}, {4,true}},
-                                    {{2, 3}, {5,false}},
-                                    {{3, 2}, {5,true}}};
+        result.Edges_by_vertices = {{{0, 1}, {0, true}},
+                                    {{1, 0}, {0, false}},
+                                    {{1, 2}, {1, true}},
+                                    {{2, 1}, {1, false}},
+                                    {{2, 0}, {2, true}},
+                                    {{0, 2}, {2, false}},
+                                    {{0, 3}, {3, true}},
+                                    {{3, 0}, {3, false}},
+                                    {{1, 3}, {4, false}},
+                                    {{3, 1}, {4, true}},
+                                    {{2, 3}, {5, false}},
+                                    {{3, 2}, {5, true}}};
 
         result.Faces_by_edge_vertex = {{{0, 2}, 0},
                                        {{1, 0}, 0},

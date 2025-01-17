@@ -32,7 +32,7 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
         const unsigned int edge_origin_index = polyhedron.Edges(0, e);
         const unsigned int edge_end_index = polyhedron.Edges(1, e);
 
-        const auto& reference_edge = reference_element_data.Edges_by_vertices.at({edge_origin_index, edge_end_index});
+        const auto &reference_edge = reference_element_data.Edges_by_vertices.at({edge_origin_index, edge_end_index});
 
         localSpace.polyhedron_to_reference_edge_index[e] = reference_edge.first;
         localSpace.polyhedron_to_reference_edge_direction[e] = reference_edge.second;
@@ -131,28 +131,23 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
 
     FEM_Triangle_PCC_2D_LocalSpace face_local_space;
 
-
     for (unsigned int f = 0; f < 4; ++f)
     {
-      const auto& face_geometry = polyhedron.Faces_2D_Geometry[f];
+        const auto &face_geometry = polyhedron.Faces_2D_Geometry[f];
 
-      FEM_Triangle_PCC_2D_Polygon_Geometry fem_face_geometry = {
-        polyhedron.Tolerance1D,
-        polyhedron.Tolerance2D,
-        face_geometry.Vertices,
-        face_geometry.EdgesDirection,
-        face_geometry.EdgesTangent,
-        face_geometry.EdgesLength
-      };
+        FEM_Triangle_PCC_2D_Polygon_Geometry fem_face_geometry = {polyhedron.Tolerance1D,
+                                                                  polyhedron.Tolerance2D,
+                                                                  face_geometry.Vertices,
+                                                                  face_geometry.EdgesDirection,
+                                                                  face_geometry.EdgesTangent,
+                                                                  face_geometry.EdgesLength};
 
-      localSpace.Boundary_LocalSpace_Data[f] = face_local_space.CreateLocalSpace(reference_element_data.BoundaryReferenceElement_Data,
-                                      fem_face_geometry);
+        localSpace.Boundary_LocalSpace_Data[f] =
+            face_local_space.CreateLocalSpace(reference_element_data.BoundaryReferenceElement_Data, fem_face_geometry);
     }
 
     localSpace.InternalQuadrature = InternalQuadrature(reference_element_data.ReferenceTetrahedronQuadrature, localSpace.MapData);
-    localSpace.BoundaryQuadrature =
-        BoundaryQuadrature(localSpace.Boundary_LocalSpace_Data,
-                           polyhedron);
+    localSpace.BoundaryQuadrature = BoundaryQuadrature(localSpace.Boundary_LocalSpace_Data, polyhedron);
 
     return localSpace;
 }
