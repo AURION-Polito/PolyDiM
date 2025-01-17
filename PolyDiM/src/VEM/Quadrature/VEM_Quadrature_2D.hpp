@@ -27,7 +27,7 @@ struct VEM_QuadratureData_2D
 
 class VEM_Quadrature_2D final
 {
-public:
+  public:
     struct Edges_QuadratureData
     {
         Gedim::Quadrature::QuadratureData Quadrature;
@@ -36,20 +36,21 @@ public:
 
     VEM_QuadratureData_2D Compute_PCC_2D(const unsigned int order) const;
     VEM_QuadratureData_2D Compute_MCC_2D(const unsigned int order) const;
+    VEM_QuadratureData_2D Compute_MCC_EdgeOrtho_2D(const unsigned int order) const;
     VEM_QuadratureData_2D Compute_DF_PCC_2D(const unsigned int order) const;
     VEM_QuadratureData_2D Compute_DF_PCC_3D(const unsigned int order) const;
 
-    Gedim::Quadrature::QuadratureData PolygonInternalQuadrature(const Gedim::Quadrature::QuadratureData& data,
-                                                                const std::vector<Eigen::Matrix3d>& polygonTriangulationVertices) const;
+    Gedim::Quadrature::QuadratureData PolygonInternalQuadrature(const Gedim::Quadrature::QuadratureData &data,
+                                                                const std::vector<Eigen::Matrix3d> &polygonTriangulationVertices) const;
 
-    Edges_QuadratureData PolygonEdgesLobattoQuadrature(const Eigen::MatrixXd& ReferenceSegmentInternalPoints,
-                                                       const Eigen::VectorXd& ReferenceSegmentInternalWeights,
-                                                       const Eigen::Vector2d& ReferenceSegmentExtremaWeights,
-                                                       const Eigen::MatrixXd& polygonVertices,
-                                                       const Eigen::VectorXd& edgeLengths,
-                                                       const std::vector<bool>& edgeDirections,
-                                                       const Eigen::MatrixXd& edgeTangents,
-                                                       const Eigen::MatrixXd& edgeNormals) const;
+    Edges_QuadratureData PolygonEdgesLobattoQuadrature(const Eigen::MatrixXd &ReferenceSegmentInternalPoints,
+                                                       const Eigen::VectorXd &ReferenceSegmentInternalWeights,
+                                                       const Eigen::Vector2d &ReferenceSegmentExtremaWeights,
+                                                       const Eigen::MatrixXd &polygonVertices,
+                                                       const Eigen::VectorXd &edgeLengths,
+                                                       const std::vector<bool> &edgeDirections,
+                                                       const Eigen::MatrixXd &edgeTangents,
+                                                       const Eigen::MatrixXd &edgeNormals) const;
 
     VEM_Quadrature_2D::Edges_QuadratureData PolygonEdgesQuadrature(const Gedim::Quadrature::QuadratureData &data,
                                                                    const Eigen::MatrixXd &polygonVertices,
@@ -57,10 +58,9 @@ public:
                                                                    const std::vector<bool> &edgeDirections,
                                                                    const Eigen::MatrixXd &edgeTangents,
                                                                    const Eigen::MatrixXd &edgeNormals) const;
-
 };
-}
-}
-}
+} // namespace Quadrature
+} // namespace VEM
+} // namespace Polydim
 
 #endif

@@ -5,7 +5,11 @@ set(ENABLE_POLYDIM_UNIT_TESTS OFF CACHE BOOL "Enable Unit Tests")
 set(ENABLE_POLYDIM_EXAMPLES OFF CACHE BOOL "Enable Examples")
 
 # Include dependencies
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/gedim)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/gedim/GeDiM)
+
+if(${ENABLE_GEDIM_UNIT_TESTS})
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/gedim/GeDiM/test)
+endif()
 
 # Include library
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/PolyDiM)
@@ -15,7 +19,10 @@ if(${ENABLE_POLYDIM_UNIT_TESTS})
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/PolyDiM/test)
 endif()
 
-# Include addim examples
+# Include examples
 if(${ENABLE_POLYDIM_EXAMPLES})
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/PolyDiM/examples)
 endif()
+
+include(${CMAKE_CURRENT_SOURCE_DIR}/gedim/cmake/cppcheck.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/gedim/cmake/clang-format.cmake)

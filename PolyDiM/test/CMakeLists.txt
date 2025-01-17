@@ -99,21 +99,22 @@ endif()
 # Insert Sources
 ###############################################################################################
 add_subdirectory(VEM)
+add_subdirectory(FEM)
+add_subdirectory(PDETools)
 
 list(APPEND POLYDIM_LIBRARY_TEST_PUBLIC_HEADERS ${polydim_test_headers})
-list(APPEND POLYDIM_LIBRARY_TEST_SOURCES ${polydim_test_sources})
-list(APPEND POLYDIM_LIBRARY_TEST_SOURCES main.cpp)
+list(APPEND POLYDIM_LIBRARY_TEST_SOURCES ${polydim_test_sources} main.cpp)
 list(APPEND POLYDIM_LIBRARY_TEST_HEADERS ${polydim_test_headers})
 list(APPEND POLYDIM_LIBRARY_TEST_INCLUDE ${polydim_test_includes})
 
 # Add variables for clang anc cppcheck
 ###############################################################################################
-list(APPEND CLANGFORMAT_FILES ${POLYDIM_LIBRARY_TEST_SOURCES})
-list(APPEND CLANGFORMAT_FILES ${POLYDIM_LIBRARY_TEST_HEADERS})
+list(APPEND CLANGFORMAT_FILES ${polydim_test_sources} "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
+list(APPEND CLANGFORMAT_FILES ${polydim_test_headers})
 set(CLANGFORMAT_FILES ${CLANGFORMAT_FILES} PARENT_SCOPE)
 
-list(APPEND CPPCHECK_FILES ${POLYDIM_LIBRARY_TEST_SOURCES})
-list(APPEND CPPCHECK_FILES ${POLYDIM_LIBRARY_TEST_HEADERS})
+list(APPEND CPPCHECK_FILES ${polydim_test_sources} "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
+list(APPEND CPPCHECK_FILES ${polydim_test_headers})
 set(CPPCHECK_FILES ${CPPCHECK_FILES} PARENT_SCOPE)
 
 # Create library test executable
@@ -125,6 +126,11 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME} ${POLYDIM_LIBRARY_TEST_LINKED_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${POLYDIM_LIBRARY_TEST_INCLUDE})
 
-set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${POLYDIM_LIBRARY_TEST_PUBLIC_HEADERS}")
+set_target_properties(${PROJECT_NAME}
+    PROPERTIES PUBLIC_HEADER "${POLYDIM_LIBRARY_TEST_PUBLIC_HEADERS}"
+    LINKER_LANGUAGE CXX
+    CXX_STANDARD 20
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF)
 
 gtest_discover_tests(${PROJECT_NAME})

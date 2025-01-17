@@ -44,6 +44,11 @@ else()
       list(APPEND Elliptic_MCC_2D_INCLUDE ${POLYDIM_LIBRARY_INCLUDE_DIRECTORIES})
 endif()
 
+## MPI
+if(${USE_MPI})
+    find_package(MPI REQUIRED)
+endif()
+
 ## Eigen3
 find_package(Eigen3 CONFIG REQUIRED)
 
@@ -81,19 +86,18 @@ endif()
 # Insert Sources
 #########################################################
 add_subdirectory(src)
-list(APPEND Elliptic_MCC_2D_SOURCES ${elliptic_MCC_2D_sources})
-list(APPEND Elliptic_MCC_2D_SOURCES main.cpp)
+list(APPEND Elliptic_MCC_2D_SOURCES ${elliptic_MCC_2D_sources} main.cpp)
 list(APPEND Elliptic_MCC_2D_HEADERS ${elliptic_MCC_2D_headers})
 list(APPEND Elliptic_MCC_2D_INCLUDE ${elliptic_MCC_2D_includes})
 
 # Add variables for clang anc cppcheck
 ###############################################################################################
-list(APPEND CLANGFORMAT_FILES ${Elliptic_MCC_2D_SOURCES})
-list(APPEND CLANGFORMAT_FILES ${Elliptic_MCC_2D_HEADERS})
+list(APPEND CLANGFORMAT_FILES ${elliptic_MCC_2D_sources} "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
+list(APPEND CLANGFORMAT_FILES ${elliptic_MCC_2D_headers})
 set(CLANGFORMAT_FILES ${CLANGFORMAT_FILES} PARENT_SCOPE)
 
-list(APPEND CPPCHECK_FILES ${Elliptic_MCC_2D_SOURCES})
-list(APPEND CPPCHECK_FILES ${Elliptic_MCC_2D_HEADERS})
+list(APPEND CPPCHECK_FILES ${elliptic_MCC_2D_sources} "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
+list(APPEND CPPCHECK_FILES ${elliptic_MCC_2D_headers})
 set(CPPCHECK_FILES ${CPPCHECK_FILES} PARENT_SCOPE)
 
 # Create library test executable
@@ -112,3 +116,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
       CXX_STANDARD 20
       CXX_STANDARD_REQUIRED ON
       CXX_EXTENSIONS OFF)
+      
+# Add test
+###############################################################################################
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/integration_test.py
+     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
