@@ -192,6 +192,10 @@ int main(int argc, char **argv)
     if (count_dofs.num_total_dofs > 0)
         Polydim::examples::Stokes_DF_PCC_3D::program_utilities::solve_stokes(config, assembler_data);
 
+    cout.precision(2);
+    cout << scientific << "assembler_data.rightHandSide" << endl;
+    cout << scientific << assembler_data.rightHandSide << endl;
+
     Gedim::Profiler::StopTime("Solve");
     Gedim::Output::PrintStatusProgram("Solve");
 

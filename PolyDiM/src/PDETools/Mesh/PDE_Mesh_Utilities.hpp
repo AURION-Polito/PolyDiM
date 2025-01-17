@@ -147,8 +147,8 @@ inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
         const Eigen::Vector3d domain_origin = pde_domain.vertices.col(0);
         const Eigen::Vector3d domain_base_tangent = pde_domain.vertices.col(1) - domain_origin;
         const Eigen::Vector3d domain_height_tangent = pde_domain.vertices.rightCols(1) - domain_origin;
-        const unsigned num_cells_base = ceil(domain_base_tangent.norm() / max_cell_edge);
-        const unsigned num_cells_height = ceil(domain_height_tangent.norm() / max_cell_edge);
+        const unsigned int num_cells_base = ceil(domain_base_tangent.norm() / max_cell_edge);
+        const unsigned int num_cells_height = ceil(domain_height_tangent.norm() / max_cell_edge);
 
         mesh_utilities.CreateRectangleMesh(domain_origin,
                                            domain_base_tangent,
@@ -202,9 +202,9 @@ inline void create_mesh_3D(const Gedim::GeometryUtilities &geometry_utilities,
         const Eigen::Vector3d domain_base_tangent = pde_domain.vertices.col(1) - domain_origin;
         const Eigen::Vector3d domain_width_tangent = pde_domain.vertices.col(4) - domain_origin;
         const Eigen::Vector3d domain_heigth_tangent = pde_domain.vertices.col(3) - domain_origin;
-        const unsigned num_cells_base = ceil(domain_base_tangent.norm() / max_cell_edge);
-        const unsigned num_cells_width = ceil(domain_width_tangent.norm() / max_cell_edge);
-        const unsigned num_cells_height = ceil(domain_heigth_tangent.norm() / max_cell_edge);
+        const unsigned int num_cells_base = round(domain_base_tangent.norm() / max_cell_edge);
+        const unsigned int num_cells_width = round(domain_width_tangent.norm() / max_cell_edge);
+        const unsigned int num_cells_height = round(domain_heigth_tangent.norm() / max_cell_edge);
 
         mesh_utilities.CreateParallelepipedMesh(domain_origin,
                                                 domain_base_tangent,
@@ -214,8 +214,6 @@ inline void create_mesh_3D(const Gedim::GeometryUtilities &geometry_utilities,
                                                 geometry_utilities.EquispaceCoordinates(num_cells_height + 1, 0.0, 1.0, true),
                                                 geometry_utilities.EquispaceCoordinates(num_cells_width + 1, 0.0, 1.0, true),
                                                 mesh);
-
-        cout << num_cells_base << " " << num_cells_width << " " << num_cells_height << " " << mesh.Cell3DTotalNumber() << endl;
     }
     break;
     default:

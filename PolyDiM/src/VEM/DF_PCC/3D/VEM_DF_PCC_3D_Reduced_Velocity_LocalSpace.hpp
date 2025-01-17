@@ -254,7 +254,7 @@ class VEM_DF_PCC_3D_Reduced_Velocity_LocalSpace final : public I_VEM_DF_PCC_3D_V
 
     inline Eigen::MatrixXd ComputeBasisFunctionsDivergenceValues(const VEM_DF_PCC_3D_Velocity_LocalSpace_Data &localSpace) const
     {
-        return utilities.ComputeBasisFunctionsDivergenceValues(localSpace.Nkm1, localSpace.VanderInternal, localSpace.Vmatrix);
+        return utilities.ComputeBasisFunctionsDivergenceValues(1, localSpace.VanderInternal, localSpace.Vmatrix);
     }
 };
 } // namespace DF_PCC

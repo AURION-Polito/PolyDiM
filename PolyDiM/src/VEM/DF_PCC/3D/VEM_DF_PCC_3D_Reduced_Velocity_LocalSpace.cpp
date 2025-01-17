@@ -377,14 +377,7 @@ void VEM_DF_PCC_3D_Reduced_Velocity_LocalSpace::ComputeDivergenceCoefficients(
     const std::vector<PCC::VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
     VEM_DF_PCC_3D_Velocity_LocalSpace_Data &localSpace) const
 {
-    localSpace.Wmatrix = MatrixXd::Zero(localSpace.Nkm1, localSpace.NumBasisFunctions);
-
-    localSpace.Wmatrix.block(1,
-                             localSpace.NumBoundaryBasisFunctions + localSpace.NumBigOPlusInternalBasisFunctions,
-                             localSpace.NumDivergenceInternalBasisFunctions,
-                             localSpace.NumDivergenceInternalBasisFunctions) =
-        (polyhedronMeasure / polyhedronDiameter) *
-        MatrixXd::Identity(localSpace.NumDivergenceInternalBasisFunctions, localSpace.NumDivergenceInternalBasisFunctions);
+    localSpace.Wmatrix = MatrixXd::Zero(1, localSpace.NumBasisFunctions);
 
     const unsigned int Nkm2_2D = reference_element_data.NumDofs2D;
     unsigned int offsetDof =
@@ -396,7 +389,7 @@ void VEM_DF_PCC_3D_Reduced_Velocity_LocalSpace::ComputeDivergenceCoefficients(
         offsetDof += Nkm2_2D;
     }
 
-    localSpace.Vmatrix = localSpace.Hmatrix.topLeftCorner(localSpace.Nkm1, localSpace.Nkm1).llt().solve(localSpace.Wmatrix);
+    localSpace.Vmatrix = (1.0 / polyhedronMeasure) * localSpace.Wmatrix;
 }
 //****************************************************************************
 void VEM_DF_PCC_3D_Reduced_Velocity_LocalSpace::ComputePolynomialBasisDofs(const double &polyhedronMeasure,
@@ -423,12 +416,6 @@ void VEM_DF_PCC_3D_Reduced_Velocity_LocalSpace::ComputePolynomialBasisDofs(const
         localSpace.Dmatrix[d].middleRows(localSpace.NumBoundaryBasisFunctions, localSpace.NumBigOPlusInternalBasisFunctions) =
             (1.0 / polyhedronMeasure) * localSpace.VanderGBigOPluskm2[d].transpose() *
             internalQuadratureWeights.asDiagonal() * localSpace.VanderInternal;
-
-        // Divergence
-        localSpace.Dmatrix[d].bottomRows(localSpace.NumDivergenceInternalBasisFunctions) =
-            (polyhedronDiameter / polyhedronMeasure) *
-            localSpace.VanderInternal.middleCols(1, localSpace.NumDivergenceInternalBasisFunctions).transpose() *
-            internalQuadratureWeights.asDiagonal() * localSpace.VanderInternalDerivatives[d];
     }
 }
 //****************************************************************************
@@ -456,10 +443,10 @@ void VEM_DF_PCC_3D_Reduced_Velocity_LocalSpace::ComputeCMatrixkm2(const double &
         localSpace.Cmatrix[d].middleCols(localSpace.NumBoundaryBasisFunctions, localSpace.NumBigOPlusInternalBasisFunctions) +=
             polyhedronMeasure * tmpVD;
 
-        // DOF divergenza
+        // divergence term
         localSpace.Cmatrix[d] += -polyhedronDiameter *
                                  localSpace.VectorDecompositionMatrices[d][0].block(0, 1, localSpace.Nk, localSpace.NKp1 - 1) *
-                                 localSpace.HmatrixKp1.block(1, 0, localSpace.NKp1 - 1, localSpace.Nkm1) * localSpace.Vmatrix;
+                                 localSpace.HmatrixKp1.block(1, 0, localSpace.NKp1 - 1, 1) * localSpace.Vmatrix;
     }
 
     localSpace.Cmatrixkm2.resize(localSpace.Dimension, MatrixXd::Zero(localSpace.Nkm2, localSpace.NumBasisFunctions));

@@ -70,7 +70,8 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D_Reference_Element)
     for (unsigned int k = 1; k < 4; k++)
     {
 
-        const auto referenceQuadrature = Gedim::Quadrature::Quadrature_Gauss3D_Tetrahedron_PositiveWeights::FillPointsAndWeights(10);
+        const auto referenceQuadrature =
+            Gedim::Quadrature::Quadrature_Gauss3D_Tetrahedron_PositiveWeights::FillPointsAndWeights(10);
         const Eigen::MatrixXd &referenceQuadraturePoints = referenceQuadrature.Points;
 
         const auto reference_element_data = reference_element.Create(k);
@@ -101,23 +102,22 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D_Reference_Element)
 
         VEM::Monomials::VEM_Monomials_3D monomials;
         const auto monomials_data = monomials.Compute(k);
-        const Eigen::MatrixXd vander_matrix = monomials.Vander(monomials_data,
-                                                               referenceQuadraturePoints,
-                                                               Eigen::Vector3d::Zero(),
-                                                               1.0);
+        const Eigen::MatrixXd vander_matrix =
+            monomials.Vander(monomials_data, referenceQuadraturePoints, Eigen::Vector3d::Zero(), 1.0);
 
-        const std::vector<Eigen::MatrixXd> grad_vander_matrix = monomials.VanderDerivatives(monomials_data,
-                                                                                            vander_matrix,
-                                                                                            1.0);
+        const std::vector<Eigen::MatrixXd> grad_vander_matrix = monomials.VanderDerivatives(monomials_data, vander_matrix, 1.0);
 
         const Eigen::MatrixXd Hmatrix = vander_matrix.transpose() * referenceQuadrature.Weights.asDiagonal() * vander_matrix;
-        const Eigen::MatrixXd rhs = vander_matrix.transpose() * referenceQuadrature.Weights.asDiagonal() * basisValues.bottomRows(referenceQuadraturePoints.cols());
+        const Eigen::MatrixXd rhs = vander_matrix.transpose() * referenceQuadrature.Weights.asDiagonal() *
+                                    basisValues.bottomRows(referenceQuadraturePoints.cols());
         const Eigen::MatrixXd coefficients = Hmatrix.llt().solve(rhs);
 
-        for(unsigned int d = 0; d < 3 ; d++)
+        for (unsigned int d = 0; d < 3; d++)
         {
             const double norm_der = gradBasisValues[d].bottomRows(referenceQuadraturePoints.cols()).norm();
-            ASSERT_TRUE((gradBasisValues[d].bottomRows(referenceQuadraturePoints.cols()) - grad_vander_matrix[d] * coefficients).norm() < 1.0e-9 * norm_der);
+            ASSERT_TRUE(
+                (gradBasisValues[d].bottomRows(referenceQuadraturePoints.cols()) - grad_vander_matrix[d] * coefficients).norm() <
+                1.0e-9 * norm_der);
         }
     }
 }
@@ -146,7 +146,7 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D)
 
     for (unsigned int k = 1; k < 4; k++)
     {
-            const Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_ReferenceElement reference_element;
+        const Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_ReferenceElement reference_element;
         const auto reference_element_data = reference_element.Create(k);
 
         Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_LocalSpace local_space;
@@ -157,11 +157,10 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D)
         const std::vector<Eigen::MatrixXd> gradBasisValues_ref =
             reference_element.EvaluateBasisFunctionDerivatives(local_space_Data.InternalQuadrature.Points, reference_element_data);
 
-        const Eigen::MatrixXd basis_function_values = local_space.ComputeBasisFunctionsValues(reference_element_data, local_space_Data);
+        const Eigen::MatrixXd basis_function_values =
+            local_space.ComputeBasisFunctionsValues(reference_element_data, local_space_Data);
         const std::vector<Eigen::MatrixXd> gradBasisValues =
             local_space.ComputeBasisFunctionsDerivativeValues(reference_element_data, local_space_Data);
-
-
 
         const Eigen::VectorXd sumBasisValues = basis_function_values.rowwise().sum();
         const Eigen::VectorXd sumGradXValues = gradBasisValues[0].rowwise().sum();
@@ -177,25 +176,19 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D)
 
         VEM::Monomials::VEM_Monomials_3D monomials;
         const auto monomials_data = monomials.Compute(k);
-        const Eigen::MatrixXd vander_matrix = monomials.Vander(monomials_data,
-                                                               quadrature.Points,
-                                                               Eigen::Vector3d::Zero(),
-                                                               1.0);
+        const Eigen::MatrixXd vander_matrix = monomials.Vander(monomials_data, quadrature.Points, Eigen::Vector3d::Zero(), 1.0);
 
-        const std::vector<Eigen::MatrixXd> grad_vander_matrix = monomials.VanderDerivatives(monomials_data,
-                                                                                            vander_matrix,
-                                                                                            1.0);
+        const std::vector<Eigen::MatrixXd> grad_vander_matrix = monomials.VanderDerivatives(monomials_data, vander_matrix, 1.0);
 
         const Eigen::MatrixXd Hmatrix = vander_matrix.transpose() * quadrature.Weights.asDiagonal() * vander_matrix;
         const Eigen::MatrixXd rhs = vander_matrix.transpose() * quadrature.Weights.asDiagonal() * basis_function_values;
         const Eigen::MatrixXd coefficients = Hmatrix.llt().solve(rhs);
 
-        for(unsigned int d = 0; d < 3 ; d++)
+        for (unsigned int d = 0; d < 3; d++)
         {
             const double norm_der = gradBasisValues[d].norm();
             ASSERT_TRUE((gradBasisValues[d] - grad_vander_matrix[d] * coefficients).norm() < 1.0e-9 * norm_der);
         }
-
     }
 }
 

@@ -271,7 +271,7 @@ Assembler::Stokes_DF_PCC_3D_Problem_Data Assembler::Assemble(
 
         const auto velocity_basis_functions_derivatives_values =
             vem_velocity_local_space.ComputeBasisFunctionsDerivativeValues(velocity_local_space,
-                                                                           Polydim::VEM::DF_PCC::ProjectionTypes::PiNabla);
+                                                                           Polydim::VEM::DF_PCC::ProjectionTypes::Pi0km1Der);
         const auto velocity_basis_functions_divergence_values =
             vem_velocity_local_space.ComputeBasisFunctionsDivergenceValues(velocity_local_space);
 
@@ -381,6 +381,10 @@ Assembler::Stokes_DF_PCC_3D_Problem_Data Assembler::Assemble(
     result.solutionDirichlet.Create();
     result.globalMatrixA.Create();
     result.dirichletMatrixA.Create();
+
+    cout.precision(2);
+    cout << scientific << "assembler_data.rightHandSide" << endl;
+    cout << scientific << result.rightHandSide << endl;
 
     if (count_dofs.num_total_strong > 0)
         result.rightHandSide.SubtractionMultiplication(result.dirichletMatrixA, result.solutionDirichlet);
@@ -671,8 +675,8 @@ Assembler::DiscrepancyErrors_Data Assembler::ComputeDiscrepancyErrors(
     result.full_norm_H1_velocity = std::sqrt(result.cell3Ds_full_norm_H1_velocity.sum());
     result.full_norm_L2_pressure = std::sqrt(result.cell3Ds_full_norm_L2_pressure.sum());
 
-    result.pressure_dofs_ratio = ((double)reduced_dofs_data[3].NumberDOFs) / full_dofs_data[3].NumberDOFs;
-    result.velocity_dofs_ratio = ((double)reduced_count_dofs.offsets_DOFs[3]) / full_count_dofs.offsets_DOFs[3];
+    result.pressure_dofs_ratio = ((double)reduced_dofs_data[7].NumberDOFs) / full_dofs_data[7].NumberDOFs;
+    result.velocity_dofs_ratio = ((double)reduced_count_dofs.offsets_DOFs[7]) / full_count_dofs.offsets_DOFs[7];
 
     return result;
 }

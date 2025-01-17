@@ -222,15 +222,16 @@ if __name__ == "__main__":
     vem_types = [2]
     for vem_type in vem_types:
         for vem_order in vem_orders:
-            export_path = run_program(program_folder,
-                                      program_path,
-                                      "Run_MG{0}".format(mesh_generator),
-                                      vem_type,
-                                      vem_order,
-                                      test_type,
-                                      mesh_generator,
-                                      mesh_max_area,
-                                      1)
+            for mesh_max_area in mesh_max_areas:
+                export_path = run_program(program_folder,
+                                          program_path,
+                                          "Run_MG{0}".format(mesh_generator),
+                                          vem_type,
+                                          vem_order,
+                                          test_type,
+                                          mesh_generator,
+                                          mesh_max_area,
+                                          1)
             errors = import_discrepancy_errors(export_path, vem_type, vem_order, test_type)
             test_discrepancy_errors(errors, tol)
             if remove_folder:
@@ -262,15 +263,16 @@ if __name__ == "__main__":
     vem_types = [2]
     for vem_type in vem_types:
         for vem_order in vem_orders:
-            export_path = run_program(program_folder,
-                                      program_path,
-                                      "Run_MG{0}".format(mesh_generator),
-                                      vem_type,
-                                      vem_order,
-                                      test_type,
-                                      mesh_generator,
-                                      mesh_max_area,
-                                      1)
+            for mesh_max_area in mesh_max_areas:
+                export_path = run_program(program_folder,
+                                          program_path,
+                                          "Run_MG{0}".format(mesh_generator),
+                                          vem_type,
+                                          vem_order,
+                                          test_type,
+                                          mesh_generator,
+                                          mesh_max_area,
+                                          1)
             errors = import_discrepancy_errors(export_path, vem_type, vem_order, test_type)
             test_discrepancy_errors(errors, tol)
             if remove_folder:
@@ -440,15 +442,16 @@ if __name__ == "__main__":
     vem_types = [2]
     for vem_type in vem_types:
         for vem_order in vem_orders:
-            export_path = run_program(program_folder,
-                                      program_path,
-                                      "Run_MG{0}".format(mesh_generator),
-                                      vem_type,
-                                      vem_order,
-                                      test_type,
-                                      mesh_generator,
-                                      mesh_max_area,
-                                      1)
+            for mesh_max_area in mesh_max_areas:
+                export_path = run_program(program_folder,
+                                          program_path,
+                                          "Run_MG{0}".format(mesh_generator),
+                                          vem_type,
+                                          vem_order,
+                                          test_type,
+                                          mesh_generator,
+                                          mesh_max_area,
+                                          1)
             errors = import_discrepancy_errors(export_path, vem_type, vem_order, test_type)
             test_discrepancy_errors(errors, tol)
             if remove_folder:
@@ -480,15 +483,16 @@ if __name__ == "__main__":
     vem_types = [2]
     for vem_type in vem_types:
         for vem_order in vem_orders:
-            export_path = run_program(program_folder,
-                                      program_path,
-                                      "Run_MG{0}".format(mesh_generator),
-                                      vem_type,
-                                      vem_order,
-                                      test_type,
-                                      mesh_generator,
-                                      mesh_max_area,
-                                      1)
+            for mesh_max_area in mesh_max_areas:
+                export_path = run_program(program_folder,
+                                          program_path,
+                                          "Run_MG{0}".format(mesh_generator),
+                                          vem_type,
+                                          vem_order,
+                                          test_type,
+                                          mesh_generator,
+                                          mesh_max_area,
+                                          1)
             errors = import_discrepancy_errors(export_path, vem_type, vem_order, test_type)
             test_discrepancy_errors(errors, tol)
             if remove_folder:
