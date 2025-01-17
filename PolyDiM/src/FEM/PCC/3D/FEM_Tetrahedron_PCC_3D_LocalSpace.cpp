@@ -36,8 +36,10 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
         const unsigned int edge_origin_index = polyhedron.Edges(0, e);
         const unsigned int edge_end_index = polyhedron.Edges(1, e);
 
-        localSpace.polyhedron_to_reference_edge_index[e] =
-            reference_element_data.Edges_by_vertices.at({edge_origin_index, edge_end_index});
+        const auto& reference_edge = reference_element_data.Edges_by_vertices.at({edge_origin_index, edge_end_index});
+
+        localSpace.polyhedron_to_reference_edge_index[e] = reference_edge.first;
+        localSpace.polyhedron_to_reference_edge_direction[e] = reference_edge.second;
     }
 
     for (unsigned int f = 0; f < 4; ++f)
@@ -71,9 +73,10 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
         localSpace.Dof1DsIndex[e + 1] = localSpace.Dof1DsIndex[e] + reference_element_data.NumDofs1D;
 
         const unsigned int ref_e = localSpace.polyhedron_to_reference_edge_index[e];
+        const bool ref_e_direction = localSpace.polyhedron_to_reference_edge_direction[e];
         unsigned int edge_dof_counter = reference_element_data.NumDofs0D * 4 + reference_element_data.NumDofs1D * ref_e;
 
-        if (polyhedron.EdgesDirection.at(e))
+        if (polyhedron.EdgesDirection.at(e) == ref_e_direction)
         {
             for (unsigned int d = localSpace.Dof1DsIndex[e]; d < localSpace.Dof1DsIndex[e + 1]; d++)
             {

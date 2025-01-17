@@ -35,6 +35,7 @@ struct FEM_Tetrahedron_PCC_3D_LocalSpace_Data final
     unsigned int NumberOfBasisFunctions; ///< Number of basis functions
     Eigen::MatrixXd Dofs;                ///< DOFs geometric position
     std::array<unsigned int, 6> polyhedron_to_reference_edge_index;
+    std::array<bool, 6> polyhedron_to_reference_edge_direction;
     std::array<unsigned int, 4> polyhedron_to_reference_face_index;
     std::vector<unsigned int> DofsMeshOrder;                           ///< DOFs position depending on element
     std::array<unsigned int, 5> Dof0DsIndex;                           ///< local DOF index for each element 0D
