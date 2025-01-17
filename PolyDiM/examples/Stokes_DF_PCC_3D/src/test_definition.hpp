@@ -471,38 +471,46 @@ struct Stokes_Benchmark_1 final : public I_Test
         const Eigen::ArrayXd x = points.row(0);
         const Eigen::ArrayXd y = points.row(1);
         const Eigen::ArrayXd z = points.row(2);
-
-        Eigen::ArrayXd zkm3 = Eigen::VectorXd::Ones(points.cols());
-        Eigen::ArrayXd xkm3 = Eigen::VectorXd::Ones(points.cols());
-        Eigen::ArrayXd ykm3 = Eigen::VectorXd::Ones(points.cols());
-        for (int i = 0; i < order - 3; i++)
-        {
-            zkm3 = zkm3 * z;
-            xkm3 = xkm3 * x;
-            ykm3 = ykm3 * y;
-        }
-
-        const Eigen::ArrayXd zkm1 = zkm3 * z * z;
-        const Eigen::ArrayXd xkm1 = xkm3 * x * x;
-        const Eigen::ArrayXd ykm1 = ykm3 * y * y;
-
-        std::vector<Eigen::VectorXd> derivatesTermValues(3, Eigen::VectorXd::Zero(points.cols()));
-        derivatesTermValues[0] = order * xkm1 * y + zkm1 * z;
-        derivatesTermValues[1] = order * ykm1 * z + xkm1 * x;
-        derivatesTermValues[2] = order * zkm1 * x + ykm1 * y;
-
+        std::vector<Eigen::VectorXd> derivativesPressureValues(3, Eigen::VectorXd::Zero(points.cols()));
         std::vector<Eigen::VectorXd> laplacianVelocityTermValues(3, Eigen::VectorXd::Zero(points.cols()));
-        laplacianVelocityTermValues[0] = order * (order - 1.0) * (order - 2.0) * x * zkm3;
-        laplacianVelocityTermValues[1] = order * (order - 1.0) * (order - 2.0) * y * zkm3;
+
         if (order == 2)
+        {
             laplacianVelocityTermValues[2] = Eigen::VectorXd::Constant(points.cols(), -2.0 * order * (order - 1.0));
+
+            derivativesPressureValues[0] = order * x * y + z * z;
+            derivativesPressureValues[1] = order * y * z + x * x;
+            derivativesPressureValues[2] = order * z * x + y * y;
+        }
         else
+        {
+            Eigen::ArrayXd zkm3 = Eigen::VectorXd::Ones(points.cols());
+            Eigen::ArrayXd xkm3 = Eigen::VectorXd::Ones(points.cols());
+            Eigen::ArrayXd ykm3 = Eigen::VectorXd::Ones(points.cols());
+            for (unsigned int i = 0; i < order - 3; i++)
+            {
+                zkm3 = zkm3 * z;
+                xkm3 = xkm3 * x;
+                ykm3 = ykm3 * y;
+            }
+
+            const Eigen::ArrayXd zkm1 = zkm3 * z * z;
+            const Eigen::ArrayXd xkm1 = xkm3 * x * x;
+            const Eigen::ArrayXd ykm1 = ykm3 * y * y;
+
+            derivativesPressureValues[0] = order * xkm1 * y + zkm1 * z;
+            derivativesPressureValues[1] = order * ykm1 * z + xkm1 * x;
+            derivativesPressureValues[2] = order * zkm1 * x + ykm1 * y;
+
+            laplacianVelocityTermValues[0] = order * (order - 1.0) * (order - 2) * x * zkm3;
+            laplacianVelocityTermValues[1] = order * (order - 1.0) * (order - 2) * y * zkm3;
             laplacianVelocityTermValues[2] =
                 (2.0 - order) * order * (order - 1.0) * (x * xkm3 + y * ykm3) - 2.0 * order * (order - 1.0) * zkm3 * z;
+        }
 
-        return {-laplacianVelocityTermValues[0] - derivatesTermValues[0],
-                -laplacianVelocityTermValues[1] - derivatesTermValues[1],
-                -laplacianVelocityTermValues[2] - derivatesTermValues[2]};
+        return {-laplacianVelocityTermValues[0] - derivativesPressureValues[0],
+                -laplacianVelocityTermValues[1] - derivativesPressureValues[1],
+                -laplacianVelocityTermValues[2] - derivativesPressureValues[2]};
     };
 
     std::array<Eigen::VectorXd, 3> strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
@@ -702,23 +710,38 @@ struct Stokes_Benchmark_2 final : public I_Test
             ykm3 = ykm3 * y;
         }
 
-        std::vector<Eigen::VectorXd> derivatesTermValues(3, Eigen::VectorXd::Zero(points.cols()));
-        derivatesTermValues[0] = 2.0 * M_PI * cos(2.0 * M_PI * x) * sin(2.0 * M_PI * y) * sin(2.0 * M_PI * z);
-        derivatesTermValues[1] = 2.0 * M_PI * sin(2.0 * M_PI * x) * cos(2.0 * M_PI * y) * sin(2.0 * M_PI * z);
-        derivatesTermValues[2] = 2.0 * M_PI * sin(2.0 * M_PI * x) * sin(2.0 * M_PI * y) * cos(2.0 * M_PI * z);
+        std::vector<Eigen::VectorXd> derivativesPressureValues(3, Eigen::VectorXd::Zero(points.cols()));
+        derivativesPressureValues[0] = 2.0 * M_PI * cos(2.0 * M_PI * x) * sin(2.0 * M_PI * y) * sin(2.0 * M_PI * z);
+        derivativesPressureValues[1] = 2.0 * M_PI * sin(2.0 * M_PI * x) * cos(2.0 * M_PI * y) * sin(2.0 * M_PI * z);
+        derivativesPressureValues[2] = 2.0 * M_PI * sin(2.0 * M_PI * x) * sin(2.0 * M_PI * y) * cos(2.0 * M_PI * z);
 
         std::vector<Eigen::VectorXd> laplacianVelocityTermValues(3, Eigen::VectorXd::Zero(points.cols()));
-        laplacianVelocityTermValues[0] = order * (order - 1.0) * (order - 2.0) * x * zkm3;
-        laplacianVelocityTermValues[1] = order * (order - 1.0) * (order - 2.0) * y * zkm3;
+
         if (order == 2)
+        {
             laplacianVelocityTermValues[2] = Eigen::VectorXd::Constant(points.cols(), -2.0 * order * (order - 1.0));
+        }
         else
+        {
+            Eigen::ArrayXd zkm3 = Eigen::VectorXd::Ones(points.cols());
+            Eigen::ArrayXd xkm3 = Eigen::VectorXd::Ones(points.cols());
+            Eigen::ArrayXd ykm3 = Eigen::VectorXd::Ones(points.cols());
+            for (unsigned int i = 0; i < order - 3; i++)
+            {
+                zkm3 = zkm3 * z;
+                xkm3 = xkm3 * x;
+                ykm3 = ykm3 * y;
+            }
+
+            laplacianVelocityTermValues[0] = order * (order - 1.0) * (order - 2) * x * zkm3;
+            laplacianVelocityTermValues[1] = order * (order - 1.0) * (order - 2) * y * zkm3;
             laplacianVelocityTermValues[2] =
                 (2.0 - order) * order * (order - 1.0) * (x * xkm3 + y * ykm3) - 2.0 * order * (order - 1.0) * zkm3 * z;
+        }
 
-        return {-laplacianVelocityTermValues[0] - derivatesTermValues[0],
-                -laplacianVelocityTermValues[1] - derivatesTermValues[1],
-                -laplacianVelocityTermValues[2] - derivatesTermValues[2]};
+        return {-laplacianVelocityTermValues[0] - derivativesPressureValues[0],
+                -laplacianVelocityTermValues[1] - derivativesPressureValues[1],
+                -laplacianVelocityTermValues[2] - derivativesPressureValues[2]};
     };
 
     std::array<Eigen::VectorXd, 3> strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const

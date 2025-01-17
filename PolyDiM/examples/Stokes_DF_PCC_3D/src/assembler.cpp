@@ -382,10 +382,6 @@ Assembler::Stokes_DF_PCC_3D_Problem_Data Assembler::Assemble(
     result.globalMatrixA.Create();
     result.dirichletMatrixA.Create();
 
-    cout.precision(2);
-    cout << scientific << "assembler_data.rightHandSide" << endl;
-    cout << scientific << result.rightHandSide << endl;
-
     if (count_dofs.num_total_strong > 0)
         result.rightHandSide.SubtractionMultiplication(result.dirichletMatrixA, result.solutionDirichlet);
 
