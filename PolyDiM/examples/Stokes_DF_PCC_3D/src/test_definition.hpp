@@ -700,16 +700,6 @@ struct Stokes_Benchmark_2 final : public I_Test
         const Eigen::ArrayXd y = points.row(1);
         const Eigen::ArrayXd z = points.row(2);
 
-        Eigen::ArrayXd zkm3 = Eigen::VectorXd::Ones(points.cols());
-        Eigen::ArrayXd xkm3 = Eigen::VectorXd::Ones(points.cols());
-        Eigen::ArrayXd ykm3 = Eigen::VectorXd::Ones(points.cols());
-        for (int i = 0; i < order - 3; i++)
-        {
-            zkm3 = zkm3 * z;
-            xkm3 = xkm3 * x;
-            ykm3 = ykm3 * y;
-        }
-
         std::vector<Eigen::VectorXd> derivativesPressureValues(3, Eigen::VectorXd::Zero(points.cols()));
         derivativesPressureValues[0] = 2.0 * M_PI * cos(2.0 * M_PI * x) * sin(2.0 * M_PI * y) * sin(2.0 * M_PI * z);
         derivativesPressureValues[1] = 2.0 * M_PI * sin(2.0 * M_PI * x) * cos(2.0 * M_PI * y) * sin(2.0 * M_PI * z);
