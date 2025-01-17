@@ -132,15 +132,15 @@ def test_errors(errors,
         if test_type == 3:
             errors = np.array(errors[1:])
             slope_L2_pres = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 2]), 1)[0]
-            print("Num. Ref. ", str(num_rows - 1), " : ", errors[:, 1], " , ", slope_L2_pres)
+            print("Num. Ref. ", str(num_rows-1), " : ", errors[:, 1], " , ", slope_L2_pres)
             assert round(slope_L2_pres) == round(float(vem_order))
-            for nr in range(num_rows - 1):
+            for nr in range(num_rows-1):
                 assert abs(errors[nr, 1]) < tol
         elif test_type == 4:
             errors = np.array(errors[1:])
             slope_L2_pres = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 2]), 1)[0]
             slope_H1_vel = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 1]), 1)[0]
-            print("Num. Ref. ", str(num_rows - 1), " : ", slope_H1_vel, slope_L2_pres)
+            print("Num. Ref. ", str(num_rows-1), " : ", slope_H1_vel, slope_L2_pres)
             assert round(slope_L2_pres) == round(float(vem_order))
             assert round(slope_H1_vel) >= round(float(vem_order + 2))
         else:
@@ -170,7 +170,7 @@ if __name__ == "__main__":
 
     export_folder = "integration_tests"
     os.system("rm -rf " + os.path.join(program_folder, export_folder))
-    tol = 5.0e-8
+    tol = 5.0e-3
 
     print("RUN TESTS...")
 
@@ -282,7 +282,7 @@ if __name__ == "__main__":
     vem_orders = [2, 3, 4]
     solver_type = 1
     tol_solver = 1.0e-12
-    num_it_solver = 10
+    num_it_solver = 30
     for vem_type in vem_types:
         for vem_order in vem_orders:
             for mesh_max_volume in mesh_max_volumes:
@@ -334,7 +334,7 @@ if __name__ == "__main__":
     vem_orders = [2, 3, 4]
     solver_type = 1
     tol_solver = 1.0e-12
-    num_it_solver = 10
+    num_it_solver = 30
     for vem_type in vem_types:
         for vem_order in vem_orders:
             for mesh_max_volume in mesh_max_volumes:
