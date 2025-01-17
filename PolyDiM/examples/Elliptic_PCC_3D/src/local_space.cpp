@@ -77,11 +77,24 @@ LocalSpace_Data CreateLocalSpace(const Polydim::examples::Elliptic_PCC_3D::Progr
                                          mesh_geometric_data.Cell3DsVertices.at(cell3D_index),
                                          mesh_geometric_data.Cell3DsEdges.at(cell3D_index),
                                          mesh_geometric_data.Cell3DsFaces.at(cell3D_index),
-                                         mesh_geometric_data.Cell3DsFaces2DVertices.at(cell3D_index),
+                                         {},
                                          mesh_geometric_data.Cell3DsEdgeDirections.at(cell3D_index),
                                          mesh_geometric_data.Cell3DsFacesNormalGlobalDirection.at(cell3D_index),
                                          mesh_geometric_data.Cell3DsFacesRotationMatrices.at(cell3D_index),
                                          mesh_geometric_data.Cell3DsFacesTranslations.at(cell3D_index)};
+
+        const unsigned int numFaces = mesh_geometric_data.Cell3DsFaces.at(cell3D_index).size();
+        local_space_data.FEM_Geometry.Faces_2D_Geometry.resize(numFaces);
+        for (unsigned int f = 0; f < numFaces; f++)
+        {
+            local_space_data.FEM_Geometry.Faces_2D_Geometry[f] =
+            {
+              mesh_geometric_data.Cell3DsFaces2DVertices.at(cell3D_index)[f],
+              mesh_geometric_data.Cell3DsFacesEdgeDirections.at(cell3D_index)[f],
+              mesh_geometric_data.Cell3DsFacesEdge2DTangents.at(cell3D_index)[f],
+              mesh_geometric_data.Cell3DsFacesEdgeLengths.at(cell3D_index)[f]
+            };
+        }
 
         local_space_data.FEM_LocalSpace_Data =
             reference_element_data.FEM_LocalSpace->CreateLocalSpace(reference_element_data.FEM_ReferenceElement_Data_3D,
@@ -275,7 +288,9 @@ Eigen::MatrixXd BasisFunctionsValuesOnFace(const unsigned int &face_local_index,
     switch (reference_element_data.Method_Type)
     {
     case Program_configuration::MethodTypes::FEM_Tetrahedron_PCC: {
-        return reference_element_data.FEM_LocalSpace->ComputeBasisFunctionsValuesOnFace(reference_element_data.FEM_ReferenceElement_Data_3D);
+        return reference_element_data.FEM_LocalSpace->ComputeBasisFunctionsValuesOnFace(reference_element_data.FEM_ReferenceElement_Data_3D,
+                                                                                        local_space_data.FEM_LocalSpace_Data,
+                                                                                        face_local_index);
     }
     case Program_configuration::MethodTypes::VEM_PCC:
     case Program_configuration::MethodTypes::VEM_PCC_Inertia:

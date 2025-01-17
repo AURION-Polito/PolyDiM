@@ -24,10 +24,6 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
     Gedim::MapTetrahedron mapTetrehedron(geometry_utilities);
     localSpace.MapData = mapTetrehedron.Compute(polyhedron.Vertices);
 
-    Gedim::MapTriangle mapTriangle;
-    for (unsigned int f = 0; f < 4; ++f)
-    localSpace.Faces_MapData[f] = mapTriangle.Compute(polyhedron.Faces_2D_Vertices[f]);
-
     localSpace.Order = reference_element_data.Order;
     localSpace.NumberOfBasisFunctions = reference_element_data.NumBasisFunctions;
 
@@ -133,10 +129,29 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
 
     localSpace.Dofs = MapValues(localSpace, Gedim::MapTetrahedron::F(localSpace.MapData, reference_element_data.DofPositions));
 
+    FEM_Triangle_PCC_2D_LocalSpace face_local_space;
+
+
+    for (unsigned int f = 0; f < 4; ++f)
+    {
+      const auto& face_geometry = polyhedron.Faces_2D_Geometry[f];
+
+      FEM_Triangle_PCC_2D_Polygon_Geometry fem_face_geometry = {
+        polyhedron.Tolerance1D,
+        polyhedron.Tolerance2D,
+        face_geometry.Vertices,
+        face_geometry.EdgesDirection,
+        face_geometry.EdgesTangent,
+        face_geometry.EdgesLength
+      };
+
+      localSpace.Boundary_LocalSpace_Data[f] = face_local_space.CreateLocalSpace(reference_element_data.BoundaryReferenceElement_Data,
+                                      fem_face_geometry);
+    }
+
     localSpace.InternalQuadrature = InternalQuadrature(reference_element_data.ReferenceTetrahedronQuadrature, localSpace.MapData);
     localSpace.BoundaryQuadrature =
-        BoundaryQuadrature(reference_element_data.BoundaryReferenceElement_Data.ReferenceTriangleQuadrature,
-                           localSpace.Faces_MapData,
+        BoundaryQuadrature(localSpace.Boundary_LocalSpace_Data,
                            polyhedron);
 
     return localSpace;
@@ -199,8 +214,7 @@ Gedim::Quadrature::QuadratureData FEM_Tetrahedron_PCC_3D_LocalSpace::InternalQua
 }
 // ***************************************************************************
 std::array<Gedim::Quadrature::QuadratureData, 4> FEM_Tetrahedron_PCC_3D_LocalSpace::BoundaryQuadrature(
-    const Gedim::Quadrature::QuadratureData &reference_quadrature,
-    const std::array<Gedim::MapTriangle::MapTriangleData, 4> &faces_mapData,
+    const std::array<FEM_Triangle_PCC_2D_LocalSpace_Data, 4> &faces_local_space_data,
     const FEM_Tetrahedron_PCC_3D_Geometry &polyhedron) const
 {
     std::array<Gedim::Quadrature::QuadratureData, 4> faces_quadrature;
@@ -208,12 +222,7 @@ std::array<Gedim::Quadrature::QuadratureData, 4> FEM_Tetrahedron_PCC_3D_LocalSpa
     for (unsigned int f = 0; f < 4; ++f)
     {
         auto &face_quadrature = faces_quadrature.at(f);
-
-        face_quadrature.Points = Gedim::MapTriangle::F(faces_mapData[f],
-                                                     reference_quadrature.Points);
-        face_quadrature.Weights = reference_quadrature.Weights.array() *
-                             Gedim::MapTriangle::DetJ(faces_mapData[f],
-                                                         reference_quadrature.Points).array().abs();
+        face_quadrature = faces_local_space_data[f].InternalQuadrature;
 
         const Eigen::Vector3d &face_translation = polyhedron.FacesTranslation[f];
         const Eigen::Matrix3d &face_rotation = polyhedron.FacesRotationMatrix[f];
