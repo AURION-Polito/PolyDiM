@@ -167,6 +167,7 @@ int main(int argc, char **argv)
                                                                        dofs_data,
                                                                        assembler_data,
                                                                        post_process_data,
+                                                                       *test,
                                                                        exportVtuFolder);
 
     Gedim::Profiler::StopTime("ExportSolution");

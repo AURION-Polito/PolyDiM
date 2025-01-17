@@ -113,16 +113,18 @@ TEST(Test_FEM_Triangle_PCC_2D, Test_FEM_Triangle_PCC_2D_Local_Space)
                                                                                           local_space_data,
                                                                                           internal_quadrature.Points);
 
-        Eigen::VectorXd internal_integral = Eigen::VectorXd::Zero(reference_element_data.NumBasisFunctions);
+        Eigen::VectorXd internal_integral = Eigen::VectorXd::Zero(local_space_data.NumberOfBasisFunctions);
         for (unsigned int dim = 0; dim < reference_element_data.Dimension; ++dim)
             internal_integral += derivative_values[dim].transpose() * internal_quadrature.Weights;
 
-        Eigen::VectorXd boundary_integral = Eigen::VectorXd::Zero(reference_element_data.NumBasisFunctions);
+        Eigen::VectorXd boundary_integral = Eigen::VectorXd::Zero(local_space_data.NumberOfBasisFunctions);
         for (unsigned int b = 0; b < polygon_edges_normal.cols(); ++b)
         {
             const Eigen::Vector3d boundary_normal = polygon_edges_normal.col(b);
             const auto &boundary_quadrature = local_space_data.BoundaryQuadrature[b];
-            const auto boundary_values = reference_element.EvaluateBasisFunctions(boundary_quadrature.Points, reference_element_data);
+            const auto boundary_values =
+                local_space.ComputeBasisFunctionsValues(reference_element_data, local_space_data, boundary_quadrature.Points);
+
             boundary_integral += boundary_values.transpose() * boundary_quadrature.Weights * boundary_normal.sum();
         }
         ASSERT_TRUE((internal_integral - boundary_integral).norm() < 1.0e-14 * std::max(1.0, boundary_integral.norm()));

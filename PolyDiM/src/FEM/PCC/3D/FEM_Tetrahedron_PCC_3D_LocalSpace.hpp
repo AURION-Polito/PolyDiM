@@ -2,7 +2,9 @@
 #define __FEM_Tetrahedron_PCC_3D_LocalSpace_HPP
 
 #include "FEM_Tetrahedron_PCC_3D_ReferenceElement.hpp"
+#include "FEM_Triangle_PCC_2D_LocalSpace.hpp"
 #include "MapTetrahedron.hpp"
+#include "MapTriangle.hpp"
 
 namespace Polydim
 {
@@ -12,6 +14,14 @@ namespace PCC
 {
 struct FEM_Tetrahedron_PCC_3D_Geometry final
 {
+    struct Face_2D_Geometry final
+    {
+        Eigen::MatrixXd Vertices;
+        std::vector<bool> EdgesDirection;
+        Eigen::MatrixXd EdgesTangent;
+        Eigen::VectorXd EdgesLength;
+    };
+
     double Tolerance1D;
     double Tolerance2D;
     double Tolerance3D;
@@ -19,8 +29,8 @@ struct FEM_Tetrahedron_PCC_3D_Geometry final
     Eigen::MatrixXd Vertices;
     Eigen::MatrixXi Edges;
     std::vector<Eigen::MatrixXi> Faces;
+    std::vector<Face_2D_Geometry> Faces_2D_Geometry;
     std::vector<bool> EdgesDirection;
-    std::vector<double> FacesArea;
     std::vector<bool> FacesDirection;
     std::vector<Eigen::Matrix3d> FacesRotationMatrix;
     std::vector<Eigen::Vector3d> FacesTranslation;
@@ -33,15 +43,17 @@ struct FEM_Tetrahedron_PCC_3D_LocalSpace_Data final
     unsigned int NumberOfBasisFunctions; ///< Number of basis functions
     Eigen::MatrixXd Dofs;                ///< DOFs geometric position
     std::array<unsigned int, 6> polyhedron_to_reference_edge_index;
+    std::array<bool, 6> polyhedron_to_reference_edge_direction;
     std::array<unsigned int, 4> polyhedron_to_reference_face_index;
-    std::vector<unsigned int> DofsMeshOrder;                           ///< DOFs position depending on element
-    std::array<unsigned int, 5> Dof0DsIndex;                           ///< local DOF index for each element 0D
-    std::array<unsigned int, 7> Dof1DsIndex;                           ///< local DOF index for each element 1D
-    std::array<unsigned int, 5> Dof2DsIndex;                           ///< local DOF index for each element 2D
-    std::array<unsigned int, 2> Dof3DsIndex;                           ///< local DOF index for each element 3D
-    Gedim::Quadrature::QuadratureData InternalQuadrature;              ///< Internal quadrature points and weights
-    std::vector<Gedim::Quadrature::QuadratureData> BoundaryQuadrature; ///< Boundary quadrature points and weights on
-                                                                       ///< each face
+    std::vector<unsigned int> DofsMeshOrder;              ///< DOFs position depending on element
+    std::array<unsigned int, 5> Dof0DsIndex;              ///< local DOF index for each element 0D
+    std::array<unsigned int, 7> Dof1DsIndex;              ///< local DOF index for each element 1D
+    std::array<unsigned int, 5> Dof2DsIndex;              ///< local DOF index for each element 2D
+    std::array<unsigned int, 2> Dof3DsIndex;              ///< local DOF index for each element 3D
+    Gedim::Quadrature::QuadratureData InternalQuadrature; ///< Internal quadrature points and weights
+    std::array<FEM_Triangle_PCC_2D_LocalSpace_Data, 4> Boundary_LocalSpace_Data;
+    std::array<Gedim::Quadrature::QuadratureData, 4> BoundaryQuadrature; ///< Boundary quadrature points and weights on
+    ///< each face
 };
 
 /// \brief Interface used to FEM Values computation
@@ -58,8 +70,8 @@ class FEM_Tetrahedron_PCC_3D_LocalSpace final
 
     Gedim::Quadrature::QuadratureData InternalQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,
                                                          const Gedim::MapTetrahedron::MapTetrahedronData &mapData) const;
-    std::vector<Gedim::Quadrature::QuadratureData> BoundaryQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,
-                                                                      const FEM_Tetrahedron_PCC_3D_Geometry &polyhedron) const;
+    std::array<Gedim::Quadrature::QuadratureData, 4> BoundaryQuadrature(const std::array<FEM_Triangle_PCC_2D_LocalSpace_Data, 4> &faces_local_space_data,
+                                                                        const FEM_Tetrahedron_PCC_3D_Geometry &polyhedron) const;
 
   public:
     FEM_Tetrahedron_PCC_3D_LocalSpace_Data CreateLocalSpace(const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
@@ -99,9 +111,14 @@ class FEM_Tetrahedron_PCC_3D_LocalSpace final
         return MapDerivativeValues(local_space, reference_element.EvaluateBasisFunctionDerivatives(referencePoints, reference_element_data));
     }
 
-    inline Eigen::MatrixXd ComputeBasisFunctionsValuesOnFace(const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data) const
+    inline Eigen::MatrixXd ComputeBasisFunctionsValuesOnFace(const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                                             const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &local_space,
+                                                             const unsigned int face_index) const
     {
-        return reference_element_data.BoundaryReferenceElement_Data.ReferenceBasisFunctionValues;
+        FEM_Triangle_PCC_2D_LocalSpace face_local_space;
+
+        return face_local_space.ComputeBasisFunctionsValues(reference_element_data.BoundaryReferenceElement_Data,
+                                                            local_space.Boundary_LocalSpace_Data[face_index]);
     }
 };
 } // namespace PCC

@@ -249,6 +249,7 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_3D::Program_configuration
                  const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                  const Polydim::examples::Elliptic_PCC_3D::Assembler::Elliptic_PCC_3D_Problem_Data &assembler_data,
                  const Polydim::examples::Elliptic_PCC_3D::Assembler::PostProcess_Data &post_process_data,
+                 const test::I_Test &test,
                  const std::string &exportVtuFolder)
 {
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
@@ -258,6 +259,7 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_3D::Program_configuration
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
     std::list<Eigen::Vector3d> dofs_coordinate;
+    std::list<double> exact_solution_values;
     std::list<double> solution_values;
     std::list<double> rhs_values;
     std::list<double> dof_global_index_values;
@@ -282,13 +284,16 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_3D::Program_configuration
         {
             const auto &local_dof = local_dofs.at(loc_i);
 
+            const Eigen::Vector3d dof_coordinate = mesh.Cell0DCoordinates(c);
+
             dof_cell_index_values.push_back(c);
             dof_dimension_values.push_back(0);
             dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
             dof_boundary_marker_values.push_back(boundary_info.Marker);
-            dofs_coordinate.push_back(mesh.Cell0DCoordinates(c));
+            dofs_coordinate.push_back(dof_coordinate);
             dof_type_values.push_back(static_cast<double>(local_dof.Type));
             dof_global_index_values.push_back(local_dof.Global_Index);
+            exact_solution_values.push_back(test.exact_solution(dof_coordinate)[0]);
 
             switch (local_dof.Type)
             {
@@ -325,13 +330,16 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_3D::Program_configuration
         {
             const auto &local_dof = local_dofs.at(loc_i);
 
+            const Eigen::Vector3d dof_coordinate = edge_origin + local_edge_coordinates[loc_i] * edge_tangent;
+
             dof_cell_index_values.push_back(c);
             dof_dimension_values.push_back(1);
             dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
             dof_boundary_marker_values.push_back(boundary_info.Marker);
-            dofs_coordinate.push_back(edge_origin + local_edge_coordinates[loc_i] * edge_tangent);
+            dofs_coordinate.push_back(dof_coordinate);
             dof_type_values.push_back(static_cast<double>(local_dof.Type));
             dof_global_index_values.push_back(local_dof.Global_Index);
+            exact_solution_values.push_back(test.exact_solution(dof_coordinate)[0]);
 
             switch (local_dof.Type)
             {
@@ -398,8 +406,11 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_3D::Program_configuration
                     mesh_geometric_data.Cell3DsFacesRotationMatrices.at(neigh)[local_index_face],
                     mesh_geometric_data.Cell3DsFacesTranslations.at(neigh)[local_index_face]));
 
+            const Eigen::Vector3d dof_coordinate = dofs_coordinate.back();
+
             dof_type_values.push_back(static_cast<double>(local_dof.Type));
             dof_global_index_values.push_back(local_dof.Global_Index);
+            exact_solution_values.push_back(test.exact_solution(dof_coordinate)[0]);
 
             switch (local_dof.Type)
             {
@@ -448,6 +459,9 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_3D::Program_configuration
             dof_type_values.push_back(static_cast<double>(local_dof.Type));
             dof_global_index_values.push_back(local_dof.Global_Index);
 
+            const Eigen::Vector3d dof_coordinate = dofs_coordinate.back();
+            exact_solution_values.push_back(test.exact_solution(dof_coordinate)[0]);
+
             switch (local_dof.Type)
             {
             case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
@@ -469,6 +483,7 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_3D::Program_configuration
         for (const auto &dof_coordinate : dofs_coordinate)
             coordinates.col(c++) << dof_coordinate;
         const auto rhs_values_data = std::vector<double>(rhs_values.begin(), rhs_values.end());
+        const auto exact_solution_values_data = std::vector<double>(exact_solution_values.begin(), exact_solution_values.end());
         const auto solution_values_data = std::vector<double>(solution_values.begin(), solution_values.end());
         const auto dof_global_index_values_data =
             std::vector<double>(dof_global_index_values.begin(), dof_global_index_values.end());
@@ -513,7 +528,11 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_3D::Program_configuration
                             {"solution",
                              Gedim::VTPProperty::Formats::Points,
                              static_cast<unsigned int>(solution_values_data.size()),
-                             solution_values_data.data()}});
+                             solution_values_data.data()},
+                            {"exact_solution",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(exact_solution_values_data.size()),
+                             exact_solution_values_data.data()}});
 
         const unsigned int METHOD_ID = static_cast<unsigned int>(config.MethodType());
         const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());

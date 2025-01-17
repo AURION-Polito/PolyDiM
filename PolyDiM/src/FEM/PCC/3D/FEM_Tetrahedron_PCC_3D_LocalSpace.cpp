@@ -32,8 +32,10 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
         const unsigned int edge_origin_index = polyhedron.Edges(0, e);
         const unsigned int edge_end_index = polyhedron.Edges(1, e);
 
-        localSpace.polyhedron_to_reference_edge_index[e] =
-            reference_element_data.Edges_by_vertices.at({edge_origin_index, edge_end_index});
+        const auto &reference_edge = reference_element_data.Edges_by_vertices.at({edge_origin_index, edge_end_index});
+
+        localSpace.polyhedron_to_reference_edge_index[e] = reference_edge.first;
+        localSpace.polyhedron_to_reference_edge_direction[e] = reference_edge.second;
     }
 
     for (unsigned int f = 0; f < 4; ++f)
@@ -67,9 +69,10 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
         localSpace.Dof1DsIndex[e + 1] = localSpace.Dof1DsIndex[e] + reference_element_data.NumDofs1D;
 
         const unsigned int ref_e = localSpace.polyhedron_to_reference_edge_index[e];
+        const bool ref_e_direction = localSpace.polyhedron_to_reference_edge_direction[e];
         unsigned int edge_dof_counter = reference_element_data.NumDofs0D * 4 + reference_element_data.NumDofs1D * ref_e;
 
-        if (polyhedron.EdgesDirection.at(e))
+        if (polyhedron.EdgesDirection.at(e) == ref_e_direction)
         {
             for (unsigned int d = localSpace.Dof1DsIndex[e]; d < localSpace.Dof1DsIndex[e + 1]; d++)
             {
@@ -126,9 +129,25 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
 
     localSpace.Dofs = MapValues(localSpace, Gedim::MapTetrahedron::F(localSpace.MapData, reference_element_data.DofPositions));
 
+    FEM_Triangle_PCC_2D_LocalSpace face_local_space;
+
+    for (unsigned int f = 0; f < 4; ++f)
+    {
+        const auto &face_geometry = polyhedron.Faces_2D_Geometry[f];
+
+        FEM_Triangle_PCC_2D_Polygon_Geometry fem_face_geometry = {polyhedron.Tolerance1D,
+                                                                  polyhedron.Tolerance2D,
+                                                                  face_geometry.Vertices,
+                                                                  face_geometry.EdgesDirection,
+                                                                  face_geometry.EdgesTangent,
+                                                                  face_geometry.EdgesLength};
+
+        localSpace.Boundary_LocalSpace_Data[f] =
+            face_local_space.CreateLocalSpace(reference_element_data.BoundaryReferenceElement_Data, fem_face_geometry);
+    }
+
     localSpace.InternalQuadrature = InternalQuadrature(reference_element_data.ReferenceTetrahedronQuadrature, localSpace.MapData);
-    localSpace.BoundaryQuadrature =
-        BoundaryQuadrature(reference_element_data.BoundaryReferenceElement_Data.ReferenceTriangleQuadrature, polyhedron);
+    localSpace.BoundaryQuadrature = BoundaryQuadrature(localSpace.Boundary_LocalSpace_Data, polyhedron);
 
     return localSpace;
 }
@@ -189,23 +208,21 @@ Gedim::Quadrature::QuadratureData FEM_Tetrahedron_PCC_3D_LocalSpace::InternalQua
     return quadrature;
 }
 // ***************************************************************************
-std::vector<Gedim::Quadrature::QuadratureData> FEM_Tetrahedron_PCC_3D_LocalSpace::BoundaryQuadrature(
-    const Gedim::Quadrature::QuadratureData &reference_quadrature,
+std::array<Gedim::Quadrature::QuadratureData, 4> FEM_Tetrahedron_PCC_3D_LocalSpace::BoundaryQuadrature(
+    const std::array<FEM_Triangle_PCC_2D_LocalSpace_Data, 4> &faces_local_space_data,
     const FEM_Tetrahedron_PCC_3D_Geometry &polyhedron) const
 {
-    const unsigned int num_faces = polyhedron.Faces.size();
-    std::vector<Gedim::Quadrature::QuadratureData> faces_quadrature(num_faces);
+    std::array<Gedim::Quadrature::QuadratureData, 4> faces_quadrature;
 
-    for (unsigned int f = 0; f < num_faces; ++f)
+    for (unsigned int f = 0; f < 4; ++f)
     {
         auto &face_quadrature = faces_quadrature.at(f);
+        face_quadrature = faces_local_space_data[f].InternalQuadrature;
 
-        const double face_area = polyhedron.FacesArea[f];
         const Eigen::Vector3d &face_translation = polyhedron.FacesTranslation[f];
         const Eigen::Matrix3d &face_rotation = polyhedron.FacesRotationMatrix[f];
 
-        face_quadrature.Points = (face_rotation * reference_quadrature.Points).colwise() + face_translation;
-        face_quadrature.Weights = reference_quadrature.Weights * std::abs(face_area);
+        face_quadrature.Points = (face_rotation * face_quadrature.Points).colwise() + face_translation;
     }
 
     return faces_quadrature;

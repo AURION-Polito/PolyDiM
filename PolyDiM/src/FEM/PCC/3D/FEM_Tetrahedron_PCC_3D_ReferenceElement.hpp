@@ -23,7 +23,7 @@ struct FEM_Tetrahedron_PCC_3D_ReferenceElement_Data final
     unsigned int NumDofs2D; ///< Number of dofs internal to each polygon.
     unsigned int NumDofs3D; ///< Number of dofs internal to each polyhedron.
 
-    std::map<std::pair<unsigned int, unsigned int>, unsigned int> Edges_by_vertices;
+    std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, bool>> Edges_by_vertices;
     std::map<std::pair<unsigned int, unsigned int>, unsigned int> Faces_by_edge_vertex;
 
     unsigned int NumBasisFunctions; ///< Number of total basis functions
@@ -47,18 +47,18 @@ class FEM_Tetrahedron_PCC_3D_ReferenceElement final
         result.Order = order;
         result.Dimension = 3;
 
-        result.Edges_by_vertices = {{{0, 1}, 0},
-                                    {{1, 0}, 0},
-                                    {{1, 2}, 1},
-                                    {{2, 1}, 1},
-                                    {{2, 0}, 2},
-                                    {{0, 2}, 2},
-                                    {{0, 3}, 3},
-                                    {{3, 0}, 3},
-                                    {{1, 3}, 4},
-                                    {{3, 1}, 4},
-                                    {{2, 3}, 5},
-                                    {{3, 2}, 5}};
+        result.Edges_by_vertices = {{{0, 1}, {0, true}},
+                                    {{1, 0}, {0, false}},
+                                    {{1, 2}, {1, true}},
+                                    {{2, 1}, {1, false}},
+                                    {{2, 0}, {2, true}},
+                                    {{0, 2}, {2, false}},
+                                    {{0, 3}, {3, true}},
+                                    {{3, 0}, {3, false}},
+                                    {{1, 3}, {4, false}},
+                                    {{3, 1}, {4, true}},
+                                    {{2, 3}, {5, false}},
+                                    {{3, 2}, {5, true}}};
 
         result.Faces_by_edge_vertex = {{{0, 2}, 0},
                                        {{1, 0}, 0},

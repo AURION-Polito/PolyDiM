@@ -39,6 +39,7 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_3D::Program_configuration
                  const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                  const Polydim::examples::Elliptic_PCC_3D::Assembler::Elliptic_PCC_3D_Problem_Data &assembler_data,
                  const Polydim::examples::Elliptic_PCC_3D::Assembler::PostProcess_Data &post_process_data,
+                 const Polydim::examples::Elliptic_PCC_3D::test::I_Test &test,
                  const std::string &exportVtuFolder);
 
 void export_performance(const Polydim::examples::Elliptic_PCC_3D::Program_configuration &config,
