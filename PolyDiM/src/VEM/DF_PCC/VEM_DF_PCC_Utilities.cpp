@@ -20,7 +20,7 @@ Eigen::VectorXd VEM_DF_PCC_Utilities<dimension>::ComputeEdgeBasisCoefficients(co
     // Compute basis function coefficients on the generic edge.
     VectorXd interpolation_points_x(order + 1);
     interpolation_points_x << 0.0, 1.0, edgeInternalPoints;
-    return Interpolation::Lagrange::Lagrange_1D_cofficients(interpolation_points_x);
+    return Interpolation::Lagrange::Lagrange_1D_coefficients(interpolation_points_x);
 }
 //****************************************************************************
 template <unsigned short dimension>

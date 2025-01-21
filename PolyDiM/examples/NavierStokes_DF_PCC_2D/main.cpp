@@ -258,7 +258,7 @@ int main(int argc, char **argv)
 
         assembler_data.previousIteration.Copy(assembler_data.solution);
 
-        cout << "NL It: " << l + 1 << ", Residual Norm: " << residual_norm << ", Delta norm: " << delta_norm << endl;
+        std::cout << "NL It: " << l + 1 << ", Residual Norm: " << residual_norm << ", Delta norm: " << delta_norm << std::endl;
 
         if ((residual_norm <= config.NLRelResidualTolerance() * initial_residual_norm + config.NLAbsResidualTolerance()) &&
             (delta_norm <= config.NLRelChangeInSolutionTolerance() * initial_solution_norm + config.NLAbsChangeInSolutionTolerance()))
@@ -344,7 +344,7 @@ int main(int argc, char **argv)
             exporter << "max_Pi0k_Error" << separator;
             exporter << "max_GBD_Error" << separator;
             exporter << "max_HCD_Error" << separator;
-            exporter << "Stab_Error" << endl;
+            exporter << "Stab_Error" << std::endl;
 
             for (unsigned int v = 0; v < vemPerformance.Cell2DsPerformance.size(); v++)
             {
@@ -359,7 +359,7 @@ int main(int argc, char **argv)
                 exporter << std::scientific << cell2DPerformance.maxErrorPi0k << separator;
                 exporter << std::scientific << cell2DPerformance.maxErrorGBD << separator;
                 exporter << std::scientific << cell2DPerformance.maxErrorHCD << separator;
-                exporter << std::scientific << cell2DPerformance.ErrorStabilization << endl;
+                exporter << std::scientific << cell2DPerformance.ErrorStabilization << std::endl;
             }
 
             exporter.close();

@@ -265,7 +265,7 @@ int main(int argc, char **argv)
             exporter << "max_Pi0k_Error" << separator;
             exporter << "max_GBD_Error" << separator;
             exporter << "max_HCD_Error" << separator;
-            exporter << "Stab_Error" << endl;
+            exporter << "Stab_Error" << std::endl;
 
             for (unsigned int v = 0; v < vemPerformance.Cell2DsPerformance.size(); v++)
             {
@@ -280,7 +280,7 @@ int main(int argc, char **argv)
                 exporter << std::scientific << cell2DPerformance.maxErrorPi0k << separator;
                 exporter << std::scientific << cell2DPerformance.maxErrorGBD << separator;
                 exporter << std::scientific << cell2DPerformance.maxErrorHCD << separator;
-                exporter << std::scientific << cell2DPerformance.ErrorStabilization << endl;
+                exporter << std::scientific << cell2DPerformance.ErrorStabilization << std::endl;
             }
 
             exporter.close();

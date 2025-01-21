@@ -218,7 +218,7 @@ void export_performance(const Polydim::examples::Elliptic_PCC_3D::Program_config
         exporter << "Pi0km1_Error" << separator;
         exporter << "HCD_Error" << separator;
         exporter << "GBD_Error" << separator;
-        exporter << "Stab_Error" << endl;
+        exporter << "Stab_Error" << std::endl;
 
         for (unsigned int v = 0; v < performance_data.Cell3DsPerformance.size(); v++)
         {
@@ -235,7 +235,7 @@ void export_performance(const Polydim::examples::Elliptic_PCC_3D::Program_config
             exporter << std::scientific << cell3D_performance.Analysis.ErrorPi0km1 << separator;
             exporter << std::scientific << cell3D_performance.Analysis.ErrorHCD << separator;
             exporter << std::scientific << cell3D_performance.Analysis.ErrorGBD << separator;
-            exporter << std::scientific << cell3D_performance.Analysis.ErrorStabilization << endl;
+            exporter << std::scientific << cell3D_performance.Analysis.ErrorStabilization << std::endl;
         }
 
         exporter.close();

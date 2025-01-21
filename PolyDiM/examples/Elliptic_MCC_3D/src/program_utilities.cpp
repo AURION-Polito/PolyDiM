@@ -103,7 +103,7 @@ void export_solution(const Polydim::examples::Elliptic_MCC_3D::Program_configura
         std::cout << "normL2Velocity" << separator;
         std::cout << "normL2Pressure" << separator;
         std::cout << "nnzA" << separator;
-        std::cout << "residual" << endl;
+        std::cout << "residual" << std::endl;
 
         std::cout.precision(2);
         std::cout << std::scientific << TEST_ID << separator;
@@ -119,7 +119,7 @@ void export_solution(const Polydim::examples::Elliptic_MCC_3D::Program_configura
         std::cout << std::scientific << post_process_data.norm_L2_velocity << separator;
         std::cout << std::scientific << post_process_data.norm_L2_pressure << separator;
         std::cout << std::scientific << assembler_data.globalMatrixA.NonZeros() << separator;
-        std::cout << std::scientific << post_process_data.residual_norm << endl;
+        std::cout << std::scientific << post_process_data.residual_norm << std::endl;
     }
 
     {
@@ -144,7 +144,7 @@ void export_solution(const Polydim::examples::Elliptic_MCC_3D::Program_configura
             errorFile << "normL2Velocity" << separator;
             errorFile << "normL2Pressure" << separator;
             errorFile << "nnzA" << separator;
-            errorFile << "residual" << endl;
+            errorFile << "residual" << std::endl;
         }
 
         errorFile.precision(16);
@@ -161,7 +161,7 @@ void export_solution(const Polydim::examples::Elliptic_MCC_3D::Program_configura
         errorFile << std::scientific << post_process_data.norm_L2_velocity << separator;
         errorFile << std::scientific << post_process_data.norm_L2_pressure << separator;
         errorFile << std::scientific << assembler_data.globalMatrixA.NonZeros() << separator;
-        errorFile << std::scientific << post_process_data.residual_norm << endl;
+        errorFile << std::scientific << post_process_data.residual_norm << std::endl;
 
         errorFile.close();
     }
