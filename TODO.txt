@@ -1,4 +1,3 @@
-* add FEM 3D test
 * change markers to mesh 3D
-* fix stokes 3D
+* add unit test gedim cmake variable
 * lettore proprietà geoemtriche

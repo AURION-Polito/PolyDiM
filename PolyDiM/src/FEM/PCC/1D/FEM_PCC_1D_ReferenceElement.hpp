@@ -114,7 +114,7 @@ class FEM_PCC_1D_ReferenceElement final
             result.DofPositions.col(dofCounter++) << dofPositions.col(cellDofs[c]);
 
         result.Interpolation_coefficients =
-            Interpolation::Lagrange::Lagrange_1D_cofficients(result.DofPositions.row(0).transpose());
+            Interpolation::Lagrange::Lagrange_1D_coefficients(result.DofPositions.row(0).transpose());
 
         result.ReferenceSegmentQuadrature = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * order);
 

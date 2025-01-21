@@ -100,17 +100,11 @@ VEM_DF_PCC_3D_Velocity_LocalSpace_Data VEM_DF_PCC_3D_Reduced_Velocity_LocalSpace
                           localSpace);
 
     ComputePolynomialBasisDofs(polyhedron.Measure,
-                               polyhedron.Diameter,
                                localSpace.InternalQuadrature.Weights,
                                localSpace.BoundaryQuadrature.Quadrature.Weights,
                                localSpace);
 
-    ComputeDivergenceCoefficients(reference_element_data_3D,
-                                  polyhedron.Measure,
-                                  polyhedron.Diameter,
-                                  polyhedron.FacesNormalGlobalDirection,
-                                  polygonalFaces,
-                                  localSpace);
+    ComputeDivergenceCoefficients(reference_element_data_3D, polyhedron.Measure, polyhedron.FacesNormalGlobalDirection, polygonalFaces, localSpace);
 
     ComputeCMatrixkm2(polyhedron.Measure, polyhedron.Diameter, localSpace.BoundaryQuadratureKL.Quadrature.Weights, localSpace);
 
@@ -372,7 +366,6 @@ void VEM_DF_PCC_3D_Reduced_Velocity_LocalSpace::ComputeFaceProjectors(const PCC:
 void VEM_DF_PCC_3D_Reduced_Velocity_LocalSpace::ComputeDivergenceCoefficients(
     const VEM_DF_PCC_3D_Velocity_ReferenceElement_Data &reference_element_data,
     const double &polyhedronMeasure,
-    const double &polyhedronDiameter,
     const std::vector<bool> &faceNormalGlobalDirections,
     const std::vector<PCC::VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
     VEM_DF_PCC_3D_Velocity_LocalSpace_Data &localSpace) const
@@ -393,7 +386,6 @@ void VEM_DF_PCC_3D_Reduced_Velocity_LocalSpace::ComputeDivergenceCoefficients(
 }
 //****************************************************************************
 void VEM_DF_PCC_3D_Reduced_Velocity_LocalSpace::ComputePolynomialBasisDofs(const double &polyhedronMeasure,
-                                                                           const double &polyhedronDiameter,
                                                                            const Eigen::VectorXd &internalQuadratureWeights,
                                                                            const Eigen::VectorXd &boundaryQuadratureWeights,
                                                                            VEM_DF_PCC_3D_Velocity_LocalSpace_Data &localSpace) const

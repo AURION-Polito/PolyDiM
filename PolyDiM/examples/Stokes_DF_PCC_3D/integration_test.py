@@ -181,7 +181,7 @@ if __name__ == "__main__":
     vem_orders = [2, 3, 4]
     solver_type = 0
     tol_solver = 1.0e-12
-    num_it_solver = 10
+    num_it_solver = 50
     for vem_type in vem_types:
         for vem_order in vem_orders:
             export_path = run_program(program_folder,
@@ -224,62 +224,62 @@ if __name__ == "__main__":
             if remove_folder:
                 os.system("rm -rf " + os.path.join(program_folder, export_path))
 
-    test_type = 2
-    mesh_generator = 6
-    mesh_max_volumes = [0.25 * 0.25 * 0.25, 0.125 * 0.125 * 0.125]
-    vem_types = [1]
-    solver_type = 1
-    tol_solver = 1.0e-12
-    num_it_solver = 10
-    for vem_type in vem_types:
-        for vem_order in vem_orders:
-            for mesh_max_volume in mesh_max_volumes:
-                export_path = run_program(program_folder,
-                                          program_path,
-                                          "Run_MG{0}".format(mesh_generator),
-                                          vem_type,
-                                          vem_order,
-                                          test_type,
-                                          mesh_generator,
-                                          mesh_max_volume,
-                                          0,
-                                          solver_type,
-                                          num_it_solver,
-                                          tol_solver)
-            errors = import_errors(export_path, vem_type, vem_order, test_type)
-            test_errors(errors,
-                        vem_order,
-                        tol,
-                        test_type)
-            if remove_folder:
-                os.system("rm -rf " + os.path.join(program_folder, export_path))
-
-    vem_types = [2]
-    for vem_type in vem_types:
-        for vem_order in vem_orders:
-            for mesh_max_volume in mesh_max_volumes:
-                export_path = run_program(program_folder,
-                                          program_path,
-                                          "Run_MG{0}".format(mesh_generator),
-                                          vem_type,
-                                          vem_order,
-                                          test_type,
-                                          mesh_generator,
-                                          mesh_max_volume,
-                                          1,
-                                          solver_type,
-                                          num_it_solver,
-                                          tol_solver)
-            errors = import_discrepancy_errors(export_path, vem_type, vem_order, test_type)
-            test_discrepancy_errors(errors, 1.0e-03)
-            if remove_folder:
-                os.system("rm -rf " + os.path.join(program_folder, export_path))
+    # test_type = 2
+    # mesh_generator = 6
+    # mesh_max_volumes = [0.125 * 0.125 * 0.125, 0.0005787037]
+    # vem_types = [1]
+    # solver_type = 1
+    # tol_solver = 1.0e-12
+    # num_it_solver = 50
+    # for vem_type in vem_types:
+    #     for vem_order in vem_orders:
+    #         for mesh_max_volume in mesh_max_volumes:
+    #             export_path = run_program(program_folder,
+    #                                       program_path,
+    #                                       "Run_MG{0}".format(mesh_generator),
+    #                                       vem_type,
+    #                                       vem_order,
+    #                                       test_type,
+    #                                       mesh_generator,
+    #                                       mesh_max_volume,
+    #                                       0,
+    #                                       solver_type,
+    #                                       num_it_solver,
+    #                                       tol_solver)
+    #         errors = import_errors(export_path, vem_type, vem_order, test_type)
+    #         test_errors(errors,
+    #                     vem_order,
+    #                     tol,
+    #                     test_type)
+    #         if remove_folder:
+    #             os.system("rm -rf " + os.path.join(program_folder, export_path))
+    #
+    # vem_types = [2]
+    # for vem_type in vem_types:
+    #     for vem_order in vem_orders:
+    #         for mesh_max_volume in mesh_max_volumes:
+    #             export_path = run_program(program_folder,
+    #                                       program_path,
+    #                                       "Run_MG{0}".format(mesh_generator),
+    #                                       vem_type,
+    #                                       vem_order,
+    #                                       test_type,
+    #                                       mesh_generator,
+    #                                       mesh_max_volume,
+    #                                       1,
+    #                                       solver_type,
+    #                                       num_it_solver,
+    #                                       tol_solver)
+    #         errors = import_discrepancy_errors(export_path, vem_type, vem_order, test_type)
+    #         test_discrepancy_errors(errors, 1.0e-03)
+    #         if remove_folder:
+    #             os.system("rm -rf " + os.path.join(program_folder, export_path))
 
     test_type = 3
     mesh_generator = 6
-    mesh_max_volumes = [0.25 * 0.25 * 0.25, 0.125 * 0.125 * 0.125]
+    mesh_max_volumes = [0.125 * 0.125 * 0.125, 0.0005787037]
     vem_types = [1]
-    vem_orders = [2, 3, 4]
+    vem_orders = [2, 3]
     solver_type = 1
     tol_solver = 1.0e-12
     num_it_solver = 30
@@ -329,9 +329,9 @@ if __name__ == "__main__":
 
     test_type = 4
     mesh_generator = 6
-    mesh_max_volumes = [0.25 * 0.25 * 0.25, 0.125 * 0.125 * 0.125]
+    mesh_max_volumes = [0.125 * 0.125 * 0.125, 0.0005787037]
     vem_types = [1]
-    vem_orders = [2, 3, 4]
+    vem_orders = [2, 3]
     solver_type = 1
     tol_solver = 1.0e-12
     num_it_solver = 30

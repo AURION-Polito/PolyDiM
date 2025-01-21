@@ -110,7 +110,7 @@ void export_solution(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_co
         std::cout << "normL2Pressure" << separator;
         std::cout << "nnzA" << separator;
         std::cout << "num_nl_iterations" << separator;
-        std::cout << "residual" << endl;
+        std::cout << "residual" << std::endl;
 
         std::cout.precision(2);
         std::cout << std::scientific << TEST_ID << separator;
@@ -126,7 +126,7 @@ void export_solution(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_co
         std::cout << std::scientific << post_process_data.norm_L2_pressure << separator;
         std::cout << std::scientific << assembler_data.globalMatrixA.NonZeros() << separator;
         std::cout << std::scientific << num_nl_iterations << separator;
-        std::cout << std::scientific << post_process_data.residual_norm << endl;
+        std::cout << std::scientific << post_process_data.residual_norm << std::endl;
     }
 
     {
@@ -152,7 +152,7 @@ void export_solution(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_co
             errorFile << "normL2Pressure" << separator;
             errorFile << "nnzA" << separator;
             errorFile << "num_nl_iterations" << separator;
-            errorFile << "residual" << endl;
+            errorFile << "residual" << std::endl;
         }
 
         errorFile.precision(16);
@@ -169,7 +169,7 @@ void export_solution(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_co
         errorFile << std::scientific << post_process_data.norm_L2_pressure << separator;
         errorFile << std::scientific << assembler_data.globalMatrixA.NonZeros() << separator;
         errorFile << std::scientific << num_nl_iterations << separator;
-        errorFile << std::scientific << post_process_data.residual_norm << endl;
+        errorFile << std::scientific << post_process_data.residual_norm << std::endl;
 
         errorFile.close();
     }

@@ -47,13 +47,11 @@ class VEM_DF_PCC_3D_Reduced_Velocity_LocalSpace final : public I_VEM_DF_PCC_3D_V
 
     void ComputeDivergenceCoefficients(const VEM_DF_PCC_3D_Velocity_ReferenceElement_Data &reference_element_data,
                                        const double &polyhedronMeasure,
-                                       const double &polyhedronDiameter,
                                        const std::vector<bool> &faceNormalGlobalDirections,
                                        const std::vector<PCC::VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
                                        VEM_DF_PCC_3D_Velocity_LocalSpace_Data &localSpace) const;
 
     void ComputePolynomialBasisDofs(const double &polyhedronMeasure,
-                                    const double &polyhedronDiameter,
                                     const Eigen::VectorXd &internalQuadratureWeights,
                                     const Eigen::VectorXd &boundaryQuadratureWeights,
                                     VEM_DF_PCC_3D_Velocity_LocalSpace_Data &localSpace) const;

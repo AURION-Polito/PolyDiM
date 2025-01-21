@@ -7,7 +7,7 @@ namespace Interpolation
 namespace Lagrange
 {
 //****************************************************************************
-Eigen::VectorXd Lagrange_1D_cofficients(const Eigen::VectorXd &interpolation_points_x)
+Eigen::VectorXd Lagrange_1D_coefficients(const Eigen::VectorXd &interpolation_points_x)
 {
     const unsigned int num_interpolation_points = interpolation_points_x.size();
 

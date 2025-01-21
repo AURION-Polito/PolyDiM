@@ -110,7 +110,7 @@ void export_solution(const Polydim::examples::Brinkman_DF_PCC_2D::Program_config
         std::cout << "normH1Velocity" << separator;
         std::cout << "normL2Pressure" << separator;
         std::cout << "nnzA" << separator;
-        std::cout << "residual" << endl;
+        std::cout << "residual" << std::endl;
 
         std::cout.precision(2);
         std::cout << std::scientific << TEST_ID << separator;
@@ -125,7 +125,7 @@ void export_solution(const Polydim::examples::Brinkman_DF_PCC_2D::Program_config
         std::cout << std::scientific << post_process_data.norm_H1_velocity << separator;
         std::cout << std::scientific << post_process_data.norm_L2_pressure << separator;
         std::cout << std::scientific << assembler_data.globalMatrixA.NonZeros() << separator;
-        std::cout << std::scientific << post_process_data.residual_norm << endl;
+        std::cout << std::scientific << post_process_data.residual_norm << std::endl;
     }
 
     {
@@ -150,7 +150,7 @@ void export_solution(const Polydim::examples::Brinkman_DF_PCC_2D::Program_config
             errorFile << "normH1Velocity" << separator;
             errorFile << "normL2Pressure" << separator;
             errorFile << "nnzA" << separator;
-            errorFile << "residual" << endl;
+            errorFile << "residual" << std::endl;
         }
 
         errorFile.precision(16);
@@ -166,7 +166,7 @@ void export_solution(const Polydim::examples::Brinkman_DF_PCC_2D::Program_config
         errorFile << std::scientific << post_process_data.norm_H1_velocity << separator;
         errorFile << std::scientific << post_process_data.norm_L2_pressure << separator;
         errorFile << std::scientific << assembler_data.globalMatrixA.NonZeros() << separator;
-        errorFile << std::scientific << post_process_data.residual_norm << endl;
+        errorFile << std::scientific << post_process_data.residual_norm << std::endl;
 
         errorFile.close();
     }
@@ -534,7 +534,7 @@ void export_discrepancy_errors(const Polydim::examples::Brinkman_DF_PCC_2D::Prog
         std::cout << "normH1FULLVelocity" << separator;
         std::cout << "normL2FULLProjectedPressure" << separator;
         std::cout << "reducedResidual" << separator;
-        std::cout << "fullResidual" << endl;
+        std::cout << "fullResidual" << std::endl;
 
         std::cout.precision(2);
         std::cout << std::scientific << TEST_ID << separator;
@@ -548,7 +548,7 @@ void export_discrepancy_errors(const Polydim::examples::Brinkman_DF_PCC_2D::Prog
         std::cout << std::scientific << discrepancy_errors_data.full_norm_H1_velocity << separator;
         std::cout << std::scientific << discrepancy_errors_data.full_norm_L2_pressure << separator;
         std::cout << std::scientific << discrepancy_errors_data.reduced_residual_norm << separator;
-        std::cout << std::scientific << discrepancy_errors_data.residual_norm << endl;
+        std::cout << std::scientific << discrepancy_errors_data.residual_norm << std::endl;
     }
 
     {
@@ -572,7 +572,7 @@ void export_discrepancy_errors(const Polydim::examples::Brinkman_DF_PCC_2D::Prog
             errorFile << "normH1FULLVelocity" << separator;
             errorFile << "normL2FULLProjectedPressure" << separator;
             errorFile << "reducedResidual" << separator;
-            errorFile << "fullResidual" << endl;
+            errorFile << "fullResidual" << std::endl;
         }
 
         errorFile.precision(16);
@@ -587,7 +587,7 @@ void export_discrepancy_errors(const Polydim::examples::Brinkman_DF_PCC_2D::Prog
         errorFile << std::scientific << discrepancy_errors_data.full_norm_H1_velocity << separator;
         errorFile << std::scientific << discrepancy_errors_data.full_norm_L2_pressure << separator;
         errorFile << std::scientific << discrepancy_errors_data.reduced_residual_norm << separator;
-        errorFile << std::scientific << discrepancy_errors_data.residual_norm << endl;
+        errorFile << std::scientific << discrepancy_errors_data.residual_norm << std::endl;
 
         errorFile.close();
     }

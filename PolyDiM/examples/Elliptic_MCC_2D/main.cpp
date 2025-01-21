@@ -210,7 +210,7 @@ int main(int argc, char **argv)
             exporter << "Gmatrix_Cond" << separator;
             exporter << "Pi0k_Error" << separator;
             exporter << "GBD_Error" << separator;
-            exporter << "Stab_Error" << endl;
+            exporter << "Stab_Error" << std::endl;
 
             for (unsigned int v = 0; v < vemPerformance.Cell2DsPerformance.size(); v++)
             {
@@ -227,7 +227,7 @@ int main(int argc, char **argv)
                 exporter << std::scientific << cell2DPerformance.GmatrixConditioning << separator;
                 exporter << std::scientific << cell2DPerformance.ErrorPi0k << separator;
                 exporter << std::scientific << cell2DPerformance.ErrorGBD << separator;
-                exporter << std::scientific << cell2DPerformance.ErrorStabilization << endl;
+                exporter << std::scientific << cell2DPerformance.ErrorStabilization << std::endl;
             }
 
             exporter.close();

@@ -58,7 +58,7 @@ void solve_stokes(const Polydim::examples::Stokes_DF_PCC_3D::Program_configurati
 
         const auto solver_data = solver.Solve();
 
-        cerr << "EigenBICGSTAB Iterative solver: " << solver_data.Iterations << " " << solver_data.Residual << endl;
+        std::cerr << "EigenBICGSTAB Iterative solver: " << solver_data.Iterations << " " << solver_data.Residual << std::endl;
     }
     break;
     default:
@@ -146,7 +146,7 @@ void export_solution(const Polydim::examples::Stokes_DF_PCC_3D::Program_configur
         std::cout << "normH1Velocity" << separator;
         std::cout << "normL2Pressure" << separator;
         std::cout << "nnzA" << separator;
-        std::cout << "residual" << endl;
+        std::cout << "residual" << std::endl;
 
         std::cout.precision(2);
         std::cout << std::scientific << TEST_ID << separator;
@@ -161,7 +161,7 @@ void export_solution(const Polydim::examples::Stokes_DF_PCC_3D::Program_configur
         std::cout << std::scientific << post_process_data.norm_H1_velocity << separator;
         std::cout << std::scientific << post_process_data.norm_L2_pressure << separator;
         std::cout << std::scientific << assembler_data.globalMatrixA.NonZeros() << separator;
-        std::cout << std::scientific << post_process_data.residual_norm << endl;
+        std::cout << std::scientific << post_process_data.residual_norm << std::endl;
     }
 
     {
@@ -186,7 +186,7 @@ void export_solution(const Polydim::examples::Stokes_DF_PCC_3D::Program_configur
             errorFile << "normH1Velocity" << separator;
             errorFile << "normL2Pressure" << separator;
             errorFile << "nnzA" << separator;
-            errorFile << "residual" << endl;
+            errorFile << "residual" << std::endl;
         }
 
         errorFile.precision(16);
@@ -202,7 +202,7 @@ void export_solution(const Polydim::examples::Stokes_DF_PCC_3D::Program_configur
         errorFile << std::scientific << post_process_data.norm_H1_velocity << separator;
         errorFile << std::scientific << post_process_data.norm_L2_pressure << separator;
         errorFile << std::scientific << assembler_data.globalMatrixA.NonZeros() << separator;
-        errorFile << std::scientific << post_process_data.residual_norm << endl;
+        errorFile << std::scientific << post_process_data.residual_norm << std::endl;
 
         errorFile.close();
     }
@@ -276,7 +276,7 @@ void export_performance(const Polydim::examples::Stokes_DF_PCC_3D::Program_confi
         exporter << "Pi0k_Error" << separator;
         exporter << "GBD_Error" << separator;
         exporter << "HCD_Error" << separator;
-        exporter << "Stab_Error" << endl;
+        exporter << "Stab_Error" << std::endl;
 
         for (unsigned int v = 0; v < performance_data.Cell3DsPerformance.size(); v++)
         {
@@ -291,7 +291,7 @@ void export_performance(const Polydim::examples::Stokes_DF_PCC_3D::Program_confi
             exporter << std::scientific << cell3DPerformance.maxErrorPi0k << separator;
             exporter << std::scientific << cell3DPerformance.maxErrorGBD << separator;
             exporter << std::scientific << cell3DPerformance.maxErrorHCD << separator;
-            exporter << std::scientific << cell3DPerformance.ErrorStabilization << endl;
+            exporter << std::scientific << cell3DPerformance.ErrorStabilization << std::endl;
         }
 
         exporter.close();
@@ -710,7 +710,7 @@ void export_discrepancy_errors(const Polydim::examples::Stokes_DF_PCC_3D::Progra
         std::cout << "normH1FULLVelocity" << separator;
         std::cout << "normL2FULLProjectedPressure" << separator;
         std::cout << "reducedResidual" << separator;
-        std::cout << "fullResidual" << endl;
+        std::cout << "fullResidual" << std::endl;
 
         std::cout.precision(2);
         std::cout << std::scientific << TEST_ID << separator;
@@ -724,7 +724,7 @@ void export_discrepancy_errors(const Polydim::examples::Stokes_DF_PCC_3D::Progra
         std::cout << std::scientific << discrepancy_errors_data.full_norm_H1_velocity << separator;
         std::cout << std::scientific << discrepancy_errors_data.full_norm_L2_pressure << separator;
         std::cout << std::scientific << discrepancy_errors_data.reduced_residual_norm << separator;
-        std::cout << std::scientific << discrepancy_errors_data.residual_norm << endl;
+        std::cout << std::scientific << discrepancy_errors_data.residual_norm << std::endl;
     }
 
     {
@@ -748,7 +748,7 @@ void export_discrepancy_errors(const Polydim::examples::Stokes_DF_PCC_3D::Progra
             errorFile << "normH1FULLVelocity" << separator;
             errorFile << "normL2FULLProjectedPressure" << separator;
             errorFile << "reducedResidual" << separator;
-            errorFile << "fullResidual" << endl;
+            errorFile << "fullResidual" << std::endl;
         }
 
         errorFile.precision(16);
@@ -763,7 +763,7 @@ void export_discrepancy_errors(const Polydim::examples::Stokes_DF_PCC_3D::Progra
         errorFile << std::scientific << discrepancy_errors_data.full_norm_H1_velocity << separator;
         errorFile << std::scientific << discrepancy_errors_data.full_norm_L2_pressure << separator;
         errorFile << std::scientific << discrepancy_errors_data.reduced_residual_norm << separator;
-        errorFile << std::scientific << discrepancy_errors_data.residual_norm << endl;
+        errorFile << std::scientific << discrepancy_errors_data.residual_norm << std::endl;
 
         errorFile.close();
     }
