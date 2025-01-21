@@ -4,6 +4,7 @@
 #include "DOFsManager.hpp"
 #include "PDE_Mesh_Utilities.hpp"
 
+#include <numbers>
 #include <typeindex>
 #include <unordered_map>
 
@@ -154,7 +155,7 @@ struct Poisson_Polynomial_Problem final : public I_Test
 
     Eigen::VectorXd source_term(const Eigen::MatrixXd &points) const
     {
-        return 2.0 * M_PI * M_PI * sin(M_PI * points.row(0).array());
+        return 2.0 * std::numbers::pi * std::numbers::pi * sin(std::numbers::pi * points.row(0).array());
     };
 
     Eigen::VectorXd strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
@@ -162,7 +163,7 @@ struct Poisson_Polynomial_Problem final : public I_Test
         if (marker != 1)
             throw std::runtime_error("Unknown marker");
 
-        return sin(M_PI * points.row(0).array());
+        return sin(std::numbers::pi * points.row(0).array());
     };
 
     Eigen::VectorXd weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
@@ -170,17 +171,17 @@ struct Poisson_Polynomial_Problem final : public I_Test
         if (marker != 2)
             throw std::runtime_error("Unknown marker");
 
-        return 2.0 * M_PI * cos(M_PI * points.row(0).array());
+        return 2.0 * std::numbers::pi * cos(std::numbers::pi * points.row(0).array());
     }
 
     Eigen::VectorXd exact_solution(const Eigen::MatrixXd &points) const
     {
-        return sin(M_PI * points.row(0).array());
+        return sin(std::numbers::pi * points.row(0).array());
     };
 
     std::array<Eigen::VectorXd, 3> exact_derivative_solution(const Eigen::MatrixXd &points) const
     {
-        return {M_PI * cos(M_PI * points.row(0).array()),
+        return {std::numbers::pi * cos(std::numbers::pi * points.row(0).array()),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols())};
     }

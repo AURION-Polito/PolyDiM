@@ -1,6 +1,7 @@
 #include "program_utilities.hpp"
 
 #include "VTKUtilities.hpp"
+#include <numbers>
 
 namespace Polydim
 {
@@ -373,9 +374,10 @@ void export_dofs(const Polydim::examples::Elastic_PCC_2D::Program_configuration 
             dof_cell_index_values.push_back(c);
             dof_dimension_values.push_back(2);
             dofs_coordinate.push_back(
-                polygon_centroid + circle_diameter * Eigen::Vector3d(cos(2.0 * M_PI * local_polygon_coordinates.at(loc_i)),
-                                                                     sin(2.0 * M_PI * local_polygon_coordinates.at(loc_i)),
-                                                                     0.0));
+                polygon_centroid +
+                circle_diameter * Eigen::Vector3d(cos(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
+                                                  sin(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
+                                                  0.0));
 
             std::array<double, 2> sol;
             std::array<double, 2> rhs;

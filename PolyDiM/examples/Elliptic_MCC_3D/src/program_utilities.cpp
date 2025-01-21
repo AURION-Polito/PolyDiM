@@ -1,6 +1,7 @@
 #include "program_utilities.hpp"
 
 #include "VTKUtilities.hpp"
+#include <numbers>
 
 namespace Polydim
 {
@@ -257,9 +258,10 @@ void export_velocity_dofs(const Polydim::examples::Elliptic_MCC_3D::Program_conf
             dof_boundary_marker_values.push_back(boundary_info.Marker);
             if (num_loc_dofs > 1)
                 dofs_coordinate.push_back(geometryUtilities.RotatePointsFrom2DTo3D(
-                    polygon_centroid + circle_diameter * Eigen::Vector3d(cos(2.0 * M_PI * local_polygon_coordinates.at(loc_i)),
-                                                                         sin(2.0 * M_PI * local_polygon_coordinates.at(loc_i)),
-                                                                         0.0),
+                    polygon_centroid +
+                        circle_diameter * Eigen::Vector3d(cos(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
+                                                          sin(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
+                                                          0.0),
                     mesh_geometric_data.Cell3DsFacesRotationMatrices.at(neigh)[local_index_face],
                     mesh_geometric_data.Cell3DsFacesTranslations.at(neigh)[local_index_face]));
             else

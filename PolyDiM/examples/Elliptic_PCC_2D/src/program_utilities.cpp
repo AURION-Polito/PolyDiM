@@ -1,6 +1,7 @@
 #include "program_utilities.hpp"
 
 #include "VTKUtilities.hpp"
+#include <numbers>
 
 namespace Polydim
 {
@@ -326,9 +327,10 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration
             dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
             dof_boundary_marker_values.push_back(boundary_info.Marker);
             dofs_coordinate.push_back(
-                polygon_centroid + circle_diameter * Eigen::Vector3d(cos(2.0 * M_PI * local_polygon_coordinates.at(loc_i)),
-                                                                     sin(2.0 * M_PI * local_polygon_coordinates.at(loc_i)),
-                                                                     0.0));
+                polygon_centroid +
+                circle_diameter * Eigen::Vector3d(cos(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
+                                                  sin(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
+                                                  0.0));
             dof_type_values.push_back(static_cast<double>(local_dof.Type));
             dof_global_index_values.push_back(local_dof.Global_Index);
 

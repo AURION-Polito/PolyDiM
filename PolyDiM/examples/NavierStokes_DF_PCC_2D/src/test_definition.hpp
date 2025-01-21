@@ -5,6 +5,7 @@
 #include "DOFsManager.hpp"
 #include "PDE_Mesh_Utilities.hpp"
 
+#include <numbers>
 #include <unordered_map>
 
 namespace Polydim
@@ -338,22 +339,28 @@ struct NavierStokes final : public I_Test
         const Eigen::ArrayXd y = points.row(1);
 
         std::vector<Eigen::VectorXd> laplacian(2, Eigen::VectorXd::Zero(points.cols()));
-        laplacian[0] = 2.0 * M_PI * M_PI * sin(4.0 * M_PI * y) * (2.0 * cos(4.0 * M_PI * x) - 1.0);
-        laplacian[1] = -2.0 * M_PI * M_PI * sin(4.0 * M_PI * x) * (2.0 * cos(4.0 * M_PI * y) - 1.0);
+        laplacian[0] = 2.0 * std::numbers::pi * std::numbers::pi * sin(4.0 * std::numbers::pi * y) *
+                       (2.0 * cos(4.0 * std::numbers::pi * x) - 1.0);
+        laplacian[1] = -2.0 * std::numbers::pi * std::numbers::pi * sin(4.0 * std::numbers::pi * x) *
+                       (2.0 * cos(4.0 * std::numbers::pi * y) - 1.0);
 
         std::vector<Eigen::VectorXd> convectiveTerm(2, Eigen::VectorXd::Zero(points.cols()));
-        convectiveTerm[0] = (M_PI * cos(2.0 * M_PI * x) * sin(2.0 * M_PI * x) * sin(2.0 * M_PI * x) *
-                             sin(2.0 * M_PI * x) * sin(2.0 * M_PI * y) * sin(2.0 * M_PI * y)) *
+        convectiveTerm[0] = (std::numbers::pi * cos(2.0 * std::numbers::pi * x) * sin(2.0 * std::numbers::pi * x) *
+                             sin(2.0 * std::numbers::pi * x) * sin(2.0 * std::numbers::pi * x) *
+                             sin(2.0 * std::numbers::pi * y) * sin(2.0 * std::numbers::pi * y)) *
                             0.5;
-        convectiveTerm[1] = (M_PI * cos(2.0 * M_PI * y) * sin(2.0 * M_PI * x) * sin(2.0 * M_PI * x) *
-                             sin(2.0 * M_PI * y) * sin(2.0 * M_PI * y) * sin(2.0 * M_PI * y)) *
+        convectiveTerm[1] = (std::numbers::pi * cos(2.0 * std::numbers::pi * y) * sin(2.0 * std::numbers::pi * x) *
+                             sin(2.0 * std::numbers::pi * x) * sin(2.0 * std::numbers::pi * y) *
+                             sin(2.0 * std::numbers::pi * y) * sin(2.0 * std::numbers::pi * y)) *
                             0.5;
 
         std::vector<Eigen::VectorXd> pressureDerivatives(2, Eigen::VectorXd::Zero(points.cols()));
-        pressureDerivatives[0] =
-            2.0 * M_PI * M_PI * M_PI * cos(2.0 * M_PI * points.row(0).array()) * cos(2.0 * M_PI * points.row(1).array());
-        pressureDerivatives[1] =
-            -2.0 * M_PI * M_PI * M_PI * sin(2.0 * M_PI * points.row(0).array()) * sin(2.0 * M_PI * points.row(1).array());
+        pressureDerivatives[0] = 2.0 * std::numbers::pi * std::numbers::pi * std::numbers::pi *
+                                 cos(2.0 * std::numbers::pi * points.row(0).array()) *
+                                 cos(2.0 * std::numbers::pi * points.row(1).array());
+        pressureDerivatives[1] = -2.0 * std::numbers::pi * std::numbers::pi * std::numbers::pi *
+                                 sin(2.0 * std::numbers::pi * points.row(0).array()) *
+                                 sin(2.0 * std::numbers::pi * points.row(1).array());
 
         return {-0.1 * laplacian[0] + convectiveTerm[0] - pressureDerivatives[0],
                 -0.1 * laplacian[1] + convectiveTerm[1] - pressureDerivatives[1],
@@ -365,10 +372,10 @@ struct NavierStokes final : public I_Test
         if (marker != 1)
             throw std::runtime_error("Unknown marker");
 
-        return {0.5 * sin(2.0 * M_PI * points.row(0).array()) * sin(2.0 * M_PI * points.row(0).array()) *
-                    sin(2.0 * M_PI * points.row(1).array()) * cos(2.0 * M_PI * points.row(1).array()),
-                -0.5 * sin(2.0 * M_PI * points.row(1).array()) * sin(2.0 * M_PI * points.row(1).array()) *
-                    sin(2.0 * M_PI * points.row(0).array()) * cos(2.0 * M_PI * points.row(0).array()),
+        return {0.5 * sin(2.0 * std::numbers::pi * points.row(0).array()) * sin(2.0 * std::numbers::pi * points.row(0).array()) *
+                    sin(2.0 * std::numbers::pi * points.row(1).array()) * cos(2.0 * std::numbers::pi * points.row(1).array()),
+                -0.5 * sin(2.0 * std::numbers::pi * points.row(1).array()) * sin(2.0 * std::numbers::pi * points.row(1).array()) *
+                    sin(2.0 * std::numbers::pi * points.row(0).array()) * cos(2.0 * std::numbers::pi * points.row(0).array()),
                 Eigen::VectorXd::Zero(points.cols())};
     }
 
@@ -380,9 +387,11 @@ struct NavierStokes final : public I_Test
         switch (marker)
         {
         case 2:
-            return {0.1 * M_PI * cos(4.0 * M_PI * y) * sin(2.0 * M_PI * x) * sin(2.0 * M_PI * x),
-                    -0.1 * 2.0 * M_PI * cos(2.0 * M_PI * x) * cos(2.0 * M_PI * y) * sin(2.0 * M_PI * x) * sin(2.0 * M_PI * y) +
-                        M_PI * M_PI * sin(2.0 * M_PI * x) * cos(2.0 * M_PI * y),
+            return {0.1 * std::numbers::pi * cos(4.0 * std::numbers::pi * y) * sin(2.0 * std::numbers::pi * x) *
+                        sin(2.0 * std::numbers::pi * x),
+                    -0.1 * 2.0 * std::numbers::pi * cos(2.0 * std::numbers::pi * x) * cos(2.0 * std::numbers::pi * y) *
+                            sin(2.0 * std::numbers::pi * x) * sin(2.0 * std::numbers::pi * y) +
+                        std::numbers::pi * std::numbers::pi * sin(2.0 * std::numbers::pi * x) * cos(2.0 * std::numbers::pi * y),
                     Eigen::VectorXd::Zero(points.cols())};
         default:
             throw std::runtime_error("Unknown marker");
@@ -391,15 +400,16 @@ struct NavierStokes final : public I_Test
 
     Eigen::VectorXd exact_pressure(const Eigen::MatrixXd &points) const
     {
-        return M_PI * M_PI * sin(2.0 * M_PI * points.row(0).array()) * cos(2.0 * M_PI * points.row(1).array());
+        return std::numbers::pi * std::numbers::pi * sin(2.0 * std::numbers::pi * points.row(0).array()) *
+               cos(2.0 * std::numbers::pi * points.row(1).array());
     };
 
     std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd &points) const
     {
-        return {0.5 * sin(2.0 * M_PI * points.row(0).array()) * sin(2.0 * M_PI * points.row(0).array()) *
-                    sin(2.0 * M_PI * points.row(1).array()) * cos(2.0 * M_PI * points.row(1).array()),
-                -0.5 * sin(2.0 * M_PI * points.row(1).array()) * sin(2.0 * M_PI * points.row(1).array()) *
-                    sin(2.0 * M_PI * points.row(0).array()) * cos(2.0 * M_PI * points.row(0).array()),
+        return {0.5 * sin(2.0 * std::numbers::pi * points.row(0).array()) * sin(2.0 * std::numbers::pi * points.row(0).array()) *
+                    sin(2.0 * std::numbers::pi * points.row(1).array()) * cos(2.0 * std::numbers::pi * points.row(1).array()),
+                -0.5 * sin(2.0 * std::numbers::pi * points.row(1).array()) * sin(2.0 * std::numbers::pi * points.row(1).array()) *
+                    sin(2.0 * std::numbers::pi * points.row(0).array()) * cos(2.0 * std::numbers::pi * points.row(0).array()),
                 Eigen::VectorXd::Zero(points.cols())};
     }
 
@@ -408,11 +418,15 @@ struct NavierStokes final : public I_Test
         const Eigen::ArrayXd x = points.row(0);
         const Eigen::ArrayXd y = points.row(1);
 
-        return {2.0 * M_PI * cos(2.0 * M_PI * x) * cos(2.0 * M_PI * y) * sin(2.0 * M_PI * x) * sin(2.0 * M_PI * y),
-                M_PI * cos(4.0 * M_PI * y) * sin(2.0 * M_PI * x) * sin(2.0 * M_PI * x),
+        return {2.0 * std::numbers::pi * cos(2.0 * std::numbers::pi * x) * cos(2.0 * std::numbers::pi * y) *
+                    sin(2.0 * std::numbers::pi * x) * sin(2.0 * std::numbers::pi * y),
+                std::numbers::pi * cos(4.0 * std::numbers::pi * y) * sin(2.0 * std::numbers::pi * x) *
+                    sin(2.0 * std::numbers::pi * x),
                 Eigen::VectorXd::Zero(points.cols()),
-                -M_PI * cos(4.0 * M_PI * x) * sin(2.0 * M_PI * y) * sin(2.0 * M_PI * y),
-                -2.0 * M_PI * cos(2.0 * M_PI * x) * cos(2.0 * M_PI * y) * sin(2.0 * M_PI * x) * sin(2.0 * M_PI * y),
+                -std::numbers::pi * cos(4.0 * std::numbers::pi * x) * sin(2.0 * std::numbers::pi * y) *
+                    sin(2.0 * std::numbers::pi * y),
+                -2.0 * std::numbers::pi * cos(2.0 * std::numbers::pi * x) * cos(2.0 * std::numbers::pi * y) *
+                    sin(2.0 * std::numbers::pi * x) * sin(2.0 * std::numbers::pi * y),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),

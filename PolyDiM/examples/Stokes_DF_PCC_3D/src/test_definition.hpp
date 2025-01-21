@@ -4,6 +4,7 @@
 #include "DOFsManager.hpp"
 #include "PDE_Mesh_Utilities.hpp"
 
+#include <numbers>
 #include <unordered_map>
 
 namespace Polydim
@@ -304,14 +305,20 @@ struct Stokes final : public I_Test
         const Eigen::ArrayXd z = points.row(2);
 
         std::vector<Eigen::VectorXd> derivatesTermValues(3, Eigen::VectorXd::Zero(points.cols()));
-        derivatesTermValues[0] = M_PI * M_PI * sin(M_PI * x) * cos(M_PI * y) * cos(M_PI * z);
-        derivatesTermValues[1] = M_PI * M_PI * cos(M_PI * x) * sin(M_PI * y) * cos(M_PI * z);
-        derivatesTermValues[2] = M_PI * M_PI * cos(M_PI * x) * cos(M_PI * y) * sin(M_PI * z);
+        derivatesTermValues[0] = std::numbers::pi * std::numbers::pi * sin(std::numbers::pi * x) *
+                                 cos(std::numbers::pi * y) * cos(std::numbers::pi * z);
+        derivatesTermValues[1] = std::numbers::pi * std::numbers::pi * cos(std::numbers::pi * x) *
+                                 sin(std::numbers::pi * y) * cos(std::numbers::pi * z);
+        derivatesTermValues[2] = std::numbers::pi * std::numbers::pi * cos(std::numbers::pi * x) *
+                                 cos(std::numbers::pi * y) * sin(std::numbers::pi * z);
 
         std::vector<Eigen::VectorXd> laplacianVelocityTermValues(3, Eigen::VectorXd::Zero(points.cols()));
-        laplacianVelocityTermValues[0] = -3.0 * M_PI * M_PI * sin(M_PI * x) * cos(M_PI * y) * cos(M_PI * z);
-        laplacianVelocityTermValues[1] = -3.0 * M_PI * M_PI * cos(M_PI * x) * sin(M_PI * y) * cos(M_PI * z);
-        laplacianVelocityTermValues[2] = 6.0 * M_PI * M_PI * cos(M_PI * x) * cos(M_PI * y) * sin(M_PI * z);
+        laplacianVelocityTermValues[0] = -3.0 * std::numbers::pi * std::numbers::pi * sin(std::numbers::pi * x) *
+                                         cos(std::numbers::pi * y) * cos(std::numbers::pi * z);
+        laplacianVelocityTermValues[1] = -3.0 * std::numbers::pi * std::numbers::pi * cos(std::numbers::pi * x) *
+                                         sin(std::numbers::pi * y) * cos(std::numbers::pi * z);
+        laplacianVelocityTermValues[2] = 6.0 * std::numbers::pi * std::numbers::pi * cos(std::numbers::pi * x) *
+                                         cos(std::numbers::pi * y) * sin(std::numbers::pi * z);
 
         return {-laplacianVelocityTermValues[0] - derivatesTermValues[0],
                 -laplacianVelocityTermValues[1] - derivatesTermValues[1],
@@ -327,9 +334,9 @@ struct Stokes final : public I_Test
         const Eigen::ArrayXd y = points.row(1);
         const Eigen::ArrayXd z = points.row(2);
 
-        return {sin(M_PI * x) * cos(M_PI * y) * cos(M_PI * z),
-                cos(M_PI * x) * sin(M_PI * y) * cos(M_PI * z),
-                -2.0 * cos(M_PI * x) * cos(M_PI * y) * sin(M_PI * z)};
+        return {sin(std::numbers::pi * x) * cos(std::numbers::pi * y) * cos(std::numbers::pi * z),
+                cos(std::numbers::pi * x) * sin(std::numbers::pi * y) * cos(std::numbers::pi * z),
+                -2.0 * cos(std::numbers::pi * x) * cos(std::numbers::pi * y) * sin(std::numbers::pi * z)};
     }
 
     std::array<Eigen::VectorXd, 3> weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
@@ -343,7 +350,7 @@ struct Stokes final : public I_Test
         const Eigen::ArrayXd y = points.row(1);
         const Eigen::ArrayXd z = points.row(2);
 
-        return -M_PI * cos(M_PI * x) * cos(M_PI * y) * cos(M_PI * z);
+        return -std::numbers::pi * cos(std::numbers::pi * x) * cos(std::numbers::pi * y) * cos(std::numbers::pi * z);
     };
 
     std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd &points) const
@@ -352,9 +359,9 @@ struct Stokes final : public I_Test
         const Eigen::ArrayXd y = points.row(1);
         const Eigen::ArrayXd z = points.row(2);
 
-        return {sin(M_PI * x) * cos(M_PI * y) * cos(M_PI * z),
-                cos(M_PI * x) * sin(M_PI * y) * cos(M_PI * z),
-                -2.0 * cos(M_PI * x) * cos(M_PI * y) * sin(M_PI * z)};
+        return {sin(std::numbers::pi * x) * cos(std::numbers::pi * y) * cos(std::numbers::pi * z),
+                cos(std::numbers::pi * x) * sin(std::numbers::pi * y) * cos(std::numbers::pi * z),
+                -2.0 * cos(std::numbers::pi * x) * cos(std::numbers::pi * y) * sin(std::numbers::pi * z)};
     }
 
     std::array<Eigen::VectorXd, 9> exact_derivatives_velocity(const Eigen::MatrixXd &points) const
@@ -363,15 +370,15 @@ struct Stokes final : public I_Test
         const Eigen::ArrayXd y = points.row(1);
         const Eigen::ArrayXd z = points.row(2);
 
-        return {M_PI * cos(M_PI * x) * cos(M_PI * y) * cos(M_PI * z),
-                -M_PI * sin(M_PI * x) * sin(M_PI * y) * cos(M_PI * z),
-                -M_PI * sin(M_PI * x) * cos(M_PI * y) * sin(M_PI * z),
-                -M_PI * sin(M_PI * x) * sin(M_PI * y) * cos(M_PI * z),
-                M_PI * cos(M_PI * x) * cos(M_PI * y) * cos(M_PI * z),
-                -M_PI * cos(M_PI * x) * sin(M_PI * y) * sin(M_PI * z),
-                2.0 * M_PI * sin(M_PI * x) * cos(M_PI * y) * sin(M_PI * z),
-                2.0 * M_PI * cos(M_PI * x) * sin(M_PI * y) * sin(M_PI * z),
-                -2.0 * M_PI * cos(M_PI * x) * cos(M_PI * y) * cos(M_PI * z)};
+        return {std::numbers::pi * cos(std::numbers::pi * x) * cos(std::numbers::pi * y) * cos(std::numbers::pi * z),
+                -std::numbers::pi * sin(std::numbers::pi * x) * sin(std::numbers::pi * y) * cos(std::numbers::pi * z),
+                -std::numbers::pi * sin(std::numbers::pi * x) * cos(std::numbers::pi * y) * sin(std::numbers::pi * z),
+                -std::numbers::pi * sin(std::numbers::pi * x) * sin(std::numbers::pi * y) * cos(std::numbers::pi * z),
+                std::numbers::pi * cos(std::numbers::pi * x) * cos(std::numbers::pi * y) * cos(std::numbers::pi * z),
+                -std::numbers::pi * cos(std::numbers::pi * x) * sin(std::numbers::pi * y) * sin(std::numbers::pi * z),
+                2.0 * std::numbers::pi * sin(std::numbers::pi * x) * cos(std::numbers::pi * y) * sin(std::numbers::pi * z),
+                2.0 * std::numbers::pi * cos(std::numbers::pi * x) * sin(std::numbers::pi * y) * sin(std::numbers::pi * z),
+                -2.0 * std::numbers::pi * cos(std::numbers::pi * x) * cos(std::numbers::pi * y) * cos(std::numbers::pi * z)};
     }
 };
 // ***************************************************************************
@@ -701,9 +708,12 @@ struct Stokes_Benchmark_2 final : public I_Test
         const Eigen::ArrayXd z = points.row(2);
 
         std::vector<Eigen::VectorXd> derivativesPressureValues(3, Eigen::VectorXd::Zero(points.cols()));
-        derivativesPressureValues[0] = 2.0 * M_PI * cos(2.0 * M_PI * x) * sin(2.0 * M_PI * y) * sin(2.0 * M_PI * z);
-        derivativesPressureValues[1] = 2.0 * M_PI * sin(2.0 * M_PI * x) * cos(2.0 * M_PI * y) * sin(2.0 * M_PI * z);
-        derivativesPressureValues[2] = 2.0 * M_PI * sin(2.0 * M_PI * x) * sin(2.0 * M_PI * y) * cos(2.0 * M_PI * z);
+        derivativesPressureValues[0] = 2.0 * std::numbers::pi * cos(2.0 * std::numbers::pi * x) *
+                                       sin(2.0 * std::numbers::pi * y) * sin(2.0 * std::numbers::pi * z);
+        derivativesPressureValues[1] = 2.0 * std::numbers::pi * sin(2.0 * std::numbers::pi * x) *
+                                       cos(2.0 * std::numbers::pi * y) * sin(2.0 * std::numbers::pi * z);
+        derivativesPressureValues[2] = 2.0 * std::numbers::pi * sin(2.0 * std::numbers::pi * x) *
+                                       sin(2.0 * std::numbers::pi * y) * cos(2.0 * std::numbers::pi * z);
 
         std::vector<Eigen::VectorXd> laplacianVelocityTermValues(3, Eigen::VectorXd::Zero(points.cols()));
 
@@ -766,7 +776,7 @@ struct Stokes_Benchmark_2 final : public I_Test
         const Eigen::ArrayXd y = points.row(1);
         const Eigen::ArrayXd z = points.row(2);
 
-        return sin(2.0 * M_PI * x) * sin(2.0 * M_PI * y) * sin(2.0 * M_PI * z);
+        return sin(2.0 * std::numbers::pi * x) * sin(2.0 * std::numbers::pi * y) * sin(2.0 * std::numbers::pi * z);
     };
 
     std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd &points) const

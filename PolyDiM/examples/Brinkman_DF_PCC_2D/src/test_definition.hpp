@@ -4,7 +4,7 @@
 #include "CommonUtilities.hpp"
 #include "DOFsManager.hpp"
 #include "PDE_Mesh_Utilities.hpp"
-
+#include <numbers>
 #include <unordered_map>
 
 namespace Polydim
@@ -491,8 +491,10 @@ struct Stokes_ZeroVelocity_2 final : public I_Test
 
     std::array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd &points) const
     {
-        return {2.0 * M_PI * cos(2.0 * M_PI * points.row(0).array()) * sin(2.0 * M_PI * points.row(1).array()),
-                2.0 * M_PI * sin(2.0 * M_PI * points.row(0).array()) * cos(2.0 * M_PI * points.row(1).array()),
+        return {2.0 * std::numbers::pi * cos(2.0 * std::numbers::pi * points.row(0).array()) *
+                    sin(2.0 * std::numbers::pi * points.row(1).array()),
+                2.0 * std::numbers::pi * sin(2.0 * std::numbers::pi * points.row(0).array()) *
+                    cos(2.0 * std::numbers::pi * points.row(1).array()),
                 Eigen::VectorXd::Zero(points.cols())};
     };
 
@@ -520,7 +522,7 @@ struct Stokes_ZeroVelocity_2 final : public I_Test
 
     Eigen::VectorXd exact_pressure(const Eigen::MatrixXd &points) const
     {
-        return sin(2.0 * M_PI * points.row(0).array()) * sin(2.0 * M_PI * points.row(1).array());
+        return sin(2.0 * std::numbers::pi * points.row(0).array()) * sin(2.0 * std::numbers::pi * points.row(1).array());
     };
 
     std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd &points) const
@@ -596,7 +598,8 @@ struct Darcy final : public I_Test
 
     Eigen::VectorXd divergence_term(const Eigen::MatrixXd &points) const
     {
-        return 2.0 * M_PI * M_PI * cos(M_PI * points.row(0).array()) * cos(M_PI * points.row(1).array());
+        return 2.0 * std::numbers::pi * std::numbers::pi * cos(std::numbers::pi * points.row(0).array()) *
+               cos(std::numbers::pi * points.row(1).array());
     };
 
     std::array<Eigen::VectorXd, 3> strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
@@ -606,7 +609,8 @@ struct Darcy final : public I_Test
 
     std::array<Eigen::VectorXd, 3> weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
-        const Eigen::VectorXd pressure = cos(M_PI * points.row(0).array()) * cos(M_PI * points.row(1).array());
+        const Eigen::VectorXd pressure =
+            cos(std::numbers::pi * points.row(0).array()) * cos(std::numbers::pi * points.row(1).array());
         switch (marker)
         {
         case 2:
@@ -624,23 +628,27 @@ struct Darcy final : public I_Test
 
     Eigen::VectorXd exact_pressure(const Eigen::MatrixXd &points) const
     {
-        return cos(M_PI * points.row(0).array()) * cos(M_PI * points.row(1).array());
+        return cos(std::numbers::pi * points.row(0).array()) * cos(std::numbers::pi * points.row(1).array());
     };
 
     std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd &points) const
     {
-        return {M_PI * sin(M_PI * points.row(0).array()) * cos(M_PI * points.row(1).array()),
-                M_PI * cos(M_PI * points.row(0).array()) * sin(M_PI * points.row(1).array()),
+        return {std::numbers::pi * sin(std::numbers::pi * points.row(0).array()) * cos(std::numbers::pi * points.row(1).array()),
+                std::numbers::pi * cos(std::numbers::pi * points.row(0).array()) * sin(std::numbers::pi * points.row(1).array()),
                 Eigen::VectorXd::Zero(points.cols())};
     }
 
     std::array<Eigen::VectorXd, 9> exact_derivatives_velocity(const Eigen::MatrixXd &points) const
     {
-        return {M_PI * M_PI * cos(M_PI * points.row(0).array()) * cos(M_PI * points.row(1).array()),
-                -M_PI * M_PI * sin(M_PI * points.row(0).array()) * sin(M_PI * points.row(1).array()),
+        return {std::numbers::pi * std::numbers::pi * cos(std::numbers::pi * points.row(0).array()) *
+                    cos(std::numbers::pi * points.row(1).array()),
+                -std::numbers::pi * std::numbers::pi * sin(std::numbers::pi * points.row(0).array()) *
+                    sin(std::numbers::pi * points.row(1).array()),
                 Eigen::VectorXd::Zero(points.cols()),
-                -M_PI * M_PI * sin(M_PI * points.row(0).array()) * sin(M_PI * points.row(1).array()),
-                M_PI * M_PI * cos(M_PI * points.row(0).array()) * cos(M_PI * points.row(1).array()),
+                -std::numbers::pi * std::numbers::pi * sin(std::numbers::pi * points.row(0).array()) *
+                    sin(std::numbers::pi * points.row(1).array()),
+                std::numbers::pi * std::numbers::pi * cos(std::numbers::pi * points.row(0).array()) *
+                    cos(std::numbers::pi * points.row(1).array()),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
@@ -698,9 +706,11 @@ struct Brinkman final : public I_Test
 
     std::array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd &points) const
     {
-        return {(2.0 * M_PI * M_PI + 1.0) * sin(M_PI * points.row(0).array()) * cos(M_PI * points.row(1).array()) +
+        return {(2.0 * std::numbers::pi * std::numbers::pi + 1.0) * sin(std::numbers::pi * points.row(0).array()) *
+                        cos(std::numbers::pi * points.row(1).array()) +
                     2.0 * points.row(0).array() * points.row(1).array() * points.row(1).array(),
-                (-2.0 * M_PI * M_PI - 1.0) * cos(M_PI * points.row(0).array()) * sin(M_PI * points.row(1).array()) +
+                (-2.0 * std::numbers::pi * std::numbers::pi - 1.0) * cos(std::numbers::pi * points.row(0).array()) *
+                        sin(std::numbers::pi * points.row(1).array()) +
                     2.0 * points.row(1).array() * points.row(0).array() * points.row(0).array(),
                 Eigen::VectorXd::Zero(points.cols())};
     };
@@ -715,8 +725,8 @@ struct Brinkman final : public I_Test
         if (marker != 1)
             throw std::runtime_error("Unknown marker");
 
-        return {sin(M_PI * points.row(0).array()) * cos(M_PI * points.row(1).array()),
-                -cos(M_PI * points.row(0).array()) * sin(M_PI * points.row(1).array()),
+        return {sin(std::numbers::pi * points.row(0).array()) * cos(std::numbers::pi * points.row(1).array()),
+                -cos(std::numbers::pi * points.row(0).array()) * sin(std::numbers::pi * points.row(1).array()),
                 Eigen::VectorXd::Zero(points.cols())};
     }
 
@@ -736,22 +746,23 @@ struct Brinkman final : public I_Test
 
     std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd &points) const
     {
-        return {sin(M_PI * points.row(0).array()) * cos(M_PI * points.row(1).array()),
-                -cos(M_PI * points.row(0).array()) * sin(M_PI * points.row(1).array()),
+        return {sin(std::numbers::pi * points.row(0).array()) * cos(std::numbers::pi * points.row(1).array()),
+                -cos(std::numbers::pi * points.row(0).array()) * sin(std::numbers::pi * points.row(1).array()),
                 Eigen::VectorXd::Zero(points.cols())};
     }
 
     std::array<Eigen::VectorXd, 9> exact_derivatives_velocity(const Eigen::MatrixXd &points) const
     {
-        return {M_PI * cos(M_PI * points.row(0).array()) * cos(M_PI * points.row(1).array()),
-                -M_PI * sin(M_PI * points.row(0).array()) * sin(M_PI * points.row(1).array()),
-                Eigen::VectorXd::Zero(points.cols()),
-                M_PI * sin(M_PI * points.row(0).array()) * sin(M_PI * points.row(1).array()),
-                -M_PI * cos(M_PI * points.row(0).array()) * cos(M_PI * points.row(1).array()),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols())};
+        return {
+            std::numbers::pi * cos(std::numbers::pi * points.row(0).array()) * cos(std::numbers::pi * points.row(1).array()),
+            -std::numbers::pi * sin(std::numbers::pi * points.row(0).array()) * sin(std::numbers::pi * points.row(1).array()),
+            Eigen::VectorXd::Zero(points.cols()),
+            std::numbers::pi * sin(std::numbers::pi * points.row(0).array()) * sin(std::numbers::pi * points.row(1).array()),
+            -std::numbers::pi * cos(std::numbers::pi * points.row(0).array()) * cos(std::numbers::pi * points.row(1).array()),
+            Eigen::VectorXd::Zero(points.cols()),
+            Eigen::VectorXd::Zero(points.cols()),
+            Eigen::VectorXd::Zero(points.cols()),
+            Eigen::VectorXd::Zero(points.cols())};
     }
 };
 // ***************************************************************************
