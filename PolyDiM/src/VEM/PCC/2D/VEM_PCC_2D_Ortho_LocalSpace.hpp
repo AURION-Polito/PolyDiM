@@ -145,19 +145,23 @@ class VEM_PCC_2D_Ortho_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
                                                                               const ProjectionTypes &projectionType,
                                                                               const Eigen::MatrixXd &points) const
     {
-        const std::vector<Eigen::MatrixXd> polynomialsDerivativeValues =
-            ComputePolynomialsDerivativeValues(reference_element_data, localSpace, points);
-
         switch (projectionType)
         {
         case ProjectionTypes::Pi0km1Der: {
+
+            const Eigen::MatrixXd polynomialsValues = ComputePolynomialsValues(reference_element_data, localSpace, points);
+
             std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValues(localSpace.Dimension);
             for (unsigned short i = 0; i < localSpace.Dimension; ++i)
-                basisFunctionsDerivativeValues[i] = polynomialsDerivativeValues[i] * localSpace.Pi0km1Der[i];
+                basisFunctionsDerivativeValues[i] = polynomialsValues.leftCols(localSpace.Nkm1) * localSpace.Pi0km1Der[i];
 
             return basisFunctionsDerivativeValues;
         }
         case ProjectionTypes::PiNabla: {
+
+            const std::vector<Eigen::MatrixXd> polynomialsDerivativeValues =
+                ComputePolynomialsDerivativeValues(reference_element_data, localSpace, points);
+
             std::vector<Eigen::MatrixXd> basisFunctionDerivativeValues(localSpace.Dimension);
             for (unsigned short i = 0; i < localSpace.Dimension; ++i)
                 basisFunctionDerivativeValues[i] = polynomialsDerivativeValues[i] * localSpace.PiNabla;
@@ -186,8 +190,7 @@ class VEM_PCC_2D_Ortho_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
     {
         std::vector<Eigen::MatrixXd> polynomialBasisDerivativeValues(localSpace.Dimension);
         for (unsigned short i = 0; i < localSpace.Dimension; ++i)
-            polynomialBasisDerivativeValues[i] = localSpace.VanderInternalDerivatives[i] *
-                                                 localSpace.Qmatrix.topLeftCorner(localSpace.Nkm1, localSpace.Nkm1).transpose();
+            polynomialBasisDerivativeValues[i] = localSpace.VanderInternalDerivatives[i] * localSpace.Qmatrix.transpose();
         return polynomialBasisDerivativeValues;
     }
 
@@ -202,8 +205,7 @@ class VEM_PCC_2D_Ortho_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
 
         std::vector<Eigen::MatrixXd> polynomialBasisDerivativeValues(localSpace.Dimension);
         for (unsigned short i = 0; i < localSpace.Dimension; ++i)
-            polynomialBasisDerivativeValues[i] =
-                monomialBasisDerivativeValues[i] * localSpace.Qmatrix.topLeftCorner(localSpace.Nkm1, localSpace.Nkm1).transpose();
+            polynomialBasisDerivativeValues[i] = monomialBasisDerivativeValues[i] * localSpace.Qmatrix.transpose();
         return polynomialBasisDerivativeValues;
     }
 
