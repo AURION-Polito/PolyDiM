@@ -13,6 +13,10 @@ FEM_Triangle_PCC_2D_LocalSpace_Data FEM_Triangle_PCC_2D_LocalSpace::CreateLocalS
     const FEM_Triangle_PCC_2D_ReferenceElement_Data &reference_element_data,
     const FEM_Triangle_PCC_2D_Polygon_Geometry &polygon) const
 {
+
+    if (polygon.Vertices.cols() != 3)
+        throw std::runtime_error("The element must be a triangle");
+
     FEM_Triangle_PCC_2D_LocalSpace_Data localSpace;
 
     Gedim::MapTriangle mapTriangle;
