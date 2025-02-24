@@ -1,3 +1,2 @@
 * change markers to mesh 3D
-* add unit test gedim cmake variable
 * lettore proprietà geoemtriche
