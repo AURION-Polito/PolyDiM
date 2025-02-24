@@ -16,18 +16,18 @@ namespace PCC
 {
 struct FEM_Tetrahedron_PCC_3D_ReferenceElement_Data final
 {
-    unsigned int Dimension; ///< Geometric dimension
-    unsigned int Order;     ///< Order of the method
-    unsigned int NumDofs0D; ///< Number of dofs for each vertex.
-    unsigned int NumDofs1D; ///< Number of dofs internal to each edge.
-    unsigned int NumDofs2D; ///< Number of dofs internal to each polygon.
-    unsigned int NumDofs3D; ///< Number of dofs internal to each polyhedron.
+    unsigned int Dimension;
+    unsigned int Order;
+    unsigned int NumDofs0D;
+    unsigned int NumDofs1D;
+    unsigned int NumDofs2D;
+    unsigned int NumDofs3D;
 
     std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, bool>> Edges_by_vertices;
     std::map<std::pair<unsigned int, unsigned int>, unsigned int> Faces_by_edge_vertex;
 
-    unsigned int NumBasisFunctions; ///< Number of total basis functions
-    Eigen::MatrixXd DofPositions;   ///< reference element dof points
+    unsigned int NumBasisFunctions;
+    Eigen::MatrixXd DofPositions;
 
     Gedim::Quadrature::QuadratureData ReferenceTetrahedronQuadrature;
 

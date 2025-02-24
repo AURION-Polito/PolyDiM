@@ -16,17 +16,17 @@ namespace PCC
 struct VEM_PCC_PerformanceAnalysis_Data
 {
     double PiNablaConditioning = -1.0;   ///< conditioning of piNabla
-    double Pi0km1Conditioning = -1.0;    ///< conditioning of piNabla
-    double Pi0kConditioning = -1.0;      ///< conditioning of piNabla
+    double Pi0km1Conditioning = -1.0;    ///< conditioning of pi0km1
+    double Pi0kConditioning = -1.0;      ///< conditioning of pi0k
     double ErrorPiNabla = -1.0;          ///< |piNabla * Dofs - I|
     double ErrorPi0km1 = -1.0;           ///< |pi0km1 * Dofs.leftCols(Nkm1) - I.topLeftCorner(Nkm1, Nkm1)|
     double ErrorPi0k = -1.0;             ///< |pi0k * Dofs - I|
     std::vector<double> ErrorPi0km1Grad; ///< Error of Pi0km1Grad, size geometric dimension
-    double StabNorm = -1.0;
-    double ErrorStabilization = -1.0; ///< |S * Dofs|
-    double ErrorHCD = -1.0;           ///< |H - CD|
-    double ErrorGBD = -1.0;           ///< |G - BD|
-    std::vector<double> ErrorHED;     ///< |H - ED|
+    double StabNorm = -1.0;              ///< Norm of S
+    double ErrorStabilization = -1.0;    ///< |S * Dofs|
+    double ErrorHCD = -1.0;              ///< |H - CD|
+    double ErrorGBD = -1.0;              ///< |G - BD|
+    std::vector<double> ErrorHED;        ///< |H - ED|
 };
 
 struct VEM_PCC_PerformanceAnalysis final

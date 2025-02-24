@@ -11,7 +11,6 @@ namespace VEM
 namespace PCC
 {
 
-/// \brief Base class for Primal Conforming Virtual Element Method of Constant Degree.
 class VEM_PCC_2D_ReferenceElement final : public I_VEM_PCC_2D_ReferenceElement
 {
   public:

@@ -12,7 +12,6 @@ namespace VEM
 namespace MCC
 {
 
-/// \brief Base class for Primal Conforming Virtual Element Method of Constant Degree.
 class VEM_MCC_2D_Pressure_ReferenceElement final : public I_VEM_MCC_2D_Pressure_ReferenceElement
 {
   public:

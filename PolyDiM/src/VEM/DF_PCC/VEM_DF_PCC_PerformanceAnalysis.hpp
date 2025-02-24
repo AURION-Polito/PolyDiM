@@ -15,18 +15,18 @@ namespace DF_PCC
 {
 struct VEM_DF_PCC_PerformanceAnalysis_Data
 {
-    std::vector<double> PiNablaConditioning; ///< conditioning of piNabla
-    std::vector<double> Pi0km2Conditioning;  ///< conditioning of piNabla
-    std::vector<double> Pi0kConditioning;    ///< conditioning of piNabla
-    std::vector<double> ErrorPiNabla;        ///< |piNabla * Dofs - I|
-    std::vector<double> ErrorPi0km2;         ///< |pi0km2 * Dofs.leftCols(Nkm2) - I.topLeftCorner(Nkm2, Nkm2)|
-    std::vector<double> ErrorPi0k;           ///< |pi0k * Dofs - I|
-    std::vector<double> ErrorPi0km1Grad;     ///< Error of Pi0km1Grad, size geometric dimension
+    std::vector<double> PiNablaConditioning;
+    std::vector<double> Pi0km2Conditioning;
+    std::vector<double> Pi0kConditioning;
+    std::vector<double> ErrorPiNabla;
+    std::vector<double> ErrorPi0km2;
+    std::vector<double> ErrorPi0k;
+    std::vector<double> ErrorPi0km1Grad;
     double StabNorm = -1.0;
-    double ErrorStabilization = -1.0; ///< |S * Dofs|
-    std::vector<double> ErrorHCD;     ///< |H - CD|
-    std::vector<double> ErrorGBD;     ///< |G - BD|
-    std::vector<double> ErrorHED;     ///< |H - ED|
+    double ErrorStabilization = -1.0;
+    std::vector<double> ErrorHCD;
+    std::vector<double> ErrorGBD;
+    std::vector<double> ErrorHED;
 };
 
 struct VEM_DF_PCC_PerformanceAnalysis final

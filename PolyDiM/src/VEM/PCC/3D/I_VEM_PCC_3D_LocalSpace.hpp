@@ -15,13 +15,6 @@ namespace VEM
 namespace PCC
 {
 
-/// \brief Class used for computing values of basis functions of 2D
-/// Primal Conforming Constant degree Virtual Element Methods.
-///
-/// Please cite the following article:
-///     - <a href="https://doi.org/10.1016/j.matcom.2023.10.003">"Improving high-order VEM stability on badly-shaped
-///     elements. Stefano Berrone, Gioana Teora and Fabio Vicini. (2024)"</a>
-
 class I_VEM_PCC_3D_LocalSpace
 {
   public:

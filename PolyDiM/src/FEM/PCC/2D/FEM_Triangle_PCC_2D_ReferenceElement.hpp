@@ -13,18 +13,17 @@ namespace FEM
 {
 namespace PCC
 {
-/// \brief Base class for storing information related to \ref VEM::PCC::I_VEM_PCC_2D_ReferenceElement
 struct FEM_Triangle_PCC_2D_ReferenceElement_Data final
 {
-    unsigned int Dimension; ///< Geometric dimension
-    unsigned int Order;     ///< Order of the method
-    unsigned int NumDofs0D; ///< Number of dofs for each vertex.
-    unsigned int NumDofs1D; ///< Number of dofs internal to each edge.
-    unsigned int NumDofs2D; ///< Number of dofs internal to each polygon.
+    unsigned int Dimension;
+    unsigned int Order;
+    unsigned int NumDofs0D;
+    unsigned int NumDofs1D;
+    unsigned int NumDofs2D;
 
-    unsigned int NumBasisFunctions; ///< Number of total basis functions
-    Eigen::MatrixXd DofPositions;   ///< reference element dof points
-    Eigen::MatrixXi DofTypes;       ///< dof type [num oblique edges, num vertical edges, num horizontal edges]
+    unsigned int NumBasisFunctions;
+    Eigen::MatrixXd DofPositions;
+    Eigen::MatrixXi DofTypes;
 
     Gedim::Quadrature::QuadratureData ReferenceTriangleQuadrature;
 
