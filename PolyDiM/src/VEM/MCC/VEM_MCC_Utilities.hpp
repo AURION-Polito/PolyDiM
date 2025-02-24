@@ -9,15 +9,11 @@ namespace VEM
 {
 namespace MCC
 {
-/// \brief Enumeration for Projector Types
 enum struct ProjectionTypes
 {
-    Pi0k = 1, ///< \f$\Pi^0_{order}\f$ projection to project basis
+    Pi0k = 1,
 };
 
-/// \brief Base class for computing values of basis functions of Mixed Conforming Constant degree
-/// Virtual Element Methods.
-/// \copyright See top level LICENSE file for details.
 template <unsigned short dimension> struct VEM_MCC_Utilities final
 {
     Eigen::MatrixXd ComputePolynomialBasisDofs(const double &polytopeMeasure,

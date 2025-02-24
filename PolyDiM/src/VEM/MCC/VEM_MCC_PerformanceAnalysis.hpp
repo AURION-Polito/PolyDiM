@@ -15,14 +15,14 @@ namespace MCC
 {
 struct VEM_MCC_PerformanceAnalysis_Data
 {
-    double VmatrixConditioning = -1.0; ///< conditioning of piNabla
-    double HmatrixConditioning = -1.0; ///< conditioning of piNabla
-    double Pi0kConditioning = -1.0;    ///< conditioning of piNabla
-    double GmatrixConditioning = -1.0; ///< conditioning of piNabla
-    double ErrorPi0k = -1.0;           ///< |pi0k * Dofs - I|
+    double VmatrixConditioning = -1.0;
+    double HmatrixConditioning = -1.0;
+    double Pi0kConditioning = -1.0;
+    double GmatrixConditioning = -1.0;
+    double ErrorPi0k = -1.0;
     double StabNorm = -1.0;
-    double ErrorStabilization = -1.0; ///< |S * Dofs|
-    double ErrorGBD = -1.0;           ///< |G - BD|
+    double ErrorStabilization = -1.0;
+    double ErrorGBD = -1.0;
 };
 
 struct VEM_MCC_PerformanceAnalysis final

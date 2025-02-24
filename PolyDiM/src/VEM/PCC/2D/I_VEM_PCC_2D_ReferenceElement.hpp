@@ -10,17 +10,16 @@ namespace VEM
 {
 namespace PCC
 {
-/// \brief Base class for storing information related to \ref VEM::PCC::I_VEM_PCC_2D_ReferenceElement
 struct VEM_PCC_2D_ReferenceElement_Data final
 {
-    unsigned int Dimension; ///< Geometric dimension
-    unsigned int Order;     ///< Order of the method
-    unsigned int NumDofs0D; ///< Number of dofs for each vertex.
-    unsigned int NumDofs1D; ///< Number of dofs internal to each edge.
-    unsigned int NumDofs2D; ///< Number of dofs internal to each polygon.
+    unsigned int Dimension;
+    unsigned int Order;
+    unsigned int NumDofs0D;
+    unsigned int NumDofs1D;
+    unsigned int NumDofs2D;
 
-    Monomials::VEM_Monomials_Data Monomials;      ///< Monomials used as support for building vem local matrices
-    Quadrature::VEM_QuadratureData_2D Quadrature; ///< Quadrature used as support for building vem local matrices
+    Monomials::VEM_Monomials_Data Monomials;
+    Quadrature::VEM_QuadratureData_2D Quadrature;
 };
 
 class I_VEM_PCC_2D_ReferenceElement

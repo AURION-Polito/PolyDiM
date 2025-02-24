@@ -14,10 +14,10 @@ struct VEM_DF_PCC_3D_Pressure_ReferenceElement_Data final
 {
     unsigned int Dimension;
     unsigned int Order;
-    unsigned int NumDofs0D; ///< Number of dofs for each vertex.
-    unsigned int NumDofs1D; ///< Number of dofs internal to each edge.
-    unsigned int NumDofs2D; ///< Number of dofs internal to each polygon.
-    unsigned int NumDofs3D; ///< Number of dofs internal to each polygon.
+    unsigned int NumDofs0D;
+    unsigned int NumDofs1D;
+    unsigned int NumDofs2D;
+    unsigned int NumDofs3D;
 
     Monomials::VEM_Monomials_Data Monomials;
     Quadrature::VEM_QuadratureData_3D Quadrature;

@@ -15,8 +15,6 @@ namespace VEM
 {
 namespace MCC
 {
-/// \brief Class used for computing values of basis functions of 2D
-/// Mixed Conforming Constant degree Virtual Element Methods.
 class VEM_MCC_2D_EdgeOrtho_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_LocalSpace
 {
   private:

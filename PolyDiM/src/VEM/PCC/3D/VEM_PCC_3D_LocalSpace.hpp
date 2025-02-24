@@ -18,8 +18,6 @@ namespace VEM
 {
 namespace PCC
 {
-/// \brief Class used for computing values of basis functions of 3D
-/// Primal Conforming Constant degree Virtual Element Methods.
 class VEM_PCC_3D_LocalSpace final : public I_VEM_PCC_3D_LocalSpace
 {
   private:

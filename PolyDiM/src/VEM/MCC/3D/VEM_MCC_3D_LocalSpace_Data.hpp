@@ -37,45 +37,35 @@ struct VEM_MCC_3D_Polyhedron_Geometry final
 
 struct VEM_MCC_3D_Velocity_LocalSpace_Data final
 {
-    /// Order
     unsigned int Order;
 
-    /// Geometric dimension
     unsigned int Dimension;
 
-    /// Number of basis functions corresponding to degrees of freedom internal to edges (2D only).
     unsigned int NumBoundaryBasisFunctions;
 
-    /// Number of basis functions corresponding to degrees of freedom internal to element (nabla).
     unsigned int NumNablaInternalBasisFunctions;
 
-    /// Number of basis functions corresponding to degrees of freedom internal to element (bigoplus).
     unsigned int NumBigOPlusInternalBasisFunctions;
-    unsigned int NumInternalBasisFunctions; ///< Number of basis functions corresponding to internal moments.
-    unsigned int NumBasisFunctions;         ///< Number of basis functions.
+    unsigned int NumInternalBasisFunctions;
+    unsigned int NumBasisFunctions;
 
     Gedim::Quadrature::QuadratureData InternalQuadrature;
     Quadrature::VEM_Quadrature_3D::Faces_QuadratureData_MCC BoundaryQuadrature;
 
-    /// Vandermonde matrix of the polynomial basis at internal quadrature points.
     Eigen::MatrixXd VanderInternal;
     Eigen::MatrixXd VanderInternalKp1;
 
     std::vector<Eigen::MatrixXd> FacesVanderInternal;
 
-    /// \brief Coefficients of basis functions on the reference edge.
     Eigen::VectorXd EdgeBasisCoefficients;
 
-    Eigen::MatrixXd Pi0k; ///< Matrix representing the \f$\Pi^0_{\mathrm{order}}\f$ operator.
+    Eigen::MatrixXd Pi0k;
 
     Eigen::MatrixXd Wmatrix;
 
-    /// \brief Mass matrix of the polynomial basis.
-    /// \details \f$ H_{ij} = \int_E m_i m_j \f$, where \f$ E \f$ is the input polygon.
-    Eigen::MatrixXd Hmatrix;               ///< mass matrix of order order
-    Eigen::LLT<Eigen::MatrixXd> H_km1_LLT; ///< LLT factorization of the mass matrix of order-1 monomials.
+    Eigen::MatrixXd Hmatrix;
+    Eigen::LLT<Eigen::MatrixXd> H_km1_LLT;
 
-    /// \brief Vandermonde matrix of the polynomial basis at boundary quadrature points.
     Eigen::MatrixXd VanderBoundary;
     Eigen::MatrixXd VanderBoundaryKp1;
 
@@ -109,23 +99,23 @@ struct VEM_MCC_3D_Velocity_LocalSpace_Data final
 
 struct VEM_MCC_3D_Pressure_LocalSpace_Data final
 {
-    unsigned int Order;     ///< Order
-    unsigned int Dimension; ///< Geometric dimension
+    unsigned int Order;
+    unsigned int Dimension;
 
     unsigned int Nk;
     unsigned int Nkm1;
 
-    unsigned int NumBasisFunctions; ///< Number of basis functions.
+    unsigned int NumBasisFunctions;
 
     double Diameter;
     Eigen::Vector3d Centroid;
 
-    Gedim::Quadrature::QuadratureData InternalQuadrature; ///< Internal quadrature points and weights
+    Gedim::Quadrature::QuadratureData InternalQuadrature;
 
     Eigen::MatrixXd Qmatrix;
-    Eigen::MatrixXd VanderInternal; /// Vandermonde matrix of the polynomial basis at internal quadrature points.
+    Eigen::MatrixXd VanderInternal;
 
-    Eigen::MatrixXd Hmatrix; ///< mass matrix of order order
+    Eigen::MatrixXd Hmatrix;
 };
 
 } // namespace MCC

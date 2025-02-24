@@ -14,16 +14,15 @@ namespace FEM
 {
 namespace PCC
 {
-/// \brief Base class for storing information related to \ref VEM::PCC::I_VEM_PCC_2D_ReferenceElement
 struct FEM_PCC_1D_ReferenceElement_Data final
 {
-    unsigned int Dimension; ///< Geometric dimension
-    unsigned int Order;     ///< Order of the method
-    unsigned int NumDofs0D; ///< Number of dofs for each vertex.
-    unsigned int NumDofs1D; ///< Number of dofs internal to each edge.
+    unsigned int Dimension;
+    unsigned int Order;
+    unsigned int NumDofs0D;
+    unsigned int NumDofs1D;
 
-    unsigned int NumBasisFunctions; ///< Number of total basis functions
-    Eigen::MatrixXd DofPositions;   ///< reference element dof points
+    unsigned int NumBasisFunctions;
+    Eigen::MatrixXd DofPositions;
     Eigen::VectorXd Interpolation_coefficients;
 
     Gedim::Quadrature::QuadratureData ReferenceSegmentQuadrature;
@@ -61,9 +60,9 @@ class FEM_PCC_1D_ReferenceElement final
         }
 
         unsigned int vertexCount = 0;
-        std::vector<unsigned int> nodeDofs;            ///< The degrees of freedom of the element on nodes
-        std::vector<unsigned int> cellDofs;            ///< The degrees of freedom of the element on cell
-        std::vector<unsigned int> nodeDofsIndex(3, 0); ///< Index of DOFS on nodes
+        std::vector<unsigned int> nodeDofs;
+        std::vector<unsigned int> cellDofs;
+        std::vector<unsigned int> nodeDofsIndex(3, 0);
 
         result.NumDofs0D = 0;
         result.NumDofs1D = 0;
@@ -98,7 +97,6 @@ class FEM_PCC_1D_ReferenceElement final
             throw std::runtime_error("Wrong initialization in FE reference element. Number of DOFs found is not "
                                      "correct.");
 
-        /// <li> Reordering Dofs using convention [point, cell]
         result.NumDofs0D = nodeDofs.size() / 2;
         result.NumDofs1D = cellDofs.size();
         result.DofPositions.resize(3, result.NumBasisFunctions);

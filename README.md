@@ -1,2 +1,7 @@
 # PolyDiM
-PolyDiM - Polygonal and Polynomial Discretization Methods
+
+**PolyDiM** (POLYtopal DIscretization Methods ) is a numerical computational library designed for solving partial differential equations (PDEs) using discretization methods that operate on generic polytopal (polygonal/polyhedral) meshes.
+
+PolyDiM is inspired by and built upon the foundational research of the Numerical Analysis Group in the Department of Mathematical Sciences "Giuseppe Luigi Lagrange" (DISMA) at the Politecnico di Torino.
+
+See the official [documentation]().
