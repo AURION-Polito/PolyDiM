@@ -67,18 +67,16 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
         switch (projectionType)
         {
         case ProjectionTypes::PiNabla: {
-            std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValues;
+            std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValues(dimension);
 
-            basisFunctionsDerivativeValues.resize(dimension);
             for (unsigned short i = 0; i < dimension; ++i)
                 basisFunctionsDerivativeValues[i] = vanderInternalDerivatives[i] * piNabla;
 
             return basisFunctionsDerivativeValues;
         }
         case ProjectionTypes::Pi0km1Der: {
-            std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValues;
+            std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValues(dimension);
 
-            basisFunctionsDerivativeValues.resize(dimension);
             for (unsigned short i = 0; i < dimension; ++i)
                 basisFunctionsDerivativeValues[i] = vanderInternal.leftCols(Nkm1) * pi0km1Der[i];
 
