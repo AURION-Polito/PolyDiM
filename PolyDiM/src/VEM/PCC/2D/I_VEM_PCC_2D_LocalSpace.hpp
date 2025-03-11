@@ -24,7 +24,7 @@ class I_VEM_PCC_2D_LocalSpace
     /// \brief Compute data of VEM space on a polygon.
     /// \param reference_element_data Data of the reference element of the VEM space.
     /// \param polygon The geometry of the polygon
-    /// \return A data structure containing the information about the local VEM space
+    /// \return A data structure containing the information about the local VEM space.
     virtual VEM_PCC_2D_LocalSpace_Data CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                                         const VEM_PCC_2D_Polygon_Geometry &polygon) const = 0;
 
@@ -128,7 +128,7 @@ class I_VEM_PCC_2D_LocalSpace
 
     /// \brief Compute values of the trace of VEM basis functions at given points on an edge.
     /// \param reference_element_data Data of the reference element of the VEM space.
-    /// \param pointsCurvilinearCoordinates Curvilinear coordinates of points in [0,1].
+    /// \param pointsCurvilinearCoordinates Curvilinear coordinates of evaluation points in [0,1].
     /// \return A matrix containing the values of a basis function on each column.
     virtual Eigen::MatrixXd ComputeValuesOnEdge(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                                 const Eigen::VectorXd &pointsCurvilinearCoordinates) const = 0;
