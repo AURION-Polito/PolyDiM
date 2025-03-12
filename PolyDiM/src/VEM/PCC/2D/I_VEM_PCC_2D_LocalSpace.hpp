@@ -17,13 +17,14 @@ namespace PCC
 class I_VEM_PCC_2D_LocalSpace
 {
   public:
+    /// \brief Class destructor.
     virtual ~I_VEM_PCC_2D_LocalSpace()
     {
     }
 
     /// \brief Compute data of VEM space on a polygon.
     /// \param reference_element_data Data of the reference element of the VEM space.
-    /// \param polygon The geometry of the polygon
+    /// \param polygon The geometry of the polygon.
     /// \return A data structure containing the information about the local VEM space.
     virtual VEM_PCC_2D_LocalSpace_Data CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                                         const VEM_PCC_2D_Polygon_Geometry &polygon) const = 0;

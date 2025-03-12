@@ -16,7 +16,8 @@ namespace MCC
 class I_VEM_MCC_3D_Pressure_LocalSpace
 {
   public:
-    virtual ~I_VEM_MCC_3D_Pressure_LocalSpace()
+  /// \brief Class destructor.
+  virtual ~I_VEM_MCC_3D_Pressure_LocalSpace()
     {
     }
 
