@@ -13,7 +13,7 @@ namespace VEM
 {
 namespace MCC
 {
-/// \brief Interface class for the velocity space of Mixed Conforming Constant degree 2D.
+/// \brief Interface class for the velocity space of 2D Mixed Conforming Constant degree Virtual Element Methods.
 class I_VEM_MCC_2D_Velocity_LocalSpace
 {
   public:
