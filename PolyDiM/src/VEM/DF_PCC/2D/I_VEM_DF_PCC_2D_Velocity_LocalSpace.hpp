@@ -38,8 +38,7 @@ class I_VEM_DF_PCC_2D_Velocity_LocalSpace
     virtual Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace,
                                                                const ProjectionTypes &projectionType) const = 0;
 
-    //TODO check this guide
-    /// \brief Compute values of the trace of VEM basis functions of each component at given points on an edge.
+    /// \brief Compute values of the basis functions of each component at given points on an edge.
     /// \param reference_element_data Data of the reference element of the VEM space.
     /// \param pointsCurvilinearCoordinates Curvilinear coordinates of evaluation points in [0,1].
     /// \return A matrix containing the values of a basis function on each column.
