@@ -4,6 +4,7 @@
 #include <gmock/gmock-matchers.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <numbers>
 
 #include "GeometryUtilities.hpp"
 #include "VEM_PCC_2D_LocalSpace_Data.hpp"
@@ -11,11 +12,148 @@
 #include "VEM_PCC_3D_LocalSpace.hpp"
 #include "VEM_PCC_3D_ReferenceElement.hpp"
 #include "VEM_PCC_PerformanceAnalysis.hpp"
+#include "VTKUtilities.hpp"
 
 namespace Polydim
 {
 namespace UnitTesting
 {
+
+void Test_VEM_PCC_3D_Export_Dofs(const Polydim::VEM::PCC::VEM_PCC_3D_Polyhedron_Geometry &polyhedron,
+                                 const std::vector<Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
+                                 const Polydim::VEM::PCC::VEM_PCC_3D_ReferenceElement_Data &vem_reference_element,
+                                 const std::string &exportVtuFolder)
+{
+    Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
+    geometryUtilitiesConfig.Tolerance1D = polyhedron.Tolerance1D;
+    geometryUtilitiesConfig.Tolerance2D = polyhedron.Tolerance2D;
+    geometryUtilitiesConfig.Tolerance3D = polyhedron.Tolerance3D;
+    Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
+
+    const unsigned int num_vertices = polyhedron.Vertices.cols();
+    const unsigned int num_edges = polyhedron.Edges.cols();
+    const unsigned int num_faces = polyhedron.Faces.size();
+    const unsigned int num_dofs = vem_reference_element.NumDofs0D * num_vertices + vem_reference_element.NumDofs1D * num_edges +
+                                  num_faces * vem_reference_element.NumDofs2D + vem_reference_element.NumDofs3D;
+
+    Eigen::MatrixXd dofs_coordinate = Eigen::MatrixXd::Zero(3, num_dofs);
+    std::vector<double> dof_global_index_values(num_dofs);
+    std::vector<double> dof_cell_index_values(num_dofs);
+    std::vector<double> dof_dimension_values(num_dofs);
+
+    unsigned int id_dofs = 0;
+    if (vem_reference_element.NumDofs0D != 0)
+    {
+        for (unsigned int c = 0; c < num_vertices; ++c)
+        {
+            for (unsigned int loc_i = 0; loc_i < vem_reference_element.NumDofs0D; ++loc_i)
+            {
+                dof_cell_index_values[id_dofs] = c;
+                dof_dimension_values[id_dofs] = 0;
+                dofs_coordinate.col(id_dofs) = polyhedron.Vertices.col(c);
+                dof_global_index_values[id_dofs] = id_dofs;
+                id_dofs++;
+            }
+        }
+    }
+
+    if (vem_reference_element.NumDofs1D != 0)
+    {
+        for (unsigned int c = 0; c < num_vertices; ++c)
+        {
+            const std::vector<double> local_edge_coordinates =
+                geometryUtilities.EquispaceCoordinates(vem_reference_element.NumDofs1D, 0.0, 1.0, false);
+            const Eigen::Vector3d edge_origin = polyhedron.Vertices.col(polyhedron.Edges(0, c));
+            const Eigen::Vector3d edge_tangent = polyhedron.Vertices.col(polyhedron.Edges(1, c)) - edge_origin;
+
+            for (unsigned int loc_i = 0; loc_i < vem_reference_element.NumDofs1D; ++loc_i)
+            {
+                dof_cell_index_values[id_dofs] = c;
+                dof_dimension_values[id_dofs] = 1;
+                dofs_coordinate.col(id_dofs) = edge_origin + local_edge_coordinates[loc_i] * edge_tangent;
+                dof_global_index_values[id_dofs] = id_dofs;
+                id_dofs++;
+            }
+        }
+    }
+
+    if (vem_reference_element.NumDofs2D != 0)
+    {
+        for (unsigned int c = 0; c < num_faces; c++)
+        {
+            const auto local_polygon_coordinates =
+                geometryUtilities.EquispaceCoordinates(vem_reference_element.NumDofs2D + 1, 0.0, 1.0, true);
+            const Eigen::Vector3d polygon_centroid = polygonalFaces[c].Centroid;
+            const auto polygonCentroidEdgesDistance =
+                geometryUtilities.PolygonCentroidEdgesDistance(polygonalFaces[c].Vertices,
+                                                               polygonalFaces[c].Centroid,
+                                                               polygonalFaces[c].EdgesNormal);
+
+            double circle_diameter = 0.0;
+            if (vem_reference_element.NumDofs2D > 1)
+                circle_diameter = 0.5 * geometryUtilities.PolygonInRadius(polygonCentroidEdgesDistance);
+
+            for (unsigned int loc_i = 0; loc_i < vem_reference_element.NumDofs2D; ++loc_i)
+            {
+                dof_cell_index_values[id_dofs] = 0;
+                dof_dimension_values[id_dofs] = 2;
+                dofs_coordinate.col(id_dofs) = geometryUtilities.RotatePointsFrom2DTo3D(
+                    polygon_centroid +
+                        circle_diameter * Eigen::Vector3d(cos(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
+                                                          sin(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
+                                                          0.0),
+                    polyhedron.FacesRotationMatrix[c],
+                    polyhedron.FacesTranslation[c]);
+                dof_global_index_values[id_dofs] = id_dofs;
+                id_dofs++;
+            }
+        }
+    }
+
+    if (vem_reference_element.NumDofs3D != 0)
+    {
+        const auto faces3DVertices = geometryUtilities.PolyhedronFaceVertices(polyhedron.Vertices, polyhedron.Faces);
+
+        const auto local_polyhedron_coordinates = geometryUtilities.fibonacci_sphere(vem_reference_element.NumDofs3D);
+        const Eigen::Vector3d polyhedron_centroid = polyhedron.Centroid;
+        const auto polyhedron_centroid_faces_distance =
+            geometryUtilities.PolyhedronCentroidFacesDistance(polyhedron_centroid, polyhedron.FacesNormal, faces3DVertices);
+        const double polyhedron_in_radius = geometryUtilities.PolyhedronInRadius(polyhedron_centroid_faces_distance);
+
+        double sphere_diameter = 0.0;
+        if (vem_reference_element.NumDofs3D > 0)
+            sphere_diameter = 0.5 * polyhedron_in_radius;
+
+        for (unsigned int loc_i = 0; loc_i < vem_reference_element.NumDofs2D; ++loc_i)
+        {
+            dof_cell_index_values[id_dofs] = 0;
+            dof_dimension_values[id_dofs] = 3;
+            dofs_coordinate.col(id_dofs) = polyhedron_centroid + sphere_diameter * local_polyhedron_coordinates.col(loc_i);
+            dof_global_index_values[id_dofs] = id_dofs;
+            id_dofs++;
+        }
+    }
+
+    {
+        Gedim::VTKUtilities exporter;
+        exporter.AddPoints(dofs_coordinate,
+                           {{"cell_dimension",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(dof_dimension_values.size()),
+                             dof_dimension_values.data()},
+                            {"cell_index",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(dof_cell_index_values.size()),
+                             dof_cell_index_values.data()},
+                            {"dof_global_index",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(dof_global_index_values.size()),
+                             dof_global_index_values.data()}});
+
+        exporter.Export(exportVtuFolder + "/dofs_" + std::to_string(vem_reference_element.Order) + ".vtu");
+    }
+}
+
 struct Test_VEM_PCC_2D_PolygonalFaces_Geometry final
 {
     Eigen::MatrixXd Vertices;
@@ -1516,6 +1654,10 @@ std::vector<Eigen::MatrixXd> Test_VEM_PCC_3D_RefPiNabla()
 
 TEST(Test_VEM_PCC, Test_VEM_PCC_3D_O1_O2_O3)
 {
+
+    const std::string exportFolder = "Test_VEM_PCC_3D_O1_02_03";
+    Gedim::Output::CreateFolder(exportFolder);
+
     Gedim::GeometryUtilitiesConfig geometry_utilities_config;
     geometry_utilities_config.Tolerance1D = std::numeric_limits<double>::epsilon();
     Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
@@ -1573,6 +1715,15 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_3D_O1_O2_O3)
         const auto reference_element_data_3D = vem_reference_element_3D.Create(k);
         const auto local_space =
             vem_local_space.CreateLocalSpace(reference_element_data_2D, reference_element_data_3D, polygonalFaces, polyhedron);
+
+        // Export domain
+        {
+            Gedim::VTKUtilities vtkUtilities;
+            vtkUtilities.AddPolyhedron(polyhedron.Vertices, polyhedron.Edges, polyhedron.Faces);
+            vtkUtilities.Export(exportFolder + "/Polyhedron.vtu");
+
+            Test_VEM_PCC_3D_Export_Dofs(polyhedron, polygonalFaces, reference_element_data_3D, exportFolder);
+        }
 
         // Test Reference PiNabla
         const auto refPiNabla = Test_VEM_PCC_3D_RefPiNabla()[k - 1];
