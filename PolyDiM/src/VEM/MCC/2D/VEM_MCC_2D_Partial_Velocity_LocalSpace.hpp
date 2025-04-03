@@ -15,6 +15,9 @@ namespace VEM
 {
 namespace MCC
 {
+
+/// \brief Interface class for the velocity space of 2D Mixed Conforming Constant degree Virtual Element Methods \cite Teora2024_mixed.
+
 class VEM_MCC_2D_Partial_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_LocalSpace
 {
   private:

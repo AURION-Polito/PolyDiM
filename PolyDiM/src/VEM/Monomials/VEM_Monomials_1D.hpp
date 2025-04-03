@@ -15,31 +15,19 @@ class VEM_Monomials_1D final
     VEM_Monomials_Utilities<1> utilities;
 
   public:
-    /// \brief Define the multi-indices \f$\alpha\f$ data for \f$(x,y,z)\f$ and the other coefficient matrices
-    /// to build efficiently the monomial Vandermonde matrix and
-    /// the Vandermonde Matrix for both monomials derivatives and laplacian.
-    /// \param polynomial_degree: The polynomial degree required.
-    /// \returns A struct of type \ref VEM_Monomials_Data
+
     VEM_Monomials_Data Compute(const unsigned int polynomial_degree) const;
 
-    /// \param A const reference to an object of type \ref VEM_Monomials_Data.
-    /// \returns The an Eigen::MatrixXi containing the \ref VEM_Monomials_Data::Exponents
     inline Eigen::MatrixXi Exponents(const VEM_Monomials_Data &data) const
     {
         return utilities.Exponents(data);
     }
 
-    /// \param A const reference to an object of type \ref VEM_Monomials_Data.
-    /// \param An unsigned int that expresses the required derivative:
-    /// \f$0\f$ for the \f$x\f$-derivative
-    /// \returns The \f$i\f$-th entry of \ref VEM_Monomials_Data::DerivativeMatrices.
     inline Eigen::MatrixXd DerivativeMatrix(const VEM_Monomials_Data &data, const unsigned int &i) const
     {
         return data.DerivativeMatrices[i];
     }
 
-    /// \param A const reference to an object of type \ref VEM_Monomials_Data.
-    /// \returns A const reference to the x-derivative matrix.
     inline Eigen::MatrixXd D_x(const VEM_Monomials_Data &data) const
     {
         return data.DerivativeMatrices[0];

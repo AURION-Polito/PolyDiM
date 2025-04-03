@@ -74,7 +74,6 @@ struct VEM_DF_PCC_PerformanceAnalysis final
 
             for (unsigned int d2 = 0; d2 < vem_local_space_data.Dimension; d2++)
             {
-                const Eigen::MatrixXd &piDerkm1 = vem_local_space_data.Pi0km1Der[vem_local_space_data.Dimension * d1 + d2];
                 const Eigen::MatrixXd derMatrix =
                     invDiameter * vem_monomials.DerivativeMatrix(vem_monomials_data, d2)
                                       .topLeftCorner(vem_local_space_data.Nk, vem_local_space_data.Nkm1);
@@ -128,7 +127,6 @@ struct VEM_DF_PCC_PerformanceAnalysis final
             {
                 for (unsigned int d2 = 0; d2 < vem_local_space_data.Dimension; d2++)
                 {
-                    const Eigen::MatrixXd &piDerkm1 = vem_local_space_data.Pi0km1Der[vem_local_space_data.Dimension * d1 + d2];
                     const Eigen::MatrixXd derMatrix =
                         invDiameter *
                         vem_monomials.DerivativeMatrix(vem_monomials_data, d2)

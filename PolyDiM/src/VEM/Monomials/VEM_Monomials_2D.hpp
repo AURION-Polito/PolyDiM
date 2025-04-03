@@ -22,20 +22,16 @@ class VEM_Monomials_2D final
         return utilities.Exponents(data);
     }
 
-    /// \param The required derivative.
-    /// \returns A const reference to \ref derivativeMatrices[i].
     inline Eigen::MatrixXd DerivativeMatrix(const VEM_Monomials_Data &data, const unsigned int &i) const
     {
         return data.DerivativeMatrices[i];
     }
 
-    /// \returns A const reference to the x-derivative matrix.
     inline Eigen::MatrixXd D_x(const VEM_Monomials_Data &data) const
     {
         return data.DerivativeMatrices[0];
     }
 
-    /// \returns A const reference to the y-derivative matrix.
     inline Eigen::MatrixXd D_y(const VEM_Monomials_Data &data) const
     {
         return data.DerivativeMatrices[1];
