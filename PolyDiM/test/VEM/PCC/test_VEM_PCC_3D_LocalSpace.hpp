@@ -59,7 +59,7 @@ void Test_VEM_PCC_3D_Export_Dofs(const Polydim::VEM::PCC::VEM_PCC_3D_Polyhedron_
 
     if (vem_reference_element.NumDofs1D != 0)
     {
-        for (unsigned int c = 0; c < num_vertices; ++c)
+        for (unsigned int c = 0; c < num_edges; ++c)
         {
             const std::vector<double> local_edge_coordinates =
                 geometryUtilities.EquispaceCoordinates(vem_reference_element.NumDofs1D, 0.0, 1.0, false);

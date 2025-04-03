@@ -50,16 +50,27 @@ class VEM_Monomials_2D final
     {
         return utilities.Vander(data, points, centroid, diam);
     }
+
     inline std::vector<Eigen::MatrixXd> VanderDerivatives(const VEM_Monomials_Data &data,
                                                           const Eigen::MatrixXd &vander,
                                                           const double &diam) const
     {
         return utilities.VanderDerivatives(data, (*this), vander, diam);
     }
+
     inline Eigen::MatrixXd VanderLaplacian(const VEM_Monomials_Data &data, const Eigen::MatrixXd &vander, const double &diam) const
     {
         return utilities.VanderLaplacian(data, (*this), vander, diam);
     }
+
+    inline void MGSOrthonormalize(const Eigen::VectorXd &weights,
+                                  const Eigen::MatrixXd &Vander,
+                                  Eigen::MatrixXd &Hmatrix,
+                                  Eigen::MatrixXd &QmatrixInv,
+                                  Eigen::MatrixXd &Qmatrix) const
+    {
+        return utilities.MGSOrthonormalize(weights, Vander, Hmatrix, QmatrixInv, Qmatrix);
+    };
 };
 } // namespace Monomials
 } // namespace VEM

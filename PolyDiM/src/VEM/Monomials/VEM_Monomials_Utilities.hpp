@@ -85,6 +85,12 @@ template <unsigned short dimension> struct VEM_Monomials_Utilities final
 
         return vanderLaplacian;
     }
+
+    void MGSOrthonormalize(const Eigen::VectorXd &weights,
+                           const Eigen::MatrixXd &Vander,
+                           Eigen::MatrixXd &Hmatrix,
+                           Eigen::MatrixXd &QmatrixInv,
+                           Eigen::MatrixXd &Qmatrix) const;
 };
 } // namespace Monomials
 } // namespace VEM

@@ -12,7 +12,8 @@ namespace VEM
 namespace PCC
 {
 
-/// \brief Primal Conforming Constant degree Virtual Element Methods 2D with improvements for high-order \cite Teora2024.
+/// \brief Primal Conforming Constant degree Virtual Element Methods 2D with improvements for high-order \cite
+/// Teora2024.
 class VEM_PCC_2D_Inertia_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
 {
   private:

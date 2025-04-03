@@ -1,7 +1,5 @@
 #include "VEM_PCC_2D_Ortho_LocalSpace.hpp"
 
-#include "LAPACK_utilities.hpp"
-
 using namespace Eigen;
 
 namespace Polydim
@@ -148,26 +146,13 @@ void VEM_PCC_2D_Ortho_LocalSpace::InitializeProjectorsComputation(const VEM_PCC_
         monomials.VanderDerivatives(reference_element_data.Monomials, localSpace.VanderBoundary, polygonDiameter);
 
     // Compute mass matrix of polynomials.
-    ChangeOfBasis(internalQuadratureWeights, localSpace);
-}
-//****************************************************************************
-void VEM_PCC_2D_Ortho_LocalSpace::ChangeOfBasis(const Eigen::VectorXd &internalQuadratureWeights,
-                                                VEM_PCC_2D_LocalSpace_Data &localSpace) const
-{
-    MatrixXd Q1;
-    MatrixXd R1;
-    LAPACK_utilities::MGS(localSpace.VanderInternal, Q1, R1);
+    monomials.MGSOrthonormalize(internalQuadratureWeights,
+                                localSpace.VanderInternal,
+                                localSpace.Hmatrix,
+                                localSpace.QmatrixInv,
+                                localSpace.Qmatrix);
 
-    // L2(E)-re-orthogonalization process
-    MatrixXd Q2;
-    MatrixXd R2;
-    LAPACK_utilities::MGS(internalQuadratureWeights.array().sqrt().matrix().asDiagonal() * Q1, Q2, R2);
-
-    localSpace.Hmatrix = Q2.transpose() * Q2;
     localSpace.H_km1_LLT = localSpace.Hmatrix.topLeftCorner(localSpace.Nkm1, localSpace.Nkm1).llt();
-
-    localSpace.QmatrixInv = (R2 * R1).transpose();
-    LAPACK_utilities::inverseTri(localSpace.QmatrixInv, localSpace.Qmatrix, 'L', 'N');
 }
 //****************************************************************************
 void VEM_PCC_2D_Ortho_LocalSpace::ComputePiNabla(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,

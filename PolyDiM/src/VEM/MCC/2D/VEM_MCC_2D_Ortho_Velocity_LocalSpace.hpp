@@ -16,8 +16,8 @@ namespace VEM
 namespace MCC
 {
 
-/// \brief Interface class for the velocity space of 2D Mixed Conforming Constant degree Virtual Element Methods \cite Teora2024_mixed.
-
+/// \brief Interface class for the velocity space of 2D Mixed Conforming Constant degree Virtual Element Methods \cite
+/// Teora2024_mixed.
 
 class VEM_MCC_2D_Ortho_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_LocalSpace
 {
@@ -34,10 +34,6 @@ class VEM_MCC_2D_Ortho_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_
                                          const Eigen::VectorXd &internalQuadratureWeights,
                                          const Eigen::MatrixXd &boundaryQuadraturePoints,
                                          VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const;
-
-    void ChangeOfBasis(const Eigen::MatrixXd &VanderInternalMonomialsKp1,
-                       const Eigen::VectorXd &internalQuadratureWeights,
-                       VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const;
 
     void ComputeValuesOnBoundary(const Eigen::MatrixXd &polytopeVertices,
                                  const Eigen::MatrixXd &edgeNormals,

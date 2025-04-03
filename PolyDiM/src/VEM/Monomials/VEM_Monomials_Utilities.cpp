@@ -1,5 +1,7 @@
 #include "VEM_Monomials_Utilities.hpp"
 
+#include "LAPACK_utilities.hpp"
+
 using namespace std;
 using namespace Eigen;
 
@@ -62,6 +64,28 @@ MatrixXd VEM_Monomials_Utilities<dimension>::Vander(const VEM_Monomials_Data &da
         vander.setOnes(numPoints, 1);
 
     return vander;
+}
+//****************************************************************************
+template <unsigned short dimension>
+void VEM_Monomials_Utilities<dimension>::MGSOrthonormalize(const Eigen::VectorXd &weights,
+                                                           const Eigen::MatrixXd &Vander,
+                                                           Eigen::MatrixXd &Hmatrix,
+                                                           Eigen::MatrixXd &QmatrixInv,
+                                                           Eigen::MatrixXd &Qmatrix) const
+{
+    MatrixXd Q1;
+    MatrixXd R1;
+    LAPACK_utilities::MGS(Vander, Q1, R1);
+
+    // L2(E)-re-orthogonalization process
+    MatrixXd Q2;
+    MatrixXd R2;
+    LAPACK_utilities::MGS(weights.array().sqrt().matrix().asDiagonal() * Q1, Q2, R2);
+
+    Hmatrix = Q2.transpose() * Q2;
+
+    QmatrixInv = (R2 * R1).transpose();
+    LAPACK_utilities::inverseTri(QmatrixInv, Qmatrix, 'L', 'N');
 }
 //****************************************************************************
 } // namespace Monomials

@@ -14,12 +14,12 @@ namespace VEM
 {
 namespace PCC
 {
-/// \brief Interface class for Primal Conforming Constant degree 3D Virtual Element Methods \cite DassiMascotto2018 \cite Teora2024.
+/// \brief Interface class for Primal Conforming Constant degree 3D Virtual Element Methods \cite DassiMascotto2018
+/// \cite Teora2024.
 class I_VEM_PCC_3D_LocalSpace
 {
   public:
-
-  virtual ~I_VEM_PCC_3D_LocalSpace()
+    virtual ~I_VEM_PCC_3D_LocalSpace()
     {
     }
 

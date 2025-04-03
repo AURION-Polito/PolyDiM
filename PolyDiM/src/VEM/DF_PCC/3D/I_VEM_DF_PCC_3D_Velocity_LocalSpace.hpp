@@ -43,15 +43,15 @@ class I_VEM_DF_PCC_3D_Velocity_LocalSpace
     /// \brief Compute values of a suitable projection of basis functions at default quadrature points.
     /// \param localSpace Data of the local space.
     /// \param projectionType Type of projection operator to be applied.
-    /// \return A vector of three matrices containing the values of the three components of a basis function's projection on
-    /// each column.
+    /// \return A vector of three matrices containing the values of the three components of a basis function's
+    /// projection on each column.
     virtual std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const VEM_DF_PCC_3D_Velocity_LocalSpace_Data &localSpace,
                                                                      const ProjectionTypes &projectionType) const = 0;
 
-    /// \brief Compute values of projected derivatives of each component of a basis function at default quadrature points.
-    /// \param localSpace  Data of the local space.
-    /// \param projectionType Type of projection operator to be applied.
-    /// \return A vector with nine components such that the 2 * j + i component is the i-th derivative of the j-th component.
+    /// \brief Compute values of projected derivatives of each component of a basis function at default quadrature
+    /// points. \param localSpace  Data of the local space. \param projectionType Type of projection operator to be
+    /// applied. \return A vector with nine components such that the 2 * j + i component is the i-th derivative of the
+    /// j-th component.
     virtual std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const VEM_DF_PCC_3D_Velocity_LocalSpace_Data &localSpace,
                                                                                const ProjectionTypes &projectionType) const = 0;
 
@@ -61,21 +61,19 @@ class I_VEM_DF_PCC_3D_Velocity_LocalSpace
     /// \param localSpace Data of the local space.
     /// \param projectionType Type of projection operator to be applied.
     /// \param points Evaluation points.
-    /// \return A vector of three matrices containing the values of the three components of a basis function's projection on
-    /// each column.
+    /// \return A vector of three matrices containing the values of the three components of a basis function's
+    /// projection on each column.
     virtual std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const VEM_DF_PCC_3D_Velocity_ReferenceElement_Data &reference_element_data,
                                                                      const VEM_DF_PCC_3D_Polyhedron_Geometry &polyhedron,
                                                                      const VEM_DF_PCC_3D_Velocity_LocalSpace_Data &localSpace,
                                                                      const ProjectionTypes &projectionType,
                                                                      const Eigen::MatrixXd &points) const = 0;
 
-    /// \brief Compute values of projected derivatives of each component of a basis function at default quadrature points.
-    /// \param reference_element_data Data of the reference element of the VEM space.
-    /// \param polyhedron The geometry of the polyhedron.
-    /// \param localSpace Data of the local space.
-    /// \param projectionType Type of projection operator to be applied.
-    /// \param points Evaluation points.
-    /// \return A vector of nine components such that the 2 * j + i component is the i-th derivative of the j-th component.
+    /// \brief Compute values of projected derivatives of each component of a basis function at default quadrature
+    /// points. \param reference_element_data Data of the reference element of the VEM space. \param polyhedron The
+    /// geometry of the polyhedron. \param localSpace Data of the local space. \param projectionType Type of projection
+    /// operator to be applied. \param points Evaluation points. \return A vector of nine components such that the 2 * j
+    /// + i component is the i-th derivative of the j-th component.
     virtual std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const VEM_DF_PCC_3D_Velocity_ReferenceElement_Data &reference_element_data,
                                                                                const VEM_DF_PCC_3D_Polyhedron_Geometry &polyhedron,
                                                                                const VEM_DF_PCC_3D_Velocity_LocalSpace_Data &localSpace,

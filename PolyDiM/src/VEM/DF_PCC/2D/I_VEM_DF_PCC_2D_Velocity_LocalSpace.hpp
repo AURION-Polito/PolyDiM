@@ -38,7 +38,7 @@ class I_VEM_DF_PCC_2D_Velocity_LocalSpace
     virtual Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace,
                                                                const ProjectionTypes &projectionType) const = 0;
 
-    //TODO check this guide
+    // TODO check this guide
     /// \brief Compute values of the trace of VEM basis functions of each component at given points on an edge.
     /// \param reference_element_data Data of the reference element of the VEM space.
     /// \param pointsCurvilinearCoordinates Curvilinear coordinates of evaluation points in [0,1].
@@ -54,10 +54,10 @@ class I_VEM_DF_PCC_2D_Velocity_LocalSpace
     virtual std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace,
                                                                      const ProjectionTypes &projectionType) const = 0;
 
-    /// \brief Compute values of projected derivatives of each component of a basis function at default quadrature points.
-    /// \param localSpace  Data of the local space.
-    /// \param projectionType Type of projection operator to be applied.
-    /// \return A vector with four components such that the 2 * j + i component is the i-th derivative of the j-th component.
+    /// \brief Compute values of projected derivatives of each component of a basis function at default quadrature
+    /// points. \param localSpace  Data of the local space. \param projectionType Type of projection operator to be
+    /// applied. \return A vector with four components such that the 2 * j + i component is the i-th derivative of the
+    /// j-th component.
     virtual std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace,
                                                                                const ProjectionTypes &projectionType) const = 0;
 
@@ -75,13 +75,11 @@ class I_VEM_DF_PCC_2D_Velocity_LocalSpace
                                                                      const ProjectionTypes &projectionType,
                                                                      const Eigen::MatrixXd &points) const = 0;
 
-    /// \brief Compute values of projected derivatives of each component of a basis function at default quadrature points.
-    /// \param reference_element_data Data of the reference element of the VEM space.
-    /// \param polygon The geometry of the polygon.
-    /// \param localSpace Data of the local space.
-    /// \param projectionType Type of projection operator to be applied.
-    /// \param points Evaluation points.
-    /// \return A vector of four components such that the 2 * j + i component is the i-th derivative of the j-th component.
+    /// \brief Compute values of projected derivatives of each component of a basis function at default quadrature
+    /// points. \param reference_element_data Data of the reference element of the VEM space. \param polygon The
+    /// geometry of the polygon. \param localSpace Data of the local space. \param projectionType Type of projection
+    /// operator to be applied. \param points Evaluation points. \return A vector of four components such that the 2 * j
+    /// + i component is the i-th derivative of the j-th component.
     virtual std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                                                                                const VEM_DF_PCC_2D_Polygon_Geometry &polygon,
                                                                                const VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace,

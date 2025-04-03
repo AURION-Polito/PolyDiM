@@ -17,7 +17,6 @@ namespace MCC
 class I_VEM_MCC_3D_Velocity_LocalSpace
 {
   public:
-
     /// \brief Compute data of VEM space on a polygon.
     /// \param reference_element_data Data of the reference element of the VEM space.
     /// \param polygon The geometry of the polygon.
@@ -35,7 +34,8 @@ class I_VEM_MCC_3D_Velocity_LocalSpace
     /// \brief Compute values of a suitable projection of basis functions at default quadrature points.
     /// \param localSpace Data of the local space.
     /// \param projectionType Type of projection operator to be applied.
-    /// \return A vector of three matrices containing the values of the three components of a basis function's projection on each column.
+    /// \return A vector of three matrices containing the values of the three components of a basis function's
+    /// projection on each column.
     virtual std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const VEM_MCC_3D_Velocity_LocalSpace_Data &localSpace,
                                                                      const ProjectionTypes &projectionType) const = 0;
 

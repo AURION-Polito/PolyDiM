@@ -89,7 +89,14 @@ void VEM_MCC_2D_Partial_Velocity_LocalSpace::InitializeProjectorsComputation(con
         monomials.Vander(reference_element_data.MonomialsKp1, internalQuadraturePoints, polygonCentroid, polygonDiameter);
 
     // Compute change of polynomial basis matrix
-    ChangeOfBasis(VanderInternalMonomials, internalQuadratureWeights, localSpace);
+    Eigen::MatrixXd HmatrixKp1;
+    monomials.MGSOrthonormalize(internalQuadratureWeights,
+                                VanderInternalMonomials,
+                                HmatrixKp1,
+                                localSpace.QmatrixInvKp1,
+                                localSpace.QmatrixKp1);
+
+    localSpace.Hmatrix = HmatrixKp1.topLeftCorner(localSpace.Nk, localSpace.Nk);
 
     // Compute Vandermonde matrices.
     localSpace.VanderInternalKp1 = VanderInternalMonomials * localSpace.QmatrixKp1.transpose();
@@ -142,28 +149,6 @@ void VEM_MCC_2D_Partial_Velocity_LocalSpace::InitializeProjectorsComputation(con
 
     const MatrixXd tempG = internalWeights2k.asDiagonal() * localSpace.GkVanderInternal.transpose();
     localSpace.Gmatrix = tempG.transpose() * tempG;
-}
-//****************************************************************************
-void VEM_MCC_2D_Partial_Velocity_LocalSpace::ChangeOfBasis(const Eigen::MatrixXd &VanderInternalMonomialsKp1,
-                                                           const Eigen::VectorXd &internalQuadratureWeights,
-                                                           VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const
-{
-    const VectorXd sqrtInternalQuadratureWeights = internalQuadratureWeights.array().sqrt();
-
-    MatrixXd Q1;
-    MatrixXd R1;
-    LAPACK_utilities::MGS(VanderInternalMonomialsKp1, Q1, R1);
-
-    // L2(E)-re-orthogonalization process
-    MatrixXd Q2;
-    MatrixXd R2;
-    MatrixXd temp = sqrtInternalQuadratureWeights.asDiagonal() * Q1;
-    LAPACK_utilities::MGS(temp, Q2, R2);
-
-    localSpace.Hmatrix = (Q2.transpose() * Q2).topLeftCorner(localSpace.Nk, localSpace.Nk);
-
-    localSpace.QmatrixInvKp1 = (R2 * R1).transpose();
-    LAPACK_utilities::inverseTri(localSpace.QmatrixInvKp1, localSpace.QmatrixKp1, 'L', 'N');
 }
 //****************************************************************************
 void VEM_MCC_2D_Partial_Velocity_LocalSpace::ComputeL2Projectors(const double &polygonMeasure,

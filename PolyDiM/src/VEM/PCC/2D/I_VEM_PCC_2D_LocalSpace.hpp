@@ -13,7 +13,8 @@ namespace VEM
 {
 namespace PCC
 {
-/// \brief Interface class for Primal Conforming Constant degree 2D Virtual Element Methods \cite DaVeiga2016 \cite Mascotto2018 \cite Teora2024.
+/// \brief Interface class for Primal Conforming Constant degree 2D Virtual Element Methods \cite DaVeiga2016 \cite
+/// Mascotto2018 \cite Teora2024.
 class I_VEM_PCC_2D_LocalSpace
 {
   public:

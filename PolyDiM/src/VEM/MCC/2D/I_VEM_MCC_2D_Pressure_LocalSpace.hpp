@@ -12,7 +12,8 @@ namespace VEM
 {
 namespace MCC
 {
-/// \brief Interface class for the pressure space of Mixed Conforming Constant degree 2D \cite secondMixed \cite DaVeiga2016 \cite Teora2023 \cite Teora2024_mixed.
+/// \brief Interface class for the pressure space of Mixed Conforming Constant degree 2D \cite secondMixed \cite
+/// DaVeiga2016 \cite Teora2023 \cite Teora2024_mixed.
 class I_VEM_MCC_2D_Pressure_LocalSpace
 {
   public:

@@ -10,7 +10,8 @@ namespace VEM
 {
 namespace PCC
 {
-/// \brief Interface class for Primal Conforming Constant degree 2D Virtual Element Methods \cite Mascotto2018 \cite Teora2024.
+/// \brief Interface class for Primal Conforming Constant degree 2D Virtual Element Methods \cite Mascotto2018 \cite
+/// Teora2024.
 class VEM_PCC_2D_Ortho_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
 {
   private:
@@ -55,8 +56,6 @@ class VEM_PCC_2D_Ortho_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
                                       localSpace.Pi0km1,
                                       localSpace.Pi0k);
     };
-
-    void ChangeOfBasis(const Eigen::VectorXd &internalQuadratureWeights, VEM_PCC_2D_LocalSpace_Data &localSpace) const;
 
   public:
     VEM_PCC_2D_LocalSpace_Data CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
