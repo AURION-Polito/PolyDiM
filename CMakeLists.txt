@@ -27,3 +27,4 @@ endif()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/gedim/cmake/cppcheck.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/gedim/cmake/clang-format.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/gedim/cmake/prepend_license.cmake)
