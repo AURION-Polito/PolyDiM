@@ -1,5 +1,5 @@
-#ifndef __I_VEM_MCC_3D_ReferenceElement_H
-#define __I_VEM_MCC_3D_ReferenceElement_H
+#ifndef __I_VEM_MCC_3D_ReferenceElement_HPP
+#define __I_VEM_MCC_3D_ReferenceElement_HPP
 
 #include "VEM_Monomials_Data.hpp"
 #include "VEM_Quadrature_3D.hpp"
@@ -20,7 +20,7 @@ struct VEM_MCC_3D_Pressure_ReferenceElement_Data final
     unsigned int NumDofs2D;
     unsigned int NumDofs3D;
 
-    Monomials::VEM_Monomials_Data Monomials;
+    Utilities::VEM_Monomials_Data Monomials;
     Quadrature::VEM_QuadratureData_3D Quadrature;
 };
 
@@ -33,8 +33,8 @@ struct VEM_MCC_3D_Velocity_ReferenceElement_Data final
     unsigned int NumDofs2D;
     unsigned int NumDofs3D;
 
-    Monomials::VEM_Monomials_Data Monomials2D;
-    Monomials::VEM_Monomials_Data MonomialsKp1;
+    Utilities::VEM_Monomials_Data Monomials2D;
+    Utilities::VEM_Monomials_Data MonomialsKp1;
     Quadrature::VEM_QuadratureData_3D Quadrature;
 };
 

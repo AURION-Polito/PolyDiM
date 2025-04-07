@@ -391,7 +391,7 @@ Assembler::VEM_Performance_Result Assembler::ComputeVemPerformance(
 
         Polydim::VEM::DF_PCC::VEM_DF_PCC_PerformanceAnalysis performanceAnalysis;
 
-        const auto Analysis = performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_2D(),
+        const auto Analysis = performanceAnalysis.Compute(Polydim::VEM::Utilities::VEM_Monomials_2D(),
                                                           velocity_reference_element_data.Monomials,
                                                           vem_velocity_local_space,
                                                           velocity_local_space);

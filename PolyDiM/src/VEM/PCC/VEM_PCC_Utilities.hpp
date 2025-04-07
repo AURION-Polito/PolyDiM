@@ -108,7 +108,7 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
     }
 
     template <typename VEM_MonomialType>
-    inline Eigen::MatrixXd ComputePolynomialsValues(const Monomials::VEM_Monomials_Data &data,
+    inline Eigen::MatrixXd ComputePolynomialsValues(const Utilities::VEM_Monomials_Data &data,
                                                     const VEM_MonomialType &monomials,
                                                     const Eigen::Vector3d &centroid,
                                                     const double &diameter,
@@ -123,7 +123,7 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
     }
 
     template <typename VEM_MonomialType>
-    inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const Monomials::VEM_Monomials_Data &data,
+    inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const Utilities::VEM_Monomials_Data &data,
                                                                            const VEM_MonomialType &monomials,
                                                                            const double &diameter,
                                                                            const Eigen::MatrixXd &vander) const
@@ -132,7 +132,7 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
     }
 
     template <typename VEM_MonomialType>
-    inline Eigen::MatrixXd ComputePolynomialsLaplacianValues(const Monomials::VEM_Monomials_Data &data,
+    inline Eigen::MatrixXd ComputePolynomialsLaplacianValues(const Utilities::VEM_Monomials_Data &data,
                                                              const VEM_MonomialType &monomials,
                                                              const double &diameter,
                                                              const Eigen::MatrixXd &vander) const

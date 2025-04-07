@@ -1,8 +1,7 @@
-#ifndef __VEM_MCC_PerformanceAnalysis_H
-#define __VEM_MCC_PerformanceAnalysis_H
+#ifndef __VEM_MCC_PerformanceAnalysis_HPP
+#define __VEM_MCC_PerformanceAnalysis_HPP
 
 #include "Eigen/Eigen"
-#include <vector>
 
 #include "LAPACK_utilities.hpp"
 #include "VEM_MCC_Utilities.hpp"

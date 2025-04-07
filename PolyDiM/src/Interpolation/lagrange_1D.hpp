@@ -1,5 +1,5 @@
-#ifndef __Interpolation_Lagrange_1D_H
-#define __Interpolation_Lagrange_1D_H
+#ifndef __Interpolation_Lagrange_1D_HPP
+#define __Interpolation_Lagrange_1D_HPP
 
 #include "Eigen/Eigen"
 #include <vector>

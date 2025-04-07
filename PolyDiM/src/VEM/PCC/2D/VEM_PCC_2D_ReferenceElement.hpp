@@ -1,5 +1,5 @@
-#ifndef __VEM_PCC_2D_ReferenceElement_H
-#define __VEM_PCC_2D_ReferenceElement_H
+#ifndef __VEM_PCC_2D_ReferenceElement_HPP
+#define __VEM_PCC_2D_ReferenceElement_HPP
 
 #include "I_VEM_PCC_2D_ReferenceElement.hpp"
 #include "VEM_Monomials_2D.hpp"
@@ -16,7 +16,7 @@ class VEM_PCC_2D_ReferenceElement final : public I_VEM_PCC_2D_ReferenceElement
   public:
     VEM_PCC_2D_ReferenceElement_Data Create(const unsigned int order) const
     {
-        Monomials::VEM_Monomials_2D monomials;
+        Utilities::VEM_Monomials_2D monomials;
         Quadrature::VEM_Quadrature_2D quadrature;
 
         VEM_PCC_2D_ReferenceElement_Data result;

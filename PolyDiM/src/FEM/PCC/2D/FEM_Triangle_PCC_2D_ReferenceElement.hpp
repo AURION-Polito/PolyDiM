@@ -1,5 +1,5 @@
-#ifndef __FEM_Triangle_PCC_2D_ReferenceElement_H
-#define __FEM_Triangle_PCC_2D_ReferenceElement_H
+#ifndef __FEM_Triangle_PCC_2D_ReferenceElement_HPP
+#define __FEM_Triangle_PCC_2D_ReferenceElement_HPP
 
 #include "Eigen/Eigen"
 #include "FEM_PCC_1D_ReferenceElement.hpp"

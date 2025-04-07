@@ -1,7 +1,7 @@
 add_subdirectory(DF_PCC)
 add_subdirectory(PCC)
 add_subdirectory(MCC)
-add_subdirectory(Monomials)
+add_subdirectory(Utilities)
 add_subdirectory(Quadrature)
 
 list(APPEND polydim_src_includes ${CMAKE_CURRENT_SOURCE_DIR})

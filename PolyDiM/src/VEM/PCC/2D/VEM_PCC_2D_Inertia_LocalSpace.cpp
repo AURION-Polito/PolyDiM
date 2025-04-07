@@ -15,12 +15,119 @@ VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Inertia_LocalSpace::CreateLocalSpace(const
 {
     VEM_PCC_2D_LocalSpace_Data localSpace;
 
-    InertiaMapping(polygon, localSpace.inertia_data);
+    Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
+    geometryUtilitiesConfig.Tolerance1D = polygon.Tolerance1D;
+    geometryUtilitiesConfig.Tolerance2D = polygon.Tolerance2D;
+    Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
+    Utilities::VEM_Inertia_Utilities inertia_utilities(geometryUtilities);
+
+    inertia_utilities.InertiaMapping2D(polygon.Vertices,
+                                       polygon.Centroid,
+                                       polygon.Diameter,
+                                       polygon.TriangulationVertices,
+                                       localSpace.inertia_data);
+
+    ComputeGeometryProperties(geometryUtilities, localSpace.inertia_data, polygon, localSpace.inertia_polygon);
 
     Quadrature::VEM_Quadrature_2D quadrature;
     Gedim::Quadrature::QuadratureData MappedInternalQuadrature =
         quadrature.PolygonInternalQuadrature(reference_element_data.Quadrature.ReferenceTriangleQuadrature,
-                                             localSpace.inertia_data.TriangulationVertices);
+                                             localSpace.inertia_polygon.TriangulationVertices);
+
+#ifdef TEST_INERTIA
+    if (abs(MappedInternalQuadrature.Weights.sum() - localSpace.inertia_data.Measure) >= 1.0e-12)
+        throw runtime_error("Weights inertia are wrong - 1");
+#endif
+
+    localSpace.InternalQuadrature.Points =
+        (localSpace.inertia_data.Fmatrix * MappedInternalQuadrature.Points).colwise() + localSpace.inertia_data.translation;
+    localSpace.InternalQuadrature.Weights = localSpace.inertia_data.absDetFmatrix * MappedInternalQuadrature.Weights;
+
+#ifdef TEST_INERTIA
+    if (abs(localSpace.InternalQuadrature.Weights.sum() - polygon.Measure) >= 1.0e-12)
+        throw runtime_error("Weights inertia are wrong - 2");
+#endif
+
+    Quadrature::VEM_Quadrature_2D::Edges_QuadratureData MappedBoundaryQuadrature =
+        quadrature.PolygonEdgesLobattoQuadrature(reference_element_data.Quadrature.ReferenceEdgeDOFsInternalPoints,
+                                                 reference_element_data.Quadrature.ReferenceEdgeDOFsInternalWeights,
+                                                 reference_element_data.Quadrature.ReferenceEdgeDOFsExtremaWeights,
+                                                 localSpace.inertia_polygon.Vertices,
+                                                 localSpace.inertia_polygon.EdgesLength,
+                                                 localSpace.inertia_polygon.EdgesDirection,
+                                                 localSpace.inertia_polygon.EdgesTangent,
+                                                 localSpace.inertia_polygon.EdgesNormal);
+
+    localSpace.BoundaryQuadrature =
+        quadrature.PolygonEdgesLobattoQuadrature(reference_element_data.Quadrature.ReferenceEdgeDOFsInternalPoints,
+                                                 reference_element_data.Quadrature.ReferenceEdgeDOFsInternalWeights,
+                                                 reference_element_data.Quadrature.ReferenceEdgeDOFsExtremaWeights,
+                                                 polygon.Vertices,
+                                                 polygon.EdgesLength,
+                                                 polygon.EdgesDirection,
+                                                 polygon.EdgesTangent,
+                                                 polygon.EdgesNormal);
+
+    InitializeProjectorsComputation(reference_element_data,
+                                    localSpace.inertia_polygon.Vertices,
+                                    localSpace.inertia_polygon.Centroid,
+                                    localSpace.inertia_polygon.Diameter,
+                                    MappedInternalQuadrature.Points,
+                                    MappedInternalQuadrature.Weights,
+                                    MappedBoundaryQuadrature.Quadrature.Points,
+                                    localSpace);
+
+    ComputePiNabla(reference_element_data,
+                   localSpace.inertia_polygon.Measure,
+                   localSpace.inertia_polygon.Diameter,
+                   MappedInternalQuadrature.Weights,
+                   MappedBoundaryQuadrature.Quadrature.Weights,
+                   MappedBoundaryQuadrature.WeightsTimesNormal,
+                   localSpace);
+
+    ComputeL2Projectors(localSpace.inertia_polygon.Measure, localSpace);
+
+    ComputeL2ProjectorsOfDerivatives(reference_element_data,
+                                     localSpace.inertia_polygon.Measure,
+                                     localSpace.inertia_polygon.Diameter,
+                                     MappedBoundaryQuadrature.WeightsTimesNormal,
+                                     localSpace);
+
+    ComputePolynomialsDofs(localSpace.inertia_polygon.Measure, localSpace);
+
+    localSpace.Diameter = localSpace.inertia_polygon.Diameter;
+    localSpace.Centroid = localSpace.inertia_polygon.Centroid;
+    localSpace.Measure = localSpace.inertia_polygon.Measure;
+
+    localSpace.constantStiff = 1.0;
+    localSpace.constantMass = polygon.Measure;
+
+    return localSpace;
+}
+//****************************************************************************
+VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Inertia_LocalSpace::Compute3DUtilities(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                                             const VEM_PCC_2D_Polygon_Geometry &polygon) const
+{
+    VEM_PCC_2D_LocalSpace_Data localSpace;
+
+    Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
+    geometryUtilitiesConfig.Tolerance1D = polygon.Tolerance1D;
+    geometryUtilitiesConfig.Tolerance2D = polygon.Tolerance2D;
+    Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
+    Utilities::VEM_Inertia_Utilities inertia_utilities(geometryUtilities);
+
+    inertia_utilities.InertiaMapping2D(polygon.Vertices,
+                                       polygon.Centroid,
+                                       polygon.Diameter,
+                                       polygon.TriangulationVertices,
+                                       localSpace.inertia_data);
+
+    ComputeGeometryProperties(geometryUtilities, localSpace.inertia_data, polygon, localSpace.inertia_polygon);
+
+    Quadrature::VEM_Quadrature_2D quadrature;
+    Gedim::Quadrature::QuadratureData MappedInternalQuadrature =
+        quadrature.PolygonInternalQuadrature(reference_element_data.Quadrature.ReferenceTriangleQuadrature,
+                                             localSpace.inertia_polygon.TriangulationVertices);
 
 #ifdef TEST
     if (abs(MappedInternalQuadrature.Weights.sum() - localSpace.inertia_data.Measure) >= 1.0e-12)
@@ -40,11 +147,11 @@ VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Inertia_LocalSpace::CreateLocalSpace(const
         quadrature.PolygonEdgesLobattoQuadrature(reference_element_data.Quadrature.ReferenceEdgeDOFsInternalPoints,
                                                  reference_element_data.Quadrature.ReferenceEdgeDOFsInternalWeights,
                                                  reference_element_data.Quadrature.ReferenceEdgeDOFsExtremaWeights,
-                                                 localSpace.inertia_data.Vertices,
-                                                 localSpace.inertia_data.EdgesLength,
-                                                 localSpace.inertia_data.EdgesDirection,
-                                                 localSpace.inertia_data.EdgesTangent,
-                                                 localSpace.inertia_data.EdgesNormal);
+                                                 localSpace.inertia_polygon.Vertices,
+                                                 localSpace.inertia_polygon.EdgesLength,
+                                                 localSpace.inertia_polygon.EdgesDirection,
+                                                 localSpace.inertia_polygon.EdgesTangent,
+                                                 localSpace.inertia_polygon.EdgesNormal);
 
     localSpace.BoundaryQuadrature =
         quadrature.PolygonEdgesLobattoQuadrature(reference_element_data.Quadrature.ReferenceEdgeDOFsInternalPoints,
@@ -56,146 +163,56 @@ VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Inertia_LocalSpace::CreateLocalSpace(const
                                                  polygon.EdgesTangent,
                                                  polygon.EdgesNormal);
 
+    localSpace.Diameter = localSpace.inertia_polygon.Diameter;
+    localSpace.Centroid = localSpace.inertia_polygon.Centroid;
+    localSpace.Measure = localSpace.inertia_polygon.Measure;
+
+    localSpace.constantStiff = 1.0;
+    localSpace.constantMass = polygon.Measure;
+
     InitializeProjectorsComputation(reference_element_data,
-                                    localSpace.inertia_data.Vertices,
-                                    localSpace.inertia_data.Centroid,
-                                    localSpace.inertia_data.Diameter,
+                                    localSpace.inertia_polygon.Vertices,
+                                    localSpace.inertia_polygon.Centroid,
+                                    localSpace.inertia_polygon.Diameter,
                                     MappedInternalQuadrature.Points,
                                     MappedInternalQuadrature.Weights,
                                     MappedBoundaryQuadrature.Quadrature.Points,
                                     localSpace);
 
     ComputePiNabla(reference_element_data,
-                   localSpace.inertia_data.Measure,
-                   localSpace.inertia_data.Diameter,
+                   localSpace.inertia_polygon.Measure,
+                   localSpace.inertia_polygon.Diameter,
                    MappedInternalQuadrature.Weights,
                    MappedBoundaryQuadrature.Quadrature.Weights,
                    MappedBoundaryQuadrature.WeightsTimesNormal,
                    localSpace);
 
-    ComputeL2Projectors(localSpace.inertia_data.Measure, localSpace);
-
-    ComputeL2ProjectorsOfDerivatives(reference_element_data,
-                                     localSpace.inertia_data.Measure,
-                                     localSpace.inertia_data.Diameter,
-                                     MappedBoundaryQuadrature.WeightsTimesNormal,
-                                     localSpace);
-
-    ComputePolynomialsDofs(localSpace.inertia_data.Measure, localSpace);
-
-    localSpace.Diameter = localSpace.inertia_data.Diameter;
-    localSpace.Centroid = localSpace.inertia_data.Centroid;
-    localSpace.Measure = localSpace.inertia_data.Measure;
-
-    localSpace.inertia_data.constantStiff = 1.0;
-    localSpace.inertia_data.constantMass = polygon.Measure;
+    ComputeL2Projectors(localSpace.inertia_polygon.Measure, localSpace);
 
     return localSpace;
 }
 // ***************************************************************************
-void VEM_PCC_2D_Inertia_LocalSpace::InertiaMapping(const VEM_PCC_2D_Polygon_Geometry &polygon, VEM_PCC_2D_Inertia_Data &inertia_data) const
-{
-    Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
-    geometryUtilitiesConfig.Tolerance1D = polygon.Tolerance1D;
-    geometryUtilitiesConfig.Tolerance2D = polygon.Tolerance2D;
-    Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
-
-    inertia_data.FmatrixInv = Matrix3d::Identity();
-    inertia_data.Fmatrix = Matrix3d::Identity();
-    inertia_data.absDetFmatrix = 1.0;
-    inertia_data.translation = Vector3d::Zero();
-
-    // First Rescaling
-    const double invPolygonDiameter = (1.0 / polygon.Diameter);
-
-    inertia_data.FmatrixInv = invPolygonDiameter * inertia_data.FmatrixInv;
-    inertia_data.Fmatrix = inertia_data.Fmatrix * polygon.Diameter;
-    inertia_data.absDetFmatrix *= polygon.Diameter * polygon.Diameter;
-    inertia_data.translation += Vector3d::Zero();
-
-    const MatrixXd polygonVerticesFirstRescaling = inertia_data.FmatrixInv * (polygon.Vertices.colwise() - inertia_data.translation);
-    const Vector3d polygonCentroidsFirstRescaling = inertia_data.FmatrixInv * (polygon.Centroid - inertia_data.translation);
-
-    // Inertia Mapping
-    vector<Matrix3d> polygonTriangulationsFirstRescaling;
-    unsigned int numTriangles = polygon.TriangulationVertices.size();
-    polygonTriangulationsFirstRescaling.resize(numTriangles);
-    for (unsigned int n = 0; n < numTriangles; n++)
-        polygonTriangulationsFirstRescaling[n] =
-            inertia_data.FmatrixInv * (polygon.TriangulationVertices[n].colwise() - inertia_data.translation);
-
-    const Matrix2d HmatrixFirstRescaling =
-        geometryUtilities.PolygonMass(polygonCentroidsFirstRescaling, polygonTriangulationsFirstRescaling);
-
-    Eigen::SelfAdjointEigenSolver<Eigen::Matrix2d> eigensolver(HmatrixFirstRescaling);
-    if (eigensolver.info() != Eigen::Success)
-        abort();
-    Vector2d sqrtLambdaFirstRescaling = eigensolver.eigenvalues().array().sqrt();
-    Vector2d sqrtLambdaInvFirstRescaling = eigensolver.eigenvalues().array().rsqrt();
-    MatrixXd QmatrixFirstRescaling = eigensolver.eigenvectors();
-    MatrixXd Bmatrix =
-        sqrtLambdaInvFirstRescaling.asDiagonal() * QmatrixFirstRescaling.transpose() * sqrtLambdaFirstRescaling.maxCoeff();
-    MatrixXd BmatrixInv = QmatrixFirstRescaling * sqrtLambdaFirstRescaling.asDiagonal() / sqrtLambdaFirstRescaling.maxCoeff();
-
-    inertia_data.FmatrixInv.topLeftCorner(2, 2) = Bmatrix * inertia_data.FmatrixInv.topLeftCorner(2, 2);
-    inertia_data.Fmatrix.topLeftCorner(2, 2) = inertia_data.Fmatrix.topLeftCorner(2, 2) * BmatrixInv;
-    const double detB = BmatrixInv.determinant();
-    inertia_data.signDetQ = (detB > 1.0e-12) ? 1.0 : -1.0;
-
-#ifdef TEST
-    if (abs(detB) <= 1.0e-12)
-        throw runtime_error("Singular matrix of inertia");
-#endif
-
-    inertia_data.absDetFmatrix *= abs(detB);
-    inertia_data.translation += polygon.Centroid;
-
-    const MatrixXd polygonVerticesInertiaMapping = inertia_data.FmatrixInv * (polygon.Vertices.colwise() - inertia_data.translation);
-
-    // Second rescaling
-
-    const double polygonDiameterInertiaMapping = geometryUtilities.PolygonDiameter(polygonVerticesInertiaMapping);
-
-    const double invpolygonDiameterInertiaMapping = (1.0 / polygonDiameterInertiaMapping);
-
-    inertia_data.FmatrixInv = invpolygonDiameterInertiaMapping * inertia_data.FmatrixInv;
-    inertia_data.Fmatrix = polygonDiameterInertiaMapping * inertia_data.Fmatrix;
-    inertia_data.absDetFmatrix *= polygonDiameterInertiaMapping * polygonDiameterInertiaMapping;
-    inertia_data.translation += Vector3d::Zero();
-
-    inertia_data.Vertices = inertia_data.FmatrixInv * (polygon.Vertices.colwise() - inertia_data.translation);
-
-    ComputeGeometryProperties(geometryUtilities, polygon.EdgesDirection, polygon.TriangulationVertices, inertia_data);
-}
-// ***************************************************************************
 void VEM_PCC_2D_Inertia_LocalSpace::ComputeGeometryProperties(const Gedim::GeometryUtilities &geometryUtilities,
-                                                              const vector<bool> &polygonEdgeDirections,
-                                                              const std::vector<Eigen::Matrix3d> &polygonTriangulation,
-                                                              VEM_PCC_2D_Inertia_Data &data) const
+                                                              const Utilities::VEM_Inertia_Utilities::Inertia_Data &inertia_data,
+                                                              const PCC::VEM_PCC_2D_Polygon_Geometry &polygon,
+                                                              PCC::VEM_PCC_2D_Polygon_Geometry &inertia_geometric_data) const
 {
-    // Extract original cell2D geometric information
-    unsigned int numVertices = data.Vertices.cols();
-    // compute original cell2D triangulation
-    if (data.signDetQ < 0)
-    {
-        data.OrderedVertices.resize(3, numVertices);
-        for (unsigned int v = 0; v < numVertices; v++)
-            data.OrderedVertices.col(v) = data.Vertices.col(numVertices - v - 1);
-    }
-    else
-        data.OrderedVertices = data.Vertices;
 
-    const unsigned int &cell2DTriangulationSize = polygonTriangulation.size();
+    inertia_geometric_data.Vertices = inertia_data.FmatrixInv * (polygon.Vertices.colwise() - inertia_data.translation);
+
+    // Extract original cell2D geometric information
+    const unsigned int &cell2DTriangulationSize = polygon.TriangulationVertices.size();
     vector<Eigen::Matrix3d> convexCell2DTriangulationPoints(cell2DTriangulationSize);
     for (unsigned int i = 0; i < cell2DTriangulationSize; i++)
     {
-        if (data.signDetQ < 0)
+        if (inertia_data.signDetQ < 0)
             for (unsigned int v = 0; v < 3; v++)
-            {
-                convexCell2DTriangulationPoints[i].col(v) = data.FmatrixInv * (polygonTriangulation[i].col(2 - v) - data.translation);
-            }
+                convexCell2DTriangulationPoints[i].col(v) =
+                    inertia_data.FmatrixInv * (polygon.TriangulationVertices[i].col(2 - v) - inertia_data.translation);
+
         else
-            convexCell2DTriangulationPoints[i] = data.FmatrixInv * (polygonTriangulation[i].colwise() - data.translation);
+            convexCell2DTriangulationPoints[i] =
+                inertia_data.FmatrixInv * (polygon.TriangulationVertices[i].colwise() - inertia_data.translation);
     }
 
     // compute original cell2D area and centroids
@@ -208,98 +225,25 @@ void VEM_PCC_2D_Inertia_LocalSpace::ComputeGeometryProperties(const Gedim::Geome
             geometryUtilities.PolygonCentroid(convexCell2DTriangulationPoints[cct], convexCell2DTriangulationAreas[cct]);
     }
 
-    data.Measure = convexCell2DTriangulationAreas.sum();
-    data.Centroid =
-        geometryUtilities.PolygonCentroid(convexCell2DTriangulationCentroids, convexCell2DTriangulationAreas, data.Measure);
+    inertia_geometric_data.Measure = convexCell2DTriangulationAreas.sum();
+    inertia_geometric_data.Centroid = geometryUtilities.PolygonCentroid(convexCell2DTriangulationCentroids,
+                                                                        convexCell2DTriangulationAreas,
+                                                                        inertia_geometric_data.Measure);
 
     // Compute cell2D triangulation from original cell2Ds
-    data.TriangulationVertices.resize(cell2DTriangulationSize);
+    inertia_geometric_data.TriangulationVertices.resize(cell2DTriangulationSize);
     for (unsigned int cct = 0; cct < convexCell2DTriangulationPoints.size(); cct++)
-        data.TriangulationVertices[cct] = convexCell2DTriangulationPoints[cct];
+        inertia_geometric_data.TriangulationVertices[cct] = convexCell2DTriangulationPoints[cct];
 
-    data.Diameter = geometryUtilities.PolygonDiameter(data.Vertices);
+    inertia_geometric_data.Diameter = geometryUtilities.PolygonDiameter(inertia_geometric_data.Vertices);
 
-    data.EdgesLength = geometryUtilities.PolygonEdgeLengths(data.Vertices);
-    data.EdgesTangent = geometryUtilities.PolygonEdgeTangents(data.Vertices);
+    inertia_geometric_data.EdgesLength = geometryUtilities.PolygonEdgeLengths(inertia_geometric_data.Vertices);
+    inertia_geometric_data.EdgesTangent = geometryUtilities.PolygonEdgeTangents(inertia_geometric_data.Vertices);
 
-    data.EdgesNormal = data.signDetQ * geometryUtilities.PolygonEdgeNormals(data.Vertices);
+    inertia_geometric_data.EdgesNormal =
+        inertia_data.signDetQ * geometryUtilities.PolygonEdgeNormals(inertia_geometric_data.Vertices);
 
-    data.EdgesDirection = polygonEdgeDirections;
-}
-//****************************************************************************
-VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Inertia_LocalSpace::Compute3DUtilities(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                                             const VEM_PCC_2D_Polygon_Geometry &polygon) const
-{
-    VEM_PCC_2D_LocalSpace_Data localSpace;
-
-    InertiaMapping(polygon, localSpace.inertia_data);
-
-    Quadrature::VEM_Quadrature_2D quadrature;
-    Gedim::Quadrature::QuadratureData MappedInternalQuadrature =
-        quadrature.PolygonInternalQuadrature(reference_element_data.Quadrature.ReferenceTriangleQuadrature,
-                                             localSpace.inertia_data.TriangulationVertices);
-
-#ifdef TEST
-    if (abs(MappedInternalQuadrature.Weights.sum() - localSpace.inertia_data.Measure) >= 1.0e-12)
-        throw runtime_error("Weights inertia are wrong - 1");
-#endif
-
-    localSpace.InternalQuadrature.Points =
-        (localSpace.inertia_data.Fmatrix * MappedInternalQuadrature.Points).colwise() + localSpace.inertia_data.translation;
-    localSpace.InternalQuadrature.Weights = localSpace.inertia_data.absDetFmatrix * MappedInternalQuadrature.Weights;
-
-#ifdef TEST
-    if (abs(localSpace.InternalQuadrature.Weights.sum() - polygon.Measure) >= 1.0e-12)
-        throw runtime_error("Weights inertia are wrong - 2");
-#endif
-
-    Quadrature::VEM_Quadrature_2D::Edges_QuadratureData MappedBoundaryQuadrature =
-        quadrature.PolygonEdgesLobattoQuadrature(reference_element_data.Quadrature.ReferenceEdgeDOFsInternalPoints,
-                                                 reference_element_data.Quadrature.ReferenceEdgeDOFsInternalWeights,
-                                                 reference_element_data.Quadrature.ReferenceEdgeDOFsExtremaWeights,
-                                                 localSpace.inertia_data.Vertices,
-                                                 localSpace.inertia_data.EdgesLength,
-                                                 localSpace.inertia_data.EdgesDirection,
-                                                 localSpace.inertia_data.EdgesTangent,
-                                                 localSpace.inertia_data.EdgesNormal);
-
-    localSpace.BoundaryQuadrature =
-        quadrature.PolygonEdgesLobattoQuadrature(reference_element_data.Quadrature.ReferenceEdgeDOFsInternalPoints,
-                                                 reference_element_data.Quadrature.ReferenceEdgeDOFsInternalWeights,
-                                                 reference_element_data.Quadrature.ReferenceEdgeDOFsExtremaWeights,
-                                                 polygon.Vertices,
-                                                 polygon.EdgesLength,
-                                                 polygon.EdgesDirection,
-                                                 polygon.EdgesTangent,
-                                                 polygon.EdgesNormal);
-
-    localSpace.Diameter = localSpace.inertia_data.Diameter;
-    localSpace.Centroid = localSpace.inertia_data.Centroid;
-    localSpace.Measure = localSpace.inertia_data.Measure;
-
-    localSpace.inertia_data.constantStiff = 1.0;
-    localSpace.inertia_data.constantMass = polygon.Measure;
-
-    InitializeProjectorsComputation(reference_element_data,
-                                    localSpace.inertia_data.Vertices,
-                                    localSpace.inertia_data.Centroid,
-                                    localSpace.inertia_data.Diameter,
-                                    MappedInternalQuadrature.Points,
-                                    MappedInternalQuadrature.Weights,
-                                    MappedBoundaryQuadrature.Quadrature.Points,
-                                    localSpace);
-
-    ComputePiNabla(reference_element_data,
-                   localSpace.inertia_data.Measure,
-                   localSpace.inertia_data.Diameter,
-                   MappedInternalQuadrature.Weights,
-                   MappedBoundaryQuadrature.Quadrature.Weights,
-                   MappedBoundaryQuadrature.WeightsTimesNormal,
-                   localSpace);
-
-    ComputeL2Projectors(localSpace.inertia_data.Measure, localSpace);
-
-    return localSpace;
+    inertia_geometric_data.EdgesDirection = polygon.EdgesDirection;
 }
 //****************************************************************************
 void VEM_PCC_2D_Inertia_LocalSpace::InitializeProjectorsComputation(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,

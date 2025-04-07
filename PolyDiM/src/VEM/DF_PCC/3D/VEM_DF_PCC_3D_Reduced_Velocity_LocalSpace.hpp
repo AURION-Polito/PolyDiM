@@ -7,6 +7,7 @@
 #include "I_VEM_PCC_2D_ReferenceElement.hpp"
 #include "VEM_DF_PCC_3D_LocalSpace_Data.hpp"
 #include "VEM_DF_PCC_Utilities.hpp"
+#include "VEM_GBasis_3D.hpp"
 #include "VEM_Monomials_3D.hpp"
 #include "VEM_PCC_2D_LocalSpace.hpp"
 #include <vector>
@@ -22,8 +23,8 @@ class VEM_DF_PCC_3D_Reduced_Velocity_LocalSpace final : public I_VEM_DF_PCC_3D_V
 {
   private:
     VEM_DF_PCC_Utilities<3> utilities;
-    Monomials::VEM_Monomials_3D monomials;
-    Monomials::VEM_GBasis_3D g_basis;
+    Utilities::VEM_Monomials_3D monomials;
+    Utilities::VEM_GBasis_3D g_basis;
 
     void InitializeProjectorsComputation(const VEM_DF_PCC_3D_Velocity_ReferenceElement_Data &reference_element_data,
                                          const Eigen::MatrixXd &polyhedronVertices,

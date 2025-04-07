@@ -1,5 +1,5 @@
-#ifndef __VEM_Monomials_VEM_Monomials_1D_HPP
-#define __VEM_Monomials_VEM_Monomials_1D_HPP
+#ifndef __VEM_Monomials_1D_HPP
+#define __VEM_Monomials_1D_HPP
 
 #include "VEM_Monomials_Utilities.hpp"
 
@@ -7,7 +7,7 @@ namespace Polydim
 {
 namespace VEM
 {
-namespace Monomials
+namespace Utilities
 {
 class VEM_Monomials_1D final
 {
@@ -65,7 +65,7 @@ class VEM_Monomials_1D final
         return utilities.MGSOrthonormalize(weights, Vander, Hmatrix, QmatrixInv, Qmatrix);
     };
 };
-} // namespace Monomials
+} // namespace Utilities
 } // namespace VEM
 } // namespace Polydim
 

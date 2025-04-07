@@ -7,7 +7,7 @@ namespace Polydim
 {
 namespace VEM
 {
-namespace Monomials
+namespace Utilities
 {
 //****************************************************************************
 VEM_GBasis_Data VEM_GBasis_3D::Compute(const unsigned int polynomial_degree)
@@ -156,6 +156,6 @@ vector<MatrixXd> VEM_GBasis_3D::VanderGBigOPlus(const VEM_GBasis_Data &data, con
     return vanderBigOPlus;
 }
 //****************************************************************************
-} // namespace Monomials
+} // namespace Utilities
 } // namespace VEM
 } // namespace Polydim

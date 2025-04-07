@@ -22,7 +22,7 @@ class VEM_MCC_2D_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_LocalS
 {
   private:
     MCC::VEM_MCC_Utilities<2> utilities;
-    Monomials::VEM_Monomials_2D monomials;
+    Utilities::VEM_Monomials_2D monomials;
 
     void InitializeProjectorsComputation(const VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                                          const unsigned int &numEdges,

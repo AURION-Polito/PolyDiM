@@ -7,7 +7,7 @@ namespace Polydim
 {
 namespace VEM
 {
-namespace Monomials
+namespace Utilities
 {
 //****************************************************************************
 VEM_GBasis_Data VEM_GBasis_2D::Compute(const unsigned int polynomial_degree)
@@ -73,6 +73,6 @@ vector<Vector2i> VEM_GBasis_2D::VectorDecompositionIndices(const VEM_GBasis_Data
     return vectorDecompositionIndices;
 }
 //****************************************************************************
-} // namespace Monomials
+} // namespace Utilities
 } // namespace VEM
 } // namespace Polydim

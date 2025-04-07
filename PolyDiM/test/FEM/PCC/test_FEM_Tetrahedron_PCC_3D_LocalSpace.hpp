@@ -158,7 +158,7 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D_Reference_Element)
             ASSERT_TRUE(abs(sumGradZValues[q]) < 1.0e-13);
         }
 
-        VEM::Monomials::VEM_Monomials_3D monomials;
+        VEM::Utilities::VEM_Monomials_3D monomials;
         const auto monomials_data = monomials.Compute(k);
         const Eigen::MatrixXd vander_matrix =
             monomials.Vander(monomials_data, referenceQuadraturePoints, Eigen::Vector3d::Zero(), 1.0);
@@ -277,7 +277,7 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D)
 
         ASSERT_TRUE((internal_integral - boundary_integral).norm() < 1.0e-14 * std::max(1.0, boundary_integral.norm()));
 
-        VEM::Monomials::VEM_Monomials_3D monomials;
+        VEM::Utilities::VEM_Monomials_3D monomials;
         const auto monomials_data = monomials.Compute(k);
         const Eigen::MatrixXd vander_matrix =
             monomials.Vander(monomials_data, internal_quadrature.Points, Eigen::Vector3d::Zero(), 1.0);

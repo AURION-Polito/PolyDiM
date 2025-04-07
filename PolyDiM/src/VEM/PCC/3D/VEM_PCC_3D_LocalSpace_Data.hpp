@@ -35,35 +35,6 @@ struct VEM_PCC_3D_Polyhedron_Geometry final
     Eigen::MatrixXd EdgesTangent;
 };
 
-struct VEM_PCC_3D_Inertia_Data final
-{
-    Eigen::MatrixXd Vertices;
-    Eigen::MatrixXi Edges;
-    std::vector<Eigen::MatrixXi> Faces;
-    Eigen::Vector3d Centroid;
-    double Measure;
-    double Diameter;
-    std::vector<Eigen::MatrixXd> TetrahedronVertices;
-
-    std::vector<Eigen::Matrix3d> FacesRotationMatrix;
-    std::vector<Eigen::Vector3d> FacesTranslation;
-    std::vector<Eigen::Vector3d> FacesNormal;
-    std::vector<bool> FacesNormalDirection;
-    std::vector<double> FacesMeasure;
-
-    std::vector<bool> EdgesDirection;
-    Eigen::MatrixXd EdgesTangent;
-
-    Eigen::Matrix3d Fmatrix;
-    Eigen::Matrix3d FmatrixInv;
-    Eigen::Vector3d translation;
-    double absDetFmatrix;
-    double signDetQ;
-
-    double constantStiff;
-    double constantMass;
-};
-
 struct VEM_PCC_3D_LocalSpace_Data final
 {
     Gedim::Quadrature::QuadratureData InternalQuadrature;
@@ -126,7 +97,10 @@ struct VEM_PCC_3D_LocalSpace_Data final
     Eigen::MatrixXd QmatrixInv;
     Eigen::MatrixXd Qmatrixkm1;
 
-    VEM_PCC_3D_Inertia_Data inertia_data;
+    Utilities::VEM_Inertia_Utilities::Inertia_Data inertia_data;
+    VEM_PCC_3D_Polyhedron_Geometry inertia_polyhedron;
+    double constantStiff;
+    double constantMass;
 };
 } // namespace PCC
 } // namespace VEM

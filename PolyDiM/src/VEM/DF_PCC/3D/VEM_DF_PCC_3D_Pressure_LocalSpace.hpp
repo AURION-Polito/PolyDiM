@@ -20,7 +20,7 @@ class VEM_DF_PCC_3D_Pressure_LocalSpace final : public I_VEM_DF_PCC_3D_Pressure_
 {
   private:
     VEM_DF_PCC_Utilities<3> utilities;
-    Monomials::VEM_Monomials_3D monomials;
+    Utilities::VEM_Monomials_3D monomials;
 
     void InitializeProjectorsComputation(const VEM_DF_PCC_3D_Pressure_ReferenceElement_Data &reference_element_data,
                                          const Eigen::Vector3d &polyhedronCentroid,

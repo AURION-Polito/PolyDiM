@@ -1,5 +1,5 @@
-#ifndef __VEM_DF_PCC_3D_ReferenceElement_H
-#define __VEM_DF_PCC_3D_ReferenceElement_H
+#ifndef __VEM_DF_PCC_3D_ReferenceElement_HPP
+#define __VEM_DF_PCC_3D_ReferenceElement_HPP
 
 #include "I_VEM_DF_PCC_3D_ReferenceElement.hpp"
 #include "VEM_GBasis_3D.hpp"
@@ -17,7 +17,7 @@ class VEM_DF_PCC_3D_Pressure_ReferenceElement final : public I_VEM_DF_PCC_3D_Pre
   public:
     VEM_DF_PCC_3D_Pressure_ReferenceElement_Data Create(const unsigned int order) const
     {
-        Monomials::VEM_Monomials_3D monomials;
+        Utilities::VEM_Monomials_3D monomials;
         Quadrature::VEM_Quadrature_3D quadrature;
 
         VEM_DF_PCC_3D_Pressure_ReferenceElement_Data result;
@@ -41,8 +41,8 @@ class VEM_DF_PCC_3D_Velocity_ReferenceElement final : public I_VEM_DF_PCC_3D_Vel
   public:
     VEM_DF_PCC_3D_Velocity_ReferenceElement_Data Create(const unsigned int order) const
     {
-        Monomials::VEM_GBasis_3D g_basis;
-        Monomials::VEM_Monomials_3D monomials;
+        Utilities::VEM_GBasis_3D g_basis;
+        Utilities::VEM_Monomials_3D monomials;
         Quadrature::VEM_Quadrature_3D quadrature;
 
         VEM_DF_PCC_3D_Velocity_ReferenceElement_Data result;

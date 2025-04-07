@@ -1,5 +1,5 @@
-#ifndef __VEM_GBasis_VEM_GBasis_3D_HPP
-#define __VEM_GBasis_VEM_GBasis_3D_HPP
+#ifndef __VEM_GBasis_3D_HPP
+#define __VEM_GBasis_3D_HPP
 
 #include "VEM_GBasis_Data.hpp"
 #include "VEM_Monomials_3D.hpp"
@@ -8,7 +8,7 @@ namespace Polydim
 {
 namespace VEM
 {
-namespace Monomials
+namespace Utilities
 {
 class VEM_GBasis_3D final
 {
@@ -35,7 +35,7 @@ class VEM_GBasis_3D final
         return result;
     }
 };
-} // namespace Monomials
+} // namespace Utilities
 } // namespace VEM
 } // namespace Polydim
 

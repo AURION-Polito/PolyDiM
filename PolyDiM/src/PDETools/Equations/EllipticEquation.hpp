@@ -1,5 +1,5 @@
-#ifndef __EllipticEquation_H
-#define __EllipticEquation_H
+#ifndef __PDETOOLS_EQUATION_EllipticEquation_HPP
+#define __PDETOOLS_EQUATION_EllipticEquation_HPP
 
 #include "Eigen/Eigen"
 #include <vector>

@@ -2,6 +2,7 @@
 #define __VEM_PCC_2D_LocalSpace_Data_HPP
 
 #include "Eigen/Eigen"
+#include "VEM_Inertia_Utilities.hpp"
 #include "VEM_Quadrature_2D.hpp"
 
 namespace Polydim
@@ -25,29 +26,6 @@ struct VEM_PCC_2D_Polygon_Geometry final
     std::vector<bool> EdgesDirection;
     Eigen::MatrixXd EdgesTangent;
     Eigen::MatrixXd EdgesNormal;
-};
-
-struct VEM_PCC_2D_Inertia_Data final
-{
-    Eigen::MatrixXd Vertices;
-    Eigen::MatrixXd OrderedVertices;
-    Eigen::Vector3d Centroid;
-    double Measure;
-    double Diameter;
-    std::vector<Eigen::Matrix3d> TriangulationVertices;
-    Eigen::VectorXd EdgesLength;
-    std::vector<bool> EdgesDirection;
-    Eigen::MatrixXd EdgesTangent;
-    Eigen::MatrixXd EdgesNormal;
-
-    Eigen::Matrix3d Fmatrix;
-    Eigen::Matrix3d FmatrixInv;
-    Eigen::Vector3d translation;
-    double absDetFmatrix;
-    double signDetQ;
-
-    double constantStiff;
-    double constantMass;
 };
 
 struct VEM_PCC_2D_LocalSpace_Data final
@@ -106,7 +84,10 @@ struct VEM_PCC_2D_LocalSpace_Data final
     Eigen::MatrixXd QmatrixInv;
     Eigen::MatrixXd Qmatrixkm1;
 
-    VEM_PCC_2D_Inertia_Data inertia_data;
+    Utilities::VEM_Inertia_Utilities::Inertia_Data inertia_data;
+    VEM_PCC_2D_Polygon_Geometry inertia_polygon;
+    double constantStiff;
+    double constantMass;
 };
 } // namespace PCC
 } // namespace VEM

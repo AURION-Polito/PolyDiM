@@ -7,7 +7,7 @@ namespace Polydim
 {
 namespace VEM
 {
-namespace Monomials
+namespace Utilities
 {
 //****************************************************************************
 VEM_Monomials_Data VEM_Monomials_3D::Compute(const unsigned int polynomial_degree) const
@@ -92,6 +92,6 @@ vector<int> VEM_Monomials_3D::SecondDerivativeIndices(const VEM_Monomials_Data &
     return secondDerivativeIndices;
 }
 //****************************************************************************
-} // namespace Monomials
+} // namespace Utilities
 } // namespace VEM
 } // namespace Polydim

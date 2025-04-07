@@ -8,7 +8,7 @@ namespace Polydim
 {
 namespace VEM
 {
-namespace Monomials
+namespace Utilities
 {
 struct VEM_Monomials_Data
 {
@@ -19,7 +19,7 @@ struct VEM_Monomials_Data
     std::vector<Eigen::MatrixXd> DerivativeMatrices; ///< Matrices used to compute derivatives of monomials.
     Eigen::MatrixXd Laplacian;                       ///< Matrix used to compute the laplacian of monomials.
 };
-} // namespace Monomials
+} // namespace Utilities
 } // namespace VEM
 } // namespace Polydim
 

@@ -1,5 +1,5 @@
-#ifndef __VEM_DF_PCC_PerformanceAnalysis_H
-#define __VEM_DF_PCC_PerformanceAnalysis_H
+#ifndef __VEM_DF_PCC_PerformanceAnalysis_HPP
+#define __VEM_DF_PCC_PerformanceAnalysis_HPP
 
 #include "Eigen/Eigen"
 #include <vector>

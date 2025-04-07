@@ -25,7 +25,7 @@ class VEM_PCC_3D_Ortho_LocalSpace final : public I_VEM_PCC_3D_LocalSpace
 {
   private:
     VEM_PCC_Utilities<3> utilities;
-    Monomials::VEM_Monomials_3D monomials;
+    Utilities::VEM_Monomials_3D monomials;
 
     void InitializeProjectorsComputation(const VEM_PCC_3D_ReferenceElement_Data &reference_element_data,
                                          const Eigen::MatrixXd &polyhedronVertices,

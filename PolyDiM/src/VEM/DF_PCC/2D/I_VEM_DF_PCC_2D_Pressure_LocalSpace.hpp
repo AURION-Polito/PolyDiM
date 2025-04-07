@@ -4,7 +4,6 @@
 #include "Eigen/Eigen"
 #include "I_VEM_DF_PCC_2D_ReferenceElement.hpp"
 #include "VEM_DF_PCC_2D_LocalSpace_Data.hpp"
-#include <vector>
 
 namespace Polydim
 {

@@ -612,7 +612,7 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_2D_O1)
     Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis performanceAnalysis;
 
     const auto result =
-        performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_2D(), reference_element_data.Monomials, vem_local_space, local_space);
+        performanceAnalysis.Compute(Polydim::VEM::Utilities::VEM_Monomials_2D(), reference_element_data.Monomials, vem_local_space, local_space);
 
     ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(7.0e-15, result.ErrorPiNabla, geometry_utilities.Tolerance1D()));
     ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.6e-14, result.ErrorPi0km1, geometry_utilities.Tolerance1D()));
@@ -670,7 +670,7 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_2D_O2)
     Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis performanceAnalysis;
 
     const auto result =
-        performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_2D(), reference_element_data.Monomials, vem_local_space, local_space);
+        performanceAnalysis.Compute(Polydim::VEM::Utilities::VEM_Monomials_2D(), reference_element_data.Monomials, vem_local_space, local_space);
 
     ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(7.0e-15, result.ErrorPiNabla, geometry_utilities.Tolerance1D()));
     ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.6e-14, result.ErrorPi0km1, geometry_utilities.Tolerance1D()));
@@ -715,7 +715,7 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_2D_O3)
     Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis performanceAnalysis;
 
     const auto result =
-        performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_2D(), reference_element_data.Monomials, vem_local_space, local_space);
+        performanceAnalysis.Compute(Polydim::VEM::Utilities::VEM_Monomials_2D(), reference_element_data.Monomials, vem_local_space, local_space);
 
     ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(7.0e-15, result.ErrorPiNabla, geometry_utilities.Tolerance1D()));
     ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.7e-14, result.ErrorPi0km1, geometry_utilities.Tolerance1D()));

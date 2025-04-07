@@ -394,7 +394,7 @@ Performance_Data ComputePerformance(const ReferenceElement_Data &reference_eleme
         Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis performanceAnalysis;
 
         performance.VEM_Performance_Data.Analysis =
-            performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_2D(),
+            performanceAnalysis.Compute(Polydim::VEM::Utilities::VEM_Monomials_2D(),
                                         reference_element_data.VEM_ReferenceElement_Data.Monomials,
                                         *reference_element_data.VEM_LocalSpace,
                                         local_space_data.VEM_LocalSpace_Data);

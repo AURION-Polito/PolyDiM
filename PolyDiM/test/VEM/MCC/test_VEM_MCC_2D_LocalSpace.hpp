@@ -103,7 +103,7 @@ TEST(Test_VEM_MCC, Test_VEM_MCC_2D_O0_O1_O2_O3)
         // Test VEM performances
         Polydim::VEM::MCC::VEM_MCC_PerformanceAnalysis performanceAnalysis;
 
-        const auto result = performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_2D(),
+        const auto result = performanceAnalysis.Compute(Polydim::VEM::Utilities::VEM_Monomials_2D(),
                                                         reference_element_data.MonomialsKp1,
                                                         vem_local_space,
                                                         local_space);
@@ -147,7 +147,7 @@ TEST(Test_VEM_MCC, Test_VEM_MCC_Partial_2D_O0_O1_O2_O3)
         // Test VEM performances
         Polydim::VEM::MCC::VEM_MCC_PerformanceAnalysis performanceAnalysis;
 
-        const auto result = performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_2D(),
+        const auto result = performanceAnalysis.Compute(Polydim::VEM::Utilities::VEM_Monomials_2D(),
                                                         reference_element_data.MonomialsKp1,
                                                         vem_local_space,
                                                         local_space);
@@ -191,7 +191,7 @@ TEST(Test_VEM_MCC, Test_VEM_MCC_Ortho_2D_O0_O1_O2_O3)
         // Test VEM performances
         Polydim::VEM::MCC::VEM_MCC_PerformanceAnalysis performanceAnalysis;
 
-        const auto result = performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_2D(),
+        const auto result = performanceAnalysis.Compute(Polydim::VEM::Utilities::VEM_Monomials_2D(),
                                                         reference_element_data.MonomialsKp1,
                                                         vem_local_space,
                                                         local_space);
@@ -235,7 +235,7 @@ TEST(Test_VEM_MCC, Test_VEM_MCC_EdgeOrtho_2D_O0_O1_O2_O3)
         // Test VEM performances
         Polydim::VEM::MCC::VEM_MCC_PerformanceAnalysis performanceAnalysis;
 
-        const auto result = performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_2D(),
+        const auto result = performanceAnalysis.Compute(Polydim::VEM::Utilities::VEM_Monomials_2D(),
                                                         reference_element_data.MonomialsKp1,
                                                         vem_local_space,
                                                         local_space);
@@ -279,7 +279,7 @@ TEST(Test_VEM_MCC, Test_VEM_MCC_Ortho_EdgeOrtho_2D_O0_O1_O2_O3)
         // Test VEM performances
         Polydim::VEM::MCC::VEM_MCC_PerformanceAnalysis performanceAnalysis;
 
-        const auto result = performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_2D(),
+        const auto result = performanceAnalysis.Compute(Polydim::VEM::Utilities::VEM_Monomials_2D(),
                                                         reference_element_data.MonomialsKp1,
                                                         vem_local_space,
                                                         local_space);

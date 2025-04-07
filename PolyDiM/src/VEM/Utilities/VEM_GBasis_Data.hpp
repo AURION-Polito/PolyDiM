@@ -9,7 +9,7 @@ namespace Polydim
 {
 namespace VEM
 {
-namespace Monomials
+namespace Utilities
 {
 struct VEM_GBasis_Data
 {
@@ -32,7 +32,7 @@ struct VEM_GBasis_Data
     std::vector<unsigned int> SaveFirstGroupVectorDecomposition;
     std::vector<int> MapFirstGroupVectorDecomposition;
 };
-} // namespace Monomials
+} // namespace Utilities
 } // namespace VEM
 } // namespace Polydim
 

@@ -200,7 +200,7 @@ Eigen::MatrixXd VelocityBasisFunctionsValuesOnEdges(const unsigned int &edge_loc
             point_curvilinear_coordinates(0, p) =
                 geometryUtilities.PointCurvilinearCoordinate(edge_quadrature_points.col(p), origin, end);
 
-        VEM::Monomials::VEM_Monomials_1D monomials_1D;
+        VEM::Utilities::VEM_Monomials_1D monomials_1D;
         const Eigen::MatrixXd VanderBoundary1D =
             monomials_1D
                 .Vander(reference_element_data.VEM_ReferenceElement_Data_Velocity.Monomials_1D,
@@ -371,7 +371,7 @@ Eigen::VectorXd EdgeDofs(const ReferenceElement_Data &reference_element_data,
             point_curvilinear_coordinates(0, p) =
                 geometryUtilities.PointCurvilinearCoordinate(edge_dofs_coordinates.Points.col(p), origin, end);
 
-        VEM::Monomials::VEM_Monomials_1D monomials_1D;
+        VEM::Utilities::VEM_Monomials_1D monomials_1D;
         const Eigen::MatrixXd VanderBoundary1D =
             monomials_1D
                 .Vander(reference_element_data.VEM_ReferenceElement_Data_Velocity.Monomials_1D,
@@ -430,7 +430,7 @@ Performance_Data ComputePerformance(const ReferenceElement_Data &reference_eleme
         Polydim::VEM::MCC::VEM_MCC_PerformanceAnalysis performanceAnalysis;
 
         performance.VEM_Performance_Data.Analysis =
-            performanceAnalysis.Compute(Polydim::VEM::Monomials::VEM_Monomials_2D(),
+            performanceAnalysis.Compute(Polydim::VEM::Utilities::VEM_Monomials_2D(),
                                         reference_element_data.VEM_ReferenceElement_Data_Velocity.MonomialsKp1,
                                         *reference_element_data.VEM_LocalSpace_Velocity,
                                         local_space_data.VEM_LocalSpace_Data_Velocity);

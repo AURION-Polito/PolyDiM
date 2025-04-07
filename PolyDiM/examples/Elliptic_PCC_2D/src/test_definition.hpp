@@ -4,9 +4,6 @@
 #include "DOFsManager.hpp"
 #include "PDE_Mesh_Utilities.hpp"
 
-#include <typeindex>
-#include <unordered_map>
-
 namespace Polydim
 {
 namespace examples
@@ -18,8 +15,11 @@ namespace test
 enum struct Test_Types
 {
     Patch_Test = 1,
-    Elliptic_Polynomial_Problem = 2,
-    SUPG_AdvDiff_Problem = 3 /// Test 1 - Benedetto 2016
+    Elliptic_Polynomial_Problem = 2, /// Test 1: S. Berrone, G. Teora, F. Vicini, "Improving high-order VEM stability on
+                                     /// badly-shaped elements", doi: https://doi.org/10.1016/j.matcom.2023.10.003.
+    SUPG_AdvDiff_Problem = 3 /// Test 1: M. Benedetto, S. Berrone, A. Borio, S. Pieraccini, S. Scialò, "Order preserving
+                             /// SUPG stabilization for the Virtual Element formulation of advection-diffusion
+                             /// problems", doi: https://doi.org/10.1016/j.cma.2016.07.043.
 };
 
 struct I_Test
@@ -159,9 +159,9 @@ struct Elliptic_Polynomial_Problem final : public I_Test
                 {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
+                {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 4}}};
+                {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
     }
 
     Eigen::VectorXd diffusion_term(const Eigen::MatrixXd &points) const
@@ -172,17 +172,15 @@ struct Elliptic_Polynomial_Problem final : public I_Test
 
     std::array<Eigen::VectorXd, 3> advection_term(const Eigen::MatrixXd &points) const
     {
-        return {Eigen::VectorXd::Constant(points.cols(), 1.0),
-                Eigen::VectorXd::Constant(points.cols(), -1.0),
+        return {Eigen::VectorXd::Constant(points.cols(), 0.0),
+                Eigen::VectorXd::Constant(points.cols(), 0.0),
                 Eigen::VectorXd::Constant(points.cols(), 0.0)};
     };
 
     Eigen::VectorXd source_term(const Eigen::MatrixXd &points) const
     {
         return 32.0 * (points.row(1).array() * (1.0 - points.row(1).array()) +
-                       points.row(0).array() * (1.0 - points.row(0).array())) +
-               16.0 * (1.0 - 2.0 * points.row(0).array()) * points.row(1).array() * (1.0 - points.row(1).array()) -
-               16.0 * (1.0 - 2.0 * points.row(1).array()) * points.row(0).array() * (1.0 - points.row(0).array());
+                       points.row(0).array() * (1.0 - points.row(0).array()));
     };
 
     Eigen::VectorXd strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const

@@ -1,5 +1,5 @@
-#ifndef __VEM_MCC_2D_ReferenceElement_H
-#define __VEM_MCC_2D_ReferenceElement_H
+#ifndef __VEM_MCC_2D_ReferenceElement_HPP
+#define __VEM_MCC_2D_ReferenceElement_HPP
 
 #include "I_VEM_MCC_2D_ReferenceElement.hpp"
 #include "VEM_Monomials_2D.hpp"
@@ -17,7 +17,7 @@ class VEM_MCC_2D_Pressure_ReferenceElement final : public I_VEM_MCC_2D_Pressure_
   public:
     VEM_MCC_2D_Pressure_ReferenceElement_Data Create(const unsigned int order) const
     {
-        Monomials::VEM_Monomials_2D monomials;
+        Utilities::VEM_Monomials_2D monomials;
         Quadrature::VEM_Quadrature_2D quadrature;
 
         VEM_MCC_2D_Pressure_ReferenceElement_Data result;
@@ -40,7 +40,7 @@ class VEM_MCC_2D_Velocity_ReferenceElement final : public I_VEM_MCC_2D_Velocity_
   public:
     VEM_MCC_2D_Velocity_ReferenceElement_Data Create(const unsigned int order) const
     {
-        Monomials::VEM_Monomials_2D monomials;
+        Utilities::VEM_Monomials_2D monomials;
         Quadrature::VEM_Quadrature_2D quadrature;
 
         VEM_MCC_2D_Velocity_ReferenceElement_Data result;

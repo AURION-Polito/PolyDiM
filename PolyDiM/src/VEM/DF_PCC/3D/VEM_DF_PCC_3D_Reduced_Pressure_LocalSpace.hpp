@@ -1,5 +1,5 @@
-#ifndef __VEM_DF_PCC_3D_Reduced_Reduced_Pressure_LocalSpace_HPP
-#define __VEM_DF_PCC_3D_Reduced_Reduced_Pressure_LocalSpace_HPP
+#ifndef __VEM_DF_PCC_3D_Reduced_Pressure_LocalSpace_HPP
+#define __VEM_DF_PCC_3D_Reduced_Pressure_LocalSpace_HPP
 
 #include "Eigen/Eigen"
 #include "I_VEM_DF_PCC_3D_Pressure_LocalSpace.hpp"
@@ -7,7 +7,6 @@
 #include "VEM_DF_PCC_3D_LocalSpace_Data.hpp"
 #include "VEM_DF_PCC_Utilities.hpp"
 #include "VEM_Monomials_3D.hpp"
-#include <vector>
 
 namespace Polydim
 {
@@ -20,7 +19,7 @@ class VEM_DF_PCC_3D_Reduced_Pressure_LocalSpace final : public I_VEM_DF_PCC_3D_P
 {
   private:
     VEM_DF_PCC_Utilities<3> utilities;
-    Monomials::VEM_Monomials_3D monomials;
+    Utilities::VEM_Monomials_3D monomials;
 
     void InitializeProjectorsComputation(const VEM_DF_PCC_3D_Pressure_ReferenceElement_Data &reference_element_data,
                                          const Eigen::Vector3d &polyhedronCentroid,

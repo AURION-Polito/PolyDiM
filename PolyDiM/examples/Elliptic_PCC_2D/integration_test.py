@@ -1,6 +1,6 @@
 import os
 import csv
-import math
+import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -11,8 +11,11 @@ def run_program(program_folder,
                 method_order,
                 test_type,
                 mesh_generator,
-                mesh_max_area,
-                supg = False):
+                num_ref,
+                mesh_max_area = 0.1,
+                supg = False,
+                mesh_import_path = "./",
+                ):
     export_path = os.path.join(program_folder,
                                export_folder,
                                "{0}_TT{1}".format(
@@ -37,6 +40,7 @@ def run_program(program_folder,
     program_parameters += " ComputeMethodPerformance:bool={0}".format(0)
     program_parameters += " SUPG:bool={0}".format(supg)
     program_parameters += " PecletConstant:double={0}".format(1.0/3.0)
+    program_parameters += " MeshImportFilePath:string={0}".format(mesh_import_path)
 
     output_file = os.path.join(program_folder,
                                "terminal.log")
@@ -45,7 +49,7 @@ def run_program(program_folder,
     run_label += " MethodOrder {0}".format(method_order)
     run_label += " TestType {0}".format(test_type)
     run_label += " MeshGenerator {0}".format(mesh_generator)
-    run_label += " MeshMaxArea {0}".format(mesh_max_area)
+    run_label += " NumRefinement {0}".format(num_ref)
     print("Run " + run_label + "...")
     os.system(program_path + " " + program_parameters + " > " + output_file)
     os.system("mv " + output_file + " " + export_path)
@@ -106,9 +110,8 @@ if __name__ == "__main__":
     program_folder = os.path.dirname(os.path.realpath(__file__))
     program_path = os.path.join(".", program_folder, "Elliptic_PCC_2D")
 
-    remove_folder = True
+    remove_folder = False
 
-    method_orders = [1, 2, 3]
     export_folder = "integration_tests"
     os.system("rm -rf " + os.path.join(program_folder, export_folder))
     tol = 1.0e-12
@@ -119,6 +122,7 @@ if __name__ == "__main__":
     mesh_generator = 1
     mesh_max_area = 0.0
     method_types = [1, 2, 3]
+    method_orders = [1, 2, 3]
     for method_type in method_types:
         for method_order in method_orders:
             export_path = run_program(program_folder,
@@ -128,7 +132,8 @@ if __name__ == "__main__":
                                       method_order,
                                       test_type,
                                       mesh_generator,
-                                      mesh_max_area)
+                                      0,
+                                      mesh_max_area=mesh_max_area)
             errors = import_errors(export_path, method_type, method_order, test_type)
             test_errors(errors,
                         method_order,
@@ -141,6 +146,7 @@ if __name__ == "__main__":
     mesh_generator = 0
     mesh_max_area = 0.1
     method_types = [0]
+    method_orders = [1, 2, 3]
     for method_type in method_types:
         for method_order in method_orders:
             export_path = run_program(program_folder,
@@ -150,7 +156,8 @@ if __name__ == "__main__":
                                       method_order,
                                       test_type,
                                       mesh_generator,
-                                      mesh_max_area)
+                                      0,
+                                      mesh_max_area=mesh_max_area)
             errors = import_errors(export_path, method_type, method_order, test_type)
             test_errors(errors,
                         method_order,
@@ -163,8 +170,10 @@ if __name__ == "__main__":
     mesh_generator = 0
     method_types = [0, 1, 2, 3]
     mesh_max_areas = [0.01, 0.001]
+    method_orders = [1, 2, 3]
     for method_type in method_types:
         for method_order in method_orders:
+            num_ref = 0
             for mesh_max_area in mesh_max_areas:
                 export_path = run_program(program_folder,
                                           program_path,
@@ -173,7 +182,9 @@ if __name__ == "__main__":
                                           method_order,
                                           test_type,
                                           mesh_generator,
-                                          mesh_max_area)
+                                          num_ref,
+                                          mesh_max_area=mesh_max_area)
+                num_ref += 1
             errors = import_errors(export_path, method_type, method_order, test_type)
             test_errors(errors,
                         method_order,
@@ -185,8 +196,10 @@ if __name__ == "__main__":
     mesh_generator = 2
     method_types = [1, 2, 3]
     mesh_max_areas = [0.01, 0.001]
+    method_orders = [1, 2, 3]
     for method_type in method_types:
         for method_order in method_orders:
+            num_ref = 0
             for mesh_max_area in mesh_max_areas:
                 export_path = run_program(program_folder,
                                           program_path,
@@ -195,7 +208,10 @@ if __name__ == "__main__":
                                           method_order,
                                           test_type,
                                           mesh_generator,
-                                          mesh_max_area)
+                                          num_ref,
+                                          mesh_max_area=mesh_max_area)
+                num_ref += 1
+
             errors = import_errors(export_path, method_type, method_order, test_type)
             test_errors(errors,
                         method_order,
@@ -203,13 +219,70 @@ if __name__ == "__main__":
             if remove_folder:
                 os.system("rm -rf " + os.path.join(program_folder, export_path))
 
+    test_type = 2
+    mesh_generator = 4
+    mesh_import_paths = ["../../../../Mesh/2D/GenericPolyMesh"]
+    method_types = [1, 2, 3]
+    method_orders = np.arange(1, 13)
+    list_errors = []
+    for method_type in method_types:
+        tab_errors = np.zeros([len(method_orders), 5])
+        for method_order in method_orders:
+            export_path = run_program(program_folder,
+                                      program_path,
+                                      "Run_MG{0}".format(mesh_generator),
+                                      method_type,
+                                      method_order,
+                                      test_type,
+                                      mesh_generator,
+                                      0,
+                                      mesh_import_path=mesh_import_paths[0])
+
+            errors = import_errors(export_path, method_type, method_order, test_type)
+            tab_errors[method_order-1, :] = np.array(errors[1:])
+            if remove_folder:
+                os.system("rm -rf " + os.path.join(program_folder, export_path))
+
+        list_errors.append(tab_errors)
+
+    fig, ax = plt.subplots(figsize=(12, 12))
+    for h in range(len(method_types)):
+        errors = list_errors[h]
+        num_rows = len(errors)
+
+        if method_types[h] == 1:
+            ax.plot(method_orders, errors[:, 2], '-k^', linewidth=2, markersize=12,
+                    label="Mon")
+        elif method_types[h] == 2:
+            ax.plot(method_orders, errors[:, 2], '-ro', linewidth=2, markersize=12,
+                    label="Inrt")
+        elif method_types[h] == 3:
+            ax.plot(method_orders, errors[:, 2], '-bs', linewidth=2, markersize=12,
+                    label="Ortho")
+        else:
+            raise ValueError("Not valid method type")
+
+    plt.legend(bbox_to_anchor=(0., 1.02, 1.0, 0.2), loc="lower left",
+               mode="expand", borderaxespad=0, ncol=3, fontsize=30)
+
+    plt.xlabel('$k$', fontsize=30)
+    plt.ylabel('$e_1$', fontsize=30)
+    plt.xticks(fontsize=20)
+    plt.yticks(fontsize=20)
+    plt.yscale('log')
+    plt.grid(True, which="both", ls="--")
+    plt.ylim(None, 10)
+    plt.savefig(export_folder + "/{}_decay_plot.png".format(test_type), bbox_inches='tight', dpi=300)
+    plt.show()
+
     test_type = 3
     mesh_generator = 0
-    method_orders = [1, 2]
     method_types = [0, 1, 2, 3]
     mesh_max_areas = [0.01, 0.001]
+    method_orders = [1, 2]
     for method_type in method_types:
         for method_order in method_orders:
+            num_ref = 0
             for mesh_max_area in mesh_max_areas:
                 export_path = run_program(program_folder,
                                           program_path,
@@ -218,8 +291,11 @@ if __name__ == "__main__":
                                           method_order,
                                           test_type,
                                           mesh_generator,
-                                          mesh_max_area,
+                                          num_ref,
+                                          mesh_max_area=mesh_max_area,
                                           supg = True)
+                num_ref += 1
+
             errors = import_errors(export_path, method_type, method_order, test_type)
             test_errors(errors,
                         method_order,
@@ -234,6 +310,7 @@ if __name__ == "__main__":
     mesh_max_areas = [0.01, 0.001]
     for method_type in method_types:
         for method_order in method_orders:
+            num_ref = 0
             for mesh_max_area in mesh_max_areas:
                 export_path = run_program(program_folder,
                                           program_path,
@@ -242,8 +319,10 @@ if __name__ == "__main__":
                                           method_order,
                                           test_type,
                                           mesh_generator,
-                                          mesh_max_area,
+                                          num_ref,
+                                          mesh_max_area=mesh_max_area,
                                           supg = True)
+                num_ref += 1
             errors = import_errors(export_path, method_type, method_order, test_type)
             test_errors(errors,
                         method_order,

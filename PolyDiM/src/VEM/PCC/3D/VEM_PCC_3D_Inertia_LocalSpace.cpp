@@ -24,7 +24,16 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Inertia_LocalSpace::CreateLocalSpace(const
     VEM_PCC_3D_LocalSpace_Data localSpace;
     Quadrature::VEM_Quadrature_3D quadrature3D;
 
-    InertiaMapping(geometryUtilities, polyhedron, localSpace.inertia_data);
+    Utilities::VEM_Inertia_Utilities inertia_utilities(geometryUtilities);
+    std::vector<double> inertia_faces_measure;
+
+    inertia_utilities.InertiaMapping3D(polyhedron.Vertices,
+                                       polyhedron.Centroid,
+                                       polyhedron.Diameter,
+                                       polyhedron.TetrahedronVertices,
+                                       localSpace.inertia_data);
+
+    ComputeGeometryProperties(geometryUtilities, localSpace.inertia_data, polyhedron, localSpace.inertia_polyhedron, inertia_faces_measure);
 
     // Compute quadrature on faces
     const unsigned int numFaces = polyhedron.Faces.size();
@@ -44,15 +53,15 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Inertia_LocalSpace::CreateLocalSpace(const
         facesQuadratureWeights[f] = localSpace.facesLocalSpace[f].InternalQuadrature.Weights;
         facesMappedFacesQuadratureWeights[f] = localSpace.facesLocalSpace[f].InternalQuadrature.Weights /
                                                localSpace.facesLocalSpace[f].inertia_data.absDetFmatrix;
-        facesMeasure[f] = localSpace.facesLocalSpace[f].inertia_data.Measure;
+        facesMeasure[f] = localSpace.facesLocalSpace[f].inertia_polygon.Measure;
     }
 
     Gedim::Quadrature::QuadratureData MappedInternalQuadrature =
         quadrature3D.PolyhedronInternalQuadrature(reference_element_data_3D.Quadrature,
                                                   geometryUtilities,
-                                                  localSpace.inertia_data.TetrahedronVertices);
+                                                  localSpace.inertia_polyhedron.TetrahedronVertices);
 
-#ifdef TEST
+#ifdef TEST_INERTIA
     if (abs(MappedInternalQuadrature.Weights.sum() - localSpace.inertia_data.Measure) >= 1.0e-12)
         throw runtime_error("Internal Weights bulk inertia are wrong");
 #endif
@@ -63,11 +72,11 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Inertia_LocalSpace::CreateLocalSpace(const
 
     Quadrature::VEM_Quadrature_3D::Faces_QuadratureData_PCC MappedBoundaryQuadrature =
         quadrature3D.PolyhedronFacesQuadrature(geometryUtilities,
-                                               localSpace.inertia_data.Faces,
+                                               localSpace.inertia_polyhedron.Faces,
                                                polyhedron.FacesRotationMatrix,
                                                polyhedron.FacesTranslation,
-                                               localSpace.inertia_data.FacesNormal,
-                                               localSpace.inertia_data.FacesNormalDirection,
+                                               localSpace.inertia_polyhedron.FacesNormal,
+                                               localSpace.inertia_polyhedron.FacesNormalDirection,
                                                facesQuadraturePoints,
                                                facesMappedFacesQuadratureWeights);
 
@@ -78,7 +87,7 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Inertia_LocalSpace::CreateLocalSpace(const
     unsigned int boundaryPointsOffset = 0;
     for (unsigned int f = 0; f < numFaces; f++)
     {
-        const double ff = polygonalFaces[f].Measure / localSpace.inertia_data.FacesMeasure[f];
+        const double ff = polygonalFaces[f].Measure / inertia_faces_measure[f];
         const unsigned int numFacesBoundaryPoints = facesMappedFacesQuadratureWeights[f].size();
 
         for (unsigned int d = 0; d < 3; d++)
@@ -89,7 +98,7 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Inertia_LocalSpace::CreateLocalSpace(const
         boundaryPointsOffset += numFacesBoundaryPoints;
     }
 
-#ifdef TEST
+#ifdef TEST_INERTIA
     if (abs(localSpace.InternalQuadrature.Weights.sum() - polyhedron.Measure) >= 1.0e-12)
         throw runtime_error("Weights inertia are wrong - 2");
 #endif
@@ -107,20 +116,20 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Inertia_LocalSpace::CreateLocalSpace(const
 
     const Eigen::MatrixXd mappedEdgeInternalQuadraturePoints =
         quadrature3D.PolyhedronInternalEdgesQuadraturePoints(reference_element_data_2D.Quadrature.ReferenceEdgeDOFsInternalPoints,
-                                                             localSpace.inertia_data.Vertices,
-                                                             localSpace.inertia_data.Edges,
-                                                             localSpace.inertia_data.EdgesDirection,
-                                                             localSpace.inertia_data.EdgesTangent);
+                                                             localSpace.inertia_polyhedron.Vertices,
+                                                             localSpace.inertia_polyhedron.Edges,
+                                                             localSpace.inertia_polyhedron.EdgesDirection,
+                                                             localSpace.inertia_polyhedron.EdgesTangent);
 
     const MatrixXd edgeInternalQuadraturePoints =
         (localSpace.inertia_data.Fmatrix * mappedEdgeInternalQuadraturePoints).colwise() + localSpace.inertia_data.translation;
 
     InitializeProjectorsComputation(reference_element_data_3D,
-                                    localSpace.inertia_data.Vertices,
-                                    localSpace.inertia_data.Edges,
-                                    localSpace.inertia_data.Faces,
-                                    localSpace.inertia_data.Centroid,
-                                    localSpace.inertia_data.Diameter,
+                                    localSpace.inertia_polyhedron.Vertices,
+                                    localSpace.inertia_polyhedron.Edges,
+                                    localSpace.inertia_polyhedron.Faces,
+                                    localSpace.inertia_polyhedron.Centroid,
+                                    localSpace.inertia_polyhedron.Diameter,
                                     MappedInternalQuadrature.Points,
                                     MappedInternalQuadrature.Weights,
                                     MappedBoundaryQuadrature.Quadrature.Points,
@@ -128,156 +137,86 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Inertia_LocalSpace::CreateLocalSpace(const
                                     localSpace);
 
     ComputeFaceProjectors(faceVemValues,
-                          localSpace.inertia_data.Faces,
+                          localSpace.inertia_polyhedron.Faces,
                           facesMeasure,
                           MappedBoundaryQuadrature.Quadrature.Points,
                           MappedBoundaryQuadrature.Quadrature.Weights,
                           localSpace);
 
     ComputePiNabla(reference_element_data_3D,
-                   localSpace.inertia_data.Measure,
-                   localSpace.inertia_data.Diameter,
+                   localSpace.inertia_polyhedron.Measure,
+                   localSpace.inertia_polyhedron.Diameter,
                    MappedInternalQuadrature.Weights,
                    MappedBoundaryQuadrature.Quadrature.Weights,
                    MappedBoundaryQuadrature.WeightsTimesNormal,
                    localSpace);
 
-    ComputeL2Projectors(localSpace.inertia_data.Measure, localSpace);
+    ComputeL2Projectors(localSpace.inertia_polyhedron.Measure, localSpace);
 
     ComputeL2ProjectorsOfDerivatives(reference_element_data_3D,
-                                     localSpace.inertia_data.Measure,
-                                     localSpace.inertia_data.Diameter,
+                                     localSpace.inertia_polyhedron.Measure,
+                                     localSpace.inertia_polyhedron.Diameter,
                                      MappedBoundaryQuadrature.WeightsTimesNormal,
                                      localSpace);
 
-    ComputePolynomialsDofs(localSpace.inertia_data.Measure, localSpace);
+    ComputePolynomialsDofs(localSpace.inertia_polyhedron.Measure, localSpace);
 
-    localSpace.Diameter = localSpace.inertia_data.Diameter;
-    localSpace.Centroid = localSpace.inertia_data.Centroid;
-    localSpace.Measure = localSpace.inertia_data.Measure;
+    localSpace.Diameter = localSpace.inertia_polyhedron.Diameter;
+    localSpace.Centroid = localSpace.inertia_polyhedron.Centroid;
+    localSpace.Measure = localSpace.inertia_polyhedron.Measure;
 
-    localSpace.inertia_data.constantStiff = polyhedron.Diameter;
-    localSpace.inertia_data.constantMass = polyhedron.Measure;
+    localSpace.constantStiff = polyhedron.Diameter;
+    localSpace.constantMass = polyhedron.Measure;
 
     return localSpace;
 }
 // ***************************************************************************
-void VEM_PCC_3D_Inertia_LocalSpace::InertiaMapping(const Gedim::GeometryUtilities &geometryUtilities,
-                                                   const VEM_PCC_3D_Polyhedron_Geometry &polyhedron,
-                                                   VEM_PCC_3D_Inertia_Data &inertia_data) const
-{
-    inertia_data.FmatrixInv = Matrix3d::Identity();
-    inertia_data.Fmatrix = Matrix3d::Identity();
-    inertia_data.absDetFmatrix = 1.0;
-    inertia_data.translation = Vector3d::Zero();
-
-    // First Rescaling
-    const double invPolyhedronDiameter = (1.0 / polyhedron.Diameter);
-
-    inertia_data.FmatrixInv = invPolyhedronDiameter * inertia_data.FmatrixInv;
-    inertia_data.Fmatrix = inertia_data.Fmatrix * polyhedron.Diameter;
-    inertia_data.absDetFmatrix *= polyhedron.Diameter * polyhedron.Diameter * polyhedron.Diameter;
-    inertia_data.translation += Vector3d::Zero();
-
-    const MatrixXd polyhedronVerticesFirstRescaling =
-        inertia_data.FmatrixInv * (polyhedron.Vertices.colwise() - inertia_data.translation);
-    const Vector3d polyhedronCentroidsFirstRescaling = inertia_data.FmatrixInv * (polyhedron.Centroid - inertia_data.translation);
-
-    // Inertia Mapping
-    vector<MatrixXd> polyhedronTetrahedronFirstRescaling;
-    unsigned int numTetrahedron = polyhedron.TetrahedronVertices.size();
-    polyhedronTetrahedronFirstRescaling.resize(numTetrahedron);
-    for (unsigned int n = 0; n < numTetrahedron; n++)
-    {
-        polyhedronTetrahedronFirstRescaling[n] =
-            inertia_data.FmatrixInv * (polyhedron.TetrahedronVertices[n].colwise() - inertia_data.translation);
-    }
-
-    const Matrix3d HmatrixFirstRescaling =
-        geometryUtilities.PolyhedronMass(polyhedronCentroidsFirstRescaling, polyhedronTetrahedronFirstRescaling);
-
-    Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigensolver(HmatrixFirstRescaling);
-
-    if (eigensolver.info() != Eigen::Success)
-        abort();
-    const Vector3d sqrtLambdaFirstRescaling = eigensolver.eigenvalues().array().sqrt();
-    const Vector3d sqrtLambdaInvFirstRescaling = eigensolver.eigenvalues().array().rsqrt();
-    const Matrix3d QmatrixFirstRescaling = eigensolver.eigenvectors();
-    const Matrix3d Bmatrix =
-        sqrtLambdaInvFirstRescaling.asDiagonal() * QmatrixFirstRescaling.transpose() * sqrtLambdaFirstRescaling.maxCoeff();
-    const Matrix3d BmatrixInv =
-        QmatrixFirstRescaling * sqrtLambdaFirstRescaling.asDiagonal() / sqrtLambdaFirstRescaling.maxCoeff();
-
-    inertia_data.FmatrixInv = Bmatrix * inertia_data.FmatrixInv;
-    inertia_data.Fmatrix = inertia_data.Fmatrix * BmatrixInv;
-    double detB = BmatrixInv.determinant();
-
-#ifdef TEST
-    if (abs(detB) <= 1.0e-12)
-        throw runtime_error("B singular in bulk");
-#endif
-
-    inertia_data.absDetFmatrix *= abs(detB);
-    inertia_data.translation += polyhedron.Centroid;
-
-    const MatrixXd polyhedronVerticesInertiaMapping =
-        inertia_data.FmatrixInv * (polyhedron.Vertices.colwise() - inertia_data.translation);
-
-    // Second rescaling
-
-    const double polyhedronDiameterInertiaMapping = geometryUtilities.PolyhedronDiameter(polyhedronVerticesInertiaMapping);
-    const double invPolyhedronDiameterInertiaMapping = (1.0 / polyhedronDiameterInertiaMapping);
-
-    inertia_data.FmatrixInv = invPolyhedronDiameterInertiaMapping * inertia_data.FmatrixInv;
-    inertia_data.Fmatrix = polyhedronDiameterInertiaMapping * inertia_data.Fmatrix;
-    inertia_data.absDetFmatrix *= polyhedronDiameterInertiaMapping * polyhedronDiameterInertiaMapping * polyhedronDiameterInertiaMapping;
-    inertia_data.translation += Vector3d::Zero();
-
-    inertia_data.Vertices = inertia_data.FmatrixInv * (polyhedron.Vertices.colwise() - inertia_data.translation);
-
-    const std::vector<Eigen::MatrixXd> &faces3DVerticesSecondRescaling =
-        geometryUtilities.PolyhedronFaceVertices(inertia_data.Vertices, polyhedron.Faces);
-
-    ComputeGeometryProperties(geometryUtilities, polyhedron.Edges, polyhedron.Faces, polyhedron.EdgesDirection, faces3DVerticesSecondRescaling, inertia_data);
-}
-// ***************************************************************************
 void VEM_PCC_3D_Inertia_LocalSpace::ComputeGeometryProperties(const Gedim::GeometryUtilities &geometryUtilities,
-                                                              const Eigen::MatrixXi &polyhedronEdges,
-                                                              const std::vector<Eigen::MatrixXi> &polyhedronFaces,
-                                                              const std::vector<bool> &polyhedronEdgeDirections,
-                                                              const std::vector<Eigen::MatrixXd> &mappedFaces3DVertices,
-                                                              VEM_PCC_3D_Inertia_Data &inertia_data) const
+                                                              const Utilities::VEM_Inertia_Utilities::Inertia_Data &inertia_data,
+                                                              const PCC::VEM_PCC_3D_Polyhedron_Geometry &polyhedron,
+                                                              PCC::VEM_PCC_3D_Polyhedron_Geometry &inertia_geometric_data,
+                                                              std::vector<double> &inertia_faces_measure) const
 {
-    inertia_data.Edges = polyhedronEdges;
-    inertia_data.Faces = polyhedronFaces;
-    inertia_data.EdgesTangent = geometryUtilities.PolyhedronEdgeTangents(inertia_data.Vertices, polyhedronEdges);
 
-    inertia_data.EdgesDirection = polyhedronEdgeDirections;
+    inertia_geometric_data.Vertices = inertia_data.FmatrixInv * (polyhedron.Vertices.colwise() - inertia_data.translation);
 
-    inertia_data.FacesTranslation = geometryUtilities.PolyhedronFaceTranslations(mappedFaces3DVertices);
-    inertia_data.FacesNormal = geometryUtilities.PolyhedronFaceNormals(mappedFaces3DVertices);
-    inertia_data.FacesNormalDirection =
+    const std::vector<Eigen::MatrixXd> &mappedFaces3DVertices =
+        geometryUtilities.PolyhedronFaceVertices(inertia_geometric_data.Vertices, polyhedron.Faces);
+
+    inertia_geometric_data.Edges = polyhedron.Edges;
+    inertia_geometric_data.Faces = polyhedron.Faces;
+    inertia_geometric_data.EdgesTangent =
+        geometryUtilities.PolyhedronEdgeTangents(inertia_geometric_data.Vertices, polyhedron.Edges);
+
+    inertia_geometric_data.EdgesDirection = polyhedron.EdgesDirection;
+
+    inertia_geometric_data.FacesTranslation = geometryUtilities.PolyhedronFaceTranslations(mappedFaces3DVertices);
+    inertia_geometric_data.FacesNormal = geometryUtilities.PolyhedronFaceNormals(mappedFaces3DVertices);
+    inertia_geometric_data.FacesNormalDirection =
         geometryUtilities.PolyhedronFaceNormalDirections(mappedFaces3DVertices,
-                                                         geometryUtilities.PolyhedronBarycenter(inertia_data.Vertices),
-                                                         inertia_data.FacesNormal);
+                                                         geometryUtilities.PolyhedronBarycenter(inertia_geometric_data.Vertices),
+                                                         inertia_geometric_data.FacesNormal);
 
-    inertia_data.FacesRotationMatrix =
-        geometryUtilities.PolyhedronFaceRotationMatrices(mappedFaces3DVertices, inertia_data.FacesNormal, inertia_data.FacesTranslation);
+    inertia_geometric_data.FacesRotationMatrix =
+        geometryUtilities.PolyhedronFaceRotationMatrices(mappedFaces3DVertices,
+                                                         inertia_geometric_data.FacesNormal,
+                                                         inertia_geometric_data.FacesTranslation);
 
-    inertia_data.Diameter = geometryUtilities.PolyhedronDiameter(inertia_data.Vertices);
+    inertia_geometric_data.Diameter = geometryUtilities.PolyhedronDiameter(inertia_geometric_data.Vertices);
 
     const vector<vector<unsigned int>> polyhedronFaceTriangulations =
-        geometryUtilities.PolyhedronFaceTriangulationsByFirstVertex(polyhedronFaces, mappedFaces3DVertices);
+        geometryUtilities.PolyhedronFaceTriangulationsByFirstVertex(polyhedron.Faces, mappedFaces3DVertices);
 
-    std::vector<MatrixXd> faces2DVertices = geometryUtilities.PolyhedronFaceRotatedVertices(mappedFaces3DVertices,
-                                                                                            inertia_data.FacesTranslation,
-                                                                                            inertia_data.FacesRotationMatrix);
+    std::vector<MatrixXd> faces2DVertices =
+        geometryUtilities.PolyhedronFaceRotatedVertices(mappedFaces3DVertices,
+                                                        inertia_geometric_data.FacesTranslation,
+                                                        inertia_geometric_data.FacesRotationMatrix);
 
     std::vector<std::vector<Matrix3d>> faces2DTriangulations =
         geometryUtilities.PolyhedronFaceExtractTriangulationPoints(faces2DVertices, polyhedronFaceTriangulations);
 
     const unsigned int numFaces = faces2DVertices.size();
-    inertia_data.FacesMeasure.resize(numFaces);
+    inertia_faces_measure.resize(numFaces);
     for (unsigned int f = 0; f < numFaces; f++)
     {
         // Extract original cell2D geometric information
@@ -289,30 +228,31 @@ void VEM_PCC_3D_Inertia_LocalSpace::ComputeGeometryProperties(const Gedim::Geome
         for (unsigned int cct = 0; cct < numConvexCell2DTriangulation; cct++)
             convexCell2DTriangulationAreas[cct] = geometryUtilities.PolygonArea(convexCell2DTriangulationPoints[cct]);
 
-        inertia_data.FacesMeasure[f] = convexCell2DTriangulationAreas.sum();
+        inertia_faces_measure[f] = convexCell2DTriangulationAreas.sum();
     }
 
-    inertia_data.Measure = geometryUtilities.PolyhedronVolumeByBoundaryIntegral(faces2DTriangulations,
-                                                                                inertia_data.FacesNormal,
-                                                                                inertia_data.FacesNormalDirection,
-                                                                                inertia_data.FacesTranslation,
-                                                                                inertia_data.FacesRotationMatrix);
+    inertia_geometric_data.Measure =
+        geometryUtilities.PolyhedronVolumeByBoundaryIntegral(faces2DTriangulations,
+                                                             inertia_geometric_data.FacesNormal,
+                                                             inertia_geometric_data.FacesNormalDirection,
+                                                             inertia_geometric_data.FacesTranslation,
+                                                             inertia_geometric_data.FacesRotationMatrix);
 
-    inertia_data.Centroid = geometryUtilities.PolyhedronCentroid(faces2DTriangulations,
-                                                                 inertia_data.FacesNormal,
-                                                                 inertia_data.FacesNormalDirection,
-                                                                 inertia_data.FacesTranslation,
-                                                                 inertia_data.FacesRotationMatrix,
-                                                                 inertia_data.Measure);
+    inertia_geometric_data.Centroid = geometryUtilities.PolyhedronCentroid(faces2DTriangulations,
+                                                                           inertia_geometric_data.FacesNormal,
+                                                                           inertia_geometric_data.FacesNormalDirection,
+                                                                           inertia_geometric_data.FacesTranslation,
+                                                                           inertia_geometric_data.FacesRotationMatrix,
+                                                                           inertia_geometric_data.Measure);
 
     const vector<unsigned int> polyhedronTetrahedrons =
-        geometryUtilities.PolyhedronTetrahedronsByFaceTriangulations(inertia_data.Vertices,
-                                                                     polyhedronFaces,
+        geometryUtilities.PolyhedronTetrahedronsByFaceTriangulations(inertia_geometric_data.Vertices,
+                                                                     polyhedron.Faces,
                                                                      polyhedronFaceTriangulations,
-                                                                     inertia_data.Centroid);
+                                                                     inertia_geometric_data.Centroid);
 
-    inertia_data.TetrahedronVertices =
-        geometryUtilities.ExtractTetrahedronPoints(inertia_data.Vertices, inertia_data.Centroid, polyhedronTetrahedrons);
+    inertia_geometric_data.TetrahedronVertices =
+        geometryUtilities.ExtractTetrahedronPoints(inertia_geometric_data.Vertices, inertia_geometric_data.Centroid, polyhedronTetrahedrons);
 }
 //****************************************************************************
 void VEM_PCC_3D_Inertia_LocalSpace::InitializeProjectorsComputation(const VEM_PCC_3D_ReferenceElement_Data &reference_element_data,

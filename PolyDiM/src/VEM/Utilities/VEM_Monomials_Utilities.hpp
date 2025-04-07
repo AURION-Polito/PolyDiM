@@ -1,5 +1,5 @@
-#ifndef __VEM_Monomials_Monomials_Utilities_HPP
-#define __VEM_Monomials_Monomials_Utilities_HPP
+#ifndef __VEM_Monomials_Utilities_HPP
+#define __VEM_Monomials_Utilities_HPP
 
 #include "VEM_Monomials_Data.hpp"
 
@@ -7,7 +7,7 @@ namespace Polydim
 {
 namespace VEM
 {
-namespace Monomials
+namespace Utilities
 {
 template <unsigned short dimension> struct VEM_Monomials_Utilities final
 {
@@ -92,7 +92,7 @@ template <unsigned short dimension> struct VEM_Monomials_Utilities final
                            Eigen::MatrixXd &QmatrixInv,
                            Eigen::MatrixXd &Qmatrix) const;
 };
-} // namespace Monomials
+} // namespace Utilities
 } // namespace VEM
 } // namespace Polydim
 

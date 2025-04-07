@@ -9,7 +9,7 @@ namespace Polydim
 {
 namespace VEM
 {
-namespace Monomials
+namespace Utilities
 {
 template struct VEM_Monomials_Utilities<1>;
 template struct VEM_Monomials_Utilities<2>;
@@ -88,6 +88,6 @@ void VEM_Monomials_Utilities<dimension>::MGSOrthonormalize(const Eigen::VectorXd
     LAPACK_utilities::inverseTri(QmatrixInv, Qmatrix, 'L', 'N');
 }
 //****************************************************************************
-} // namespace Monomials
+} // namespace Utilities
 } // namespace VEM
 } // namespace Polydim

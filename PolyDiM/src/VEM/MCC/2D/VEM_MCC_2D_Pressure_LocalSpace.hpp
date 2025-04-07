@@ -18,7 +18,7 @@ namespace MCC
 class VEM_MCC_2D_Pressure_LocalSpace final : public I_VEM_MCC_2D_Pressure_LocalSpace
 {
   private:
-    Monomials::VEM_Monomials_2D monomials;
+    Utilities::VEM_Monomials_2D monomials;
 
     void InitializeProjectorsComputation(const VEM_MCC_2D_Pressure_ReferenceElement_Data &reference_element_data,
                                          const Eigen::Vector3d &polygonCentroid,

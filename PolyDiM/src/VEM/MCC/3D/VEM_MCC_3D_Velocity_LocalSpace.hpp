@@ -20,8 +20,8 @@ class VEM_MCC_3D_Velocity_LocalSpace final : public I_VEM_MCC_3D_Velocity_LocalS
 {
   private:
     MCC::VEM_MCC_Utilities<3> utilities;
-    Monomials::VEM_Monomials_3D monomials3D;
-    Monomials::VEM_Monomials_2D monomials2D;
+    Utilities::VEM_Monomials_3D monomials3D;
+    Utilities::VEM_Monomials_2D monomials2D;
 
     void InitializeProjectorsComputation(const VEM_MCC_3D_Velocity_ReferenceElement_Data &reference_element_data,
                                          const unsigned int &numFaces,

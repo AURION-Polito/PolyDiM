@@ -16,7 +16,7 @@ class VEM_PCC_2D_Ortho_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
 {
   private:
     VEM_PCC_Utilities<2> utilities;
-    Monomials::VEM_Monomials_2D monomials;
+    Utilities::VEM_Monomials_2D monomials;
 
     void InitializeProjectorsComputation(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                          const Eigen::MatrixXd &polygonVertices,

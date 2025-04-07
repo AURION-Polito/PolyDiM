@@ -4,9 +4,6 @@
 #include "DOFsManager.hpp"
 #include "PDE_Mesh_Utilities.hpp"
 
-#include <typeindex>
-#include <unordered_map>
-
 namespace Polydim
 {
 namespace examples
@@ -18,7 +15,8 @@ namespace test
 enum struct Test_Types
 {
     Patch_Test = 1,
-    Poisson_Polynomial_Problem = 2
+    Poisson_Polynomial_Problem = 2 /// Test 3: S. Berrone, G. Teora, F. Vicini, "Improving high-order VEM stability on
+    /// badly-shaped elements", doi: https://doi.org/10.1016/j.matcom.2023.10.003.
 };
 
 struct I_Test
@@ -270,7 +268,7 @@ struct Poisson_Polynomial_Problem final : public I_Test
                 {18, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {19, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {20, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {21, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
+                {21, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {22, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {23, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {24, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
