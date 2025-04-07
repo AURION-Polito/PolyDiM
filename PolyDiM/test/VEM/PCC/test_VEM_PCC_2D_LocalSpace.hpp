@@ -113,7 +113,7 @@ void Test_VEM_PCC_2D_Export_Dofs(const Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geo
                              static_cast<unsigned int>(dof_global_index_values.size()),
                              dof_global_index_values.data()}});
 
-        exporter.Export(exportVtuFolder + "/dofs.vtu");
+        exporter.Export(exportVtuFolder + "/dofs_" + std::to_string(vem_reference_element.Order) + ".vtu");
     }
 }
 
@@ -626,7 +626,7 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_2D_O1)
 TEST(Test_VEM_PCC, Test_VEM_PCC_2D_O2)
 {
 
-    const std::string exportFolder = "Test_VEM_PCC_2D_O2";
+    const std::string exportFolder = "VEM/PCC/Test_VEM_PCC_2D_O2";
     Gedim::Output::CreateFolder(exportFolder);
 
     Gedim::GeometryUtilitiesConfig geometry_utilities_config;
@@ -687,6 +687,9 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_2D_O3)
     geometry_utilities_config.Tolerance1D = std::numeric_limits<double>::epsilon();
     Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
 
+    const std::string exportFolder = "VEM/PCC/Test_VEM_PCC_2D_O3";
+    Gedim::Output::CreateFolder(exportFolder);
+
     const auto polygon_data = Test_VEM_PCC_2D_Geometry(geometry_utilities);
 
     Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry polygon = {geometry_utilities_config.Tolerance1D,
@@ -706,6 +709,15 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_2D_O3)
 
     const auto reference_element_data = vem_reference_element.Create(3);
     const auto local_space = vem_local_space.CreateLocalSpace(reference_element_data, polygon);
+
+    // Export domain
+    {
+        Gedim::VTKUtilities vtkUtilities;
+        vtkUtilities.AddPolygon(polygon_data.Vertices);
+        vtkUtilities.Export(exportFolder + "/Polygon.vtu");
+
+        Test_VEM_PCC_2D_Export_Dofs(polygon, reference_element_data, exportFolder);
+    }
 
     // Test Reference PiNabla
     const auto refPiNabla = Test_VEM_PCC_2D_RefPiNabla()[2];

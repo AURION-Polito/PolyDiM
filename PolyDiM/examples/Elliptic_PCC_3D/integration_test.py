@@ -219,7 +219,7 @@ if __name__ == "__main__":
     mesh_generator = 5
     mesh_import_paths = ["../../../../Mesh/3D/Conformed"]
     method_types = [1, 2, 3]
-    method_orders = np.arange(1, 8)
+    method_orders = np.arange(1, 5)
     list_errors = []
     for method_type in method_types:
         tab_errors = np.zeros([len(method_orders), 5])

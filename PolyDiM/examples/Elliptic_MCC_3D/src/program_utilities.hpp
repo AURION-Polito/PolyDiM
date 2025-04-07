@@ -6,8 +6,6 @@
 #include "assembler.hpp"
 #include "program_configuration.hpp"
 #include "test_definition.hpp"
-#include <typeindex>
-#include <unordered_map>
 
 namespace Polydim
 {

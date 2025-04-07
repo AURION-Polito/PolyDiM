@@ -124,7 +124,7 @@ void Test_VEM_PCC_3D_Export_Dofs(const Polydim::VEM::PCC::VEM_PCC_3D_Polyhedron_
         if (vem_reference_element.NumDofs3D > 0)
             sphere_diameter = 0.5 * polyhedron_in_radius;
 
-        for (unsigned int loc_i = 0; loc_i < vem_reference_element.NumDofs2D; ++loc_i)
+        for (unsigned int loc_i = 0; loc_i < vem_reference_element.NumDofs3D; ++loc_i)
         {
             dof_cell_index_values[id_dofs] = 0;
             dof_dimension_values[id_dofs] = 3;
@@ -1655,7 +1655,7 @@ std::vector<Eigen::MatrixXd> Test_VEM_PCC_3D_RefPiNabla()
 TEST(Test_VEM_PCC, Test_VEM_PCC_3D_O1_O2_O3)
 {
 
-    const std::string exportFolder = "Test_VEM_PCC_3D_O1_02_03";
+    const std::string exportFolder = "VEM/PCC/Test_VEM_PCC_3D_O1_02_03";
     Gedim::Output::CreateFolder(exportFolder);
 
     Gedim::GeometryUtilitiesConfig geometry_utilities_config;
@@ -1726,6 +1726,7 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_3D_O1_O2_O3)
         }
 
         // Test Reference PiNabla
+
         const auto refPiNabla = Test_VEM_PCC_3D_RefPiNabla()[k - 1];
         const double relErrPiNabla = (local_space.PiNabla - refPiNabla).norm() / refPiNabla.norm();
         ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.5e-14, relErrPiNabla, geometry_utilities.Tolerance1D()));

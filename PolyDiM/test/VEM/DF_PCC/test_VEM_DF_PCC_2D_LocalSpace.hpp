@@ -4,11 +4,13 @@
 #include <gmock/gmock-matchers.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <numbers>
 
 #include "GeometryUtilities.hpp"
 #include "VEM_DF_PCC_2D_ReferenceElement.hpp"
 #include "VEM_DF_PCC_2D_Velocity_LocalSpace.hpp"
 #include "VEM_DF_PCC_PerformanceAnalysis.hpp"
+#include "VTKUtilities.hpp"
 
 namespace Polydim
 {
@@ -26,6 +28,223 @@ struct Test_VEM_DF_PCC_2D_Polygon_Geometry final
     Eigen::MatrixXd EdgesTangent;
     Eigen::MatrixXd EdgesNormal;
 };
+
+void Test_VEM_DF_PCC_2D_Velocity_Export_Dofs(const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Polygon_Geometry &polygon,
+                                             const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &vem_reference_element,
+                                             const std::string &exportVtuFolder)
+{
+    Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
+    geometryUtilitiesConfig.Tolerance1D = polygon.Tolerance1D;
+    geometryUtilitiesConfig.Tolerance2D = polygon.Tolerance2D;
+    Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
+
+    const unsigned int num_vertices = polygon.Vertices.cols();
+    const unsigned int num_dofs = num_vertices * vem_reference_element.NumDofs0D + num_vertices * vem_reference_element.NumDofs1D +
+                                  vem_reference_element.NumDofs2D_BigOPlus + vem_reference_element.NumDofs2D_Divergence;
+    const unsigned int num_dofs_2d = vem_reference_element.NumDofs2D_BigOPlus + vem_reference_element.NumDofs2D_Divergence;
+
+    Eigen::MatrixXd dofs_coordinate = Eigen::MatrixXd::Zero(3, num_dofs);
+    std::vector<std::array<double, 2>> dof_global_index_values(num_dofs);
+    std::vector<double> dof_cell_index_values(num_dofs);
+    std::vector<double> dof_dimension_values(num_dofs);
+
+    unsigned int id_dofs = 0;
+    if (vem_reference_element.NumDofs0D != 0)
+    {
+        for (unsigned int c = 0; c < num_vertices; ++c)
+        {
+            for (unsigned int loc_i = 0; loc_i < vem_reference_element.NumDofs0D; ++loc_i)
+            {
+                dof_cell_index_values[id_dofs] = c;
+                dof_dimension_values[id_dofs] = 0;
+                dofs_coordinate.col(id_dofs) = polygon.Vertices.col(c);
+                dof_global_index_values[id_dofs][0] = id_dofs;
+                dof_global_index_values[id_dofs][1] = num_vertices * vem_reference_element.NumDofs0D +
+                                                      num_vertices * vem_reference_element.NumDofs1D + id_dofs;
+                id_dofs++;
+            }
+        }
+    }
+
+    if (vem_reference_element.NumDofs1D != 0)
+    {
+        for (unsigned int c = 0; c < num_vertices; ++c)
+        {
+            const std::vector<double> local_edge_coordinates =
+                geometryUtilities.EquispaceCoordinates(vem_reference_element.NumDofs1D, 0.0, 1.0, false);
+            const Eigen::Vector3d edge_origin = polygon.Vertices.col(c);
+            const Eigen::Vector3d edge_tangent = polygon.Vertices.col((c + 1) % num_vertices) - edge_origin;
+
+            for (unsigned int loc_i = 0; loc_i < vem_reference_element.NumDofs1D; ++loc_i)
+            {
+                dof_cell_index_values[id_dofs] = c;
+                dof_dimension_values[id_dofs] = 1;
+                dofs_coordinate.col(id_dofs) = edge_origin + local_edge_coordinates[loc_i] * edge_tangent;
+                dof_global_index_values[id_dofs][0] = id_dofs;
+                dof_global_index_values[id_dofs][1] = num_vertices * vem_reference_element.NumDofs0D +
+                                                      num_vertices * vem_reference_element.NumDofs1D + id_dofs;
+                id_dofs++;
+            }
+        }
+    }
+
+    if (num_dofs_2d != 0)
+    {
+
+        const auto local_polygon_coordinates = geometryUtilities.EquispaceCoordinates(num_dofs_2d + 1, 0.0, 1.0, true);
+        const Eigen::Vector3d polygon_centroid = polygon.Centroid;
+        const auto polygonCentroidEdgesDistance =
+            geometryUtilities.PolygonCentroidEdgesDistance(polygon.Vertices, polygon.Centroid, polygon.EdgesNormal);
+
+        double circle_diameter = 0.0;
+        if (num_dofs_2d > 1)
+            circle_diameter = 0.5 * geometryUtilities.PolygonInRadius(polygonCentroidEdgesDistance);
+
+        for (unsigned int loc_i = 0; loc_i < num_dofs_2d; ++loc_i)
+        {
+            dof_cell_index_values[id_dofs] = 0;
+            dof_dimension_values[id_dofs] = 2;
+            dofs_coordinate.col(id_dofs) =
+                polygon_centroid +
+                circle_diameter * Eigen::Vector3d(cos(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
+                                                  sin(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
+                                                  0.0);
+            dof_global_index_values[id_dofs][0] =
+                2 * (num_vertices * vem_reference_element.NumDofs0D + num_vertices * vem_reference_element.NumDofs1D) + id_dofs;
+            dof_global_index_values[id_dofs][1] = std::nan("");
+            id_dofs++;
+        }
+    }
+
+    Eigen::VectorXd dof_global_index_values_data(2 * num_dofs);
+    unsigned int c = 0;
+    for (const auto &v : dof_global_index_values)
+    {
+        for (unsigned int d = 0; d < 2; d++)
+            dof_global_index_values_data[2 * c + d] = v[d];
+        c++;
+    }
+
+    {
+        Gedim::VTKUtilities exporter;
+        exporter.AddPoints(dofs_coordinate,
+                           {{"cell_dimension",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(dof_dimension_values.size()),
+                             dof_dimension_values.data()},
+                            {"cell_index",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(dof_cell_index_values.size()),
+                             dof_cell_index_values.data()},
+                            {"dof_global_index",
+                             Gedim::VTPProperty::Formats::PointsArray2,
+                             static_cast<unsigned int>(dof_global_index_values_data.size()),
+                             dof_global_index_values_data.data()}});
+
+        exporter.Export(exportVtuFolder + "/velocity_dofs_" + std::to_string(vem_reference_element.Order) + ".vtu");
+    }
+}
+
+void Test_VEM_DF_PCC_2D_Pressure_Export_Dofs(const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Polygon_Geometry &polygon,
+                                             const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &vem_reference_element,
+                                             const std::string &exportVtuFolder)
+{
+    Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
+    geometryUtilitiesConfig.Tolerance1D = polygon.Tolerance1D;
+    geometryUtilitiesConfig.Tolerance2D = polygon.Tolerance2D;
+    Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
+
+    const unsigned int num_vertices = polygon.Vertices.cols();
+    const unsigned int num_dofs = num_vertices * vem_reference_element.NumDofs0D +
+                                  num_vertices * vem_reference_element.NumDofs1D + vem_reference_element.NumDofs2D;
+
+    Eigen::MatrixXd dofs_coordinate = Eigen::MatrixXd::Zero(3, num_dofs);
+    std::vector<double> dof_global_index_values(num_dofs);
+    std::vector<double> dof_cell_index_values(num_dofs);
+    std::vector<double> dof_dimension_values(num_dofs);
+
+    unsigned int id_dofs = 0;
+    if (vem_reference_element.NumDofs0D != 0)
+    {
+        for (unsigned int c = 0; c < num_vertices; ++c)
+        {
+            for (unsigned int loc_i = 0; loc_i < vem_reference_element.NumDofs0D; ++loc_i)
+            {
+                dof_cell_index_values[id_dofs] = c;
+                dof_dimension_values[id_dofs] = 0;
+                dofs_coordinate.col(id_dofs) = polygon.Vertices.col(c);
+                dof_global_index_values[id_dofs] = id_dofs;
+                id_dofs++;
+            }
+        }
+    }
+
+    if (vem_reference_element.NumDofs1D != 0)
+    {
+        for (unsigned int c = 0; c < num_vertices; ++c)
+        {
+            const std::vector<double> local_edge_coordinates =
+                geometryUtilities.EquispaceCoordinates(vem_reference_element.NumDofs1D, 0.0, 1.0, false);
+            const Eigen::Vector3d edge_origin = polygon.Vertices.col(c);
+            const Eigen::Vector3d edge_tangent = polygon.Vertices.col((c + 1) % num_vertices) - edge_origin;
+
+            for (unsigned int loc_i = 0; loc_i < vem_reference_element.NumDofs1D; ++loc_i)
+            {
+                dof_cell_index_values[id_dofs] = c;
+                dof_dimension_values[id_dofs] = 1;
+                dofs_coordinate.col(id_dofs) = edge_origin + local_edge_coordinates[loc_i] * edge_tangent;
+                dof_global_index_values[id_dofs] = id_dofs;
+                id_dofs++;
+            }
+        }
+    }
+
+    if (vem_reference_element.NumDofs2D != 0)
+    {
+
+        const auto local_polygon_coordinates =
+            geometryUtilities.EquispaceCoordinates(vem_reference_element.NumDofs2D + 1, 0.0, 1.0, true);
+        const Eigen::Vector3d polygon_centroid = polygon.Centroid;
+        const auto polygonCentroidEdgesDistance =
+            geometryUtilities.PolygonCentroidEdgesDistance(polygon.Vertices, polygon.Centroid, polygon.EdgesNormal);
+
+        double circle_diameter = 0.0;
+        if (vem_reference_element.NumDofs2D > 1)
+            circle_diameter = 0.2 * geometryUtilities.PolygonInRadius(polygonCentroidEdgesDistance);
+
+        for (unsigned int loc_i = 0; loc_i < vem_reference_element.NumDofs2D; ++loc_i)
+        {
+            dof_cell_index_values[id_dofs] = 0;
+            dof_dimension_values[id_dofs] = 2;
+            dofs_coordinate.col(id_dofs) =
+                polygon_centroid +
+                circle_diameter * Eigen::Vector3d(cos(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
+                                                  sin(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
+                                                  0.0);
+            dof_global_index_values[id_dofs] = id_dofs;
+            id_dofs++;
+        }
+    }
+
+    {
+        Gedim::VTKUtilities exporter;
+        exporter.AddPoints(dofs_coordinate,
+                           {{"cell_dimension",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(dof_dimension_values.size()),
+                             dof_dimension_values.data()},
+                            {"cell_index",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(dof_cell_index_values.size()),
+                             dof_cell_index_values.data()},
+                            {"dof_global_index",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(dof_global_index_values.size()),
+                             dof_global_index_values.data()}});
+
+        exporter.Export(exportVtuFolder + "/pressure_dofs_" + std::to_string(vem_reference_element.Order) + ".vtu");
+    }
+}
 
 Test_VEM_DF_PCC_2D_Polygon_Geometry Test_VEM_DF_PCC_2D_Geometry(const Gedim::GeometryUtilities &geometry_utilities)
 {
@@ -74,6 +293,9 @@ TEST(Test_VEM_DF_PCC, Test_VEM_DF_PCC_2D_O2_O3_O4)
     geometry_utilities_config.Tolerance1D = std::numeric_limits<double>::epsilon();
     Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
 
+    const std::string exportFolder = "VEM/DF_PCC/Test_VEM_DF_PCC_2D_O2_O3_O4";
+    Gedim::Output::CreateFolder(exportFolder);
+
     const auto polygon_data = Test_VEM_DF_PCC_2D_Geometry(geometry_utilities);
 
     Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Polygon_Geometry polygon = {geometry_utilities_config.Tolerance1D,
@@ -91,10 +313,22 @@ TEST(Test_VEM_DF_PCC, Test_VEM_DF_PCC_2D_O2_O3_O4)
     for (unsigned int i = 2; i < 5; i++)
     {
         Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement vem_reference_element;
+        Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement vem_pressure_reference_element;
         Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_LocalSpace vem_local_space;
 
         const auto reference_element_data = vem_reference_element.Create(i);
+        const auto pressure_reference_element_data = vem_pressure_reference_element.Create(i);
         const auto local_space = vem_local_space.CreateLocalSpace(reference_element_data, polygon);
+
+        // Export domain
+        {
+            Gedim::VTKUtilities vtkUtilities;
+            vtkUtilities.AddPolygon(polygon_data.Vertices);
+            vtkUtilities.Export(exportFolder + "/Polygon.vtu");
+
+            Test_VEM_DF_PCC_2D_Velocity_Export_Dofs(polygon, reference_element_data, exportFolder);
+            Test_VEM_DF_PCC_2D_Pressure_Export_Dofs(polygon, pressure_reference_element_data, exportFolder);
+        }
 
         // Test VEM performances
         Polydim::VEM::DF_PCC::VEM_DF_PCC_PerformanceAnalysis performanceAnalysis;
