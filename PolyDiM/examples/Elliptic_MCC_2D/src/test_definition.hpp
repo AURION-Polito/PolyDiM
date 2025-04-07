@@ -1,11 +1,10 @@
 #ifndef __test_definition_H
 #define __test_definition_H
 
+#include <numbers>
+
 #include "DOFsManager.hpp"
 #include "PDE_Mesh_Utilities.hpp"
-
-#include <typeindex>
-#include <unordered_map>
 
 namespace Polydim
 {
@@ -19,7 +18,9 @@ namespace test
 enum struct Test_Types
 {
     Patch_Test = 1,
-    Poisson_Polynomial_Problem = 2
+    Poisson_Problem = 2 /// Test 1 in S. Berrone, S. Scialò, G. Teora. "The mixed virtual element discretization for
+                        /// highly-anisotropic problems: the role of the boundary degrees of freedom". Mathematics in
+                        /// Engineering, 2023, 5(6): 1-32. doi: 10.3934/mine.2023099
 };
 // ***************************************************************************
 struct I_Test
@@ -206,7 +207,7 @@ struct Patch_Test final : public I_Test
     }
 };
 // ***************************************************************************
-struct Poisson_Polynomial_Problem final : public I_Test
+struct Poisson_Problem final : public I_Test
 {
     Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain() const
     {
@@ -231,9 +232,9 @@ struct Poisson_Polynomial_Problem final : public I_Test
                 {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
                 {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
                 {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
-                {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
                 {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
-                {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}}};
+                {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}}};
     }
 
     std::array<Eigen::VectorXd, 3> advection_term(const Eigen::MatrixXd &points) const
@@ -279,18 +280,14 @@ struct Poisson_Polynomial_Problem final : public I_Test
 
     Eigen::VectorXd source_term(const Eigen::MatrixXd &points) const
     {
-        return 32.0 * (points.row(1).array() * (1.0 - points.row(1).array()) +
-                       points.row(0).array() * (1.0 - points.row(0).array()));
+        return 2.0 * std::numbers::pi * std::numbers::pi * sin(std::numbers::pi * points.row(0).array()) *
+               sin(std::numbers::pi * points.row(1).array());
     };
 
     Eigen::VectorXd strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
         switch (marker)
         {
-        case 1: // co-normal derivatives on the right
-            return -16.0 * (1.0 - 2.0 * points.row(0).array()) * points.row(1).array() * (1.0 - points.row(1).array());
-        case 3: // co-normal derivatives on the left
-            return 16.0 * (1.0 - 2.0 * points.row(0).array()) * points.row(1).array() * (1.0 - points.row(1).array());
         default:
             throw std::runtime_error("Unknown marker");
         }
@@ -301,22 +298,18 @@ struct Poisson_Polynomial_Problem final : public I_Test
         if (marker != 2)
             throw std::runtime_error("Unknown marker");
 
-        return 16.0 * (points.row(1).array() * (1.0 - points.row(1).array()) * points.row(0).array() *
-                       (1.0 - points.row(0).array())) +
-               1.1;
+        return sin(std::numbers::pi * points.row(0).array()) * sin(std::numbers::pi * points.row(1).array());
     }
 
     Eigen::VectorXd exact_pressure(const Eigen::MatrixXd &points) const
     {
-        return 16.0 * (points.row(1).array() * (1.0 - points.row(1).array()) * points.row(0).array() *
-                       (1.0 - points.row(0).array())) +
-               1.1;
+        return sin(std::numbers::pi * points.row(0).array()) * sin(std::numbers::pi * points.row(1).array());
     };
 
     std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd &points) const
     {
-        return {-16.0 * (1.0 - 2.0 * points.row(0).array()) * points.row(1).array() * (1.0 - points.row(1).array()),
-                -16.0 * (1.0 - 2.0 * points.row(1).array()) * points.row(0).array() * (1.0 - points.row(0).array()),
+        return {-std::numbers::pi * cos(std::numbers::pi * points.row(0).array()) * sin(std::numbers::pi * points.row(1).array()),
+                -std::numbers::pi * sin(std::numbers::pi * points.row(0).array()) * cos(std::numbers::pi * points.row(1).array()),
                 Eigen::VectorXd::Zero(points.cols())};
     }
 };

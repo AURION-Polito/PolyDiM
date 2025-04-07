@@ -1,13 +1,6 @@
 ﻿#include "assembler.hpp"
 
-#include <algorithm>
-#include <cstdio>
-#include <iterator>
-#include <ranges>
-#include <string>
-
 #include "EllipticEquation.hpp"
-#include "I_VEM_MCC_2D_ReferenceElement.hpp"
 #include "VEM_MCC_2D_LocalSpace_Data.hpp"
 
 using namespace std;

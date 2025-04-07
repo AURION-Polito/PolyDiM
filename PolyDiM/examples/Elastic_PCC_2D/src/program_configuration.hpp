@@ -25,8 +25,8 @@ struct Program_configuration final
     {
         Gedim::Configurations::AddProperty("TestType",
                                            static_cast<unsigned int>(Polydim::examples::Elastic_PCC_2D::test::Test_Types::Patch_Test),
-                                           "Test Type 1 - Patch_Test; 2 - LinearElasticity; 3 - LinearElasticity_Beam"
-                                           "(Default: 1)");
+                                           "Test Type 1 - Patch_Test; 2 - LinearElasticity; 3 - LinearElasticity_Beam; "
+                                           "4 - LinearElasticity_CooksMembrane (Default: 1)");
         // Export parameters
         Gedim::Configurations::AddProperty("ExportFolder", "./Run", "Folder where to export data (Default: ./Export)");
         // Mesh parameters
@@ -46,8 +46,7 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty("MethodType",
                                            static_cast<unsigned int>(MethodTypes::FEM_Triangle_PCC),
                                            "Method Type, 0 - FEM_Triangle, 1 - EVem; 2 - EVem_Inertia; 3 - EVem_Ortho "
-                                           "(Default: "
-                                           "0)");
+                                           "(Default: 0)");
         Gedim::Configurations::AddProperty("MethodOrder", static_cast<unsigned int>(1), "Method order (Default: 1)");
         Gedim::Configurations::AddProperty("ComputeMethodPerformance", true, "Compute Method Performance (Default: false)");
     }

@@ -27,7 +27,7 @@ struct Program_configuration final
     {
         Gedim::Configurations::AddProperty("TestType",
                                            static_cast<unsigned int>(Polydim::examples::Elliptic_MCC_2D::test::Test_Types::Patch_Test),
-                                           "Test Type 1 - Patch_Test; 2 - Poisson_Polynomial_Problem "
+                                           "Test Type 1 - Patch_Test; 2 - Poisson_Problem "
                                            "(Default: 1)");
 
         // Export parameters

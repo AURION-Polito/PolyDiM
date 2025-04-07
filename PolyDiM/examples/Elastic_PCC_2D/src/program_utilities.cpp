@@ -22,6 +22,8 @@ std::unique_ptr<Polydim::examples::Elastic_PCC_2D::test::I_Test> create_test(con
         return std::make_unique<Polydim::examples::Elastic_PCC_2D::test::LinearElasticity>();
     case Polydim::examples::Elastic_PCC_2D::test::Test_Types::LinearElasticity_Beam:
         return std::make_unique<Polydim::examples::Elastic_PCC_2D::test::LinearElasticity_Beam>();
+    case Polydim::examples::Elastic_PCC_2D::test::Test_Types::LinearElasticity_CooksMembrane:
+        return std::make_unique<Polydim::examples::Elastic_PCC_2D::test::LinearElasticity_CooksMembrane>();
     default:
         throw std::runtime_error("Test type " + std::to_string((unsigned int)config.TestType()) + " not supported");
     }
@@ -166,6 +168,7 @@ void export_solution(const Polydim::examples::Elastic_PCC_2D::Program_configurat
         errorFile.close();
     }
 
+    if (!std::isnan(post_process_data.cell0Ds_exact_displacement[0](0)))
     {
         Eigen::MatrixXd coordinates = mesh.Cell0DsCoordinates();
         for (unsigned int d = 0; d < 2; d++)
