@@ -5,7 +5,6 @@
 #include "DOFsManager.hpp"
 #include "PDE_Mesh_Utilities.hpp"
 #include <numbers>
-#include <unordered_map>
 
 namespace Polydim
 {
@@ -22,8 +21,10 @@ enum struct Test_Types
     StokesSinSin = 2,          /// Test 6.1 - Da Veiga Lovadina 2017
     Stokes_ZeroVelocity_1 = 3, /// Test 5.1 (a) - Da Veiga Lovadina 2018
     Stokes_ZeroVelocity_2 = 4, /// Test 5.1 (b) - Da Veiga Lovadina 2018
-    Darcy = 5,                 /// Test 6.1 - Vacca 2018
-    Brinkman = 6               /// Test 6.2 - Vacca 2018
+    Darcy = 5,   /// Test 6.1 - Vacca 2018 "An H 1-conforming Virtual Element Methods for Darcy equations and Brinkman
+                 /// equations"
+    Brinkman = 6 /// Test 6.2 - Vacca 2018 "An H 1-conforming Virtual Element Methods for Darcy equations and Brinkman
+                 /// equations"
 };
 // ***************************************************************************
 struct I_Test

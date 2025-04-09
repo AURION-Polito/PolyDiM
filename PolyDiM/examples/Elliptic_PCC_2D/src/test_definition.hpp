@@ -16,10 +16,10 @@ enum struct Test_Types
 {
     Patch_Test = 1,
     Elliptic_Polynomial_Problem = 2, /// Test 1: S. Berrone, G. Teora, F. Vicini, "Improving high-order VEM stability on
-                                     /// badly-shaped elements", doi: https://doi.org/10.1016/j.matcom.2023.10.003.
+    /// badly-shaped elements", doi: https://doi.org/10.1016/j.matcom.2023.10.003.
     SUPG_AdvDiff_Problem = 3 /// Test 1: M. Benedetto, S. Berrone, A. Borio, S. Pieraccini, S. Scialò, "Order preserving
-                             /// SUPG stabilization for the Virtual Element formulation of advection-diffusion
-                             /// problems", doi: https://doi.org/10.1016/j.cma.2016.07.043.
+    /// SUPG stabilization for the Virtual Element formulation of advection-diffusion
+    /// problems", doi: https://doi.org/10.1016/j.cma.2016.07.043.
 };
 
 struct I_Test
@@ -59,11 +59,11 @@ struct Patch_Test final : public I_Test
         return {{0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
                 {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
                 {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
+                {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 4}},
                 {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
     }
 
@@ -74,8 +74,8 @@ struct Patch_Test final : public I_Test
 
     std::array<Eigen::VectorXd, 3> advection_term(const Eigen::MatrixXd &points) const
     {
-        return {Eigen::VectorXd::Constant(points.cols(), 1.0),
-                Eigen::VectorXd::Constant(points.cols(), -1.0),
+        return {Eigen::VectorXd::Constant(points.cols(), 0.0),
+                Eigen::VectorXd::Constant(points.cols(), 0.0),
                 Eigen::VectorXd::Constant(points.cols(), 0.0)};
     };
 
@@ -107,6 +107,26 @@ struct Patch_Test final : public I_Test
 
     Eigen::VectorXd weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
+
+        Eigen::VectorXd derivatives = Eigen::VectorXd::Constant(points.cols(), 1.0);
+        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+
+        const int max_order = order - 1;
+        for (int i = 0; i < max_order; ++i)
+            derivatives.array() *= polynomial;
+
+        std::array<Eigen::VectorXd, 3> der = {derivatives, derivatives, Eigen::VectorXd::Zero(points.cols())};
+
+        switch (marker)
+        {
+        case 2:
+            return order * derivatives.array();
+        case 4:
+            return order * derivatives.array();
+        default:
+            throw std::runtime_error("not valid marker");
+        }
+
         throw std::runtime_error("Not supported");
     }
 

@@ -6,7 +6,6 @@
 #include "PDE_Mesh_Utilities.hpp"
 
 #include <numbers>
-#include <unordered_map>
 
 namespace Polydim
 {
@@ -20,9 +19,13 @@ namespace test
 enum struct Test_Types
 {
     Patch_Test = 1,
-    StokesSinSin = 2,                      /// Test 6.1 - Da Veiga Lovadina 2017
-    NavierStokes = 3,                      /// Test 5.3 - Da Veiga Lovadina 2018
-    NavierStokes_VanishingExternalLoad = 4 /// Test 5.2 - Da Veiga Lovadina 2018
+    StokesSinSin = 2, /// Test 6.1 - Da Veiga, Lovadina, Vacca, "DIVERGENCE FREE VIRTUAL ELEMENTS FOR THE STOKES PROBLEM
+                      /// ON POLYGONAL MESHES", 2017, doi: 10.1051/m2an/2016032
+    NavierStokes = 3, /// Test 5.3 - Da Veiga, Lovadina, Vacca, "VIRTUAL ELEMENTS FOR THE NAVIER--STOKES PROBLEM ON
+                      /// POLYGONAL MESHES", 2018, doi: 10.1137/17M1132811
+    NavierStokes_VanishingExternalLoad = 4 /// Test 5.2 - Da Veiga, Lovadina, Vacca, "VIRTUAL ELEMENTS FOR THE
+                                           /// NAVIER--STOKES PROBLEM ON POLYGONAL MESHES", 2018,
+                                           /// doi: 10.1137/17M1132811
 };
 // ***************************************************************************
 struct I_Test

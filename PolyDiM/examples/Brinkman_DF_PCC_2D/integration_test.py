@@ -94,10 +94,10 @@ def import_discrepancy_errors(export_path, vem_type, vem_order, test_type):
         for col in data:
             errors_row = []
             if counter == 0:
-                errors_row.append(col[6])
-                errors_row.append(col[7])
-                errors_row.append(col[8])
-                errors_row.append(col[9])
+                errors_row.append(col[6]) # discrepancy h1 velocity
+                errors_row.append(col[7]) # discrepancy l2 pressure
+                errors_row.append(col[8]) # norm h1 full velocity
+                errors_row.append(col[9]) # norm l2 full pressure
             else:
                 errors_row.append(float(col[6]))
                 errors_row.append(float(col[7]))
@@ -459,7 +459,7 @@ if __name__ == "__main__":
 
     test_type = 6
     mesh_generator = 2
-    mesh_max_areas = [0.01, 0.005]
+    mesh_max_areas = [0.005, 0.001]
     vem_types = [1]
     for vem_type in vem_types:
         for vem_order in vem_orders:

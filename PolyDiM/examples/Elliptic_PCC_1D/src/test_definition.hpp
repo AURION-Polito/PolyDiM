@@ -5,8 +5,6 @@
 #include "PDE_Mesh_Utilities.hpp"
 
 #include <numbers>
-#include <typeindex>
-#include <unordered_map>
 
 namespace Polydim
 {
