@@ -25,7 +25,8 @@ enum struct Test_Types
     /// equations"
     Brinkman = 6, /// Test 6.2 - Vacca 2018 "An H 1-conforming Virtual Element Methods for Darcy equations and Brinkman
     /// equations"
-    DarcyStokes = 7 /// Test 5.6 - Da Veiga, Lovadina, Vacca, "VIRTUAL ELEMENTS FOR THE NAVIER--STOKES PROBLEM ON
+    DarcyStokes_1 = 7,
+    DarcyStokes_2 = 8 /// Test 5.6 - Da Veiga, Lovadina, Vacca, "VIRTUAL ELEMENTS FOR THE NAVIER--STOKES PROBLEM ON
     /// POLYGONAL MESHES", 2018, doi: 10.1137/17M1132811
 };
 // ***************************************************************************
@@ -855,7 +856,294 @@ struct Brinkman final : public I_Test
     }
 };
 // ***************************************************************************
-struct DarcyStokes final : public I_Test
+struct DarcyStokes_1 final : public I_Test
+{
+    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain() const
+    {
+        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain;
+
+        domain.area = 4.0;
+
+        domain.vertices = Eigen::MatrixXd::Zero(3, 4);
+        domain.vertices.row(0) << 0.0, 2.0, 2.0, 0.0;
+        domain.vertices.row(1) << 0.0, 0.0, 2.0, 2.0;
+
+        domain.shape_type = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types::Parallelogram;
+
+        return domain;
+    }
+
+    std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 4> boundary_info() const
+    {
+        std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result1 = {
+                                                                                                            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                                                                                                            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                                                                                                            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
+                                                                                                            {9, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {10, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 12}},
+                                                                                                            {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                                                                                                            {12, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 4}},
+                                                                                                            {13, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 6}},
+                                                                                                            {14, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {15, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 8}},
+                                                                                                            {16, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 10}}};
+
+        std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result2 = {
+                                                                                                            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+                                                                                                            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+                                                                                                            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+                                                                                                            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+                                                                                                            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+                                                                                                            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+                                                                                                            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+                                                                                                            {9, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {10, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+                                                                                                            {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 14}},
+                                                                                                            {12, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+                                                                                                            {13, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 16}},
+                                                                                                            {14, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {15, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 18}},
+                                                                                                            {16, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}}};
+
+        std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> resultI = {
+                                                                                                            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {9, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {10, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {12, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {13, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {14, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {15, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                                                                                                            {16, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
+
+        return {result1, result2, resultI, resultI};
+    }
+
+    std::array<Eigen::VectorXd, 9> inverse_diffusion_term(const Eigen::MatrixXd &points) const
+    {
+        if (points(0, 0) < 1.0 - 1.0e-12)
+            return {Eigen::VectorXd::Constant(points.cols(), 0.0),
+                    Eigen::VectorXd::Constant(points.cols(), 0.0),
+                    Eigen::VectorXd::Zero(points.cols()),
+                    Eigen::VectorXd::Constant(points.cols(), 0.0),
+                    Eigen::VectorXd::Constant(points.cols(), 0.0),
+                    Eigen::VectorXd::Zero(points.cols()),
+                    Eigen::VectorXd::Zero(points.cols()),
+                    Eigen::VectorXd::Zero(points.cols()),
+                    Eigen::VectorXd::Constant(points.cols(), 0.0)};
+        else if (points(1, 0) > 1.0 + 1.0e-12)
+            return {Eigen::VectorXd::Constant(points.cols(), 10.0),
+                    Eigen::VectorXd::Constant(points.cols(), 0.0),
+                    Eigen::VectorXd::Zero(points.cols()),
+                    Eigen::VectorXd::Constant(points.cols(), 0.0),
+                    Eigen::VectorXd::Constant(points.cols(), 10.0),
+                    Eigen::VectorXd::Zero(points.cols()),
+                    Eigen::VectorXd::Zero(points.cols()),
+                    Eigen::VectorXd::Zero(points.cols()),
+                    Eigen::VectorXd::Constant(points.cols(), 0.0)};
+        else if (points(1, 0) < 1.0 - 1.0e-12)
+            return {Eigen::VectorXd::Constant(points.cols(), 2.0),
+                    Eigen::VectorXd::Constant(points.cols(), 0.0),
+                    Eigen::VectorXd::Zero(points.cols()),
+                    Eigen::VectorXd::Constant(points.cols(), 0.0),
+                    Eigen::VectorXd::Constant(points.cols(), 2.0),
+                    Eigen::VectorXd::Zero(points.cols()),
+                    Eigen::VectorXd::Zero(points.cols()),
+                    Eigen::VectorXd::Zero(points.cols()),
+                    Eigen::VectorXd::Constant(points.cols(), 0.0)};
+        else
+            throw std::runtime_error("not valid configuration");
+    };
+
+    Eigen::VectorXd fluid_viscosity(const Eigen::MatrixXd &points) const
+    {
+        if (points(0, 0) < 1.0 - 1.0e-12)
+            return Eigen::VectorXd::Constant(points.cols(), 2.0);
+        else if (points(0, 0) > 1.0 + 1.0e-12)
+            return Eigen::VectorXd::Constant(points.cols(), 0.0);
+        else
+            throw std::runtime_error("not valid configuration");
+    };
+
+    std::array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd &points) const
+    {
+        const Eigen::ArrayXd x = points.row(0).array();
+        const Eigen::ArrayXd y = points.row(1).array();
+        const Eigen::ArrayXd polynomial = x + y;
+
+        if (points(0, 0) < 1.0 - 1.0e-12)
+            return {Eigen::VectorXd::Ones(points.cols()),
+                    Eigen::VectorXd::Ones(points.cols()),
+                    Eigen::VectorXd::Zero(points.cols())};
+        else if (points(1, 0) > 1.0 + 1.0e-12)
+            return {Eigen::ArrayXd::Ones(points.cols()) + 10.0 * (1.0 - x),
+                    Eigen::ArrayXd::Ones(points.cols()) + 10.0 * y,
+                    Eigen::VectorXd::Zero(points.cols())};
+        else if (points(1, 0) < 1.0 - 1.0e-12)
+            return {Eigen::ArrayXd::Ones(points.cols()) + 2.0 * (1.0 - x),
+                    Eigen::ArrayXd::Ones(points.cols()) + 2.0 * y,
+                    Eigen::VectorXd::Zero(points.cols())};
+        else
+            throw std::runtime_error("not valid configuration");
+    };
+
+    Eigen::VectorXd divergence_term(const Eigen::MatrixXd &points) const
+    {
+        return Eigen::VectorXd::Zero(points.cols());
+    };
+
+    std::array<Eigen::VectorXd, 3> strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
+    {
+
+        switch (marker)
+        {
+        case 1:
+        {
+            std::array<Eigen::VectorXd, 3> result;
+            result[0] = exact_velocity(points)[0];
+            return result;
+        }
+        case 3:
+        {
+            std::array<Eigen::VectorXd, 3> result;
+            result[1] = exact_velocity(points)[1];
+            return result;
+        }
+        default:
+            throw std::runtime_error("Unknown marker");
+        }
+
+    }
+
+    std::array<Eigen::VectorXd, 3> weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
+    {
+        const Eigen::ArrayXd x = points.row(0).array();
+        const Eigen::ArrayXd y = points.row(1).array();
+        const Eigen::ArrayXd polynomial = x + y;
+
+        switch (marker)
+        {
+        case 2: // co-normal derivatives on the right
+        {
+            std::array<Eigen::VectorXd, 3> result;
+            result[0] = Eigen::VectorXd::Zero(points.cols());
+            return result;
+        }
+        case 4: // co-normal derivatives on the right
+        {
+            std::array<Eigen::VectorXd, 3> result;
+            result[0] = Eigen::VectorXd::Zero(points.cols());
+            return result;
+        }
+        case 6: // co-normal derivatives on the right
+        {
+            std::array<Eigen::VectorXd, 3> result;
+            result[0] = polynomial;
+            return result;
+        }
+        case 8: // co-normal derivatives on the right
+        {
+            std::array<Eigen::VectorXd, 3> result;
+            result[0] = polynomial;
+            return result;
+        }
+        case 10: // co-normal derivatives on the right
+        {
+            std::array<Eigen::VectorXd, 3> result;
+            result[0] = Eigen::VectorXd::Zero(points.cols());
+            return result;
+        }
+        case 12: // co-normal derivatives on the right
+        {
+            std::array<Eigen::VectorXd, 3> result;
+            result[0] = Eigen::VectorXd::Zero(points.cols());
+            return result;
+        }
+        case 14: // co-normal derivatives on the right
+        {
+            std::array<Eigen::VectorXd, 3> result;
+            result[1] = Eigen::VectorXd::Zero(points.cols());
+            return result;
+        }
+        case 16: // co-normal derivatives on the right
+        {
+            std::array<Eigen::VectorXd, 3> result;
+            result[1] = Eigen::VectorXd::Zero(points.cols());
+            return result;
+        }
+        case 18: // co-normal derivatives on the right
+        {
+            std::array<Eigen::VectorXd, 3> result;
+            result[1] = Eigen::VectorXd::Zero(points.cols());
+            return result;
+        }
+        default:
+            throw std::runtime_error("Unknown marker");
+        }
+    }
+
+    Eigen::VectorXd exact_pressure(const Eigen::MatrixXd &points) const
+    {
+        const Eigen::ArrayXd x = points.row(0).array();
+        const Eigen::ArrayXd y = points.row(1).array();
+        const Eigen::ArrayXd polynomial = x + y;
+
+        bool left = false;
+        for(unsigned int p = 0; p < points.cols(); p++)
+        {
+            if (points(0, p) < 1.0 - 1.0e-12)
+            {
+                left = true;
+                break;
+            }
+        }
+
+        if (left)
+            return polynomial - 2.0;
+        else
+            return polynomial;
+    };
+
+    std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd &points) const
+    {
+        const Eigen::ArrayXd x = points.row(0).array();
+        const Eigen::ArrayXd y = points.row(1).array();
+
+        return {1.0 - x, y, Eigen::VectorXd::Zero(points.cols())};
+
+    }
+
+    std::array<Eigen::VectorXd, 9> exact_derivatives_velocity(const Eigen::MatrixXd &points) const
+    {
+        return {-Eigen::VectorXd::Ones(points.cols()),
+                Eigen::VectorXd::Zero(points.cols()),
+                Eigen::VectorXd::Zero(points.cols()),
+                Eigen::VectorXd::Zero(points.cols()),
+                Eigen::VectorXd::Ones(points.cols()),
+                Eigen::VectorXd::Zero(points.cols()),
+                Eigen::VectorXd::Zero(points.cols()),
+                Eigen::VectorXd::Zero(points.cols()),
+                Eigen::VectorXd::Zero(points.cols())};
+    }
+};
+// ***************************************************************************
+struct DarcyStokes_2 final : public I_Test
 {
     Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain() const
     {

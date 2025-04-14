@@ -27,8 +27,10 @@ std::unique_ptr<Polydim::examples::Brinkman_DF_PCC_2D::test::I_Test> create_test
         return std::make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::Darcy>();
     case Polydim::examples::Brinkman_DF_PCC_2D::test::Test_Types::Brinkman:
         return std::make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::Brinkman>();
-    case Polydim::examples::Brinkman_DF_PCC_2D::test::Test_Types::DarcyStokes:
-        return std::make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::DarcyStokes>();
+    case Polydim::examples::Brinkman_DF_PCC_2D::test::Test_Types::DarcyStokes_1:
+        return std::make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::DarcyStokes_1>();
+    case Polydim::examples::Brinkman_DF_PCC_2D::test::Test_Types::DarcyStokes_2:
+        return std::make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::DarcyStokes_2>();
     default:
         throw std::runtime_error("Test type " + std::to_string((unsigned int)config.TestType()) + " not supported");
     }
@@ -171,6 +173,23 @@ void export_solution(const Polydim::examples::Brinkman_DF_PCC_2D::Program_config
         errorFile << std::scientific << post_process_data.residual_norm << std::endl;
 
         errorFile.close();
+    }
+
+    {
+        const char separator = ';';
+        const std::string fluxFileName = exportSolutionFolder + "/Flux_" + std::to_string(TEST_ID) + "_" +
+                                          std::to_string(VEM_ID) + +"_" + std::to_string(config.VemOrder()) + ".csv";
+
+        std::ofstream fluxFile(fluxFileName, std::ios_base::out);
+
+        fluxFile << "EdgeMarker" << separator;
+        fluxFile << "Flux" << std::endl;
+
+        fluxFile.precision(16);
+        for(const auto &f : post_process_data.flux)
+            fluxFile << std::scientific << f.first << separator << f.second << std::endl;;
+
+        fluxFile.close();
     }
 
     {

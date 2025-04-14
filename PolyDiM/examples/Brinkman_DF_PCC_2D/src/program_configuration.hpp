@@ -19,7 +19,7 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty("TestType",
                                            static_cast<unsigned int>(Polydim::examples::Brinkman_DF_PCC_2D::test::Test_Types::Patch_Test),
                                            "Test Type: 1 - Patch_Test; 2 - StokesSinSin; 3 - Stokes_ZeroVelocity_1; 4 "
-                                           "- Stokes_ZeroVelocity_2; 5 - Darcy; 6 - Brinkman; 6 - DarcyStokes "
+                                           "- Stokes_ZeroVelocity_2; 5 - Darcy; 6 - Brinkman; 7 - DarcyStokes_1; 8 - DarcyStokes_2 "
                                            "(Default: 1)");
 
         // Export parameters
