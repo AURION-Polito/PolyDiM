@@ -20,7 +20,7 @@ namespace Brinkman_DF_PCC_2D
 {
 class Assembler final
 {
-  public:
+public:
     struct Stokes_DF_PCC_2D_Problem_Data final
     {
         Gedim::Eigen_SparseArray<> globalMatrixA;
@@ -75,6 +75,7 @@ class Assembler final
         double mesh_size;
 
         double residual_norm;
+        std::map<unsigned int, double> flux;
 
         Eigen::VectorXd inverse_diffusion_coeff_values;
         Eigen::VectorXd viscosity_values;
@@ -97,7 +98,7 @@ class Assembler final
         double velocity_dofs_ratio;
     };
 
-  private:
+private:
     void ComputeStrongTerm(const Gedim::MeshMatricesDAO &mesh,
                            const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                            const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
@@ -118,7 +119,16 @@ class Assembler final
                          const Polydim::examples::Brinkman_DF_PCC_2D::test::I_Test &test,
                          Stokes_DF_PCC_2D_Problem_Data &assembler_data) const;
 
-  public:
+    std::map<unsigned int, double> ComputeFlux(const Program_configuration &config, const Gedim::MeshMatricesDAO &mesh,
+                                               const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                               const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                                               const Polydim::PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
+                                               const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+                                               const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_local_space,
+                                               const Polydim::examples::Brinkman_DF_PCC_2D::test::I_Test &test,
+                                               const Stokes_DF_PCC_2D_Problem_Data &assembler_data) const;
+
+public:
     Stokes_DF_PCC_2D_Problem_Data Assemble(
         const Polydim::examples::Brinkman_DF_PCC_2D::Program_configuration &config,
         const Gedim::MeshMatricesDAO &mesh,
