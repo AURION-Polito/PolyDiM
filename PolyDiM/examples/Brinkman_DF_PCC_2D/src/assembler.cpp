@@ -738,8 +738,8 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
         const Eigen::MatrixXd pressure_basis_functions_vertices_values =
             vem_pressure_local_space.ComputeBasisFunctionsValues(pressure_reference_element_data, pressure_local_space, mesh_geometric_data.Cell2DsVertices.at(c));
         result.repeated_vertices_coordinates.middleCols(num_repetead_points, num_cell_vertices) = mesh_geometric_data.Cell2DsVertices.at(c);
-        result.cell0Ds_exact_pressure.segment(num_repetead_points, num_cell_vertices) = pressure_basis_functions_vertices_values * pressure_dofs_values;
-        result.cell0Ds_numeric_pressure.segment(num_repetead_points, num_cell_vertices) = test.exact_pressure(mesh_geometric_data.Cell2DsVertices.at(c));
+        result.cell0Ds_numeric_pressure.segment(num_repetead_points, num_cell_vertices) = pressure_basis_functions_vertices_values * pressure_dofs_values;
+        result.cell0Ds_exact_pressure.segment(num_repetead_points, num_cell_vertices) = test.exact_pressure(mesh_geometric_data.Cell2DsVertices.at(c));
         num_repetead_points += num_cell_vertices;
 
         const VectorXd numeric_pressure_values = pressure_basis_functions_values * pressure_dofs_values;
