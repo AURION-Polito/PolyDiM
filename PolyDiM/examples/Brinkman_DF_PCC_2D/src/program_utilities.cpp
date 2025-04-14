@@ -178,7 +178,7 @@ void export_solution(const Polydim::examples::Brinkman_DF_PCC_2D::Program_config
     {
         const char separator = ';';
         const std::string fluxFileName = exportSolutionFolder + "/Flux_" + std::to_string(TEST_ID) + "_" +
-                                          std::to_string(VEM_ID) + +"_" + std::to_string(config.VemOrder()) + ".csv";
+                                         std::to_string(VEM_ID) + +"_" + std::to_string(config.VemOrder()) + ".csv";
 
         std::ofstream fluxFile(fluxFileName, std::ios_base::out);
 
@@ -192,6 +192,7 @@ void export_solution(const Polydim::examples::Brinkman_DF_PCC_2D::Program_config
         fluxFile.close();
     }
 
+    if (!std::isnan(post_process_data.cell0Ds_exact_velocity[0](0)))
     {
         {
             Gedim::VTKUtilities exporter;
@@ -234,18 +235,58 @@ void export_solution(const Polydim::examples::Brinkman_DF_PCC_2D::Program_config
             Gedim::VTKUtilities exporter;
             exporter.AddPolygons(post_process_data.repeated_vertices_coordinates,
                                  post_process_data.repeated_connectivity,
-                                 {{"Exact Pressure",
-                                   Gedim::VTPProperty::Formats::Points,
-                                   static_cast<unsigned int>(post_process_data.cell0Ds_exact_pressure.size()),
-                                   post_process_data.cell0Ds_exact_pressure.data()},
-                                  {"Numeric Pressure",
+                                 {{"Numeric Pressure",
                                    Gedim::VTPProperty::Formats::Points,
                                    static_cast<unsigned int>(post_process_data.cell0Ds_numeric_pressure.size()),
                                    post_process_data.cell0Ds_numeric_pressure.data()},
+                                  {"Exact Pressure",
+                                   Gedim::VTPProperty::Formats::Points,
+                                   static_cast<unsigned int>(post_process_data.cell0Ds_exact_pressure.size()),
+                                   post_process_data.cell0Ds_exact_pressure.data()},
                                   {"ErrorL2Pressure",
                                    Gedim::VTPProperty::Formats::Cells,
                                    static_cast<unsigned int>(post_process_data.cell2Ds_error_L2_pressure.size()),
                                    post_process_data.cell2Ds_error_L2_pressure.data()}});
+
+            exporter.Export(exportVtuFolder + "/Pressure_" + std::to_string(TEST_ID) + "_" + std::to_string(VEM_ID) +
+                            +"_" + std::to_string(config.VemOrder()) + ".vtu");
+        }
+    }
+    else
+    {
+        {
+            Gedim::VTKUtilities exporter;
+            exporter.AddPolygons(mesh.Cell0DsCoordinates(),
+                                 mesh.Cell2DsVertices(),
+                                 {{"Numeric Velocity - X",
+                                   Gedim::VTPProperty::Formats::Points,
+                                   static_cast<unsigned int>(post_process_data.cell0Ds_numeric_velocity[0].size()),
+                                   post_process_data.cell0Ds_numeric_velocity[0].data()},
+                                  {"Numeric Velocity - Y",
+                                   Gedim::VTPProperty::Formats::Points,
+                                   static_cast<unsigned int>(post_process_data.cell0Ds_numeric_velocity[1].size()),
+                                   post_process_data.cell0Ds_numeric_velocity[1].data()},
+                                  {"Permeability",
+                                   Gedim::VTPProperty::Formats::Cells,
+                                   static_cast<unsigned int>(post_process_data.inverse_diffusion_coeff_values.size()),
+                                   post_process_data.inverse_diffusion_coeff_values.data()},
+                                  {"Viscosity",
+                                   Gedim::VTPProperty::Formats::Cells,
+                                   static_cast<unsigned int>(post_process_data.viscosity_values.size()),
+                                   post_process_data.viscosity_values.data()}});
+
+            exporter.Export(exportVtuFolder + "/Velocity_" + std::to_string(TEST_ID) + "_" + std::to_string(VEM_ID) +
+                            +"_" + std::to_string(config.VemOrder()) + ".vtu");
+        }
+
+        {
+            Gedim::VTKUtilities exporter;
+            exporter.AddPolygons(post_process_data.repeated_vertices_coordinates,
+                                 post_process_data.repeated_connectivity,
+                                 {{"Numeric Pressure",
+                                   Gedim::VTPProperty::Formats::Points,
+                                   static_cast<unsigned int>(post_process_data.cell0Ds_numeric_pressure.size()),
+                                   post_process_data.cell0Ds_numeric_pressure.data()}});
 
             exporter.Export(exportVtuFolder + "/Pressure_" + std::to_string(TEST_ID) + "_" + std::to_string(VEM_ID) +
                             +"_" + std::to_string(config.VemOrder()) + ".vtu");

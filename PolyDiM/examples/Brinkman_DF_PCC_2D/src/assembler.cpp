@@ -623,10 +623,18 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
 
     for (unsigned int p = 0; p < mesh.Cell0DTotalNumber(); p++)
     {
-        const auto exact_velocity = test.exact_velocity(mesh.Cell0DCoordinates(p));
+        try
+        {
+            const auto exact_velocity = test.exact_velocity(mesh.Cell0DCoordinates(p));
 
-        for (unsigned int d = 0; d < velocity_reference_element_data.Dimension; d++)
-            result.cell0Ds_exact_velocity[d](p) = exact_velocity[d](0);
+            for (unsigned int d = 0; d < velocity_reference_element_data.Dimension; d++)
+                result.cell0Ds_exact_velocity[d](p) = exact_velocity[d](0);
+        }
+        catch(...)
+        {
+            for (unsigned int d = 0; d < velocity_reference_element_data.Dimension; d++)
+                result.cell0Ds_exact_velocity[d](p) = std::nan("");
+        }
 
         for (unsigned int d = 0; d < velocity_reference_element_data.Dimension; d++)
         {
@@ -665,7 +673,7 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
         }
     }
     result.repeated_vertices_coordinates = Eigen::MatrixXd::Zero(3, num_repetead_points);
-    result.cell0Ds_exact_pressure = Eigen::VectorXd::Zero(num_repetead_points);
+    result.cell0Ds_exact_pressure = Eigen::VectorXd::Constant(num_repetead_points, std::nan(""));
     result.cell0Ds_numeric_pressure = Eigen::VectorXd::Zero(num_repetead_points);
 
     result.cell2Ds_error_L2_pressure.setZero(mesh.Cell2DTotalNumber());
@@ -748,41 +756,71 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
             vem_pressure_local_space.ComputeBasisFunctionsValues(pressure_reference_element_data, pressure_local_space, mesh_geometric_data.Cell2DsVertices.at(c));
         result.repeated_vertices_coordinates.middleCols(num_repetead_points, num_cell_vertices) = mesh_geometric_data.Cell2DsVertices.at(c);
         result.cell0Ds_numeric_pressure.segment(num_repetead_points, num_cell_vertices) = pressure_basis_functions_vertices_values * pressure_dofs_values;
-        result.cell0Ds_exact_pressure.segment(num_repetead_points, num_cell_vertices) = test.exact_pressure(mesh_geometric_data.Cell2DsVertices.at(c));
+
+        try {
+                    result.cell0Ds_exact_pressure.segment(num_repetead_points, num_cell_vertices) = test.exact_pressure(mesh_geometric_data.Cell2DsVertices.at(c));
+        } catch (...) {
+        }
+
         num_repetead_points += num_cell_vertices;
 
         const VectorXd numeric_pressure_values = pressure_basis_functions_values * pressure_dofs_values;
-        const VectorXd exact_pressure_values = test.exact_pressure(velocity_local_space.InternalQuadrature.Points);
-        const auto exact_velocity_derivatives_values =
-            test.exact_derivatives_velocity(velocity_local_space.InternalQuadrature.Points);
 
-        const Eigen::VectorXd local_error_L2_pressure = (numeric_pressure_values - exact_pressure_values).array().square();
-        const Eigen::VectorXd local_norm_L2_pressure = (numeric_pressure_values).array().square();
+        try {
+            const VectorXd exact_pressure_values = test.exact_pressure(velocity_local_space.InternalQuadrature.Points);
+            const auto exact_velocity_derivatives_values =
+                test.exact_derivatives_velocity(velocity_local_space.InternalQuadrature.Points);
 
-        result.cell2Ds_error_L2_pressure[c] = velocity_local_space.InternalQuadrature.Weights.transpose() * local_error_L2_pressure;
-        result.cell2Ds_norm_L2_pressure[c] = velocity_local_space.InternalQuadrature.Weights.transpose() * local_norm_L2_pressure;
+            const Eigen::VectorXd local_error_L2_pressure = (numeric_pressure_values - exact_pressure_values).array().square();
+            const Eigen::VectorXd local_norm_L2_pressure = (numeric_pressure_values).array().square();
 
-        const unsigned int numQuadraturePoints = velocity_local_space.InternalQuadrature.Points.cols();
-        Eigen::VectorXd local_error_H1_velocity = Eigen::VectorXd::Zero(numQuadraturePoints);
-        Eigen::VectorXd local_norm_H1_velocity = Eigen::VectorXd::Zero(numQuadraturePoints);
-        for (unsigned int d1 = 0; d1 < velocity_local_space.Dimension; d1++)
-        {
-            for (unsigned int d2 = 0; d2 < velocity_local_space.Dimension; d2++)
+            result.cell2Ds_error_L2_pressure[c] = velocity_local_space.InternalQuadrature.Weights.transpose() * local_error_L2_pressure;
+            result.cell2Ds_norm_L2_pressure[c] = velocity_local_space.InternalQuadrature.Weights.transpose() * local_norm_L2_pressure;
+
+            const unsigned int numQuadraturePoints = velocity_local_space.InternalQuadrature.Points.cols();
+            Eigen::VectorXd local_error_H1_velocity = Eigen::VectorXd::Zero(numQuadraturePoints);
+            Eigen::VectorXd local_norm_H1_velocity = Eigen::VectorXd::Zero(numQuadraturePoints);
+            for (unsigned int d1 = 0; d1 < velocity_local_space.Dimension; d1++)
             {
-                local_error_H1_velocity.array() +=
-                    (velocity_basis_functions_derivatives_values[velocity_local_space.Dimension * d1 + d2] * velocity_dofs_values -
-                     exact_velocity_derivatives_values[3 * d1 + d2])
-                        .array()
-                        .square();
+                for (unsigned int d2 = 0; d2 < velocity_local_space.Dimension; d2++)
+                {
+                    local_error_H1_velocity.array() +=
+                        (velocity_basis_functions_derivatives_values[velocity_local_space.Dimension * d1 + d2] * velocity_dofs_values -
+                         exact_velocity_derivatives_values[3 * d1 + d2])
+                            .array()
+                            .square();
 
-                local_norm_H1_velocity.array() +=
-                    (velocity_basis_functions_derivatives_values[velocity_local_space.Dimension * d1 + d2] * velocity_dofs_values)
-                        .array()
-                        .square();
+                    local_norm_H1_velocity.array() +=
+                        (velocity_basis_functions_derivatives_values[velocity_local_space.Dimension * d1 + d2] * velocity_dofs_values)
+                            .array()
+                            .square();
+                }
             }
+            result.cell2Ds_error_H1_velocity[c] = velocity_local_space.InternalQuadrature.Weights.transpose() * local_error_H1_velocity;
+            result.cell2Ds_norm_H1_velocity[c] = velocity_local_space.InternalQuadrature.Weights.transpose() * local_norm_H1_velocity;
         }
-        result.cell2Ds_error_H1_velocity[c] = velocity_local_space.InternalQuadrature.Weights.transpose() * local_error_H1_velocity;
-        result.cell2Ds_norm_H1_velocity[c] = velocity_local_space.InternalQuadrature.Weights.transpose() * local_norm_H1_velocity;
+        catch (...)
+        {
+            const Eigen::VectorXd local_norm_L2_pressure = (numeric_pressure_values).array().square();
+            result.cell2Ds_norm_L2_pressure[c] = velocity_local_space.InternalQuadrature.Weights.transpose() * local_norm_L2_pressure;
+
+            const unsigned int numQuadraturePoints = velocity_local_space.InternalQuadrature.Points.cols();
+            Eigen::VectorXd local_norm_H1_velocity = Eigen::VectorXd::Zero(numQuadraturePoints);
+            for (unsigned int d1 = 0; d1 < velocity_local_space.Dimension; d1++)
+            {
+                for (unsigned int d2 = 0; d2 < velocity_local_space.Dimension; d2++)
+                {
+                    local_norm_H1_velocity.array() +=
+                        (velocity_basis_functions_derivatives_values[velocity_local_space.Dimension * d1 + d2] * velocity_dofs_values)
+                            .array()
+                            .square();
+                }
+            }
+            result.cell2Ds_norm_H1_velocity[c] = velocity_local_space.InternalQuadrature.Weights.transpose() * local_norm_H1_velocity;
+        }
+
+
+
 
         if (mesh_geometric_data.Cell2DsDiameters.at(c) > result.mesh_size)
             result.mesh_size = mesh_geometric_data.Cell2DsDiameters.at(c);

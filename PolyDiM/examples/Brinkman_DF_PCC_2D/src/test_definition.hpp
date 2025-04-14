@@ -1039,55 +1039,55 @@ struct DarcyStokes_1 final : public I_Test
 
         switch (marker)
         {
-        case 2: // co-normal derivatives on the right
+        case 2:
         {
             std::array<Eigen::VectorXd, 3> result;
             result[0] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 4: // co-normal derivatives on the right
+        case 4:
         {
             std::array<Eigen::VectorXd, 3> result;
             result[0] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 6: // co-normal derivatives on the right
+        case 6:
         {
             std::array<Eigen::VectorXd, 3> result;
             result[0] = polynomial;
             return result;
         }
-        case 8: // co-normal derivatives on the right
+        case 8:
         {
             std::array<Eigen::VectorXd, 3> result;
             result[0] = polynomial;
             return result;
         }
-        case 10: // co-normal derivatives on the right
+        case 10:
         {
             std::array<Eigen::VectorXd, 3> result;
             result[0] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 12: // co-normal derivatives on the right
+        case 12:
         {
             std::array<Eigen::VectorXd, 3> result;
             result[0] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 14: // co-normal derivatives on the right
+        case 14:
         {
             std::array<Eigen::VectorXd, 3> result;
             result[1] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 16: // co-normal derivatives on the right
+        case 16:
         {
             std::array<Eigen::VectorXd, 3> result;
             result[1] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 18: // co-normal derivatives on the right
+        case 18:
         {
             std::array<Eigen::VectorXd, 3> result;
             result[1] = Eigen::VectorXd::Zero(points.cols());
@@ -1261,7 +1261,7 @@ struct DarcyStokes_2 final : public I_Test
     Eigen::VectorXd fluid_viscosity(const Eigen::MatrixXd &points) const
     {
         if (points(0, 0) < 1.0 - 1.0e-12)
-            return Eigen::VectorXd::Constant(points.cols(), 2.0);
+            return Eigen::VectorXd::Constant(points.cols(), 1.0);
         else if (points(0, 0) > 1.0 + 1.0e-12)
             return Eigen::VectorXd::Constant(points.cols(), 0.0);
         else
@@ -1270,24 +1270,11 @@ struct DarcyStokes_2 final : public I_Test
 
     std::array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd &points) const
     {
-        const Eigen::ArrayXd x = points.row(0).array();
-        const Eigen::ArrayXd y = points.row(1).array();
-        const Eigen::ArrayXd polynomial = x + y;
 
-        if (points(0, 0) < 1.0 - 1.0e-12)
-            return {Eigen::VectorXd::Ones(points.cols()),
-                    Eigen::VectorXd::Ones(points.cols()),
-                    Eigen::VectorXd::Zero(points.cols())};
-        else if (points(1, 0) > 1.0 + 1.0e-12)
-            return {Eigen::ArrayXd::Ones(points.cols()) + 10.0 * (1.0 - x),
-                    Eigen::ArrayXd::Ones(points.cols()) + 10.0 * y,
-                    Eigen::VectorXd::Zero(points.cols())};
-        else if (points(1, 0) < 1.0 - 1.0e-12)
-            return {Eigen::ArrayXd::Ones(points.cols()) + 2.0 * (1.0 - x),
-                    Eigen::ArrayXd::Ones(points.cols()) + 2.0 * y,
-                    Eigen::VectorXd::Zero(points.cols())};
-        else
-            throw std::runtime_error("not valid configuration");
+        return {Eigen::VectorXd::Zero(points.cols()),
+                Eigen::VectorXd::Zero(points.cols()),
+                Eigen::VectorXd::Zero(points.cols())};
+
     };
 
     Eigen::VectorXd divergence_term(const Eigen::MatrixXd &points) const
@@ -1303,13 +1290,21 @@ struct DarcyStokes_2 final : public I_Test
         case 1:
         {
             std::array<Eigen::VectorXd, 3> result;
-            result[0] = exact_velocity(points)[0];
+
+            if (points(1, 0) > 1.0 + 1.0e-12)
+            {
+                const Eigen::ArrayXd y = points.row(1);
+                result[0] = -10.0 * (1.0 - y) * (2.0 - y);
+            }
+            else
+                result[0] = Eigen::VectorXd::Zero(points.cols());
+
             return result;
         }
         case 3:
         {
             std::array<Eigen::VectorXd, 3> result;
-            result[1] = exact_velocity(points)[1];
+            result[1] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
         default:
@@ -1320,61 +1315,57 @@ struct DarcyStokes_2 final : public I_Test
 
     std::array<Eigen::VectorXd, 3> weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
-        const Eigen::ArrayXd x = points.row(0).array();
-        const Eigen::ArrayXd y = points.row(1).array();
-        const Eigen::ArrayXd polynomial = x + y;
-
         switch (marker)
         {
-        case 2: // co-normal derivatives on the right
+        case 2:
         {
             std::array<Eigen::VectorXd, 3> result;
             result[0] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 4: // co-normal derivatives on the right
+        case 4:
         {
             std::array<Eigen::VectorXd, 3> result;
             result[0] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 6: // co-normal derivatives on the right
-        {
-            std::array<Eigen::VectorXd, 3> result;
-            result[0] = polynomial;
-            return result;
-        }
-        case 8: // co-normal derivatives on the right
-        {
-            std::array<Eigen::VectorXd, 3> result;
-            result[0] = polynomial;
-            return result;
-        }
-        case 10: // co-normal derivatives on the right
+        case 6:
         {
             std::array<Eigen::VectorXd, 3> result;
             result[0] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 12: // co-normal derivatives on the right
+        case 8:
         {
             std::array<Eigen::VectorXd, 3> result;
             result[0] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 14: // co-normal derivatives on the right
+        case 10:
+        {
+            std::array<Eigen::VectorXd, 3> result;
+            result[0] = Eigen::VectorXd::Zero(points.cols());
+            return result;
+        }
+        case 12:
+        {
+            std::array<Eigen::VectorXd, 3> result;
+            result[0] = Eigen::VectorXd::Zero(points.cols());
+            return result;
+        }
+        case 14:
         {
             std::array<Eigen::VectorXd, 3> result;
             result[1] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 16: // co-normal derivatives on the right
+        case 16:
         {
             std::array<Eigen::VectorXd, 3> result;
             result[1] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 18: // co-normal derivatives on the right
+        case 18:
         {
             std::array<Eigen::VectorXd, 3> result;
             result[1] = Eigen::VectorXd::Zero(points.cols());
@@ -1387,46 +1378,17 @@ struct DarcyStokes_2 final : public I_Test
 
     Eigen::VectorXd exact_pressure(const Eigen::MatrixXd &points) const
     {
-        const Eigen::ArrayXd x = points.row(0).array();
-        const Eigen::ArrayXd y = points.row(1).array();
-        const Eigen::ArrayXd polynomial = x + y;
-
-        bool left = false;
-        for(unsigned int p = 0; p < points.cols(); p++)
-        {
-            if (points(0, p) < 1.0 - 1.0e-12)
-            {
-                left = true;
-                break;
-            }
-        }
-
-        if (left)
-            return polynomial - 2.0;
-        else
-            return polynomial;
+        throw std::runtime_error("Not implemented method");
     };
 
     std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd &points) const
     {
-        const Eigen::ArrayXd x = points.row(0).array();
-        const Eigen::ArrayXd y = points.row(1).array();
-
-        return {1.0 - x, y, Eigen::VectorXd::Zero(points.cols())};
-
+        throw std::runtime_error("Not implemented method");
     }
 
     std::array<Eigen::VectorXd, 9> exact_derivatives_velocity(const Eigen::MatrixXd &points) const
     {
-        return {-Eigen::VectorXd::Ones(points.cols()),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Ones(points.cols()),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols())};
+        throw std::runtime_error("Not implemented method");
     }
 };
 // ***************************************************************************
