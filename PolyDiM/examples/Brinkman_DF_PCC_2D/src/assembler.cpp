@@ -653,6 +653,21 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
         }
     }
 
+
+    result.repeated_connectivity = mesh.Cell2DsVertices();
+    unsigned int num_repetead_points = 0;
+    for(unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
+    {
+        for(unsigned int v = 0; v < mesh.Cell2DNumberVertices(c); v++)
+        {
+            result.repeated_connectivity[c][v] = num_repetead_points;
+            num_repetead_points++;
+        }
+    }
+    result.repeated_vertices_coordinates = Eigen::MatrixXd::Zero(3, num_repetead_points);
+    result.cell0Ds_exact_pressure = Eigen::VectorXd::Zero(num_repetead_points);
+    result.cell0Ds_numeric_pressure = Eigen::VectorXd::Zero(num_repetead_points);
+
     result.cell2Ds_error_L2_pressure.setZero(mesh.Cell2DTotalNumber());
     result.cell2Ds_norm_L2_pressure.setZero(mesh.Cell2DTotalNumber());
     result.cell2Ds_error_H1_velocity.setZero(mesh.Cell2DTotalNumber());
@@ -663,8 +678,13 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
     result.norm_H1_velocity = 0.0;
     result.mesh_size = 0.0;
 
+    result.inverse_diffusion_coeff_values.setZero(mesh.Cell2DTotalNumber());
+    result.viscosity_values.setZero(mesh.Cell2DTotalNumber());
+
+
+    num_repetead_points = 0;
     for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
-    {
+    {        
         const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Polygon_Geometry polygon = {config.GeometricTolerance1D(),
                                                                               config.GeometricTolerance2D(),
                                                                               mesh_geometric_data.Cell2DsVertices.at(c),
@@ -699,10 +719,28 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
                                                                                 assembler_data.solution,
                                                                                 assembler_data.solutionDirichlet);
 
+        result.viscosity_values[c] = test.fluid_viscosity(mesh_geometric_data.Cell2DsCentroids.at(c))[0];
+        const auto inverse_diffusion_term_values = test.inverse_diffusion_term(mesh_geometric_data.Cell2DsCentroids.at(c));
+        double k_max = 0.0;
+        for (const auto &inv_diffusion_term : inverse_diffusion_term_values)
+        {
+            const double max_k = inv_diffusion_term.cwiseAbs().maxCoeff();
+            k_max = k_max < max_k ? max_k : k_max;
+        }
+        result.inverse_diffusion_coeff_values[c] = k_max;
+
         const Eigen::VectorXd velocity_dofs_values =
             dofs_values.segment(0, local_count_dofs.num_total_dofs - num_local_dofs_pressure);
         const Eigen::VectorXd pressure_dofs_values =
             dofs_values.segment(local_count_dofs.num_total_dofs - num_local_dofs_pressure, num_local_dofs_pressure);
+
+        const unsigned int num_cell_vertices =  mesh.Cell2DNumberVertices(c);
+        const Eigen::MatrixXd pressure_basis_functions_vertices_values =
+            vem_pressure_local_space.ComputeBasisFunctionsValues(pressure_reference_element_data, pressure_local_space, mesh_geometric_data.Cell2DsVertices.at(c));
+        result.repeated_vertices_coordinates.middleCols(num_repetead_points, num_cell_vertices) = mesh_geometric_data.Cell2DsVertices.at(c);
+        result.cell0Ds_exact_pressure.segment(num_repetead_points, num_cell_vertices) = pressure_basis_functions_vertices_values * pressure_dofs_values;
+        result.cell0Ds_numeric_pressure.segment(num_repetead_points, num_cell_vertices) = test.exact_pressure(mesh_geometric_data.Cell2DsVertices.at(c));
+        num_repetead_points += num_cell_vertices;
 
         const VectorXd numeric_pressure_values = pressure_basis_functions_values * pressure_dofs_values;
         const VectorXd exact_pressure_values = test.exact_pressure(velocity_local_space.InternalQuadrature.Points);

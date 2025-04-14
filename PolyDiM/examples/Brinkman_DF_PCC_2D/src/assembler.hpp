@@ -53,12 +53,6 @@ class Assembler final
         std::array<Eigen::VectorXd, 3> cell0Ds_numeric_velocity;
         std::array<Eigen::VectorXd, 3> cell0Ds_exact_velocity;
 
-        Eigen::VectorXd cell2Ds_discrepancy_error_L2_pressure;
-        Eigen::VectorXd cell2Ds_error_L2_pressure;
-        Eigen::VectorXd cell2Ds_norm_L2_pressure;
-        double discrepancy_error_L2_pressure;
-        double error_L2_pressure;
-        double norm_L2_pressure;
         Eigen::VectorXd cell2Ds_discrepancy_error_H1_velocity;
         Eigen::VectorXd cell2Ds_error_H1_velocity;
         Eigen::VectorXd cell2Ds_norm_H1_velocity;
@@ -66,9 +60,24 @@ class Assembler final
         double error_H1_velocity;
         double norm_H1_velocity;
 
+        Eigen::MatrixXd repeated_vertices_coordinates;
+        std::vector<std::vector<unsigned int>> repeated_connectivity;
+        Eigen::VectorXd cell0Ds_numeric_pressure;
+        Eigen::VectorXd cell0Ds_exact_pressure;
+
+        Eigen::VectorXd cell2Ds_discrepancy_error_L2_pressure;
+        Eigen::VectorXd cell2Ds_error_L2_pressure;
+        Eigen::VectorXd cell2Ds_norm_L2_pressure;
+        double discrepancy_error_L2_pressure;
+        double error_L2_pressure;
+        double norm_L2_pressure;
+
         double mesh_size;
 
         double residual_norm;
+
+        Eigen::VectorXd inverse_diffusion_coeff_values;
+        Eigen::VectorXd viscosity_values;
     };
 
     struct DiscrepancyErrors_Data final

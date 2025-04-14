@@ -27,6 +27,8 @@ std::unique_ptr<Polydim::examples::Brinkman_DF_PCC_2D::test::I_Test> create_test
         return std::make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::Darcy>();
     case Polydim::examples::Brinkman_DF_PCC_2D::test::Test_Types::Brinkman:
         return std::make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::Brinkman>();
+    case Polydim::examples::Brinkman_DF_PCC_2D::test::Test_Types::DarcyStokes:
+        return std::make_unique<Polydim::examples::Brinkman_DF_PCC_2D::test::DarcyStokes>();
     default:
         throw std::runtime_error("Test type " + std::to_string((unsigned int)config.TestType()) + " not supported");
     }
@@ -192,16 +194,41 @@ void export_solution(const Polydim::examples::Brinkman_DF_PCC_2D::Program_config
                                    Gedim::VTPProperty::Formats::Points,
                                    static_cast<unsigned int>(post_process_data.cell0Ds_exact_velocity[1].size()),
                                    post_process_data.cell0Ds_exact_velocity[1].data()},
-                                  {"ErrorL2Pressure",
-                                   Gedim::VTPProperty::Formats::Cells,
-                                   static_cast<unsigned int>(post_process_data.cell2Ds_error_L2_pressure.size()),
-                                   post_process_data.cell2Ds_error_L2_pressure.data()},
                                   {"ErrorH1Velocity",
                                    Gedim::VTPProperty::Formats::Cells,
                                    static_cast<unsigned int>(post_process_data.cell2Ds_error_H1_velocity.size()),
-                                   post_process_data.cell2Ds_error_H1_velocity.data()}});
+                                   post_process_data.cell2Ds_error_H1_velocity.data()},
+                                  {"Permeability",
+                                   Gedim::VTPProperty::Formats::Cells,
+                                   static_cast<unsigned int>(post_process_data.inverse_diffusion_coeff_values.size()),
+                                   post_process_data.inverse_diffusion_coeff_values.data()},
+                                  {"Viscosity",
+                                   Gedim::VTPProperty::Formats::Cells,
+                                   static_cast<unsigned int>(post_process_data.viscosity_values.size()),
+                                   post_process_data.viscosity_values.data()}});
 
-            exporter.Export(exportVtuFolder + "/Solution_" + std::to_string(TEST_ID) + "_" + std::to_string(VEM_ID) +
+            exporter.Export(exportVtuFolder + "/Velocity_" + std::to_string(TEST_ID) + "_" + std::to_string(VEM_ID) +
+                            +"_" + std::to_string(config.VemOrder()) + ".vtu");
+        }
+
+        {
+            Gedim::VTKUtilities exporter;
+            exporter.AddPolygons(post_process_data.repeated_vertices_coordinates,
+                                 post_process_data.repeated_connectivity,
+                                 {{"Exact Pressure",
+                                   Gedim::VTPProperty::Formats::Points,
+                                   static_cast<unsigned int>(post_process_data.cell0Ds_exact_pressure.size()),
+                                   post_process_data.cell0Ds_exact_pressure.data()},
+                                  {"Numeric Pressure",
+                                   Gedim::VTPProperty::Formats::Points,
+                                   static_cast<unsigned int>(post_process_data.cell0Ds_numeric_pressure.size()),
+                                   post_process_data.cell0Ds_numeric_pressure.data()},
+                                  {"ErrorL2Pressure",
+                                   Gedim::VTPProperty::Formats::Cells,
+                                   static_cast<unsigned int>(post_process_data.cell2Ds_error_L2_pressure.size()),
+                                   post_process_data.cell2Ds_error_L2_pressure.data()}});
+
+            exporter.Export(exportVtuFolder + "/Pressure_" + std::to_string(TEST_ID) + "_" + std::to_string(VEM_ID) +
                             +"_" + std::to_string(config.VemOrder()) + ".vtu");
         }
     }

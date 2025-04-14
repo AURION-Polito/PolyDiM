@@ -6,7 +6,6 @@
 #include "I_VEM_DF_PCC_2D_ReferenceElement.hpp"
 #include "VEM_DF_PCC_2D_LocalSpace_Data.hpp"
 #include "VEM_Monomials_2D.hpp"
-#include <vector>
 
 namespace Polydim
 {
