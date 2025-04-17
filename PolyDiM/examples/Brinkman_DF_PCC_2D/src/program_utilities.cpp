@@ -76,7 +76,7 @@ void create_domain_mesh(const Polydim::examples::Brinkman_DF_PCC_2D::Program_con
 }
 // ***************************************************************************
 Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_properties(const Polydim::examples::Brinkman_DF_PCC_2D::Program_configuration &config,
-                                                                                  const Gedim::MeshMatricesDAO &mesh)
+                                                                                  Gedim::MeshMatricesDAO &mesh)
 {
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
     geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance1D();
@@ -84,7 +84,7 @@ Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_propertie
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
     Gedim::MeshUtilities meshUtilities;
-
+    meshUtilities.ComputeCell1DCell2DNeighbours(mesh);
     return Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_2D_geometry_data(geometryUtilities, meshUtilities, mesh);
 }
 // ***************************************************************************
@@ -186,8 +186,15 @@ void export_solution(const Polydim::examples::Brinkman_DF_PCC_2D::Program_config
         fluxFile << "Flux" << std::endl;
 
         fluxFile.precision(16);
-        for(const auto &f : post_process_data.flux)
-            fluxFile << std::scientific << f.first << separator << f.second << std::endl;;
+        double sum = 0.0;
+        for (const auto &f : post_process_data.flux)
+        {
+            fluxFile << std::scientific << f.first << separator << f.second << std::endl;
+            sum += f.second;
+        }
+
+        std::cout.precision(16);
+        std::cout << std::scientific << "sum flux: " << sum << std::endl;
 
         fluxFile.close();
     }

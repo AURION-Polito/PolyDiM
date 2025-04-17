@@ -310,10 +310,10 @@ Assembler::Stokes_DF_PCC_2D_Problem_Data Assembler::Assemble(
         assert(velocity_local_space.NumBasisFunctions == local_count_dofs.num_total_dofs - num_local_dofs_pressure);
 
         Polydim::PDETools::Assembler_Utilities::local_matrix_to_global_matrix_dofs_data local_matrix_to_global_matrix_dofs_data = {
-                                                                                                                                   {std::cref(dofs_data[0]), std::cref(dofs_data[1]), std::cref(dofs_data[2]), std::cref(dofs_data[3])},
-                                                                                                                                   local_count_dofs.offsets_DOFs,
-                                                                                                                                   count_dofs.offsets_DOFs,
-                                                                                                                                   count_dofs.offsets_Strongs};
+            {std::cref(dofs_data[0]), std::cref(dofs_data[1]), std::cref(dofs_data[2]), std::cref(dofs_data[3])},
+            local_count_dofs.offsets_DOFs,
+            count_dofs.offsets_DOFs,
+            count_dofs.offsets_Strongs};
 
         Polydim::PDETools::Assembler_Utilities::assemble_local_matrix_to_global_matrix<2>(c,
                                                                                           local_matrix_to_global_matrix_dofs_data,
@@ -630,7 +630,7 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
             for (unsigned int d = 0; d < velocity_reference_element_data.Dimension; d++)
                 result.cell0Ds_exact_velocity[d](p) = exact_velocity[d](0);
         }
-        catch(...)
+        catch (...)
         {
             for (unsigned int d = 0; d < velocity_reference_element_data.Dimension; d++)
                 result.cell0Ds_exact_velocity[d](p) = std::nan("");
@@ -661,12 +661,11 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
         }
     }
 
-
     result.repeated_connectivity = mesh.Cell2DsVertices();
     unsigned int num_repetead_points = 0;
-    for(unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
+    for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
     {
-        for(unsigned int v = 0; v < mesh.Cell2DNumberVertices(c); v++)
+        for (unsigned int v = 0; v < mesh.Cell2DNumberVertices(c); v++)
         {
             result.repeated_connectivity[c][v] = num_repetead_points;
             num_repetead_points++;
@@ -689,19 +688,12 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
     result.inverse_diffusion_coeff_values.setZero(mesh.Cell2DTotalNumber());
     result.viscosity_values.setZero(mesh.Cell2DTotalNumber());
 
-    result.flux = ComputeFlux(config,
-                              mesh,
-                              mesh_geometric_data,
-                              dofs_data,
-                              count_dofs,
-                              velocity_reference_element_data,
-                              vem_velocity_local_space,
-                              test,
-                              assembler_data);
+    result.flux =
+        ComputeFlux(config, mesh, mesh_geometric_data, dofs_data, count_dofs, velocity_reference_element_data, vem_velocity_local_space, test, assembler_data);
 
     num_repetead_points = 0;
     for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
-    {        
+    {
         const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Polygon_Geometry polygon = {config.GeometricTolerance1D(),
                                                                               config.GeometricTolerance2D(),
                                                                               mesh_geometric_data.Cell2DsVertices.at(c),
@@ -751,22 +743,31 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
         const Eigen::VectorXd pressure_dofs_values =
             dofs_values.segment(local_count_dofs.num_total_dofs - num_local_dofs_pressure, num_local_dofs_pressure);
 
-        const unsigned int num_cell_vertices =  mesh.Cell2DNumberVertices(c);
+        const unsigned int num_cell_vertices = mesh.Cell2DNumberVertices(c);
         const Eigen::MatrixXd pressure_basis_functions_vertices_values =
-            vem_pressure_local_space.ComputeBasisFunctionsValues(pressure_reference_element_data, pressure_local_space, mesh_geometric_data.Cell2DsVertices.at(c));
-        result.repeated_vertices_coordinates.middleCols(num_repetead_points, num_cell_vertices) = mesh_geometric_data.Cell2DsVertices.at(c);
-        result.cell0Ds_numeric_pressure.segment(num_repetead_points, num_cell_vertices) = pressure_basis_functions_vertices_values * pressure_dofs_values;
+            vem_pressure_local_space.ComputeBasisFunctionsValues(pressure_reference_element_data,
+                                                                 pressure_local_space,
+                                                                 mesh_geometric_data.Cell2DsVertices.at(c));
+        result.repeated_vertices_coordinates.middleCols(num_repetead_points, num_cell_vertices) =
+            mesh_geometric_data.Cell2DsVertices.at(c);
+        result.cell0Ds_numeric_pressure.segment(num_repetead_points, num_cell_vertices) =
+            pressure_basis_functions_vertices_values * pressure_dofs_values;
 
-        try {
-                    result.cell0Ds_exact_pressure.segment(num_repetead_points, num_cell_vertices) = test.exact_pressure(mesh_geometric_data.Cell2DsVertices.at(c));
-        } catch (...) {
+        try
+        {
+            result.cell0Ds_exact_pressure.segment(num_repetead_points, num_cell_vertices) =
+                test.exact_pressure(mesh_geometric_data.Cell2DsVertices.at(c));
+        }
+        catch (...)
+        {
         }
 
         num_repetead_points += num_cell_vertices;
 
         const VectorXd numeric_pressure_values = pressure_basis_functions_values * pressure_dofs_values;
 
-        try {
+        try
+        {
             const VectorXd exact_pressure_values = test.exact_pressure(velocity_local_space.InternalQuadrature.Points);
             const auto exact_velocity_derivatives_values =
                 test.exact_derivatives_velocity(velocity_local_space.InternalQuadrature.Points);
@@ -819,9 +820,6 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
             result.cell2Ds_norm_H1_velocity[c] = velocity_local_space.InternalQuadrature.Weights.transpose() * local_norm_H1_velocity;
         }
 
-
-
-
         if (mesh_geometric_data.Cell2DsDiameters.at(c) > result.mesh_size)
             result.mesh_size = mesh_geometric_data.Cell2DsDiameters.at(c);
     }
@@ -834,31 +832,26 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
     return result;
 }
 // ***************************************************************************
-std::map<unsigned int, double> Assembler::ComputeFlux(const Polydim::examples::Brinkman_DF_PCC_2D::Program_configuration &config,
-                                                      const Gedim::MeshMatricesDAO &mesh,
-                                                      const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-                                                      const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
-                                                      const Polydim::PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
-                                                      const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
-                                                      const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_local_space,
-                                                      const Polydim::examples::Brinkman_DF_PCC_2D::test::I_Test &test,
-                                                      const Stokes_DF_PCC_2D_Problem_Data &assembler_data) const
+std::map<unsigned int, double> Assembler::ComputeFlux(
+    const Polydim::examples::Brinkman_DF_PCC_2D::Program_configuration &config,
+    const Gedim::MeshMatricesDAO &mesh,
+    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+    const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+    const Polydim::PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
+    const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+    const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_local_space,
+    const Polydim::examples::Brinkman_DF_PCC_2D::test::I_Test &test,
+    const Stokes_DF_PCC_2D_Problem_Data &assembler_data) const
 {
-
-    Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
-    geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance1D();
-    geometryUtilitiesConfig.Tolerance2D = config.GeometricTolerance2D();
-    Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
-
 
     std::map<unsigned int, double> flux;
 
-    for(unsigned int e = 0; e < mesh.Cell1DTotalNumber(); e++)
+    for (unsigned int e = 0; e < mesh.Cell1DTotalNumber(); e++)
     {
 
         const unsigned int edge_marker = mesh.Cell1DMarker(e);
 
-        if(edge_marker == 0)
+        if (edge_marker == 0)
             continue;
 
         // compute vem values
@@ -870,8 +863,8 @@ std::map<unsigned int, double> Assembler::ComputeFlux(const Polydim::examples::B
             vem_local_space.ComputeValuesOnEdge(reference_element_data, pointsCurvilinearCoordinates);
 
         const unsigned int num_edge_dofs = weak_basis_function_values.cols();
-        Eigen::VectorXd local_solution_dofs = Eigen::VectorXd::Zero(num_edge_dofs * 2);
 
+        Eigen::VectorXd local_solution_dofs = Eigen::VectorXd::Zero(num_edge_dofs * 2);
         unsigned int offset_dofs = 0;
         for (unsigned int h = 0; h < 2; h++)
         {
@@ -900,28 +893,26 @@ std::map<unsigned int, double> Assembler::ComputeFlux(const Polydim::examples::B
             offset_dofs += num_edge_dofs;
         }
 
-
         const std::vector<unsigned int> neighbours = mesh.Cell1DNeighbourCell2Ds(e);
 
-        for(unsigned int n = 0; n < neighbours.size(); n++)
+        for (unsigned int n = 0; n < neighbours.size(); n++)
         {
             const unsigned int edge_local_index = mesh.Cell2DFindEdge(neighbours[n], e);
             const double absMapDeterminant = std::abs(mesh_geometric_data.Cell2DsEdgeLengths.at(neighbours[n])[edge_local_index]);
             const Eigen::VectorXd weakQuadratureWeights = weakReferenceSegment.Weights * absMapDeterminant;
 
             const Eigen::VectorXd edge_normal = mesh_geometric_data.Cell2DsEdgeNormals.at(neighbours[n]).col(edge_local_index);
-            const Eigen::VectorXd local_edge_flux = edge_normal[0] * weak_basis_function_values * local_solution_dofs.segment(0, num_edge_dofs)
-                                                    + edge_normal[1] * weak_basis_function_values * local_solution_dofs.segment(num_edge_dofs, num_edge_dofs);
-            const double edge_flux =  local_edge_flux.transpose() * weakQuadratureWeights;
+            const Eigen::VectorXd local_edge_flux =
+                edge_normal[0] * weak_basis_function_values * local_solution_dofs.segment(0, num_edge_dofs) +
+                edge_normal[1] * weak_basis_function_values * local_solution_dofs.segment(num_edge_dofs, num_edge_dofs);
+            const double edge_flux = local_edge_flux.transpose() * weakQuadratureWeights;
 
             auto it = flux.find(edge_marker);
-            if(it != flux.end())
+            if (it != flux.end())
                 it->second += edge_flux;
             else
                 flux.insert({edge_marker, edge_flux});
-
         }
-
     }
 
     return flux;

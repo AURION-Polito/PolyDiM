@@ -70,26 +70,26 @@ struct Patch_Test final : public I_Test
     {
 
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result = {
-                                                                                                           {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                           {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
-                                                                                                           {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
+            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
+            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
 
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> resultI = {
-                                                                                                            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
+            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
 
         return {result, result, resultI, resultI};
     }
@@ -245,26 +245,26 @@ struct StokesSinSin final : public I_Test
     std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 4> boundary_info() const
     {
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result = {
-                                                                                                           {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                           {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
-                                                                                                           {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
+            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
+            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
 
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> resultI = {
-                                                                                                            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
+            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
 
         return {result, result, resultI, resultI};
     }
@@ -393,26 +393,26 @@ struct Stokes_ZeroVelocity_1 final : public I_Test
     std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 4> boundary_info() const
     {
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result = {
-                                                                                                           {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                           {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
+            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
 
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> resultI = {
-                                                                                                            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
+            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
 
         return {result, result, resultI, resultI};
     }
@@ -508,26 +508,26 @@ struct Stokes_ZeroVelocity_2 final : public I_Test
     std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 4> boundary_info() const
     {
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result = {
-                                                                                                           {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                           {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
+            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
 
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> resultI = {
-                                                                                                            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
+            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
 
         return {result, result, resultI, resultI};
     }
@@ -624,26 +624,26 @@ struct Darcy final : public I_Test
     std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 4> boundary_info() const
     {
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result = {
-                                                                                                           {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                           {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                           {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                           {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                           {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                           {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
-                                                                                                           {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 4}},
-                                                                                                           {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 6}},
-                                                                                                           {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 8}}};
+            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
+            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 4}},
+            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 6}},
+            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 8}}};
 
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> resultI = {
-                                                                                                            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
+            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
 
         return {result, result, resultI, resultI};
     }
@@ -752,26 +752,26 @@ struct Brinkman final : public I_Test
     {
 
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result = {
-                                                                                                           {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                           {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                           {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
+            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
 
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> resultI = {
-                                                                                                            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
+            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
 
         return {result, result, resultI, resultI};
     }
@@ -844,15 +844,15 @@ struct Brinkman final : public I_Test
     std::array<Eigen::VectorXd, 9> exact_derivatives_velocity(const Eigen::MatrixXd &points) const
     {
         return {
-                std::numbers::pi * cos(std::numbers::pi * points.row(0).array()) * cos(std::numbers::pi * points.row(1).array()),
-                -std::numbers::pi * sin(std::numbers::pi * points.row(0).array()) * sin(std::numbers::pi * points.row(1).array()),
-                Eigen::VectorXd::Zero(points.cols()),
-                std::numbers::pi * sin(std::numbers::pi * points.row(0).array()) * sin(std::numbers::pi * points.row(1).array()),
-                -std::numbers::pi * cos(std::numbers::pi * points.row(0).array()) * cos(std::numbers::pi * points.row(1).array()),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols())};
+            std::numbers::pi * cos(std::numbers::pi * points.row(0).array()) * cos(std::numbers::pi * points.row(1).array()),
+            -std::numbers::pi * sin(std::numbers::pi * points.row(0).array()) * sin(std::numbers::pi * points.row(1).array()),
+            Eigen::VectorXd::Zero(points.cols()),
+            std::numbers::pi * sin(std::numbers::pi * points.row(0).array()) * sin(std::numbers::pi * points.row(1).array()),
+            -std::numbers::pi * cos(std::numbers::pi * points.row(0).array()) * cos(std::numbers::pi * points.row(1).array()),
+            Eigen::VectorXd::Zero(points.cols()),
+            Eigen::VectorXd::Zero(points.cols()),
+            Eigen::VectorXd::Zero(points.cols()),
+            Eigen::VectorXd::Zero(points.cols())};
     }
 };
 // ***************************************************************************
@@ -876,61 +876,64 @@ struct DarcyStokes_1 final : public I_Test
     std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 4> boundary_info() const
     {
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result1 = {
-                                                                                                            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
-                                                                                                            {9, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {10, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 12}},
-                                                                                                            {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                            {12, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 4}},
-                                                                                                            {13, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 6}},
-                                                                                                            {14, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {15, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 8}},
-                                                                                                            {16, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 10}}};
+            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
+            {9, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {10, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 12}},
+            {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {12, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 4}},
+            {13, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 6}},
+            {14, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {15, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 8}},
+            {16, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 10}},
+            {17, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
 
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result2 = {
-                                                                                                            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
-                                                                                                            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
-                                                                                                            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
-                                                                                                            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
-                                                                                                            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
-                                                                                                            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
-                                                                                                            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
-                                                                                                            {9, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {10, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
-                                                                                                            {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 14}},
-                                                                                                            {12, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
-                                                                                                            {13, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 16}},
-                                                                                                            {14, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {15, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 18}},
-                                                                                                            {16, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}}};
+            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+            {9, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {10, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+            {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 14}},
+            {12, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+            {13, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 16}},
+            {14, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {15, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 18}},
+            {16, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+            {17, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
 
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> resultI = {
-                                                                                                            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {9, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {10, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {12, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {13, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {14, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {15, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {16, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
+            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {9, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {10, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {12, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {13, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {14, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {15, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {16, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {17, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
 
         return {result1, result2, resultI, resultI};
     }
@@ -1013,14 +1016,12 @@ struct DarcyStokes_1 final : public I_Test
 
         switch (marker)
         {
-        case 1:
-        {
+        case 1: {
             std::array<Eigen::VectorXd, 3> result;
             result[0] = exact_velocity(points)[0];
             return result;
         }
-        case 3:
-        {
+        case 3: {
             std::array<Eigen::VectorXd, 3> result;
             result[1] = exact_velocity(points)[1];
             return result;
@@ -1028,7 +1029,6 @@ struct DarcyStokes_1 final : public I_Test
         default:
             throw std::runtime_error("Unknown marker");
         }
-
     }
 
     std::array<Eigen::VectorXd, 3> weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
@@ -1039,56 +1039,47 @@ struct DarcyStokes_1 final : public I_Test
 
         switch (marker)
         {
-        case 2:
-        {
+        case 2: {
             std::array<Eigen::VectorXd, 3> result;
             result[0] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 4:
-        {
+        case 4: {
             std::array<Eigen::VectorXd, 3> result;
             result[0] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 6:
-        {
+        case 6: {
             std::array<Eigen::VectorXd, 3> result;
             result[0] = polynomial;
             return result;
         }
-        case 8:
-        {
+        case 8: {
             std::array<Eigen::VectorXd, 3> result;
             result[0] = polynomial;
             return result;
         }
-        case 10:
-        {
+        case 10: {
             std::array<Eigen::VectorXd, 3> result;
             result[0] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 12:
-        {
+        case 12: {
             std::array<Eigen::VectorXd, 3> result;
             result[0] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 14:
-        {
+        case 14: {
             std::array<Eigen::VectorXd, 3> result;
             result[1] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 16:
-        {
+        case 16: {
             std::array<Eigen::VectorXd, 3> result;
             result[1] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 18:
-        {
+        case 18: {
             std::array<Eigen::VectorXd, 3> result;
             result[1] = Eigen::VectorXd::Zero(points.cols());
             return result;
@@ -1105,7 +1096,7 @@ struct DarcyStokes_1 final : public I_Test
         const Eigen::ArrayXd polynomial = x + y;
 
         bool left = false;
-        for(unsigned int p = 0; p < points.cols(); p++)
+        for (unsigned int p = 0; p < points.cols(); p++)
         {
             if (points(0, p) < 1.0 - 1.0e-12)
             {
@@ -1126,7 +1117,6 @@ struct DarcyStokes_1 final : public I_Test
         const Eigen::ArrayXd y = points.row(1).array();
 
         return {1.0 - x, y, Eigen::VectorXd::Zero(points.cols())};
-
     }
 
     std::array<Eigen::VectorXd, 9> exact_derivatives_velocity(const Eigen::MatrixXd &points) const
@@ -1163,61 +1153,64 @@ struct DarcyStokes_2 final : public I_Test
     std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 4> boundary_info() const
     {
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result1 = {
-                                                                                                            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
-                                                                                                            {9, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {10, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 12}},
-                                                                                                            {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                                                                                                            {12, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 4}},
-                                                                                                            {13, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 6}},
-                                                                                                            {14, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {15, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 8}},
-                                                                                                            {16, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 10}}};
+            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
+            {9, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {10, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 12}},
+            {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {12, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 4}},
+            {13, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 6}},
+            {14, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {15, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 8}},
+            {16, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 10}},
+            {17, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
 
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result2 = {
-                                                                                                            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
-                                                                                                            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
-                                                                                                            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
-                                                                                                            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
-                                                                                                            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
-                                                                                                            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
-                                                                                                            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
-                                                                                                            {9, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {10, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
-                                                                                                            {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 14}},
-                                                                                                            {12, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
-                                                                                                            {13, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 16}},
-                                                                                                            {14, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {15, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 18}},
-                                                                                                            {16, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}}};
+            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+            {9, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {10, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+            {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+            {12, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+            {13, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 16}},
+            {14, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {15, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 18}},
+            {16, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+            {17, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
 
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> resultI = {
-                                                                                                            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {9, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {10, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {12, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {13, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {14, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {15, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                                                                                                            {16, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
+            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {9, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {10, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {12, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {13, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {14, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {15, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {16, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {17, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
 
         return {result1, result2, resultI, resultI};
     }
@@ -1271,10 +1264,7 @@ struct DarcyStokes_2 final : public I_Test
     std::array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd &points) const
     {
 
-        return {Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols())};
-
+        return {Eigen::VectorXd::Zero(points.cols()), Eigen::VectorXd::Zero(points.cols()), Eigen::VectorXd::Zero(points.cols())};
     };
 
     Eigen::VectorXd divergence_term(const Eigen::MatrixXd &points) const
@@ -1287,22 +1277,25 @@ struct DarcyStokes_2 final : public I_Test
 
         switch (marker)
         {
-        case 1:
-        {
+        case 1: {
             std::array<Eigen::VectorXd, 3> result;
+            result[0].resize(points.cols());
+            const Eigen::ArrayXd y = points.row(1);
 
-            if (points(1, 0) > 1.0 + 1.0e-12)
+            for (unsigned int p = 0; p < points.cols(); p++)
             {
-                const Eigen::ArrayXd y = points.row(1);
-                result[0] = -10.0 * (1.0 - y) * (2.0 - y);
+                if (y(p) > 1.0 + 1.0e-12)
+                {
+
+                    result[0](p) = -10.0 * (1.0 - y(p)) * (2.0 - y(p));
+                }
+                else
+                    result[0](p) = 0.0;
             }
-            else
-                result[0] = Eigen::VectorXd::Zero(points.cols());
 
             return result;
         }
-        case 3:
-        {
+        case 3: {
             std::array<Eigen::VectorXd, 3> result;
             result[1] = Eigen::VectorXd::Zero(points.cols());
             return result;
@@ -1310,63 +1303,53 @@ struct DarcyStokes_2 final : public I_Test
         default:
             throw std::runtime_error("Unknown marker");
         }
-
     }
 
     std::array<Eigen::VectorXd, 3> weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
         switch (marker)
         {
-        case 2:
-        {
+        case 2: {
             std::array<Eigen::VectorXd, 3> result;
             result[0] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 4:
-        {
+        case 4: {
             std::array<Eigen::VectorXd, 3> result;
             result[0] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 6:
-        {
+        case 6: {
             std::array<Eigen::VectorXd, 3> result;
             result[0] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 8:
-        {
+        case 8: {
             std::array<Eigen::VectorXd, 3> result;
             result[0] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 10:
-        {
+        case 10: {
             std::array<Eigen::VectorXd, 3> result;
             result[0] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 12:
-        {
+        case 12: {
             std::array<Eigen::VectorXd, 3> result;
             result[0] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 14:
-        {
+        case 14: {
             std::array<Eigen::VectorXd, 3> result;
             result[1] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 16:
-        {
+        case 16: {
             std::array<Eigen::VectorXd, 3> result;
             result[1] = Eigen::VectorXd::Zero(points.cols());
             return result;
         }
-        case 18:
-        {
+        case 18: {
             std::array<Eigen::VectorXd, 3> result;
             result[1] = Eigen::VectorXd::Zero(points.cols());
             return result;

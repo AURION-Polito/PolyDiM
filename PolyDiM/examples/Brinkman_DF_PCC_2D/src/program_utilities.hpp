@@ -22,7 +22,7 @@ void create_domain_mesh(const Polydim::examples::Brinkman_DF_PCC_2D::Program_con
                         Gedim::MeshMatricesDAO &mesh);
 
 Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_properties(const Polydim::examples::Brinkman_DF_PCC_2D::Program_configuration &config,
-                                                                                  const Gedim::MeshMatricesDAO &mesh);
+                                                                                  Gedim::MeshMatricesDAO &mesh);
 
 void export_solution(const Polydim::examples::Brinkman_DF_PCC_2D::Program_configuration &config,
                      const Gedim::MeshMatricesDAO &mesh,
