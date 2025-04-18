@@ -1,6 +1,8 @@
 #ifndef __PDETOOLS_MESH_PDE_Mesh_Utilities_HPP
 #define __PDETOOLS_MESH_PDE_Mesh_Utilities_HPP
 
+#include "Gedim_Macro.hpp"
+
 #include "MeshDAOImporterFromCsv.hpp"
 #include "MeshFromCsvUtilities.hpp"
 #include "MeshMatricesDAO.hpp"
@@ -119,6 +121,9 @@ inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
     switch (mesh_type)
     {
     case MeshGenerator_Types_2D::Triangular: {
+#if ENABLE_TRIANGLE == 0
+        throw std::runtime_error("Triangle library not active");
+#endif
         const double max_cell_area = pde_domain.area * max_relative_area;
         mesh_utilities.CreateTriangularMesh(pde_domain.vertices, max_cell_area, mesh);
     }
@@ -128,6 +133,9 @@ inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
     }
     break;
     case MeshGenerator_Types_2D::Polygonal: {
+#if ENABLE_VORO == 0
+        throw std::runtime_error("Voro library not active");
+#endif
         const unsigned num_cells = static_cast<unsigned int>(std::max(1.0, 1.0 / max_relative_area));
 
         mesh_utilities.CreatePolygonalMesh(geometry_utilities, pde_domain.vertices, num_cells, 10, mesh, 10);
@@ -173,6 +181,9 @@ inline void create_mesh_3D(const Gedim::GeometryUtilities &geometry_utilities,
     switch (mesh_type)
     {
     case MeshGenerator_Types_3D::Tetrahedral: {
+#if ENABLE_TETGEN == 0
+        throw std::runtime_error("Tetgen library not active");
+#endif
         const double max_cell_volume = pde_domain.volume * max_relative_volume;
         mesh_utilities.CreateTetrahedralMesh(pde_domain.vertices, pde_domain.edges, pde_domain.faces, max_cell_volume, mesh);
     }
@@ -182,6 +193,9 @@ inline void create_mesh_3D(const Gedim::GeometryUtilities &geometry_utilities,
     }
     break;
     case MeshGenerator_Types_3D::Polyhedral: {
+#if ENABLE_VORO == 0
+        throw std::runtime_error("Voro library not active");
+#endif
         const unsigned num_cells = static_cast<unsigned int>(std::max(1.0, 1.0 / max_relative_volume));
 
         mesh_utilities.CreatePolyhedralMesh(geometry_utilities, pde_domain.vertices, pde_domain.edges, pde_domain.faces, num_cells, 10, mesh, 10);
