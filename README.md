@@ -5,3 +5,5 @@
 PolyDiM is inspired by and built upon the foundational research of the Numerical Analysis Group in the Department of Mathematical Sciences "Giuseppe Luigi Lagrange" (DISMA) at the Politecnico di Torino.
 
 See the official [documentation](https://polydim.it/).
+
+This file can be used by citing references in CITATION.cff file.
