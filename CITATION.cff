@@ -1,0 +1,40 @@
+cff-version: 0.0.1
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Berrone
+    given-names: Stefano
+    orcid: https://orcid.org/0000-0001-8642-4258
+  - family-names: Borio
+    given-names: Andrea
+    orcid: https://orcid.org/0000-0003-2016-5403
+  - family-names: Teora
+    given-names: Gioana
+    orcid: https://orcid.org/0000-0002-8540-3639
+  - family-names: Vicini
+    given-names: Fabio
+    orcid: https://orcid.org/0000-0001-7123-9199
+title: "POLYDIM: POLYtopal DIscretization Methods library"
+version: v1.0.0
+doi: https://doi.org/10.5281/zenodo.15482177
+url: https://github.com/AURION-Polito/PolyDiM
+date-released: 2025-05-21
+preferred-citation:
+  type: article
+  authors:
+  - family-names: Berrone
+    given-names: Stefano
+    orcid: https://orcid.org/0000-0001-8642-4258
+  - family-names: Borio
+    given-names: Andrea
+    orcid: https://orcid.org/0000-0003-2016-5403
+  - family-names: Teora
+    given-names: Gioana
+    orcid: https://orcid.org/0000-0002-8540-3639
+  - family-names: Vicini
+    given-names: Fabio
+    orcid: https://orcid.org/0000-0001-7123-9199
+  url: "https://arxiv.org/abs/2505.14063"
+  journal: "arXiv"
+  month: 5
+  title: "POLYDIM: A C++ library for POLYtopal DIscretization Methods"
+  year: 2025
