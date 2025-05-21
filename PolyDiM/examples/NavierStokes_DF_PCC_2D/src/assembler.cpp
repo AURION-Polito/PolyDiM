@@ -9,7 +9,7 @@
 //
 // This file can be used citing references in CITATION.cff file.
 
-﻿#include "assembler.hpp"
+#include "assembler.hpp"
 
 #include "EllipticEquation.hpp"
 #include "Quadrature_Gauss1D.hpp"
