@@ -106,14 +106,13 @@ inline void create_mesh_1D(const Gedim::GeometryUtilities &geometry_utilities,
     }
     break;
     case MeshGenerator_Types_1D::Equispaced: {
-        const double max_cell_length = pde_domain.length * max_relative_length;
         const Eigen::Vector3d segment_origin = pde_domain.vertices.col(0);
         const Eigen::Vector3d segment_tangent = pde_domain.vertices.col(1) - segment_origin;
 
         mesh_utilities.FillMesh1D(geometry_utilities,
                                   segment_origin,
                                   segment_tangent,
-                                  geometry_utilities.EquispaceCoordinates(max_cell_length, true),
+                                  geometry_utilities.EquispaceCoordinates(max_relative_length, true),
                                   mesh);
     }
     break;
