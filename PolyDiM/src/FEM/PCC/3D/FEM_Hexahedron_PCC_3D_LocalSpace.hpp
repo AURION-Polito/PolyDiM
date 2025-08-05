@@ -13,10 +13,9 @@
 #define __FEM_Hexahedron_PCC_3D_LocalSpace_HPP
 
 #include "FEM_Hexahedron_PCC_3D_ReferenceElement.hpp"
-#include "FEM_Triangle_PCC_2D_LocalSpace.hpp"
+#include "FEM_Quadrilateral_PCC_2D_LocalSpace.hpp"
 #include "MapHexahedron.hpp"
 #include "MapQuadrilateral.hpp"
-#include "lagrange_1D.hpp"
 
 namespace Polydim
 {
@@ -63,7 +62,7 @@ struct FEM_Hexahedron_PCC_3D_LocalSpace_Data final
     std::array<unsigned int, 5> Dof2DsIndex;
     std::array<unsigned int, 2> Dof3DsIndex;
     Gedim::Quadrature::QuadratureData InternalQuadrature;
-    std::array<FEM_Triangle_PCC_2D_LocalSpace_Data, 4> Boundary_LocalSpace_Data;
+    std::array<FEM_Quadrilateral_PCC_2D_LocalSpace_Data, 4> Boundary_LocalSpace_Data;
     std::array<Gedim::Quadrature::QuadratureData, 4> BoundaryQuadrature;
 };
 
@@ -77,7 +76,7 @@ class FEM_Hexahedron_PCC_3D_LocalSpace final
 
     Gedim::Quadrature::QuadratureData InternalQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,
                                                          const Gedim::MapHexahedron::MapHexahedronData &mapData) const;
-    std::array<Gedim::Quadrature::QuadratureData, 4> BoundaryQuadrature(const std::array<FEM_Triangle_PCC_2D_LocalSpace_Data, 4> &faces_local_space_data,
+    std::array<Gedim::Quadrature::QuadratureData, 4> BoundaryQuadrature(const std::array<FEM_Quadrilateral_PCC_2D_LocalSpace_Data, 4> &faces_local_space_data,
                                                                         const FEM_Hexahedron_PCC_3D_Geometry &polyhedron) const;
 
   public:
@@ -122,7 +121,7 @@ class FEM_Hexahedron_PCC_3D_LocalSpace final
                                                              const FEM_Hexahedron_PCC_3D_LocalSpace_Data &local_space,
                                                              const unsigned int face_index) const
     {
-        FEM_Triangle_PCC_2D_LocalSpace face_local_space;
+        FEM_Quadrilateral_PCC_2D_LocalSpace face_local_space;
 
         return face_local_space.ComputeBasisFunctionsValues(reference_element_data.BoundaryReferenceElement_Data,
                                                             local_space.Boundary_LocalSpace_Data[face_index]);

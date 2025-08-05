@@ -15,8 +15,8 @@
 #include "Eigen/Eigen"
 #include "FEM_PCC_1D_ReferenceElement.hpp"
 #include "QuadratureData.hpp"
-#include "Quadrature_Gauss1D.hpp"
 #include "Quadrature_Gauss2D_Triangle.hpp"
+#include "VEM_Quadrature_2D.hpp"
 
 namespace Polydim
 {
@@ -34,7 +34,10 @@ struct FEM_Quadrilateral_PCC_2D_ReferenceElement_Data final
 
     unsigned int NumBasisFunctions;
     Eigen::MatrixXd DofPositions;
-    Eigen::MatrixXi DofTypes;
+    std::vector<std::array<unsigned int, 2>> DofTypes;
+
+    Eigen::MatrixXd Vertices;
+    std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, bool>> Edges_by_vertices;
 
     Gedim::Quadrature::QuadratureData ReferenceTriangleQuadrature;
     Gedim::Quadrature::QuadratureData ReferenceSquareQuadrature;
@@ -60,256 +63,156 @@ class FEM_Quadrilateral_PCC_2D_ReferenceElement final
         result.NumDofs1D = order - 1;
         result.NumDofs2D = (order - 1) * (order - 1);
 
-        std::vector<unsigned int> nodeDofs = {0, order, result.NumBasisFunctions - 1};
-        std::list<unsigned int> cellDofs;
-        std::vector<std::list<unsigned int>> edgeDofs(3);
-
-        Eigen::MatrixXd localDofPositions = Eigen::MatrixXd::Zero(3, result.NumBasisFunctions);
-        Eigen::MatrixXi localDofTypes = Eigen::MatrixXi::Zero(3, result.NumBasisFunctions);
-
-        const double h = 1.0 / order;
-        unsigned int dof = 0;
-        for (unsigned int i = 0; i < order + 1; i++)
-        {
-            for (unsigned int j = 0; j < order + 1 - i; j++)
-            {
-                if (i == 0)
-                {
-                    if (j > 0 && j < order - i)
-                        edgeDofs[0].push_back(dof);
-                }
-                else if (i < order && (j == 0 || j == order - i))
-                {
-                    if (j == 0)
-                        edgeDofs[2].push_front(dof);
-                    else
-                        edgeDofs[1].push_back(dof);
-                }
-                else if (i < order)
-                    cellDofs.push_back(dof);
-
-                localDofPositions.col(dof) << (double)j * h, (double)i * h, 0.0;
-                localDofTypes.col(dof) << order - i - j, j, i;
-
-                dof++;
-            }
-        }
-
-        // Reordering Dofs using convention [point, edge, cell]
-
-        result.DofPositions.setZero(3, result.NumBasisFunctions);
-        result.DofTypes.setZero(3, result.NumBasisFunctions);
-
-        dof = 0;
-        for (const unsigned int dofIndex : nodeDofs)
-        {
-            result.DofPositions.col(dof) << localDofPositions.col(dofIndex);
-            result.DofTypes.col(dof) << localDofTypes.col(dofIndex);
-            dof++;
-        }
-        for (unsigned int e = 0; e < 3; e++)
-        {
-            for (const unsigned int dofIndex : edgeDofs.at(e))
-            {
-                result.DofPositions.col(dof) << localDofPositions.col(dofIndex);
-                result.DofTypes.col(dof) << localDofTypes.col(dofIndex);
-                dof++;
-            }
-        }
-        for (const unsigned int dofIndex : cellDofs)
-        {
-            result.DofPositions.col(dof) << localDofPositions.col(dofIndex);
-            result.DofTypes.col(dof) << localDofTypes.col(dofIndex);
-            dof++;
-        }
-
         FEM_PCC_1D_ReferenceElement boundary_reference_element;
         result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order);
+        const Eigen::VectorXd reference_edge_dofs_poisitions = result.BoundaryReferenceElement_Data.DofPositions;
 
+        // Edge directions
+        result.Edges_by_vertices = {{{0, 1}, {0, true}},
+                                    {{1, 0}, {0, false}},
+                                    {{1, 2}, {1, true}},
+                                    {{2, 1}, {1, false}},
+                                    {{2, 3}, {2, false}},
+                                    {{3, 2}, {2, true}},
+                                    {{3, 0}, {3, false}},
+                                    {{0, 3}, {3, true}}};
+
+        // Reordering Dofs using convention [point, edge, cell]
+        result.DofPositions.setZero(3, result.NumBasisFunctions);
+        result.DofTypes.resize(result.NumBasisFunctions);
+        result.Vertices = Eigen::MatrixXd(3, 4);
+
+        for (unsigned int d1 = 0; d1 < 2; d1++)
+        {
+            for (unsigned int d2 = 0; d2 < 2; d2++)
+            {
+                result.DofPositions.col(2 * d1 + d2) << reference_edge_dofs_poisitions(d2),
+                    reference_edge_dofs_poisitions(d1), 0.0;
+                result.Vertices.col(2 * d1 + d2) = result.DofPositions.col(2 * d1 + d2);
+                result.DofTypes[2 * d1 + d2] = {d2, d1};
+            }
+        }
+
+        if (order > 1)
+        {
+            unsigned int dof = 4;
+            for (unsigned int d1 = 0; d1 < 2; d1++)
+            {
+                result.DofPositions.row(0).segment(4 * result.NumDofs0D + 2 * d1 * result.NumDofs1D, result.NumDofs1D) =
+                    reference_edge_dofs_poisitions.segment(2, result.NumDofs1D);
+                result.DofPositions.row(1).segment(4 * result.NumDofs0D + 2 * d1 * result.NumDofs1D, result.NumDofs1D) =
+                    Eigen::VectorXd::Ones(result.NumDofs1D) * reference_edge_dofs_poisitions(d1);
+
+                for (unsigned int d2 = 2; d2 < result.BoundaryReferenceElement_Data.NumBasisFunctions; d2++)
+                {
+                    result.DofTypes[dof] = {d2, d1};
+                    dof++;
+                }
+            }
+
+            for (int d1 = 0; d1 < 2; d1++)
+            {
+                const unsigned index = (d1 == 1) ? 0 : 1;
+                result.DofPositions.row(0).segment(4 * result.NumDofs0D + (2 * d1 + 1) * result.NumDofs1D, result.NumDofs1D) =
+                    Eigen::VectorXd::Ones(result.NumDofs1D) * reference_edge_dofs_poisitions(index);
+                result.DofPositions.row(1).segment(4 * result.NumDofs0D + (2 * d1 + 1) * result.NumDofs1D, result.NumDofs1D) =
+                    reference_edge_dofs_poisitions.segment(2, result.NumDofs1D);
+
+                for (unsigned int d2 = 2; d2 < result.BoundaryReferenceElement_Data.NumBasisFunctions; d2++)
+                {
+                    result.DofTypes[dof] = {index, d2};
+                    dof++;
+                }
+            }
+
+            for (unsigned int d1 = 2; d1 < result.BoundaryReferenceElement_Data.NumBasisFunctions; d1++)
+            {
+                for (unsigned int d2 = 2; d2 < result.BoundaryReferenceElement_Data.NumBasisFunctions; d2++)
+                {
+                    result.DofPositions.col(dof) << reference_edge_dofs_poisitions(d2), reference_edge_dofs_poisitions(d1), 0.0;
+
+                    result.DofTypes[dof] = {d2, d1};
+
+                    dof++;
+                }
+            }
+        }
+
+        std::vector<Eigen::Matrix3d> polygonTriangulationVertices(2);
+        polygonTriangulationVertices[0] = result.Vertices.leftCols(3);
+        polygonTriangulationVertices[1] << result.Vertices.rightCols(2), result.Vertices.col(0);
         result.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * order);
+        VEM::Quadrature::VEM_Quadrature_2D quadrature;
+        result.ReferenceSquareQuadrature =
+            quadrature.PolygonInternalQuadrature(result.ReferenceTriangleQuadrature, polygonTriangulationVertices);
 
-        result.ReferenceBasisFunctionValues = EvaluateBasisFunctions(result.ReferenceTriangleQuadrature.Points, result);
+        result.ReferenceBasisFunctionValues = EvaluateBasisFunctions(result.ReferenceSquareQuadrature.Points, result);
         result.ReferenceBasisFunctionDerivativeValues =
-            EvaluateBasisFunctionDerivatives(result.ReferenceTriangleQuadrature.Points, result);
-        result.ReferenceBasisFunctionSecondDerivativeValues =
-            EvaluateBasisFunctionSecondDerivatives(result.ReferenceTriangleQuadrature.Points, result);
+            EvaluateBasisFunctionDerivatives(result.ReferenceSquareQuadrature.Points, result);
+        //        result.ReferenceBasisFunctionSecondDerivativeValues =
+        //            EvaluateBasisFunctionSecondDerivatives(result.ReferenceSquareQuadrature.Points, result);
 
         return result;
     }
 
+    // ***************************************************************************
     Eigen::MatrixXd EvaluateBasisFunctions(const Eigen::MatrixXd &points,
                                            const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data) const
     {
-        switch (reference_element_data.Order)
+
+        const Eigen::VectorXd x = points.row(0);
+        const Eigen::VectorXd y = points.row(1);
+
+        FEM_PCC_1D_ReferenceElement boundary_reference_element;
+        const Eigen::VectorXd values_x =
+            boundary_reference_element.EvaluateBasisFunctions(x, reference_element_data.BoundaryReferenceElement_Data);
+        const Eigen::VectorXd values_y =
+            boundary_reference_element.EvaluateBasisFunctions(y, reference_element_data.BoundaryReferenceElement_Data);
+
+        Eigen::MatrixXd values = Eigen::MatrixXd::Ones(points.cols(), reference_element_data.NumBasisFunctions);
+
+        for (unsigned int d = 0; d < reference_element_data.NumBasisFunctions; d++)
         {
-        case 0:
-            return Eigen::VectorXd::Constant(points.cols(), 1.0);
-        default: {
-            const double h = 1.0 / reference_element_data.Order;
-            const Eigen::ArrayXd x = points.row(0).transpose().array();
-            const Eigen::ArrayXd y = points.row(1).transpose().array();
-            Eigen::MatrixXd values = Eigen::MatrixXd::Ones(points.cols(), reference_element_data.NumBasisFunctions);
-
-            for (unsigned int d = 0; d < reference_element_data.NumBasisFunctions; d++)
-            {
-                const Eigen::Vector3i &dofType = reference_element_data.DofTypes.col(d);
-                const Eigen::Vector3d &dofPosition = reference_element_data.DofPositions.col(d);
-
-                // terms of equation 1 - x - y - t * h
-                for (unsigned int t = 0; t < static_cast<unsigned int>(dofType[0]); t++)
-                {
-                    values.col(d).array() *= (1.0 - x - y - t * h);
-                    values.col(d) /= (1.0 - dofPosition.x() - dofPosition.y() - t * h);
-                }
-
-                // terms of equation x - t * h
-                for (unsigned int t = 0; t < static_cast<unsigned int>(dofType[1]); t++)
-                {
-                    values.col(d).array() *= (x - t * h);
-                    values.col(d) /= (dofPosition.x() - t * h);
-                }
-
-                // terms of equation y - t * h
-                for (unsigned int t = 0; t < static_cast<unsigned int>(dofType[2]); t++)
-                {
-                    values.col(d).array() *= (y - t * h);
-                    values.col(d) /= (dofPosition.y() - t * h);
-                }
-            }
-            return values;
+            const auto &dofType = reference_element_data.DofTypes[d];
+            values.col(d) = values_x.col(dofType[0]).array() * values_y.col(dofType[1]).array();
         }
-        }
+
+        return values;
     }
     // ***************************************************************************
     std::vector<Eigen::MatrixXd> EvaluateBasisFunctionDerivatives(const Eigen::MatrixXd &points,
                                                                   const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data) const
     {
-        switch (reference_element_data.Order)
+        const Eigen::VectorXd x = points.row(0);
+        const Eigen::VectorXd y = points.row(1);
+
+        FEM_PCC_1D_ReferenceElement boundary_reference_element;
+        const Eigen::MatrixXd values_x =
+            boundary_reference_element.EvaluateBasisFunctions(x, reference_element_data.BoundaryReferenceElement_Data);
+        const std::vector<Eigen::MatrixXd> values_x_dx =
+            boundary_reference_element.EvaluateBasisFunctionDerivatives(x, reference_element_data.BoundaryReferenceElement_Data);
+        const Eigen::MatrixXd values_y =
+            boundary_reference_element.EvaluateBasisFunctions(y, reference_element_data.BoundaryReferenceElement_Data);
+        const std::vector<Eigen::MatrixXd> values_y_dy =
+            boundary_reference_element.EvaluateBasisFunctionDerivatives(y, reference_element_data.BoundaryReferenceElement_Data);
+
+        std::vector<Eigen::MatrixXd> grad_values(reference_element_data.Dimension,
+                                                 Eigen::MatrixXd::Ones(points.cols(), reference_element_data.NumBasisFunctions));
+
+        for (unsigned int d = 0; d < reference_element_data.NumBasisFunctions; d++)
         {
-        case 0:
-            return std::vector<Eigen::MatrixXd>(reference_element_data.Dimension,
-                                                Eigen::MatrixXd::Zero(points.cols(), reference_element_data.NumBasisFunctions));
-        default: {
-            const double h = 1.0 / reference_element_data.Order;
-            const Eigen::ArrayXd x = points.row(0).transpose().array();
-            const Eigen::ArrayXd y = points.row(1).transpose().array();
-            std::vector<Eigen::MatrixXd> gradValues(reference_element_data.Dimension,
-                                                    Eigen::MatrixXd::Zero(points.cols(), reference_element_data.NumBasisFunctions));
-
-            for (unsigned int d = 0; d < reference_element_data.NumBasisFunctions; d++)
-            {
-                const Eigen::Vector3i &dofType = reference_element_data.DofTypes.col(d);
-                const Eigen::Vector3d &dofPosition = reference_element_data.DofPositions.col(d);
-
-                const unsigned int numProds = dofType[0] + dofType[1] + dofType[2];
-
-                std::vector<Eigen::ArrayXd> prod_terms(numProds);
-                std::vector<Eigen::Array2d> grad_terms(numProds);
-                double denominator = 1.0;
-
-                unsigned int dt = 0;
-                // terms of equation 1 - x - y - t * h
-                for (unsigned int t = 0; t < static_cast<unsigned int>(dofType[0]); t++)
-                {
-                    prod_terms[dt] = (1.0 - x - y - t * h);
-                    grad_terms[dt] << -1.0, -1.0;
-                    denominator *= (1.0 - dofPosition.x() - dofPosition.y() - t * h);
-                    dt++;
-                }
-
-                // terms of equation x - t * h
-                for (unsigned int t = 0; t < static_cast<unsigned int>(dofType[1]); t++)
-                {
-                    prod_terms[dt] = (x - t * h);
-                    grad_terms[dt] << 1.0, 0.0;
-                    denominator *= (dofPosition.x() - t * h);
-                    dt++;
-                }
-
-                // terms of equation y - t * h
-                for (unsigned int t = 0; t < static_cast<unsigned int>(dofType[2]); t++)
-                {
-                    prod_terms[dt] = (y - t * h);
-                    grad_terms[dt] << 0.0, 1.0;
-                    denominator *= (dofPosition.y() - t * h);
-                    dt++;
-                }
-
-                for (unsigned int i = 0; i < numProds; i++)
-                {
-                    Eigen::ArrayXd inner_prod = Eigen::ArrayXd::Ones(points.cols());
-                    for (unsigned int j = 0; j < numProds; j++)
-                    {
-                        if (i != j)
-                            inner_prod *= prod_terms[j];
-                    }
-
-                    gradValues[0].col(d).array() += inner_prod * grad_terms[i][0];
-                    gradValues[1].col(d).array() += inner_prod * grad_terms[i][1];
-                }
-
-                gradValues[0].col(d) /= denominator;
-                gradValues[1].col(d) /= denominator;
-            }
-
-            return gradValues;
+            const auto &dofType = reference_element_data.DofTypes[d];
+            grad_values[0].col(d) = values_x_dx[0].col(dofType[0]).array() * values_y.col(dofType[1]).array();
+            grad_values[1].col(d) = values_x.col(dofType[0]).array() * values_y_dy[0].col(dofType[1]).array();
         }
-        }
+
+        return grad_values;
     }
     // ***************************************************************************
     std::array<Eigen::MatrixXd, 4> EvaluateBasisFunctionSecondDerivatives(const Eigen::MatrixXd &points,
                                                                           const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data) const
     {
-        switch (reference_element_data.Order)
-        {
-        case 0:
-        case 1: {
-            const Eigen::MatrixXd zero_matrix = Eigen::MatrixXd::Zero(points.cols(), reference_element_data.NumBasisFunctions);
-            return {zero_matrix, zero_matrix, zero_matrix, zero_matrix};
-        }
-        case 2: {
-            std::array<Eigen::MatrixXd, 4> constant_laplacian;
-
-            for (unsigned int der = 0; der < 4; ++der)
-                constant_laplacian[der] = Eigen::MatrixXd::Zero(points.cols(), reference_element_data.NumBasisFunctions);
-
-            constant_laplacian[0].col(0) = Eigen::VectorXd::Constant(points.cols(), +4.0);
-            constant_laplacian[1].col(0) = Eigen::VectorXd::Constant(points.cols(), +4.0);
-            constant_laplacian[2].col(0) = Eigen::VectorXd::Constant(points.cols(), +4.0);
-            constant_laplacian[3].col(0) = Eigen::VectorXd::Constant(points.cols(), +4.0);
-
-            constant_laplacian[0].col(1) = Eigen::VectorXd::Constant(points.cols(), +4.0);
-            constant_laplacian[1].col(1) = Eigen::VectorXd::Constant(points.cols(), +0.0);
-            constant_laplacian[2].col(1) = Eigen::VectorXd::Constant(points.cols(), +0.0);
-            constant_laplacian[3].col(1) = Eigen::VectorXd::Constant(points.cols(), +0.0);
-
-            constant_laplacian[0].col(2) = Eigen::VectorXd::Constant(points.cols(), +0.0);
-            constant_laplacian[1].col(2) = Eigen::VectorXd::Constant(points.cols(), +0.0);
-            constant_laplacian[2].col(2) = Eigen::VectorXd::Constant(points.cols(), +0.0);
-            constant_laplacian[3].col(2) = Eigen::VectorXd::Constant(points.cols(), +4.0);
-
-            constant_laplacian[0].col(3) = Eigen::VectorXd::Constant(points.cols(), -8.0);
-            constant_laplacian[1].col(3) = Eigen::VectorXd::Constant(points.cols(), -4.0);
-            constant_laplacian[2].col(3) = Eigen::VectorXd::Constant(points.cols(), -4.0);
-            constant_laplacian[3].col(3) = Eigen::VectorXd::Constant(points.cols(), +0.0);
-
-            constant_laplacian[0].col(4) = Eigen::VectorXd::Constant(points.cols(), +0.0);
-            constant_laplacian[1].col(4) = Eigen::VectorXd::Constant(points.cols(), +4.0);
-            constant_laplacian[2].col(4) = Eigen::VectorXd::Constant(points.cols(), +4.0);
-            constant_laplacian[3].col(4) = Eigen::VectorXd::Constant(points.cols(), +0.0);
-
-            constant_laplacian[0].col(5) = Eigen::VectorXd::Constant(points.cols(), +0.0);
-            constant_laplacian[1].col(5) = Eigen::VectorXd::Constant(points.cols(), -4.0);
-            constant_laplacian[2].col(5) = Eigen::VectorXd::Constant(points.cols(), -4.0);
-            constant_laplacian[3].col(5) = Eigen::VectorXd::Constant(points.cols(), -8.0);
-
-            return constant_laplacian;
-        }
-        default: {
-            const Eigen::MatrixXd zero_matrix = Eigen::MatrixXd::Zero(points.cols(), reference_element_data.NumBasisFunctions);
-            return {zero_matrix, zero_matrix, zero_matrix, zero_matrix};
-        }
-        }
+        throw std::runtime_error("not implemented method");
     }
 };
 } // namespace PCC

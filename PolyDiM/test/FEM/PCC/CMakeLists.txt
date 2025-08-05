@@ -1,6 +1,8 @@
 list(APPEND polydim_test_headers ${CMAKE_CURRENT_SOURCE_DIR}/test_FEM_PCC_1D_LocalSpace.hpp)
 list(APPEND polydim_test_headers ${CMAKE_CURRENT_SOURCE_DIR}/test_FEM_Triangle_PCC_2D_LocalSpace.hpp)
 list(APPEND polydim_test_headers ${CMAKE_CURRENT_SOURCE_DIR}/test_FEM_Tetrahedron_PCC_3D_LocalSpace.hpp)
+list(APPEND polydim_test_headers ${CMAKE_CURRENT_SOURCE_DIR}/test_FEM_Quadrilateral_PCC_2D_LocalSpace.hpp)
+list(APPEND polydim_test_headers ${CMAKE_CURRENT_SOURCE_DIR}/test_FEM_Hexahedron_PCC_3D_LocalSpace.hpp)
 
 list(APPEND polydim_test_includes ${CMAKE_CURRENT_SOURCE_DIR})
 
