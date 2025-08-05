@@ -8,9 +8,6 @@ if(NOT CMAKE_BUILD_TYPE)
       set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel" FORCE)
 endif()
 
-set(PROGRAM_TYPE 0 CACHE STRING "Select Program type (0, 1)")
-set(VEM_TYPE 0 CACHE STRING "Select VEM type (0, 1)")
-
 # Add dependencies
 #########################################################
 
