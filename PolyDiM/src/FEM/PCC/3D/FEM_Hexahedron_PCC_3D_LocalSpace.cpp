@@ -40,7 +40,7 @@ FEM_Hexahedron_PCC_3D_LocalSpace_Data FEM_Hexahedron_PCC_3D_LocalSpace::CreateLo
     localSpace.Order = reference_element_data.Order;
     localSpace.NumberOfBasisFunctions = reference_element_data.NumBasisFunctions;
 
-    for (unsigned int e = 0; e < 6; ++e)
+    for (unsigned int e = 0; e < 12; ++e)
     {
         const unsigned int edge_origin_index = polyhedron.Edges(0, e);
         const unsigned int edge_end_index = polyhedron.Edges(1, e);
@@ -51,20 +51,21 @@ FEM_Hexahedron_PCC_3D_LocalSpace_Data FEM_Hexahedron_PCC_3D_LocalSpace::CreateLo
         localSpace.polyhedron_to_reference_edge_direction[e] = reference_edge.second;
     }
 
-    for (unsigned int f = 0; f < 4; ++f)
+    for (unsigned int f = 0; f < 6; ++f)
     {
-        const unsigned int face_edge_index = polyhedron.Faces[f](1, 0);
-        const unsigned int face_reference_edge_index = localSpace.polyhedron_to_reference_edge_index[face_edge_index];
-        const unsigned int face_vertex_index = polyhedron.Faces[f](0, 2);
+        const unsigned int face_first_edge_index = polyhedron.Faces[f](1, 0);
+        const unsigned int face_reference_first_edge_index = localSpace.polyhedron_to_reference_edge_index[face_first_edge_index];
+        const unsigned int face_first_second_index = polyhedron.Faces[f](1, 2);
+        const unsigned int face_reference_second_edge_index = localSpace.polyhedron_to_reference_edge_index[face_first_second_index];
 
         localSpace.polyhedron_to_reference_face_index[f] =
-            reference_element_data.Faces_by_edge_vertex.at({face_reference_edge_index, face_vertex_index});
+            reference_element_data.Faces_by_edges.at({face_reference_first_edge_index, face_reference_second_edge_index});
     }
 
     localSpace.DofsMeshOrder.resize(localSpace.NumberOfBasisFunctions, 0);
 
     localSpace.Dof0DsIndex.fill(0);
-    for (unsigned int v = 0; v < 4; v++)
+    for (unsigned int v = 0; v < 8; v++)
     {
         localSpace.Dof0DsIndex[v + 1] = localSpace.Dof0DsIndex[v] + reference_element_data.NumDofs0D;
 
@@ -76,14 +77,14 @@ FEM_Hexahedron_PCC_3D_LocalSpace_Data FEM_Hexahedron_PCC_3D_LocalSpace::CreateLo
         }
     }
 
-    localSpace.Dof1DsIndex.fill(localSpace.Dof0DsIndex[4]);
-    for (unsigned int e = 0; e < 6; ++e)
+    localSpace.Dof1DsIndex.fill(localSpace.Dof0DsIndex[8]);
+    for (unsigned int e = 0; e < 12; ++e)
     {
         localSpace.Dof1DsIndex[e + 1] = localSpace.Dof1DsIndex[e] + reference_element_data.NumDofs1D;
 
         const unsigned int ref_e = localSpace.polyhedron_to_reference_edge_index[e];
         const bool ref_e_direction = localSpace.polyhedron_to_reference_edge_direction[e];
-        unsigned int edge_dof_counter = reference_element_data.NumDofs0D * 4 + reference_element_data.NumDofs1D * ref_e;
+        unsigned int edge_dof_counter = reference_element_data.NumDofs0D * 8 + reference_element_data.NumDofs1D * ref_e;
 
         if (polyhedron.EdgesDirection.at(e) == ref_e_direction)
         {
@@ -103,13 +104,13 @@ FEM_Hexahedron_PCC_3D_LocalSpace_Data FEM_Hexahedron_PCC_3D_LocalSpace::CreateLo
         }
     }
 
-    localSpace.Dof2DsIndex.fill(localSpace.Dof1DsIndex[6]);
-    for (unsigned int f = 0; f < 4; ++f)
+    localSpace.Dof2DsIndex.fill(localSpace.Dof1DsIndex[12]);
+    for (unsigned int f = 0; f < 6; ++f)
     {
         localSpace.Dof2DsIndex[f + 1] = localSpace.Dof2DsIndex[f] + reference_element_data.NumDofs2D;
 
         const unsigned int ref_f = localSpace.polyhedron_to_reference_face_index[f];
-        unsigned int face_dof_counter = reference_element_data.NumDofs0D * 4 + reference_element_data.NumDofs1D * 6 +
+        unsigned int face_dof_counter = reference_element_data.NumDofs0D * 8 + reference_element_data.NumDofs1D * 12 +
                                         reference_element_data.NumDofs2D * ref_f;
         if (polyhedron.FacesDirection.at(f))
         {
@@ -129,11 +130,11 @@ FEM_Hexahedron_PCC_3D_LocalSpace_Data FEM_Hexahedron_PCC_3D_LocalSpace::CreateLo
         }
     }
 
-    localSpace.Dof3DsIndex.fill(localSpace.Dof2DsIndex[4]);
+    localSpace.Dof3DsIndex.fill(localSpace.Dof2DsIndex[6]);
     localSpace.Dof3DsIndex[1] = localSpace.Dof3DsIndex[0] + reference_element_data.NumDofs3D;
 
     unsigned int cell_dof_counter =
-        reference_element_data.NumDofs0D * 4 + reference_element_data.NumDofs1D * 6 + reference_element_data.NumDofs2D * 4;
+        reference_element_data.NumDofs0D * 8 + reference_element_data.NumDofs1D * 12 + reference_element_data.NumDofs2D * 6;
     for (unsigned int d = localSpace.Dof3DsIndex[0]; d < localSpace.Dof3DsIndex[1]; d++)
     {
         localSpace.DofsMeshOrder[cell_dof_counter] = d;
@@ -144,7 +145,7 @@ FEM_Hexahedron_PCC_3D_LocalSpace_Data FEM_Hexahedron_PCC_3D_LocalSpace::CreateLo
 
     FEM_Quadrilateral_PCC_2D_LocalSpace face_local_space;
 
-    for (unsigned int f = 0; f < 4; ++f)
+    for (unsigned int f = 0; f < 6; ++f)
     {
         const auto &face_geometry = polyhedron.Faces_2D_Geometry[f];
 
@@ -159,7 +160,7 @@ FEM_Hexahedron_PCC_3D_LocalSpace_Data FEM_Hexahedron_PCC_3D_LocalSpace::CreateLo
             face_local_space.CreateLocalSpace(reference_element_data.BoundaryReferenceElement_Data, fem_face_geometry);
     }
 
-    localSpace.InternalQuadrature = InternalQuadrature(reference_element_data.ReferenceTetrahedronQuadrature, localSpace.MapData);
+    localSpace.InternalQuadrature = InternalQuadrature(reference_element_data.ReferenceHexahedronQuadrature, localSpace.MapData);
     localSpace.BoundaryQuadrature = BoundaryQuadrature(localSpace.Boundary_LocalSpace_Data, polyhedron);
 
     return localSpace;
@@ -221,13 +222,13 @@ Gedim::Quadrature::QuadratureData FEM_Hexahedron_PCC_3D_LocalSpace::InternalQuad
     return quadrature;
 }
 // ***************************************************************************
-std::array<Gedim::Quadrature::QuadratureData, 4> FEM_Hexahedron_PCC_3D_LocalSpace::BoundaryQuadrature(
-    const std::array<FEM_Quadrilateral_PCC_2D_LocalSpace_Data, 4> &faces_local_space_data,
+std::array<Gedim::Quadrature::QuadratureData, 6> FEM_Hexahedron_PCC_3D_LocalSpace::BoundaryQuadrature(
+    const std::array<FEM_Quadrilateral_PCC_2D_LocalSpace_Data, 6> &faces_local_space_data,
     const FEM_Hexahedron_PCC_3D_Geometry &polyhedron) const
 {
-    std::array<Gedim::Quadrature::QuadratureData, 4> faces_quadrature;
+    std::array<Gedim::Quadrature::QuadratureData, 6> faces_quadrature;
 
-    for (unsigned int f = 0; f < 4; ++f)
+    for (unsigned int f = 0; f < 6; ++f)
     {
         auto &face_quadrature = faces_quadrature.at(f);
         face_quadrature = faces_local_space_data[f].InternalQuadrature;

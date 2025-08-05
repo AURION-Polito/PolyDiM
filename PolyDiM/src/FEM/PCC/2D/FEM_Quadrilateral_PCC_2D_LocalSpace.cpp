@@ -25,7 +25,7 @@ FEM_Quadrilateral_PCC_2D_LocalSpace_Data FEM_Quadrilateral_PCC_2D_LocalSpace::Cr
     const FEM_Quadrilateral_PCC_2D_Polygon_Geometry &polygon) const
 {
 
-    if (polygon.Vertices.cols() != 3)
+    if (polygon.Vertices.cols() != 4)
         throw std::runtime_error("The element must be a Quadrilateral");
 
     FEM_Quadrilateral_PCC_2D_LocalSpace_Data localSpace;
@@ -38,9 +38,10 @@ FEM_Quadrilateral_PCC_2D_LocalSpace_Data FEM_Quadrilateral_PCC_2D_LocalSpace::Cr
     localSpace.NumberOfBasisFunctions = reference_element_data.NumBasisFunctions;
 
     localSpace.DofsMeshOrder.resize(localSpace.NumberOfBasisFunctions, 0);
+
     unsigned int dofCounter = 0;
     localSpace.Dof0DsIndex.fill(0);
-    for (unsigned int v = 0; v < 3; v++)
+    for (unsigned int v = 0; v < 4; v++)
     {
         localSpace.Dof0DsIndex[v + 1] = localSpace.Dof0DsIndex[v] + reference_element_data.NumDofs0D;
 
@@ -51,8 +52,8 @@ FEM_Quadrilateral_PCC_2D_LocalSpace_Data FEM_Quadrilateral_PCC_2D_LocalSpace::Cr
         }
     }
 
-    localSpace.Dof1DsIndex.fill(localSpace.Dof0DsIndex[3]);
-    for (unsigned int e = 0; e < 3; e++)
+    localSpace.Dof1DsIndex.fill(localSpace.Dof0DsIndex[4]);
+    for (unsigned int e = 0; e < 4; e++)
     {
         localSpace.Dof1DsIndex[e + 1] = localSpace.Dof1DsIndex[e] + reference_element_data.NumDofs1D;
 
@@ -74,8 +75,9 @@ FEM_Quadrilateral_PCC_2D_LocalSpace_Data FEM_Quadrilateral_PCC_2D_LocalSpace::Cr
         }
     }
 
-    localSpace.Dof2DsIndex.fill(localSpace.Dof1DsIndex[3]);
+    localSpace.Dof2DsIndex.fill(localSpace.Dof1DsIndex[4]);
     localSpace.Dof2DsIndex[1] = localSpace.Dof2DsIndex[0] + reference_element_data.NumDofs2D;
+
     for (unsigned int d = localSpace.Dof2DsIndex[0]; d < localSpace.Dof2DsIndex[1]; d++)
     {
         localSpace.DofsMeshOrder[dofCounter] = d;
@@ -85,7 +87,7 @@ FEM_Quadrilateral_PCC_2D_LocalSpace_Data FEM_Quadrilateral_PCC_2D_LocalSpace::Cr
     // reorder basis function values with mesh order
     localSpace.Dofs = MapValues(localSpace, Gedim::MapParallelogram::F(localSpace.MapData, reference_element_data.DofPositions));
 
-    localSpace.InternalQuadrature = InternalQuadrature(reference_element_data.ReferenceTriangleQuadrature, localSpace.MapData);
+    localSpace.InternalQuadrature = InternalQuadrature(reference_element_data.ReferenceSquareQuadrature, localSpace.MapData);
     localSpace.BoundaryQuadrature =
         BoundaryQuadrature(reference_element_data.BoundaryReferenceElement_Data.ReferenceSegmentQuadrature, polygon);
 

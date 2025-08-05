@@ -16,6 +16,7 @@
 #include "FEM_Quadrilateral_PCC_2D_ReferenceElement.hpp"
 #include "QuadratureData.hpp"
 #include "Quadrature_Gauss3D_Tetrahedron_PositiveWeights.hpp"
+#include "VEM_Quadrature_3D.hpp"
 
 namespace Polydim
 {
@@ -33,13 +34,11 @@ struct FEM_Hexahedron_PCC_3D_ReferenceElement_Data final
     unsigned int NumDofs3D;
 
     std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, bool>> Edges_by_vertices;
-    std::map<std::pair<unsigned int, unsigned int>, unsigned int> Faces_by_edge_vertex;
+    std::map<std::pair<unsigned int, unsigned int>, unsigned int> Faces_by_edges;
 
     unsigned int NumBasisFunctions;
     Eigen::MatrixXd DofPositions;
     std::vector<std::array<unsigned int, 3>> DofTypes;
-
-    Eigen::MatrixXd Vertices;
 
     Gedim::Quadrature::QuadratureData ReferenceTetrahedronQuadrature;
     Gedim::Quadrature::QuadratureData ReferenceHexahedronQuadrature;
@@ -51,11 +50,25 @@ struct FEM_Hexahedron_PCC_3D_ReferenceElement_Data final
     FEM_Quadrilateral_PCC_2D_ReferenceElement_Data BoundaryReferenceElement_Data;
 };
 
-class FEM_Hexahedron_PCC_3D_ReferenceElement final
+struct FEM_Hexahedron_PCC_3D_ReferenceElement final
 {
   public:
+    Eigen::MatrixXd Vertices;
+
+    FEM_Hexahedron_PCC_3D_ReferenceElement()
+    {
+        Vertices = Eigen::MatrixXd::Zero(3, 8);
+        Vertices << 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0,
+            1.0, 1.0, 1.0, 1.0;
+    }
+
+    ~FEM_Hexahedron_PCC_3D_ReferenceElement(){};
+
     FEM_Hexahedron_PCC_3D_ReferenceElement_Data Create(const unsigned int order) const
     {
+        if (order <= 0)
+            throw std::runtime_error("not valid order");
+
         FEM_Hexahedron_PCC_3D_ReferenceElement_Data result;
 
         result.Order = order;
@@ -75,37 +88,44 @@ class FEM_Hexahedron_PCC_3D_ReferenceElement final
             {{0, 4}, {8, true}},  {{4, 0}, {8, false}},  {{1, 5}, {9, true}},  {{5, 1}, {9, false}},
             {{3, 7}, {10, true}}, {{7, 3}, {10, false}}, {{2, 6}, {11, true}}, {{6, 2}, {11, false}}};
 
-        result.Faces_by_edge_vertex = {{{0, 1}, 0}, {{1, 2}, 0}, {{2, 3}, 0}, {{3, 0}, 0}, {{4, 5}, 1}, {{5, 6}, 1},
-                                       {{6, 7}, 1}, {{7, 4}, 1}, {{0, 1}, 2}, {{1, 5}, 2}, {{5, 4}, 2}, {{4, 0}, 2},
-                                       {{3, 2}, 3}, {{2, 6}, 3}, {{6, 7}, 3}, {{7, 4}, 3}, {{0, 3}, 4}, {{3, 7}, 4},
-                                       {{7, 4}, 4}, {{4, 0}, 4}, {{1, 2}, 5}, {{2, 6}, 5}, {{6, 5}, 5}, {{5, 1}, 5}};
+        result.Faces_by_edges = {{{0, 2}, 0},  {{2, 0}, 0},  {{1, 3}, 0},   {{3, 1}, 0},   {{4, 6}, 1},  {{6, 4}, 1},
+                                 {{5, 7}, 1},  {{7, 5}, 1},  {{0, 4}, 2},   {{4, 0}, 2},   {{8, 9}, 2},  {{9, 8}, 2},
+                                 {{2, 6}, 3},  {{6, 2}, 3},  {{10, 11}, 3}, {{11, 10}, 3}, {{7, 3}, 4},  {{3, 7}, 4},
+                                 {{8, 10}, 4}, {{10, 8}, 4}, {{1, 5}, 5},   {{9, 11}, 5},  {{11, 9}, 5}, {{5, 1}, 5}};
 
         FEM_PCC_1D_ReferenceElement edge_reference_element;
         result.EdgeReferenceElement_Data = edge_reference_element.Create(order);
-        const Eigen::VectorXd reference_edge_dofs_poisitions = result.EdgeReferenceElement_Data.DofPositions;
+        const Eigen::VectorXd reference_edge_dofs_poisitions = result.EdgeReferenceElement_Data.DofPositions.row(0);
 
         // Reordering Dofs using convention [point, edge, cell]
         result.DofPositions.setZero(3, result.NumBasisFunctions);
         result.DofTypes.resize(result.NumBasisFunctions);
-        result.Vertices = Eigen::MatrixXd(3, 8);
 
-        unsigned int dof = 0;
-        for (unsigned int d1 = 0; d1 < 2; d1++)
+        for (unsigned int d3 = 0; d3 < 2; d3++)
         {
-            for (unsigned int d2 = 0; d2 < 2; d2++)
+            for (unsigned int d1 = 0; d1 < 2; d1++)
             {
-                for (unsigned int d3 = 0; d3 < 3; d3++)
+                if (d1 == 0)
                 {
-                    result.DofPositions.col(dof) << reference_edge_dofs_poisitions(d3),
-                        reference_edge_dofs_poisitions(d2), reference_edge_dofs_poisitions(d1);
-
-                    result.DofTypes[dof] = {d3, d2, d1};
-
-                    dof++;
+                    for (unsigned int d2 = 0; d2 < 2; d2++)
+                    {
+                        result.DofPositions.col(4 * d3 + 2 * d1 + d2) << reference_edge_dofs_poisitions(d2),
+                            reference_edge_dofs_poisitions(d1), reference_edge_dofs_poisitions(d3);
+                        result.DofTypes[4 * d3 + 2 * d1 + d2] = {d2, d1, d3};
+                    }
+                }
+                else
+                {
+                    for (unsigned int d2 = 0; d2 < 2; d2++)
+                    {
+                        const unsigned int index = (d2 == 0) ? 1 : 0;
+                        result.DofPositions.col(4 * d3 + 2 * d1 + d2) << reference_edge_dofs_poisitions(index),
+                            reference_edge_dofs_poisitions(d1), reference_edge_dofs_poisitions(d3);
+                        result.DofTypes[4 * d3 + 2 * d1 + d2] = {index, d1, d3};
+                    }
                 }
             }
         }
-        result.Vertices = result.DofPositions.leftCols(8);
 
         if (order > 1)
         {
@@ -123,11 +143,8 @@ class FEM_Hexahedron_PCC_3D_ReferenceElement final
                                                        result.NumDofs1D) =
                         Eigen::VectorXd::Ones(result.NumDofs1D) * reference_edge_dofs_poisitions(d3);
 
-                    for (unsigned int d2 = 2; d2 < result.BoundaryReferenceElement_Data.NumBasisFunctions; d2++)
-                    {
-                        result.DofTypes[dof] = {d2, d1, d3};
-                        dof++;
-                    }
+                    for (unsigned int d2 = 2; d2 < result.EdgeReferenceElement_Data.NumBasisFunctions; d2++)
+                        result.DofTypes[8 * result.NumDofs0D + (2 * d1 + 4 * d3) * result.NumDofs1D + d2 - 2] = {d2, d1, d3};
                 }
             }
 
@@ -146,11 +163,8 @@ class FEM_Hexahedron_PCC_3D_ReferenceElement final
                                                        result.NumDofs1D) =
                         Eigen::VectorXd::Ones(result.NumDofs1D) * reference_edge_dofs_poisitions(d3);
 
-                    for (unsigned int d2 = 2; d2 < result.BoundaryReferenceElement_Data.NumBasisFunctions; d2++)
-                    {
-                        result.DofTypes[dof] = {index, d2, d3};
-                        dof++;
-                    }
+                    for (unsigned int d2 = 2; d2 < result.EdgeReferenceElement_Data.NumBasisFunctions; d2++)
+                        result.DofTypes[8 * result.NumDofs0D + (2 * d1 + 1 + 4 * d3) * result.NumDofs1D + d2 - 2] = {index, d2, d3};
                 }
             }
 
@@ -169,20 +183,19 @@ class FEM_Hexahedron_PCC_3D_ReferenceElement final
                                                        result.NumDofs1D) =
                         reference_edge_dofs_poisitions.segment(2, result.NumDofs1D);
 
-                    for (unsigned int d2 = 2; d2 < result.BoundaryReferenceElement_Data.NumBasisFunctions; d2++) // z
-                    {
-                        result.DofTypes[dof] = {d1, d3, d2};
-                        dof++;
-                    }
+                    for (unsigned int d2 = 2; d2 < result.EdgeReferenceElement_Data.NumBasisFunctions; d2++) // z
+                        result.DofTypes[8 * result.NumDofs0D + (8 + d1 + 2 * d3) * result.NumDofs1D + d2 - 2] = {d1, d3, d2};
                 }
             }
+
+            unsigned int dof = 8 * result.NumDofs0D + 12 * result.NumDofs1D;
 
             // Face dofs
             for (unsigned int d3 = 0; d3 < 2; d3++) // z
             {
-                for (unsigned int d1 = 2; d1 < result.BoundaryReferenceElement_Data.NumBasisFunctions; d1++) // x
+                for (unsigned int d1 = 2; d1 < result.EdgeReferenceElement_Data.NumBasisFunctions; d1++) // x
                 {
-                    for (unsigned int d2 = 2; d2 < result.BoundaryReferenceElement_Data.NumBasisFunctions; d2++) // y
+                    for (unsigned int d2 = 2; d2 < result.EdgeReferenceElement_Data.NumBasisFunctions; d2++) // y
                     {
                         result.DofPositions.col(dof) << reference_edge_dofs_poisitions(d1),
                             reference_edge_dofs_poisitions(d2), reference_edge_dofs_poisitions(d3);
@@ -194,9 +207,9 @@ class FEM_Hexahedron_PCC_3D_ReferenceElement final
 
             for (unsigned int d3 = 0; d3 < 2; d3++) // y
             {
-                for (unsigned int d1 = 2; d1 < result.BoundaryReferenceElement_Data.NumBasisFunctions; d1++) // x
+                for (unsigned int d1 = 2; d1 < result.EdgeReferenceElement_Data.NumBasisFunctions; d1++) // x
                 {
-                    for (unsigned int d2 = 2; d2 < result.BoundaryReferenceElement_Data.NumBasisFunctions; d2++) // z
+                    for (unsigned int d2 = 2; d2 < result.EdgeReferenceElement_Data.NumBasisFunctions; d2++) // z
                     {
                         result.DofPositions.col(dof) << reference_edge_dofs_poisitions(d1),
                             reference_edge_dofs_poisitions(d3), reference_edge_dofs_poisitions(d2);
@@ -208,9 +221,24 @@ class FEM_Hexahedron_PCC_3D_ReferenceElement final
 
             for (unsigned int d3 = 0; d3 < 2; d3++) // x
             {
-                for (unsigned int d1 = 2; d1 < result.BoundaryReferenceElement_Data.NumBasisFunctions; d1++) // y
+                for (unsigned int d1 = 2; d1 < result.EdgeReferenceElement_Data.NumBasisFunctions; d1++) // y
                 {
-                    for (unsigned int d2 = 2; d2 < result.BoundaryReferenceElement_Data.NumBasisFunctions; d2++) // z
+                    for (unsigned int d2 = 2; d2 < result.EdgeReferenceElement_Data.NumBasisFunctions; d2++) // z
+                    {
+                        result.DofPositions.col(dof) << reference_edge_dofs_poisitions(d3),
+                            reference_edge_dofs_poisitions(d1), reference_edge_dofs_poisitions(d2);
+                        result.DofTypes[dof] = {d3, d1, d2};
+                        dof++;
+                    }
+                }
+            }
+
+            // Interni
+            for (unsigned int d3 = 2; d3 < result.EdgeReferenceElement_Data.NumBasisFunctions; d3++) // x
+            {
+                for (unsigned int d1 = 2; d1 < result.EdgeReferenceElement_Data.NumBasisFunctions; d1++) // y
+                {
+                    for (unsigned int d2 = 2; d2 < result.EdgeReferenceElement_Data.NumBasisFunctions; d2++) // z
                     {
                         result.DofPositions.col(dof) << reference_edge_dofs_poisitions(d3),
                             reference_edge_dofs_poisitions(d1), reference_edge_dofs_poisitions(d2);
@@ -220,13 +248,31 @@ class FEM_Hexahedron_PCC_3D_ReferenceElement final
                 }
             }
         }
+        std::vector<Eigen::MatrixXd> polyhedronTetrahedronsVertices(12, Eigen::MatrixXd::Zero(3, 4));
+        polyhedronTetrahedronsVertices[0] << 0.0, 1.0, 1.0, 0.5, 0.0, 0.0, 1.0, 0.5, 0.0, 0.0, 0.0, 0.5;
+        polyhedronTetrahedronsVertices[1] << 0.0, 1.0, 0.0, 0.5, 0.0, 1.0, 1.0, 0.5, 0.0, 0.0, 0.0, 0.5;
+        polyhedronTetrahedronsVertices[2] << 0.0, 1.0, 1.0, 0.5, 0.0, 0.0, 1.0, 0.5, 1.0, 1.0, 1.0, 0.5;
+        polyhedronTetrahedronsVertices[3] << 0.0, 1.0, 0.0, 0.5, 0.0, 1.0, 1.0, 0.5, 1.0, 1.0, 1.0, 0.5;
+        polyhedronTetrahedronsVertices[4] << 0.0, 1.0, 1.0, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 1.0, 0.5;
+        polyhedronTetrahedronsVertices[5] << 0.0, 1.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 1.0, 1.0, 0.5;
+        polyhedronTetrahedronsVertices[6] << 0.0, 1.0, 1.0, 0.5, 1.0, 1.0, 1.0, 0.5, 0.0, 0.0, 1.0, 0.5;
+        polyhedronTetrahedronsVertices[7] << 0.0, 1.0, 0.0, 0.5, 1.0, 1.0, 1.0, 0.5, 0.0, 1.0, 1.0, 0.5;
+        polyhedronTetrahedronsVertices[8] << 0.0, 0.0, 0.0, 0.5, 0.0, 1.0, 1.0, 0.5, 0.0, 0.0, 1.0, 0.5;
+        polyhedronTetrahedronsVertices[9] << 0.0, 0.0, 0.0, 0.5, 0.0, 1.0, 0.0, 0.5, 0.0, 1.0, 1.0, 0.5;
+        polyhedronTetrahedronsVertices[10] << 1.0, 1.0, 1.0, 0.5, 0.0, 1.0, 1.0, 0.5, 0.0, 0.0, 1.0, 0.5;
+        polyhedronTetrahedronsVertices[11] << 1.0, 1.0, 1.0, 0.5, 0.0, 1.0, 0.0, 0.5, 0.0, 1.0, 1.0, 0.5;
 
         FEM_Quadrilateral_PCC_2D_ReferenceElement boundary_reference_element;
         result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order);
 
         result.ReferenceTetrahedronQuadrature =
             Gedim::Quadrature::Quadrature_Gauss3D_Tetrahedron_PositiveWeights::FillPointsAndWeights(2 * order);
-        result.ReferenceHexahedronQuadrature;
+
+        VEM::Quadrature::VEM_Quadrature_3D quadrature_3D;
+        Gedim::GeometryUtilitiesConfig geometry_utilities_config;
+        Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
+        result.ReferenceHexahedronQuadrature =
+            quadrature_3D.PolyhedronInternalQuadrature(geometry_utilities, result.ReferenceTetrahedronQuadrature, polyhedronTetrahedronsVertices);
         result.ReferenceBasisFunctionValues = EvaluateBasisFunctions(result.ReferenceHexahedronQuadrature.Points, result);
         result.ReferenceBasisFunctionDerivativeValues =
             EvaluateBasisFunctionDerivatives(result.ReferenceHexahedronQuadrature.Points, result);
@@ -238,25 +284,29 @@ class FEM_Hexahedron_PCC_3D_ReferenceElement final
                                            const FEM_Hexahedron_PCC_3D_ReferenceElement_Data &reference_element_data) const
     {
 
-        const Eigen::VectorXd x = points.row(0);
-        const Eigen::VectorXd y = points.row(1);
-        const Eigen::VectorXd z = points.row(2);
+        const unsigned int num_points = points.cols();
+        Eigen::MatrixXd x = Eigen::MatrixXd::Zero(3, num_points);
+        x.row(0) = points.row(0);
+        Eigen::MatrixXd y = Eigen::MatrixXd::Zero(3, num_points);
+        y.row(0) = points.row(1);
+        Eigen::MatrixXd z = Eigen::MatrixXd::Zero(3, num_points);
+        z.row(0) = points.row(2);
 
         FEM_PCC_1D_ReferenceElement boundary_reference_element;
-        const Eigen::VectorXd values_x =
+        const Eigen::MatrixXd values_x =
             boundary_reference_element.EvaluateBasisFunctions(x, reference_element_data.EdgeReferenceElement_Data);
-        const Eigen::VectorXd values_y =
+        const Eigen::MatrixXd values_y =
             boundary_reference_element.EvaluateBasisFunctions(y, reference_element_data.EdgeReferenceElement_Data);
-        const Eigen::VectorXd values_z =
+        const Eigen::MatrixXd values_z =
             boundary_reference_element.EvaluateBasisFunctions(z, reference_element_data.EdgeReferenceElement_Data);
 
-        Eigen::MatrixXd values = Eigen::MatrixXd::Ones(points.cols(), reference_element_data.NumBasisFunctions);
+        Eigen::MatrixXd values = Eigen::MatrixXd::Ones(num_points, reference_element_data.NumBasisFunctions);
 
         for (unsigned int d = 0; d < reference_element_data.NumBasisFunctions; d++)
         {
             const auto &dofType = reference_element_data.DofTypes[d];
             values.col(d) =
-                values_x.col(dofType[0]).array() * values_y.col(dofType[1]).array() * values_y.col(dofType[2]).array();
+                values_x.col(dofType[0]).array() * values_y.col(dofType[1]).array() * values_z.col(dofType[2]).array();
         }
 
         return values;
@@ -265,9 +315,13 @@ class FEM_Hexahedron_PCC_3D_ReferenceElement final
     std::vector<Eigen::MatrixXd> EvaluateBasisFunctionDerivatives(const Eigen::MatrixXd &points,
                                                                   const FEM_Hexahedron_PCC_3D_ReferenceElement_Data &reference_element_data) const
     {
-        const Eigen::VectorXd x = points.row(0);
-        const Eigen::VectorXd y = points.row(1);
-        const Eigen::VectorXd z = points.row(2);
+        const unsigned int num_points = points.cols();
+        Eigen::MatrixXd x = Eigen::MatrixXd::Zero(3, num_points);
+        x.row(0) = points.row(0);
+        Eigen::MatrixXd y = Eigen::MatrixXd::Zero(3, num_points);
+        y.row(0) = points.row(1);
+        Eigen::MatrixXd z = Eigen::MatrixXd::Zero(3, num_points);
+        z.row(0) = points.row(2);
 
         FEM_PCC_1D_ReferenceElement boundary_reference_element;
         const Eigen::MatrixXd values_x =
@@ -284,15 +338,15 @@ class FEM_Hexahedron_PCC_3D_ReferenceElement final
         const std::vector<Eigen::MatrixXd> values_z_dz =
             boundary_reference_element.EvaluateBasisFunctionDerivatives(z, reference_element_data.EdgeReferenceElement_Data);
 
-        std::vector<Eigen::MatrixXd> grad_values(3, Eigen::MatrixXd::Ones(points.cols(), reference_element_data.NumBasisFunctions));
+        std::vector<Eigen::MatrixXd> grad_values(3, Eigen::MatrixXd::Ones(num_points, reference_element_data.NumBasisFunctions));
 
         for (unsigned int d = 0; d < reference_element_data.NumBasisFunctions; d++)
         {
             const auto &dofType = reference_element_data.DofTypes[d];
             grad_values[0].col(d) = values_x_dx[0].col(dofType[0]).array() * values_y.col(dofType[1]).array() *
-                                    values_y.col(dofType[2]).array();
+                                    values_z.col(dofType[2]).array();
             grad_values[1].col(d) = values_x.col(dofType[0]).array() * values_y_dy[0].col(dofType[1]).array() *
-                                    values_y.col(dofType[2]).array();
+                                    values_z.col(dofType[2]).array();
             grad_values[2].col(d) = values_x.col(dofType[0]).array() * values_y.col(dofType[1]).array() *
                                     values_z_dz[0].col(dofType[2]).array();
         }
@@ -300,8 +354,8 @@ class FEM_Hexahedron_PCC_3D_ReferenceElement final
         return grad_values;
     }
     // ***************************************************************************
-    std::array<Eigen::MatrixXd, 4> EvaluateBasisFunctionSecondDerivatives(const Eigen::MatrixXd &points,
-                                                                          const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data) const
+    std::array<Eigen::MatrixXd, 9> EvaluateBasisFunctionSecondDerivatives(const Eigen::MatrixXd &,
+                                                                          const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &) const
     {
         throw std::runtime_error("not implemented method");
     }

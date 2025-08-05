@@ -51,6 +51,10 @@ class VEM_Quadrature_3D final
                                                                    const Gedim::GeometryUtilities &geometryUtility,
                                                                    const std::vector<Eigen::MatrixXd> &polyhedronTetrahedronVertices) const;
 
+    Gedim::Quadrature::QuadratureData PolyhedronInternalQuadrature(const Gedim::GeometryUtilities &geometryUtility,
+                                                                   const Gedim::Quadrature::QuadratureData &data,
+                                                                   const std::vector<Eigen::MatrixXd> &polyhedronTetrahedronVertices) const;
+
     Faces_QuadratureData_PCC PolyhedronFacesQuadrature(const Gedim::GeometryUtilities &geometryUtility,
                                                        const std::vector<Eigen::MatrixXi> &polyhedronFaces,
                                                        const std::vector<Eigen::Matrix3d> &facesRotationMatrix,

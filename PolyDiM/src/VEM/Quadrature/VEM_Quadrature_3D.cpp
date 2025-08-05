@@ -83,6 +83,36 @@ Gedim::Quadrature::QuadratureData VEM_Quadrature_3D::PolyhedronInternalQuadratur
     return result;
 }
 //****************************************************************************
+Gedim::Quadrature::QuadratureData VEM_Quadrature_3D::PolyhedronInternalQuadrature(const Gedim::GeometryUtilities &geometryUtility,
+                                                                                  const Gedim::Quadrature::QuadratureData &data,
+                                                                                  const std::vector<Eigen::MatrixXd> &polyhedronTetrahedronVertices) const
+{
+    Gedim::Quadrature::QuadratureData result;
+
+    const unsigned int numPolyhedronTetrahedrons = polyhedronTetrahedronVertices.size();
+
+    const unsigned int numTetrahedronQuadraturePoints = data.Points.cols();
+    const unsigned int numQuadraturePoints = numPolyhedronTetrahedrons * numTetrahedronQuadraturePoints;
+
+    result.Points.setZero(3, numQuadraturePoints);
+    result.Weights.setZero(numQuadraturePoints);
+
+    Gedim::MapTetrahedron mapTetrahedron(geometryUtility);
+
+    for (unsigned int t = 0; t < numPolyhedronTetrahedrons; t++)
+    {
+        const Eigen::MatrixXd &tetrahedronVertices = polyhedronTetrahedronVertices[t];
+
+        Gedim::MapTetrahedron::MapTetrahedronData mapTetrahedronData = mapTetrahedron.Compute(tetrahedronVertices);
+        result.Points.block(0, numTetrahedronQuadraturePoints * t, 3, numTetrahedronQuadraturePoints) =
+            mapTetrahedron.F(mapTetrahedronData, data.Points);
+        result.Weights.segment(numTetrahedronQuadraturePoints * t, numTetrahedronQuadraturePoints) =
+            data.Weights.array() * mapTetrahedron.DetJ(mapTetrahedronData, data.Points).array().abs();
+    }
+
+    return result;
+}
+//****************************************************************************
 VEM_Quadrature_3D::Faces_QuadratureData_PCC VEM_Quadrature_3D::PolyhedronFacesQuadrature(
     const Gedim::GeometryUtilities &geometryUtility,
     const std::vector<Eigen::MatrixXi> &polyhedronFaces,

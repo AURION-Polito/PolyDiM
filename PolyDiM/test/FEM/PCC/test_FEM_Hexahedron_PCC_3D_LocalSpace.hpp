@@ -9,23 +9,25 @@
 //
 // This file can be used citing references in CITATION.cff file.
 
-#ifndef __TEST_FEM_Tetrahedron_PCC_3D_LocalSpace_H
-#define __TEST_FEM_Tetrahedron_PCC_3D_LocalSpace_H
+#ifndef __TEST_FEM_Hexahedron_PCC_3D_LocalSpace_H
+#define __TEST_FEM_Hexahedron_PCC_3D_LocalSpace_H
 
 #include <gmock/gmock-matchers.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "FEM_Tetrahedron_PCC_3D_LocalSpace.hpp"
-#include "FEM_Tetrahedron_PCC_3D_ReferenceElement.hpp"
+#include "FEM_Hexahedron_PCC_3D_LocalSpace.hpp"
+#include "FEM_Hexahedron_PCC_3D_ReferenceElement.hpp"
 #include "GeometryUtilities.hpp"
+#include "MeshMatricesDAO.hpp"
+#include "MeshUtilities.hpp"
 #include "VEM_Monomials_3D.hpp"
 
 namespace Polydim
 {
 namespace UnitTesting
 {
-struct Test_FEM_PCC_3D_Tetrahedron_Geometry final
+struct Test_FEM_PCC_3D_Hexahedron_Geometry final
 {
     struct Face_2D_Geometry final
     {
@@ -33,6 +35,7 @@ struct Test_FEM_PCC_3D_Tetrahedron_Geometry final
         std::vector<bool> EdgesDirection;
         Eigen::MatrixXd EdgesTangent;
         Eigen::VectorXd EdgesLength;
+        std::vector<Eigen::Matrix3d> TriangulationVertices;
     };
 
     Eigen::MatrixXd Vertices;
@@ -46,103 +49,127 @@ struct Test_FEM_PCC_3D_Tetrahedron_Geometry final
     std::vector<Eigen::Vector3d> FacesTranslation;
     std::vector<Eigen::Vector3d> FacesNormal;
     std::vector<bool> FacesNormalDirection;
+    std::vector<Eigen::MatrixXd> TetrahedronVertices;
     double Volume;
 };
 
-Test_FEM_PCC_3D_Tetrahedron_Geometry Test_FEM_PCC_3D_Geometry(const Gedim::GeometryUtilities &geometry_utilities,
-                                                              const unsigned int tetrahedron_type)
+Test_FEM_PCC_3D_Hexahedron_Geometry Test_FEM_PCC_3D_Hexa_Geometry(const Gedim::GeometryUtilities &geometry_utilities,
+                                                                  const unsigned int hexahedron_type)
 {
-    Test_FEM_PCC_3D_Tetrahedron_Geometry result;
+    Test_FEM_PCC_3D_Hexahedron_Geometry result;
 
-    switch (tetrahedron_type)
+    switch (hexahedron_type)
     {
     case 0: // reference tetrahedron
     {
-        result.Vertices.resize(3, 4);
-        result.Vertices.col(0) << 0.0, 0.0, 0.0;
-        result.Vertices.col(1) << 1.0, 0.0, 0.0;
-        result.Vertices.col(2) << 0.0, 1.0, 0.0;
-        result.Vertices.col(3) << 0.0, 0.0, 1.0;
+        result.Vertices.resize(3, 8);
+        result.Vertices << 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, 1.0, 1.0, 1.0, 1.0;
 
-        result.Edges.resize(2, 6);
+        result.Edges.resize(2, 12);
         result.Edges.col(0) << 0, 1;
         result.Edges.col(1) << 1, 2;
-        result.Edges.col(2) << 2, 0;
+        result.Edges.col(2) << 3, 2;
         result.Edges.col(3) << 0, 3;
-        result.Edges.col(4) << 1, 3;
-        result.Edges.col(5) << 2, 3;
+        result.Edges.col(4) << 4, 5;
+        result.Edges.col(5) << 5, 6;
+        result.Edges.col(6) << 7, 6;
+        result.Edges.col(7) << 4, 7;
+        result.Edges.col(8) << 0, 4;
+        result.Edges.col(9) << 1, 5;
+        result.Edges.col(10) << 3, 7;
+        result.Edges.col(11) << 2, 6;
 
-        result.Faces.resize(4, Eigen::MatrixXi(2, 3));
-        result.Faces[0].row(0) << 0, 1, 2;
-        result.Faces[0].row(1) << 0, 1, 2;
-        result.Faces[1].row(0) << 0, 1, 3;
-        result.Faces[1].row(1) << 0, 4, 3;
-        result.Faces[2].row(0) << 0, 2, 3;
-        result.Faces[2].row(1) << 2, 5, 3;
-        result.Faces[3].row(0) << 1, 2, 3;
-        result.Faces[3].row(1) << 1, 5, 4;
+        result.Faces.resize(6, Eigen::MatrixXi(2, 4));
+        result.Faces[0].row(0) << 0, 1, 2, 3;
+        result.Faces[0].row(1) << 0, 1, 2, 3;
+        result.Faces[1].row(0) << 4, 5, 6, 7;
+        result.Faces[1].row(1) << 4, 5, 6, 7;
+        result.Faces[2].row(0) << 0, 1, 5, 4;
+        result.Faces[2].row(1) << 0, 9, 4, 8;
+        result.Faces[3].row(0) << 3, 2, 6, 7;
+        result.Faces[3].row(1) << 2, 11, 6, 10;
+        result.Faces[4].row(0) << 0, 3, 7, 4;
+        result.Faces[4].row(1) << 3, 10, 7, 8;
+        result.Faces[5].row(0) << 1, 2, 6, 5;
+        result.Faces[5].row(1) << 1, 11, 5, 9;
     }
     break;
     case 1: {
         const Eigen::Vector3d v1 = Eigen::Vector3d(0.0, 0.0, 0.0);
-        const Eigen::Vector3d v2 = Eigen::Vector3d(1.0, 0.0, 0.0);
-        const Eigen::Vector3d v3 = Eigen::Vector3d(0.0, 0.0, 1.0);
-        const Eigen::Vector3d v4 = Eigen::Vector3d(0.0, 1.0, 0.0);
-        Gedim::GeometryUtilities::Polyhedron tetrahedron = geometry_utilities.CreateTetrahedronWithVertices(v1, v2, v3, v4);
+        const Eigen::Vector3d v2 = Eigen::Vector3d(4.0, 1.0, 0.0);
+        const Eigen::Vector3d v3 = Eigen::Vector3d(0.0, 0.0, 0.5);
+        const Eigen::Vector3d v4 = Eigen::Vector3d(0.0, 3.0, 0.0);
+        Gedim::GeometryUtilities::Polyhedron parallelepiped = geometry_utilities.CreateParallelepipedWithOrigin(v1, v2, v3, v4);
 
-        result.Vertices = tetrahedron.Vertices;
-        result.Edges = tetrahedron.Edges;
-        result.Faces = tetrahedron.Faces;
+        result.Vertices = parallelepiped.Vertices;
+        result.Edges = parallelepiped.Edges;
+        result.Faces = parallelepiped.Faces;
     }
     break;
     default:
         throw std::runtime_error("unknown tetrahedron type");
     }
 
-    result.EdgesDirection.resize(6, true);
-    result.FacesDirection.resize(4, true);
+    result.EdgesDirection.resize(12, true);
+    result.FacesDirection.resize(6, true);
 
-    const std::vector<Eigen::MatrixXd> facesVertices = geometry_utilities.PolyhedronFaceVertices(result.Vertices, result.Faces);
-    result.FacesTranslation = geometry_utilities.PolyhedronFaceTranslations(facesVertices);
-    result.FacesNormal = geometry_utilities.PolyhedronFaceNormals(facesVertices);
+    Gedim::MeshUtilities mesh_utilities;
 
-    const Eigen::Vector3d barycenter = geometry_utilities.PolyhedronBarycenter(result.Vertices);
-    result.FacesNormalDirection = geometry_utilities.PolyhedronFaceNormalDirections(facesVertices, barycenter, result.FacesNormal);
-    result.FacesRotationMatrix =
-        geometry_utilities.PolyhedronFaceRotationMatrices(facesVertices, result.FacesNormal, result.FacesTranslation);
+    const std::vector<unsigned int> vertexMarkers(8, 1);
+    const std::vector<unsigned int> edgeMarkers(12, 1);
+    const std::vector<unsigned int> faceMarkers(6, 1);
 
-    const auto faces_rotated_vertices =
-        geometry_utilities.PolyhedronFaceRotatedVertices(facesVertices, result.FacesTranslation, result.FacesRotationMatrix);
-    const unsigned int numFaces = result.Faces.size();
-    result.FacesArea.resize(numFaces);
-    result.Faces_2D_Geometry.resize(numFaces);
-    for (unsigned int f = 0; f < numFaces; f++)
+    Gedim::MeshMatrices mesh_data;
+    Gedim::MeshMatricesDAO mesh(mesh_data);
+    mesh_utilities.Mesh3DFromPolyhedron(result.Vertices, result.Edges, result.Faces, vertexMarkers, edgeMarkers, faceMarkers, mesh);
+    mesh_utilities.ComputeCell2DCell3DNeighbours(mesh);
+    const auto geometric_data = mesh_utilities.FillMesh3DGeometricData(geometry_utilities, mesh);
+
+    result.Faces_2D_Geometry.resize(6);
+    for (unsigned int f = 0; f < 6; f++)
     {
-        auto &face_2D_geometry = result.Faces_2D_Geometry[f];
-
-        face_2D_geometry.Vertices = faces_rotated_vertices[f];
-        face_2D_geometry.EdgesDirection.resize(face_2D_geometry.Vertices.cols(), true);
-        face_2D_geometry.EdgesLength = geometry_utilities.PolygonEdgeLengths(face_2D_geometry.Vertices);
-        face_2D_geometry.EdgesTangent = geometry_utilities.PolygonEdgeTangents(face_2D_geometry.Vertices);
-        result.FacesArea[f] = geometry_utilities.PolygonArea(face_2D_geometry.Vertices);
+        result.Faces_2D_Geometry[f].Vertices = geometric_data.Cell3DsFaces2DVertices[0][f];
+        result.Faces_2D_Geometry[f].EdgesDirection = geometric_data.Cell3DsFacesEdgeDirections[0][f];
+        result.Faces_2D_Geometry[f].EdgesTangent = geometric_data.Cell3DsFacesEdge2DTangents[0][f];
+        result.Faces_2D_Geometry[f].EdgesLength = geometric_data.Cell3DsFacesEdgeLengths[0][f];
+        result.Faces_2D_Geometry[f].TriangulationVertices = geometric_data.Cell3DsFaces2DTriangulations[0][f];
     }
 
-    result.Volume = geometry_utilities.PolyhedronVolumeByInternalIntegral({result.Vertices});
+    result.Vertices = geometric_data.Cell3DsVertices[0];
+    result.Edges = geometric_data.Cell3DsEdges[0];
+    result.Faces = geometric_data.Cell3DsFaces[0];
+    result.EdgesDirection = geometric_data.Cell3DsEdgeDirections[0];
+    result.FacesArea = geometric_data.Cell3DsFacesAreas[0];
+    result.FacesDirection = geometric_data.Cell3DsFacesNormalGlobalDirection[0];
+    result.FacesRotationMatrix = geometric_data.Cell3DsFacesRotationMatrices[0];
+    result.FacesTranslation = geometric_data.Cell3DsFacesTranslations[0];
+    result.FacesNormal = geometric_data.Cell3DsFacesNormals[0];
+    result.FacesNormalDirection = geometric_data.Cell3DsFacesNormalGlobalDirection[0];
+    result.TetrahedronVertices = geometric_data.Cell3DsTetrahedronPoints[0];
+    result.Volume = geometric_data.Cell3DsVolumes[0];
 
     return result;
 }
 
-TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D_Reference_Element)
+TEST(Test_FEM_Hexahedron_PCC_3D, Test_FEM_Hexahedron_PCC_3D_Reference_Element)
 {
-    const Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_ReferenceElement reference_element;
+    const Polydim::FEM::PCC::FEM_Hexahedron_PCC_3D_ReferenceElement reference_element;
+
+    Gedim::GeometryUtilitiesConfig geometry_utilities_config;
+    Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
+
+    Test_FEM_PCC_3D_Hexahedron_Geometry geom_data = Test_FEM_PCC_3D_Hexa_Geometry(geometry_utilities, 0);
+
+    const auto referenceQuadrature = Gedim::Quadrature::Quadrature_Gauss3D_Tetrahedron_PositiveWeights::FillPointsAndWeights(10);
+
+    VEM::Quadrature::VEM_Quadrature_3D vem_quadrature_3D;
+    const auto quadrature_data =
+        vem_quadrature_3D.PolyhedronInternalQuadrature(geometry_utilities, referenceQuadrature, geom_data.TetrahedronVertices);
+    const Eigen::MatrixXd &referenceQuadraturePoints = quadrature_data.Points;
 
     for (unsigned int k = 1; k < 4; k++)
     {
-
-        const auto referenceQuadrature =
-            Gedim::Quadrature::Quadrature_Gauss3D_Tetrahedron_PositiveWeights::FillPointsAndWeights(10);
-        const Eigen::MatrixXd &referenceQuadraturePoints = referenceQuadrature.Points;
-
         const auto reference_element_data = reference_element.Create(k);
 
         const Eigen::MatrixXd dofs = reference_element_data.DofPositions;
@@ -151,6 +178,10 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D_Reference_Element)
         points << dofs, referenceQuadraturePoints;
 
         const Eigen::MatrixXd basisValues = reference_element.EvaluateBasisFunctions(points, reference_element_data);
+
+        ASSERT_TRUE((dofs.leftCols(8) - reference_element.Vertices).norm() < 1.0e-13);
+        ASSERT_TRUE((basisValues.topRows(dofs.cols()) - Eigen::MatrixXd::Identity(dofs.cols(), dofs.cols())).norm() < 1.0e-13);
+
         const std::vector<Eigen::MatrixXd> gradBasisValues =
             reference_element.EvaluateBasisFunctionDerivatives(points, reference_element_data);
 
@@ -168,71 +199,51 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D_Reference_Element)
             ASSERT_TRUE(abs(sumGradYValues[q]) < 1.0e-13);
             ASSERT_TRUE(abs(sumGradZValues[q]) < 1.0e-13);
         }
-
-        VEM::Utilities::VEM_Monomials_3D monomials;
-        const auto monomials_data = monomials.Compute(k);
-        const Eigen::MatrixXd vander_matrix =
-            monomials.Vander(monomials_data, referenceQuadraturePoints, Eigen::Vector3d::Zero(), 1.0);
-
-        const std::vector<Eigen::MatrixXd> grad_vander_matrix = monomials.VanderDerivatives(monomials_data, vander_matrix, 1.0);
-
-        const Eigen::MatrixXd Hmatrix = vander_matrix.transpose() * referenceQuadrature.Weights.asDiagonal() * vander_matrix;
-        const Eigen::MatrixXd rhs = vander_matrix.transpose() * referenceQuadrature.Weights.asDiagonal() *
-                                    basisValues.bottomRows(referenceQuadraturePoints.cols());
-        const Eigen::MatrixXd coefficients = Hmatrix.llt().solve(rhs);
-
-        for (unsigned int d = 0; d < 3; d++)
-        {
-            const double norm_der = gradBasisValues[d].bottomRows(referenceQuadraturePoints.cols()).norm();
-            ASSERT_TRUE(
-                (gradBasisValues[d].bottomRows(referenceQuadraturePoints.cols()) - grad_vander_matrix[d] * coefficients).norm() <
-                1.0e-9 * norm_der);
-        }
     }
 }
 
-TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D)
+TEST(Test_FEM_Hexahedron_PCC_3D, Test_FEM_Hexahedron_PCC_3D)
 {
-    const Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_ReferenceElement reference_element;
+    const Polydim::FEM::PCC::FEM_Hexahedron_PCC_3D_ReferenceElement reference_element;
 
     Gedim::GeometryUtilitiesConfig geometry_utilities_config;
     geometry_utilities_config.Tolerance1D = std::numeric_limits<double>::epsilon();
     Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
 
-    const Test_FEM_PCC_3D_Tetrahedron_Geometry tetrahedron_data = Test_FEM_PCC_3D_Geometry(geometry_utilities, 1);
+    const Test_FEM_PCC_3D_Hexahedron_Geometry hexa_data = Test_FEM_PCC_3D_Hexa_Geometry(geometry_utilities, 1);
 
-    Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_Geometry tetra_geometry = {geometry_utilities_config.Tolerance1D,
-                                                                         geometry_utilities_config.Tolerance2D,
-                                                                         geometry_utilities_config.Tolerance3D,
-                                                                         tetrahedron_data.Vertices,
-                                                                         tetrahedron_data.Edges,
-                                                                         tetrahedron_data.Faces,
-                                                                         {},
-                                                                         tetrahedron_data.EdgesDirection,
-                                                                         tetrahedron_data.FacesDirection,
-                                                                         tetrahedron_data.FacesRotationMatrix,
-                                                                         tetrahedron_data.FacesTranslation};
-    tetra_geometry.Faces_2D_Geometry.resize(4);
-    for (unsigned int f = 0; f < 4; ++f)
+    Polydim::FEM::PCC::FEM_Hexahedron_PCC_3D_Geometry hexa_geometry = {geometry_utilities_config.Tolerance1D,
+                                                                       geometry_utilities_config.Tolerance2D,
+                                                                       geometry_utilities_config.Tolerance3D,
+                                                                       hexa_data.Vertices,
+                                                                       hexa_data.Edges,
+                                                                       hexa_data.Faces,
+                                                                       {},
+                                                                       hexa_data.EdgesDirection,
+                                                                       hexa_data.FacesDirection,
+                                                                       hexa_data.FacesRotationMatrix,
+                                                                       hexa_data.FacesTranslation};
+    hexa_geometry.Faces_2D_Geometry.resize(6);
+    for (unsigned int f = 0; f < 6; ++f)
     {
-        const auto &face_geometry = tetrahedron_data.Faces_2D_Geometry[f];
-        tetra_geometry.Faces_2D_Geometry[f] = {face_geometry.Vertices,
-                                               face_geometry.EdgesDirection,
-                                               face_geometry.EdgesTangent,
-                                               face_geometry.EdgesLength};
+        const auto &face_geometry = hexa_data.Faces_2D_Geometry[f];
+        hexa_geometry.Faces_2D_Geometry[f] = {face_geometry.Vertices,
+                                              face_geometry.EdgesDirection,
+                                              face_geometry.EdgesTangent,
+                                              face_geometry.EdgesLength};
     }
 
-    const auto polyedron_faces_normal = tetrahedron_data.FacesNormal;
-    const auto polyhedron_faces_normal_direction = tetrahedron_data.FacesNormalDirection;
-    const auto polyhedron_volume = tetrahedron_data.Volume;
+    const auto polyedron_faces_normal = hexa_data.FacesNormal;
+    const auto polyhedron_faces_normal_direction = hexa_data.FacesNormalDirection;
+    const auto polyhedron_volume = hexa_data.Volume;
 
     for (unsigned int k = 1; k < 4; k++)
     {
-        const Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_ReferenceElement reference_element;
+        const Polydim::FEM::PCC::FEM_Hexahedron_PCC_3D_ReferenceElement reference_element;
         const auto reference_element_data = reference_element.Create(k);
 
-        Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_LocalSpace local_space;
-        const auto local_space_data = local_space.CreateLocalSpace(reference_element_data, tetra_geometry);
+        Polydim::FEM::PCC::FEM_Hexahedron_PCC_3D_LocalSpace local_space;
+        const auto local_space_data = local_space.CreateLocalSpace(reference_element_data, hexa_geometry);
 
         const auto &internal_quadrature = local_space_data.InternalQuadrature;
 
@@ -264,16 +275,16 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D)
         for (unsigned int dim = 0; dim < reference_element_data.Dimension; ++dim)
             internal_integral += derivative_values[dim].transpose() * internal_quadrature.Weights;
 
-        if (k == 1)
-        {
-            Eigen::VectorXd exact_internal_integral = Eigen::VectorXd::Zero(local_space_data.NumberOfBasisFunctions);
-            exact_internal_integral[0] = polyhedron_volume * -3.0;
-            exact_internal_integral[1] = polyhedron_volume;
-            exact_internal_integral[2] = polyhedron_volume;
-            exact_internal_integral[3] = polyhedron_volume;
-            ASSERT_TRUE((internal_integral - exact_internal_integral).norm() <
-                        1.0e-14 * std::max(1.0, exact_internal_integral.norm()));
-        }
+        //        if (k == 1)
+        //        {
+        //            Eigen::VectorXd exact_internal_integral =
+        //            Eigen::VectorXd::Zero(local_space_data.NumberOfBasisFunctions); exact_internal_integral[0] =
+        //            polyhedron_volume * -3.0; exact_internal_integral[1] = polyhedron_volume;
+        //            exact_internal_integral[2] = polyhedron_volume;
+        //            exact_internal_integral[3] = polyhedron_volume;
+        //            ASSERT_TRUE((internal_integral - exact_internal_integral).norm() <
+        //                        1.0e-14 * std::max(1.0, exact_internal_integral.norm()));
+        //        }
 
         Eigen::VectorXd boundary_integral = Eigen::VectorXd::Zero(local_space_data.NumberOfBasisFunctions);
         for (unsigned int b = 0; b < polyedron_faces_normal.size(); ++b)
@@ -287,23 +298,6 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D)
         }
 
         ASSERT_TRUE((internal_integral - boundary_integral).norm() < 1.0e-14 * std::max(1.0, boundary_integral.norm()));
-
-        VEM::Utilities::VEM_Monomials_3D monomials;
-        const auto monomials_data = monomials.Compute(k);
-        const Eigen::MatrixXd vander_matrix =
-            monomials.Vander(monomials_data, internal_quadrature.Points, Eigen::Vector3d::Zero(), 1.0);
-
-        const std::vector<Eigen::MatrixXd> grad_vander_matrix = monomials.VanderDerivatives(monomials_data, vander_matrix, 1.0);
-
-        const Eigen::MatrixXd Hmatrix = vander_matrix.transpose() * internal_quadrature.Weights.asDiagonal() * vander_matrix;
-        const Eigen::MatrixXd rhs = vander_matrix.transpose() * internal_quadrature.Weights.asDiagonal() * basis_function_values;
-        const Eigen::MatrixXd coefficients = Hmatrix.llt().solve(rhs);
-
-        for (unsigned int d = 0; d < 3; d++)
-        {
-            const double norm_der = gradBasisValues[d].norm();
-            ASSERT_TRUE((gradBasisValues[d] - grad_vander_matrix[d] * coefficients).norm() < 1.0e-9 * norm_der);
-        }
     }
 }
 

@@ -53,17 +53,17 @@ struct FEM_Hexahedron_PCC_3D_LocalSpace_Data final
     unsigned int Order;
     unsigned int NumberOfBasisFunctions;
     Eigen::MatrixXd Dofs;
-    std::array<unsigned int, 6> polyhedron_to_reference_edge_index;
-    std::array<bool, 6> polyhedron_to_reference_edge_direction;
-    std::array<unsigned int, 4> polyhedron_to_reference_face_index;
+    std::array<unsigned int, 12> polyhedron_to_reference_edge_index;
+    std::array<bool, 12> polyhedron_to_reference_edge_direction;
+    std::array<unsigned int, 6> polyhedron_to_reference_face_index;
     std::vector<unsigned int> DofsMeshOrder;
-    std::array<unsigned int, 5> Dof0DsIndex;
-    std::array<unsigned int, 7> Dof1DsIndex;
-    std::array<unsigned int, 5> Dof2DsIndex;
+    std::array<unsigned int, 9> Dof0DsIndex;
+    std::array<unsigned int, 13> Dof1DsIndex;
+    std::array<unsigned int, 7> Dof2DsIndex;
     std::array<unsigned int, 2> Dof3DsIndex;
     Gedim::Quadrature::QuadratureData InternalQuadrature;
-    std::array<FEM_Quadrilateral_PCC_2D_LocalSpace_Data, 4> Boundary_LocalSpace_Data;
-    std::array<Gedim::Quadrature::QuadratureData, 4> BoundaryQuadrature;
+    std::array<FEM_Quadrilateral_PCC_2D_LocalSpace_Data, 6> Boundary_LocalSpace_Data;
+    std::array<Gedim::Quadrature::QuadratureData, 6> BoundaryQuadrature;
 };
 
 class FEM_Hexahedron_PCC_3D_LocalSpace final
@@ -76,7 +76,8 @@ class FEM_Hexahedron_PCC_3D_LocalSpace final
 
     Gedim::Quadrature::QuadratureData InternalQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,
                                                          const Gedim::MapHexahedron::MapHexahedronData &mapData) const;
-    std::array<Gedim::Quadrature::QuadratureData, 4> BoundaryQuadrature(const std::array<FEM_Quadrilateral_PCC_2D_LocalSpace_Data, 4> &faces_local_space_data,
+
+    std::array<Gedim::Quadrature::QuadratureData, 6> BoundaryQuadrature(const std::array<FEM_Quadrilateral_PCC_2D_LocalSpace_Data, 6> &faces_local_space_data,
                                                                         const FEM_Hexahedron_PCC_3D_Geometry &polyhedron) const;
 
   public:

@@ -9,29 +9,36 @@
 //
 // This file can be used citing references in CITATION.cff file.
 
-#ifndef __TEST_FEM_Triangle_PCC_2D_LocalSpace_H
-#define __TEST_FEM_Triangle_PCC_2D_LocalSpace_H
+#ifndef __TEST_FEM_Quadrilateral_PCC_2D_LocalSpace_H
+#define __TEST_FEM_Quadrilateral_PCC_2D_LocalSpace_H
 
 #include <gmock/gmock-matchers.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include "FEM_Triangle_PCC_2D_LocalSpace.hpp"
-#include "FEM_Triangle_PCC_2D_ReferenceElement.hpp"
+#include "FEM_Quadrilateral_PCC_2D_LocalSpace.hpp"
+#include "FEM_Quadrilateral_PCC_2D_ReferenceElement.hpp"
 #include "GeometryUtilities.hpp"
 
 namespace Polydim
 {
 namespace UnitTesting
 {
-TEST(Test_FEM_Triangle_PCC_2D, Test_FEM_Triangle_PCC_2D_Reference_Element)
+TEST(Test_FEM_Quadrilateral_PCC_2D, Test_FEM_Quadrilateral_PCC_2D_Reference_Element)
 {
-    const Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement reference_element;
+    const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement reference_element;
 
     const auto referenceQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(21);
-    const Eigen::MatrixXd &referenceQuadraturePoints = referenceQuadrature.Points;
 
-    for (unsigned int o = 0; o < 5; o++)
+    std::vector<Eigen::Matrix3d> polygonTriangulationVertices(2);
+    polygonTriangulationVertices[0] = reference_element.Vertices.leftCols(3);
+    polygonTriangulationVertices[1] << reference_element.Vertices.rightCols(2), reference_element.Vertices.col(0);
+
+    VEM::Quadrature::VEM_Quadrature_2D quadrature;
+    const auto quadrature_data_square = quadrature.PolygonInternalQuadrature(referenceQuadrature, polygonTriangulationVertices);
+    const Eigen::MatrixXd &referenceQuadraturePoints = quadrature_data_square.Points;
+
+    for (unsigned int o = 1; o < 5; o++)
     {
         const auto reference_element_data = reference_element.Create(o);
 
@@ -43,45 +50,49 @@ TEST(Test_FEM_Triangle_PCC_2D, Test_FEM_Triangle_PCC_2D_Reference_Element)
         const Eigen::MatrixXd basisValues = reference_element.EvaluateBasisFunctions(points, reference_element_data);
         const std::vector<Eigen::MatrixXd> gradBasisValues =
             reference_element.EvaluateBasisFunctionDerivatives(points, reference_element_data);
-        const std::array<Eigen::MatrixXd, 4> secondDerBasisValues =
-            reference_element.EvaluateBasisFunctionSecondDerivatives(points, reference_element_data);
+        //        const std::array<Eigen::MatrixXd, 4> secondDerBasisValues =
+        //            reference_element.EvaluateBasisFunctionSecondDerivatives(points, reference_element_data);
+
+        ASSERT_TRUE((basisValues.topRows(dofs.cols()) - Eigen::MatrixXd::Identity(dofs.cols(), dofs.cols())).norm() < 1.0e-14);
+        ASSERT_TRUE((dofs.leftCols(4) - reference_element.Vertices).norm() < 1.0e-14);
 
         const Eigen::VectorXd sumBasisValues = basisValues.rowwise().sum();
         const Eigen::VectorXd sumGradXValues = gradBasisValues[0].rowwise().sum();
         const Eigen::VectorXd sumGradYValues = gradBasisValues[1].rowwise().sum();
-        const Eigen::VectorXd sumDerXXValues = secondDerBasisValues[0].rowwise().sum();
-        const Eigen::VectorXd sumDerXYValues = secondDerBasisValues[1].rowwise().sum();
-        const Eigen::VectorXd sumDerYXValues = secondDerBasisValues[2].rowwise().sum();
-        const Eigen::VectorXd sumDerYYValues = secondDerBasisValues[3].rowwise().sum();
+        //        const Eigen::VectorXd sumDerXXValues = secondDerBasisValues[0].rowwise().sum();
+        //        const Eigen::VectorXd sumDerXYValues = secondDerBasisValues[1].rowwise().sum();
+        //        const Eigen::VectorXd sumDerYXValues = secondDerBasisValues[2].rowwise().sum();
+        //        const Eigen::VectorXd sumDerYYValues = secondDerBasisValues[3].rowwise().sum();
 
         for (unsigned int q = 0; q < points.cols(); q++)
         {
             ASSERT_TRUE(abs(sumBasisValues[q] - 1.0) < 1.0e-14);
             ASSERT_TRUE(abs(sumGradXValues[q]) < 1.0e-14);
             ASSERT_TRUE(abs(sumGradYValues[q]) < 1.0e-14);
-            ASSERT_TRUE(abs(sumDerXXValues[q]) < 1.0e-14);
-            ASSERT_TRUE(abs(sumDerXYValues[q]) < 1.0e-14);
-            ASSERT_TRUE(abs(sumDerYXValues[q]) < 1.0e-14);
-            ASSERT_TRUE(abs(sumDerYYValues[q]) < 1.0e-14);
+            //            ASSERT_TRUE(abs(sumDerXXValues[q]) < 1.0e-14);
+            //            ASSERT_TRUE(abs(sumDerXYValues[q]) < 1.0e-14);
+            //            ASSERT_TRUE(abs(sumDerYXValues[q]) < 1.0e-14);
+            //            ASSERT_TRUE(abs(sumDerYYValues[q]) < 1.0e-14);
         }
     }
 }
 
-TEST(Test_FEM_Triangle_PCC_2D, Test_FEM_Triangle_PCC_2D_Local_Space)
+TEST(Test_FEM_Quadrilateral_PCC_2D, Test_FEM_Quadrilateral_PCC_2D_Local_Space)
 {
     Gedim::GeometryUtilitiesConfig geometry_utilities_config;
     geometry_utilities_config.Tolerance1D = 1.0e-8;
     Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
 
-    const auto poligon_vertices = geometry_utilities.CreateTriangle(Eigen::Vector3d(0.0, 0.0, 0.0),
-                                                                    Eigen::Vector3d(1.0, 0.0, 0.0),
-                                                                    Eigen::Vector3d(0.0, 1.0, 0.0));
-    const std::vector<bool> polygon_edges_direction(3, true);
+    Eigen::MatrixXd poligon_vertices = Eigen::MatrixXd::Zero(3, 4);
+
+    poligon_vertices << 0.0, 4.0, 6.0, 2.0, 0.0, 1.0, 4.0, 3.0, 0.0, 0.0, 0.0, 0.0;
+
+    const std::vector<bool> polygon_edges_direction(4, true);
     const auto polygon_edges_tangent = geometry_utilities.PolygonEdgeTangents(poligon_vertices);
     const auto polygon_edges_length = geometry_utilities.PolygonEdgeLengths(poligon_vertices);
     const auto polygon_edges_normal = geometry_utilities.PolygonEdgeNormals(poligon_vertices);
 
-    Polydim::FEM::PCC::FEM_Triangle_PCC_2D_Polygon_Geometry polygon_geometry;
+    Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_Polygon_Geometry polygon_geometry;
 
     polygon_geometry = {geometry_utilities.Tolerance1D(),
                         geometry_utilities.Tolerance2D(),
@@ -90,12 +101,12 @@ TEST(Test_FEM_Triangle_PCC_2D, Test_FEM_Triangle_PCC_2D_Local_Space)
                         polygon_edges_tangent,
                         polygon_edges_length};
 
-    const Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement reference_element;
-    const Polydim::FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace local_space;
+    const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement reference_element;
+    const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_LocalSpace local_space;
 
-    for (unsigned int o = 0; o < 5; o++)
+    for (unsigned int k = 1; k < 5; k++)
     {
-        const auto reference_element_data = reference_element.Create(o);
+        const auto reference_element_data = reference_element.Create(k);
         const auto local_space_data = local_space.CreateLocalSpace(reference_element_data, polygon_geometry);
 
         const auto &internal_quadrature = local_space_data.InternalQuadrature;
@@ -138,6 +149,7 @@ TEST(Test_FEM_Triangle_PCC_2D, Test_FEM_Triangle_PCC_2D_Local_Space)
 
             boundary_integral += boundary_values.transpose() * boundary_quadrature.Weights * boundary_normal.sum();
         }
+
         ASSERT_TRUE((internal_integral - boundary_integral).norm() < 1.0e-14 * std::max(1.0, boundary_integral.norm()));
     }
 }

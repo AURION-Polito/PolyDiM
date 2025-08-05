@@ -36,7 +36,6 @@ struct FEM_Quadrilateral_PCC_2D_ReferenceElement_Data final
     Eigen::MatrixXd DofPositions;
     std::vector<std::array<unsigned int, 2>> DofTypes;
 
-    Eigen::MatrixXd Vertices;
     std::map<std::pair<unsigned int, unsigned int>, std::pair<unsigned int, bool>> Edges_by_vertices;
 
     Gedim::Quadrature::QuadratureData ReferenceTriangleQuadrature;
@@ -49,11 +48,24 @@ struct FEM_Quadrilateral_PCC_2D_ReferenceElement_Data final
     FEM_PCC_1D_ReferenceElement_Data BoundaryReferenceElement_Data;
 };
 
-class FEM_Quadrilateral_PCC_2D_ReferenceElement final
+struct FEM_Quadrilateral_PCC_2D_ReferenceElement final
 {
-  public:
+
+    Eigen::MatrixXd Vertices;
+
+    FEM_Quadrilateral_PCC_2D_ReferenceElement()
+    {
+        Vertices = Eigen::MatrixXd::Zero(3, 4);
+        Vertices << 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0;
+    }
+    ~FEM_Quadrilateral_PCC_2D_ReferenceElement(){};
+
     FEM_Quadrilateral_PCC_2D_ReferenceElement_Data Create(const unsigned int order) const
     {
+
+        if (order <= 0)
+            throw std::runtime_error("not valid order");
+
         FEM_Quadrilateral_PCC_2D_ReferenceElement_Data result;
 
         result.Dimension = 2;
@@ -65,7 +77,7 @@ class FEM_Quadrilateral_PCC_2D_ReferenceElement final
 
         FEM_PCC_1D_ReferenceElement boundary_reference_element;
         result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order);
-        const Eigen::VectorXd reference_edge_dofs_poisitions = result.BoundaryReferenceElement_Data.DofPositions;
+        const Eigen::VectorXd reference_edge_dofs_poisitions = result.BoundaryReferenceElement_Data.DofPositions.row(0);
 
         // Edge directions
         result.Edges_by_vertices = {{{0, 1}, {0, true}},
@@ -80,22 +92,33 @@ class FEM_Quadrilateral_PCC_2D_ReferenceElement final
         // Reordering Dofs using convention [point, edge, cell]
         result.DofPositions.setZero(3, result.NumBasisFunctions);
         result.DofTypes.resize(result.NumBasisFunctions);
-        result.Vertices = Eigen::MatrixXd(3, 4);
 
         for (unsigned int d1 = 0; d1 < 2; d1++)
         {
-            for (unsigned int d2 = 0; d2 < 2; d2++)
+            if (d1 == 0)
             {
-                result.DofPositions.col(2 * d1 + d2) << reference_edge_dofs_poisitions(d2),
-                    reference_edge_dofs_poisitions(d1), 0.0;
-                result.Vertices.col(2 * d1 + d2) = result.DofPositions.col(2 * d1 + d2);
-                result.DofTypes[2 * d1 + d2] = {d2, d1};
+                for (unsigned int d2 = 0; d2 < 2; d2++)
+                {
+                    result.DofPositions.col(2 * d1 + d2) << reference_edge_dofs_poisitions(d2),
+                        reference_edge_dofs_poisitions(d1), 0.0;
+                    result.DofTypes[2 * d1 + d2] = {d2, d1};
+                }
+            }
+            else
+            {
+                for (unsigned int d2 = 0; d2 < 2; d2++)
+                {
+                    const unsigned int index = (d2 == 0) ? 1 : 0;
+                    result.DofPositions.col(2 * d1 + d2) << reference_edge_dofs_poisitions(index),
+                        reference_edge_dofs_poisitions(d1), 0.0;
+                    result.DofTypes[2 * d1 + d2] = {index, d1};
+                }
             }
         }
 
         if (order > 1)
         {
-            unsigned int dof = 4;
+
             for (unsigned int d1 = 0; d1 < 2; d1++)
             {
                 result.DofPositions.row(0).segment(4 * result.NumDofs0D + 2 * d1 * result.NumDofs1D, result.NumDofs1D) =
@@ -104,10 +127,7 @@ class FEM_Quadrilateral_PCC_2D_ReferenceElement final
                     Eigen::VectorXd::Ones(result.NumDofs1D) * reference_edge_dofs_poisitions(d1);
 
                 for (unsigned int d2 = 2; d2 < result.BoundaryReferenceElement_Data.NumBasisFunctions; d2++)
-                {
-                    result.DofTypes[dof] = {d2, d1};
-                    dof++;
-                }
+                    result.DofTypes[4 * result.NumDofs0D + 2 * d1 * result.NumDofs1D + d2 - 2] = {d2, d1};
             }
 
             for (int d1 = 0; d1 < 2; d1++)
@@ -119,12 +139,10 @@ class FEM_Quadrilateral_PCC_2D_ReferenceElement final
                     reference_edge_dofs_poisitions.segment(2, result.NumDofs1D);
 
                 for (unsigned int d2 = 2; d2 < result.BoundaryReferenceElement_Data.NumBasisFunctions; d2++)
-                {
-                    result.DofTypes[dof] = {index, d2};
-                    dof++;
-                }
+                    result.DofTypes[4 * result.NumDofs0D + (2 * d1 + 1) * result.NumDofs1D + d2 - 2] = {index, d2};
             }
 
+            unsigned int dof = 4 + 4 * result.NumDofs1D;
             for (unsigned int d1 = 2; d1 < result.BoundaryReferenceElement_Data.NumBasisFunctions; d1++)
             {
                 for (unsigned int d2 = 2; d2 < result.BoundaryReferenceElement_Data.NumBasisFunctions; d2++)
@@ -139,8 +157,8 @@ class FEM_Quadrilateral_PCC_2D_ReferenceElement final
         }
 
         std::vector<Eigen::Matrix3d> polygonTriangulationVertices(2);
-        polygonTriangulationVertices[0] = result.Vertices.leftCols(3);
-        polygonTriangulationVertices[1] << result.Vertices.rightCols(2), result.Vertices.col(0);
+        polygonTriangulationVertices[0] = Vertices.leftCols(3);
+        polygonTriangulationVertices[1] << Vertices.rightCols(2), Vertices.col(0);
         result.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * order);
         VEM::Quadrature::VEM_Quadrature_2D quadrature;
         result.ReferenceSquareQuadrature =
@@ -160,16 +178,19 @@ class FEM_Quadrilateral_PCC_2D_ReferenceElement final
                                            const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data) const
     {
 
-        const Eigen::VectorXd x = points.row(0);
-        const Eigen::VectorXd y = points.row(1);
+        const unsigned int num_points = points.cols();
+        Eigen::MatrixXd x = Eigen::MatrixXd::Zero(3, num_points);
+        x.row(0) = points.row(0);
+        Eigen::MatrixXd y = Eigen::MatrixXd::Zero(3, num_points);
+        y.row(0) = points.row(1);
 
         FEM_PCC_1D_ReferenceElement boundary_reference_element;
-        const Eigen::VectorXd values_x =
+        const Eigen::MatrixXd values_x =
             boundary_reference_element.EvaluateBasisFunctions(x, reference_element_data.BoundaryReferenceElement_Data);
-        const Eigen::VectorXd values_y =
+        const Eigen::MatrixXd values_y =
             boundary_reference_element.EvaluateBasisFunctions(y, reference_element_data.BoundaryReferenceElement_Data);
 
-        Eigen::MatrixXd values = Eigen::MatrixXd::Ones(points.cols(), reference_element_data.NumBasisFunctions);
+        Eigen::MatrixXd values = Eigen::MatrixXd::Ones(num_points, reference_element_data.NumBasisFunctions);
 
         for (unsigned int d = 0; d < reference_element_data.NumBasisFunctions; d++)
         {
@@ -183,8 +204,11 @@ class FEM_Quadrilateral_PCC_2D_ReferenceElement final
     std::vector<Eigen::MatrixXd> EvaluateBasisFunctionDerivatives(const Eigen::MatrixXd &points,
                                                                   const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data) const
     {
-        const Eigen::VectorXd x = points.row(0);
-        const Eigen::VectorXd y = points.row(1);
+        const unsigned int num_points = points.cols();
+        Eigen::MatrixXd x = Eigen::MatrixXd::Zero(3, num_points);
+        x.row(0) = points.row(0);
+        Eigen::MatrixXd y = Eigen::MatrixXd::Zero(3, num_points);
+        y.row(0) = points.row(1);
 
         FEM_PCC_1D_ReferenceElement boundary_reference_element;
         const Eigen::MatrixXd values_x =
@@ -197,7 +221,7 @@ class FEM_Quadrilateral_PCC_2D_ReferenceElement final
             boundary_reference_element.EvaluateBasisFunctionDerivatives(y, reference_element_data.BoundaryReferenceElement_Data);
 
         std::vector<Eigen::MatrixXd> grad_values(reference_element_data.Dimension,
-                                                 Eigen::MatrixXd::Ones(points.cols(), reference_element_data.NumBasisFunctions));
+                                                 Eigen::MatrixXd::Ones(num_points, reference_element_data.NumBasisFunctions));
 
         for (unsigned int d = 0; d < reference_element_data.NumBasisFunctions; d++)
         {
@@ -209,8 +233,8 @@ class FEM_Quadrilateral_PCC_2D_ReferenceElement final
         return grad_values;
     }
     // ***************************************************************************
-    std::array<Eigen::MatrixXd, 4> EvaluateBasisFunctionSecondDerivatives(const Eigen::MatrixXd &points,
-                                                                          const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data) const
+    std::array<Eigen::MatrixXd, 4> EvaluateBasisFunctionSecondDerivatives(const Eigen::MatrixXd &,
+                                                                          const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &) const
     {
         throw std::runtime_error("not implemented method");
     }

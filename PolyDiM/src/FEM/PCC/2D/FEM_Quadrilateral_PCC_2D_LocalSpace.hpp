@@ -40,8 +40,8 @@ struct FEM_Quadrilateral_PCC_2D_LocalSpace_Data final
     unsigned int NumberOfBasisFunctions;
     Eigen::MatrixXd Dofs;
     std::vector<unsigned int> DofsMeshOrder;
-    std::array<unsigned int, 4> Dof0DsIndex;
-    std::array<unsigned int, 4> Dof1DsIndex;
+    std::array<unsigned int, 5> Dof0DsIndex;
+    std::array<unsigned int, 5> Dof1DsIndex;
     std::array<unsigned int, 2> Dof2DsIndex;
     Gedim::Quadrature::QuadratureData InternalQuadrature;
     std::vector<Gedim::Quadrature::QuadratureData> BoundaryQuadrature;
@@ -77,9 +77,6 @@ class FEM_Quadrilateral_PCC_2D_LocalSpace final
     inline Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data,
                                                                 const FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space) const
     {
-        if (local_space.Order > 2)
-            throw std::runtime_error("Unsupported order");
-
         return MapLaplacianValues(local_space, reference_element_data.ReferenceBasisFunctionSecondDerivativeValues);
     }
 
@@ -94,8 +91,8 @@ class FEM_Quadrilateral_PCC_2D_LocalSpace final
                                                        const FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space,
                                                        const Eigen::MatrixXd &points) const
     {
-        Gedim::MapParallelogram mapTriangle;
-        const Eigen::MatrixXd referencePoints = mapTriangle.FInv(local_space.MapData, points);
+        Gedim::MapParallelogram mapQuadrilateral;
+        const Eigen::MatrixXd referencePoints = mapQuadrilateral.FInv(local_space.MapData, points);
 
         FEM_Quadrilateral_PCC_2D_ReferenceElement reference_element;
 
@@ -106,8 +103,8 @@ class FEM_Quadrilateral_PCC_2D_LocalSpace final
                                                                               const FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space,
                                                                               const Eigen::MatrixXd &points) const
     {
-        Gedim::MapParallelogram mapTriangle;
-        const Eigen::MatrixXd referencePoints = mapTriangle.FInv(local_space.MapData, points);
+        Gedim::MapParallelogram mapQuadrilateral;
+        const Eigen::MatrixXd referencePoints = mapQuadrilateral.FInv(local_space.MapData, points);
 
         FEM_Quadrilateral_PCC_2D_ReferenceElement reference_element;
 
