@@ -86,9 +86,35 @@ class FEM_Quadrilateral_PCC_2D_LocalSpace final
         return MapDerivativeValues(local_space, reference_element.EvaluateBasisFunctionDerivatives(referencePoints, reference_element_data));
     }
 
+    Eigen::MatrixXd EdgeDOFsCoordinates(const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                        const FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space,
+                                        const unsigned int edge_local_index) const
+    {
+        const auto &dof_coordinates = local_space.Dofs;
+
+        const unsigned int cell1DStartingLocalIdex = local_space.Dof1DsIndex.at(edge_local_index);
+        const unsigned int num_edge_dofs = reference_element_data.NumDofs1D;
+
+        if (num_edge_dofs == 0)
+            return Eigen::MatrixXd(0, 0);
+
+        const Eigen::MatrixXd edge_dofs_coordinates = dof_coordinates.block(0, cell1DStartingLocalIdex, 3, num_edge_dofs);
+
+        return edge_dofs_coordinates;
+    }
+
     Eigen::MatrixXd ComputeBasisFunctionsValuesOnEdge(const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data) const
     {
         return reference_element_data.BoundaryReferenceElement_Data.ReferenceBasisFunctionValues;
+    }
+
+    Eigen::MatrixXd ComputeBasisFunctionsValuesOnEdge(const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                      const Eigen::VectorXd &pointsCurvilinearCoordinates) const
+    {
+        Eigen::MatrixXd points = Eigen::MatrixXd(3, pointsCurvilinearCoordinates.size());
+        points.row(0) = pointsCurvilinearCoordinates;
+        FEM_PCC_1D_ReferenceElement reference_element;
+        return reference_element.EvaluateBasisFunctions(points, reference_element_data.BoundaryReferenceElement_Data);
     }
 };
 } // namespace PCC

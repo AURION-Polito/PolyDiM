@@ -138,6 +138,50 @@ class FEM_PCC_3D_LocalSpace final
             throw std::runtime_error("not valid fem type");
         }
     }
+
+    Eigen::MatrixXd FaceDOFsCoordinates(const FEM_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                        const FEM_PCC_3D_LocalSpace_Data &local_space,
+                                        const unsigned int face_local_index) const
+    {
+        switch (local_space.fem_type)
+        {
+        case FEM_PCC_3D_Types::Tetrahedron: {
+
+            return tetrahedron_local_space.FaceDOFsCoordinates(reference_element_data.tetrahedron_reference_element_data,
+                                                               local_space.tetrahedron_local_space_data,
+                                                               face_local_index);
+        }
+        case FEM_PCC_3D_Types::Hexahedron: {
+            return hexahedron_local_space.FaceDOFsCoordinates(reference_element_data.hexahedron_reference_element_data,
+                                                              local_space.hexahedron_local_space_data,
+                                                              face_local_index);
+        }
+        default:
+            throw std::runtime_error("not valid fem type");
+        }
+    }
+
+    Eigen::MatrixXd EdgeDOFsCoordinates(const FEM_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                        const FEM_PCC_3D_LocalSpace_Data &local_space,
+                                        const unsigned int edge_local_index) const
+    {
+        switch (local_space.fem_type)
+        {
+        case FEM_PCC_3D_Types::Tetrahedron: {
+
+            return tetrahedron_local_space.EdgeDOFsCoordinates(reference_element_data.tetrahedron_reference_element_data,
+                                                               local_space.tetrahedron_local_space_data,
+                                                               edge_local_index);
+        }
+        case FEM_PCC_3D_Types::Hexahedron: {
+            return hexahedron_local_space.EdgeDOFsCoordinates(reference_element_data.hexahedron_reference_element_data,
+                                                              local_space.hexahedron_local_space_data,
+                                                              edge_local_index);
+        }
+        default:
+            throw std::runtime_error("not valid fem type");
+        }
+    }
 };
 } // namespace PCC
 } // namespace FEM

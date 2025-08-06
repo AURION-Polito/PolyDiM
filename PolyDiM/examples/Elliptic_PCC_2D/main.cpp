@@ -108,13 +108,10 @@ int main(int argc, char **argv)
 
     Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data = {mesh};
 
-    const auto reference_element_num_dofs =
-        Polydim::examples::Elliptic_PCC_2D::local_space::ReferenceElementNumDOFs(reference_element_data);
-
     Polydim::PDETools::DOFs::DOFsManager dofManager;
-    const auto meshDOFsInfo =
-        dofManager.Create_Constant_DOFsInfo<2>(mesh_connectivity_data, {reference_element_num_dofs, boundary_info});
 
+    const auto meshDOFsInfo =
+        Polydim::examples::Elliptic_PCC_2D::local_space::SetMeshDOFsInfo(reference_element_data, mesh, boundary_info);
     const auto dofs_data = dofManager.CreateDOFs<2>(meshDOFsInfo, mesh_connectivity_data);
 
     Gedim::Output::PrintGenericMessage("Discrete Space with " + std::to_string(dofs_data.NumberDOFs) + " DOFs and " +

@@ -75,6 +75,35 @@ class FEM_Tetrahedron_PCC_3D_LocalSpace final
         return MapDerivativeValues(local_space, reference_element.EvaluateBasisFunctionDerivatives(referencePoints, reference_element_data));
     }
 
+    Eigen::MatrixXd EdgeDOFsCoordinates(const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                        const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &local_space,
+                                        const unsigned int edge_local_index) const
+    {
+        const auto &dof_coordinates = local_space.Dofs;
+
+        const unsigned int cell1DStartingLocalIdex = local_space.Dof1DsIndex.at(edge_local_index);
+        const unsigned int num_edge_dofs = reference_element_data.NumDofs1D;
+
+        if (num_edge_dofs == 0)
+            return Eigen::MatrixXd(0, 0);
+
+        const Eigen::MatrixXd edge_dofs_coordinates = dof_coordinates.block(0, cell1DStartingLocalIdex, 3, num_edge_dofs);
+
+        return edge_dofs_coordinates;
+    }
+
+    Eigen::MatrixXd FaceDOFsCoordinates(const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                        const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &local_space,
+                                        const unsigned int face_local_index) const
+    {
+        const auto &dof_coordinates = local_space.Dofs;
+
+        const unsigned int cell2DStartingLocalIdex = local_space.Dof2DsIndex.at(face_local_index);
+        const unsigned int num_face_dofs = reference_element_data.NumDofs2D;
+
+        return (num_face_dofs == 0) ? Eigen::MatrixXd(0, 0) : dof_coordinates.block(0, cell2DStartingLocalIdex, 3, num_face_dofs);
+    }
+
     Eigen::MatrixXd ComputeBasisFunctionsValuesOnFace(const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
                                                       const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &local_space,
                                                       const unsigned int face_index) const

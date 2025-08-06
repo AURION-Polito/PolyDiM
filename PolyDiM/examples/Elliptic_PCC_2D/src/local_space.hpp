@@ -66,7 +66,10 @@ struct Performance_Data final
 
 ReferenceElement_Data CreateReferenceElement(const Program_configuration::MethodTypes &method_type, const unsigned int method_order);
 
-std::array<unsigned int, 4> ReferenceElementNumDOFs(const ReferenceElement_Data &reference_element_data);
+PDETools::DOFs::DOFsManager::MeshDOFsInfo SetMeshDOFsInfo(
+    const ReferenceElement_Data &reference_element_data,
+    const Gedim::MeshMatricesDAO &mesh,
+    const std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> &boundary_info);
 
 LocalSpace_Data CreateLocalSpace(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
                                  const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,

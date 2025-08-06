@@ -24,6 +24,12 @@ namespace PCC
 {
 struct FEM_PCC_3D_ReferenceElement_Data final
 {
+    unsigned int Dimension;
+    unsigned int Order;
+
+    unsigned int NumDofs0D;
+    unsigned int NumDofs1D;
+
     FEM_Tetrahedron_PCC_3D_ReferenceElement_Data tetrahedron_reference_element_data;
     FEM_Hexahedron_PCC_3D_ReferenceElement_Data hexahedron_reference_element_data;
 };
@@ -40,6 +46,11 @@ struct FEM_PCC_3D_ReferenceElement final
     {
 
         FEM_PCC_3D_ReferenceElement_Data result;
+
+        result.Dimension = 3;
+        result.Order = order;
+        result.NumDofs0D = 1;
+        result.NumDofs1D = order - 1;
 
         FEM_Tetrahedron_PCC_3D_ReferenceElement tetra_reference_element;
         FEM_Hexahedron_PCC_3D_ReferenceElement hexa_reference_element;

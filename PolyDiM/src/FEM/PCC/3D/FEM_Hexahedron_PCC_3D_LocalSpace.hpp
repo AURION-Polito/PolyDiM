@@ -42,21 +42,21 @@ class FEM_Hexahedron_PCC_3D_LocalSpace final
     FEM_Hexahedron_PCC_3D_LocalSpace_Data CreateLocalSpace(const FEM_Hexahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
                                                            const FEM_PCC_3D_Polyhedron_Geometry &polyhedron) const;
 
-    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const FEM_Hexahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
-                                                       const FEM_Hexahedron_PCC_3D_LocalSpace_Data &local_space) const
+    Eigen::MatrixXd ComputeBasisFunctionsValues(const FEM_Hexahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                                const FEM_Hexahedron_PCC_3D_LocalSpace_Data &local_space) const
     {
         return MapValues(local_space, reference_element_data.ReferenceBasisFunctionValues);
     }
 
-    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const FEM_Hexahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
-                                                                              const FEM_Hexahedron_PCC_3D_LocalSpace_Data &local_space) const
+    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const FEM_Hexahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                                                       const FEM_Hexahedron_PCC_3D_LocalSpace_Data &local_space) const
     {
         return MapDerivativeValues(local_space, reference_element_data.ReferenceBasisFunctionDerivativeValues);
     }
 
-    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const FEM_Hexahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
-                                                       const FEM_Hexahedron_PCC_3D_LocalSpace_Data &local_space,
-                                                       const Eigen::MatrixXd &points) const
+    Eigen::MatrixXd ComputeBasisFunctionsValues(const FEM_Hexahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                                const FEM_Hexahedron_PCC_3D_LocalSpace_Data &local_space,
+                                                const Eigen::MatrixXd &points) const
     {
         const Eigen::MatrixXd referencePoints = Gedim::MapHexahedron::FInv(local_space.MapData, points);
 
@@ -65,9 +65,9 @@ class FEM_Hexahedron_PCC_3D_LocalSpace final
         return MapValues(local_space, reference_element.EvaluateBasisFunctions(referencePoints, reference_element_data));
     }
 
-    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const FEM_Hexahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
-                                                                              const FEM_Hexahedron_PCC_3D_LocalSpace_Data &local_space,
-                                                                              const Eigen::MatrixXd &points) const
+    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const FEM_Hexahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                                                       const FEM_Hexahedron_PCC_3D_LocalSpace_Data &local_space,
+                                                                       const Eigen::MatrixXd &points) const
     {
         const Eigen::MatrixXd referencePoints = Gedim::MapHexahedron::FInv(local_space.MapData, points);
 
@@ -76,14 +76,43 @@ class FEM_Hexahedron_PCC_3D_LocalSpace final
         return MapDerivativeValues(local_space, reference_element.EvaluateBasisFunctionDerivatives(referencePoints, reference_element_data));
     }
 
-    inline Eigen::MatrixXd ComputeBasisFunctionsValuesOnFace(const FEM_Hexahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
-                                                             const FEM_Hexahedron_PCC_3D_LocalSpace_Data &local_space,
-                                                             const unsigned int face_index) const
+    Eigen::MatrixXd ComputeBasisFunctionsValuesOnFace(const FEM_Hexahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                                      const FEM_Hexahedron_PCC_3D_LocalSpace_Data &local_space,
+                                                      const unsigned int face_index) const
     {
         FEM_Quadrilateral_PCC_2D_LocalSpace face_local_space;
 
         return face_local_space.ComputeBasisFunctionsValues(reference_element_data.BoundaryReferenceElement_Data,
                                                             local_space.Boundary_LocalSpace_Data[face_index]);
+    }
+
+    Eigen::MatrixXd EdgeDOFsCoordinates(const FEM_Hexahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                        const FEM_Hexahedron_PCC_3D_LocalSpace_Data &local_space,
+                                        const unsigned int edge_local_index) const
+    {
+        const auto &dof_coordinates = local_space.Dofs;
+
+        const unsigned int cell1DStartingLocalIdex = local_space.Dof1DsIndex.at(edge_local_index);
+        const unsigned int num_edge_dofs = reference_element_data.NumDofs1D;
+
+        if (num_edge_dofs == 0)
+            return Eigen::MatrixXd(0, 0);
+
+        const Eigen::MatrixXd edge_dofs_coordinates = dof_coordinates.block(0, cell1DStartingLocalIdex, 3, num_edge_dofs);
+
+        return edge_dofs_coordinates;
+    }
+
+    Eigen::MatrixXd FaceDOFsCoordinates(const FEM_Hexahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                        const FEM_Hexahedron_PCC_3D_LocalSpace_Data &local_space,
+                                        const unsigned int face_local_index) const
+    {
+        const auto &dof_coordinates = local_space.Dofs;
+
+        const unsigned int cell2DStartingLocalIdex = local_space.Dof2DsIndex.at(face_local_index);
+        const unsigned int num_face_dofs = reference_element_data.NumDofs2D;
+
+        return (num_face_dofs == 0) ? Eigen::MatrixXd(0, 0) : dof_coordinates.block(0, cell2DStartingLocalIdex, 3, num_face_dofs);
     }
 };
 } // namespace PCC

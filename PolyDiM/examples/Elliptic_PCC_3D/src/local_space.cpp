@@ -323,15 +323,11 @@ Gedim::Quadrature::QuadratureData FaceDofsCoordinates(const ReferenceElement_Dat
     switch (reference_element_data.Method_Type)
     {
     case Program_configuration::MethodTypes::FEM_PCC: {
-        const auto &dof_coordinates = local_space_data.FEM_LocalSpace_Data.Dofs;
-
-        const unsigned int cell2DStartingLocalIdex = local_space_data.FEM_LocalSpace_Data.Dof2DsIndex.at(face_local_index);
-        const unsigned int cell2DEndingLocalIdex = local_space_data.FEM_LocalSpace_Data.Dof2DsIndex.at(face_local_index + 1);
-        const unsigned int num_face_dofs = cell2DEndingLocalIdex - cell2DStartingLocalIdex;
 
         face_dofs_coordinates.Points =
-            (num_face_dofs == 0) ? Eigen::MatrixXd(0, 0) : dof_coordinates.block(0, cell2DStartingLocalIdex, 3, num_face_dofs);
-
+            reference_element_data.FEM_LocalSpace->FaceDOFsCoordinates(reference_element_data.FEM_ReferenceElement_Data_3D,
+                                                                       local_space_data.FEM_LocalSpace_Data,
+                                                                       face_local_index);
         return face_dofs_coordinates;
     }
     case Program_configuration::MethodTypes::VEM_PCC:
@@ -383,18 +379,9 @@ Eigen::MatrixXd EdgeDofsCoordinates(const ReferenceElement_Data &reference_eleme
     switch (reference_element_data.Method_Type)
     {
     case Program_configuration::MethodTypes::FEM_PCC: {
-        const auto &dof_coordinates = local_space_data.FEM_LocalSpace_Data.Dofs;
-
-        const unsigned int cell1DStartingLocalIdex = local_space_data.FEM_LocalSpace_Data.Dof1DsIndex.at(edge_local_index);
-        const unsigned int cell1DEndingLocalIdex = local_space_data.FEM_LocalSpace_Data.Dof1DsIndex.at(edge_local_index + 1);
-        const unsigned int num_edge_dofs = cell1DEndingLocalIdex - cell1DStartingLocalIdex;
-
-        if (num_edge_dofs == 0)
-            return Eigen::MatrixXd(0, 0);
-
-        const Eigen::MatrixXd edge_dofs_coordinates = dof_coordinates.block(0, cell1DStartingLocalIdex, 3, num_edge_dofs);
-
-        return edge_dofs_coordinates;
+        return reference_element_data.FEM_LocalSpace->EdgeDOFsCoordinates(reference_element_data.FEM_ReferenceElement_Data_3D,
+                                                                          local_space_data.FEM_LocalSpace_Data,
+                                                                          edge_local_index);
     }
     case Program_configuration::MethodTypes::VEM_PCC:
     case Program_configuration::MethodTypes::VEM_PCC_Inertia:
@@ -427,27 +414,129 @@ Eigen::MatrixXd EdgeDofsCoordinates(const ReferenceElement_Data &reference_eleme
     }
 }
 //***************************************************************************
-std::array<unsigned int, 4> ReferenceElementNumDOFs(const ReferenceElement_Data &reference_element_data)
+PDETools::DOFs::DOFsManager::MeshDOFsInfo SetMeshDOFsInfo(
+    const ReferenceElement_Data &reference_element_data,
+    const Gedim::MeshMatricesDAO &mesh,
+    const std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> &boundary_info)
 {
-    switch (reference_element_data.Method_Type)
+    PDETools::DOFs::DOFsManager::MeshDOFsInfo mesh_dof_info;
+
+    const unsigned int numCell0Ds = mesh.Cell0DTotalNumber();
+
+    mesh_dof_info.CellsNumDOFs[0].resize(numCell0Ds);
+    mesh_dof_info.CellsBoundaryInfo[0].resize(numCell0Ds);
+
+    for (unsigned int c = 0; c < numCell0Ds; ++c)
     {
-    case Program_configuration::MethodTypes::FEM_PCC: {
-        return {reference_element_data.FEM_ReferenceElement_Data_3D.NumDofs0D,
-                reference_element_data.FEM_ReferenceElement_Data_3D.NumDofs1D,
-                reference_element_data.FEM_ReferenceElement_Data_3D.NumDofs2D,
-                reference_element_data.FEM_ReferenceElement_Data_3D.NumDofs3D};
+        switch (reference_element_data.Method_Type)
+        {
+        case Program_configuration::MethodTypes::FEM_PCC: {
+            mesh_dof_info.CellsNumDOFs[0][c] = reference_element_data.FEM_ReferenceElement_Data_3D.NumDofs0D;
+        }
+        break;
+        case Program_configuration::MethodTypes::VEM_PCC:
+        case Program_configuration::MethodTypes::VEM_PCC_Inertia:
+        case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
+            mesh_dof_info.CellsNumDOFs[0][c] = reference_element_data.VEM_ReferenceElement_Data_3D.NumDofs0D;
+        }
+        break;
+        default:
+            throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
+        }
+
+        mesh_dof_info.CellsBoundaryInfo[0][c] = boundary_info.at(mesh.Cell0DMarker(c));
     }
-    case Program_configuration::MethodTypes::VEM_PCC:
-    case Program_configuration::MethodTypes::VEM_PCC_Inertia:
-    case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
-        return {reference_element_data.VEM_ReferenceElement_Data_3D.NumDofs0D,
-                reference_element_data.VEM_ReferenceElement_Data_3D.NumDofs1D,
-                reference_element_data.VEM_ReferenceElement_Data_3D.NumDofs2D,
-                reference_element_data.VEM_ReferenceElement_Data_3D.NumDofs3D};
+
+    const unsigned int numCell1Ds = mesh.Cell1DTotalNumber();
+
+    mesh_dof_info.CellsNumDOFs[1].resize(numCell1Ds);
+    mesh_dof_info.CellsBoundaryInfo[1].resize(numCell1Ds);
+
+    for (unsigned int c = 0; c < numCell1Ds; c++)
+    {
+        switch (reference_element_data.Method_Type)
+        {
+        case Program_configuration::MethodTypes::FEM_PCC: {
+            mesh_dof_info.CellsNumDOFs[1][c] = reference_element_data.FEM_ReferenceElement_Data_3D.NumDofs1D;
+        }
+        break;
+        case Program_configuration::MethodTypes::VEM_PCC:
+        case Program_configuration::MethodTypes::VEM_PCC_Inertia:
+        case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
+            mesh_dof_info.CellsNumDOFs[1][c] = reference_element_data.VEM_ReferenceElement_Data_3D.NumDofs1D;
+        }
+        break;
+        default:
+            throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
+        }
+        mesh_dof_info.CellsBoundaryInfo[1][c] = boundary_info.at(mesh.Cell1DMarker(c));
     }
-    default:
-        throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
+
+    const unsigned int numCell2Ds = mesh.Cell2DTotalNumber();
+
+    mesh_dof_info.CellsNumDOFs[2].resize(numCell2Ds);
+    mesh_dof_info.CellsBoundaryInfo[2].resize(numCell2Ds);
+
+    for (unsigned int c = 0; c < numCell2Ds; c++)
+    {
+        switch (reference_element_data.Method_Type)
+        {
+        case Program_configuration::MethodTypes::FEM_PCC: {
+            if (mesh.Cell2DNumberVertices(c) == 3)
+                mesh_dof_info.CellsNumDOFs[2][c] =
+                    reference_element_data.FEM_ReferenceElement_Data_3D.tetrahedron_reference_element_data.NumDofs2D;
+            else if (mesh.Cell2DNumberVertices(c) == 4)
+                mesh_dof_info.CellsNumDOFs[2][c] =
+                    reference_element_data.FEM_ReferenceElement_Data_3D.hexahedron_reference_element_data.NumDofs2D;
+            else
+                throw std::runtime_error("not valid element");
+        }
+        break;
+        case Program_configuration::MethodTypes::VEM_PCC:
+        case Program_configuration::MethodTypes::VEM_PCC_Inertia:
+        case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
+            mesh_dof_info.CellsNumDOFs[2][c] = reference_element_data.VEM_ReferenceElement_Data_3D.NumDofs2D;
+        }
+        break;
+        default:
+            throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
+        }
+        mesh_dof_info.CellsBoundaryInfo[2][c] = boundary_info.at(mesh.Cell2DMarker(c));
     }
+
+    const unsigned int numCell3Ds = mesh.Cell3DTotalNumber();
+
+    mesh_dof_info.CellsNumDOFs[3].resize(numCell3Ds);
+    mesh_dof_info.CellsBoundaryInfo[3].resize(numCell3Ds);
+
+    for (unsigned int c = 0; c < numCell3Ds; c++)
+    {
+        switch (reference_element_data.Method_Type)
+        {
+        case Program_configuration::MethodTypes::FEM_PCC: {
+            if (mesh.Cell3DNumberVertices(c) == 4 && mesh.Cell3DNumberEdges(c) == 6 && mesh.Cell3DNumberFaces(c) == 4)
+                mesh_dof_info.CellsNumDOFs[3][c] =
+                    reference_element_data.FEM_ReferenceElement_Data_3D.tetrahedron_reference_element_data.NumDofs3D;
+            else if (mesh.Cell3DNumberVertices(c) == 8 && mesh.Cell3DNumberEdges(c) == 12 && mesh.Cell3DNumberFaces(c) == 6)
+                mesh_dof_info.CellsNumDOFs[3][c] =
+                    reference_element_data.FEM_ReferenceElement_Data_3D.hexahedron_reference_element_data.NumDofs3D;
+            else
+                throw std::runtime_error("not valid element");
+        }
+        break;
+        case Program_configuration::MethodTypes::VEM_PCC:
+        case Program_configuration::MethodTypes::VEM_PCC_Inertia:
+        case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
+            mesh_dof_info.CellsNumDOFs[3][c] = reference_element_data.VEM_ReferenceElement_Data_3D.NumDofs3D;
+        }
+        break;
+        default:
+            throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
+        }
+        mesh_dof_info.CellsBoundaryInfo[3][c] = boundary_info.at(mesh.Cell3DMarker(c));
+    }
+
+    return mesh_dof_info;
 }
 //***************************************************************************
 Performance_Data ComputePerformance(const ReferenceElement_Data &reference_element_data, const LocalSpace_Data &local_space_data)

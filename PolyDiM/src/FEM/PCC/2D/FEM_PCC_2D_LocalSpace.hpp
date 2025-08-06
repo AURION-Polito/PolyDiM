@@ -151,6 +151,47 @@ class FEM_PCC_2D_LocalSpace final
             throw std::runtime_error("not valid fem type");
         }
     }
+
+    Eigen::MatrixXd ComputeBasisFunctionsValuesOnEdge(const FEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                      const FEM_PCC_2D_LocalSpace_Data &local_space,
+                                                      const Eigen::VectorXd &pointsCurvilinearCoordinates) const
+    {
+        switch (local_space.fem_type)
+        {
+        case FEM_PCC_2D_Types::Triangle: {
+
+            return triangle_local_space.ComputeBasisFunctionsValuesOnEdge(reference_element_data.triangle_reference_element_data,
+                                                                          pointsCurvilinearCoordinates);
+        }
+        case FEM_PCC_2D_Types::Quadrilateral: {
+            return quadrilateral_local_space.ComputeBasisFunctionsValuesOnEdge(reference_element_data.quadrilateral_reference_element_data,
+                                                                               pointsCurvilinearCoordinates);
+        }
+        default:
+            throw std::runtime_error("not valid fem type");
+        }
+    }
+
+    Eigen::MatrixXd EdgeDOFsCoordinates(const FEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                        const FEM_PCC_2D_LocalSpace_Data &local_space,
+                                        const unsigned int edge_local_index) const
+    {
+        switch (local_space.fem_type)
+        {
+        case FEM_PCC_2D_Types::Triangle: {
+            return triangle_local_space.EdgeDOFsCoordinates(reference_element_data.triangle_reference_element_data,
+                                                            local_space.triangle_local_space_data,
+                                                            edge_local_index);
+        }
+        case FEM_PCC_2D_Types::Quadrilateral: {
+            return quadrilateral_local_space.EdgeDOFsCoordinates(reference_element_data.quadrilateral_reference_element_data,
+                                                                 local_space.quadrilateral_local_space_data,
+                                                                 edge_local_index);
+        }
+        default:
+            throw std::runtime_error("not valid fem type");
+        }
+    }
 };
 } // namespace PCC
 } // namespace FEM
