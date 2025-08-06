@@ -21,7 +21,6 @@
 #include "GeometryUtilities.hpp"
 #include "MeshMatricesDAO.hpp"
 #include "MeshUtilities.hpp"
-#include "VEM_Monomials_3D.hpp"
 
 namespace Polydim
 {
@@ -97,7 +96,7 @@ Test_FEM_PCC_3D_Hexahedron_Geometry Test_FEM_PCC_3D_Hexa_Geometry(const Gedim::G
     break;
     case 1: {
         const Eigen::Vector3d v1 = Eigen::Vector3d(0.0, 0.0, 0.0);
-        const Eigen::Vector3d v2 = Eigen::Vector3d(4.0, 1.0, 0.0);
+        const Eigen::Vector3d v2 = Eigen::Vector3d(4.0, 0.0, 0.0);
         const Eigen::Vector3d v3 = Eigen::Vector3d(0.0, 0.0, 0.5);
         const Eigen::Vector3d v4 = Eigen::Vector3d(0.0, 3.0, 0.0);
         Gedim::GeometryUtilities::Polyhedron parallelepiped = geometry_utilities.CreateParallelepipedWithOrigin(v1, v2, v3, v4);
@@ -145,7 +144,7 @@ Test_FEM_PCC_3D_Hexahedron_Geometry Test_FEM_PCC_3D_Hexa_Geometry(const Gedim::G
     result.FacesRotationMatrix = geometric_data.Cell3DsFacesRotationMatrices[0];
     result.FacesTranslation = geometric_data.Cell3DsFacesTranslations[0];
     result.FacesNormal = geometric_data.Cell3DsFacesNormals[0];
-    result.FacesNormalDirection = geometric_data.Cell3DsFacesNormalGlobalDirection[0];
+    result.FacesNormalDirection = geometric_data.Cell3DsFacesNormalDirections[0];
     result.TetrahedronVertices = geometric_data.Cell3DsTetrahedronPoints[0];
     result.Volume = geometric_data.Cell3DsVolumes[0];
 
@@ -212,6 +211,8 @@ TEST(Test_FEM_Hexahedron_PCC_3D, Test_FEM_Hexahedron_PCC_3D)
 
     const Test_FEM_PCC_3D_Hexahedron_Geometry hexa_data = Test_FEM_PCC_3D_Hexa_Geometry(geometry_utilities, 1);
 
+    std::cout << hexa_data.Vertices << std::endl;
+
     Polydim::FEM::PCC::FEM_Hexahedron_PCC_3D_Geometry hexa_geometry = {geometry_utilities_config.Tolerance1D,
                                                                        geometry_utilities_config.Tolerance2D,
                                                                        geometry_utilities_config.Tolerance3D,
@@ -235,7 +236,6 @@ TEST(Test_FEM_Hexahedron_PCC_3D, Test_FEM_Hexahedron_PCC_3D)
 
     const auto polyedron_faces_normal = hexa_data.FacesNormal;
     const auto polyhedron_faces_normal_direction = hexa_data.FacesNormalDirection;
-    const auto polyhedron_volume = hexa_data.Volume;
 
     for (unsigned int k = 1; k < 4; k++)
     {
@@ -275,16 +275,21 @@ TEST(Test_FEM_Hexahedron_PCC_3D, Test_FEM_Hexahedron_PCC_3D)
         for (unsigned int dim = 0; dim < reference_element_data.Dimension; ++dim)
             internal_integral += derivative_values[dim].transpose() * internal_quadrature.Weights;
 
-        //        if (k == 1)
-        //        {
-        //            Eigen::VectorXd exact_internal_integral =
-        //            Eigen::VectorXd::Zero(local_space_data.NumberOfBasisFunctions); exact_internal_integral[0] =
-        //            polyhedron_volume * -3.0; exact_internal_integral[1] = polyhedron_volume;
-        //            exact_internal_integral[2] = polyhedron_volume;
-        //            exact_internal_integral[3] = polyhedron_volume;
-        //            ASSERT_TRUE((internal_integral - exact_internal_integral).norm() <
-        //                        1.0e-14 * std::max(1.0, exact_internal_integral.norm()));
-        //        }
+        if (k == 1)
+        {
+            Eigen::VectorXd exact_internal_integral = Eigen::VectorXd::Zero(local_space_data.NumberOfBasisFunctions);
+            exact_internal_integral[0] = -3.875;
+            exact_internal_integral[1] = -3.125;
+            exact_internal_integral[2] = -2.125;
+            exact_internal_integral[3] = -2.875;
+            exact_internal_integral[4] = 2.125;
+            exact_internal_integral[5] = 2.875;
+            exact_internal_integral[6] = 3.875;
+            exact_internal_integral[7] = 3.125;
+
+            ASSERT_TRUE((internal_integral - exact_internal_integral).norm() <
+                        1.0e-14 * std::max(1.0, exact_internal_integral.norm()));
+        }
 
         Eigen::VectorXd boundary_integral = Eigen::VectorXd::Zero(local_space_data.NumberOfBasisFunctions);
         for (unsigned int b = 0; b < polyedron_faces_normal.size(); ++b)
@@ -297,6 +302,7 @@ TEST(Test_FEM_Hexahedron_PCC_3D, Test_FEM_Hexahedron_PCC_3D)
             boundary_integral += boundary_values.transpose() * boundary_quadrature.Weights * boundary_normal.sum();
         }
 
+        Eigen::VectorXd error = internal_integral - boundary_integral;
         ASSERT_TRUE((internal_integral - boundary_integral).norm() < 1.0e-14 * std::max(1.0, boundary_integral.norm()));
     }
 }
