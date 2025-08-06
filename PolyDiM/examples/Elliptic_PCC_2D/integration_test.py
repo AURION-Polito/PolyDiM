@@ -121,7 +121,7 @@ if __name__ == "__main__":
     test_type = 1
     mesh_generator = 1
     mesh_max_area = 0.0
-    method_types = [1, 2, 3]
+    method_types = [0, 1, 2, 3]
     method_orders = [1, 2, 3]
     for method_type in method_types:
         for method_order in method_orders:
@@ -195,6 +195,33 @@ if __name__ == "__main__":
     test_type = 2
     mesh_generator = 2
     method_types = [1, 2, 3]
+    mesh_max_areas = [0.01, 0.001]
+    method_orders = [1, 2, 3]
+    for method_type in method_types:
+        for method_order in method_orders:
+            num_ref = 0
+            for mesh_max_area in mesh_max_areas:
+                export_path = run_program(program_folder,
+                                          program_path,
+                                          "Run_MG{0}".format(mesh_generator),
+                                          method_type,
+                                          method_order,
+                                          test_type,
+                                          mesh_generator,
+                                          num_ref,
+                                          mesh_max_area=mesh_max_area)
+                num_ref += 1
+
+            errors = import_errors(export_path, method_type, method_order, test_type)
+            test_errors(errors,
+                        method_order,
+                        tol)
+            if remove_folder:
+                os.system("rm -rf " + os.path.join(program_folder, export_path))
+
+    test_type = 4
+    mesh_generator = 5
+    method_types = [0, 1, 2, 3]
     mesh_max_areas = [0.01, 0.001]
     method_orders = [1, 2, 3]
     for method_type in method_types:

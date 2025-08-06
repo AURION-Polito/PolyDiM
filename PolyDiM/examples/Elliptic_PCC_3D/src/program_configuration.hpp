@@ -37,7 +37,8 @@ struct Program_configuration final
     {
         Gedim::Configurations::AddProperty("TestType",
                                            static_cast<unsigned int>(Polydim::examples::Elliptic_PCC_3D::test::Test_Types::Patch_Test),
-                                           "Test Type 1 - Patch_Test; 2 - Poisson_Polynomial_Problem "
+                                           "Test Type 1 - Patch_Test; 2 - Poisson_Polynomial_Problem; 3 - "
+                                           "Poisson_Problem "
                                            "(Default: 1)");
         // Export parameters
         Gedim::Configurations::AddProperty("ExportFolder", "./Run", "Folder where to export data (Default: ./Export)");
