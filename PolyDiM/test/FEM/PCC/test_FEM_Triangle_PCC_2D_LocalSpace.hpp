@@ -81,7 +81,7 @@ TEST(Test_FEM_Triangle_PCC_2D, Test_FEM_Triangle_PCC_2D_Local_Space)
     const auto polygon_edges_length = geometry_utilities.PolygonEdgeLengths(poligon_vertices);
     const auto polygon_edges_normal = geometry_utilities.PolygonEdgeNormals(poligon_vertices);
 
-    Polydim::FEM::PCC::FEM_Triangle_PCC_2D_Polygon_Geometry polygon_geometry;
+    Polydim::FEM::PCC::FEM_PCC_2D_Polygon_Geometry polygon_geometry;
 
     polygon_geometry = {geometry_utilities.Tolerance1D(),
                         geometry_utilities.Tolerance2D(),

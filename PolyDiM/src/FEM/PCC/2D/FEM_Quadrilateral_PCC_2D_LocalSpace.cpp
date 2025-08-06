@@ -22,7 +22,7 @@ namespace PCC
 // ***************************************************************************
 FEM_Quadrilateral_PCC_2D_LocalSpace_Data FEM_Quadrilateral_PCC_2D_LocalSpace::CreateLocalSpace(
     const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data,
-    const FEM_Quadrilateral_PCC_2D_Polygon_Geometry &polygon) const
+    const FEM_PCC_2D_Polygon_Geometry &polygon) const
 {
 
     if (polygon.Vertices.cols() != 4)
@@ -166,7 +166,7 @@ Gedim::Quadrature::QuadratureData FEM_Quadrilateral_PCC_2D_LocalSpace::InternalQ
 // ***************************************************************************
 std::vector<Gedim::Quadrature::QuadratureData> FEM_Quadrilateral_PCC_2D_LocalSpace::BoundaryQuadrature(
     const Gedim::Quadrature::QuadratureData &reference_quadrature,
-    const FEM_Quadrilateral_PCC_2D_Polygon_Geometry &polygon) const
+    const FEM_PCC_2D_Polygon_Geometry &polygon) const
 {
     const unsigned int num_edges = polygon.EdgesDirection.size();
     std::vector<Gedim::Quadrature::QuadratureData> edges_quadrature(num_edges);

@@ -14,6 +14,7 @@
 
 #include "Eigen/Eigen"
 #include "VEM_Monomials_Data.hpp"
+#include "lagrange_1D.hpp"
 
 namespace Polydim
 {
@@ -32,7 +33,13 @@ enum struct ProjectionTypes
 
 template <unsigned short dimension> struct VEM_DF_PCC_Utilities final
 {
-    Eigen::VectorXd ComputeEdgeBasisCoefficients(const unsigned int &order, const Eigen::VectorXd &edgeInternalPoints) const;
+    Eigen::VectorXd ComputeEdgeBasisCoefficients(const unsigned int &order, const Eigen::VectorXd &edgeInternalPoints) const
+    {
+        // Compute basis function coefficients on the generic edge.
+        Eigen::VectorXd interpolation_points_x(order + 1);
+        interpolation_points_x << 0.0, 1.0, edgeInternalPoints;
+        return Interpolation::Lagrange::Lagrange_1D_coefficients(interpolation_points_x);
+    }
 
     std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const ProjectionTypes &projectionType,
                                                                        const unsigned int &Nkm1,
@@ -138,11 +145,29 @@ template <unsigned short dimension> struct VEM_DF_PCC_Utilities final
     Eigen::MatrixXd ComputeValuesOnEdge(const Eigen::RowVectorXd &edgeInternalPoints,
                                         const unsigned int &order,
                                         const Eigen::VectorXd &edgeBasisCoefficients,
-                                        const Eigen::VectorXd &pointsCurvilinearCoordinates) const;
+                                        const Eigen::VectorXd &pointsCurvilinearCoordinates) const
+    {
+        Eigen::VectorXd interpolation_points_x(order + 1);
+        interpolation_points_x << 0.0, 1.0, edgeInternalPoints.transpose();
+        return Interpolation::Lagrange::Lagrange_1D_values(interpolation_points_x, edgeBasisCoefficients, pointsCurvilinearCoordinates);
+    }
 
     Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const std::vector<Eigen::MatrixXd> &projector,
                                                        const double &coefficient,
-                                                       const std::vector<Eigen::MatrixXd> &dmatrix) const;
+                                                       const std::vector<Eigen::MatrixXd> &dmatrix) const
+    {
+        Eigen::MatrixXd staBmatrix = dmatrix[0] * projector[0];
+
+        for (unsigned int d = 1; d < dimension; d++)
+            staBmatrix += dmatrix[d] * projector[d];
+
+        staBmatrix.diagonal().array() -= 1;
+
+        // staBmatrix = (\Pi^{0,dofs}_order - I)^T * (\Pi^{0,dofs}_order - I).
+        staBmatrix = coefficient * staBmatrix.transpose() * staBmatrix;
+
+        return staBmatrix;
+    }
 };
 } // namespace DF_PCC
 } // namespace VEM

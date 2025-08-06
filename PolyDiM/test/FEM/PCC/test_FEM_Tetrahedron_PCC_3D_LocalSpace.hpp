@@ -201,22 +201,24 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D)
 
     const Test_FEM_PCC_3D_Tetrahedron_Geometry tetrahedron_data = Test_FEM_PCC_3D_Geometry(geometry_utilities, 1);
 
-    Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_Geometry tetra_geometry = {geometry_utilities_config.Tolerance1D,
-                                                                         geometry_utilities_config.Tolerance2D,
-                                                                         geometry_utilities_config.Tolerance3D,
-                                                                         tetrahedron_data.Vertices,
-                                                                         tetrahedron_data.Edges,
-                                                                         tetrahedron_data.Faces,
-                                                                         {},
-                                                                         tetrahedron_data.EdgesDirection,
-                                                                         tetrahedron_data.FacesDirection,
-                                                                         tetrahedron_data.FacesRotationMatrix,
-                                                                         tetrahedron_data.FacesTranslation};
+    Polydim::FEM::PCC::FEM_PCC_3D_Polyhedron_Geometry tetra_geometry = {geometry_utilities_config.Tolerance1D,
+                                                                        geometry_utilities_config.Tolerance2D,
+                                                                        geometry_utilities_config.Tolerance3D,
+                                                                        tetrahedron_data.Vertices,
+                                                                        tetrahedron_data.Edges,
+                                                                        tetrahedron_data.Faces,
+                                                                        {},
+                                                                        tetrahedron_data.EdgesDirection,
+                                                                        tetrahedron_data.FacesDirection,
+                                                                        tetrahedron_data.FacesRotationMatrix,
+                                                                        tetrahedron_data.FacesTranslation};
     tetra_geometry.Faces_2D_Geometry.resize(4);
     for (unsigned int f = 0; f < 4; ++f)
     {
         const auto &face_geometry = tetrahedron_data.Faces_2D_Geometry[f];
-        tetra_geometry.Faces_2D_Geometry[f] = {face_geometry.Vertices,
+        tetra_geometry.Faces_2D_Geometry[f] = {geometry_utilities_config.Tolerance1D,
+                                               geometry_utilities_config.Tolerance2D,
+                                               face_geometry.Vertices,
                                                face_geometry.EdgesDirection,
                                                face_geometry.EdgesTangent,
                                                face_geometry.EdgesLength};

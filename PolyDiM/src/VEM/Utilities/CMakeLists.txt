@@ -8,7 +8,6 @@ list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_GBasis_3D.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_GBasis_Data.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_Inertia_Utilities.hpp)
 
-list(APPEND polydim_src_sources ${CMAKE_CURRENT_SOURCE_DIR}/VEM_Monomials_Utilities.cpp)
 list(APPEND polydim_src_sources ${CMAKE_CURRENT_SOURCE_DIR}/VEM_Monomials_1D.cpp)
 list(APPEND polydim_src_sources ${CMAKE_CURRENT_SOURCE_DIR}/VEM_Monomials_2D.cpp)
 list(APPEND polydim_src_sources ${CMAKE_CURRENT_SOURCE_DIR}/VEM_Monomials_3D.cpp)

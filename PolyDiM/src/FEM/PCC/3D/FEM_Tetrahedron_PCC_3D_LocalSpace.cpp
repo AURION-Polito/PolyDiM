@@ -22,7 +22,7 @@ namespace PCC
 // ***************************************************************************
 FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::CreateLocalSpace(
     const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
-    const FEM_Tetrahedron_PCC_3D_Geometry &polyhedron) const
+    const FEM_PCC_3D_Polyhedron_Geometry &polyhedron) const
 {
     FEM_Tetrahedron_PCC_3D_LocalSpace_Data localSpace;
 
@@ -146,12 +146,12 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
     {
         const auto &face_geometry = polyhedron.Faces_2D_Geometry[f];
 
-        FEM_Triangle_PCC_2D_Polygon_Geometry fem_face_geometry = {polyhedron.Tolerance1D,
-                                                                  polyhedron.Tolerance2D,
-                                                                  face_geometry.Vertices,
-                                                                  face_geometry.EdgesDirection,
-                                                                  face_geometry.EdgesTangent,
-                                                                  face_geometry.EdgesLength};
+        FEM_PCC_2D_Polygon_Geometry fem_face_geometry = {polyhedron.Tolerance1D,
+                                                         polyhedron.Tolerance2D,
+                                                         face_geometry.Vertices,
+                                                         face_geometry.EdgesDirection,
+                                                         face_geometry.EdgesTangent,
+                                                         face_geometry.EdgesLength};
 
         localSpace.Boundary_LocalSpace_Data[f] =
             face_local_space.CreateLocalSpace(reference_element_data.BoundaryReferenceElement_Data, fem_face_geometry);
@@ -221,7 +221,7 @@ Gedim::Quadrature::QuadratureData FEM_Tetrahedron_PCC_3D_LocalSpace::InternalQua
 // ***************************************************************************
 std::array<Gedim::Quadrature::QuadratureData, 4> FEM_Tetrahedron_PCC_3D_LocalSpace::BoundaryQuadrature(
     const std::array<FEM_Triangle_PCC_2D_LocalSpace_Data, 4> &faces_local_space_data,
-    const FEM_Tetrahedron_PCC_3D_Geometry &polyhedron) const
+    const FEM_PCC_3D_Polyhedron_Geometry &polyhedron) const
 {
     std::array<Gedim::Quadrature::QuadratureData, 4> faces_quadrature;
 

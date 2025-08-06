@@ -12,10 +12,10 @@
 #ifndef __FEM_Tetrahedron_PCC_3D_LocalSpace_HPP
 #define __FEM_Tetrahedron_PCC_3D_LocalSpace_HPP
 
+#include "FEM_PCC_3D_LocalSpace_Data.hpp"
 #include "FEM_Tetrahedron_PCC_3D_ReferenceElement.hpp"
 #include "FEM_Triangle_PCC_2D_LocalSpace.hpp"
 #include "MapTetrahedron.hpp"
-#include "MapTriangle.hpp"
 
 namespace Polydim
 {
@@ -23,48 +23,6 @@ namespace FEM
 {
 namespace PCC
 {
-struct FEM_Tetrahedron_PCC_3D_Geometry final
-{
-    struct Face_2D_Geometry final
-    {
-        Eigen::MatrixXd Vertices;
-        std::vector<bool> EdgesDirection;
-        Eigen::MatrixXd EdgesTangent;
-        Eigen::VectorXd EdgesLength;
-    };
-
-    double Tolerance1D;
-    double Tolerance2D;
-    double Tolerance3D;
-
-    Eigen::MatrixXd Vertices;
-    Eigen::MatrixXi Edges;
-    std::vector<Eigen::MatrixXi> Faces;
-    std::vector<Face_2D_Geometry> Faces_2D_Geometry;
-    std::vector<bool> EdgesDirection;
-    std::vector<bool> FacesDirection;
-    std::vector<Eigen::Matrix3d> FacesRotationMatrix;
-    std::vector<Eigen::Vector3d> FacesTranslation;
-};
-
-struct FEM_Tetrahedron_PCC_3D_LocalSpace_Data final
-{
-    Gedim::MapTetrahedron::MapTetrahedronData MapData;
-    unsigned int Order;
-    unsigned int NumberOfBasisFunctions;
-    Eigen::MatrixXd Dofs;
-    std::array<unsigned int, 6> polyhedron_to_reference_edge_index;
-    std::array<bool, 6> polyhedron_to_reference_edge_direction;
-    std::array<unsigned int, 4> polyhedron_to_reference_face_index;
-    std::vector<unsigned int> DofsMeshOrder;
-    std::array<unsigned int, 5> Dof0DsIndex;
-    std::array<unsigned int, 7> Dof1DsIndex;
-    std::array<unsigned int, 5> Dof2DsIndex;
-    std::array<unsigned int, 2> Dof3DsIndex;
-    Gedim::Quadrature::QuadratureData InternalQuadrature;
-    std::array<FEM_Triangle_PCC_2D_LocalSpace_Data, 4> Boundary_LocalSpace_Data;
-    std::array<Gedim::Quadrature::QuadratureData, 4> BoundaryQuadrature;
-};
 
 class FEM_Tetrahedron_PCC_3D_LocalSpace final
 {
@@ -77,27 +35,27 @@ class FEM_Tetrahedron_PCC_3D_LocalSpace final
     Gedim::Quadrature::QuadratureData InternalQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,
                                                          const Gedim::MapTetrahedron::MapTetrahedronData &mapData) const;
     std::array<Gedim::Quadrature::QuadratureData, 4> BoundaryQuadrature(const std::array<FEM_Triangle_PCC_2D_LocalSpace_Data, 4> &faces_local_space_data,
-                                                                        const FEM_Tetrahedron_PCC_3D_Geometry &polyhedron) const;
+                                                                        const FEM_PCC_3D_Polyhedron_Geometry &polyhedron) const;
 
   public:
     FEM_Tetrahedron_PCC_3D_LocalSpace_Data CreateLocalSpace(const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
-                                                            const FEM_Tetrahedron_PCC_3D_Geometry &polyhedron) const;
+                                                            const FEM_PCC_3D_Polyhedron_Geometry &polyhedron) const;
 
-    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
-                                                       const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &local_space) const
+    Eigen::MatrixXd ComputeBasisFunctionsValues(const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                                const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &local_space) const
     {
         return MapValues(local_space, reference_element_data.ReferenceBasisFunctionValues);
     }
 
-    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
-                                                                              const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &local_space) const
+    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                                                       const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &local_space) const
     {
         return MapDerivativeValues(local_space, reference_element_data.ReferenceBasisFunctionDerivativeValues);
     }
 
-    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
-                                                       const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &local_space,
-                                                       const Eigen::MatrixXd &points) const
+    Eigen::MatrixXd ComputeBasisFunctionsValues(const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                                const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &local_space,
+                                                const Eigen::MatrixXd &points) const
     {
         const Eigen::MatrixXd referencePoints = Gedim::MapTetrahedron::FInv(local_space.MapData, points);
 
@@ -106,9 +64,9 @@ class FEM_Tetrahedron_PCC_3D_LocalSpace final
         return MapValues(local_space, reference_element.EvaluateBasisFunctions(referencePoints, reference_element_data));
     }
 
-    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
-                                                                              const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &local_space,
-                                                                              const Eigen::MatrixXd &points) const
+    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                                                       const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &local_space,
+                                                                       const Eigen::MatrixXd &points) const
     {
         const Eigen::MatrixXd referencePoints = Gedim::MapTetrahedron::FInv(local_space.MapData, points);
 
@@ -117,9 +75,9 @@ class FEM_Tetrahedron_PCC_3D_LocalSpace final
         return MapDerivativeValues(local_space, reference_element.EvaluateBasisFunctionDerivatives(referencePoints, reference_element_data));
     }
 
-    inline Eigen::MatrixXd ComputeBasisFunctionsValuesOnFace(const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
-                                                             const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &local_space,
-                                                             const unsigned int face_index) const
+    Eigen::MatrixXd ComputeBasisFunctionsValuesOnFace(const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                                      const FEM_Tetrahedron_PCC_3D_LocalSpace_Data &local_space,
+                                                      const unsigned int face_index) const
     {
         FEM_Triangle_PCC_2D_LocalSpace face_local_space;
 

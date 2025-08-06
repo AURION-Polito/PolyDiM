@@ -5,8 +5,6 @@ list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_DF_PCC_Utilities
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_DF_PCC_Utilities.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_DF_PCC_PerformanceAnalysis.hpp)
 
-list(APPEND polydim_src_sources ${CMAKE_CURRENT_SOURCE_DIR}/VEM_DF_PCC_Utilities.cpp)
-
 list(APPEND polydim_src_includes ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(polydim_src_sources ${polydim_src_sources} PARENT_SCOPE)

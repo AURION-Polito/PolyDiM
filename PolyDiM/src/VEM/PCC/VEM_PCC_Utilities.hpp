@@ -14,6 +14,7 @@
 
 #include "Eigen/Eigen"
 #include "VEM_Monomials_Data.hpp"
+#include "lagrange_1D.hpp"
 
 namespace Polydim
 {
@@ -33,7 +34,13 @@ enum struct ProjectionTypes
 
 template <unsigned short dimension> struct VEM_PCC_Utilities final
 {
-    Eigen::VectorXd ComputeEdgeBasisCoefficients(const unsigned int &order, const Eigen::VectorXd &edgeInternalPoints) const;
+    Eigen::VectorXd ComputeEdgeBasisCoefficients(const unsigned int &order, const Eigen::VectorXd &edgeInternalPoints) const
+    {
+        // Compute basis function coefficients on the generic edge.
+        Eigen::VectorXd interpolation_points_x(order + 1);
+        interpolation_points_x << 0.0, 1.0, edgeInternalPoints;
+        return Interpolation::Lagrange::Lagrange_1D_coefficients(interpolation_points_x);
+    }
 
     void ComputeL2Projectors(const double &measure,
                              const unsigned int &order,
@@ -45,7 +52,23 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
                              const Eigen::MatrixXd &PiNabla,
                              Eigen::MatrixXd &Cmatrix,
                              Eigen::MatrixXd &Pi0km1,
-                             Eigen::MatrixXd &Pi0k) const;
+                             Eigen::MatrixXd &Pi0k) const
+    {
+        Cmatrix = Eigen::MatrixXd::Zero(Nk, NumBasisFunctions);
+        // \int_E \Pi^\nabla_order \phi_j · m_i for m_i of degree > order-2 (enhancement property).
+        Cmatrix.bottomRows(Nk - NumInternalBasisFunctions) = Hmatrix.bottomRows(Nk - NumInternalBasisFunctions) * PiNabla;
+
+        if (order > 1)
+        {
+            Cmatrix.topLeftCorner(NumInternalBasisFunctions, NumBasisFunctions - NumInternalBasisFunctions).setZero();
+            //\int_E \phi_j · m_i = measure*\delta_{ij} for m_i of degree <= order-2 (internal dofs).
+            Cmatrix.topRightCorner(NumInternalBasisFunctions, NumInternalBasisFunctions) =
+                measure * Eigen::MatrixXd::Identity(NumInternalBasisFunctions, NumInternalBasisFunctions);
+        }
+
+        Pi0km1 = Hmatrix.topLeftCorner(Nkm1, Nkm1).llt().solve(Cmatrix.topRows(Nkm1));
+        Pi0k = Hmatrix.llt().solve(Cmatrix);
+    }
 
     std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const ProjectionTypes &projectionType,
                                                                        const unsigned int &Nkm1,
@@ -154,11 +177,24 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
     Eigen::MatrixXd ComputeValuesOnEdge(const Eigen::RowVectorXd &edgeInternalPoints,
                                         const unsigned int &order,
                                         const Eigen::VectorXd &edgeBasisCoefficients,
-                                        const Eigen::VectorXd &pointsCurvilinearCoordinates) const;
+                                        const Eigen::VectorXd &pointsCurvilinearCoordinates) const
+    {
+        Eigen::VectorXd interpolation_points_x(order + 1);
+        interpolation_points_x << 0.0, 1.0, edgeInternalPoints.transpose();
+        return Interpolation::Lagrange::Lagrange_1D_values(interpolation_points_x, edgeBasisCoefficients, pointsCurvilinearCoordinates);
+    }
 
     Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const Eigen::MatrixXd &projector,
                                                        const double &coefficient,
-                                                       const Eigen::MatrixXd &Dmatrix) const;
+                                                       const Eigen::MatrixXd &Dmatrix) const
+    {
+        Eigen::MatrixXd stabMatrix = Dmatrix * projector;
+        stabMatrix.diagonal().array() -= 1;
+        // stabMatrix = (\Pi^{\nabla,dofs}_order - I)^T * (\Pi^{\nabla,dofs}_order - I).
+        stabMatrix = coefficient * stabMatrix.transpose() * stabMatrix;
+
+        return stabMatrix;
+    }
 };
 } // namespace PCC
 } // namespace VEM

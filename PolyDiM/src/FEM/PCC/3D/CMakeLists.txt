@@ -2,9 +2,13 @@ list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/FEM_Tetrahedron_PCC_
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/FEM_Tetrahedron_PCC_3D_LocalSpace.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/FEM_Hexahedron_PCC_3D_ReferenceElement.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/FEM_Hexahedron_PCC_3D_LocalSpace.hpp)
+list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/FEM_PCC_3D_ReferenceElement.hpp)
+list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/FEM_PCC_3D_LocalSpace.hpp)
+list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/FEM_PCC_3D_LocalSpace_Data.hpp)
 
 list(APPEND polydim_src_sources ${CMAKE_CURRENT_SOURCE_DIR}/FEM_Tetrahedron_PCC_3D_LocalSpace.cpp)
 list(APPEND polydim_src_sources ${CMAKE_CURRENT_SOURCE_DIR}/FEM_Hexahedron_PCC_3D_LocalSpace.cpp)
+list(APPEND polydim_src_sources ${CMAKE_CURRENT_SOURCE_DIR}/FEM_PCC_3D_LocalSpace.cpp)
 
 list(APPEND polydim_src_includes ${CMAKE_CURRENT_SOURCE_DIR})
 

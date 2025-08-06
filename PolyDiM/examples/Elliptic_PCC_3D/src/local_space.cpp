@@ -29,10 +29,10 @@ ReferenceElement_Data CreateReferenceElement(const Program_configuration::Method
 
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Tetrahedron_PCC: {
-        reference_element_data.FEM_ReferenceElement_3D = std::make_unique<FEM::PCC::FEM_Tetrahedron_PCC_3D_ReferenceElement>();
+    case Program_configuration::MethodTypes::FEM_PCC: {
+        reference_element_data.FEM_ReferenceElement_3D = std::make_unique<FEM::PCC::FEM_PCC_3D_ReferenceElement>();
         reference_element_data.FEM_ReferenceElement_Data_3D = reference_element_data.FEM_ReferenceElement_3D->Create(method_order);
-        reference_element_data.FEM_LocalSpace = std::make_unique<FEM::PCC::FEM_Tetrahedron_PCC_3D_LocalSpace>();
+        reference_element_data.FEM_LocalSpace = std::make_unique<FEM::PCC::FEM_PCC_3D_LocalSpace>();
     }
     break;
     case Program_configuration::MethodTypes::VEM_PCC:
@@ -81,7 +81,7 @@ LocalSpace_Data CreateLocalSpace(const Polydim::examples::Elliptic_PCC_3D::Progr
 
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Tetrahedron_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         local_space_data.FEM_Geometry = {config.GeometricTolerance1D(),
                                          config.GeometricTolerance2D(),
                                          config.GeometricTolerance3D(),
@@ -99,6 +99,8 @@ LocalSpace_Data CreateLocalSpace(const Polydim::examples::Elliptic_PCC_3D::Progr
         for (unsigned int f = 0; f < numFaces; f++)
         {
             local_space_data.FEM_Geometry.Faces_2D_Geometry[f] = {
+                config.GeometricTolerance1D(),
+                config.GeometricTolerance2D(),
                 mesh_geometric_data.Cell3DsFaces2DVertices.at(cell3D_index)[f],
                 mesh_geometric_data.Cell3DsFacesEdgeDirections.at(cell3D_index)[f],
                 mesh_geometric_data.Cell3DsFacesEdge2DTangents.at(cell3D_index)[f],
@@ -167,7 +169,7 @@ Eigen::MatrixXd BasisFunctionsValues(const ReferenceElement_Data &reference_elem
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Tetrahedron_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         return reference_element_data.FEM_LocalSpace->ComputeBasisFunctionsValues(reference_element_data.FEM_ReferenceElement_Data_3D,
                                                                                   local_space_data.FEM_LocalSpace_Data);
     }
@@ -187,7 +189,7 @@ std::vector<Eigen::MatrixXd> BasisFunctionsDerivativeValues(const ReferenceEleme
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Tetrahedron_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         return reference_element_data.FEM_LocalSpace->ComputeBasisFunctionsDerivativeValues(reference_element_data.FEM_ReferenceElement_Data_3D,
                                                                                             local_space_data.FEM_LocalSpace_Data);
     }
@@ -207,7 +209,7 @@ Gedim::Quadrature::QuadratureData InternalQuadrature(const ReferenceElement_Data
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Tetrahedron_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         return local_space_data.FEM_LocalSpace_Data.InternalQuadrature;
     }
     case Program_configuration::MethodTypes::VEM_PCC:
@@ -224,7 +226,7 @@ unsigned int Size(const ReferenceElement_Data &reference_element_data, const Loc
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Tetrahedron_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         return local_space_data.FEM_LocalSpace_Data.NumberOfBasisFunctions;
     }
     case Program_configuration::MethodTypes::VEM_PCC:
@@ -243,7 +245,7 @@ Eigen::MatrixXd StabilizationMatrix(const ReferenceElement_Data &reference_eleme
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Tetrahedron_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         return Eigen::MatrixXd::Zero(local_space_data.FEM_LocalSpace_Data.NumberOfBasisFunctions,
                                      local_space_data.FEM_LocalSpace_Data.NumberOfBasisFunctions);
     }
@@ -267,7 +269,7 @@ Gedim::Quadrature::QuadratureData FaceQuadrature(const ReferenceElement_Data &re
 
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Tetrahedron_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         return local_space_data.FEM_LocalSpace_Data.BoundaryQuadrature.at(face_local_index);
     }
     case Program_configuration::MethodTypes::VEM_PCC:
@@ -296,7 +298,7 @@ Eigen::MatrixXd BasisFunctionsValuesOnFace(const unsigned int &face_local_index,
     // basis function of face including vertices, edges and face evaluated in quadrature_points
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Tetrahedron_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         return reference_element_data.FEM_LocalSpace->ComputeBasisFunctionsValuesOnFace(reference_element_data.FEM_ReferenceElement_Data_3D,
                                                                                         local_space_data.FEM_LocalSpace_Data,
                                                                                         face_local_index);
@@ -320,7 +322,7 @@ Gedim::Quadrature::QuadratureData FaceDofsCoordinates(const ReferenceElement_Dat
 
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Tetrahedron_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         const auto &dof_coordinates = local_space_data.FEM_LocalSpace_Data.Dofs;
 
         const unsigned int cell2DStartingLocalIdex = local_space_data.FEM_LocalSpace_Data.Dof2DsIndex.at(face_local_index);
@@ -360,7 +362,7 @@ Eigen::VectorXd FaceDofs(const ReferenceElement_Data &reference_element_data,
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Tetrahedron_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         return strong_values;
     }
     case Program_configuration::MethodTypes::VEM_PCC:
@@ -380,7 +382,7 @@ Eigen::MatrixXd EdgeDofsCoordinates(const ReferenceElement_Data &reference_eleme
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Tetrahedron_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         const auto &dof_coordinates = local_space_data.FEM_LocalSpace_Data.Dofs;
 
         const unsigned int cell1DStartingLocalIdex = local_space_data.FEM_LocalSpace_Data.Dof1DsIndex.at(edge_local_index);
@@ -429,7 +431,7 @@ std::array<unsigned int, 4> ReferenceElementNumDOFs(const ReferenceElement_Data 
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Tetrahedron_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         return {reference_element_data.FEM_ReferenceElement_Data_3D.NumDofs0D,
                 reference_element_data.FEM_ReferenceElement_Data_3D.NumDofs1D,
                 reference_element_data.FEM_ReferenceElement_Data_3D.NumDofs2D,
@@ -454,7 +456,7 @@ Performance_Data ComputePerformance(const ReferenceElement_Data &reference_eleme
 
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Tetrahedron_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         performance.VEM_Performance_Data.NumInternalQuadraturePoints =
             local_space_data.FEM_LocalSpace_Data.InternalQuadrature.Weights.size();
     }

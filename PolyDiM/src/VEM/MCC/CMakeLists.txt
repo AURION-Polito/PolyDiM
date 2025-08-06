@@ -5,7 +5,6 @@ list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_MCC_PerformanceA
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_MCC_PerformanceAnalysis.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/VEM_MCC_Utilities.hpp)
 
-list(APPEND polydim_src_sources ${CMAKE_CURRENT_SOURCE_DIR}/VEM_MCC_Utilities.cpp)
 
 list(APPEND polydim_src_includes ${CMAKE_CURRENT_SOURCE_DIR})
 

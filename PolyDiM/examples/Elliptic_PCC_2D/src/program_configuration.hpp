@@ -26,7 +26,7 @@ struct Program_configuration final
 {
     enum struct MethodTypes
     {
-        FEM_Triangle_PCC = 0,
+        FEM_PCC = 0,
         VEM_PCC = 1,
         VEM_PCC_Inertia = 2,
         VEM_PCC_Ortho = 3
@@ -56,8 +56,8 @@ struct Program_configuration final
 
         // Method parameters
         Gedim::Configurations::AddProperty("MethodType",
-                                           static_cast<unsigned int>(MethodTypes::FEM_Triangle_PCC),
-                                           "Method Type, 0 - FEM_Triangle, 1 - EVem; 2 - EVem_Inertia; 3 - EVem_Ortho "
+                                           static_cast<unsigned int>(MethodTypes::FEM_PCC),
+                                           "Method Type, 0 - FEM; 1 - EVem; 2 - EVem_Inertia; 3 - EVem_Ortho "
                                            "(Default: "
                                            "0)");
         Gedim::Configurations::AddProperty("MethodOrder", static_cast<unsigned int>(1), "Method order (Default: 1)");

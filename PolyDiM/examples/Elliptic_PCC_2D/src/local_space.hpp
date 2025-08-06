@@ -12,7 +12,7 @@
 #ifndef __local_space_H
 #define __local_space_H
 
-#include "FEM_Triangle_PCC_2D_LocalSpace.hpp"
+#include "FEM_PCC_2D_LocalSpace.hpp"
 #include "I_VEM_PCC_2D_ReferenceElement.hpp"
 #include "QuadratureData.hpp"
 #include "VEM_PCC_2D_Creator.hpp"
@@ -38,9 +38,9 @@ struct ReferenceElement_Data final
     VEM::PCC::VEM_PCC_2D_LocalSpace_Types VEM_Type;
     std::unique_ptr<VEM::PCC::I_VEM_PCC_2D_LocalSpace> VEM_LocalSpace;
 
-    std::unique_ptr<Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement> FEM_ReferenceElement;
-    Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement_Data FEM_ReferenceElement_Data;
-    std::unique_ptr<FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace> FEM_LocalSpace;
+    std::unique_ptr<Polydim::FEM::PCC::FEM_PCC_2D_ReferenceElement> FEM_ReferenceElement;
+    Polydim::FEM::PCC::FEM_PCC_2D_ReferenceElement_Data FEM_ReferenceElement_Data;
+    std::unique_ptr<FEM::PCC::FEM_PCC_2D_LocalSpace> FEM_LocalSpace;
 };
 
 struct LocalSpace_Data final
@@ -48,8 +48,8 @@ struct LocalSpace_Data final
     Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry VEM_Geometry;
     Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace_Data VEM_LocalSpace_Data;
 
-    Polydim::FEM::PCC::FEM_Triangle_PCC_2D_Polygon_Geometry FEM_Geometry;
-    Polydim::FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace_Data FEM_LocalSpace_Data;
+    Polydim::FEM::PCC::FEM_PCC_2D_Polygon_Geometry FEM_Geometry;
+    Polydim::FEM::PCC::FEM_PCC_2D_LocalSpace_Data FEM_LocalSpace_Data;
 };
 
 struct Performance_Data final

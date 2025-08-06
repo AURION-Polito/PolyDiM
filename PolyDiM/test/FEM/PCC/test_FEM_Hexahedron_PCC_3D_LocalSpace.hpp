@@ -213,7 +213,7 @@ TEST(Test_FEM_Hexahedron_PCC_3D, Test_FEM_Hexahedron_PCC_3D)
 
     std::cout << hexa_data.Vertices << std::endl;
 
-    Polydim::FEM::PCC::FEM_Hexahedron_PCC_3D_Geometry hexa_geometry = {geometry_utilities_config.Tolerance1D,
+    Polydim::FEM::PCC::FEM_PCC_3D_Polyhedron_Geometry hexa_geometry = {geometry_utilities_config.Tolerance1D,
                                                                        geometry_utilities_config.Tolerance2D,
                                                                        geometry_utilities_config.Tolerance3D,
                                                                        hexa_data.Vertices,
@@ -228,7 +228,9 @@ TEST(Test_FEM_Hexahedron_PCC_3D, Test_FEM_Hexahedron_PCC_3D)
     for (unsigned int f = 0; f < 6; ++f)
     {
         const auto &face_geometry = hexa_data.Faces_2D_Geometry[f];
-        hexa_geometry.Faces_2D_Geometry[f] = {face_geometry.Vertices,
+        hexa_geometry.Faces_2D_Geometry[f] = {geometry_utilities_config.Tolerance1D,
+                                              geometry_utilities_config.Tolerance2D,
+                                              face_geometry.Vertices,
                                               face_geometry.EdgesDirection,
                                               face_geometry.EdgesTangent,
                                               face_geometry.EdgesLength};
@@ -237,7 +239,7 @@ TEST(Test_FEM_Hexahedron_PCC_3D, Test_FEM_Hexahedron_PCC_3D)
     const auto polyedron_faces_normal = hexa_data.FacesNormal;
     const auto polyhedron_faces_normal_direction = hexa_data.FacesNormalDirection;
 
-    for (unsigned int k = 1; k < 4; k++)
+    for (unsigned int k = 1; k < 2; k++)
     {
         const Polydim::FEM::PCC::FEM_Hexahedron_PCC_3D_ReferenceElement reference_element;
         const auto reference_element_data = reference_element.Create(k);

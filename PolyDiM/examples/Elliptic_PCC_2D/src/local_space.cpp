@@ -29,10 +29,10 @@ ReferenceElement_Data CreateReferenceElement(const Program_configuration::Method
 
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Triangle_PCC: {
-        reference_element_data.FEM_ReferenceElement = std::make_unique<FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement>();
+    case Program_configuration::MethodTypes::FEM_PCC: {
+        reference_element_data.FEM_ReferenceElement = std::make_unique<FEM::PCC::FEM_PCC_2D_ReferenceElement>();
         reference_element_data.FEM_ReferenceElement_Data = reference_element_data.FEM_ReferenceElement->Create(method_order);
-        reference_element_data.FEM_LocalSpace = std::make_unique<FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace>();
+        reference_element_data.FEM_LocalSpace = std::make_unique<FEM::PCC::FEM_PCC_2D_LocalSpace>();
     }
     break;
     case Program_configuration::MethodTypes::VEM_PCC:
@@ -75,7 +75,7 @@ LocalSpace_Data CreateLocalSpace(const Polydim::examples::Elliptic_PCC_2D::Progr
 
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Triangle_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         local_space_data.FEM_Geometry = {config.GeometricTolerance1D(),
                                          config.GeometricTolerance2D(),
                                          mesh_geometric_data.Cell2DsVertices.at(cell2D_index),
@@ -120,7 +120,7 @@ Eigen::MatrixXd BasisFunctionsValues(const ReferenceElement_Data &reference_elem
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Triangle_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         return reference_element_data.FEM_LocalSpace->ComputeBasisFunctionsValues(reference_element_data.FEM_ReferenceElement_Data,
                                                                                   local_space_data.FEM_LocalSpace_Data);
     }
@@ -140,7 +140,7 @@ Eigen::MatrixXd BasisFunctionsLaplacianValues(const ReferenceElement_Data &refer
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Triangle_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         return reference_element_data.FEM_LocalSpace->ComputeBasisFunctionsLaplacianValues(reference_element_data.FEM_ReferenceElement_Data,
                                                                                            local_space_data.FEM_LocalSpace_Data);
     }
@@ -162,7 +162,7 @@ Eigen::MatrixXd BasisFunctionsValuesOnEdge(const unsigned int &edge_local_index,
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Triangle_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         VEM::PCC::VEM_PCC_Utilities<2> utilities;
 
         const auto &dof_coordinates = local_space_data.FEM_LocalSpace_Data.Dofs;
@@ -198,7 +198,7 @@ std::vector<Eigen::MatrixXd> BasisFunctionsDerivativeValues(const ReferenceEleme
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Triangle_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         return reference_element_data.FEM_LocalSpace->ComputeBasisFunctionsDerivativeValues(reference_element_data.FEM_ReferenceElement_Data,
                                                                                             local_space_data.FEM_LocalSpace_Data);
     }
@@ -218,7 +218,7 @@ Gedim::Quadrature::QuadratureData InternalQuadrature(const ReferenceElement_Data
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Triangle_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         return local_space_data.FEM_LocalSpace_Data.InternalQuadrature;
     }
     case Program_configuration::MethodTypes::VEM_PCC:
@@ -235,7 +235,7 @@ unsigned int Size(const ReferenceElement_Data &reference_element_data, const Loc
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Triangle_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         return local_space_data.FEM_LocalSpace_Data.NumberOfBasisFunctions;
     }
     case Program_configuration::MethodTypes::VEM_PCC:
@@ -254,7 +254,7 @@ Eigen::MatrixXd StabilizationMatrix(const ReferenceElement_Data &reference_eleme
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Triangle_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         return Eigen::MatrixXd::Zero(local_space_data.FEM_LocalSpace_Data.NumberOfBasisFunctions,
                                      local_space_data.FEM_LocalSpace_Data.NumberOfBasisFunctions);
     }
@@ -275,7 +275,7 @@ Eigen::MatrixXd EdgeDofsCoordinates(const ReferenceElement_Data &reference_eleme
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Triangle_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         const auto &dof_coordinates = local_space_data.FEM_LocalSpace_Data.Dofs;
 
         const unsigned int cell1DStartingLocalIdex = local_space_data.FEM_LocalSpace_Data.Dof1DsIndex.at(edge_local_index);
@@ -323,7 +323,7 @@ std::array<unsigned int, 4> ReferenceElementNumDOFs(const ReferenceElement_Data 
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Triangle_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         return {reference_element_data.FEM_ReferenceElement_Data.NumDofs0D,
                 reference_element_data.FEM_ReferenceElement_Data.NumDofs1D,
                 reference_element_data.FEM_ReferenceElement_Data.NumDofs2D,
@@ -348,7 +348,7 @@ Performance_Data ComputePerformance(const ReferenceElement_Data &reference_eleme
 
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_Triangle_PCC: {
+    case Program_configuration::MethodTypes::FEM_PCC: {
         performance.VEM_Performance_Data.NumInternalQuadraturePoints =
             local_space_data.FEM_LocalSpace_Data.InternalQuadrature.Weights.size();
     }
