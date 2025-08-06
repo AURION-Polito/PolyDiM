@@ -159,7 +159,8 @@ struct FEM_Quadrilateral_PCC_2D_ReferenceElement final
         std::vector<Eigen::Matrix3d> polygonTriangulationVertices(2);
         polygonTriangulationVertices[0] = Vertices.leftCols(3);
         polygonTriangulationVertices[1] << Vertices.rightCols(2), Vertices.col(0);
-        result.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * order);
+        result.ReferenceTriangleQuadrature =
+            Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * (order + 1));
         VEM::Quadrature::VEM_Quadrature_2D quadrature;
         result.ReferenceSquareQuadrature =
             quadrature.PolygonInternalQuadrature(result.ReferenceTriangleQuadrature, polygonTriangulationVertices);

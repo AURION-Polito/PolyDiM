@@ -57,7 +57,12 @@ FEM_Quadrilateral_PCC_2D_LocalSpace_Data FEM_Quadrilateral_PCC_2D_LocalSpace::Cr
     {
         localSpace.Dof1DsIndex[e + 1] = localSpace.Dof1DsIndex[e] + reference_element_data.NumDofs1D;
 
-        if (polygon.EdgesDirection.at(e))
+        const unsigned int edge_origin_index = e;
+        const unsigned int edge_end_index = (e + 1) % 4;
+
+        const auto &reference_edge = reference_element_data.Edges_by_vertices.at({edge_origin_index, edge_end_index});
+
+        if (polygon.EdgesDirection.at(e) == reference_edge.second)
         {
             for (unsigned int d = localSpace.Dof1DsIndex[e]; d < localSpace.Dof1DsIndex[e + 1]; d++)
             {

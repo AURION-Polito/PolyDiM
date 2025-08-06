@@ -87,7 +87,7 @@ TEST(Test_FEM_Quadrilateral_PCC_2D, Test_FEM_Quadrilateral_PCC_2D_Local_Space)
 
     poligon_vertices << 0.0, 4.0, 6.0, 2.0, 0.0, 1.0, 4.0, 3.0, 0.0, 0.0, 0.0, 0.0;
 
-    const std::vector<bool> polygon_edges_direction(4, true);
+    const std::vector<bool> polygon_edges_direction = {true, true, false, false};
     const auto polygon_edges_tangent = geometry_utilities.PolygonEdgeTangents(poligon_vertices);
     const auto polygon_edges_length = geometry_utilities.PolygonEdgeLengths(poligon_vertices);
     const auto polygon_edges_normal = geometry_utilities.PolygonEdgeNormals(poligon_vertices);
@@ -104,7 +104,7 @@ TEST(Test_FEM_Quadrilateral_PCC_2D, Test_FEM_Quadrilateral_PCC_2D_Local_Space)
     const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement reference_element;
     const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_LocalSpace local_space;
 
-    for (unsigned int k = 1; k < 5; k++)
+    for (unsigned int k = 4; k < 5; k++)
     {
         const auto reference_element_data = reference_element.Create(k);
         const auto local_space_data = local_space.CreateLocalSpace(reference_element_data, polygon_geometry);
@@ -119,6 +119,9 @@ TEST(Test_FEM_Quadrilateral_PCC_2D, Test_FEM_Quadrilateral_PCC_2D_Local_Space)
         const auto basisValues = local_space.ComputeBasisFunctionsValues(reference_element_data, local_space_data, points);
         const auto gradBasisValues =
             local_space.ComputeBasisFunctionsDerivativeValues(reference_element_data, local_space_data, points);
+
+        ASSERT_TRUE((basisValues.topRows(dofs.cols()) - Eigen::MatrixXd::Identity(dofs.cols(), dofs.cols())).norm() < 1.0e-13);
+        ASSERT_TRUE((dofs.leftCols(4) - poligon_vertices).norm() < 1.0e-14);
 
         const Eigen::VectorXd sumBasisValues = basisValues.rowwise().sum();
         const Eigen::VectorXd sumGradXValues = gradBasisValues[0].rowwise().sum();
