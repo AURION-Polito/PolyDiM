@@ -188,7 +188,7 @@ if __name__ == "__main__":
             if remove_folder:
                 os.system("rm -rf " + os.path.join(program_folder, export_path))
 
-    test_type = 2
+    test_type = 3
     mesh_generator = 6
     mesh_max_volumes = [0.005, 0.001]
     method_types = [1, 2, 3]

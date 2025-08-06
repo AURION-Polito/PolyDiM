@@ -160,12 +160,8 @@ TEST(Test_FEM_Hexahedron_PCC_3D, Test_FEM_Hexahedron_PCC_3D_Reference_Element)
 
     Test_FEM_PCC_3D_Hexahedron_Geometry geom_data = Test_FEM_PCC_3D_Hexa_Geometry(geometry_utilities, 0);
 
-    const auto referenceQuadrature = Gedim::Quadrature::Quadrature_Gauss3D_Tetrahedron_PositiveWeights::FillPointsAndWeights(10);
-
-    VEM::Quadrature::VEM_Quadrature_3D vem_quadrature_3D;
-    const auto quadrature_data =
-        vem_quadrature_3D.PolyhedronInternalQuadrature(geometry_utilities, referenceQuadrature, geom_data.TetrahedronVertices);
-    const Eigen::MatrixXd &referenceQuadraturePoints = quadrature_data.Points;
+    const auto referenceQuadrature = Gedim::Quadrature::Quadrature_Gauss3D_Hexahedron::FillPointsAndWeights(10);
+    const Eigen::MatrixXd &referenceQuadraturePoints = referenceQuadrature.Points;
 
     for (unsigned int k = 1; k < 4; k++)
     {
@@ -211,8 +207,6 @@ TEST(Test_FEM_Hexahedron_PCC_3D, Test_FEM_Hexahedron_PCC_3D)
 
     const Test_FEM_PCC_3D_Hexahedron_Geometry hexa_data = Test_FEM_PCC_3D_Hexa_Geometry(geometry_utilities, 1);
 
-    std::cout << hexa_data.Vertices << std::endl;
-
     Polydim::FEM::PCC::FEM_PCC_3D_Polyhedron_Geometry hexa_geometry = {geometry_utilities_config.Tolerance1D,
                                                                        geometry_utilities_config.Tolerance2D,
                                                                        geometry_utilities_config.Tolerance3D,
@@ -239,7 +233,7 @@ TEST(Test_FEM_Hexahedron_PCC_3D, Test_FEM_Hexahedron_PCC_3D)
     const auto polyedron_faces_normal = hexa_data.FacesNormal;
     const auto polyhedron_faces_normal_direction = hexa_data.FacesNormalDirection;
 
-    for (unsigned int k = 1; k < 2; k++)
+    for (unsigned int k = 1; k < 4; k++)
     {
         const Polydim::FEM::PCC::FEM_Hexahedron_PCC_3D_ReferenceElement reference_element;
         const auto reference_element_data = reference_element.Create(k);

@@ -15,8 +15,7 @@
 #include "Eigen/Eigen"
 #include "FEM_Quadrilateral_PCC_2D_ReferenceElement.hpp"
 #include "QuadratureData.hpp"
-#include "Quadrature_Gauss3D_Tetrahedron_PositiveWeights.hpp"
-#include "VEM_Quadrature_3D.hpp"
+#include "Quadrature_Gauss3D_Hexahedron.hpp"
 
 namespace Polydim
 {
@@ -40,7 +39,6 @@ struct FEM_Hexahedron_PCC_3D_ReferenceElement_Data final
     Eigen::MatrixXd DofPositions;
     std::vector<std::array<unsigned int, 3>> DofTypes;
 
-    Gedim::Quadrature::QuadratureData ReferenceTetrahedronQuadrature;
     Gedim::Quadrature::QuadratureData ReferenceHexahedronQuadrature;
 
     Eigen::MatrixXd ReferenceBasisFunctionValues;
@@ -248,31 +246,13 @@ struct FEM_Hexahedron_PCC_3D_ReferenceElement final
                 }
             }
         }
-        std::vector<Eigen::MatrixXd> polyhedronTetrahedronsVertices(12, Eigen::MatrixXd::Zero(3, 4));
-        polyhedronTetrahedronsVertices[0] << 0.0, 1.0, 1.0, 0.5, 0.0, 0.0, 1.0, 0.5, 0.0, 0.0, 0.0, 0.5;
-        polyhedronTetrahedronsVertices[1] << 0.0, 1.0, 0.0, 0.5, 0.0, 1.0, 1.0, 0.5, 0.0, 0.0, 0.0, 0.5;
-        polyhedronTetrahedronsVertices[2] << 0.0, 1.0, 1.0, 0.5, 0.0, 0.0, 1.0, 0.5, 1.0, 1.0, 1.0, 0.5;
-        polyhedronTetrahedronsVertices[3] << 0.0, 1.0, 0.0, 0.5, 0.0, 1.0, 1.0, 0.5, 1.0, 1.0, 1.0, 0.5;
-        polyhedronTetrahedronsVertices[4] << 0.0, 1.0, 1.0, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 1.0, 0.5;
-        polyhedronTetrahedronsVertices[5] << 0.0, 1.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.5, 0.0, 1.0, 1.0, 0.5;
-        polyhedronTetrahedronsVertices[6] << 0.0, 1.0, 1.0, 0.5, 1.0, 1.0, 1.0, 0.5, 0.0, 0.0, 1.0, 0.5;
-        polyhedronTetrahedronsVertices[7] << 0.0, 1.0, 0.0, 0.5, 1.0, 1.0, 1.0, 0.5, 0.0, 1.0, 1.0, 0.5;
-        polyhedronTetrahedronsVertices[8] << 0.0, 0.0, 0.0, 0.5, 0.0, 1.0, 1.0, 0.5, 0.0, 0.0, 1.0, 0.5;
-        polyhedronTetrahedronsVertices[9] << 0.0, 0.0, 0.0, 0.5, 0.0, 1.0, 0.0, 0.5, 0.0, 1.0, 1.0, 0.5;
-        polyhedronTetrahedronsVertices[10] << 1.0, 1.0, 1.0, 0.5, 0.0, 1.0, 1.0, 0.5, 0.0, 0.0, 1.0, 0.5;
-        polyhedronTetrahedronsVertices[11] << 1.0, 1.0, 1.0, 0.5, 0.0, 1.0, 0.0, 0.5, 0.0, 1.0, 1.0, 0.5;
 
         FEM_Quadrilateral_PCC_2D_ReferenceElement boundary_reference_element;
         result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order);
 
-        result.ReferenceTetrahedronQuadrature =
-            Gedim::Quadrature::Quadrature_Gauss3D_Tetrahedron_PositiveWeights::FillPointsAndWeights(2 * order);
-
-        VEM::Quadrature::VEM_Quadrature_3D quadrature_3D;
-        Gedim::GeometryUtilitiesConfig geometry_utilities_config;
-        Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
         result.ReferenceHexahedronQuadrature =
-            quadrature_3D.PolyhedronInternalQuadrature(geometry_utilities, result.ReferenceTetrahedronQuadrature, polyhedronTetrahedronsVertices);
+            Gedim::Quadrature::Quadrature_Gauss3D_Hexahedron::FillPointsAndWeights(2 * (order + 1));
+
         result.ReferenceBasisFunctionValues = EvaluateBasisFunctions(result.ReferenceHexahedronQuadrature.Points, result);
         result.ReferenceBasisFunctionDerivativeValues =
             EvaluateBasisFunctionDerivatives(result.ReferenceHexahedronQuadrature.Points, result);

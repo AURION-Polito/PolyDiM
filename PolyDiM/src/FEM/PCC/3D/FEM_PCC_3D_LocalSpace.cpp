@@ -46,7 +46,7 @@ FEM_PCC_3D_LocalSpace_Data FEM_PCC_3D_LocalSpace::CreateLocalSpace(const FEM_PCC
         localSpace.InternalQuadrature = localSpace.hexahedron_local_space_data.InternalQuadrature;
         localSpace.BoundaryQuadrature.resize(6);
         for (unsigned int f = 0; f < 6; f++)
-            localSpace.BoundaryQuadrature[f] = localSpace.tetrahedron_local_space_data.BoundaryQuadrature[f];
+            localSpace.BoundaryQuadrature[f] = localSpace.hexahedron_local_space_data.BoundaryQuadrature[f];
         localSpace.NumberOfBasisFunctions = localSpace.hexahedron_local_space_data.NumberOfBasisFunctions;
     }
     else

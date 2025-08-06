@@ -493,7 +493,8 @@ struct Poisson_Problem final : public I_Test
     std::array<Eigen::VectorXd, 3> exact_derivative_solution(const Eigen::MatrixXd &points) const
     {
         return {2.0 * std::numbers::pi * cos(2.0 * std::numbers::pi * points.row(0).array()) *
-                    sin(2.0 * std::numbers::pi * points.row(1).array()) * sin(2.0 * std::numbers::pi * points.row(2).array()),
+                    sin(2.0 * std::numbers::pi * points.row(1).array())
+                    * sin(2.0 * std::numbers::pi * points.row(2).array()),
                 2.0 * std::numbers::pi * sin(2.0 * std::numbers::pi * points.row(0).array()) *
                     cos(2.0 * std::numbers::pi * points.row(1).array()) * sin(2.0 * std::numbers::pi * points.row(2).array()),
                 2.0 * std::numbers::pi * sin(2.0 * std::numbers::pi * points.row(0).array()) *
