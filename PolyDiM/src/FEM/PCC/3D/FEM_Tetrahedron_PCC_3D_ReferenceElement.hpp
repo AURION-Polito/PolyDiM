@@ -15,8 +15,6 @@
 #include "Eigen/Eigen"
 #include "FEM_Triangle_PCC_2D_ReferenceElement.hpp"
 #include "QuadratureData.hpp"
-#include "Quadrature_Gauss1D.hpp"
-#include "Quadrature_Gauss2D_Triangle.hpp"
 #include "Quadrature_Gauss3D_Tetrahedron_PositiveWeights.hpp"
 
 namespace Polydim
@@ -45,12 +43,13 @@ struct FEM_Tetrahedron_PCC_3D_ReferenceElement_Data final
     Eigen::MatrixXd ReferenceBasisFunctionValues;
     std::vector<Eigen::MatrixXd> ReferenceBasisFunctionDerivativeValues;
 
+    FEM_PCC_1D_ReferenceElement_Data EdgeReferenceElement_Data;
     FEM_Triangle_PCC_2D_ReferenceElement_Data BoundaryReferenceElement_Data;
 };
 
 class FEM_Tetrahedron_PCC_3D_ReferenceElement final
 {
-  public:
+public:
     FEM_Tetrahedron_PCC_3D_ReferenceElement_Data Create(const unsigned int order) const
     {
         FEM_Tetrahedron_PCC_3D_ReferenceElement_Data result;
@@ -176,6 +175,9 @@ class FEM_Tetrahedron_PCC_3D_ReferenceElement final
         default:
             throw std::runtime_error("order " + std::to_string(order) + "not supported yet");
         }
+
+        FEM_PCC_1D_ReferenceElement edge_reference_element;
+        result.EdgeReferenceElement_Data = edge_reference_element.Create(order);
 
         FEM_Triangle_PCC_2D_ReferenceElement boundary_reference_element;
         result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order);

@@ -31,7 +31,7 @@ namespace PCC
 {
 class VEM_PCC_3D_LocalSpace final : public I_VEM_PCC_3D_LocalSpace
 {
-  private:
+private:
     VEM_PCC_Utilities<3> utilities;
     Utilities::VEM_Monomials_3D monomials;
 
@@ -86,14 +86,14 @@ class VEM_PCC_3D_LocalSpace final : public I_VEM_PCC_3D_LocalSpace
 
     void ComputePolynomialsDofs(const double &polytopeMeasure, VEM_PCC_3D_LocalSpace_Data &localSpace) const;
 
-  public:
+public:
     VEM_PCC_3D_LocalSpace_Data CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data_2D,
                                                 const VEM_PCC_3D_ReferenceElement_Data &reference_element_data_3D,
                                                 const std::vector<VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
                                                 const VEM_PCC_3D_Polyhedron_Geometry &polyhedron) const;
 
     inline Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const VEM_PCC_3D_LocalSpace_Data &localSpace,
-                                                              const ProjectionTypes &projectionType) const
+                                                       const ProjectionTypes &projectionType) const
     {
         switch (projectionType)
         {
@@ -101,6 +101,24 @@ class VEM_PCC_3D_LocalSpace final : public I_VEM_PCC_3D_LocalSpace
             return utilities.ComputeDofiDofiStabilizationMatrix(localSpace.PiNabla, localSpace.Diameter, localSpace.Dmatrix);
         case ProjectionTypes::Pi0k:
             return utilities.ComputeDofiDofiStabilizationMatrix(localSpace.Pi0k, localSpace.Measure, localSpace.Dmatrix);
+        default:
+            throw std::runtime_error("not valid projection type");
+        }
+    }
+
+
+
+    inline Eigen::MatrixXd ComputeDRecipeStabilizationMatrix(const VEM_PCC_3D_LocalSpace_Data &localSpace,
+                                                      const ProjectionTypes &projectionType,
+                                                      const Eigen::MatrixXd &coercivity_matrix,
+                                                      const Eigen::VectorXd &vector_coefficients) const
+    {
+        switch (projectionType)
+        {
+        case ProjectionTypes::PiNabla:
+            return utilities.ComputeDRecipeStabilizationMatrix(localSpace.PiNabla, coercivity_matrix, vector_coefficients, localSpace.Dmatrix);
+        case ProjectionTypes::Pi0k:
+            return utilities.ComputeDRecipeStabilizationMatrix(localSpace.Pi0k, coercivity_matrix, vector_coefficients, localSpace.Dmatrix);
         default:
             throw std::runtime_error("not valid projection type");
         }
@@ -215,12 +233,11 @@ class VEM_PCC_3D_LocalSpace final : public I_VEM_PCC_3D_LocalSpace
                                                            ComputePolynomialsValues(reference_element_data, localSpace, points));
     }
 
-    inline Eigen::MatrixXd ComputeValuesOnEdge(const VEM_PCC_3D_LocalSpace_Data &localSpace,
-                                               const Eigen::VectorXd &edgeInternalPoints,
+    inline Eigen::MatrixXd ComputeValuesOnEdge(const VEM_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                               const VEM_PCC_3D_LocalSpace_Data &localSpace,
                                                const Eigen::VectorXd &pointsCurvilinearCoordinates) const
     {
-        const Eigen::VectorXd edgeBasisCoefficients = utilities.ComputeEdgeBasisCoefficients(localSpace.Order, edgeInternalPoints);
-        return utilities.ComputeValuesOnEdge(edgeInternalPoints.transpose(), localSpace.Order, edgeBasisCoefficients, pointsCurvilinearCoordinates);
+        return utilities.ComputeValuesOnEdge(localSpace.EdgeInternalPoints.transpose(), reference_element_data.Order, localSpace.EdgeBasisCoefficients, pointsCurvilinearCoordinates);
     }
 };
 } // namespace PCC
