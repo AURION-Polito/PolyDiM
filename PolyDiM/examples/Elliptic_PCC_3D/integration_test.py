@@ -190,7 +190,7 @@ if __name__ == "__main__":
 
     test_type = 3
     mesh_generator = 6
-    mesh_max_volumes = [0.005, 0.001]
+    mesh_max_volumes = [0.0025, 0.0005]
     method_types = [1, 2, 3]
     method_orders = [1, 2, 3]
     for method_type in method_types:
