@@ -195,7 +195,6 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
         return stabMatrix;
     }
 
-
     Eigen::MatrixXd ComputeDRecipeStabilizationMatrix(const Eigen::MatrixXd &projector,
                                                       const Eigen::MatrixXd &coercivity_matrix,
                                                       const Eigen::VectorXd &vector_coefficients,
@@ -215,7 +214,6 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
 
         return stabMatrix;
     }
-
 };
 } // namespace PCC
 } // namespace VEM

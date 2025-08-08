@@ -49,7 +49,7 @@ struct FEM_Tetrahedron_PCC_3D_ReferenceElement_Data final
 
 class FEM_Tetrahedron_PCC_3D_ReferenceElement final
 {
-public:
+  public:
     FEM_Tetrahedron_PCC_3D_ReferenceElement_Data Create(const unsigned int order) const
     {
         FEM_Tetrahedron_PCC_3D_ReferenceElement_Data result;

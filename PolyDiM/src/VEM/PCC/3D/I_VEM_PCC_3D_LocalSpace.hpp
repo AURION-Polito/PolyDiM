@@ -29,7 +29,7 @@ namespace PCC
 /// \cite Teora2024.
 class I_VEM_PCC_3D_LocalSpace
 {
-public:
+  public:
     virtual ~I_VEM_PCC_3D_LocalSpace()
     {
     }
@@ -148,7 +148,7 @@ public:
     /// \param localSpace Data of the local space.
     /// \param edgeInternalPoints Points where edge internal degrees of freedom are located.
     /// \param pointsCurvilinearCoordinates Curvilinear coordinates of evaluation points in [0,1].
-    /// \return A matrix containing the values of a basis function on each column.    
+    /// \return A matrix containing the values of a basis function on each column.
     virtual Eigen::MatrixXd ComputeValuesOnEdge(const VEM_PCC_3D_ReferenceElement_Data &reference_element_data,
                                                 const VEM_PCC_3D_LocalSpace_Data &localSpace,
                                                 const Eigen::VectorXd &pointsCurvilinearCoordinates) const = 0;

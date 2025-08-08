@@ -26,7 +26,7 @@ namespace PCC
 
 class FEM_Hexahedron_PCC_3D_LocalSpace final
 {
-private:
+  private:
     Eigen::MatrixXd MapValues(const FEM_Hexahedron_PCC_3D_LocalSpace_Data &local_space, const Eigen::MatrixXd &referenceValues) const;
 
     std::vector<Eigen::MatrixXd> MapDerivativeValues(const FEM_Hexahedron_PCC_3D_LocalSpace_Data &local_space,
@@ -38,7 +38,7 @@ private:
     std::array<Gedim::Quadrature::QuadratureData, 6> BoundaryQuadrature(const std::array<FEM_Quadrilateral_PCC_2D_LocalSpace_Data, 6> &faces_local_space_data,
                                                                         const FEM_PCC_3D_Polyhedron_Geometry &polyhedron) const;
 
-public:
+  public:
     FEM_Hexahedron_PCC_3D_LocalSpace_Data CreateLocalSpace(const FEM_Hexahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
                                                            const FEM_PCC_3D_Polyhedron_Geometry &polyhedron) const;
 

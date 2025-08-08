@@ -70,7 +70,8 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Inertia_LocalSpace::CreateLocalSpace(const
     if (reference_element_data_2D.Quadrature.ReferenceEdgeDOFsInternalPoints.rows() > 0)
         localSpace.EdgeInternalPoints = reference_element_data_2D.Quadrature.ReferenceEdgeDOFsInternalPoints.row(0);
 
-    localSpace.EdgeBasisCoefficients = utilities.ComputeEdgeBasisCoefficients(reference_element_data_2D.Order, localSpace.EdgeInternalPoints);
+    localSpace.EdgeBasisCoefficients =
+        utilities.ComputeEdgeBasisCoefficients(reference_element_data_2D.Order, localSpace.EdgeInternalPoints);
 
     Gedim::Quadrature::QuadratureData MappedInternalQuadrature =
         quadrature3D.PolyhedronInternalQuadrature(reference_element_data_3D.Quadrature,

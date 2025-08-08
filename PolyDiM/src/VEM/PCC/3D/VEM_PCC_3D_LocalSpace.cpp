@@ -66,7 +66,8 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_LocalSpace::CreateLocalSpace(const VEM_PCC
     if (reference_element_data_2D.Quadrature.ReferenceEdgeDOFsInternalPoints.rows() > 0)
         localSpace.EdgeInternalPoints = reference_element_data_2D.Quadrature.ReferenceEdgeDOFsInternalPoints.row(0);
 
-    localSpace.EdgeBasisCoefficients = utilities.ComputeEdgeBasisCoefficients(reference_element_data_2D.Order, localSpace.EdgeInternalPoints);
+    localSpace.EdgeBasisCoefficients =
+        utilities.ComputeEdgeBasisCoefficients(reference_element_data_2D.Order, localSpace.EdgeInternalPoints);
 
     const Eigen::MatrixXd edgeInternalQuadraturePoints =
         quadrature3D.PolyhedronInternalEdgesQuadraturePoints(reference_element_data_2D.Quadrature.ReferenceEdgeDOFsInternalPoints,

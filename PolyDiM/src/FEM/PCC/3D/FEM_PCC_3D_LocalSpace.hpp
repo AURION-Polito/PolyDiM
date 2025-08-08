@@ -26,11 +26,11 @@ namespace PCC
 
 class FEM_PCC_3D_LocalSpace final
 {
-private:
+  private:
     FEM_Tetrahedron_PCC_3D_LocalSpace tetrahedron_local_space;
     FEM_Hexahedron_PCC_3D_LocalSpace hexahedron_local_space;
 
-public:
+  public:
     FEM_PCC_3D_LocalSpace_Data CreateLocalSpace(const FEM_PCC_3D_ReferenceElement_Data &reference_element_data,
                                                 const FEM_PCC_3D_Polyhedron_Geometry &polyhedron) const;
 

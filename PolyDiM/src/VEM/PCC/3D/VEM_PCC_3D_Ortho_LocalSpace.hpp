@@ -110,16 +110,22 @@ class VEM_PCC_3D_Ortho_LocalSpace final : public I_VEM_PCC_3D_LocalSpace
     }
 
     inline Eigen::MatrixXd ComputeDRecipeStabilizationMatrix(const VEM_PCC_3D_LocalSpace_Data &localSpace,
-                                                      const ProjectionTypes &projectionType,
-                                                      const Eigen::MatrixXd &coercivity_matrix,
-                                                      const Eigen::VectorXd &vector_coefficients) const
+                                                             const ProjectionTypes &projectionType,
+                                                             const Eigen::MatrixXd &coercivity_matrix,
+                                                             const Eigen::VectorXd &vector_coefficients) const
     {
         switch (projectionType)
         {
         case ProjectionTypes::PiNabla:
-            return utilities.ComputeDRecipeStabilizationMatrix(localSpace.PiNabla, coercivity_matrix, vector_coefficients, localSpace.Dmatrix);
+            return utilities.ComputeDRecipeStabilizationMatrix(localSpace.PiNabla,
+                                                               coercivity_matrix,
+                                                               vector_coefficients,
+                                                               localSpace.Dmatrix);
         case ProjectionTypes::Pi0k:
-            return utilities.ComputeDRecipeStabilizationMatrix(localSpace.Pi0k, coercivity_matrix, vector_coefficients, localSpace.Dmatrix);
+            return utilities.ComputeDRecipeStabilizationMatrix(localSpace.Pi0k,
+                                                               coercivity_matrix,
+                                                               vector_coefficients,
+                                                               localSpace.Dmatrix);
         default:
             throw std::runtime_error("not valid projection type");
         }
@@ -256,7 +262,10 @@ class VEM_PCC_3D_Ortho_LocalSpace final : public I_VEM_PCC_3D_LocalSpace
                                                const VEM_PCC_3D_LocalSpace_Data &localSpace,
                                                const Eigen::VectorXd &pointsCurvilinearCoordinates) const
     {
-        return utilities.ComputeValuesOnEdge(localSpace.EdgeInternalPoints.transpose(), reference_element_data.Order, localSpace.EdgeBasisCoefficients, pointsCurvilinearCoordinates);
+        return utilities.ComputeValuesOnEdge(localSpace.EdgeInternalPoints.transpose(),
+                                             reference_element_data.Order,
+                                             localSpace.EdgeBasisCoefficients,
+                                             pointsCurvilinearCoordinates);
     }
 
     inline Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_3D_LocalSpace_Data &, const ProjectionTypes &) const
@@ -265,16 +274,16 @@ class VEM_PCC_3D_Ortho_LocalSpace final : public I_VEM_PCC_3D_LocalSpace
     }
 
     inline Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_3D_ReferenceElement_Data &,
-                                                         const VEM_PCC_3D_LocalSpace_Data &,
-                                                         const ProjectionTypes &,
-                                                         const Eigen::MatrixXd &) const
+                                                                const VEM_PCC_3D_LocalSpace_Data &,
+                                                                const ProjectionTypes &,
+                                                                const Eigen::MatrixXd &) const
     {
         throw std::runtime_error("Unimplemented method");
     }
 
     inline Eigen::MatrixXd ComputePolynomialsLaplacianValues(const VEM_PCC_3D_ReferenceElement_Data &,
-                                                      const VEM_PCC_3D_LocalSpace_Data &,
-                                                      const Eigen::MatrixXd &) const
+                                                             const VEM_PCC_3D_LocalSpace_Data &,
+                                                             const Eigen::MatrixXd &) const
     {
         throw std::runtime_error("Unimplemented method");
     }
