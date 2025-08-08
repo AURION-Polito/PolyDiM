@@ -13,7 +13,7 @@
 #define __FEM_Hexahedron_PCC_3D_LocalSpace_Data_HPP
 
 #include "FEM_PCC_2D_LocalSpace_Data.hpp"
-#include "MapHexahedron.hpp"
+#include "MapParallelepiped.hpp"
 #include "MapTetrahedron.hpp"
 #include "QuadratureData.hpp"
 
@@ -48,7 +48,7 @@ struct FEM_PCC_3D_Polyhedron_Geometry final
 
 struct FEM_Hexahedron_PCC_3D_LocalSpace_Data final
 {
-    Gedim::MapHexahedron::MapHexahedronData MapData;
+    Gedim::MapParallelepiped::MapParallelepipedData MapData;
     unsigned int Order;
     unsigned int NumberOfBasisFunctions;
     Eigen::MatrixXd Dofs;

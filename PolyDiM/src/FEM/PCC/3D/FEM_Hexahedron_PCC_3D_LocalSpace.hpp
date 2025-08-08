@@ -15,7 +15,7 @@
 #include "FEM_Hexahedron_PCC_3D_ReferenceElement.hpp"
 #include "FEM_PCC_3D_LocalSpace_Data.hpp"
 #include "FEM_Quadrilateral_PCC_2D_LocalSpace.hpp"
-#include "MapHexahedron.hpp"
+#include "MapParallelepiped.hpp"
 
 namespace Polydim
 {
@@ -33,7 +33,7 @@ private:
                                                      const std::vector<Eigen::MatrixXd> &referenceDerivateValues) const;
 
     Gedim::Quadrature::QuadratureData InternalQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,
-                                                         const Gedim::MapHexahedron::MapHexahedronData &mapData) const;
+                                                         const Gedim::MapParallelepiped::MapParallelepipedData &mapData) const;
 
     std::array<Gedim::Quadrature::QuadratureData, 6> BoundaryQuadrature(const std::array<FEM_Quadrilateral_PCC_2D_LocalSpace_Data, 6> &faces_local_space_data,
                                                                         const FEM_PCC_3D_Polyhedron_Geometry &polyhedron) const;
@@ -58,7 +58,7 @@ public:
                                                        const FEM_Hexahedron_PCC_3D_LocalSpace_Data &local_space,
                                                        const Eigen::MatrixXd &points) const
     {
-        const Eigen::MatrixXd referencePoints = Gedim::MapHexahedron::FInv(local_space.MapData, points);
+        const Eigen::MatrixXd referencePoints = Gedim::MapParallelepiped::FInv(local_space.MapData, points);
 
         FEM_Hexahedron_PCC_3D_ReferenceElement reference_element;
 
@@ -69,7 +69,7 @@ public:
                                                                               const FEM_Hexahedron_PCC_3D_LocalSpace_Data &local_space,
                                                                               const Eigen::MatrixXd &points) const
     {
-        const Eigen::MatrixXd referencePoints = Gedim::MapHexahedron::FInv(local_space.MapData, points);
+        const Eigen::MatrixXd referencePoints = Gedim::MapParallelepiped::FInv(local_space.MapData, points);
 
         FEM_Hexahedron_PCC_3D_ReferenceElement reference_element;
 

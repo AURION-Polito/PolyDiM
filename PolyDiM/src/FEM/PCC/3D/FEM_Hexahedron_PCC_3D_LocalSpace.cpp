@@ -32,10 +32,10 @@ FEM_Hexahedron_PCC_3D_LocalSpace_Data FEM_Hexahedron_PCC_3D_LocalSpace::CreateLo
     geometry_utilities_config.Tolerance3D = polyhedron.Tolerance3D;
     Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
 
-    Gedim::MapHexahedron mapHexahedron(geometry_utilities);
+    Gedim::MapParallelepiped map_polyhedron(geometry_utilities);
     const std::vector<unsigned int> polyhedronCoordinateSystem =
         geometry_utilities.PolyhedronCoordinateSystem(polyhedron.Vertices, polyhedron.Edges);
-    localSpace.MapData = mapHexahedron.Compute(polyhedron.Vertices, polyhedronCoordinateSystem);
+    localSpace.MapData = map_polyhedron.Compute(polyhedron.Vertices, polyhedronCoordinateSystem);
 
     localSpace.Order = reference_element_data.Order;
     localSpace.NumberOfBasisFunctions = reference_element_data.NumBasisFunctions;
@@ -141,7 +141,7 @@ FEM_Hexahedron_PCC_3D_LocalSpace_Data FEM_Hexahedron_PCC_3D_LocalSpace::CreateLo
         cell_dof_counter++;
     }
 
-    localSpace.Dofs = MapValues(localSpace, Gedim::MapHexahedron::F(localSpace.MapData, reference_element_data.DofPositions));
+    localSpace.Dofs = MapValues(localSpace, Gedim::MapParallelepiped::F(localSpace.MapData, reference_element_data.DofPositions));
 
     FEM_Quadrilateral_PCC_2D_LocalSpace face_local_space;
 
@@ -211,13 +211,13 @@ std::vector<MatrixXd> FEM_Hexahedron_PCC_3D_LocalSpace::MapDerivativeValues(cons
 // ***************************************************************************
 Gedim::Quadrature::QuadratureData FEM_Hexahedron_PCC_3D_LocalSpace::InternalQuadrature(
     const Gedim::Quadrature::QuadratureData &reference_quadrature,
-    const Gedim::MapHexahedron::MapHexahedronData &mapData) const
+    const Gedim::MapParallelepiped::MapParallelepipedData &mapData) const
 {
     Gedim::Quadrature::QuadratureData quadrature;
 
-    quadrature.Points = Gedim::MapHexahedron::F(mapData, reference_quadrature.Points);
+    quadrature.Points = Gedim::MapParallelepiped::F(mapData, reference_quadrature.Points);
     quadrature.Weights = reference_quadrature.Weights.array() *
-                         Gedim::MapHexahedron::DetJ(mapData, reference_quadrature.Points).array().abs();
+                         Gedim::MapParallelepiped::DetJ(mapData, reference_quadrature.Points).array().abs();
 
     return quadrature;
 }
