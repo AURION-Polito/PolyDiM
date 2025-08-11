@@ -28,6 +28,12 @@ enum class FEM_PCC_2D_Types
     Quadrilateral = 1
 };
 
+enum class QuadrilateralType
+{
+    Parallelogram = 0,
+    Generic = 1
+};
+
 struct FEM_PCC_2D_Polygon_Geometry final
 {
     double Tolerance1D;
@@ -56,6 +62,7 @@ struct FEM_Triangle_PCC_2D_LocalSpace_Data final
 
 struct FEM_Quadrilateral_PCC_2D_LocalSpace_Data final
 {
+    Eigen::MatrixXd Vertices;
     Gedim::MapParallelogram::MapParallelogramData MapData;
     Eigen::Matrix3d B_lap;
     unsigned int Order;
@@ -67,6 +74,7 @@ struct FEM_Quadrilateral_PCC_2D_LocalSpace_Data final
     std::array<unsigned int, 2> Dof2DsIndex;
     Gedim::Quadrature::QuadratureData InternalQuadrature;
     std::vector<Gedim::Quadrature::QuadratureData> BoundaryQuadrature;
+    QuadrilateralType quadrilateral_type;
 };
 
 struct FEM_PCC_2D_LocalSpace_Data final

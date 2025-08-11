@@ -12,7 +12,6 @@
 #ifndef __FEM_Triangle_PCC_2D_LocalSpace_HPP
 #define __FEM_Triangle_PCC_2D_LocalSpace_HPP
 
-#include "FEM_PCC_1D_LocalSpace.hpp"
 #include "FEM_PCC_2D_LocalSpace_Data.hpp"
 #include "FEM_Triangle_PCC_2D_ReferenceElement.hpp"
 #include "MapTriangle.hpp"

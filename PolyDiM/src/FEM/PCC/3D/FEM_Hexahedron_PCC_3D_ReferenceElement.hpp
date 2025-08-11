@@ -92,7 +92,7 @@ struct FEM_Hexahedron_PCC_3D_ReferenceElement final
                                  {{8, 10}, 4}, {{10, 8}, 4}, {{1, 5}, 5},   {{9, 11}, 5},  {{11, 9}, 5}, {{5, 1}, 5}};
 
         FEM_PCC_1D_ReferenceElement edge_reference_element;
-        result.EdgeReferenceElement_Data = edge_reference_element.Create(order);
+        result.EdgeReferenceElement_Data = edge_reference_element.Create(order, FEM_PCC_1D_Types::Equispaced);
         const Eigen::VectorXd reference_edge_dofs_poisitions = result.EdgeReferenceElement_Data.DofPositions.row(0);
 
         // Reordering Dofs using convention [point, edge, cell]

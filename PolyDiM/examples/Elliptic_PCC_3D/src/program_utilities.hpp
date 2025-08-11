@@ -48,6 +48,7 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_3D::Program_configuration
                  const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
                  const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
                  const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                 const local_space::ReferenceElement_Data &reference_element_data,
                  const Polydim::examples::Elliptic_PCC_3D::Assembler::Elliptic_PCC_3D_Problem_Data &assembler_data,
                  const Polydim::examples::Elliptic_PCC_3D::Assembler::PostProcess_Data &post_process_data,
                  const Polydim::examples::Elliptic_PCC_3D::test::I_Test &test,

@@ -56,7 +56,8 @@ void create_domain_mesh(const Polydim::examples::Elliptic_PCC_2D::Program_config
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular:
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Minimal:
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Polygonal:
-    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Squared: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Squared:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::RandomDistorted: {
         Polydim::PDETools::Mesh::PDE_Mesh_Utilities::create_mesh_2D(geometryUtilities,
                                                                     meshUtilities,
                                                                     config.MeshGenerator(),
@@ -211,6 +212,7 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration
                  const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                  const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
                  const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                 const local_space::ReferenceElement_Data &reference_element_data,
                  const Polydim::examples::Elliptic_PCC_2D::Assembler::Elliptic_PCC_2D_Problem_Data &assembler_data,
                  const Polydim::examples::Elliptic_PCC_2D::Assembler::PostProcess_Data &post_process_data,
                  const std::string &exportVtuFolder)
@@ -339,11 +341,13 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration
             dof_dimension_values.push_back(2);
             dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
             dof_boundary_marker_values.push_back(boundary_info.Marker);
+
             dofs_coordinate.push_back(
                 polygon_centroid +
                 circle_diameter * Eigen::Vector3d(cos(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
                                                   sin(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
                                                   0.0));
+
             dof_type_values.push_back(static_cast<double>(local_dof.Type));
             dof_global_index_values.push_back(local_dof.Global_Index);
 

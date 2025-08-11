@@ -174,6 +174,7 @@ int main(int argc, char **argv)
                                                                        meshGeometricData,
                                                                        meshDOFsInfo,
                                                                        dofs_data,
+                                                                       reference_element_data,
                                                                        assembler_data,
                                                                        post_process_data,
                                                                        *test,

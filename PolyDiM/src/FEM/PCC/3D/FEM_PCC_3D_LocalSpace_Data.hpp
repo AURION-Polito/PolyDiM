@@ -14,6 +14,7 @@
 
 #include "FEM_PCC_2D_LocalSpace_Data.hpp"
 #include "MapHexahedron.hpp"
+#include "MapParallelepiped.hpp"
 #include "MapTetrahedron.hpp"
 #include "QuadratureData.hpp"
 
@@ -28,6 +29,12 @@ enum class FEM_PCC_3D_Types
 {
     Tetrahedron = 0,
     Hexahedron = 1
+};
+
+enum class HexahedronType
+{
+    Parallelepiped = 0,
+    Generic = 1
 };
 
 struct FEM_PCC_3D_Polyhedron_Geometry final
@@ -48,7 +55,8 @@ struct FEM_PCC_3D_Polyhedron_Geometry final
 
 struct FEM_Hexahedron_PCC_3D_LocalSpace_Data final
 {
-    Gedim::MapHexahedron::MapHexahedronData MapData;
+    Gedim::MapParallelepiped::MapParallelepipedData MapDataParallelepiped;
+    Gedim::MapHexahedron::MapHexahedronData MapDataHexahedron;
     unsigned int Order;
     unsigned int NumberOfBasisFunctions;
     Eigen::MatrixXd Dofs;
@@ -63,6 +71,7 @@ struct FEM_Hexahedron_PCC_3D_LocalSpace_Data final
     Gedim::Quadrature::QuadratureData InternalQuadrature;
     std::array<FEM_Quadrilateral_PCC_2D_LocalSpace_Data, 6> Boundary_LocalSpace_Data;
     std::array<Gedim::Quadrature::QuadratureData, 6> BoundaryQuadrature;
+    HexahedronType hexahedron_type;
 };
 
 struct FEM_Tetrahedron_PCC_3D_LocalSpace_Data final

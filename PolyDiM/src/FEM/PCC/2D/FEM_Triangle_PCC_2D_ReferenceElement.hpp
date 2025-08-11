@@ -65,7 +65,7 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
             result.DofPositions.col(0) << 1.0 / 3.0, 1.0 / 3.0, 0.0;
 
             FEM_PCC_1D_ReferenceElement boundary_reference_element;
-            result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order);
+            result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order, FEM_PCC_1D_Types::Equispaced);
 
             result.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * order);
 
@@ -148,7 +148,7 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
         }
 
         FEM_PCC_1D_ReferenceElement boundary_reference_element;
-        result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order);
+        result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order, FEM_PCC_1D_Types::Equispaced);
 
         result.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * order);
 

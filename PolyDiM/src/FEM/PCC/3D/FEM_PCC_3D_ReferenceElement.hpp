@@ -55,7 +55,13 @@ struct FEM_PCC_3D_ReferenceElement final
         FEM_Tetrahedron_PCC_3D_ReferenceElement tetra_reference_element;
         FEM_Hexahedron_PCC_3D_ReferenceElement hexa_reference_element;
 
-        result.tetrahedron_reference_element_data = tetra_reference_element.Create(order);
+        try
+        {
+            result.tetrahedron_reference_element_data = tetra_reference_element.Create(order);
+        }
+        catch (...)
+        {
+        }
         result.hexahedron_reference_element_data = hexa_reference_element.Create(order);
 
         return result;

@@ -15,9 +15,8 @@
 #include "Eigen/Eigen"
 #include "QuadratureData.hpp"
 #include "Quadrature_Gauss1D.hpp"
-#include "Quadrature_Gauss2D_Triangle.hpp"
+#include "Quadrature_GaussLobatto1D.hpp"
 #include "lagrange_1D.hpp"
-#include <iostream>
 
 namespace Polydim
 {
@@ -25,6 +24,13 @@ namespace FEM
 {
 namespace PCC
 {
+
+enum class FEM_PCC_1D_Types
+{
+    Equispaced = 0,
+    GaussLobatto = 1
+};
+
 struct FEM_PCC_1D_ReferenceElement_Data final
 {
     unsigned int Dimension;
@@ -45,7 +51,7 @@ struct FEM_PCC_1D_ReferenceElement_Data final
 class FEM_PCC_1D_ReferenceElement final
 {
   public:
-    FEM_PCC_1D_ReferenceElement_Data Create(const unsigned int order) const
+    FEM_PCC_1D_ReferenceElement_Data Create(const unsigned int order, const FEM_PCC_1D_Types type = FEM_PCC_1D_Types::Equispaced) const
     {
         FEM_PCC_1D_ReferenceElement_Data result;
 
@@ -75,22 +81,35 @@ class FEM_PCC_1D_ReferenceElement final
         std::vector<unsigned int> cellDofs;
         std::vector<unsigned int> nodeDofsIndex(3, 0);
 
-        result.NumDofs0D = 0;
-        result.NumDofs1D = 0;
+        result.NumDofs0D = 1;
+        result.NumDofs1D = order - 1;
         result.NumBasisFunctions = order + 1;
 
         Eigen::MatrixXd dofPositions = Eigen::MatrixXd::Zero(3, result.NumBasisFunctions);
 
+        switch (type)
+        {
+        case FEM_PCC_1D_Types::Equispaced:
+            dofPositions.row(0) = Eigen::VectorXd::LinSpaced(result.NumBasisFunctions, 0.0, 1.0);
+            break;
+        case FEM_PCC_1D_Types::GaussLobatto:
+            dofPositions.row(0) =
+                Gedim::Quadrature::Quadrature_GaussLobatto1D::FillPointsAndWeights(2 * order - 1).Points.row(0);
+            break;
+        default:
+            throw std::runtime_error("not valid fem 1D type");
+        }
+
+        assert(dofPositions.row(0).size() == result.NumBasisFunctions);
+
         for (unsigned int i = 0; i < result.NumBasisFunctions; i++)
         {
-            dofPositions(0, vertexCount) = ((double)i) / ((double)order);
-
-            if (dofPositions(0, vertexCount) == 0.0)
+            if (i == 0)
             {
                 nodeDofs.push_back(vertexCount);
                 nodeDofsIndex[1]++;
             }
-            else if (dofPositions(0, vertexCount) == 1.0)
+            else if (i == result.NumBasisFunctions - 1)
             {
                 nodeDofs.push_back(vertexCount);
                 nodeDofsIndex[2]++;
@@ -108,8 +127,6 @@ class FEM_PCC_1D_ReferenceElement final
             throw std::runtime_error("Wrong initialization in FE reference element. Number of DOFs found is not "
                                      "correct.");
 
-        result.NumDofs0D = nodeDofs.size() / 2;
-        result.NumDofs1D = cellDofs.size();
         result.DofPositions.resize(3, result.NumBasisFunctions);
 
         unsigned int dofCounter = 0;

@@ -32,10 +32,22 @@ FEM_Hexahedron_PCC_3D_LocalSpace_Data FEM_Hexahedron_PCC_3D_LocalSpace::CreateLo
     geometry_utilities_config.Tolerance3D = polyhedron.Tolerance3D;
     Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
 
-    Gedim::MapHexahedron mapHexahedron(geometry_utilities);
-    const std::vector<unsigned int> polyhedronCoordinateSystem =
-        geometry_utilities.PolyhedronCoordinateSystem(polyhedron.Vertices, polyhedron.Edges);
-    localSpace.MapData = mapHexahedron.Compute(polyhedron.Vertices, polyhedronCoordinateSystem);
+    const auto mapDataHexahedron = Gedim::MapHexahedron::Compute(polyhedron.Vertices, polyhedron.Faces);
+
+    if (geometry_utilities.IsValueZero(mapDataHexahedron.Coefficients.rightCols(4).norm(), polyhedron.Tolerance1D))
+    {
+        localSpace.hexahedron_type = HexahedronType::Parallelepiped;
+        Gedim::MapParallelepiped mapHexahedron(geometry_utilities);
+        const std::vector<unsigned int> polyhedronCoordinateSystem =
+            geometry_utilities.PolyhedronCoordinateSystem(polyhedron.Vertices, polyhedron.Edges);
+
+        localSpace.MapDataParallelepiped = mapHexahedron.Compute(polyhedron.Vertices, polyhedronCoordinateSystem);
+    }
+    else
+    {
+        localSpace.hexahedron_type = HexahedronType::Generic;
+        localSpace.MapDataHexahedron = mapDataHexahedron;
+    }
 
     localSpace.Order = reference_element_data.Order;
     localSpace.NumberOfBasisFunctions = reference_element_data.NumBasisFunctions;
@@ -112,22 +124,22 @@ FEM_Hexahedron_PCC_3D_LocalSpace_Data FEM_Hexahedron_PCC_3D_LocalSpace::CreateLo
         const unsigned int ref_f = localSpace.polyhedron_to_reference_face_index[f];
         unsigned int face_dof_counter = reference_element_data.NumDofs0D * 8 + reference_element_data.NumDofs1D * 12 +
                                         reference_element_data.NumDofs2D * ref_f;
-        if (polyhedron.FacesDirection.at(f))
+        // if (polyhedron.FacesDirection.at(f))
+        // {
+        for (unsigned int d = localSpace.Dof2DsIndex[f]; d < localSpace.Dof2DsIndex[f + 1]; d++)
         {
-            for (unsigned int d = localSpace.Dof2DsIndex[f]; d < localSpace.Dof2DsIndex[f + 1]; d++)
-            {
-                localSpace.DofsMeshOrder[face_dof_counter] = d;
-                face_dof_counter++;
-            }
+            localSpace.DofsMeshOrder[face_dof_counter] = d;
+            face_dof_counter++;
         }
-        else
-        {
-            for (unsigned int d = localSpace.Dof2DsIndex[f + 1] - 1; d < UINT_MAX && d >= localSpace.Dof2DsIndex[f]; d--)
-            {
-                localSpace.DofsMeshOrder[face_dof_counter] = d;
-                face_dof_counter++;
-            }
-        }
+        // }
+        // else
+        // {
+        // for (unsigned int d = localSpace.Dof2DsIndex[f + 1] - 1; d < UINT_MAX && d >= localSpace.Dof2DsIndex[f]; d--)
+        // {
+        //     localSpace.DofsMeshOrder[face_dof_counter] = d;
+        //     face_dof_counter++;
+        // }
+        // }
     }
 
     localSpace.Dof3DsIndex.fill(localSpace.Dof2DsIndex[6]);
@@ -141,7 +153,21 @@ FEM_Hexahedron_PCC_3D_LocalSpace_Data FEM_Hexahedron_PCC_3D_LocalSpace::CreateLo
         cell_dof_counter++;
     }
 
-    localSpace.Dofs = MapValues(localSpace, Gedim::MapHexahedron::F(localSpace.MapData, reference_element_data.DofPositions));
+    switch (localSpace.hexahedron_type)
+    {
+    case Polydim::FEM::PCC::HexahedronType::Parallelepiped: {
+        localSpace.Dofs =
+            MapValues(localSpace, Gedim::MapParallelepiped::F(localSpace.MapDataParallelepiped, reference_element_data.DofPositions));
+    }
+    break;
+    case Polydim::FEM::PCC::HexahedronType::Generic: {
+        localSpace.Dofs =
+            MapValues(localSpace, Gedim::MapHexahedron::F(localSpace.MapDataHexahedron, reference_element_data.DofPositions));
+    }
+    break;
+    default:
+        throw std::runtime_error("not valid hexahedron type");
+    }
 
     FEM_Quadrilateral_PCC_2D_LocalSpace face_local_space;
 
@@ -160,7 +186,7 @@ FEM_Hexahedron_PCC_3D_LocalSpace_Data FEM_Hexahedron_PCC_3D_LocalSpace::CreateLo
             face_local_space.CreateLocalSpace(reference_element_data.BoundaryReferenceElement_Data, fem_face_geometry);
     }
 
-    localSpace.InternalQuadrature = InternalQuadrature(reference_element_data.ReferenceHexahedronQuadrature, localSpace.MapData);
+    localSpace.InternalQuadrature = InternalQuadrature(reference_element_data.ReferenceHexahedronQuadrature, localSpace);
     localSpace.BoundaryQuadrature = BoundaryQuadrature(localSpace.Boundary_LocalSpace_Data, polyhedron);
 
     return localSpace;
@@ -184,14 +210,22 @@ std::vector<MatrixXd> FEM_Hexahedron_PCC_3D_LocalSpace::MapDerivativeValues(cons
         3,
         Eigen::MatrixXd::Zero(referenceDerivateValues.at(0).rows(), local_space.NumberOfBasisFunctions));
 
-    for (unsigned int i = 0; i < 3; i++)
+    switch (local_space.hexahedron_type)
     {
-        basisFunctionsDerivativeValues[i] = local_space.MapData.QInv(i, i) * referenceDerivateValues[i];
-        for (unsigned int j = 0; j < i; j++)
+    case Polydim::FEM::PCC::HexahedronType::Parallelepiped: {
+        for (unsigned int i = 0; i < 3; i++)
         {
-            basisFunctionsDerivativeValues[i] += local_space.MapData.QInv(j, i) * referenceDerivateValues[j];
-            basisFunctionsDerivativeValues[j] += local_space.MapData.QInv(i, j) * referenceDerivateValues[i];
+            basisFunctionsDerivativeValues[i] = local_space.MapDataParallelepiped.QInv(i, i) * referenceDerivateValues[i];
+            for (unsigned int j = 0; j < i; j++)
+            {
+                basisFunctionsDerivativeValues[i] += local_space.MapDataParallelepiped.QInv(j, i) * referenceDerivateValues[j];
+                basisFunctionsDerivativeValues[j] += local_space.MapDataParallelepiped.QInv(i, j) * referenceDerivateValues[i];
+            }
         }
+    }
+    break;
+    default:
+        throw std::runtime_error("not valid hexahedron type");
     }
 
     std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValuesOrdered(
@@ -211,13 +245,22 @@ std::vector<MatrixXd> FEM_Hexahedron_PCC_3D_LocalSpace::MapDerivativeValues(cons
 // ***************************************************************************
 Gedim::Quadrature::QuadratureData FEM_Hexahedron_PCC_3D_LocalSpace::InternalQuadrature(
     const Gedim::Quadrature::QuadratureData &reference_quadrature,
-    const Gedim::MapHexahedron::MapHexahedronData &mapData) const
+    const FEM_Hexahedron_PCC_3D_LocalSpace_Data &local_space) const
 {
     Gedim::Quadrature::QuadratureData quadrature;
 
-    quadrature.Points = Gedim::MapHexahedron::F(mapData, reference_quadrature.Points);
-    quadrature.Weights = reference_quadrature.Weights.array() *
-                         Gedim::MapHexahedron::DetJ(mapData, reference_quadrature.Points).array().abs();
+    switch (local_space.hexahedron_type)
+    {
+    case Polydim::FEM::PCC::HexahedronType::Parallelepiped: {
+        quadrature.Points = Gedim::MapParallelepiped::F(local_space.MapDataParallelepiped, reference_quadrature.Points);
+        quadrature.Weights =
+            reference_quadrature.Weights.array() *
+            Gedim::MapParallelepiped::DetJ(local_space.MapDataParallelepiped, reference_quadrature.Points).array().abs();
+    }
+    break;
+    default:
+        throw std::runtime_error("not valid hexahedron type");
+    }
 
     return quadrature;
 }

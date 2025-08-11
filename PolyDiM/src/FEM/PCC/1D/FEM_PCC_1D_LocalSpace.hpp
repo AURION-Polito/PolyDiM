@@ -13,7 +13,6 @@
 #define __FEM_PCC_1D_LocalSpace_HPP
 
 #include "FEM_PCC_1D_ReferenceElement.hpp"
-#include "MapTriangle.hpp"
 
 namespace Polydim
 {

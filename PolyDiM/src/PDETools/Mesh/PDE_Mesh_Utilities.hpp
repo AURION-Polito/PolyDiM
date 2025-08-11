@@ -75,7 +75,8 @@ enum struct MeshGenerator_Types_2D
     Polygonal = 2,   ///< generated voronoi polygonal mesh
     OFFImporter = 3, ///< imported off mesh
     CsvImporter = 4, ///< imported csv mesh
-    Squared = 5      ///< squared mesh
+    Squared = 5,     ///< squared mesh
+    RandomDistorted = 6
 };
 
 enum struct MeshGenerator_Types_3D
@@ -176,6 +177,34 @@ inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
                                            mesh);
     }
     break;
+    case MeshGenerator_Types_2D::RandomDistorted: {
+        switch (pde_domain.shape_type)
+        {
+        case PDE_Domain_2D::Domain_Shape_Types::Parallelogram:
+            break;
+        default:
+            throw std::runtime_error("Squared mesh cannot be created");
+        }
+
+        const double max_cell_edge = sqrt(pde_domain.area * max_relative_area);
+
+        const Eigen::Vector3d domain_origin = pde_domain.vertices.col(0);
+        const Eigen::Vector3d domain_base_tangent = pde_domain.vertices.col(1) - domain_origin;
+        const Eigen::Vector3d domain_height_tangent = pde_domain.vertices.rightCols(1) - domain_origin;
+        const unsigned int num_cells_base = ceil(domain_base_tangent.norm() / max_cell_edge);
+        const unsigned int num_cells_height = ceil(domain_height_tangent.norm() / max_cell_edge);
+
+        mesh_utilities.CreateRandomlyDeformedQuadrilaterals(geometry_utilities,
+                                                            domain_origin,
+                                                            domain_base_tangent,
+                                                            domain_height_tangent,
+                                                            num_cells_base,
+                                                            num_cells_height,
+                                                            0.2,
+                                                            0.2,
+                                                            mesh);
+    }
+    break;
     default:
         throw std::runtime_error("MeshGenerator_Types_2D " + std::to_string((unsigned int)mesh_type) + " not supported");
     }
@@ -226,9 +255,9 @@ inline void create_mesh_3D(const Gedim::GeometryUtilities &geometry_utilities,
         const Eigen::Vector3d domain_base_tangent = pde_domain.vertices.col(1) - domain_origin;
         const Eigen::Vector3d domain_width_tangent = pde_domain.vertices.col(4) - domain_origin;
         const Eigen::Vector3d domain_heigth_tangent = pde_domain.vertices.col(3) - domain_origin;
-        const unsigned int num_cells_base = round(domain_base_tangent.norm() / max_cell_edge);
-        const unsigned int num_cells_width = round(domain_width_tangent.norm() / max_cell_edge);
-        const unsigned int num_cells_height = round(domain_heigth_tangent.norm() / max_cell_edge);
+        const unsigned int num_cells_base = 1;   // round(domain_base_tangent.norm() / max_cell_edge);
+        const unsigned int num_cells_width = 1;  // round(domain_width_tangent.norm() / max_cell_edge);
+        const unsigned int num_cells_height = 2; // round(domain_heigth_tangent.norm() / max_cell_edge);
 
         mesh_utilities.CreateParallelepipedMesh(domain_origin,
                                                 domain_base_tangent,

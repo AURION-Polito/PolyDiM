@@ -261,6 +261,7 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_3D::Program_configuration
                  const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
                  const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
                  const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                 const local_space::ReferenceElement_Data &reference_element_data,
                  const Polydim::examples::Elliptic_PCC_3D::Assembler::Elliptic_PCC_3D_Problem_Data &assembler_data,
                  const Polydim::examples::Elliptic_PCC_3D::Assembler::PostProcess_Data &post_process_data,
                  const test::I_Test &test,
@@ -407,19 +408,41 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_3D::Program_configuration
             dof_dimension_values.push_back(2);
             dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
             dof_boundary_marker_values.push_back(boundary_info.Marker);
-            if (num_loc_dofs > 1)
-                dofs_coordinate.push_back(geometryUtilities.RotatePointsFrom2DTo3D(
-                    polygon_centroid +
-                        circle_diameter * Eigen::Vector3d(cos(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
-                                                          sin(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
-                                                          0.0),
-                    mesh_geometric_data.Cell3DsFacesRotationMatrices.at(neigh)[local_index_face],
-                    mesh_geometric_data.Cell3DsFacesTranslations.at(neigh)[local_index_face]));
-            else
-                dofs_coordinate.push_back(geometryUtilities.RotatePointsFrom2DTo3D(
-                    polygon_centroid,
-                    mesh_geometric_data.Cell3DsFacesRotationMatrices.at(neigh)[local_index_face],
-                    mesh_geometric_data.Cell3DsFacesTranslations.at(neigh)[local_index_face]));
+
+            switch (config.MethodType())
+            {
+            case Program_configuration::MethodTypes::FEM_PCC: {
+                const unsigned int cell3DIndex = mesh.Cell2DNeighbourCell3D(c, 0);
+                const unsigned int face_local_index = mesh.Cell3DFindFace(cell3DIndex, c);
+                const auto local_space_data =
+                    local_space::CreateLocalSpace(config, mesh_geometric_data, cell3DIndex, reference_element_data);
+                unsigned int offset = 0;
+                const auto face_dofs_coordinates =
+                    local_space::FaceDofsCoordinates(reference_element_data, local_space_data, face_local_index, offset);
+                dofs_coordinate.push_back(face_dofs_coordinates.Points.col(loc_i));
+            }
+            break;
+            case Program_configuration::MethodTypes::VEM_PCC:
+            case Program_configuration::MethodTypes::VEM_PCC_Ortho:
+            case Program_configuration::MethodTypes::VEM_PCC_Inertia: {
+                if (num_loc_dofs > 1)
+                    dofs_coordinate.push_back(geometryUtilities.RotatePointsFrom2DTo3D(
+                        polygon_centroid +
+                            circle_diameter * Eigen::Vector3d(cos(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
+                                                              sin(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
+                                                              0.0),
+                        mesh_geometric_data.Cell3DsFacesRotationMatrices.at(neigh)[local_index_face],
+                        mesh_geometric_data.Cell3DsFacesTranslations.at(neigh)[local_index_face]));
+                else
+                    dofs_coordinate.push_back(geometryUtilities.RotatePointsFrom2DTo3D(
+                        polygon_centroid,
+                        mesh_geometric_data.Cell3DsFacesRotationMatrices.at(neigh)[local_index_face],
+                        mesh_geometric_data.Cell3DsFacesTranslations.at(neigh)[local_index_face]));
+            }
+            break;
+            default:
+                throw std::runtime_error("not valid method type");
+            }
 
             const Eigen::Vector3d dof_coordinate = dofs_coordinate.back();
 

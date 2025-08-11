@@ -10,6 +10,7 @@
 // This file can be used citing references in CITATION.cff file.
 
 #include "FEM_Quadrilateral_PCC_2D_LocalSpace.hpp"
+#include "GeometryUtilities.hpp"
 
 using namespace Eigen;
 
@@ -30,9 +31,24 @@ FEM_Quadrilateral_PCC_2D_LocalSpace_Data FEM_Quadrilateral_PCC_2D_LocalSpace::Cr
 
     FEM_Quadrilateral_PCC_2D_LocalSpace_Data localSpace;
 
-    Gedim::MapParallelogram MapParallelogram;
-    localSpace.MapData = MapParallelogram.Compute(polygon.Vertices);
-    localSpace.B_lap = localSpace.MapData.BInv * localSpace.MapData.BInv.transpose();
+    const double a4 = polygon.Vertices(0, 0) - polygon.Vertices(0, 1) + polygon.Vertices(0, 2) - polygon.Vertices(0, 3);
+    const double b4 = polygon.Vertices(1, 0) - polygon.Vertices(1, 1) + polygon.Vertices(1, 2) - polygon.Vertices(1, 3);
+
+    Gedim::GeometryUtilitiesConfig config;
+    config.Tolerance1D = polygon.Tolerance1D;
+    config.Tolerance2D = polygon.Tolerance2D;
+    Gedim::GeometryUtilities geometry_utilities(config);
+
+    localSpace.Vertices = polygon.Vertices;
+    if (geometry_utilities.IsValueZero(a4, polygon.Tolerance1D) && geometry_utilities.IsValueZero(b4, polygon.Tolerance1D))
+    {
+        Gedim::MapParallelogram MapParallelogram;
+        localSpace.MapData = MapParallelogram.Compute(polygon.Vertices);
+        localSpace.B_lap = localSpace.MapData.BInv * localSpace.MapData.BInv.transpose();
+        localSpace.quadrilateral_type = QuadrilateralType::Parallelogram;
+    }
+    else
+        localSpace.quadrilateral_type = QuadrilateralType::Generic;
 
     localSpace.Order = reference_element_data.Order;
     localSpace.NumberOfBasisFunctions = reference_element_data.NumBasisFunctions;
@@ -90,9 +106,23 @@ FEM_Quadrilateral_PCC_2D_LocalSpace_Data FEM_Quadrilateral_PCC_2D_LocalSpace::Cr
     }
 
     // reorder basis function values with mesh order
-    localSpace.Dofs = MapValues(localSpace, Gedim::MapParallelogram::F(localSpace.MapData, reference_element_data.DofPositions));
+    switch (localSpace.quadrilateral_type)
+    {
+    case Polydim::FEM::PCC::QuadrilateralType::Parallelogram: {
+        localSpace.Dofs =
+            MapValues(localSpace, Gedim::MapParallelogram::F(localSpace.MapData, reference_element_data.DofPositions));
+    }
+    break;
+    case Polydim::FEM::PCC::QuadrilateralType::Generic: {
+        Gedim::MapQuadrilateral mapQuadrilateral;
+        localSpace.Dofs = MapValues(localSpace, mapQuadrilateral.F(localSpace.Vertices, reference_element_data.DofPositions));
+    }
+    break;
+    default:
+        throw std::runtime_error("not valid quadrilateral");
+    }
 
-    localSpace.InternalQuadrature = InternalQuadrature(reference_element_data.ReferenceSquareQuadrature, localSpace.MapData);
+    localSpace.InternalQuadrature = InternalQuadrature(reference_element_data.ReferenceSquareQuadrature, localSpace);
     localSpace.BoundaryQuadrature =
         BoundaryQuadrature(reference_element_data.BoundaryReferenceElement_Data.ReferenceSegmentQuadrature, polygon);
 
@@ -111,20 +141,47 @@ MatrixXd FEM_Quadrilateral_PCC_2D_LocalSpace::MapValues(const FEM_Quadrilateral_
 }
 // ***************************************************************************
 std::vector<MatrixXd> FEM_Quadrilateral_PCC_2D_LocalSpace::MapDerivativeValues(const FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space,
-                                                                               const std::vector<Eigen::MatrixXd> &referenceDerivateValues) const
+                                                                               const std::vector<Eigen::MatrixXd> &referenceDerivateValues,
+                                                                               const Eigen::MatrixXd &referencePoints) const
 {
     std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValues(
         2,
         Eigen::MatrixXd::Zero(referenceDerivateValues.at(0).rows(), local_space.NumberOfBasisFunctions));
 
-    for (unsigned int i = 0; i < 2; i++)
+    switch (local_space.quadrilateral_type)
     {
-        basisFunctionsDerivativeValues[i] = local_space.MapData.BInv(i, i) * referenceDerivateValues[i];
-        for (unsigned int j = 0; j < i; j++)
+    case Polydim::FEM::PCC::QuadrilateralType::Parallelogram: {
+        for (unsigned int i = 0; i < 2; i++)
         {
-            basisFunctionsDerivativeValues[i] += local_space.MapData.BInv(j, i) * referenceDerivateValues[j];
-            basisFunctionsDerivativeValues[j] += local_space.MapData.BInv(i, j) * referenceDerivateValues[i];
+            basisFunctionsDerivativeValues[i] = local_space.MapData.BInv(i, i) * referenceDerivateValues[i];
+            for (unsigned int j = 0; j < i; j++)
+            {
+                basisFunctionsDerivativeValues[i] += local_space.MapData.BInv(j, i) * referenceDerivateValues[j];
+                basisFunctionsDerivativeValues[j] += local_space.MapData.BInv(i, j) * referenceDerivateValues[i];
+            }
         }
+    }
+    break;
+    case Polydim::FEM::PCC::QuadrilateralType::Generic: {
+        Gedim::MapQuadrilateral mapQuadrilateral;
+        const Eigen::MatrixXd invJac = mapQuadrilateral.JInv(local_space.Vertices, referencePoints);
+        for (unsigned int p = 0; p < referencePoints.cols(); p++)
+        {
+            const Eigen::MatrixXd BInv = invJac.block(0, 3 * p, 2, 2);
+            for (unsigned int i = 0; i < 2; i++)
+            {
+                basisFunctionsDerivativeValues[i].row(p) = BInv(i, i) * referenceDerivateValues[i].row(p);
+                for (unsigned int j = 0; j < i; j++)
+                {
+                    basisFunctionsDerivativeValues[i].row(p) += BInv(j, i) * referenceDerivateValues[j].row(p);
+                    basisFunctionsDerivativeValues[j].row(p) += BInv(i, j) * referenceDerivateValues[i].row(p);
+                }
+            }
+        }
+    }
+    break;
+    default:
+        throw std::runtime_error("not valid quadrilateral");
     }
 
     std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValuesOrdered(
@@ -142,29 +199,52 @@ std::vector<MatrixXd> FEM_Quadrilateral_PCC_2D_LocalSpace::MapDerivativeValues(c
 }
 // ***************************************************************************
 Eigen::MatrixXd FEM_Quadrilateral_PCC_2D_LocalSpace::MapLaplacianValues(const FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space,
-                                                                        const std::array<Eigen::MatrixXd, 4> &referenceSecondDerivateValues) const
+                                                                        const std::array<Eigen::MatrixXd, 4> &referenceSecondDerivateValues,
+                                                                        const Eigen::MatrixXd &referencePoints) const
 {
     Eigen::MatrixXd laplacian_values =
         Eigen::MatrixXd::Zero(referenceSecondDerivateValues.at(0).rows(), local_space.NumberOfBasisFunctions);
 
-    laplacian_values = local_space.B_lap(0, 0) * referenceSecondDerivateValues.at(0) +
-                       local_space.B_lap(0, 1) * referenceSecondDerivateValues.at(1) +
-                       local_space.B_lap(1, 0) * referenceSecondDerivateValues.at(2) +
-                       local_space.B_lap(1, 1) * referenceSecondDerivateValues.at(3);
+    switch (local_space.quadrilateral_type)
+    {
+    case Polydim::FEM::PCC::QuadrilateralType::Parallelogram: {
+        laplacian_values = local_space.B_lap(0, 0) * referenceSecondDerivateValues.at(0) +
+                           local_space.B_lap(0, 1) * referenceSecondDerivateValues.at(1) +
+                           local_space.B_lap(1, 0) * referenceSecondDerivateValues.at(2) +
+                           local_space.B_lap(1, 1) * referenceSecondDerivateValues.at(3);
+    }
+    break;
+    default:
+        throw std::runtime_error("not valid quadrilateral");
+    }
 
     return laplacian_values;
 }
 // ***************************************************************************
 Gedim::Quadrature::QuadratureData FEM_Quadrilateral_PCC_2D_LocalSpace::InternalQuadrature(
     const Gedim::Quadrature::QuadratureData &reference_quadrature,
-    const Gedim::MapParallelogram::MapParallelogramData &mapData) const
+    const FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space) const
 {
     Gedim::Quadrature::QuadratureData quadrature;
 
-    Gedim::MapParallelogram MapParallelogram;
-    quadrature.Points = Gedim::MapParallelogram::F(mapData, reference_quadrature.Points);
-    quadrature.Weights = reference_quadrature.Weights.array() *
-                         Gedim::MapParallelogram::DetJ(mapData, reference_quadrature.Points).array().abs();
+    switch (local_space.quadrilateral_type)
+    {
+    case Polydim::FEM::PCC::QuadrilateralType::Parallelogram: {
+        quadrature.Points = Gedim::MapParallelogram::F(local_space.MapData, reference_quadrature.Points);
+        quadrature.Weights = reference_quadrature.Weights.array() *
+                             Gedim::MapParallelogram::DetJ(local_space.MapData, reference_quadrature.Points).array().abs();
+    }
+    break;
+    case Polydim::FEM::PCC::QuadrilateralType::Generic: {
+        Gedim::MapQuadrilateral mapQuadrilateral;
+        quadrature.Points = mapQuadrilateral.F(local_space.Vertices, reference_quadrature.Points);
+        quadrature.Weights = reference_quadrature.Weights.array() *
+                             mapQuadrilateral.DetJ(local_space.Vertices, reference_quadrature.Points).array().abs();
+    }
+    break;
+    default:
+        throw std::runtime_error("not valid quadrilateral");
+    }
 
     return quadrature;
 }
