@@ -112,6 +112,8 @@ struct VEM_PCC_3D_LocalSpace_Data final
     VEM_PCC_3D_Polyhedron_Geometry inertia_polyhedron;
     double constantStiff;
     double constantMass;
+
+    Eigen::RowVectorXd EdgeInternalPoints;
 };
 } // namespace PCC
 } // namespace VEM

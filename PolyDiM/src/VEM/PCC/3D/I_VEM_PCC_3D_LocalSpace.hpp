@@ -49,6 +49,11 @@ class I_VEM_PCC_3D_LocalSpace
     virtual Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const VEM_PCC_3D_LocalSpace_Data &localSpace,
                                                                const ProjectionTypes &projectionType) const = 0;
 
+    virtual Eigen::MatrixXd ComputeDRecipeStabilizationMatrix(const VEM_PCC_3D_LocalSpace_Data &localSpace,
+                                                              const ProjectionTypes &projectionType,
+                                                              const Eigen::MatrixXd &coercivity_matrix,
+                                                              const Eigen::VectorXd &vector_coefficients) const = 0;
+
     /// \brief Compute values of a suitable projection of basis functions at default quadrature points.
     /// \param localSpace Data of the local space.
     /// \param projectionType Type of projection operator to be applied.
@@ -144,8 +149,8 @@ class I_VEM_PCC_3D_LocalSpace
     /// \param edgeInternalPoints Points where edge internal degrees of freedom are located.
     /// \param pointsCurvilinearCoordinates Curvilinear coordinates of evaluation points in [0,1].
     /// \return A matrix containing the values of a basis function on each column.
-    virtual Eigen::MatrixXd ComputeValuesOnEdge(const VEM_PCC_3D_LocalSpace_Data &localSpace,
-                                                const Eigen::VectorXd &edgeInternalPoints,
+    virtual Eigen::MatrixXd ComputeValuesOnEdge(const VEM_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                                const VEM_PCC_3D_LocalSpace_Data &localSpace,
                                                 const Eigen::VectorXd &pointsCurvilinearCoordinates) const = 0;
 };
 } // namespace PCC

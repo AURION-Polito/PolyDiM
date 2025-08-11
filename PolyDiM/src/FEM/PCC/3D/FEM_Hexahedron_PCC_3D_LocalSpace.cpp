@@ -245,6 +245,7 @@ std::vector<MatrixXd> FEM_Hexahedron_PCC_3D_LocalSpace::MapDerivativeValues(cons
 // ***************************************************************************
 Gedim::Quadrature::QuadratureData FEM_Hexahedron_PCC_3D_LocalSpace::InternalQuadrature(
     const Gedim::Quadrature::QuadratureData &reference_quadrature,
+
     const FEM_Hexahedron_PCC_3D_LocalSpace_Data &local_space) const
 {
     Gedim::Quadrature::QuadratureData quadrature;

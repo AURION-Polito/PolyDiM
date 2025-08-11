@@ -51,6 +51,12 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Ortho_LocalSpace::CreateLocalSpace(const V
         facesQuadratureWeights[f] = localSpace.facesLocalSpace[f].InternalQuadrature.Weights;
     }
 
+    if (reference_element_data_2D.Quadrature.ReferenceEdgeDOFsInternalPoints.rows() > 0)
+        localSpace.EdgeInternalPoints = reference_element_data_2D.Quadrature.ReferenceEdgeDOFsInternalPoints.row(0);
+
+    localSpace.EdgeBasisCoefficients =
+        utilities.ComputeEdgeBasisCoefficients(reference_element_data_2D.Order, localSpace.EdgeInternalPoints);
+
     localSpace.InternalQuadrature =
         quadrature3D.PolyhedronInternalQuadrature(reference_element_data_3D.Quadrature, geometryUtilities, polyhedron.TetrahedronVertices);
 

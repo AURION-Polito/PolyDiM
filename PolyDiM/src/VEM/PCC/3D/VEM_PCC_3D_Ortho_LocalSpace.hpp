@@ -109,6 +109,28 @@ class VEM_PCC_3D_Ortho_LocalSpace final : public I_VEM_PCC_3D_LocalSpace
         }
     }
 
+    inline Eigen::MatrixXd ComputeDRecipeStabilizationMatrix(const VEM_PCC_3D_LocalSpace_Data &localSpace,
+                                                             const ProjectionTypes &projectionType,
+                                                             const Eigen::MatrixXd &coercivity_matrix,
+                                                             const Eigen::VectorXd &vector_coefficients) const
+    {
+        switch (projectionType)
+        {
+        case ProjectionTypes::PiNabla:
+            return utilities.ComputeDRecipeStabilizationMatrix(localSpace.PiNabla,
+                                                               coercivity_matrix,
+                                                               vector_coefficients,
+                                                               localSpace.Dmatrix);
+        case ProjectionTypes::Pi0k:
+            return utilities.ComputeDRecipeStabilizationMatrix(localSpace.Pi0k,
+                                                               coercivity_matrix,
+                                                               vector_coefficients,
+                                                               localSpace.Dmatrix);
+        default:
+            throw std::runtime_error("not valid projection type");
+        }
+    }
+
     inline Eigen::MatrixXd ComputeBasisFunctionsValues(const VEM_PCC_3D_LocalSpace_Data &localSpace,
                                                        const ProjectionTypes &projectionType) const
     {
@@ -236,30 +258,32 @@ class VEM_PCC_3D_Ortho_LocalSpace final : public I_VEM_PCC_3D_LocalSpace
         return polynomialBasisDerivativeValues;
     }
 
-    inline Eigen::MatrixXd ComputeValuesOnEdge(const VEM_PCC_3D_LocalSpace_Data &localSpace,
-                                               const Eigen::VectorXd &edgeInternalPoints,
+    inline Eigen::MatrixXd ComputeValuesOnEdge(const VEM_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                               const VEM_PCC_3D_LocalSpace_Data &localSpace,
                                                const Eigen::VectorXd &pointsCurvilinearCoordinates) const
     {
-        const Eigen::VectorXd edgeBasisCoefficients = utilities.ComputeEdgeBasisCoefficients(localSpace.Order, edgeInternalPoints);
-        return utilities.ComputeValuesOnEdge(edgeInternalPoints.transpose(), localSpace.Order, edgeBasisCoefficients, pointsCurvilinearCoordinates);
+        return utilities.ComputeValuesOnEdge(localSpace.EdgeInternalPoints.transpose(),
+                                             reference_element_data.Order,
+                                             localSpace.EdgeBasisCoefficients,
+                                             pointsCurvilinearCoordinates);
     }
 
-    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_3D_LocalSpace_Data &, const ProjectionTypes &) const
+    inline Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_3D_LocalSpace_Data &, const ProjectionTypes &) const
     {
         throw std::runtime_error("Unimplemented method");
     }
 
-    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_3D_ReferenceElement_Data &,
-                                                         const VEM_PCC_3D_LocalSpace_Data &,
-                                                         const ProjectionTypes &,
-                                                         const Eigen::MatrixXd &) const
+    inline Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const VEM_PCC_3D_ReferenceElement_Data &,
+                                                                const VEM_PCC_3D_LocalSpace_Data &,
+                                                                const ProjectionTypes &,
+                                                                const Eigen::MatrixXd &) const
     {
         throw std::runtime_error("Unimplemented method");
     }
 
-    Eigen::MatrixXd ComputePolynomialsLaplacianValues(const VEM_PCC_3D_ReferenceElement_Data &,
-                                                      const VEM_PCC_3D_LocalSpace_Data &,
-                                                      const Eigen::MatrixXd &) const
+    inline Eigen::MatrixXd ComputePolynomialsLaplacianValues(const VEM_PCC_3D_ReferenceElement_Data &,
+                                                             const VEM_PCC_3D_LocalSpace_Data &,
+                                                             const Eigen::MatrixXd &) const
     {
         throw std::runtime_error("Unimplemented method");
     }

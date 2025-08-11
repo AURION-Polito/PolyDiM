@@ -192,6 +192,25 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
         stabMatrix.diagonal().array() -= 1;
         // stabMatrix = (\Pi^{\nabla,dofs}_order - I)^T * (\Pi^{\nabla,dofs}_order - I).
         stabMatrix = coefficient * stabMatrix.transpose() * stabMatrix;
+        return stabMatrix;
+    }
+
+    Eigen::MatrixXd ComputeDRecipeStabilizationMatrix(const Eigen::MatrixXd &projector,
+                                                      const Eigen::MatrixXd &coercivity_matrix,
+                                                      const Eigen::VectorXd &vector_coefficients,
+                                                      const Eigen::MatrixXd &Dmatrix) const
+    {
+        Eigen::MatrixXd stabMatrix = Dmatrix * projector;
+        stabMatrix.diagonal().array() -= 1;
+
+        const Eigen::VectorXd diagonal_coercivity = coercivity_matrix.diagonal();
+        Eigen::MatrixXd max_matrix = Eigen::MatrixXd::Zero(coercivity_matrix.cols(), 2);
+        max_matrix << diagonal_coercivity, vector_coefficients;
+
+        const Eigen::VectorXd weights = max_matrix.rowwise().maxCoeff();
+
+        // stabMatrix = (\Pi^{\nabla,dofs}_order - I)^T * (\Pi^{\nabla,dofs}_order - I).
+        stabMatrix = stabMatrix.transpose() * weights.asDiagonal() * stabMatrix;
 
         return stabMatrix;
     }

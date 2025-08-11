@@ -34,8 +34,8 @@ class FEM_PCC_3D_LocalSpace final
     FEM_PCC_3D_LocalSpace_Data CreateLocalSpace(const FEM_PCC_3D_ReferenceElement_Data &reference_element_data,
                                                 const FEM_PCC_3D_Polyhedron_Geometry &polyhedron) const;
 
-    Eigen::MatrixXd ComputeBasisFunctionsValues(const FEM_PCC_3D_ReferenceElement_Data &reference_element_data,
-                                                const FEM_PCC_3D_LocalSpace_Data &local_space) const
+    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const FEM_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                                       const FEM_PCC_3D_LocalSpace_Data &local_space) const
     {
         switch (local_space.fem_type)
         {
@@ -53,8 +53,8 @@ class FEM_PCC_3D_LocalSpace final
         }
     }
 
-    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const FEM_PCC_3D_ReferenceElement_Data &reference_element_data,
-                                                                       const FEM_PCC_3D_LocalSpace_Data &local_space) const
+    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const FEM_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                                                              const FEM_PCC_3D_LocalSpace_Data &local_space) const
     {
         switch (local_space.fem_type)
         {
@@ -72,9 +72,9 @@ class FEM_PCC_3D_LocalSpace final
         }
     }
 
-    Eigen::MatrixXd ComputeBasisFunctionsValues(const FEM_PCC_3D_ReferenceElement_Data &reference_element_data,
-                                                const FEM_PCC_3D_LocalSpace_Data &local_space,
-                                                const Eigen::MatrixXd &points) const
+    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const FEM_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                                       const FEM_PCC_3D_LocalSpace_Data &local_space,
+                                                       const Eigen::MatrixXd &points) const
     {
 
         switch (local_space.fem_type)
@@ -95,9 +95,9 @@ class FEM_PCC_3D_LocalSpace final
         }
     }
 
-    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const FEM_PCC_3D_ReferenceElement_Data &reference_element_data,
-                                                                       const FEM_PCC_3D_LocalSpace_Data &local_space,
-                                                                       const Eigen::MatrixXd &points) const
+    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const FEM_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                                                              const FEM_PCC_3D_LocalSpace_Data &local_space,
+                                                                              const Eigen::MatrixXd &points) const
     {
         switch (local_space.fem_type)
         {
@@ -117,9 +117,9 @@ class FEM_PCC_3D_LocalSpace final
         }
     }
 
-    Eigen::MatrixXd ComputeBasisFunctionsValuesOnFace(const FEM_PCC_3D_ReferenceElement_Data &reference_element_data,
-                                                      const FEM_PCC_3D_LocalSpace_Data &local_space,
-                                                      const unsigned int face_index) const
+    inline Eigen::MatrixXd ComputeBasisFunctionsValuesOnFace(const FEM_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                                             const FEM_PCC_3D_LocalSpace_Data &local_space,
+                                                             const unsigned int face_index) const
     {
         switch (local_space.fem_type)
         {
@@ -139,9 +139,34 @@ class FEM_PCC_3D_LocalSpace final
         }
     }
 
-    Eigen::MatrixXd FaceDOFsCoordinates(const FEM_PCC_3D_ReferenceElement_Data &reference_element_data,
-                                        const FEM_PCC_3D_LocalSpace_Data &local_space,
-                                        const unsigned int face_local_index) const
+    inline Eigen::MatrixXd ComputeBasisFunctionsValuesOnFace(const FEM_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                                             const FEM_PCC_3D_LocalSpace_Data &local_space,
+                                                             const unsigned int face_index,
+                                                             const Eigen::MatrixXd &points2D) const
+    {
+        switch (local_space.fem_type)
+        {
+        case FEM_PCC_3D_Types::Tetrahedron: {
+
+            return tetrahedron_local_space.ComputeBasisFunctionsValuesOnFace(reference_element_data.tetrahedron_reference_element_data,
+                                                                             local_space.tetrahedron_local_space_data,
+                                                                             face_index,
+                                                                             points2D);
+        }
+        case FEM_PCC_3D_Types::Hexahedron: {
+            return hexahedron_local_space.ComputeBasisFunctionsValuesOnFace(reference_element_data.hexahedron_reference_element_data,
+                                                                            local_space.hexahedron_local_space_data,
+                                                                            face_index,
+                                                                            points2D);
+        }
+        default:
+            throw std::runtime_error("not valid fem type");
+        }
+    }
+
+    inline Eigen::MatrixXd FaceDOFsCoordinates(const FEM_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                               const FEM_PCC_3D_LocalSpace_Data &local_space,
+                                               const unsigned int face_local_index) const
     {
         switch (local_space.fem_type)
         {
@@ -161,9 +186,9 @@ class FEM_PCC_3D_LocalSpace final
         }
     }
 
-    Eigen::MatrixXd EdgeDOFsCoordinates(const FEM_PCC_3D_ReferenceElement_Data &reference_element_data,
-                                        const FEM_PCC_3D_LocalSpace_Data &local_space,
-                                        const unsigned int edge_local_index) const
+    inline Eigen::MatrixXd EdgeDOFsCoordinates(const FEM_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                               const FEM_PCC_3D_LocalSpace_Data &local_space,
+                                               const unsigned int edge_local_index) const
     {
         switch (local_space.fem_type)
         {
@@ -177,6 +202,25 @@ class FEM_PCC_3D_LocalSpace final
             return hexahedron_local_space.EdgeDOFsCoordinates(reference_element_data.hexahedron_reference_element_data,
                                                               local_space.hexahedron_local_space_data,
                                                               edge_local_index);
+        }
+        default:
+            throw std::runtime_error("not valid fem type");
+        }
+    }
+
+    inline Eigen::MatrixXd ComputeBasisFunctionsValuesOnEdge(const FEM_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                                             const FEM_PCC_3D_LocalSpace_Data &local_space,
+                                                             const Eigen::VectorXd &pointsCurvilinearCoordinates) const
+    {
+        switch (local_space.fem_type)
+        {
+        case FEM_PCC_3D_Types::Tetrahedron: {
+            return tetrahedron_local_space.ComputeBasisFunctionsValuesOnEdge(reference_element_data.tetrahedron_reference_element_data,
+                                                                             pointsCurvilinearCoordinates);
+        }
+        case FEM_PCC_3D_Types::Hexahedron: {
+            return hexahedron_local_space.ComputeBasisFunctionsValuesOnEdge(reference_element_data.hexahedron_reference_element_data,
+                                                                            pointsCurvilinearCoordinates);
         }
         default:
             throw std::runtime_error("not valid fem type");
