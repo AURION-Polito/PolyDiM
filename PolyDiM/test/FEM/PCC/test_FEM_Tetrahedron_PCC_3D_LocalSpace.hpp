@@ -136,13 +136,11 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D_Reference_Element)
 {
     const Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_ReferenceElement reference_element;
 
-    for (unsigned int k = 1; k < 4; k++)
+    const auto referenceQuadrature = Gedim::Quadrature::Quadrature_Gauss3D_Tetrahedron_PositiveWeights::FillPointsAndWeights(10);
+    const Eigen::MatrixXd &referenceQuadraturePoints = referenceQuadrature.Points;
+
+    for (unsigned int k = 1; k < 6; k++)
     {
-
-        const auto referenceQuadrature =
-            Gedim::Quadrature::Quadrature_Gauss3D_Tetrahedron_PositiveWeights::FillPointsAndWeights(10);
-        const Eigen::MatrixXd &referenceQuadraturePoints = referenceQuadrature.Points;
-
         const auto reference_element_data = reference_element.Create(k);
 
         const Eigen::MatrixXd dofs = reference_element_data.DofPositions;
@@ -151,19 +149,21 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D_Reference_Element)
         points << dofs, referenceQuadraturePoints;
 
         const Eigen::MatrixXd basisValues = reference_element.EvaluateBasisFunctions(points, reference_element_data);
+
+        ASSERT_TRUE((basisValues.topRows(reference_element_data.NumBasisFunctions) -
+                     Eigen::MatrixXd::Identity(reference_element_data.NumBasisFunctions, reference_element_data.NumBasisFunctions))
+                        .norm() < 1.0e-13);
+
         const std::vector<Eigen::MatrixXd> gradBasisValues =
-            reference_element.EvaluateBasisFunctionDerivatives(points, reference_element_data);
+            reference_element.EvaluateBasisFunctionDerivatives(referenceQuadraturePoints, reference_element_data);
 
         const Eigen::VectorXd sumBasisValues = basisValues.rowwise().sum();
         const Eigen::VectorXd sumGradXValues = gradBasisValues[0].rowwise().sum();
         const Eigen::VectorXd sumGradYValues = gradBasisValues[1].rowwise().sum();
         const Eigen::VectorXd sumGradZValues = gradBasisValues[2].rowwise().sum();
-        for (unsigned int q = 0; q < points.cols(); q++)
+        for (unsigned int q = 0; q < referenceQuadraturePoints.cols(); q++)
         {
-            ASSERT_TRUE((basisValues.topRows(reference_element_data.NumBasisFunctions) -
-                         Eigen::MatrixXd::Identity(reference_element_data.NumBasisFunctions, reference_element_data.NumBasisFunctions))
-                            .norm() < 1.0e-13);
-            ASSERT_TRUE(abs(sumBasisValues[q] - 1.0) < 1.0e-13);
+            ASSERT_TRUE(abs(sumBasisValues[q + dofs.cols()] - 1.0) < 1.0e-13);
             ASSERT_TRUE(abs(sumGradXValues[q]) < 1.0e-13);
             ASSERT_TRUE(abs(sumGradYValues[q]) < 1.0e-13);
             ASSERT_TRUE(abs(sumGradZValues[q]) < 1.0e-13);
@@ -228,7 +228,7 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D)
     const auto polyhedron_faces_normal_direction = tetrahedron_data.FacesNormalDirection;
     const auto polyhedron_volume = tetrahedron_data.Volume;
 
-    for (unsigned int k = 1; k < 4; k++)
+    for (unsigned int k = 1; k < 5; k++)
     {
         const Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_ReferenceElement reference_element;
         const auto reference_element_data = reference_element.Create(k);

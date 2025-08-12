@@ -37,6 +37,7 @@ struct FEM_Tetrahedron_PCC_3D_ReferenceElement_Data final
 
     unsigned int NumBasisFunctions;
     Eigen::MatrixXd DofPositions;
+    std::vector<std::array<unsigned int, 4>> DofTypes;
 
     Gedim::Quadrature::QuadratureData ReferenceTetrahedronQuadrature;
 
@@ -106,78 +107,146 @@ class FEM_Tetrahedron_PCC_3D_ReferenceElement final
             return result;
         }
 
-        switch (order)
+        result.NumDofs0D = 1;
+        result.NumDofs1D = order - 1;
+        result.NumDofs2D = order > 2 ? (order - 2) * (order - 1) / 2 : 0;
+        result.NumDofs3D = order > 3 ? (order - 3) * (order - 2) * (order - 1) / 6 : 0;
+        result.NumBasisFunctions = 4 * result.NumDofs0D + 6 * result.NumDofs1D + 4 * result.NumDofs2D + result.NumDofs3D;
+
+        result.DofTypes.resize(result.NumBasisFunctions);
+        result.DofPositions.resize(result.Dimension, result.NumBasisFunctions);
+        result.DofPositions.col(0) << 0.0, 0.0, 0.0;
+        result.DofPositions.col(1) << 1.0, 0.0, 0.0;
+        result.DofPositions.col(2) << 0.0, 1.0, 0.0;
+        result.DofPositions.col(3) << 0.0, 0.0, 1.0;
+
+        result.DofTypes[0] = {order, 0, 0, 0};
+        result.DofTypes[1] = {0, order, 0, 0};
+        result.DofTypes[2] = {0, 0, order, 0};
+        result.DofTypes[3] = {0, 0, 0, order};
+
+        if (order > 1)
         {
-        case 1: {
-            result.NumDofs0D = 1;
-            result.NumDofs1D = 0;
-            result.NumDofs2D = 0;
-            result.NumDofs3D = 0;
-            result.NumBasisFunctions = 4;
+            unsigned int dof = 4;
 
-            result.DofPositions.resize(result.Dimension, result.NumBasisFunctions);
-            result.DofPositions.col(0) << 0.0, 0.0, 0.0;
-            result.DofPositions.col(1) << 1.0, 0.0, 0.0;
-            result.DofPositions.col(2) << 0.0, 1.0, 0.0;
-            result.DofPositions.col(3) << 0.0, 0.0, 1.0;
-        }
-        break;
-        case 2: {
-            result.NumDofs0D = 1;
-            result.NumDofs1D = 1;
-            result.NumDofs2D = 0;
-            result.NumDofs3D = 0;
-            result.NumBasisFunctions = 10;
+            // edge x
+            for (unsigned int d = 0; d < result.NumDofs1D; d++)
+            {
+                result.DofPositions.col(dof) << (d + 1.0) / ((double)order), 0.0, 0.0;
+                result.DofTypes[dof] = {order - 1 - d, d + 1, 0, 0};
+                dof++;
+            }
 
-            result.DofPositions.resize(result.Dimension, result.NumBasisFunctions);
-            result.DofPositions.col(0) << 0.0, 0.0, 0.0;
-            result.DofPositions.col(1) << 1.0, 0.0, 0.0;
-            result.DofPositions.col(2) << 0.0, 1.0, 0.0;
-            result.DofPositions.col(3) << 0.0, 0.0, 1.0;
-            result.DofPositions.col(4) << 0.5, 0.0, 0.0;
-            result.DofPositions.col(5) << 0.5, 0.5, 0.0;
-            result.DofPositions.col(6) << 0.0, 0.5, 0.0;
-            result.DofPositions.col(7) << 0.0, 0.0, 0.5;
-            result.DofPositions.col(8) << 0.5, 0.0, 0.5;
-            result.DofPositions.col(9) << 0.0, 0.5, 0.5;
-        }
-        break;
-        case 3: {
-            result.NumDofs0D = 1;
-            result.NumDofs1D = 2;
-            result.NumDofs2D = 1;
-            result.NumDofs3D = 0;
-            result.NumBasisFunctions = 20;
+            // edge x - y
+            for (unsigned int d = 0; d < result.NumDofs1D; d++)
+            {
+                result.DofPositions.col(dof) << (result.NumDofs1D - d) / ((double)order), (d + 1.0) / ((double)order), 0.0;
+                result.DofTypes[dof] = {0, order - d - 1, d + 1, 0};
+                dof++;
+            }
 
-            result.DofPositions.resize(result.Dimension, result.NumBasisFunctions);
-            result.DofPositions.col(0) << 0.0, 0.0, 0.0;
-            result.DofPositions.col(1) << 1.0, 0.0, 0.0;
-            result.DofPositions.col(2) << 0.0, 1.0, 0.0;
-            result.DofPositions.col(3) << 0.0, 0.0, 1.0;
-            result.DofPositions.col(4) << 1.0 / 3.0, 0.0, 0.0;
-            result.DofPositions.col(5) << 2.0 / 3.0, 0.0, 0.0;
-            result.DofPositions.col(6) << 2.0 / 3.0, 1.0 / 3.0, 0.0;
-            result.DofPositions.col(7) << 1.0 / 3.0, 2.0 / 3.0, 0.0;
-            result.DofPositions.col(8) << 0.0, 2.0 / 3.0, 0.0;
-            result.DofPositions.col(9) << 0.0, 1.0 / 3.0, 0.0;
-            result.DofPositions.col(10) << 0.0, 0.0, 1.0 / 3.0;
-            result.DofPositions.col(11) << 0.0, 0.0, 2.0 / 3.0;
-            result.DofPositions.col(12) << 1.0 / 3.0, 0.0, 2.0 / 3.0;
-            result.DofPositions.col(13) << 2.0 / 3.0, 0.0, 1.0 / 3.0;
-            result.DofPositions.col(14) << 0.0, 1.0 / 3.0, 2.0 / 3.0;
-            result.DofPositions.col(15) << 0.0, 2.0 / 3.0, 1.0 / 3.0;
-            result.DofPositions.col(16) << 1.0 / 3.0, 1.0 / 3.0, 0.0;
-            result.DofPositions.col(17) << 1.0 / 3.0, 0.0, 1.0 / 3.0;
-            result.DofPositions.col(18) << 0.0, 1.0 / 3.0, 1.0 / 3.0;
-            result.DofPositions.col(19) << 1.0 / 3.0, 1.0 / 3.0, 1.0 / 3.0;
-        }
-        break;
-        default:
-            throw std::runtime_error("order " + std::to_string(order) + "not supported yet");
+            // edge y
+            for (unsigned int d = 0; d < result.NumDofs1D; d++)
+            {
+                result.DofPositions.col(dof) << 0.0, (result.NumDofs1D - d) / ((double)order), 0.0;
+                result.DofTypes[dof] = {d + 1, 0, order - d - 1, 0};
+                dof++;
+            }
+
+            // edge z
+            for (unsigned int d = 0; d < result.NumDofs1D; d++)
+            {
+                result.DofPositions.col(dof) << 0.0, 0.0, (d + 1.0) / ((double)order);
+                result.DofTypes[dof] = {order - d - 1, 0, 0, d + 1};
+                dof++;
+            }
+
+            // edge x - z
+            for (unsigned int d = 0; d < result.NumDofs1D; d++)
+            {
+                result.DofPositions.col(dof) << (d + 1.0) / ((double)order), 0.0, (result.NumDofs1D - d) / ((double)order);
+                result.DofTypes[dof] = {0, d + 1, 0, order - d - 1};
+                dof++;
+            }
+
+            // edge y - z
+            for (unsigned int d = 0; d < result.NumDofs1D; d++)
+            {
+                result.DofPositions.col(dof) << 0.0, (d + 1.0) / ((double)order), (result.NumDofs1D - d) / ((double)order);
+                result.DofTypes[dof] = {0, 0, d + 1, order - d - 1};
+                dof++;
+            }
+
+            if (order > 2)
+            {
+                // face x - y
+                for (unsigned int d1 = 0; d1 < result.NumDofs1D - 1; d1++) // x
+                {
+                    for (unsigned int d2 = 0; d2 < result.NumDofs1D - 1 - d1; d2++) // y
+                    {
+                        result.DofPositions.col(dof) << (d1 + 1.0) / ((double)order), (d2 + 1.0) / ((double)order), 0.0;
+                        result.DofTypes[dof] = {order - d1 - d2 - 2, d1 + 1, d2 + 1, 0};
+                        dof++;
+                    }
+                }
+
+                // face x - z
+                for (unsigned int d1 = 0; d1 < result.NumDofs1D - 1; d1++) // x
+                {
+                    for (unsigned int d2 = 0; d2 < result.NumDofs1D - 1 - d1; d2++) // z
+                    {
+                        result.DofPositions.col(dof) << (d1 + 1.0) / ((double)order), 0.0, (d2 + 1.0) / ((double)order);
+                        result.DofTypes[dof] = {order - d1 - d2 - 2, d1 + 1, 0, d2 + 1};
+                        dof++;
+                    }
+                }
+
+                // face y - z
+                for (unsigned int d1 = 0; d1 < result.NumDofs1D - 1; d1++) // y
+                {
+                    for (unsigned int d2 = 0; d2 < result.NumDofs1D - 1 - d1; d2++) // z
+                    {
+                        result.DofPositions.col(dof) << 0.0, (d1 + 1.0) / ((double)order), (d2 + 1.0) / ((double)order);
+                        result.DofTypes[dof] = {order - d1 - d2 - 2, 0, d1 + 1, d2 + 1};
+                        dof++;
+                    }
+                }
+
+                // face x - y - z
+                for (unsigned int d1 = 0; d1 < result.NumDofs1D - 1; d1++) // x
+                {
+                    for (unsigned int d2 = 0; d2 < result.NumDofs1D - 1 - d1; d2++) // y
+                    {
+                        result.DofPositions.col(dof) << (d1 + 1.0) / ((double)order), (d2 + 1.0) / ((double)order),
+                            1.0 - (d1 + 1.0) / ((double)order) - (d2 + 1.0) / ((double)order);
+                        result.DofTypes[dof] = {0, d1 + 1, d2 + 1, order - d1 - d2 - 2};
+                        dof++;
+                    }
+                }
+
+                if (order > 3)
+                {
+                    // internal
+                    for (unsigned int d3 = 0; d3 < result.NumDofs1D - 2; d3++)
+                    {
+                        for (unsigned int d1 = 0; d1 < result.NumDofs1D - 2 - d3; d1++) // x
+                        {
+                            for (unsigned int d2 = 0; d2 < result.NumDofs1D - 2 - d1 - d3; d2++) // y
+                            {
+                                result.DofPositions.col(dof) << (d1 + 1.0) / ((double)order),
+                                    (d2 + 1.0) / ((double)order), (d3 + 1.0) / ((double)order);
+
+                                result.DofTypes[dof] = {order - d1 - d2 - d3 - 3, d1 + 1, d2 + 1, d3 + 1};
+                                dof++;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         FEM_PCC_1D_ReferenceElement edge_reference_element;
-        result.EdgeReferenceElement_Data = edge_reference_element.Create(order);
+        result.EdgeReferenceElement_Data = edge_reference_element.Create(order, FEM_PCC_1D_Types::Equispaced);
 
         FEM_Triangle_PCC_2D_ReferenceElement boundary_reference_element;
         result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order);
@@ -205,9 +274,9 @@ class FEM_Tetrahedron_PCC_3D_ReferenceElement final
         return lambda;
     }
     // ***************************************************************************
-    std::array<Eigen::MatrixXd, 3> EvaluateGradLambda(const Eigen::MatrixXd &points) const
+    std::vector<Eigen::MatrixXd> EvaluateGradLambda(const Eigen::MatrixXd &points) const
     {
-        std::array<Eigen::MatrixXd, 3> gradLambda;
+        std::vector<Eigen::MatrixXd> gradLambda(3);
 
         gradLambda[0].setZero(points.cols(), 4);
         gradLambda[1].setZero(points.cols(), 4);
@@ -235,179 +304,63 @@ class FEM_Tetrahedron_PCC_3D_ReferenceElement final
     Eigen::MatrixXd EvaluateBasisFunctions(const Eigen::MatrixXd &points,
                                            const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data) const
     {
-
         const Eigen::MatrixXd lambda_functions = EvaluateLambda(points);
-        switch (reference_element_data.Order)
-        {
-        case 1:
+        const unsigned int order = reference_element_data.Order;
+        if (order == 1)
             return lambda_functions;
-        case 2: {
-            Eigen::MatrixXd basis_functions_values = Eigen::MatrixXd::Zero(points.cols(), reference_element_data.NumBasisFunctions);
 
-            const Eigen::ArrayXd xyz = lambda_functions.col(0);
-            const Eigen::ArrayXd x = lambda_functions.col(1);
-            const Eigen::ArrayXd y = lambda_functions.col(2);
-            const Eigen::ArrayXd z = lambda_functions.col(3);
+        Eigen::MatrixXd basis_functions_values = Eigen::MatrixXd::Ones(points.cols(), reference_element_data.NumBasisFunctions);
+        Eigen::VectorXd normalized_factor = Eigen::VectorXd::Ones(reference_element_data.NumBasisFunctions);
 
-            basis_functions_values.col(0) = 2.0 * xyz * (xyz - 0.5);
-            basis_functions_values.col(1) = 2.0 * x * (x - 0.5);
-            basis_functions_values.col(2) = 2.0 * y * (y - 0.5);
-            basis_functions_values.col(3) = 2.0 * z * (z - 0.5);
-            basis_functions_values.col(4) = 4.0 * xyz * x;
-            basis_functions_values.col(5) = 4.0 * x * y;
-            basis_functions_values.col(6) = 4.0 * y * xyz;
-            basis_functions_values.col(7) = 4.0 * xyz * z;
-            basis_functions_values.col(8) = 4.0 * x * z;
-            basis_functions_values.col(9) = 4.0 * y * z;
-            return basis_functions_values;
+        const Eigen::MatrixXd dofs_lambda_functions = EvaluateLambda(reference_element_data.DofPositions);
+
+        for (unsigned int dof = 0; dof < reference_element_data.NumBasisFunctions; dof++)
+        {
+            for (unsigned int i = 0; i < 4; i++)
+            {
+                for (unsigned int p = 0; p < reference_element_data.DofTypes[dof][i]; p++)
+                {
+                    normalized_factor(dof) = normalized_factor(dof) * (dofs_lambda_functions(dof, i) - p / ((double)order));
+                    basis_functions_values.col(dof) =
+                        basis_functions_values.col(dof).array() * (lambda_functions.col(i).array() - p / ((double)order));
+                }
+            }
+
+            basis_functions_values.col(dof) /= normalized_factor(dof);
         }
-        case 3: {
-            Eigen::MatrixXd basis_functions_values = Eigen::MatrixXd::Zero(points.cols(), reference_element_data.NumBasisFunctions);
 
-            const Eigen::ArrayXd xyz = lambda_functions.col(0);
-            const Eigen::ArrayXd x = lambda_functions.col(1);
-            const Eigen::ArrayXd y = lambda_functions.col(2);
-            const Eigen::ArrayXd z = lambda_functions.col(3);
-
-            basis_functions_values.col(0) = 9.0 / 2.0 * xyz * (xyz - 1.0 / 3.0) * (xyz - 2.0 / 3.0);
-            basis_functions_values.col(1) = 9.0 / 2.0 * x * (x - 1.0 / 3.0) * (x - 2.0 / 3.0);
-            basis_functions_values.col(2) = 9.0 / 2.0 * y * (y - 1.0 / 3.0) * (y - 2.0 / 3.0);
-            basis_functions_values.col(3) = 9.0 / 2.0 * z * (z - 1.0 / 3.0) * (z - 2.0 / 3.0);
-            basis_functions_values.col(4) = 27.0 / 2.0 * x * xyz * (xyz - 1.0 / 3.0);
-            basis_functions_values.col(5) = 27.0 / 2.0 * x * xyz * (x - 1.0 / 3.0);
-            basis_functions_values.col(6) = 27.0 / 2.0 * y * x * (x - 1.0 / 3.0);
-            basis_functions_values.col(7) = 27.0 / 2.0 * x * y * (y - 1.0 / 3.0);
-            basis_functions_values.col(8) = 27.0 / 2.0 * y * (y - 1.0 / 3.0) * xyz;
-            basis_functions_values.col(9) = 27.0 / 2.0 * y * xyz * (xyz - 1.0 / 3.0);
-            basis_functions_values.col(10) = 27.0 / 2.0 * z * (xyz - 1.0 / 3.0) * xyz;
-            basis_functions_values.col(11) = 27.0 / 2.0 * z * xyz * (z - 1.0 / 3.0);
-            basis_functions_values.col(12) = 27.0 / 2.0 * x * z * (z - 1.0 / 3.0);
-            basis_functions_values.col(13) = 27.0 / 2.0 * z * x * (x - 1.0 / 3.0);
-            basis_functions_values.col(14) = 27.0 / 2.0 * y * z * (z - 1.0 / 3.0);
-            basis_functions_values.col(15) = 27.0 / 2.0 * z * y * (y - 1.0 / 3.0);
-            basis_functions_values.col(16) = 27.0 * x * y * xyz;
-            basis_functions_values.col(17) = 27.0 * x * z * xyz;
-            basis_functions_values.col(18) = 27.0 * y * z * xyz;
-            basis_functions_values.col(19) = 27.0 * x * y * z;
-            return basis_functions_values;
-        }
-        default:
-            throw std::runtime_error("order " + std::to_string(reference_element_data.Order) + "not supported yet");
-        }
+        return basis_functions_values;
     }
     // ***************************************************************************
     std::vector<Eigen::MatrixXd> EvaluateBasisFunctionDerivatives(const Eigen::MatrixXd &points,
                                                                   const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data) const
     {
+
+        const std::vector<Eigen::MatrixXd> grad_lambda = EvaluateGradLambda(points);
+        const unsigned int order = reference_element_data.Order;
+        if (order == 1)
+            return grad_lambda;
+
         std::vector<Eigen::MatrixXd> values(reference_element_data.Dimension,
                                             Eigen::MatrixXd::Zero(points.cols(), reference_element_data.NumBasisFunctions));
-        const auto grad_lambda = EvaluateGradLambda(points);
 
-        switch (reference_element_data.Order)
+        const auto basis_function_values = EvaluateBasisFunctions(points, reference_element_data);
+        const Eigen::MatrixXd lambda_functions = EvaluateLambda(points);
+
+        for (unsigned int d = 0; d < reference_element_data.Dimension; d++)
         {
-        case 1: {
-            for (unsigned int i = 0; i < reference_element_data.Dimension; i++)
-                values[i] = grad_lambda[i];
-        }
-        break;
-        case 2: {
-            const Eigen::MatrixXd lambda_functions = EvaluateLambda(points);
-
-            const Eigen::ArrayXd xyz = lambda_functions.col(0);
-            const Eigen::ArrayXd x = lambda_functions.col(1);
-            const Eigen::ArrayXd y = lambda_functions.col(2);
-            const Eigen::ArrayXd z = lambda_functions.col(3);
-
-            values[0].col(0) = -4.0 * xyz + 1.0;
-            values[0].col(1) = 4.0 * x - 1.0;
-            values[0].col(4) = -4.0 * x + 4.0 * xyz;
-            values[0].col(5) = 4.0 * y;
-            values[0].col(6) = -4.0 * y;
-            values[0].col(7) = -4.0 * z;
-            values[0].col(8) = 4.0 * z;
-
-            values[1].col(0) = -4.0 * xyz + 1.0;
-            values[1].col(2) = 4.0 * y - 1.0;
-            values[1].col(4) = -4.0 * x;
-            values[1].col(5) = 4.0 * x;
-            values[1].col(6) = -4.0 * y + 4.0 * xyz;
-            values[1].col(7) = -4.0 * z;
-            values[1].col(9) = 4.0 * z;
-
-            values[2].col(0) = -4.0 * xyz + 1.0;
-            values[2].col(3) = 4.0 * z - 1.0;
-            values[2].col(4) = -4.0 * x;
-            values[2].col(6) = -4.0 * y;
-            values[2].col(7) = 4.0 * xyz - 4.0 * z;
-            values[2].col(8) = 4.0 * x;
-            values[2].col(9) = 4.0 * y;
-        }
-        break;
-        case 3: {
-            const Eigen::MatrixXd lambda_functions = EvaluateLambda(points);
-
-            const Eigen::ArrayXd xyz = lambda_functions.col(0);
-            const Eigen::ArrayXd x = lambda_functions.col(1);
-            const Eigen::ArrayXd y = lambda_functions.col(2);
-            const Eigen::ArrayXd z = lambda_functions.col(3);
-
-            values[0].col(0) = -9.0 / 2.0 * (xyz - 1.0 / 3.0) * (xyz - 2.0 / 3.0) -
-                               9.0 / 2.0 * xyz * (xyz - 2.0 / 3.0) - 9.0 / 2.0 * xyz * (xyz - 1.0 / 3.0);
-            values[0].col(1) = 9.0 / 2.0 * x * (3.0 * x - 2.0) + 1.0;
-            values[0].col(4) = 27.0 / 2.0 * xyz * (xyz - 1.0 / 3.0) - 27.0 / 2.0 * x * (xyz - 1.0 / 3.0) - 27.0 / 2.0 * x * xyz;
-            values[0].col(5) = 27.0 / 2.0 * xyz * (x - 1.0 / 3.0) + 27.0 / 2.0 * x * xyz - 27.0 / 2.0 * x * (x - 1.0 / 3.0);
-            values[0].col(6) = 27.0 / 2.0 * y * (x - 1.0 / 3.0) + 27.0 / 2.0 * y * x;
-            values[0].col(7) = 27.0 / 2.0 * y * (y - 1.0 / 3.0);
-            values[0].col(8) = -27.0 / 2.0 * y * (y - 1.0 / 3.0);
-            values[0].col(9) = -27.0 / 2.0 * y * (xyz - 1.0 / 3.0) - 27.0 / 2.0 * y * xyz;
-            values[0].col(10) = -27.0 / 2.0 * z * (xyz - 1.0 / 3.0) - 27.0 / 2.0 * z * xyz;
-            values[0].col(11) = -27.0 / 2.0 * z * (z - 1.0 / 3.0);
-            values[0].col(12) = 27.0 / 2.0 * z * (z - 1.0 / 3.0);
-            values[0].col(13) = 27.0 / 2.0 * z * (x - 1.0 / 3.0) + 27.0 / 2.0 * z * x;
-            values[0].col(16) = 27.0 * y * xyz - 27.0 * x * y;
-            values[0].col(17) = 27.0 * z * xyz - 27.0 * x * z;
-            values[0].col(18) = -27.0 * y * z;
-            values[0].col(19) = 27.0 * y * z;
-
-            values[1].col(0) = -9.0 / 2.0 * (xyz - 1.0 / 3.0) * (xyz - 2.0 / 3.0) -
-                               9.0 / 2.0 * xyz * (xyz - 2.0 / 3.0) - 9.0 / 2.0 * xyz * (xyz - 1.0 / 3.0);
-            values[1].col(2) = 9.0 / 2.0 * y * (3.0 * y - 2.0) + 1.0;
-            values[1].col(4) = -27.0 / 2.0 * x * (xyz - 1.0 / 3.0) - 27.0 / 2.0 * x * xyz;
-            values[1].col(5) = -27.0 / 2.0 * x * (x - 1.0 / 3.0);
-            values[1].col(6) = 27.0 / 2.0 * x * (x - 1.0 / 3.0);
-            values[1].col(7) = 27.0 / 2.0 * x * (y - 1.0 / 3.0) + 27.0 / 2.0 * x * y;
-            values[1].col(8) = 27.0 / 2.0 * (y - 1.0 / 3.0) * xyz + 27.0 / 2.0 * y * xyz - 27.0 / 2.0 * y * (y - 1.0 / 3.0);
-            values[1].col(9) = 27.0 / 2.0 * xyz * (xyz - 1.0 / 3.0) - 27.0 / 2.0 * y * (xyz - 1.0 / 3.0) - 27.0 / 2.0 * y * xyz;
-            values[1].col(10) = -27.0 / 2.0 * z * (xyz - 1.0 / 3.0) - 27.0 / 2.0 * z * xyz;
-            values[1].col(11) = -27.0 / 2.0 * z * (z - 1.0 / 3.0);
-            values[1].col(14) = 27.0 / 2.0 * z * (z - 1.0 / 3.0);
-            values[1].col(15) = 27.0 / 2.0 * z * (y - 1.0 / 3.0) + 27.0 / 2.0 * z * y;
-            values[1].col(16) = 27.0 * x * xyz - 27.0 * x * y;
-            values[1].col(17) = -27.0 * x * z;
-            values[1].col(18) = 27.0 * z * xyz - 27.0 * y * z;
-            values[1].col(19) = 27.0 * x * z;
-
-            values[2].col(0) = -9.0 / 2.0 * (xyz - 1.0 / 3.0) * (xyz - 2.0 / 3.0) -
-                               9.0 / 2.0 * xyz * (xyz - 2.0 / 3.0) - 9.0 / 2.0 * xyz * (xyz - 1.0 / 3.0);
-            values[2].col(3) = 9.0 / 2.0 * z * (3.0 * z - 2.0) + 1.0;
-            values[2].col(4) = -27.0 / 2.0 * x * (xyz - 1.0 / 3.0) - 27.0 / 2.0 * x * xyz;
-            values[2].col(5) = -27.0 / 2.0 * x * (x - 1.0 / 3.0);
-            values[2].col(8) = -27.0 / 2.0 * y * (y - 1.0 / 3.0);
-            values[2].col(9) = -27.0 / 2.0 * y * (xyz - 1.0 / 3.0) - 27.0 / 2.0 * y * xyz;
-            values[2].col(10) = 27.0 / 2.0 * (xyz - 1.0 / 3.0) * xyz - 27.0 / 2.0 * z * xyz - 27.0 / 2.0 * z * (xyz - 1.0 / 3.0);
-            values[2].col(11) = 27.0 / 2.0 * xyz * (z - 1.0 / 3.0) + 27.0 / 2.0 * z * xyz - 27.0 / 2.0 * z * (z - 1.0 / 3.0);
-            values[2].col(12) = 27.0 / 2.0 * x * (z - 1.0 / 3.0) + 27.0 / 2.0 * x * z;
-            values[2].col(13) = 27.0 / 2.0 * x * (x - 1.0 / 3.0);
-            values[2].col(14) = 27.0 / 2.0 * y * (z - 1.0 / 3.0) + 27.0 / 2.0 * y * z;
-            values[2].col(15) = 27.0 / 2.0 * y * (y - 1.0 / 3.0);
-            values[2].col(16) = -27.0 * x * y;
-            values[2].col(17) = 27.0 * x * xyz - 27.0 * x * z;
-            values[2].col(18) = 27.0 * y * xyz - 27.0 * y * z;
-            values[2].col(19) = 27.0 * x * y;
-        }
-        break;
-        default:
-            throw std::runtime_error("order " + std::to_string(reference_element_data.Order) + "not supported yet");
+            for (unsigned int dof = 0; dof < reference_element_data.NumBasisFunctions; dof++)
+            {
+                for (unsigned int i = 0; i < 4; i++)
+                {
+                    for (unsigned int p = 0; p < reference_element_data.DofTypes[dof][i]; p++)
+                    {
+                        values[d].col(dof) = values[d].col(dof).array() +
+                                             grad_lambda[d].col(i).array() * basis_function_values.col(dof).array() /
+                                                 (lambda_functions.col(i).array() - p / ((double)order));
+                    }
+                }
+            }
         }
 
         return values;

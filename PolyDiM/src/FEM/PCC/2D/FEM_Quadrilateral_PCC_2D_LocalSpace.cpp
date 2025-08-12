@@ -10,8 +10,8 @@
 // This file can be used citing references in CITATION.cff file.
 
 #include "FEM_Quadrilateral_PCC_2D_LocalSpace.hpp"
-#include "GeometryUtilities.hpp"
 #include "CommonUtilities.hpp"
+#include "GeometryUtilities.hpp"
 
 using namespace Eigen;
 
@@ -203,7 +203,7 @@ Eigen::MatrixXd FEM_Quadrilateral_PCC_2D_LocalSpace::MapLaplacianValues(const FE
                                                                         const std::array<Eigen::MatrixXd, 4> &referenceSecondDerivateValues,
                                                                         const Eigen::MatrixXd &referencePoints) const
 {
-  Gedim::Utilities::Unused(referencePoints);
+    Gedim::Utilities::Unused(referencePoints);
 
     Eigen::MatrixXd laplacian_values =
         Eigen::MatrixXd::Zero(referenceSecondDerivateValues.at(0).rows(), local_space.NumberOfBasisFunctions);
