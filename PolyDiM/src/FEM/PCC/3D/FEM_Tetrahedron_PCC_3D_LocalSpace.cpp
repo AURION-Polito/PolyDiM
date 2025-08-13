@@ -129,22 +129,29 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
         std::cout<< localSpace.polyhedron_to_reference_edge_index[polyhedron.Faces[f](1, 1)]<< ", ";
         std::cout<< localSpace.polyhedron_to_reference_edge_index[polyhedron.Faces[f](1, 2)];
 
+        const std::array<unsigned int, 3> shift_map = { 0, 2, 1 };
+        const std::array<unsigned int, 3> shift_map_rev = { 1, 2, 0 };
+        unsigned int shift = ref_face_dir ? shift_map[ref_face_s_i] :
+                                            shift_map_rev[ref_face_s_i];
+
         if (ref_face_dir)
         {
           if (ref_f == 3)
           {
             for (unsigned int d = localSpace.Dof2DsIndex[f]; d < localSpace.Dof2DsIndex[f + 1]; d++)
             {
-                localSpace.DofsMeshOrder[face_dof_counter + (ref_face_s_i + 2) % 3] = d;
-                ref_face_s_i++;
+                unsigned int loc_shift = (shift + 2) % 3;
+                localSpace.DofsMeshOrder[face_dof_counter + loc_shift] = d;
+                shift++;
             }
           }
           else
           {
             for (unsigned int d = localSpace.Dof2DsIndex[f]; d < localSpace.Dof2DsIndex[f + 1]; d++)
             {
-                localSpace.DofsMeshOrder[face_dof_counter + (ref_face_s_i) % 3] = d;
-                ref_face_s_i++;
+                unsigned int loc_shift = shift % 3;
+                localSpace.DofsMeshOrder[face_dof_counter + loc_shift] = d;
+                shift++;
             }
           }
         }
@@ -154,16 +161,18 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
           {
             for (unsigned int d = localSpace.Dof2DsIndex[f + 1] - 1; d < UINT_MAX && d >= localSpace.Dof2DsIndex[f]; d--)
             {
-                localSpace.DofsMeshOrder[face_dof_counter + (ref_face_s_i + 2) % 3] = d;
-                ref_face_s_i++;
+              unsigned int loc_shift = (shift + 2) % 3;
+                localSpace.DofsMeshOrder[face_dof_counter + loc_shift] = d;
+                shift++;
             }
           }
           else
           {
             for (unsigned int d = localSpace.Dof2DsIndex[f + 1] - 1; d < UINT_MAX && d >= localSpace.Dof2DsIndex[f]; d--)
             {
-                localSpace.DofsMeshOrder[face_dof_counter + (ref_face_s_i) % 3] = d;
-                ref_face_s_i++;
+              unsigned int loc_shift = shift % 3;
+                localSpace.DofsMeshOrder[face_dof_counter + loc_shift] = d;
+                shift++;
             }
           }
         }
