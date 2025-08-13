@@ -127,7 +127,7 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
         std::cout<< polyhedron.Faces[f](0, 2)<< " ";
         std::cout<< "edges "<< localSpace.polyhedron_to_reference_edge_index[polyhedron.Faces[f](1, 0)]<< ", ";
         std::cout<< localSpace.polyhedron_to_reference_edge_index[polyhedron.Faces[f](1, 1)]<< ", ";
-        std::cout<< localSpace.polyhedron_to_reference_edge_index[polyhedron.Faces[f](1, 2)]<< std::endl;
+        std::cout<< localSpace.polyhedron_to_reference_edge_index[polyhedron.Faces[f](1, 2)];
 
         if (ref_face_dir)
         {
@@ -167,6 +167,10 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
             }
           }
         }
+
+        std::cout<< " dmo: "<< localSpace.DofsMeshOrder[face_dof_counter]<< ", ";
+        std::cout<< localSpace.DofsMeshOrder[face_dof_counter + 1]<< ", ";
+        std::cout<< localSpace.DofsMeshOrder[face_dof_counter + 2]<< std::endl;
 
         //if (polyhedron.FacesDirection.at(f))
         //{
