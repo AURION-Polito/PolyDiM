@@ -255,9 +255,9 @@ inline void create_mesh_3D(const Gedim::GeometryUtilities &geometry_utilities,
         const Eigen::Vector3d domain_base_tangent = pde_domain.vertices.col(1) - domain_origin;
         const Eigen::Vector3d domain_width_tangent = pde_domain.vertices.col(4) - domain_origin;
         const Eigen::Vector3d domain_heigth_tangent = pde_domain.vertices.col(3) - domain_origin;
-        const unsigned int num_cells_base = 1;   // round(domain_base_tangent.norm() / max_cell_edge);
-        const unsigned int num_cells_width = 1;  // round(domain_width_tangent.norm() / max_cell_edge);
-        const unsigned int num_cells_height = 2; // round(domain_heigth_tangent.norm() / max_cell_edge);
+        const unsigned int num_cells_base = round(domain_base_tangent.norm() / max_cell_edge);
+        const unsigned int num_cells_width = round(domain_width_tangent.norm() / max_cell_edge);
+        const unsigned int num_cells_height = round(domain_heigth_tangent.norm() / max_cell_edge);
 
         mesh_utilities.CreateParallelepipedMesh(domain_origin,
                                                 domain_base_tangent,

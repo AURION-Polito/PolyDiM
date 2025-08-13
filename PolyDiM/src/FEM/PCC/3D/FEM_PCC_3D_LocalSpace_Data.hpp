@@ -83,6 +83,8 @@ struct FEM_Tetrahedron_PCC_3D_LocalSpace_Data final
     std::array<unsigned int, 6> polyhedron_to_reference_edge_index;
     std::array<bool, 6> polyhedron_to_reference_edge_direction;
     std::array<unsigned int, 4> polyhedron_to_reference_face_index;
+    std::array<bool, 4> polyhedron_to_reference_face_direction;
+    std::array<unsigned int, 4> polyhedron_to_reference_face_starting_index;
     std::vector<unsigned int> DofsMeshOrder;
     std::array<unsigned int, 5> Dof0DsIndex;
     std::array<unsigned int, 7> Dof1DsIndex;

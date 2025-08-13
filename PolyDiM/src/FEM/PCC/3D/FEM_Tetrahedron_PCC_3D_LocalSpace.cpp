@@ -52,11 +52,19 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
     for (unsigned int f = 0; f < 4; ++f)
     {
         const unsigned int face_edge_index = polyhedron.Faces[f](1, 0);
+        const unsigned int face_edge_next_index = polyhedron.Faces[f](1, 1);
         const unsigned int face_reference_edge_index = localSpace.polyhedron_to_reference_edge_index[face_edge_index];
+        const unsigned int face_reference_edge_next_index = localSpace.polyhedron_to_reference_edge_index[face_edge_next_index];
         const unsigned int face_vertex_index = polyhedron.Faces[f](0, 2);
 
-        localSpace.polyhedron_to_reference_face_index[f] =
-            reference_element_data.Faces_by_edge_vertex.at({face_reference_edge_index, face_vertex_index});
+        const auto& ref_face_by_ev = reference_element_data.Faces_by_edge_vertex.at({face_reference_edge_index, face_vertex_index});
+        const auto& ref_face_by_ee = reference_element_data.Faces_by_edges.at({face_reference_edge_index, face_reference_edge_next_index});
+        assert(ref_face_by_ee.first.at(0) ==
+               ref_face_by_ev);
+
+        localSpace.polyhedron_to_reference_face_index[f] = ref_face_by_ev;
+        localSpace.polyhedron_to_reference_face_direction[f] = ref_face_by_ee.second;
+        localSpace.polyhedron_to_reference_face_starting_index[f] = ref_face_by_ee.first.at(1);
     }
 
     localSpace.DofsMeshOrder.resize(localSpace.NumberOfBasisFunctions, 0);
@@ -107,24 +115,75 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
         localSpace.Dof2DsIndex[f + 1] = localSpace.Dof2DsIndex[f] + reference_element_data.NumDofs2D;
 
         const unsigned int ref_f = localSpace.polyhedron_to_reference_face_index[f];
+        const bool ref_face_dir = localSpace.polyhedron_to_reference_face_direction[f];
+        unsigned int ref_face_s_i = localSpace.polyhedron_to_reference_face_starting_index[f];
         unsigned int face_dof_counter = reference_element_data.NumDofs0D * 4 + reference_element_data.NumDofs1D * 6 +
                                         reference_element_data.NumDofs2D * ref_f;
-        if (polyhedron.FacesDirection.at(f))
+
+        std::cout<< "\tFace " << f<< " dir "<< polyhedron.FacesDirection.at(f)<< " ";
+        std::cout<< "Ref F " << ref_f<< " dir "<< ref_face_dir<< " s_i "<< ref_face_s_i<< " ";
+        std::cout<< "vertices "<< polyhedron.Faces[f](0, 0)<< ", ";
+        std::cout<< polyhedron.Faces[f](0, 1)<< ", ";
+        std::cout<< polyhedron.Faces[f](0, 2)<< " ";
+        std::cout<< "edges "<< localSpace.polyhedron_to_reference_edge_index[polyhedron.Faces[f](1, 0)]<< ", ";
+        std::cout<< localSpace.polyhedron_to_reference_edge_index[polyhedron.Faces[f](1, 1)]<< ", ";
+        std::cout<< localSpace.polyhedron_to_reference_edge_index[polyhedron.Faces[f](1, 2)]<< std::endl;
+
+        if (ref_face_dir)
         {
+          if (ref_f == 3)
+          {
             for (unsigned int d = localSpace.Dof2DsIndex[f]; d < localSpace.Dof2DsIndex[f + 1]; d++)
             {
-                localSpace.DofsMeshOrder[face_dof_counter] = d;
-                face_dof_counter++;
+                localSpace.DofsMeshOrder[face_dof_counter + (ref_face_s_i + 2) % 3] = d;
+                ref_face_s_i++;
             }
+          }
+          else
+          {
+            for (unsigned int d = localSpace.Dof2DsIndex[f]; d < localSpace.Dof2DsIndex[f + 1]; d++)
+            {
+                localSpace.DofsMeshOrder[face_dof_counter + (ref_face_s_i) % 3] = d;
+                ref_face_s_i++;
+            }
+          }
         }
         else
         {
+          if (ref_f == 3)
+          {
             for (unsigned int d = localSpace.Dof2DsIndex[f + 1] - 1; d < UINT_MAX && d >= localSpace.Dof2DsIndex[f]; d--)
             {
-                localSpace.DofsMeshOrder[face_dof_counter] = d;
-                face_dof_counter++;
+                localSpace.DofsMeshOrder[face_dof_counter + (ref_face_s_i + 2) % 3] = d;
+                ref_face_s_i++;
             }
+          }
+          else
+          {
+            for (unsigned int d = localSpace.Dof2DsIndex[f + 1] - 1; d < UINT_MAX && d >= localSpace.Dof2DsIndex[f]; d--)
+            {
+                localSpace.DofsMeshOrder[face_dof_counter + (ref_face_s_i) % 3] = d;
+                ref_face_s_i++;
+            }
+          }
         }
+
+        //if (polyhedron.FacesDirection.at(f))
+        //{
+        //  for (unsigned int d = localSpace.Dof2DsIndex[f]; d < localSpace.Dof2DsIndex[f + 1]; d++)
+        //  {
+        //      localSpace.DofsMeshOrder[face_dof_counter] = d;
+        //      face_dof_counter++;
+        //  }
+        //}
+        //else
+        //{
+        //    for (unsigned int d = localSpace.Dof2DsIndex[f + 1] - 1; d < UINT_MAX && d >= localSpace.Dof2DsIndex[f]; d--)
+        //    {
+        //        localSpace.DofsMeshOrder[face_dof_counter] = d;
+        //        face_dof_counter++;
+        //    }
+        //}
     }
 
     localSpace.Dof3DsIndex.fill(localSpace.Dof2DsIndex[4]);
