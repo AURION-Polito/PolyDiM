@@ -177,7 +177,19 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
           }
         }
 
-        std::cout<< " dmo: "<< localSpace.DofsMeshOrder[face_dof_counter]<< ", ";
+        std::array<unsigned int, 3> original_dmo;
+        unsigned int s_h = 0;
+        for (unsigned int d = localSpace.Dof2DsIndex[f]; d < localSpace.Dof2DsIndex[f + 1]; d++)
+        {
+            original_dmo[face_dof_counter + s_h] = d;
+            s_h++;
+        }
+
+        std::cout<< " o_dmo "<< original_dmo[face_dof_counter]<< ", ";
+        std::cout<< original_dmo[face_dof_counter + 1]<< ", ";
+        std::cout<< original_dmo[face_dof_counter + 2]<< " ";
+
+        std::cout<< " dmo "<< localSpace.DofsMeshOrder[face_dof_counter]<< ", ";
         std::cout<< localSpace.DofsMeshOrder[face_dof_counter + 1]<< ", ";
         std::cout<< localSpace.DofsMeshOrder[face_dof_counter + 2]<< std::endl;
 
