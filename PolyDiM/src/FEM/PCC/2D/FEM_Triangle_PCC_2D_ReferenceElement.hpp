@@ -17,6 +17,7 @@
 #include "QuadratureData.hpp"
 #include "Quadrature_Gauss1D.hpp"
 #include "Quadrature_Gauss2D_Triangle.hpp"
+#include "VEM_PCC_Utilities.hpp"
 
 namespace Polydim
 {
@@ -43,6 +44,9 @@ struct FEM_Triangle_PCC_2D_ReferenceElement_Data final
     std::array<Eigen::MatrixXd, 4> ReferenceBasisFunctionSecondDerivativeValues;
 
     FEM_PCC_1D_ReferenceElement_Data BoundaryReferenceElement_Data;
+
+    Eigen::RowVectorXd EdgeInternalPoints;
+    Eigen::VectorXd EdgeBasisCoefficients;
 };
 
 class FEM_Triangle_PCC_2D_ReferenceElement final
@@ -51,6 +55,7 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
     FEM_Triangle_PCC_2D_ReferenceElement_Data Create(const unsigned int order) const
     {
         FEM_Triangle_PCC_2D_ReferenceElement_Data result;
+        VEM::PCC::VEM_PCC_Utilities<2> utilities;
 
         if (order == 0)
         {
@@ -146,6 +151,9 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
             result.DofTypes.col(dof) << localDofTypes.col(dofIndex);
             dof++;
         }
+
+        result.EdgeInternalPoints = Eigen::VectorXd::LinSpaced(result.NumDofs1D + 2, 0.0, 1.0).segment(1, result.NumDofs1D);
+        result.EdgeBasisCoefficients = utilities.ComputeEdgeBasisCoefficients(result.Order, result.EdgeInternalPoints);
 
         FEM_PCC_1D_ReferenceElement boundary_reference_element;
         result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order, FEM_PCC_1D_Types::Equispaced);
