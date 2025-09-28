@@ -168,7 +168,7 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
 
         return result;
     }
-
+    // ***************************************************************************
     Eigen::MatrixXd EvaluateBasisFunctions(const Eigen::MatrixXd &points,
                                            const FEM_Triangle_PCC_2D_ReferenceElement_Data &reference_element_data) const
     {
@@ -178,8 +178,8 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
             return Eigen::VectorXd::Constant(points.cols(), 1.0);
         default: {
             const double h = 1.0 / reference_element_data.Order;
-            const Eigen::ArrayXd x = points.row(0).transpose().array();
-            const Eigen::ArrayXd y = points.row(1).transpose().array();
+            const Eigen::ArrayXd x = points.row(0).transpose();
+            const Eigen::ArrayXd y = points.row(1).transpose();
             Eigen::MatrixXd values = Eigen::MatrixXd::Ones(points.cols(), reference_element_data.NumBasisFunctions);
 
             for (unsigned int d = 0; d < reference_element_data.NumBasisFunctions; d++)
@@ -336,6 +336,67 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
             constant_laplacian[3].col(5) = Eigen::VectorXd::Constant(points.cols(), -8.0);
 
             return constant_laplacian;
+        }
+        case 3: {
+            std::array<Eigen::MatrixXd, 4> laplacian;
+
+            for (unsigned int der = 0; der < 4; ++der)
+                laplacian[der] = Eigen::MatrixXd::Zero(points.cols(), reference_element_data.NumBasisFunctions);
+
+            const Eigen::ArrayXd x = points.row(0);
+            const Eigen::ArrayXd y = points.row(1);
+
+            laplacian[0].col(0) = 18.0 - 27.0 * y - 27.0 * x;
+            laplacian[1].col(0) = 18.0 - 27.0 * y - 27.0 * x;
+            laplacian[2].col(0) = 18.0 - 27.0 * y - 27.0 * x;
+            laplacian[3].col(0) = 18.0 - 27.0 * y - 27.0 * x;
+
+            laplacian[0].col(1) = 27.0 * x - 9;
+            laplacian[1].col(1) = Eigen::VectorXd::Constant(points.cols(), 0.0);
+            laplacian[2].col(1) = Eigen::VectorXd::Constant(points.cols(), 0.0);
+            laplacian[3].col(1) = Eigen::VectorXd::Constant(points.cols(), 0.0);
+
+            laplacian[0].col(2) = Eigen::VectorXd::Constant(points.cols(), 0.0);
+            laplacian[1].col(2) = Eigen::VectorXd::Constant(points.cols(), 0.0);
+            laplacian[2].col(2) = Eigen::VectorXd::Constant(points.cols(), 0.0);
+            laplacian[3].col(2) = 27.0 * y - 9;
+
+            laplacian[0].col(3) = 81.0 * x + 54.0 * y - 45.0;
+            laplacian[1].col(3) = 54.0 * x + 27.0 * y - 45.0 / 2.0;
+            laplacian[2].col(3) = 54.0 * x + 27.0 * y - 45.0 / 2.0;
+            laplacian[3].col(3) = 27.0 * x;
+
+            laplacian[0].col(4) = 36.0 - 27.0 * y - 81.0 * x;
+            laplacian[1].col(4) = 4.5 - 27.0 * x;
+            laplacian[2].col(4) = 4.5 - 27.0 * x;
+            laplacian[3].col(4) = Eigen::VectorXd::Constant(points.cols(), 0.0);
+
+            laplacian[0].col(5) = 27.0 * y;
+            laplacian[1].col(5) = 27.0 * x - 4.5;
+            laplacian[2].col(5) = 27.0 * x - 4.5;
+            laplacian[3].col(5) = Eigen::VectorXd::Constant(points.cols(), 0.0);
+
+            laplacian[0].col(6) = Eigen::VectorXd::Constant(points.cols(), 0.0);
+            laplacian[1].col(6) = 27.0 * y - 4.5;
+            laplacian[2].col(6) = 27.0 * y - 4.5;
+            laplacian[3].col(6) = 27.0 * x;
+
+            laplacian[0].col(7) = Eigen::VectorXd::Constant(points.cols(), 0.0);
+            laplacian[1].col(7) = 4.5 - 27.0 * y;
+            laplacian[2].col(7) = 4.5 - 27.0 * y;
+            laplacian[3].col(7) = 36.0 - 81.0 * y - 27.0 * x;
+
+            laplacian[0].col(8) = 27.0 * y;
+            laplacian[1].col(8) = 27.0 * x + 54.0 * y - 45.0 / 2.0;
+            laplacian[2].col(8) = 27.0 * x + 54.0 * y - 45.0 / 2.0;
+            laplacian[3].col(8) = 54.0 * x + 81.0 * y - 45.0;
+
+            laplacian[0].col(9) = -54.0 * y;
+            laplacian[1].col(9) = 27.0 - 54.0 * y - 54.0 * x;
+            laplacian[2].col(9) = 27.0 - 54.0 * y - 54.0 * x;
+            laplacian[3].col(9) = -54.0 * x;
+
+            return laplacian;
         }
         default: {
             const Eigen::MatrixXd zero_matrix = Eigen::MatrixXd::Zero(points.cols(), reference_element_data.NumBasisFunctions);

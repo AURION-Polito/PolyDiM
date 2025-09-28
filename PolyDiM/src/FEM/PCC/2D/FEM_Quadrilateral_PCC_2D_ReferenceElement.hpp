@@ -58,7 +58,7 @@ struct FEM_Quadrilateral_PCC_2D_ReferenceElement final
         Vertices = Eigen::MatrixXd::Zero(3, 4);
         Vertices << 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0;
     }
-    ~FEM_Quadrilateral_PCC_2D_ReferenceElement() {};
+    ~FEM_Quadrilateral_PCC_2D_ReferenceElement(){};
 
     FEM_Quadrilateral_PCC_2D_ReferenceElement_Data Create(const unsigned int order) const
     {
