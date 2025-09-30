@@ -191,7 +191,7 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D_Reference_Element)
     }
 }
 
-TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D)
+TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D_local_space)
 {
     const Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_ReferenceElement reference_element;
 

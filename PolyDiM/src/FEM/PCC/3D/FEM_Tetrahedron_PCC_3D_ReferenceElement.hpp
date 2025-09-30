@@ -206,6 +206,11 @@ class FEM_Tetrahedron_PCC_3D_ReferenceElement final
 
             if (order > 2)
             {
+#define DO_PRAGMA(x) _Pragma (#x)
+#define TODO(x) DO_PRAGMA(message ("TODO - " #x))
+
+              TODO("To remove cout!")
+
                 using namespace Gedim;
                 // face x - y
                 std::cout << "0 xy" << std::endl;
