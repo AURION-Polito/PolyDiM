@@ -20,6 +20,7 @@ namespace examples
 {
 namespace Elliptic_PCC_3D
 {
+  TODO("Remove function!")
 void Assembler::Debug(const unsigned int &cell3DIndex,
                       const Gedim::MeshMatricesDAO &mesh,
                       const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
@@ -399,21 +400,22 @@ typename Assembler::Elliptic_PCC_3D_Problem_Data Assembler::Assemble(
 
     for (unsigned int c = 0; c < mesh.Cell3DTotalNumber(); ++c)
     {
-        std::cout << "C3D " << c << " ";
-        std::cout << "C0D " << mesh.Cell3DVertex(c, 0) << ", ";
-        std::cout << mesh.Cell3DVertex(c, 1) << ", ";
-        std::cout << mesh.Cell3DVertex(c, 2) << ", ";
-        std::cout << mesh.Cell3DVertex(c, 3) << " ";
-        std::cout << "C1D " << mesh.Cell3DEdge(c, 0) << ", ";
-        std::cout << mesh.Cell3DEdge(c, 1) << ", ";
-        std::cout << mesh.Cell3DEdge(c, 2) << ", ";
-        std::cout << mesh.Cell3DEdge(c, 3) << ", ";
-        std::cout << mesh.Cell3DEdge(c, 4) << ", ";
-        std::cout << mesh.Cell3DEdge(c, 5) << " ";
-        std::cout << "C2D " << mesh.Cell3DFace(c, 0) << ", ";
-        std::cout << mesh.Cell3DFace(c, 1) << ", ";
-        std::cout << mesh.Cell3DFace(c, 2) << ", ";
-        std::cout << mesh.Cell3DFace(c, 3) << std::endl;
+      TODO("Remove comments")
+        //std::cout << "C3D " << c << " ";
+        //std::cout << "C0D " << mesh.Cell3DVertex(c, 0) << ", ";
+        //std::cout << mesh.Cell3DVertex(c, 1) << ", ";
+        //std::cout << mesh.Cell3DVertex(c, 2) << ", ";
+        //std::cout << mesh.Cell3DVertex(c, 3) << " ";
+        //std::cout << "C1D " << mesh.Cell3DEdge(c, 0) << ", ";
+        //std::cout << mesh.Cell3DEdge(c, 1) << ", ";
+        //std::cout << mesh.Cell3DEdge(c, 2) << ", ";
+        //std::cout << mesh.Cell3DEdge(c, 3) << ", ";
+        //std::cout << mesh.Cell3DEdge(c, 4) << ", ";
+        //std::cout << mesh.Cell3DEdge(c, 5) << " ";
+        //std::cout << "C2D " << mesh.Cell3DFace(c, 0) << ", ";
+        //std::cout << mesh.Cell3DFace(c, 1) << ", ";
+        //std::cout << mesh.Cell3DFace(c, 2) << ", ";
+        //std::cout << mesh.Cell3DFace(c, 3) << std::endl;
 
         const auto local_space_data = local_space::CreateLocalSpace(config, mesh_geometric_data, c, reference_element_data);
 
@@ -453,7 +455,7 @@ typename Assembler::Elliptic_PCC_3D_Problem_Data Assembler::Assemble(
                                                                                           result.dirichletMatrixA,
                                                                                           result.rightHandSide);
 
-        Debug(c, mesh, mesh_dofs_info, dofs_data, reference_element_data, local_space_data, test, result);
+        // Debug(c, mesh, mesh_dofs_info, dofs_data, reference_element_data, local_space_data, test, result);
 
         ComputeWeakTerm(c, mesh, mesh_dofs_info, dofs_data, reference_element_data, local_space_data, test, result);
 
