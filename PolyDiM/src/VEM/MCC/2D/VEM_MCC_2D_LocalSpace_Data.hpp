@@ -71,7 +71,6 @@ struct VEM_MCC_2D_Velocity_LocalSpace_Data final
     Eigen::Vector3d Centroid;
 
     Eigen::MatrixXd Hmatrix;
-    Eigen::LLT<Eigen::MatrixXd> H_km1_LLT;
 
     Eigen::MatrixXd VanderBoundary;
     Eigen::MatrixXd VanderBoundaryKp1;
