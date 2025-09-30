@@ -104,14 +104,14 @@ class FEM_Hexahedron_PCC_3D_LocalSpace final
                                                              const Polydim::FEM::PCC::FEM_Hexahedron_PCC_3D_LocalSpace_Data &local_space,
                                                              const unsigned int face_index) const
     {
-        FEM_Quadrilateral_PCC_2D_LocalSpace face_local_space;
+        Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_LocalSpace face_local_space;
 
         return face_local_space.ComputeBasisFunctionsValues(reference_element_data.BoundaryReferenceElement_Data,
                                                             local_space.Boundary_LocalSpace_Data[face_index]);
     }
 
-    inline Eigen::MatrixXd ComputeBasisFunctionsValuesOnFace(const FEM_Hexahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
-                                                             const FEM_Hexahedron_PCC_3D_LocalSpace_Data &local_space,
+    inline Eigen::MatrixXd ComputeBasisFunctionsValuesOnFace(const Polydim::FEM::PCC::FEM_Hexahedron_PCC_3D_ReferenceElement_Data &reference_element_data,
+                                                             const Polydim::FEM::PCC::FEM_Hexahedron_PCC_3D_LocalSpace_Data &local_space,
                                                              const unsigned int face_index,
                                                              const Eigen::MatrixXd &points2D) const
     {

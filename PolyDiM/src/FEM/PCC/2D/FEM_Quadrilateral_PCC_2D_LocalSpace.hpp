@@ -94,7 +94,7 @@ class FEM_Quadrilateral_PCC_2D_LocalSpace final
             throw std::runtime_error("not valid quadrilateral");
         }
 
-        FEM_Quadrilateral_PCC_2D_ReferenceElement reference_element;
+        Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement reference_element;
 
         return MapValues(local_space, reference_element.EvaluateBasisFunctions(referencePoints, reference_element_data));
     }

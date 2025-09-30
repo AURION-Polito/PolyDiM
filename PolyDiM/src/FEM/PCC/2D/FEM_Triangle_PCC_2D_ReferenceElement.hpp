@@ -15,7 +15,6 @@
 #include "Eigen/Eigen"
 #include "FEM_PCC_1D_ReferenceElement.hpp"
 #include "QuadratureData.hpp"
-#include "Quadrature_Gauss1D.hpp"
 #include "Quadrature_Gauss2D_Triangle.hpp"
 #include "VEM_PCC_Utilities.hpp"
 
@@ -70,7 +69,7 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
             result.DofPositions.col(0) << 1.0 / 3.0, 1.0 / 3.0, 0.0;
 
             Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement boundary_reference_element;
-            result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order, FEM_PCC_1D_Types::Equispaced);
+            result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order, Polydim::FEM::PCC::FEM_PCC_1D_Types::Equispaced);
 
             result.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * order);
 
@@ -156,7 +155,7 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
         result.EdgeBasisCoefficients = utilities.ComputeEdgeBasisCoefficients(result.Order, result.EdgeInternalPoints);
 
         Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement boundary_reference_element;
-        result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order, FEM_PCC_1D_Types::Equispaced);
+        result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order, Polydim::FEM::PCC::FEM_PCC_1D_Types::Equispaced);
 
         result.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * order);
 
@@ -170,7 +169,7 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
     }
     // ***************************************************************************
     Eigen::MatrixXd EvaluateBasisFunctions(const Eigen::MatrixXd &points,
-                                           const FEM_Triangle_PCC_2D_ReferenceElement_Data &reference_element_data) const
+                                           const Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement_Data &reference_element_data) const
     {
         switch (reference_element_data.Order)
         {
@@ -214,7 +213,7 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
     }
     // ***************************************************************************
     std::vector<Eigen::MatrixXd> EvaluateBasisFunctionDerivatives(const Eigen::MatrixXd &points,
-                                                                  const FEM_Triangle_PCC_2D_ReferenceElement_Data &reference_element_data) const
+                                                                  const Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement_Data &reference_element_data) const
     {
         switch (reference_element_data.Order)
         {
@@ -290,7 +289,7 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
     }
     // ***************************************************************************
     std::array<Eigen::MatrixXd, 4> EvaluateBasisFunctionSecondDerivatives(const Eigen::MatrixXd &points,
-                                                                          const FEM_Triangle_PCC_2D_ReferenceElement_Data &reference_element_data) const
+                                                                          const Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement_Data &reference_element_data) const
     {
         switch (reference_element_data.Order)
         {

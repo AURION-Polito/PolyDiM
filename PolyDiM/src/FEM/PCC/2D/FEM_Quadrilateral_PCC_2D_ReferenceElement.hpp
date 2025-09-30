@@ -60,7 +60,7 @@ struct FEM_Quadrilateral_PCC_2D_ReferenceElement final
     }
     ~FEM_Quadrilateral_PCC_2D_ReferenceElement(){};
 
-    FEM_Quadrilateral_PCC_2D_ReferenceElement_Data Create(const unsigned int order) const
+    Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement_Data Create(const unsigned int order) const
     {
 
         if (order <= 0)
@@ -76,7 +76,7 @@ struct FEM_Quadrilateral_PCC_2D_ReferenceElement final
         result.NumDofs2D = (order - 1) * (order - 1);
 
         Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement boundary_reference_element;
-        result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order, FEM_PCC_1D_Types::Equispaced);
+        result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order, Polydim::FEM::PCC::FEM_PCC_1D_Types::Equispaced);
         const Eigen::VectorXd reference_edge_dofs_poisitions = result.BoundaryReferenceElement_Data.DofPositions.row(0);
 
         // Edge directions
@@ -176,7 +176,7 @@ struct FEM_Quadrilateral_PCC_2D_ReferenceElement final
 
     // ***************************************************************************
     Eigen::MatrixXd EvaluateBasisFunctions(const Eigen::MatrixXd &points,
-                                           const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data) const
+                                           const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data) const
     {
 
         const unsigned int num_points = points.cols();
@@ -203,7 +203,7 @@ struct FEM_Quadrilateral_PCC_2D_ReferenceElement final
     }
     // ***************************************************************************
     std::vector<Eigen::MatrixXd> EvaluateBasisFunctionDerivatives(const Eigen::MatrixXd &points,
-                                                                  const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data) const
+                                                                  const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data) const
     {
         const unsigned int num_points = points.cols();
         Eigen::MatrixXd x = Eigen::MatrixXd::Zero(3, num_points);
@@ -235,7 +235,7 @@ struct FEM_Quadrilateral_PCC_2D_ReferenceElement final
     }
     // ***************************************************************************
     std::array<Eigen::MatrixXd, 4> EvaluateBasisFunctionSecondDerivatives(const Eigen::MatrixXd &,
-                                                                          const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &) const
+                                                                          const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &) const
     {
         throw std::runtime_error("not implemented method");
     }

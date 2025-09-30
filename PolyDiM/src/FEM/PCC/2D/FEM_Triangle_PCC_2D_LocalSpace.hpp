@@ -43,7 +43,7 @@ class FEM_Triangle_PCC_2D_LocalSpace final
 
   public:
     Polydim::FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace_Data CreateLocalSpace(const Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                                            const FEM_PCC_2D_Polygon_Geometry &polygon) const;
+                                                                            const Polydim::FEM::PCC::FEM_PCC_2D_Polygon_Geometry &polygon) const;
 
     Eigen::MatrixXd ComputeBasisFunctionsValues(const Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement_Data &reference_element_data,
                                                 const Polydim::FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace_Data &local_space) const
@@ -91,13 +91,13 @@ class FEM_Triangle_PCC_2D_LocalSpace final
         Gedim::MapTriangle mapTriangle;
         const Eigen::MatrixXd referencePoints = mapTriangle.FInv(local_space.MapData, points);
 
-        FEM_Triangle_PCC_2D_ReferenceElement reference_element;
+        Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement reference_element;
 
         return MapValues(local_space, reference_element.EvaluateBasisFunctions(referencePoints, reference_element_data));
     }
 
-    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const FEM_Triangle_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                                       const FEM_Triangle_PCC_2D_LocalSpace_Data &local_space,
+    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                                       const Polydim::FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace_Data &local_space,
                                                                        const Eigen::MatrixXd &points) const
     {
         Gedim::MapTriangle mapTriangle;

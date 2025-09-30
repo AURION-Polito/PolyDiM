@@ -140,11 +140,11 @@ class FEM_PCC_2D_LocalSpace final
     {
         switch (local_space.fem_type)
         {
-        case FEM_PCC_2D_Types::Triangle: {
+        case Polydim::FEM::PCC::FEM_PCC_2D_Types::Triangle: {
 
             return triangle_local_space.ComputeBasisFunctionsValuesOnEdge(reference_element_data.triangle_reference_element_data);
         }
-        case FEM_PCC_2D_Types::Quadrilateral: {
+        case Polydim::FEM::PCC::FEM_PCC_2D_Types::Quadrilateral: {
             return quadrilateral_local_space.ComputeBasisFunctionsValuesOnEdge(reference_element_data.quadrilateral_reference_element_data);
         }
         default:

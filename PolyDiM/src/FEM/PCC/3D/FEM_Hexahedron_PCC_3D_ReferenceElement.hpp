@@ -62,7 +62,7 @@ struct FEM_Hexahedron_PCC_3D_ReferenceElement final
 
     ~FEM_Hexahedron_PCC_3D_ReferenceElement(){};
 
-    FEM_Hexahedron_PCC_3D_ReferenceElement_Data Create(const unsigned int order) const
+    Polydim::FEM::PCC::FEM_Hexahedron_PCC_3D_ReferenceElement_Data Create(const unsigned int order) const
     {
         if (order <= 0)
             throw std::runtime_error("not valid order");
