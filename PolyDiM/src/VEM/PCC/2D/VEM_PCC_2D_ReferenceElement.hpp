@@ -22,15 +22,15 @@ namespace VEM
 namespace PCC
 {
 
-class VEM_PCC_2D_ReferenceElement final : public I_VEM_PCC_2D_ReferenceElement
+class VEM_PCC_2D_ReferenceElement final : public Polydim::VEM::PCC::I_VEM_PCC_2D_ReferenceElement
 {
   public:
     VEM_PCC_2D_ReferenceElement_Data Create(const unsigned int order) const
     {
-        Utilities::VEM_Monomials_2D monomials;
-        Quadrature::VEM_Quadrature_2D quadrature;
+        Polydim::VEM::Utilities::VEM_Monomials_2D monomials;
+        Polydim::VEM::Quadrature::VEM_Quadrature_2D quadrature;
 
-        VEM_PCC_2D_ReferenceElement_Data result;
+        Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data result;
 
         result.Monomials = monomials.Compute(order);
         result.Quadrature = quadrature.Compute_PCC_2D(order);

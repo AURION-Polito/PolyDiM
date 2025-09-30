@@ -58,10 +58,10 @@ struct VEM_PCC_2D_LocalSpace_Data final
     unsigned int Nklm1;
 
     Gedim::Quadrature::QuadratureData InternalQuadrature;
-    Quadrature::VEM_Quadrature_2D::Edges_QuadratureData BoundaryQuadrature;
+    Polydim::VEM::Quadrature::VEM_Quadrature_2D::Edges_QuadratureData BoundaryQuadrature;
 
     Gedim::Quadrature::QuadratureData InternalQuadratureKL;
-    Quadrature::VEM_Quadrature_2D::Edges_QuadratureData BoundaryQuadratureKL;
+    Polydim::VEM::Quadrature::VEM_Quadrature_2D::Edges_QuadratureData BoundaryQuadratureKL;
 
     double Diameter;
     double Measure;
@@ -95,8 +95,8 @@ struct VEM_PCC_2D_LocalSpace_Data final
     Eigen::MatrixXd QmatrixInv;
     Eigen::MatrixXd Qmatrixkm1;
 
-    Utilities::VEM_Inertia_Utilities::Inertia_Data inertia_data;
-    VEM_PCC_2D_Polygon_Geometry inertia_polygon;
+    Polydim::VEM::Utilities::VEM_Inertia_Utilities::Inertia_Data inertia_data;
+    Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry inertia_polygon;
     double constantStiff;
     double constantMass;
 };

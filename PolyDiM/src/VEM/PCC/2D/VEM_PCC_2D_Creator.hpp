@@ -34,28 +34,29 @@ enum struct VEM_PCC_2D_LocalSpace_Types
     VEM_PCC_2D_Ortho_LocalSpace = 3
 };
 
-inline std::unique_ptr<I_VEM_PCC_2D_ReferenceElement> create_VEM_PCC_2D_reference_element(const VEM_PCC_2D_LocalSpace_Types &type)
+inline std::unique_ptr<Polydim::VEM::PCC::I_VEM_PCC_2D_ReferenceElement> create_VEM_PCC_2D_reference_element(
+    const Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace_Types &type)
 {
     switch (type)
     {
-    case VEM_PCC_2D_LocalSpace_Types::VEM_PCC_2D_LocalSpace:
-    case VEM_PCC_2D_LocalSpace_Types::VEM_PCC_2D_Inertia_LocalSpace:
-    case VEM_PCC_2D_LocalSpace_Types::VEM_PCC_2D_Ortho_LocalSpace:
+    case Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace_Types::VEM_PCC_2D_LocalSpace:
+    case Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace_Types::VEM_PCC_2D_Inertia_LocalSpace:
+    case Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace_Types::VEM_PCC_2D_Ortho_LocalSpace:
         return std::make_unique<VEM_PCC_2D_ReferenceElement>();
     default:
         throw std::runtime_error("VEM type " + std::to_string((unsigned int)type) + " not supported");
     }
 }
 
-inline std::unique_ptr<I_VEM_PCC_2D_LocalSpace> create_VEM_PCC_2D_local_space(const VEM_PCC_2D_LocalSpace_Types &type)
+inline std::unique_ptr<Polydim::VEM::PCC::I_VEM_PCC_2D_LocalSpace> create_VEM_PCC_2D_local_space(const Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace_Types &type)
 {
     switch (type)
     {
-    case VEM_PCC_2D_LocalSpace_Types::VEM_PCC_2D_LocalSpace:
+    case Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace_Types::VEM_PCC_2D_LocalSpace:
         return std::make_unique<VEM_PCC_2D_LocalSpace>();
-    case VEM_PCC_2D_LocalSpace_Types::VEM_PCC_2D_Inertia_LocalSpace:
+    case Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace_Types::VEM_PCC_2D_Inertia_LocalSpace:
         return std::make_unique<VEM_PCC_2D_Inertia_LocalSpace>();
-    case VEM_PCC_2D_LocalSpace_Types::VEM_PCC_2D_Ortho_LocalSpace:
+    case Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace_Types::VEM_PCC_2D_Ortho_LocalSpace:
         return std::make_unique<VEM_PCC_2D_Ortho_LocalSpace>();
     default:
         throw std::runtime_error("VEM type " + std::to_string((unsigned int)type) + " not supported");
