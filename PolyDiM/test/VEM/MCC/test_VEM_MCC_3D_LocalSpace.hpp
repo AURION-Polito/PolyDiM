@@ -438,10 +438,8 @@ TEST(Test_VEM_MCC, Test_VEM_MCC_3D_O0_O1_O2_O3)
         // Test VEM performances
         Polydim::VEM::MCC::VEM_MCC_PerformanceAnalysis performanceAnalysis;
 
-        const auto result = performanceAnalysis.Compute(Polydim::VEM::Utilities::VEM_Monomials_3D(),
-                                                        reference_element_data.MonomialsKp1,
-                                                        vem_local_space,
-                                                        local_space);
+        const auto result =
+            performanceAnalysis.Compute(Polydim::Utilities::Monomials_3D(), reference_element_data.MonomialsKp1, vem_local_space, local_space);
 
         ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.0e-10, result.ErrorPi0k, geometry_utilities.Tolerance1D()));
 

@@ -49,9 +49,9 @@ struct VEM_PCC_3D_Polyhedron_Geometry final
 struct VEM_PCC_3D_LocalSpace_Data final
 {
     Gedim::Quadrature::QuadratureData InternalQuadrature;
-    Quadrature::VEM_Quadrature_3D::Faces_QuadratureData_PCC BoundaryQuadrature;
+    Polydim::VEM::Quadrature::VEM_Quadrature_3D::Faces_QuadratureData_PCC BoundaryQuadrature;
 
-    std::vector<VEM_PCC_2D_LocalSpace_Data> facesLocalSpace;
+    std::vector<Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace_Data> facesLocalSpace;
 
     unsigned int Dimension;
     unsigned int Order;
@@ -85,7 +85,6 @@ struct VEM_PCC_3D_LocalSpace_Data final
     Eigen::MatrixXd StabMatrix;
     Eigen::MatrixXd StabMatrixPi0k;
     Eigen::MatrixXd Hmatrix;
-    Eigen::LLT<Eigen::MatrixXd> H_km1_LLT;
     Eigen::MatrixXd Cmatrix;
     Eigen::MatrixXd Bmatrix;
     Eigen::MatrixXd Gmatrix;
@@ -108,8 +107,8 @@ struct VEM_PCC_3D_LocalSpace_Data final
     Eigen::MatrixXd QmatrixInv;
     Eigen::MatrixXd Qmatrixkm1;
 
-    Utilities::VEM_Inertia_Utilities::Inertia_Data inertia_data;
-    VEM_PCC_3D_Polyhedron_Geometry inertia_polyhedron;
+    Polydim::Utilities::Inertia_Utilities::Inertia_Data inertia_data;
+    Polydim::VEM::PCC::VEM_PCC_3D_Polyhedron_Geometry inertia_polyhedron;
     double constantStiff;
     double constantMass;
 

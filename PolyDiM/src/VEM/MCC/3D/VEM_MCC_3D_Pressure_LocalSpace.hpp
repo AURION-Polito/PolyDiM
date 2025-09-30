@@ -15,9 +15,9 @@
 #include "Eigen/Eigen"
 #include "I_VEM_MCC_3D_Pressure_LocalSpace.hpp"
 #include "I_VEM_MCC_3D_ReferenceElement.hpp"
+#include "Monomials_3D.hpp"
 #include "VEM_MCC_3D_LocalSpace_Data.hpp"
 #include "VEM_MCC_Utilities.hpp"
-#include "VEM_Monomials_3D.hpp"
 
 namespace Polydim
 {
@@ -30,7 +30,7 @@ class VEM_MCC_3D_Pressure_LocalSpace final : public I_VEM_MCC_3D_Pressure_LocalS
 {
   private:
     VEM_MCC_Utilities<3> utilities;
-    Utilities::VEM_Monomials_3D monomials;
+    Utilities::Monomials_3D monomials;
 
     void InitializeProjectorsComputation(const VEM_MCC_3D_Pressure_ReferenceElement_Data &reference_element_data,
                                          const Eigen::Vector3d &polyhedronCentroid,

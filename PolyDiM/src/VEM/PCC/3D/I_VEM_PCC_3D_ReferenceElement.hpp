@@ -12,7 +12,7 @@
 #ifndef __I_VEM_PCC_3D_ReferenceElement_HPP
 #define __I_VEM_PCC_3D_ReferenceElement_HPP
 
-#include "VEM_Monomials_Data.hpp"
+#include "Monomials_Data.hpp"
 #include "VEM_Quadrature_3D.hpp"
 
 namespace Polydim
@@ -30,7 +30,7 @@ struct VEM_PCC_3D_ReferenceElement_Data final
     unsigned int NumDofs2D;
     unsigned int NumDofs3D;
 
-    Utilities::VEM_Monomials_Data Monomials;
+    Utilities::Monomials_Data Monomials;
     Quadrature::VEM_QuadratureData_3D Quadrature;
 };
 

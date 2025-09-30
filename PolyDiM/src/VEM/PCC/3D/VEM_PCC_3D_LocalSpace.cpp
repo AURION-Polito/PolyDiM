@@ -185,9 +185,6 @@ void VEM_PCC_3D_LocalSpace::InitializeProjectorsComputation(const VEM_PCC_3D_Ref
     const MatrixXd temp = internalQuadratureWeightsSqrt.asDiagonal() * localSpace.VanderInternal;
     localSpace.Hmatrix = temp.transpose() * temp;
 
-    // Compute LLT factorization of order-1 monomials.
-    localSpace.H_km1_LLT = localSpace.Hmatrix.topLeftCorner(localSpace.Nkm1, localSpace.Nkm1).llt();
-
     localSpace.Qmatrix = MatrixXd::Identity(localSpace.NumProjectorBasisFunctions, localSpace.NumProjectorBasisFunctions);
     localSpace.QmatrixInv = MatrixXd::Identity(localSpace.NumProjectorBasisFunctions, localSpace.NumProjectorBasisFunctions);
 }
@@ -374,7 +371,7 @@ void VEM_PCC_3D_LocalSpace::ComputeL2ProjectorsOfDerivatives(const VEM_PCC_3D_Re
     localSpace.Pi0km1Der.resize(localSpace.Dimension);
 
     localSpace.Ematrix.resize(3, MatrixXd::Zero(localSpace.Nkm1, localSpace.NumBasisFunctions));
-
+    const Eigen::LLT<Eigen::MatrixXd> H_km1_LLT = localSpace.Hmatrix.topLeftCorner(localSpace.Nkm1, localSpace.Nkm1).llt();
     for (unsigned int d = 0; d < localSpace.Dimension; d++)
     {
         localSpace.Ematrix[d].leftCols(localSpace.NumBasisFunctions - localSpace.NumInternalBasisFunctions) =
@@ -391,7 +388,7 @@ void VEM_PCC_3D_LocalSpace::ComputeL2ProjectorsOfDerivatives(const VEM_PCC_3D_Re
 
         localSpace.Ematrix[d] = localSpace.Qmatrix.topLeftCorner(localSpace.Nkm1, localSpace.Nkm1) * localSpace.Ematrix[d];
 
-        localSpace.Pi0km1Der[d] = localSpace.H_km1_LLT.solve(localSpace.Ematrix[d]);
+        localSpace.Pi0km1Der[d] = H_km1_LLT.solve(localSpace.Ematrix[d]);
     }
 }
 //****************************************************************************

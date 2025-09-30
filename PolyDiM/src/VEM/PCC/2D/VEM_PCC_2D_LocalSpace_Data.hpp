@@ -13,7 +13,7 @@
 #define __VEM_PCC_2D_LocalSpace_Data_HPP
 
 #include "Eigen/Eigen"
-#include "VEM_Inertia_Utilities.hpp"
+#include "Inertia_Utilities.hpp"
 #include "VEM_Quadrature_2D.hpp"
 
 namespace Polydim
@@ -82,9 +82,7 @@ struct VEM_PCC_2D_LocalSpace_Data final
 
     Eigen::MatrixXd Hmatrix;
 
-    Eigen::MatrixXd H_klm1_matrix; /*
-     Eigen::LLT<Eigen::MatrixXd> H_km1_LLT;
-     Eigen::LLT<Eigen::MatrixXd> H_klm1_LLT;*/
+    Eigen::MatrixXd H_klm1_matrix;
     Eigen::MatrixXd Cmatrix;
     Eigen::MatrixXd Bmatrix;
     Eigen::MatrixXd Gmatrix;
@@ -95,7 +93,7 @@ struct VEM_PCC_2D_LocalSpace_Data final
     Eigen::MatrixXd QmatrixInv;
     Eigen::MatrixXd Qmatrixkm1;
 
-    Polydim::VEM::Utilities::VEM_Inertia_Utilities::Inertia_Data inertia_data;
+    Polydim::Utilities::Inertia_Utilities::Inertia_Data inertia_data;
     Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry inertia_polygon;
     double constantStiff;
     double constantMass;

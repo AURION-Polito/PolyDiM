@@ -9,21 +9,19 @@
 //
 // This file can be used citing references in CITATION.cff file.
 
-#include "VEM_GBasis_3D.hpp"
+#include "GBasis_3D.hpp"
 
 using namespace std;
 using namespace Eigen;
 
 namespace Polydim
 {
-namespace VEM
-{
 namespace Utilities
 {
 //****************************************************************************
-VEM_GBasis_Data VEM_GBasis_3D::Compute(const unsigned int polynomial_degree)
+GBasis_Data GBasis_3D::Compute(const unsigned int polynomial_degree)
 {
-    VEM_GBasis_Data data;
+    GBasis_Data data;
     data.Dimension = 3;
     data.PolynomialDegree = polynomial_degree;
 
@@ -114,7 +112,7 @@ VEM_GBasis_Data VEM_GBasis_3D::Compute(const unsigned int polynomial_degree)
     return data;
 }
 //****************************************************************************
-vector<Vector4i> VEM_GBasis_3D::VectorDecompositionIndices(const VEM_GBasis_Data &data, const VectorXi &expo) const
+vector<Vector4i> GBasis_3D::VectorDecompositionIndices(const GBasis_Data &data, const VectorXi &expo) const
 {
     vector<Vector4i> vectorDecompositionIndices(3, Vector4i::Constant(-1));
 
@@ -137,7 +135,7 @@ vector<Vector4i> VEM_GBasis_3D::VectorDecompositionIndices(const VEM_GBasis_Data
     return vectorDecompositionIndices;
 }
 //****************************************************************************
-vector<MatrixXd> VEM_GBasis_3D::VanderGBigOPlus(const VEM_GBasis_Data &data, const MatrixXd &vander) const
+vector<MatrixXd> GBasis_3D::VanderGBigOPlus(const GBasis_Data &data, const MatrixXd &vander) const
 {
     const unsigned int numPoints = vander.rows();
     vector<MatrixXd> vanderBigOPlus(3, MatrixXd::Zero(numPoints, data.DimFirstBasis + 2 * data.Nkm1));
@@ -168,5 +166,4 @@ vector<MatrixXd> VEM_GBasis_3D::VanderGBigOPlus(const VEM_GBasis_Data &data, con
 }
 //****************************************************************************
 } // namespace Utilities
-} // namespace VEM
 } // namespace Polydim

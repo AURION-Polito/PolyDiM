@@ -15,8 +15,8 @@
 #include "Eigen/Eigen"
 #include "I_VEM_DF_PCC_2D_Pressure_LocalSpace.hpp"
 #include "I_VEM_DF_PCC_2D_ReferenceElement.hpp"
+#include "Monomials_2D.hpp"
 #include "VEM_DF_PCC_2D_LocalSpace_Data.hpp"
-#include "VEM_Monomials_2D.hpp"
 #include <vector>
 
 namespace Polydim
@@ -29,7 +29,7 @@ namespace DF_PCC
 class VEM_DF_PCC_2D_Reduced_Pressure_LocalSpace final : public I_VEM_DF_PCC_2D_Pressure_LocalSpace
 {
   private:
-    Utilities::VEM_Monomials_2D monomials;
+    Utilities::Monomials_2D monomials;
 
     void InitializeProjectorsComputation(const VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &reference_element_data,
                                          const Eigen::Vector3d &polygonCentroid,

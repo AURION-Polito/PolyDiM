@@ -30,7 +30,7 @@ VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Inertia_LocalSpace::CreateLocalSpace(const
     geometryUtilitiesConfig.Tolerance1D = polygon.Tolerance1D;
     geometryUtilitiesConfig.Tolerance2D = polygon.Tolerance2D;
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
-    Utilities::VEM_Inertia_Utilities inertia_utilities(geometryUtilities);
+    Utilities::Inertia_Utilities inertia_utilities(geometryUtilities);
 
     inertia_utilities.InertiaMapping2D(polygon.Vertices,
                                        polygon.Centroid,
@@ -125,7 +125,7 @@ VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Inertia_LocalSpace::Compute3DUtilities(con
     geometryUtilitiesConfig.Tolerance1D = polygon.Tolerance1D;
     geometryUtilitiesConfig.Tolerance2D = polygon.Tolerance2D;
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
-    Utilities::VEM_Inertia_Utilities inertia_utilities(geometryUtilities);
+    Utilities::Inertia_Utilities inertia_utilities(geometryUtilities);
 
     inertia_utilities.InertiaMapping2D(polygon.Vertices,
                                        polygon.Centroid,
@@ -204,7 +204,7 @@ VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Inertia_LocalSpace::Compute3DUtilities(con
 }
 // ***************************************************************************
 void VEM_PCC_2D_Inertia_LocalSpace::ComputeGeometryProperties(const Gedim::GeometryUtilities &geometryUtilities,
-                                                              const Utilities::VEM_Inertia_Utilities::Inertia_Data &inertia_data,
+                                                              const Utilities::Inertia_Utilities::Inertia_Data &inertia_data,
                                                               const PCC::VEM_PCC_2D_Polygon_Geometry &polygon,
                                                               PCC::VEM_PCC_2D_Polygon_Geometry &inertia_geometric_data) const
 {

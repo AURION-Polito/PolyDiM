@@ -9,18 +9,16 @@
 //
 // This file can be used citing references in CITATION.cff file.
 
-#ifndef __VEM_Inertia_Utilities_HPP
-#define __VEM_Inertia_Utilities_HPP
+#ifndef __Inertia_Utilities_HPP
+#define __Inertia_Utilities_HPP
 
 #include "GeometryUtilities.hpp"
 
 namespace Polydim
 {
-namespace VEM
-{
 namespace Utilities
 {
-struct VEM_Inertia_Utilities final
+struct Inertia_Utilities final
 {
     const Gedim::GeometryUtilities &geometryUtilities;
 
@@ -33,7 +31,7 @@ struct VEM_Inertia_Utilities final
         double signDetQ;
     };
 
-    VEM_Inertia_Utilities(const Gedim::GeometryUtilities &geometryUtilities) : geometryUtilities(geometryUtilities)
+    Inertia_Utilities(const Gedim::GeometryUtilities &geometryUtilities) : geometryUtilities(geometryUtilities)
     {
     }
 
@@ -51,7 +49,6 @@ struct VEM_Inertia_Utilities final
 };
 
 } // namespace Utilities
-} // namespace VEM
 } // namespace Polydim
 
 #endif

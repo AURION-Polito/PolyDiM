@@ -12,7 +12,7 @@
 #ifndef __I_VEM_DF_PCC_3D_ReferenceElement_HPP
 #define __I_VEM_DF_PCC_3D_ReferenceElement_HPP
 
-#include "VEM_GBasis_Data.hpp"
+#include "GBasis_Data.hpp"
 #include "VEM_Quadrature_3D.hpp"
 
 namespace Polydim
@@ -30,7 +30,7 @@ struct VEM_DF_PCC_3D_Pressure_ReferenceElement_Data final
     unsigned int NumDofs2D;
     unsigned int NumDofs3D;
 
-    Utilities::VEM_Monomials_Data Monomials;
+    Utilities::Monomials_Data Monomials;
     Quadrature::VEM_QuadratureData_3D Quadrature;
 };
 
@@ -50,8 +50,8 @@ struct VEM_DF_PCC_3D_Velocity_ReferenceElement_Data final
     unsigned int NumDofs3D_BigOPlus;
     unsigned int NumDofs3D_Divergence;
 
-    Utilities::VEM_Monomials_Data Monomials;
-    Utilities::VEM_GBasis_Data GBasis;
+    Utilities::Monomials_Data Monomials;
+    Utilities::GBasis_Data GBasis;
     Quadrature::VEM_QuadratureData_3D Quadrature;
 };
 

@@ -9,21 +9,19 @@
 //
 // This file can be used citing references in CITATION.cff file.
 
-#include "VEM_Monomials_3D.hpp"
+#include "Monomials_3D.hpp"
 
 using namespace std;
 using namespace Eigen;
 
 namespace Polydim
 {
-namespace VEM
-{
 namespace Utilities
 {
 //****************************************************************************
-VEM_Monomials_Data VEM_Monomials_3D::Compute(const unsigned int polynomial_degree) const
+Monomials_Data Monomials_3D::Compute(const unsigned int polynomial_degree) const
 {
-    VEM_Monomials_Data data;
+    Monomials_Data data;
 
     data.Dimension = 3;
     data.PolynomialDegree = polynomial_degree;
@@ -61,7 +59,7 @@ VEM_Monomials_Data VEM_Monomials_3D::Compute(const unsigned int polynomial_degre
     return data;
 }
 //****************************************************************************
-int VEM_Monomials_3D::Index(const VectorXi &exponents) const
+int Monomials_3D::Index(const VectorXi &exponents) const
 {
     int out = -1;
     if (exponents[0] >= 0 && exponents[1] >= 0 && exponents[2] >= 0)
@@ -74,7 +72,7 @@ int VEM_Monomials_3D::Index(const VectorXi &exponents) const
     return out;
 }
 //****************************************************************************
-std::vector<int> VEM_Monomials_3D::DerivativeIndices(const VEM_Monomials_Data &data, const unsigned int &index) const
+std::vector<int> Monomials_3D::DerivativeIndices(const Monomials_Data &data, const unsigned int &index) const
 {
     std::vector<int> derivativeIndices;
     const VectorXi &expo = data.Exponents[index];
@@ -88,7 +86,7 @@ std::vector<int> VEM_Monomials_3D::DerivativeIndices(const VEM_Monomials_Data &d
     return derivativeIndices;
 }
 //****************************************************************************
-vector<int> VEM_Monomials_3D::SecondDerivativeIndices(const VEM_Monomials_Data &data, const unsigned int &index) const
+vector<int> Monomials_3D::SecondDerivativeIndices(const Monomials_Data &data, const unsigned int &index) const
 {
     vector<int> secondDerivativeIndices;
     const VectorXi &expo = data.Exponents[index];
@@ -104,5 +102,4 @@ vector<int> VEM_Monomials_3D::SecondDerivativeIndices(const VEM_Monomials_Data &
 }
 //****************************************************************************
 } // namespace Utilities
-} // namespace VEM
 } // namespace Polydim

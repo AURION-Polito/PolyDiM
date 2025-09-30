@@ -13,7 +13,7 @@
 #define __VEM_PCC_Utilities_HPP
 
 #include "Eigen/Eigen"
-#include "VEM_Monomials_Data.hpp"
+#include "Monomials_Data.hpp"
 #include "lagrange_1D.hpp"
 
 namespace Polydim
@@ -141,9 +141,9 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
         return vanderInternal;
     }
 
-    template <typename VEM_MonomialType>
-    inline Eigen::MatrixXd ComputePolynomialsValues(const Utilities::VEM_Monomials_Data &data,
-                                                    const VEM_MonomialType &monomials,
+    template <typename MonomialType>
+    inline Eigen::MatrixXd ComputePolynomialsValues(const Utilities::Monomials_Data &data,
+                                                    const MonomialType &monomials,
                                                     const Eigen::Vector3d &centroid,
                                                     const double &diameter,
                                                     const Eigen::MatrixXd &points) const
@@ -156,18 +156,18 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
         return vanderInternalDerivatives;
     }
 
-    template <typename VEM_MonomialType>
-    inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const Utilities::VEM_Monomials_Data &data,
-                                                                           const VEM_MonomialType &monomials,
+    template <typename MonomialType>
+    inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const Utilities::Monomials_Data &data,
+                                                                           const MonomialType &monomials,
                                                                            const double &diameter,
                                                                            const Eigen::MatrixXd &vander) const
     {
         return monomials.VanderDerivatives(data, vander, diameter);
     }
 
-    template <typename VEM_MonomialType>
-    inline Eigen::MatrixXd ComputePolynomialsLaplacianValues(const Utilities::VEM_Monomials_Data &data,
-                                                             const VEM_MonomialType &monomials,
+    template <typename MonomialType>
+    inline Eigen::MatrixXd ComputePolynomialsLaplacianValues(const Utilities::Monomials_Data &data,
+                                                             const MonomialType &monomials,
                                                              const double &diameter,
                                                              const Eigen::MatrixXd &vander) const
     {

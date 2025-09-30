@@ -13,13 +13,13 @@
 #define __VEM_DF_PCC_3D_Velocity_LocalSpace_HPP
 
 #include "Eigen/Eigen"
+#include "GBasis_3D.hpp"
 #include "I_VEM_DF_PCC_3D_ReferenceElement.hpp"
 #include "I_VEM_DF_PCC_3D_Velocity_LocalSpace.hpp"
 #include "I_VEM_PCC_2D_ReferenceElement.hpp"
+#include "Monomials_3D.hpp"
 #include "VEM_DF_PCC_3D_LocalSpace_Data.hpp"
 #include "VEM_DF_PCC_Utilities.hpp"
-#include "VEM_GBasis_3D.hpp"
-#include "VEM_Monomials_3D.hpp"
 #include "VEM_PCC_2D_LocalSpace.hpp"
 #include <vector>
 
@@ -34,8 +34,8 @@ class VEM_DF_PCC_3D_Velocity_LocalSpace final : public I_VEM_DF_PCC_3D_Velocity_
 {
   private:
     VEM_DF_PCC_Utilities<3> utilities;
-    Utilities::VEM_Monomials_3D monomials;
-    Utilities::VEM_GBasis_3D g_basis;
+    Utilities::Monomials_3D monomials;
+    Utilities::GBasis_3D g_basis;
 
     void InitializeProjectorsComputation(const VEM_DF_PCC_3D_Velocity_ReferenceElement_Data &reference_element_data,
                                          const Eigen::MatrixXd &polyhedronVertices,

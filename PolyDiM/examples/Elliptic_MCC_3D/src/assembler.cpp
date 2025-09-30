@@ -309,7 +309,7 @@ Assembler::VEM_Performance_Result Assembler::ComputeVemPerformance(
 
         Polydim::VEM::MCC::VEM_MCC_PerformanceAnalysis performanceAnalysis;
 
-        result.Cell3DsPerformance[c].Analysis = performanceAnalysis.Compute(Polydim::VEM::Utilities::VEM_Monomials_3D(),
+        result.Cell3DsPerformance[c].Analysis = performanceAnalysis.Compute(Polydim::Utilities::Monomials_3D(),
                                                                             velocity_reference_element_data.MonomialsKp1,
                                                                             vem_velocity_space,
                                                                             velocity_local_space_data);

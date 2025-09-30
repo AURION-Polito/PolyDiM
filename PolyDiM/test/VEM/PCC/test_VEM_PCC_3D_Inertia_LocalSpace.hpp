@@ -194,10 +194,8 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_3D_Inertia_O1_O2_O3)
         // Test VEM performances
         Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis performanceAnalysis;
 
-        const auto result = performanceAnalysis.Compute(Polydim::VEM::Utilities::VEM_Monomials_3D(),
-                                                        reference_element_data_3D.Monomials,
-                                                        vem_local_space,
-                                                        local_space);
+        const auto result =
+            performanceAnalysis.Compute(Polydim::Utilities::Monomials_3D(), reference_element_data_3D.Monomials, vem_local_space, local_space);
 
         ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(9.0e-14, result.ErrorPiNabla, geometry_utilities.Tolerance1D()));
         ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(7.4e-14, result.ErrorPi0km1, geometry_utilities.Tolerance1D()));

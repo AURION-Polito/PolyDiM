@@ -13,7 +13,7 @@
 #define __VEM_PCC_3D_ReferenceElement_HPP
 
 #include "I_VEM_PCC_3D_ReferenceElement.hpp"
-#include "VEM_Monomials_3D.hpp"
+#include "Monomials_3D.hpp"
 
 namespace Polydim
 {
@@ -27,7 +27,7 @@ class VEM_PCC_3D_ReferenceElement final : public I_VEM_PCC_3D_ReferenceElement
   public:
     VEM_PCC_3D_ReferenceElement_Data Create(const unsigned int order) const
     {
-        Utilities::VEM_Monomials_3D monomials;
+        Utilities::Monomials_3D monomials;
         Quadrature::VEM_Quadrature_3D quadrature;
 
         VEM_PCC_3D_ReferenceElement_Data result;

@@ -9,33 +9,30 @@
 //
 // This file can be used citing references in CITATION.cff file.
 
-#ifndef __VEM_GBasis_3D_HPP
-#define __VEM_GBasis_3D_HPP
+#ifndef __GBasis_3D_HPP
+#define __GBasis_3D_HPP
 
-#include "VEM_GBasis_Data.hpp"
-#include "VEM_Monomials_3D.hpp"
+#include "GBasis_Data.hpp"
+#include "Monomials_3D.hpp"
 
 namespace Polydim
 {
-namespace VEM
-{
 namespace Utilities
 {
-class VEM_GBasis_3D final
+class GBasis_3D final
 {
   private:
-    Polydim::VEM::Utilities::VEM_Monomials_3D monomials;
+    Polydim::Utilities::Monomials_3D monomials;
 
-    std::vector<Eigen::Vector4i> VectorDecompositionIndices(const Polydim::VEM::Utilities::VEM_GBasis_Data &data,
+    std::vector<Eigen::Vector4i> VectorDecompositionIndices(const Polydim::Utilities::GBasis_Data &data,
                                                             const Eigen::VectorXi &expo) const;
 
   public:
-    Polydim::VEM::Utilities::VEM_GBasis_Data Compute(const unsigned int polynomial_degree);
+    Polydim::Utilities::GBasis_Data Compute(const unsigned int polynomial_degree);
 
-    std::vector<Eigen::MatrixXd> VanderGBigOPlus(const Polydim::VEM::Utilities::VEM_GBasis_Data &data,
-                                                 const Eigen::MatrixXd &vander) const;
+    std::vector<Eigen::MatrixXd> VanderGBigOPlus(const Polydim::Utilities::GBasis_Data &data, const Eigen::MatrixXd &vander) const;
 
-    std::vector<std::vector<Eigen::MatrixXd>> VectorDecomposition(const Polydim::VEM::Utilities::VEM_GBasis_Data &data) const
+    std::vector<std::vector<Eigen::MatrixXd>> VectorDecomposition(const Polydim::Utilities::GBasis_Data &data) const
     {
         std::vector<std::vector<Eigen::MatrixXd>> result(3);
         for (unsigned int i = 0; i < data.Dimension; i++)
@@ -49,7 +46,6 @@ class VEM_GBasis_3D final
     }
 };
 } // namespace Utilities
-} // namespace VEM
 } // namespace Polydim
 
 #endif

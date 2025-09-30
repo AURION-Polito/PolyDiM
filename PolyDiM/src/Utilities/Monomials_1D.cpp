@@ -9,21 +9,19 @@
 //
 // This file can be used citing references in CITATION.cff file.
 
-#include "VEM_Monomials_1D.hpp"
+#include "Monomials_1D.hpp"
 
 using namespace std;
 using namespace Eigen;
 
 namespace Polydim
 {
-namespace VEM
-{
 namespace Utilities
 {
 //****************************************************************************
-VEM_Monomials_Data VEM_Monomials_1D::Compute(const unsigned int polynomial_degree) const
+Monomials_Data Monomials_1D::Compute(const unsigned int polynomial_degree) const
 {
-    VEM_Monomials_Data data;
+    Monomials_Data data;
 
     data.Dimension = 1;
     data.PolynomialDegree = polynomial_degree;
@@ -52,7 +50,7 @@ VEM_Monomials_Data VEM_Monomials_1D::Compute(const unsigned int polynomial_degre
     return data;
 }
 //****************************************************************************
-int VEM_Monomials_1D::Index(const VectorXi &exponents) const
+int Monomials_1D::Index(const VectorXi &exponents) const
 {
     int out = -1;
     if (exponents[0] >= 0)
@@ -60,7 +58,7 @@ int VEM_Monomials_1D::Index(const VectorXi &exponents) const
     return out;
 }
 //****************************************************************************
-vector<int> VEM_Monomials_1D::DerivativeIndices(const VEM_Monomials_Data &data, const unsigned int &index) const
+vector<int> Monomials_1D::DerivativeIndices(const Monomials_Data &data, const unsigned int &index) const
 {
     vector<int> derivativeIndices;
 
@@ -72,7 +70,7 @@ vector<int> VEM_Monomials_1D::DerivativeIndices(const VEM_Monomials_Data &data, 
     return derivativeIndices;
 }
 //****************************************************************************
-vector<int> VEM_Monomials_1D::SecondDerivativeIndices(const VEM_Monomials_Data &data, const unsigned int &index) const
+vector<int> Monomials_1D::SecondDerivativeIndices(const Monomials_Data &data, const unsigned int &index) const
 {
     vector<int> secondDerivativeIndices;
     const VectorXi &expo = data.Exponents[index];
@@ -84,5 +82,4 @@ vector<int> VEM_Monomials_1D::SecondDerivativeIndices(const VEM_Monomials_Data &
 }
 //****************************************************************************
 } // namespace Utilities
-} // namespace VEM
 } // namespace Polydim

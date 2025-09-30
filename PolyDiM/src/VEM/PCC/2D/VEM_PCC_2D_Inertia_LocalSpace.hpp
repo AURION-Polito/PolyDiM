@@ -13,7 +13,7 @@
 #define __VEM_PCC_2D_Inertia_LocalSpace_HPP
 
 #include "I_VEM_PCC_2D_LocalSpace.hpp"
-#include "VEM_Monomials_2D.hpp"
+#include "Monomials_2D.hpp"
 
 namespace Polydim
 {
@@ -28,7 +28,7 @@ class VEM_PCC_2D_Inertia_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
 {
   private:
     VEM_PCC_Utilities<2> utilities;
-    Utilities::VEM_Monomials_2D monomials;
+    Utilities::Monomials_2D monomials;
 
     void InitializeProjectorsComputation(const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                          const Eigen::MatrixXd &polygonVertices,
@@ -69,7 +69,7 @@ class VEM_PCC_2D_Inertia_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
     };
 
     void ComputeGeometryProperties(const Gedim::GeometryUtilities &geometryUtilities,
-                                   const Utilities::VEM_Inertia_Utilities::Inertia_Data &inertia_data,
+                                   const Polydim::Utilities::Inertia_Utilities::Inertia_Data &inertia_data,
                                    const PCC::VEM_PCC_2D_Polygon_Geometry &polygon,
                                    PCC::VEM_PCC_2D_Polygon_Geometry &inertia_geometric_data) const;
 

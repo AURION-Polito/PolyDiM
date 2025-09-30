@@ -9,19 +9,17 @@
 //
 // This file can be used citing references in CITATION.cff file.
 
-#ifndef __VEM_Monomials_Data_HPP
-#define __VEM_Monomials_Data_HPP
+#ifndef __Monomials_Data_HPP
+#define __Monomials_Data_HPP
 
 #include "Eigen/Eigen"
 #include <vector>
 
 namespace Polydim
 {
-namespace VEM
-{
 namespace Utilities
 {
-struct VEM_Monomials_Data
+struct Monomials_Data
 {
     unsigned int PolynomialDegree;                   ///< Monomial space order
     unsigned int Dimension;                          ///< The geometric dimension
@@ -31,7 +29,6 @@ struct VEM_Monomials_Data
     Eigen::MatrixXd Laplacian;                       ///< Matrix used to compute the laplacian of monomials.
 };
 } // namespace Utilities
-} // namespace VEM
 } // namespace Polydim
 
 #endif

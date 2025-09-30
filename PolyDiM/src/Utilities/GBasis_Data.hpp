@@ -9,25 +9,23 @@
 //
 // This file can be used citing references in CITATION.cff file.
 
-#ifndef __VEM_GBasis_Data_HPP
-#define __VEM_GBasis_Data_HPP
+#ifndef __GBasis_Data_HPP
+#define __GBasis_Data_HPP
 
 #include "Eigen/Eigen"
-#include "VEM_Monomials_Data.hpp"
+#include "Monomials_Data.hpp"
 #include <vector>
 
 namespace Polydim
 {
-namespace VEM
-{
 namespace Utilities
 {
-struct VEM_GBasis_Data
+struct GBasis_Data
 {
     unsigned int PolynomialDegree;
     unsigned int Dimension;
 
-    Polydim::VEM::Utilities::VEM_Monomials_Data monomials_data;
+    Polydim::Utilities::Monomials_Data monomials_data;
 
     unsigned int Nk;
     unsigned int Nkm1;
@@ -44,7 +42,6 @@ struct VEM_GBasis_Data
     std::vector<int> MapFirstGroupVectorDecomposition;
 };
 } // namespace Utilities
-} // namespace VEM
 } // namespace Polydim
 
 #endif

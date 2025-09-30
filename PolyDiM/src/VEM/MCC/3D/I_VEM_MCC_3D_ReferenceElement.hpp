@@ -12,7 +12,7 @@
 #ifndef __I_VEM_MCC_3D_ReferenceElement_HPP
 #define __I_VEM_MCC_3D_ReferenceElement_HPP
 
-#include "VEM_Monomials_Data.hpp"
+#include "Monomials_Data.hpp"
 #include "VEM_Quadrature_3D.hpp"
 
 namespace Polydim
@@ -31,7 +31,7 @@ struct VEM_MCC_3D_Pressure_ReferenceElement_Data final
     unsigned int NumDofs2D;
     unsigned int NumDofs3D;
 
-    Utilities::VEM_Monomials_Data Monomials;
+    Utilities::Monomials_Data Monomials;
     Quadrature::VEM_QuadratureData_3D Quadrature;
 };
 
@@ -44,8 +44,8 @@ struct VEM_MCC_3D_Velocity_ReferenceElement_Data final
     unsigned int NumDofs2D;
     unsigned int NumDofs3D;
 
-    Utilities::VEM_Monomials_Data Monomials2D;
-    Utilities::VEM_Monomials_Data MonomialsKp1;
+    Utilities::Monomials_Data Monomials2D;
+    Utilities::Monomials_Data MonomialsKp1;
     Quadrature::VEM_QuadratureData_3D Quadrature;
 };
 

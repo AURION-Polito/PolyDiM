@@ -9,23 +9,21 @@
 //
 // This file can be used citing references in CITATION.cff file.
 
-#include "VEM_Inertia_Utilities.hpp"
+#include "Inertia_Utilities.hpp"
 
 using namespace std;
 using namespace Eigen;
 
 namespace Polydim
 {
-namespace VEM
-{
 namespace Utilities
 {
 // ***************************************************************************
-void VEM_Inertia_Utilities::InertiaMapping2D(const MatrixXd &vertices,
-                                             const Vector3d &centroid,
-                                             const double &diameter,
-                                             const vector<Matrix3d> &triangulation_vertices,
-                                             Inertia_Data &inertia_data) const
+void Inertia_Utilities::InertiaMapping2D(const MatrixXd &vertices,
+                                         const Vector3d &centroid,
+                                         const double &diameter,
+                                         const vector<Matrix3d> &triangulation_vertices,
+                                         Inertia_Data &inertia_data) const
 {
 
     inertia_data.FmatrixInv = Matrix3d::Identity();
@@ -91,11 +89,11 @@ void VEM_Inertia_Utilities::InertiaMapping2D(const MatrixXd &vertices,
     inertia_data.translation += Vector3d::Zero();
 }
 // ***************************************************************************
-void VEM_Inertia_Utilities::InertiaMapping3D(const MatrixXd &vertices,
-                                             const Vector3d &centroid,
-                                             const double &diameter,
-                                             const vector<MatrixXd> &tetrahedrons_vertices,
-                                             Inertia_Data &inertia_data) const
+void Inertia_Utilities::InertiaMapping3D(const MatrixXd &vertices,
+                                         const Vector3d &centroid,
+                                         const double &diameter,
+                                         const vector<MatrixXd> &tetrahedrons_vertices,
+                                         Inertia_Data &inertia_data) const
 {
     inertia_data.FmatrixInv = Matrix3d::Identity();
     inertia_data.Fmatrix = Matrix3d::Identity();
@@ -163,5 +161,4 @@ void VEM_Inertia_Utilities::InertiaMapping3D(const MatrixXd &vertices,
 }
 //****************************************************************************
 } // namespace Utilities
-} // namespace VEM
 } // namespace Polydim

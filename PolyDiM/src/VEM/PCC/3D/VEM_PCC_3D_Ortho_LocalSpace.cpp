@@ -176,8 +176,6 @@ void VEM_PCC_3D_Ortho_LocalSpace::InitializeProjectorsComputation(const VEM_PCC_
                                 localSpace.QmatrixInv,
                                 localSpace.Qmatrix);
 
-    localSpace.H_km1_LLT = localSpace.Hmatrix.topLeftCorner(localSpace.Nkm1, localSpace.Nkm1).llt();
-
     // Compute positions of degrees of freedom corresponding to pointwise evaluations.
     localSpace.PointEdgeDofsCoordinates.resize(3, localSpace.NumVertexBasisFunctions + localSpace.NumEdgeBasisFunctions);
 
@@ -383,6 +381,7 @@ void VEM_PCC_3D_Ortho_LocalSpace::ComputeL2ProjectorsOfDerivatives(const VEM_PCC
 
     localSpace.Ematrix.resize(3, MatrixXd::Zero(localSpace.Nkm1, localSpace.NumBasisFunctions));
 
+    const Eigen::LLT<Eigen::MatrixXd> H_km1_LLT = localSpace.Hmatrix.topLeftCorner(localSpace.Nkm1, localSpace.Nkm1).llt();
     for (unsigned int d = 0; d < localSpace.Dimension; d++)
     {
         localSpace.Ematrix[d].leftCols(localSpace.NumBasisFunctions - localSpace.NumInternalBasisFunctions) =
@@ -400,7 +399,7 @@ void VEM_PCC_3D_Ortho_LocalSpace::ComputeL2ProjectorsOfDerivatives(const VEM_PCC
 
         localSpace.Ematrix[d] = localSpace.Qmatrix.topLeftCorner(localSpace.Nkm1, localSpace.Nkm1) * localSpace.Ematrix[d];
 
-        localSpace.Pi0km1Der[d] = localSpace.H_km1_LLT.solve(localSpace.Ematrix[d]);
+        localSpace.Pi0km1Der[d] = H_km1_LLT.solve(localSpace.Ematrix[d]);
     }
 }
 //****************************************************************************

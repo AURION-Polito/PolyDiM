@@ -12,8 +12,8 @@
 #ifndef __VEM_DF_PCC_2D_Reduced_ReferenceElement_HPP
 #define __VEM_DF_PCC_2D_Reduced_ReferenceElement_HPP
 
+#include "GBasis_2D.hpp"
 #include "I_VEM_DF_PCC_2D_ReferenceElement.hpp"
-#include "VEM_GBasis_2D.hpp"
 #include "VEM_Quadrature_2D.hpp"
 
 namespace Polydim
@@ -28,7 +28,7 @@ class VEM_DF_PCC_2D_Reduced_Pressure_ReferenceElement final : public I_VEM_DF_PC
   public:
     VEM_DF_PCC_2D_Pressure_ReferenceElement_Data Create(const unsigned int order) const
     {
-        Utilities::VEM_Monomials_2D monomials;
+        Utilities::Monomials_2D monomials;
         Quadrature::VEM_Quadrature_2D quadrature;
 
         VEM_DF_PCC_2D_Pressure_ReferenceElement_Data result;
@@ -51,8 +51,8 @@ class VEM_DF_PCC_2D_Reduced_Velocity_ReferenceElement final : public I_VEM_DF_PC
   public:
     VEM_DF_PCC_2D_Velocity_ReferenceElement_Data Create(const unsigned int order) const
     {
-        Utilities::VEM_GBasis_2D g_basis;
-        Utilities::VEM_Monomials_2D monomials;
+        Utilities::GBasis_2D g_basis;
+        Utilities::Monomials_2D monomials;
         Quadrature::VEM_Quadrature_2D quadrature;
 
         VEM_DF_PCC_2D_Velocity_ReferenceElement_Data result;

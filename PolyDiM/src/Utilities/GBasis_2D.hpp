@@ -9,30 +9,28 @@
 //
 // This file can be used citing references in CITATION.cff file.
 
-#ifndef __VEM_GBasis_VEM_HPP
-#define __VEM_GBasis_VEM_HPP
+#ifndef __GBasis_2D_HPP
+#define __GBasis_2D_HPP
 
-#include "VEM_GBasis_Data.hpp"
-#include "VEM_Monomials_2D.hpp"
+#include "GBasis_Data.hpp"
+#include "Monomials_2D.hpp"
 
 namespace Polydim
 {
-namespace VEM
-{
 namespace Utilities
 {
-class VEM_GBasis_2D final
+class GBasis_2D final
 {
   private:
-    Polydim::VEM::Utilities::VEM_Monomials_2D monomials;
+    Polydim::Utilities::Monomials_2D monomials;
 
-    std::vector<Eigen::Vector2i> VectorDecompositionIndices(const Polydim::VEM::Utilities::VEM_GBasis_Data &data,
+    std::vector<Eigen::Vector2i> VectorDecompositionIndices(const Polydim::Utilities::GBasis_Data &data,
                                                             const Eigen::VectorXi &expo) const;
 
   public:
-    Polydim::VEM::Utilities::VEM_GBasis_Data Compute(const unsigned int polynomial_degree);
+    Polydim::Utilities::GBasis_Data Compute(const unsigned int polynomial_degree);
 
-    std::vector<Eigen::MatrixXd> VanderGBigOPlus(const Polydim::VEM::Utilities::VEM_GBasis_Data &data, const Eigen::MatrixXd &vander) const
+    std::vector<Eigen::MatrixXd> VanderGBigOPlus(const Polydim::Utilities::GBasis_Data &data, const Eigen::MatrixXd &vander) const
     {
         std::vector<Eigen::MatrixXd> vanderGBigOPlus(2, Eigen::MatrixXd::Zero(vander.rows(), data.Nkm1));
         vanderGBigOPlus[0] = vander.leftCols(data.Nkm1).array().colwise() * vander.col(2).array();
@@ -41,7 +39,6 @@ class VEM_GBasis_2D final
     };
 };
 } // namespace Utilities
-} // namespace VEM
 } // namespace Polydim
 
 #endif

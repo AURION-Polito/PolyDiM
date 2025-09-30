@@ -9,21 +9,19 @@
 //
 // This file can be used citing references in CITATION.cff file.
 
-#include "VEM_GBasis_2D.hpp"
+#include "GBasis_2D.hpp"
 
 using namespace std;
 using namespace Eigen;
 
 namespace Polydim
 {
-namespace VEM
-{
 namespace Utilities
 {
 //****************************************************************************
-VEM_GBasis_Data VEM_GBasis_2D::Compute(const unsigned int polynomial_degree)
+GBasis_Data GBasis_2D::Compute(const unsigned int polynomial_degree)
 {
-    VEM_GBasis_Data data;
+    GBasis_Data data;
     data.Dimension = 2;
     data.PolynomialDegree = polynomial_degree;
 
@@ -71,7 +69,7 @@ VEM_GBasis_Data VEM_GBasis_2D::Compute(const unsigned int polynomial_degree)
     return data;
 }
 //****************************************************************************
-vector<Vector2i> VEM_GBasis_2D::VectorDecompositionIndices(const VEM_GBasis_Data &data, const VectorXi &expo) const
+vector<Vector2i> GBasis_2D::VectorDecompositionIndices(const GBasis_Data &data, const VectorXi &expo) const
 {
     vector<Vector2i> vectorDecompositionIndices(2);
 
@@ -85,5 +83,4 @@ vector<Vector2i> VEM_GBasis_2D::VectorDecompositionIndices(const VEM_GBasis_Data
 }
 //****************************************************************************
 } // namespace Utilities
-} // namespace VEM
 } // namespace Polydim

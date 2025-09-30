@@ -13,7 +13,7 @@
 #define __VEM_PCC_2D_ReferenceElement_HPP
 
 #include "I_VEM_PCC_2D_ReferenceElement.hpp"
-#include "VEM_Monomials_2D.hpp"
+#include "Monomials_2D.hpp"
 
 namespace Polydim
 {
@@ -27,7 +27,7 @@ class VEM_PCC_2D_ReferenceElement final : public Polydim::VEM::PCC::I_VEM_PCC_2D
   public:
     VEM_PCC_2D_ReferenceElement_Data Create(const unsigned int order) const
     {
-        Polydim::VEM::Utilities::VEM_Monomials_2D monomials;
+        Polydim::Utilities::Monomials_2D monomials;
         Polydim::VEM::Quadrature::VEM_Quadrature_2D quadrature;
 
         Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data result;

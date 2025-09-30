@@ -13,8 +13,8 @@
 #define __VEM_MCC_3D_ReferenceElement_HPP
 
 #include "I_VEM_MCC_3D_ReferenceElement.hpp"
-#include "VEM_Monomials_2D.hpp"
-#include "VEM_Monomials_3D.hpp"
+#include "Monomials_2D.hpp"
+#include "Monomials_3D.hpp"
 #include "VEM_Quadrature_3D.hpp"
 
 namespace Polydim
@@ -29,7 +29,7 @@ class VEM_MCC_3D_Pressure_ReferenceElement final : public I_VEM_MCC_3D_Pressure_
   public:
     VEM_MCC_3D_Pressure_ReferenceElement_Data Create(const unsigned int order) const
     {
-        Utilities::VEM_Monomials_3D monomials;
+        Utilities::Monomials_3D monomials;
         Quadrature::VEM_Quadrature_3D quadrature;
 
         VEM_MCC_3D_Pressure_ReferenceElement_Data result;
@@ -53,8 +53,8 @@ class VEM_MCC_3D_Velocity_ReferenceElement final : public I_VEM_MCC_3D_Velocity_
   public:
     VEM_MCC_3D_Velocity_ReferenceElement_Data Create(const unsigned int order) const
     {
-        Utilities::VEM_Monomials_2D monomials2D;
-        Utilities::VEM_Monomials_3D monomials3D;
+        Utilities::Monomials_2D monomials2D;
+        Utilities::Monomials_3D monomials3D;
         Quadrature::VEM_Quadrature_3D quadrature;
 
         VEM_MCC_3D_Velocity_ReferenceElement_Data result;

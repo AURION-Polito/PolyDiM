@@ -15,10 +15,10 @@
 #include "Eigen/Eigen"
 #include "I_VEM_MCC_3D_ReferenceElement.hpp"
 #include "I_VEM_MCC_3D_Velocity_LocalSpace.hpp"
+#include "Monomials_2D.hpp"
+#include "Monomials_3D.hpp"
 #include "VEM_MCC_3D_LocalSpace_Data.hpp"
 #include "VEM_MCC_Utilities.hpp"
-#include "VEM_Monomials_2D.hpp"
-#include "VEM_Monomials_3D.hpp"
 #include <vector>
 
 namespace Polydim
@@ -31,8 +31,8 @@ class VEM_MCC_3D_Velocity_LocalSpace final : public I_VEM_MCC_3D_Velocity_LocalS
 {
   private:
     MCC::VEM_MCC_Utilities<3> utilities;
-    Utilities::VEM_Monomials_3D monomials3D;
-    Utilities::VEM_Monomials_2D monomials2D;
+    Utilities::Monomials_3D monomials3D;
+    Utilities::Monomials_2D monomials2D;
 
     void InitializeProjectorsComputation(const VEM_MCC_3D_Velocity_ReferenceElement_Data &reference_element_data,
                                          const unsigned int &numFaces,
