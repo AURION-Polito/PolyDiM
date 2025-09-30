@@ -303,7 +303,7 @@ void VEM_PCC_2D_Inertia_LocalSpace::InitializeProjectorsComputation(const VEM_PC
     localSpace.QmatrixInv = MatrixXd::Identity(localSpace.NumProjectorBasisFunctions, localSpace.NumProjectorBasisFunctions);
 
     // Compute LLT factorization of order-1 monomials.
-    localSpace.H_km1_LLT = localSpace.Hmatrix.topLeftCorner(localSpace.Nkm1, localSpace.Nkm1).llt();
+    // localSpace.H_km1_LLT = localSpace.Hmatrix.topLeftCorner(localSpace.Nkm1, localSpace.Nkm1).llt();
 }
 //****************************************************************************
 void VEM_PCC_2D_Inertia_LocalSpace::ComputePiNabla(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
@@ -388,8 +388,9 @@ void VEM_PCC_2D_Inertia_LocalSpace::ComputeL2ProjectorsOfDerivatives(const VEM_P
     }
 
     localSpace.Pi0km1Der.resize(2);
-    localSpace.Pi0km1Der[0] = localSpace.H_km1_LLT.solve(localSpace.Ematrix[0]);
-    localSpace.Pi0km1Der[1] = localSpace.H_km1_LLT.solve(localSpace.Ematrix[1]);
+    const Eigen::LLT<Eigen::MatrixXd> H_km1_LLT = localSpace.Hmatrix.topLeftCorner(localSpace.Nkm1, localSpace.Nkm1).llt();
+    localSpace.Pi0km1Der[0] = H_km1_LLT.solve(localSpace.Ematrix[0]);
+    localSpace.Pi0km1Der[1] = H_km1_LLT.solve(localSpace.Ematrix[1]);
 }
 //****************************************************************************
 } // namespace PCC

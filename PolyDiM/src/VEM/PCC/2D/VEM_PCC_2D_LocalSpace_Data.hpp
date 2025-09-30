@@ -82,9 +82,9 @@ struct VEM_PCC_2D_LocalSpace_Data final
 
     Eigen::MatrixXd Hmatrix;
 
-    Eigen::MatrixXd H_klm1_matrix;
-    Eigen::LLT<Eigen::MatrixXd> H_km1_LLT;
-    Eigen::LLT<Eigen::MatrixXd> H_klm1_LLT;
+    Eigen::MatrixXd H_klm1_matrix; /*
+     Eigen::LLT<Eigen::MatrixXd> H_km1_LLT;
+     Eigen::LLT<Eigen::MatrixXd> H_klm1_LLT;*/
     Eigen::MatrixXd Cmatrix;
     Eigen::MatrixXd Bmatrix;
     Eigen::MatrixXd Gmatrix;
