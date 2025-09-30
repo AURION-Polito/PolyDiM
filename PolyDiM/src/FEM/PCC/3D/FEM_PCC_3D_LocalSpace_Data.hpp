@@ -71,7 +71,7 @@ struct FEM_Hexahedron_PCC_3D_LocalSpace_Data final
     Gedim::Quadrature::QuadratureData InternalQuadrature;
     std::array<Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_LocalSpace_Data, 6> Boundary_LocalSpace_Data;
     std::array<Gedim::Quadrature::QuadratureData, 6> BoundaryQuadrature;
-    HexahedronType hexahedron_type;
+    Polydim::FEM::PCC::HexahedronType hexahedron_type;
 };
 
 struct FEM_Tetrahedron_PCC_3D_LocalSpace_Data final
