@@ -25,45 +25,45 @@ namespace VEM
 namespace DF_PCC
 {
 
-class VEM_DF_PCC_2D_Pressure_LocalSpace final : public I_VEM_DF_PCC_2D_Pressure_LocalSpace
+class VEM_DF_PCC_2D_Pressure_LocalSpace final : public Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Pressure_LocalSpace
 {
   private:
-    Utilities::Monomials_2D monomials;
+    Polydim::Utilities::Monomials_2D monomials;
 
-    void InitializeProjectorsComputation(const VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &reference_element_data,
+    void InitializeProjectorsComputation(const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &reference_element_data,
                                          const Eigen::Vector3d &polygonCentroid,
                                          const double &polygonDiameter,
                                          const Eigen::MatrixXd &internalQuadraturePoints,
                                          const Eigen::VectorXd &internalQuadratureWeights,
-                                         VEM_DF_PCC_2D_Pressure_LocalSpace_Data &localSpace) const;
+                                         Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_LocalSpace_Data &localSpace) const;
 
   public:
     virtual ~VEM_DF_PCC_2D_Pressure_LocalSpace()
     {
     }
 
-    VEM_DF_PCC_2D_Pressure_LocalSpace_Data CreateLocalSpace(const VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &reference_element_data,
-                                                            const VEM_DF_PCC_2D_Polygon_Geometry &polygon) const;
+    VEM_DF_PCC_2D_Pressure_LocalSpace_Data CreateLocalSpace(const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &reference_element_data,
+                                                            const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Polygon_Geometry &polygon) const;
 
-    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const VEM_DF_PCC_2D_Pressure_LocalSpace_Data &localSpace) const
+    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_LocalSpace_Data &localSpace) const
     {
         return localSpace.VanderInternal;
     }
 
-    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &reference_element_data,
-                                                       const VEM_DF_PCC_2D_Pressure_LocalSpace_Data &localSpace,
+    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &reference_element_data,
+                                                       const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_LocalSpace_Data &localSpace,
                                                        const Eigen::MatrixXd &points) const
     {
         return monomials.Vander(reference_element_data.Monomials, points, localSpace.Centroid, localSpace.Diameter);
     }
 
-    inline Eigen::MatrixXd ComputePolynomialsValues(const VEM_DF_PCC_2D_Pressure_LocalSpace_Data &localSpace) const
+    inline Eigen::MatrixXd ComputePolynomialsValues(const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_LocalSpace_Data &localSpace) const
     {
         return localSpace.VanderInternal;
     }
 
-    inline Eigen::MatrixXd ComputePolynomialsValues(const VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &reference_element_data,
-                                                    const VEM_DF_PCC_2D_Pressure_LocalSpace_Data &localSpace,
+    inline Eigen::MatrixXd ComputePolynomialsValues(const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &reference_element_data,
+                                                    const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_LocalSpace_Data &localSpace,
                                                     const Eigen::MatrixXd &points) const
     {
         return monomials.Vander(reference_element_data.Monomials, points, localSpace.Centroid, localSpace.Diameter);

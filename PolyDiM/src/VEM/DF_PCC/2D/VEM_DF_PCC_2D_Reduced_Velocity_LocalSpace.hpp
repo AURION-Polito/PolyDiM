@@ -31,11 +31,11 @@ namespace DF_PCC
 class VEM_DF_PCC_2D_Reduced_Velocity_LocalSpace final : public I_VEM_DF_PCC_2D_Velocity_LocalSpace
 {
   private:
-    VEM_DF_PCC_Utilities<2> utilities;
-    Utilities::Monomials_2D monomials;
-    Utilities::GBasis_2D g_basis;
+    Polydim::VEM::DF_PCC::VEM_DF_PCC_Utilities<2> utilities;
+    Polydim::Utilities::Monomials_2D monomials;
+    Polydim::Utilities::GBasis_2D g_basis;
 
-    void InitializeProjectorsComputation(const VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+    void InitializeProjectorsComputation(const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                                          const Eigen::MatrixXd &polygonVertices,
                                          const Eigen::Vector3d &polygonCentroid,
                                          const double &polygonMeasure,
@@ -47,56 +47,58 @@ class VEM_DF_PCC_2D_Reduced_Velocity_LocalSpace final : public I_VEM_DF_PCC_2D_V
                                          const Eigen::MatrixXd &boundaryDofQuadraturePoints,
                                          const Eigen::MatrixXd &referenceEdgeInternalPoints,
                                          const Eigen::MatrixXd &referenceEdgeDofInternalPoints,
-                                         VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const;
+                                         Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const;
 
     void ComputeDivergenceCoefficients(const double &polygonMeasure,
                                        const std::vector<Eigen::VectorXd> &boundaryDofQuadratureWeightsTimesNormal,
-                                       VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const;
+                                       Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const;
 
     void ComputePolynomialBasisDofs(const Eigen::VectorXd &internalQuadratureWeights,
-                                    VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const;
+                                    Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const;
 
     void ComputeCMatrixkm2(const double &polygonDiameter,
                            const std::vector<Eigen::VectorXd> &boundaryQuadratureWeightsTimesNormal,
-                           VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const;
+                           Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const;
 
-    void ComputePiNabla(const VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+    void ComputePiNabla(const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                         const double &polygonMeasure,
                         const double &polygonDiameter,
                         const Eigen::VectorXd &internalQuadratureWeights,
                         const std::vector<Eigen::VectorXd> &boundaryDofQuadratureWeightsTimesNormal,
-                        VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const;
+                        Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const;
 
-    void ComputeL2Projectors(const Eigen::VectorXd &internalQuadratureWeights, VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const;
+    void ComputeL2Projectors(const Eigen::VectorXd &internalQuadratureWeights,
+                             Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const;
 
-    void ComputeL2ProjectorsOfDerivatives(const VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+    void ComputeL2ProjectorsOfDerivatives(const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                                           const double &polygonDiameter,
                                           const std::vector<Eigen::VectorXd> &boundaryDofQuadratureWeightsTimesNormal,
-                                          VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const;
+                                          Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const;
 
   public:
     virtual ~VEM_DF_PCC_2D_Reduced_Velocity_LocalSpace()
     {
     }
 
-    VEM_DF_PCC_2D_Velocity_LocalSpace_Data CreateLocalSpace(const VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
-                                                            const VEM_DF_PCC_2D_Polygon_Geometry &polygon) const;
+    Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_LocalSpace_Data CreateLocalSpace(
+        const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+        const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Polygon_Geometry &polygon) const;
 
-    inline Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace,
-                                                              const ProjectionTypes &projectionType) const
+    inline Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace,
+                                                              const Polydim::VEM::DF_PCC::ProjectionTypes &projectionType) const
     {
         switch (projectionType)
         {
-        case ProjectionTypes::PiNabla:
+        case Polydim::VEM::DF_PCC::ProjectionTypes::PiNabla:
             return utilities.ComputeDofiDofiStabilizationMatrix(localSpace.PiNabla, 1.0, localSpace.Dmatrix);
-        case ProjectionTypes::Pi0k:
+        case Polydim::VEM::DF_PCC::ProjectionTypes::Pi0k:
             return utilities.ComputeDofiDofiStabilizationMatrix(localSpace.Pi0k, localSpace.Measure, localSpace.Dmatrix);
         default:
             throw std::runtime_error("not valid projection type");
         }
     }
 
-    inline Eigen::MatrixXd ComputeValuesOnEdge(const VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+    inline Eigen::MatrixXd ComputeValuesOnEdge(const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
                                                const Eigen::VectorXd &pointsCurvilinearCoordinates) const
     {
         Eigen::RowVectorXd edgeInternalPoints;
@@ -108,8 +110,8 @@ class VEM_DF_PCC_2D_Reduced_Velocity_LocalSpace final : public I_VEM_DF_PCC_2D_V
         return utilities.ComputeValuesOnEdge(edgeInternalPoints, reference_element_data.Order, edgeBasisCoefficients, pointsCurvilinearCoordinates);
     }
 
-    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace,
-                                                                    const ProjectionTypes &projectionType) const
+    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace,
+                                                                    const Polydim::VEM::DF_PCC::ProjectionTypes &projectionType) const
     {
         return utilities.ComputeBasisFunctionsValues(projectionType,
                                                      localSpace.Nkm2,
@@ -118,8 +120,9 @@ class VEM_DF_PCC_2D_Reduced_Velocity_LocalSpace final : public I_VEM_DF_PCC_2D_V
                                                      localSpace.VanderInternal);
     }
 
-    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace,
-                                                                              const ProjectionTypes &projectionType) const
+    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(
+        const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace,
+        const Polydim::VEM::DF_PCC::ProjectionTypes &projectionType) const
     {
         return utilities.ComputeBasisFunctionsDerivativeValues(projectionType,
                                                                localSpace.Nkm1,
@@ -129,11 +132,12 @@ class VEM_DF_PCC_2D_Reduced_Velocity_LocalSpace final : public I_VEM_DF_PCC_2D_V
                                                                localSpace.Pi0km1Der);
     }
 
-    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
-                                                                    const VEM_DF_PCC_2D_Polygon_Geometry &polygon,
-                                                                    const VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace,
-                                                                    const ProjectionTypes &projectionType,
-                                                                    const Eigen::MatrixXd &points) const
+    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(
+        const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+        const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Polygon_Geometry &polygon,
+        const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace,
+        const Polydim::VEM::DF_PCC::ProjectionTypes &projectionType,
+        const Eigen::MatrixXd &points) const
     {
         return utilities.ComputeBasisFunctionsValues(projectionType,
                                                      localSpace.Nkm2,
@@ -142,11 +146,12 @@ class VEM_DF_PCC_2D_Reduced_Velocity_LocalSpace final : public I_VEM_DF_PCC_2D_V
                                                      ComputePolynomialsValues(reference_element_data, polygon, points));
     }
 
-    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
-                                                                              const VEM_DF_PCC_2D_Polygon_Geometry &polygon,
-                                                                              const VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace,
-                                                                              const ProjectionTypes &projectionType,
-                                                                              const Eigen::MatrixXd &points) const
+    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(
+        const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+        const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Polygon_Geometry &polygon,
+        const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace,
+        const Polydim::VEM::DF_PCC::ProjectionTypes &projectionType,
+        const Eigen::MatrixXd &points) const
     {
         return utilities.ComputeBasisFunctionsDerivativeValues(
             projectionType,
@@ -157,26 +162,27 @@ class VEM_DF_PCC_2D_Reduced_Velocity_LocalSpace final : public I_VEM_DF_PCC_2D_V
             localSpace.Pi0km1Der);
     }
 
-    inline Eigen::MatrixXd ComputePolynomialsValues(const VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const
+    inline Eigen::MatrixXd ComputePolynomialsValues(const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const
     {
         return utilities.ComputePolynomialsValues(localSpace.VanderInternal);
     }
 
-    inline Eigen::MatrixXd ComputePolynomialsValues(const VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
-                                                    const VEM_DF_PCC_2D_Polygon_Geometry &polygon,
+    inline Eigen::MatrixXd ComputePolynomialsValues(const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+                                                    const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Polygon_Geometry &polygon,
                                                     const Eigen::MatrixXd &points) const
     {
         return utilities.ComputePolynomialsValues(reference_element_data.Monomials, monomials, polygon.Centroid, polygon.Diameter, points);
     }
 
-    inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const
+    inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const
     {
         return utilities.ComputePolynomialsDerivativeValues(localSpace.VanderInternalDerivatives);
     }
 
-    inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
-                                                                           const VEM_DF_PCC_2D_Polygon_Geometry &polygon,
-                                                                           const Eigen::MatrixXd &points) const
+    inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(
+        const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+        const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Polygon_Geometry &polygon,
+        const Eigen::MatrixXd &points) const
     {
         return utilities.ComputePolynomialsDerivativeValues(reference_element_data.Monomials,
                                                             monomials,
@@ -184,8 +190,8 @@ class VEM_DF_PCC_2D_Reduced_Velocity_LocalSpace final : public I_VEM_DF_PCC_2D_V
                                                             ComputePolynomialsValues(reference_element_data, polygon, points));
     }
 
-    inline Eigen::MatrixXd ComputePolynomialsLaplacianValues(const VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
-                                                             const VEM_DF_PCC_2D_Polygon_Geometry &polygon,
+    inline Eigen::MatrixXd ComputePolynomialsLaplacianValues(const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+                                                             const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Polygon_Geometry &polygon,
                                                              const Eigen::MatrixXd &points) const
     {
         return utilities.ComputePolynomialsLaplacianValues(reference_element_data.Monomials,
@@ -194,7 +200,7 @@ class VEM_DF_PCC_2D_Reduced_Velocity_LocalSpace final : public I_VEM_DF_PCC_2D_V
                                                            ComputePolynomialsValues(reference_element_data, polygon, points));
     }
 
-    inline Eigen::MatrixXd ComputeBasisFunctionsDivergenceValues(const VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const
+    inline Eigen::MatrixXd ComputeBasisFunctionsDivergenceValues(const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace) const
     {
         return utilities.ComputeBasisFunctionsDivergenceValues(1, localSpace.VanderInternal, localSpace.Vmatrix);
     }

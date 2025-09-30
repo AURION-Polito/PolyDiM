@@ -60,7 +60,7 @@ struct VEM_DF_PCC_3D_Velocity_LocalSpace_Data final
     unsigned int Nkm3;
     unsigned int Nkm4;
 
-    std::vector<PCC::VEM_PCC_2D_LocalSpace_Data> facesLocalSpace;
+    std::vector<Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace_Data> facesLocalSpace;
 
     unsigned int NumVertexBasisFunctions;
     unsigned int NumEdgeBasisFunctions;
@@ -74,8 +74,8 @@ struct VEM_DF_PCC_3D_Velocity_LocalSpace_Data final
     unsigned int NumBasisFunctions;
 
     Gedim::Quadrature::QuadratureData InternalQuadrature;
-    Quadrature::VEM_Quadrature_3D::Faces_QuadratureData_PCC BoundaryQuadrature;
-    Quadrature::VEM_Quadrature_3D::Faces_QuadratureData_PCC BoundaryQuadratureKL;
+    Polydim::VEM::Quadrature::VEM_Quadrature_3D::Faces_QuadratureData_PCC BoundaryQuadrature;
+    Polydim::VEM::Quadrature::VEM_Quadrature_3D::Faces_QuadratureData_PCC BoundaryQuadratureKL;
 
     double Diameter;
     double Measure;

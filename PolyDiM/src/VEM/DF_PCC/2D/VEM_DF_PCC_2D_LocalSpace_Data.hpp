@@ -63,8 +63,8 @@ struct VEM_DF_PCC_2D_Velocity_LocalSpace_Data final
     unsigned int NumBasisFunctions;
 
     Gedim::Quadrature::QuadratureData InternalQuadrature;
-    Quadrature::VEM_Quadrature_2D::Edges_QuadratureData BoundaryQuadrature;
-    Quadrature::VEM_Quadrature_2D::Edges_QuadratureData EdgesDOFs;
+    Polydim::VEM::Quadrature::VEM_Quadrature_2D::Edges_QuadratureData BoundaryQuadrature;
+    Polydim::VEM::Quadrature::VEM_Quadrature_2D::Edges_QuadratureData EdgesDOFs;
 
     double Diameter;
     double Measure;
