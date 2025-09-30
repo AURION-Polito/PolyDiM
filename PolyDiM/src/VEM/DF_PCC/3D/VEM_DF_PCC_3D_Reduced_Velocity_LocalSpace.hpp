@@ -137,11 +137,12 @@ class VEM_DF_PCC_3D_Reduced_Velocity_LocalSpace final : public Polydim::VEM::DF_
                                                                localSpace.Pi0km1Der);
     }
 
-    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const VEM_DF_PCC_3D_Velocity_ReferenceElement_Data &reference_element_data,
-                                                                    const VEM_DF_PCC_3D_Polyhedron_Geometry &polyhedron,
-                                                                    const VEM_DF_PCC_3D_Velocity_LocalSpace_Data &localSpace,
-                                                                    const Polydim::VEM::DF_PCC::ProjectionTypes &projectionType,
-                                                                    const Eigen::MatrixXd &points) const
+    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(
+        const Polydim::VEM::DF_PCC::VEM_DF_PCC_3D_Velocity_ReferenceElement_Data &reference_element_data,
+        const Polydim::VEM::DF_PCC::VEM_DF_PCC_3D_Polyhedron_Geometry &polyhedron,
+        const Polydim::VEM::DF_PCC::VEM_DF_PCC_3D_Velocity_LocalSpace_Data &localSpace,
+        const Polydim::VEM::DF_PCC::ProjectionTypes &projectionType,
+        const Eigen::MatrixXd &points) const
     {
         return utilities.ComputeBasisFunctionsValues(projectionType,
                                                      localSpace.Nkm2,
@@ -151,9 +152,9 @@ class VEM_DF_PCC_3D_Reduced_Velocity_LocalSpace final : public Polydim::VEM::DF_
     }
 
     inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(
-        const VEM_DF_PCC_3D_Velocity_ReferenceElement_Data &reference_element_data,
-        const VEM_DF_PCC_3D_Polyhedron_Geometry &polyhedron,
-        const VEM_DF_PCC_3D_Velocity_LocalSpace_Data &localSpace,
+        const Polydim::VEM::DF_PCC::VEM_DF_PCC_3D_Velocity_ReferenceElement_Data &reference_element_data,
+        const Polydim::VEM::DF_PCC::VEM_DF_PCC_3D_Polyhedron_Geometry &polyhedron,
+        const Polydim::VEM::DF_PCC::VEM_DF_PCC_3D_Velocity_LocalSpace_Data &localSpace,
         const Polydim::VEM::DF_PCC::ProjectionTypes &projectionType,
         const Eigen::MatrixXd &points) const
     {
