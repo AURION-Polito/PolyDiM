@@ -239,12 +239,13 @@ Polydim::VEM::Quadrature::VEM_Quadrature_2D::Edges_QuadratureData VEM_Quadrature
     return result;
 }
 //****************************************************************************
-Polydim::VEM::Quadrature::VEM_Quadrature_2D::Edges_QuadratureData VEM_Quadrature_2D::PolygonEdgesQuadrature(const Gedim::Quadrature::QuadratureData &data,
-                                                                                  const Eigen::MatrixXd &polygonVertices,
-                                                                                  const Eigen::VectorXd &edgeLengths,
-                                                                                  const std::vector<bool> &edgeDirections,
-                                                                                  const Eigen::MatrixXd &edgeTangents,
-                                                                                  const Eigen::MatrixXd &edgeNormals) const
+Polydim::VEM::Quadrature::VEM_Quadrature_2D::Edges_QuadratureData VEM_Quadrature_2D::PolygonEdgesQuadrature(
+    const Gedim::Quadrature::QuadratureData &data,
+    const Eigen::MatrixXd &polygonVertices,
+    const Eigen::VectorXd &edgeLengths,
+    const std::vector<bool> &edgeDirections,
+    const Eigen::MatrixXd &edgeTangents,
+    const Eigen::MatrixXd &edgeNormals) const
 {
     Polydim::VEM::Quadrature::VEM_Quadrature_2D::Edges_QuadratureData result;
 
