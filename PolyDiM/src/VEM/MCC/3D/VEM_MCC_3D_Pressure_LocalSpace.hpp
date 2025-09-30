@@ -29,39 +29,40 @@ namespace MCC
 class VEM_MCC_3D_Pressure_LocalSpace final : public I_VEM_MCC_3D_Pressure_LocalSpace
 {
   private:
-    VEM_MCC_Utilities<3> utilities;
-    Utilities::Monomials_3D monomials;
+    Polydim::VEM::MCC::VEM_MCC_Utilities<3> utilities;
+    Polydim::Utilities::Monomials_3D monomials;
 
-    void InitializeProjectorsComputation(const VEM_MCC_3D_Pressure_ReferenceElement_Data &reference_element_data,
+    void InitializeProjectorsComputation(const Polydim::VEM::MCC::VEM_MCC_3D_Pressure_ReferenceElement_Data &reference_element_data,
                                          const Eigen::Vector3d &polyhedronCentroid,
                                          const double &polyhedronDiameter,
                                          const Eigen::MatrixXd &internalQuadraturePoints,
                                          const Eigen::VectorXd &internalQuadratureWeights,
-                                         VEM_MCC_3D_Pressure_LocalSpace_Data &localSpace) const;
+                                         Polydim::VEM::MCC::VEM_MCC_3D_Pressure_LocalSpace_Data &localSpace) const;
 
   public:
-    VEM_MCC_3D_Pressure_LocalSpace_Data CreateLocalSpace(const VEM_MCC_3D_Pressure_ReferenceElement_Data &reference_element_data,
-                                                         const VEM_MCC_3D_Polyhedron_Geometry &polygon) const;
+    Polydim::VEM::MCC::VEM_MCC_3D_Pressure_LocalSpace_Data CreateLocalSpace(
+        const Polydim::VEM::MCC::VEM_MCC_3D_Pressure_ReferenceElement_Data &reference_element_data,
+        const Polydim::VEM::MCC::VEM_MCC_3D_Polyhedron_Geometry &polygon) const;
 
-    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const VEM_MCC_3D_Pressure_LocalSpace_Data &localSpace) const
+    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const Polydim::VEM::MCC::VEM_MCC_3D_Pressure_LocalSpace_Data &localSpace) const
     {
         return localSpace.VanderInternal;
     }
 
-    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const VEM_MCC_3D_Pressure_ReferenceElement_Data &reference_element_data,
-                                                       const VEM_MCC_3D_Pressure_LocalSpace_Data &localSpace,
+    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const Polydim::VEM::MCC::VEM_MCC_3D_Pressure_ReferenceElement_Data &reference_element_data,
+                                                       const Polydim::VEM::MCC::VEM_MCC_3D_Pressure_LocalSpace_Data &localSpace,
                                                        const Eigen::MatrixXd &points) const
     {
         return monomials.Vander(reference_element_data.Monomials, points, localSpace.Centroid, localSpace.Diameter);
     }
 
-    inline Eigen::MatrixXd ComputePolynomialsValues(const VEM_MCC_3D_Pressure_LocalSpace_Data &localSpace) const
+    inline Eigen::MatrixXd ComputePolynomialsValues(const Polydim::VEM::MCC::VEM_MCC_3D_Pressure_LocalSpace_Data &localSpace) const
     {
         return localSpace.VanderInternal;
     }
 
-    inline Eigen::MatrixXd ComputePolynomialsValues(const VEM_MCC_3D_Pressure_ReferenceElement_Data &reference_element_data,
-                                                    const VEM_MCC_3D_Pressure_LocalSpace_Data &localSpace,
+    inline Eigen::MatrixXd ComputePolynomialsValues(const Polydim::VEM::MCC::VEM_MCC_3D_Pressure_ReferenceElement_Data &reference_element_data,
+                                                    const Polydim::VEM::MCC::VEM_MCC_3D_Pressure_LocalSpace_Data &localSpace,
                                                     const Eigen::MatrixXd &points) const
     {
         return monomials.Vander(reference_element_data.Monomials, points, localSpace.Centroid, localSpace.Diameter);

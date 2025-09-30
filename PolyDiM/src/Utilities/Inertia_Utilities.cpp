@@ -19,6 +19,11 @@ namespace Polydim
 namespace Utilities
 {
 // ***************************************************************************
+Inertia_Utilities::Inertia_Utilities(const Gedim::GeometryUtilities &geometryUtilities)
+    : geometryUtilities(geometryUtilities)
+{
+}
+// ***************************************************************************
 void Inertia_Utilities::InertiaMapping2D(const MatrixXd &vertices,
                                          const Vector3d &centroid,
                                          const double &diameter,

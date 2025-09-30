@@ -40,66 +40,68 @@ enum struct VEM_MCC_2D_LocalSpace_Types
     VEM_MCC_2D_Ortho_EdgeOrtho_LocalSpace = 5
 };
 
-inline std::unique_ptr<I_VEM_MCC_2D_Pressure_ReferenceElement> create_VEM_MCC_2D_pressure_reference_element(const VEM_MCC_2D_LocalSpace_Types &type)
+inline std::unique_ptr<Polydim::VEM::MCC::I_VEM_MCC_2D_Pressure_ReferenceElement> create_VEM_MCC_2D_pressure_reference_element(
+    const Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types &type)
 {
     switch (type)
     {
-    case VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_LocalSpace:
-    case VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Partial_LocalSpace:
-    case VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Ortho_LocalSpace:
+    case Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_LocalSpace:
+    case Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Partial_LocalSpace:
+    case Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Ortho_LocalSpace:
         return std::make_unique<VEM_MCC_2D_Pressure_ReferenceElement>();
-    case VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_EdgeOrtho_LocalSpace:
-    case VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Ortho_EdgeOrtho_LocalSpace:
+    case Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_EdgeOrtho_LocalSpace:
+    case Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Ortho_EdgeOrtho_LocalSpace:
         return std::make_unique<VEM_MCC_2D_EdgeOrtho_Pressure_ReferenceElement>();
     default:
         throw std::runtime_error("VEM type " + std::to_string((unsigned int)type) + " not supported");
     }
 }
 
-inline std::unique_ptr<I_VEM_MCC_2D_Velocity_ReferenceElement> create_VEM_MCC_2D_velocity_reference_element(const VEM_MCC_2D_LocalSpace_Types &type)
+inline std::unique_ptr<I_VEM_MCC_2D_Velocity_ReferenceElement> create_VEM_MCC_2D_velocity_reference_element(
+    const Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types &type)
 {
     switch (type)
     {
-    case VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_LocalSpace:
-    case VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Partial_LocalSpace:
-    case VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Ortho_LocalSpace:
+    case Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_LocalSpace:
+    case Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Partial_LocalSpace:
+    case Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Ortho_LocalSpace:
         return std::make_unique<VEM_MCC_2D_Velocity_ReferenceElement>();
-    case VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_EdgeOrtho_LocalSpace:
-    case VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Ortho_EdgeOrtho_LocalSpace:
+    case Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_EdgeOrtho_LocalSpace:
+    case Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Ortho_EdgeOrtho_LocalSpace:
         return std::make_unique<VEM_MCC_2D_EdgeOrtho_Velocity_ReferenceElement>();
     default:
         throw std::runtime_error("VEM type " + std::to_string((unsigned int)type) + " not supported");
     }
 }
 
-inline std::unique_ptr<I_VEM_MCC_2D_Pressure_LocalSpace> create_VEM_MCC_2D_pressure_local_space(const VEM_MCC_2D_LocalSpace_Types &type)
+inline std::unique_ptr<I_VEM_MCC_2D_Pressure_LocalSpace> create_VEM_MCC_2D_pressure_local_space(const Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types &type)
 {
     switch (type)
     {
-    case VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_LocalSpace:
-    case VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Partial_LocalSpace:
-    case VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Ortho_LocalSpace:
-    case VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_EdgeOrtho_LocalSpace:
-    case VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Ortho_EdgeOrtho_LocalSpace:
+    case Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_LocalSpace:
+    case Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Partial_LocalSpace:
+    case Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Ortho_LocalSpace:
+    case Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_EdgeOrtho_LocalSpace:
+    case Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Ortho_EdgeOrtho_LocalSpace:
         return std::make_unique<VEM_MCC_2D_Pressure_LocalSpace>();
     default:
         throw std::runtime_error("VEM type " + std::to_string((unsigned int)type) + " not supported");
     }
 }
 
-inline std::unique_ptr<I_VEM_MCC_2D_Velocity_LocalSpace> create_VEM_MCC_2D_velocity_local_space(const VEM_MCC_2D_LocalSpace_Types &type)
+inline std::unique_ptr<I_VEM_MCC_2D_Velocity_LocalSpace> create_VEM_MCC_2D_velocity_local_space(const Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types &type)
 {
     switch (type)
     {
-    case VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_LocalSpace:
+    case Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_LocalSpace:
         return std::make_unique<VEM_MCC_2D_Velocity_LocalSpace>();
-    case VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Partial_LocalSpace:
+    case Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Partial_LocalSpace:
         return std::make_unique<VEM_MCC_2D_Partial_Velocity_LocalSpace>();
-    case VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Ortho_LocalSpace:
+    case Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Ortho_LocalSpace:
         return std::make_unique<VEM_MCC_2D_Ortho_Velocity_LocalSpace>();
-    case VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_EdgeOrtho_LocalSpace:
+    case Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_EdgeOrtho_LocalSpace:
         return std::make_unique<VEM_MCC_2D_EdgeOrtho_Velocity_LocalSpace>();
-    case VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Ortho_EdgeOrtho_LocalSpace:
+    case Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Ortho_EdgeOrtho_LocalSpace:
         return std::make_unique<VEM_MCC_2D_Ortho_EdgeOrtho_Velocity_LocalSpace>();
     default:
         throw std::runtime_error("VEM type " + std::to_string((unsigned int)type) + " not supported");

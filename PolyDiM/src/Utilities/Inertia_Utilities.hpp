@@ -31,9 +31,7 @@ struct Inertia_Utilities final
         double signDetQ;
     };
 
-    Inertia_Utilities(const Gedim::GeometryUtilities &geometryUtilities) : geometryUtilities(geometryUtilities)
-    {
-    }
+    Inertia_Utilities(const Gedim::GeometryUtilities &geometryUtilities);
 
     void InertiaMapping2D(const Eigen::MatrixXd &vertices,
                           const Eigen::Vector3d &centroid,
