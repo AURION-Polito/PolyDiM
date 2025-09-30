@@ -69,7 +69,8 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
             result.DofPositions.col(0) << 1.0 / 3.0, 1.0 / 3.0, 0.0;
 
             Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement boundary_reference_element;
-            result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order, Polydim::FEM::PCC::FEM_PCC_1D_Types::Equispaced);
+            result.BoundaryReferenceElement_Data =
+                boundary_reference_element.Create(order, Polydim::FEM::PCC::FEM_PCC_1D_Types::Equispaced);
 
             result.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * order);
 
@@ -155,7 +156,8 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
         result.EdgeBasisCoefficients = utilities.ComputeEdgeBasisCoefficients(result.Order, result.EdgeInternalPoints);
 
         Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement boundary_reference_element;
-        result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order, Polydim::FEM::PCC::FEM_PCC_1D_Types::Equispaced);
+        result.BoundaryReferenceElement_Data =
+            boundary_reference_element.Create(order, Polydim::FEM::PCC::FEM_PCC_1D_Types::Equispaced);
 
         result.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * order);
 
@@ -288,8 +290,9 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
         }
     }
     // ***************************************************************************
-    std::array<Eigen::MatrixXd, 4> EvaluateBasisFunctionSecondDerivatives(const Eigen::MatrixXd &points,
-                                                                          const Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement_Data &reference_element_data) const
+    std::array<Eigen::MatrixXd, 4> EvaluateBasisFunctionSecondDerivatives(
+        const Eigen::MatrixXd &points,
+        const Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement_Data &reference_element_data) const
     {
         switch (reference_element_data.Order)
         {

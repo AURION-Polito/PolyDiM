@@ -36,7 +36,7 @@ FEM_Hexahedron_PCC_3D_LocalSpace_Data FEM_Hexahedron_PCC_3D_LocalSpace::CreateLo
 
     if (geometry_utilities.IsValueZero(mapDataHexahedron.Coefficients.rightCols(4).norm(), polyhedron.Tolerance1D))
     {
-        localSpace.hexahedron_type = HexahedronType::Parallelepiped;
+        localSpace.hexahedron_type = Polydim::FEM::PCC::HexahedronType::Parallelepiped;
         Gedim::MapParallelepiped mapHexahedron(geometry_utilities);
         const std::vector<unsigned int> polyhedronCoordinateSystem =
             geometry_utilities.PolyhedronCoordinateSystem(polyhedron.Vertices, polyhedron.Edges);
@@ -45,7 +45,7 @@ FEM_Hexahedron_PCC_3D_LocalSpace_Data FEM_Hexahedron_PCC_3D_LocalSpace::CreateLo
     }
     else
     {
-        localSpace.hexahedron_type = HexahedronType::Generic;
+        localSpace.hexahedron_type = Polydim::FEM::PCC::HexahedronType::Generic;
         localSpace.MapDataHexahedron = mapDataHexahedron;
     }
 
