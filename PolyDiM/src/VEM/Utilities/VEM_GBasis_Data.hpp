@@ -27,7 +27,7 @@ struct VEM_GBasis_Data
     unsigned int PolynomialDegree;
     unsigned int Dimension;
 
-    VEM_Monomials_Data monomials_data;
+    Polydim::VEM::Utilities::VEM_Monomials_Data monomials_data;
 
     unsigned int Nk;
     unsigned int Nkm1;
