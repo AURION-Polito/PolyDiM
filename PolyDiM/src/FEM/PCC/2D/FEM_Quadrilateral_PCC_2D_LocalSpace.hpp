@@ -27,50 +27,53 @@ namespace PCC
 class FEM_Quadrilateral_PCC_2D_LocalSpace final
 {
   private:
-    Eigen::MatrixXd MapValues(const FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space, const Eigen::MatrixXd &referenceValues) const;
+    Eigen::MatrixXd MapValues(const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space,
+                              const Eigen::MatrixXd &referenceValues) const;
 
-    std::vector<Eigen::MatrixXd> MapDerivativeValues(const FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space,
+    std::vector<Eigen::MatrixXd> MapDerivativeValues(const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space,
                                                      const std::vector<Eigen::MatrixXd> &referenceDerivateValues,
                                                      const Eigen::MatrixXd &referencePoints) const;
 
-    Eigen::MatrixXd MapLaplacianValues(const FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space,
+    Eigen::MatrixXd MapLaplacianValues(const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space,
                                        const std::array<Eigen::MatrixXd, 4> &referenceSecondDerivateValues,
                                        const Eigen::MatrixXd &referencePoints) const;
 
     Gedim::Quadrature::QuadratureData InternalQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,
-                                                         const FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space) const;
+                                                         const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space) const;
 
     std::vector<Gedim::Quadrature::QuadratureData> BoundaryQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,
-                                                                      const FEM_PCC_2D_Polygon_Geometry &polygon) const;
+                                                                      const Polydim::FEM::PCC::FEM_PCC_2D_Polygon_Geometry &polygon) const;
 
   public:
-    FEM_Quadrilateral_PCC_2D_LocalSpace_Data CreateLocalSpace(const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                              const FEM_PCC_2D_Polygon_Geometry &polygon) const;
+    Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_LocalSpace_Data CreateLocalSpace(
+        const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data,
+        const Polydim::FEM::PCC::FEM_PCC_2D_Polygon_Geometry &polygon) const;
 
-    Eigen::MatrixXd ComputeBasisFunctionsValues(const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                const FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space) const
+    Eigen::MatrixXd ComputeBasisFunctionsValues(const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space) const
     {
         return MapValues(local_space, reference_element_data.ReferenceBasisFunctionValues);
     }
 
-    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                         const FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space) const
+    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                         const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space) const
     {
         return MapLaplacianValues(local_space,
                                   reference_element_data.ReferenceBasisFunctionSecondDerivativeValues,
                                   reference_element_data.ReferenceSquareQuadrature.Points);
     }
 
-    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                                       const FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space) const
+    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(
+        const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data,
+        const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space) const
     {
         return MapDerivativeValues(local_space,
                                    reference_element_data.ReferenceBasisFunctionDerivativeValues,
                                    reference_element_data.ReferenceSquareQuadrature.Points);
     }
 
-    Eigen::MatrixXd ComputeBasisFunctionsValues(const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                const FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space,
+    Eigen::MatrixXd ComputeBasisFunctionsValues(const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space,
                                                 const Eigen::MatrixXd &points) const
     {
 
@@ -96,9 +99,10 @@ class FEM_Quadrilateral_PCC_2D_LocalSpace final
         return MapValues(local_space, reference_element.EvaluateBasisFunctions(referencePoints, reference_element_data));
     }
 
-    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                                       const FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space,
-                                                                       const Eigen::MatrixXd &points) const
+    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(
+        const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data,
+        const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space,
+        const Eigen::MatrixXd &points) const
     {
         Eigen::MatrixXd referencePoints;
         switch (local_space.quadrilateral_type)
@@ -117,15 +121,15 @@ class FEM_Quadrilateral_PCC_2D_LocalSpace final
             throw std::runtime_error("not valid quadrilateral");
         }
 
-        FEM_Quadrilateral_PCC_2D_ReferenceElement reference_element;
+        Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement reference_element;
 
         return MapDerivativeValues(local_space,
                                    reference_element.EvaluateBasisFunctionDerivatives(referencePoints, reference_element_data),
                                    referencePoints);
     }
 
-    Eigen::MatrixXd EdgeDOFsCoordinates(const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                        const FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space,
+    Eigen::MatrixXd EdgeDOFsCoordinates(const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                        const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space,
                                         const unsigned int edge_local_index) const
     {
         const auto &dof_coordinates = local_space.Dofs;
@@ -141,17 +145,17 @@ class FEM_Quadrilateral_PCC_2D_LocalSpace final
         return edge_dofs_coordinates;
     }
 
-    Eigen::MatrixXd ComputeBasisFunctionsValuesOnEdge(const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data) const
+    Eigen::MatrixXd ComputeBasisFunctionsValuesOnEdge(const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data) const
     {
         return reference_element_data.BoundaryReferenceElement_Data.ReferenceBasisFunctionValues;
     }
 
-    Eigen::MatrixXd ComputeBasisFunctionsValuesOnEdge(const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data,
+    Eigen::MatrixXd ComputeBasisFunctionsValuesOnEdge(const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data,
                                                       const Eigen::VectorXd &pointsCurvilinearCoordinates) const
     {
         Eigen::MatrixXd points = Eigen::MatrixXd(3, pointsCurvilinearCoordinates.size());
         points.row(0) = pointsCurvilinearCoordinates;
-        FEM_PCC_1D_ReferenceElement reference_element;
+        Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement reference_element;
         return reference_element.EvaluateBasisFunctions(points, reference_element_data.BoundaryReferenceElement_Data);
     }
 };

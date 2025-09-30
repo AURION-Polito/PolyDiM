@@ -51,9 +51,11 @@ struct FEM_PCC_1D_ReferenceElement_Data final
 class FEM_PCC_1D_ReferenceElement final
 {
   public:
-    FEM_PCC_1D_ReferenceElement_Data Create(const unsigned int order, const FEM_PCC_1D_Types type = FEM_PCC_1D_Types::Equispaced) const
+    Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data Create(
+        const unsigned int order,
+        const Polydim::FEM::PCC::FEM_PCC_1D_Types type = Polydim::FEM::PCC::FEM_PCC_1D_Types::Equispaced) const
     {
-        FEM_PCC_1D_ReferenceElement_Data result;
+        Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data result;
 
         result.Dimension = 1;
         result.Order = order;
@@ -89,10 +91,10 @@ class FEM_PCC_1D_ReferenceElement final
 
         switch (type)
         {
-        case FEM_PCC_1D_Types::Equispaced:
+        case Polydim::FEM::PCC::FEM_PCC_1D_Types::Equispaced:
             dofPositions.row(0) = Eigen::VectorXd::LinSpaced(result.NumBasisFunctions, 0.0, 1.0);
             break;
-        case FEM_PCC_1D_Types::GaussLobatto:
+        case Polydim::FEM::PCC::FEM_PCC_1D_Types::GaussLobatto:
             dofPositions.row(0) =
                 Gedim::Quadrature::Quadrature_GaussLobatto1D::FillPointsAndWeights(2 * order - 1).Points.row(0);
             break;
@@ -140,7 +142,7 @@ class FEM_PCC_1D_ReferenceElement final
             result.DofPositions.col(dofCounter++) << dofPositions.col(cellDofs[c]);
 
         result.Interpolation_coefficients =
-            Interpolation::Lagrange::Lagrange_1D_coefficients(result.DofPositions.row(0).transpose());
+            Polydim::Interpolation::Lagrange::Lagrange_1D_coefficients(result.DofPositions.row(0).transpose());
 
         result.ReferenceSegmentQuadrature = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * order);
 
@@ -173,24 +175,26 @@ class FEM_PCC_1D_ReferenceElement final
         return gradLambda;
     }
     // ***************************************************************************
-    Eigen::MatrixXd EvaluateBasisFunctions(const Eigen::MatrixXd &points, const FEM_PCC_1D_ReferenceElement_Data &reference_element_data) const
+    Eigen::MatrixXd EvaluateBasisFunctions(const Eigen::MatrixXd &points,
+                                           const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data) const
     {
-        return Interpolation::Lagrange::Lagrange_1D_values(reference_element_data.DofPositions.row(0).transpose(),
-                                                           reference_element_data.Interpolation_coefficients,
-                                                           points.row(0).transpose());
+        return Polydim::Interpolation::Lagrange::Lagrange_1D_values(reference_element_data.DofPositions.row(0).transpose(),
+                                                                    reference_element_data.Interpolation_coefficients,
+                                                                    points.row(0).transpose());
     }
     // ***************************************************************************
     std::vector<Eigen::MatrixXd> EvaluateBasisFunctionDerivatives(const Eigen::MatrixXd &points,
-                                                                  const FEM_PCC_1D_ReferenceElement_Data &reference_element_data) const
+                                                                  const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data) const
     {
         std::vector<Eigen::MatrixXd> values(reference_element_data.Dimension);
 
         for (unsigned int d = 0; d < reference_element_data.Dimension; d++)
             values[d].setZero(points.cols(), reference_element_data.NumBasisFunctions);
 
-        values[0] = Interpolation::Lagrange::Lagrange_1D_derivative_values(reference_element_data.DofPositions.row(0).transpose(),
-                                                                           reference_element_data.Interpolation_coefficients,
-                                                                           points.row(0).transpose());
+        values[0] = Polydim::Interpolation::Lagrange::Lagrange_1D_derivative_values(
+            reference_element_data.DofPositions.row(0).transpose(),
+            reference_element_data.Interpolation_coefficients,
+            points.row(0).transpose());
 
         return values;
     }

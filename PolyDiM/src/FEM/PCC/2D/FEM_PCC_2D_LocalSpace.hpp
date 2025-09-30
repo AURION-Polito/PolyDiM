@@ -27,24 +27,24 @@ namespace PCC
 class FEM_PCC_2D_LocalSpace final
 {
   private:
-    FEM_Triangle_PCC_2D_LocalSpace triangle_local_space;
-    FEM_Quadrilateral_PCC_2D_LocalSpace quadrilateral_local_space;
+    Polydim::FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace triangle_local_space;
+    Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_LocalSpace quadrilateral_local_space;
 
   public:
-    FEM_PCC_2D_LocalSpace_Data CreateLocalSpace(const FEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                const FEM_PCC_2D_Polygon_Geometry &polygon) const;
+    Polydim::FEM::PCC::FEM_PCC_2D_LocalSpace_Data CreateLocalSpace(const Polydim::FEM::PCC::FEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                                   const Polydim::FEM::PCC::FEM_PCC_2D_Polygon_Geometry &polygon) const;
 
-    Eigen::MatrixXd ComputeBasisFunctionsValues(const FEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                const FEM_PCC_2D_LocalSpace_Data &local_space) const
+    Eigen::MatrixXd ComputeBasisFunctionsValues(const Polydim::FEM::PCC::FEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                const Polydim::FEM::PCC::FEM_PCC_2D_LocalSpace_Data &local_space) const
     {
         switch (local_space.fem_type)
         {
-        case FEM_PCC_2D_Types::Triangle: {
+        case Polydim::FEM::PCC::FEM_PCC_2D_Types::Triangle: {
 
             return triangle_local_space.ComputeBasisFunctionsValues(reference_element_data.triangle_reference_element_data,
                                                                     local_space.triangle_local_space_data);
         }
-        case FEM_PCC_2D_Types::Quadrilateral: {
+        case Polydim::FEM::PCC::FEM_PCC_2D_Types::Quadrilateral: {
             return quadrilateral_local_space.ComputeBasisFunctionsValues(reference_element_data.quadrilateral_reference_element_data,
                                                                          local_space.quadrilateral_local_space_data);
         }
@@ -53,17 +53,17 @@ class FEM_PCC_2D_LocalSpace final
         }
     }
 
-    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const FEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                         const FEM_PCC_2D_LocalSpace_Data &local_space) const
+    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const Polydim::FEM::PCC::FEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                         const Polydim::FEM::PCC::FEM_PCC_2D_LocalSpace_Data &local_space) const
     {
         switch (local_space.fem_type)
         {
-        case FEM_PCC_2D_Types::Triangle: {
+        case Polydim::FEM::PCC::FEM_PCC_2D_Types::Triangle: {
 
             return triangle_local_space.ComputeBasisFunctionsLaplacianValues(reference_element_data.triangle_reference_element_data,
                                                                              local_space.triangle_local_space_data);
         }
-        case FEM_PCC_2D_Types::Quadrilateral: {
+        case Polydim::FEM::PCC::FEM_PCC_2D_Types::Quadrilateral: {
             return quadrilateral_local_space.ComputeBasisFunctionsLaplacianValues(reference_element_data.quadrilateral_reference_element_data,
                                                                                   local_space.quadrilateral_local_space_data);
         }
@@ -72,17 +72,17 @@ class FEM_PCC_2D_LocalSpace final
         }
     }
 
-    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const FEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                                       const FEM_PCC_2D_LocalSpace_Data &local_space) const
+    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const Polydim::FEM::PCC::FEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                                       const Polydim::FEM::PCC::FEM_PCC_2D_LocalSpace_Data &local_space) const
     {
         switch (local_space.fem_type)
         {
-        case FEM_PCC_2D_Types::Triangle: {
+        case Polydim::FEM::PCC::FEM_PCC_2D_Types::Triangle: {
 
             return triangle_local_space.ComputeBasisFunctionsDerivativeValues(reference_element_data.triangle_reference_element_data,
                                                                               local_space.triangle_local_space_data);
         }
-        case FEM_PCC_2D_Types::Quadrilateral: {
+        case Polydim::FEM::PCC::FEM_PCC_2D_Types::Quadrilateral: {
             return quadrilateral_local_space.ComputeBasisFunctionsDerivativeValues(reference_element_data.quadrilateral_reference_element_data,
                                                                                    local_space.quadrilateral_local_space_data);
         }
@@ -91,19 +91,19 @@ class FEM_PCC_2D_LocalSpace final
         }
     }
 
-    Eigen::MatrixXd ComputeBasisFunctionsValues(const FEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                const FEM_PCC_2D_LocalSpace_Data &local_space,
+    Eigen::MatrixXd ComputeBasisFunctionsValues(const Polydim::FEM::PCC::FEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                const Polydim::FEM::PCC::FEM_PCC_2D_LocalSpace_Data &local_space,
                                                 const Eigen::MatrixXd &points) const
     {
         switch (local_space.fem_type)
         {
-        case FEM_PCC_2D_Types::Triangle: {
+        case Polydim::FEM::PCC::FEM_PCC_2D_Types::Triangle: {
 
             return triangle_local_space.ComputeBasisFunctionsValues(reference_element_data.triangle_reference_element_data,
                                                                     local_space.triangle_local_space_data,
                                                                     points);
         }
-        case FEM_PCC_2D_Types::Quadrilateral: {
+        case Polydim::FEM::PCC::FEM_PCC_2D_Types::Quadrilateral: {
             return quadrilateral_local_space.ComputeBasisFunctionsValues(reference_element_data.quadrilateral_reference_element_data,
                                                                          local_space.quadrilateral_local_space_data,
                                                                          points);
@@ -113,19 +113,19 @@ class FEM_PCC_2D_LocalSpace final
         }
     }
 
-    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const FEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                                       const FEM_PCC_2D_LocalSpace_Data &local_space,
+    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const Polydim::FEM::PCC::FEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                                       const Polydim::FEM::PCC::FEM_PCC_2D_LocalSpace_Data &local_space,
                                                                        const Eigen::MatrixXd &points) const
     {
         switch (local_space.fem_type)
         {
-        case FEM_PCC_2D_Types::Triangle: {
+        case Polydim::FEM::PCC::FEM_PCC_2D_Types::Triangle: {
 
             return triangle_local_space.ComputeBasisFunctionsDerivativeValues(reference_element_data.triangle_reference_element_data,
                                                                               local_space.triangle_local_space_data,
                                                                               points);
         }
-        case FEM_PCC_2D_Types::Quadrilateral: {
+        case Polydim::FEM::PCC::FEM_PCC_2D_Types::Quadrilateral: {
             return quadrilateral_local_space.ComputeBasisFunctionsDerivativeValues(reference_element_data.quadrilateral_reference_element_data,
                                                                                    local_space.quadrilateral_local_space_data,
                                                                                    points);
@@ -135,8 +135,8 @@ class FEM_PCC_2D_LocalSpace final
         }
     }
 
-    Eigen::MatrixXd ComputeBasisFunctionsValuesOnEdge(const FEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                      const FEM_PCC_2D_LocalSpace_Data &local_space) const
+    Eigen::MatrixXd ComputeBasisFunctionsValuesOnEdge(const Polydim::FEM::PCC::FEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                      const Polydim::FEM::PCC::FEM_PCC_2D_LocalSpace_Data &local_space) const
     {
         switch (local_space.fem_type)
         {
@@ -152,18 +152,18 @@ class FEM_PCC_2D_LocalSpace final
         }
     }
 
-    Eigen::MatrixXd ComputeBasisFunctionsValuesOnEdge(const FEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                      const FEM_PCC_2D_LocalSpace_Data &local_space,
+    Eigen::MatrixXd ComputeBasisFunctionsValuesOnEdge(const Polydim::FEM::PCC::FEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                      const Polydim::FEM::PCC::FEM_PCC_2D_LocalSpace_Data &local_space,
                                                       const Eigen::VectorXd &pointsCurvilinearCoordinates) const
     {
         switch (local_space.fem_type)
         {
-        case FEM_PCC_2D_Types::Triangle: {
+        case Polydim::FEM::PCC::FEM_PCC_2D_Types::Triangle: {
 
             return triangle_local_space.ComputeBasisFunctionsValuesOnEdge(reference_element_data.triangle_reference_element_data,
                                                                           pointsCurvilinearCoordinates);
         }
-        case FEM_PCC_2D_Types::Quadrilateral: {
+        case Polydim::FEM::PCC::FEM_PCC_2D_Types::Quadrilateral: {
             return quadrilateral_local_space.ComputeBasisFunctionsValuesOnEdge(reference_element_data.quadrilateral_reference_element_data,
                                                                                pointsCurvilinearCoordinates);
         }
@@ -172,18 +172,18 @@ class FEM_PCC_2D_LocalSpace final
         }
     }
 
-    Eigen::MatrixXd EdgeDOFsCoordinates(const FEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                        const FEM_PCC_2D_LocalSpace_Data &local_space,
+    Eigen::MatrixXd EdgeDOFsCoordinates(const Polydim::FEM::PCC::FEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                        const Polydim::FEM::PCC::FEM_PCC_2D_LocalSpace_Data &local_space,
                                         const unsigned int edge_local_index) const
     {
         switch (local_space.fem_type)
         {
-        case FEM_PCC_2D_Types::Triangle: {
+        case Polydim::FEM::PCC::FEM_PCC_2D_Types::Triangle: {
             return triangle_local_space.EdgeDOFsCoordinates(reference_element_data.triangle_reference_element_data,
                                                             local_space.triangle_local_space_data,
                                                             edge_local_index);
         }
-        case FEM_PCC_2D_Types::Quadrilateral: {
+        case Polydim::FEM::PCC::FEM_PCC_2D_Types::Quadrilateral: {
             return quadrilateral_local_space.EdgeDOFsCoordinates(reference_element_data.quadrilateral_reference_element_data,
                                                                  local_space.quadrilateral_local_space_data,
                                                                  edge_local_index);

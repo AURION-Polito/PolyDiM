@@ -28,8 +28,8 @@ struct FEM_PCC_2D_ReferenceElement_Data final
     unsigned int Order;
     unsigned int NumDofs0D;
     unsigned int NumDofs1D;
-    FEM_Triangle_PCC_2D_ReferenceElement_Data triangle_reference_element_data;
-    FEM_Quadrilateral_PCC_2D_ReferenceElement_Data quadrilateral_reference_element_data;
+    Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement_Data triangle_reference_element_data;
+    Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement_Data quadrilateral_reference_element_data;
 };
 
 struct FEM_PCC_2D_ReferenceElement final
@@ -43,15 +43,15 @@ struct FEM_PCC_2D_ReferenceElement final
     FEM_PCC_2D_ReferenceElement_Data Create(const unsigned int order) const
     {
 
-        FEM_PCC_2D_ReferenceElement_Data result;
+        Polydim::FEM::PCC::FEM_PCC_2D_ReferenceElement_Data result;
 
         result.Dimension = 2;
         result.Order = order;
         result.NumDofs0D = 1;
         result.NumDofs1D = order - 1;
 
-        FEM_Triangle_PCC_2D_ReferenceElement triangle_reference_element;
-        FEM_Quadrilateral_PCC_2D_ReferenceElement quadrilateral_reference_element;
+        Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement triangle_reference_element;
+        Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement quadrilateral_reference_element;
 
         result.triangle_reference_element_data = triangle_reference_element.Create(order);
         result.quadrilateral_reference_element_data = quadrilateral_reference_element.Create(order);

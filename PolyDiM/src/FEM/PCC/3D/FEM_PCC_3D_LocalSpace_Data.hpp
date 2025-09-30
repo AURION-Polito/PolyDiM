@@ -46,7 +46,7 @@ struct FEM_PCC_3D_Polyhedron_Geometry final
     Eigen::MatrixXd Vertices;
     Eigen::MatrixXi Edges;
     std::vector<Eigen::MatrixXi> Faces;
-    std::vector<FEM_PCC_2D_Polygon_Geometry> Faces_2D_Geometry;
+    std::vector<Polydim::FEM::PCC::FEM_PCC_2D_Polygon_Geometry> Faces_2D_Geometry;
     std::vector<bool> EdgesDirection;
     std::vector<bool> FacesDirection;
     std::vector<Eigen::Matrix3d> FacesRotationMatrix;
@@ -69,7 +69,7 @@ struct FEM_Hexahedron_PCC_3D_LocalSpace_Data final
     std::array<unsigned int, 7> Dof2DsIndex;
     std::array<unsigned int, 2> Dof3DsIndex;
     Gedim::Quadrature::QuadratureData InternalQuadrature;
-    std::array<FEM_Quadrilateral_PCC_2D_LocalSpace_Data, 6> Boundary_LocalSpace_Data;
+    std::array<Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_LocalSpace_Data, 6> Boundary_LocalSpace_Data;
     std::array<Gedim::Quadrature::QuadratureData, 6> BoundaryQuadrature;
     HexahedronType hexahedron_type;
 };
@@ -91,15 +91,15 @@ struct FEM_Tetrahedron_PCC_3D_LocalSpace_Data final
     std::array<unsigned int, 5> Dof2DsIndex;
     std::array<unsigned int, 2> Dof3DsIndex;
     Gedim::Quadrature::QuadratureData InternalQuadrature;
-    std::array<FEM_Triangle_PCC_2D_LocalSpace_Data, 4> Boundary_LocalSpace_Data;
+    std::array<Polydim::FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace_Data, 4> Boundary_LocalSpace_Data;
     std::array<Gedim::Quadrature::QuadratureData, 4> BoundaryQuadrature;
 };
 
 struct FEM_PCC_3D_LocalSpace_Data final
 {
-    FEM_Hexahedron_PCC_3D_LocalSpace_Data hexahedron_local_space_data;
-    FEM_Tetrahedron_PCC_3D_LocalSpace_Data tetrahedron_local_space_data;
-    FEM_PCC_3D_Types fem_type;
+    Polydim::FEM::PCC::FEM_Hexahedron_PCC_3D_LocalSpace_Data hexahedron_local_space_data;
+    Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_LocalSpace_Data tetrahedron_local_space_data;
+    Polydim::FEM::PCC::FEM_PCC_3D_Types fem_type;
 
     Gedim::Quadrature::QuadratureData InternalQuadrature;
     std::vector<Gedim::Quadrature::QuadratureData> BoundaryQuadrature;

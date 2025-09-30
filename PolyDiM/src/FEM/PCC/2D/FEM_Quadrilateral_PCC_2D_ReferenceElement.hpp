@@ -45,7 +45,7 @@ struct FEM_Quadrilateral_PCC_2D_ReferenceElement_Data final
     std::vector<Eigen::MatrixXd> ReferenceBasisFunctionDerivativeValues;
     std::array<Eigen::MatrixXd, 4> ReferenceBasisFunctionSecondDerivativeValues;
 
-    FEM_PCC_1D_ReferenceElement_Data BoundaryReferenceElement_Data;
+    Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data BoundaryReferenceElement_Data;
 };
 
 struct FEM_Quadrilateral_PCC_2D_ReferenceElement final
@@ -66,7 +66,7 @@ struct FEM_Quadrilateral_PCC_2D_ReferenceElement final
         if (order <= 0)
             throw std::runtime_error("not valid order");
 
-        FEM_Quadrilateral_PCC_2D_ReferenceElement_Data result;
+        Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement_Data result;
 
         result.Dimension = 2;
         result.Order = order;
@@ -75,7 +75,7 @@ struct FEM_Quadrilateral_PCC_2D_ReferenceElement final
         result.NumDofs1D = order - 1;
         result.NumDofs2D = (order - 1) * (order - 1);
 
-        FEM_PCC_1D_ReferenceElement boundary_reference_element;
+        Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement boundary_reference_element;
         result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order, FEM_PCC_1D_Types::Equispaced);
         const Eigen::VectorXd reference_edge_dofs_poisitions = result.BoundaryReferenceElement_Data.DofPositions.row(0);
 
@@ -185,7 +185,7 @@ struct FEM_Quadrilateral_PCC_2D_ReferenceElement final
         Eigen::MatrixXd y = Eigen::MatrixXd::Zero(3, num_points);
         y.row(0) = points.row(1);
 
-        FEM_PCC_1D_ReferenceElement boundary_reference_element;
+        Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement boundary_reference_element;
         const Eigen::MatrixXd values_x =
             boundary_reference_element.EvaluateBasisFunctions(x, reference_element_data.BoundaryReferenceElement_Data);
         const Eigen::MatrixXd values_y =
@@ -211,7 +211,7 @@ struct FEM_Quadrilateral_PCC_2D_ReferenceElement final
         Eigen::MatrixXd y = Eigen::MatrixXd::Zero(3, num_points);
         y.row(0) = points.row(1);
 
-        FEM_PCC_1D_ReferenceElement boundary_reference_element;
+        Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement boundary_reference_element;
         const Eigen::MatrixXd values_x =
             boundary_reference_element.EvaluateBasisFunctions(x, reference_element_data.BoundaryReferenceElement_Data);
         const std::vector<Eigen::MatrixXd> values_x_dx =

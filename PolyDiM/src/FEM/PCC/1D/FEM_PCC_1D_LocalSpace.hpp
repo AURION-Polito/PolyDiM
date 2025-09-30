@@ -39,7 +39,7 @@ struct FEM_PCC_1D_LocalSpace_Data final
         double SquaredLength;
     };
 
-    SegmentMapData MapData;
+    Polydim::FEM::PCC::FEM_PCC_1D_LocalSpace_Data::SegmentMapData MapData;
     unsigned int Order;
     unsigned int NumberOfBasisFunctions;
     Eigen::MatrixXd Dofs;
@@ -52,7 +52,7 @@ struct FEM_PCC_1D_LocalSpace_Data final
 class FEM_PCC_1D_LocalSpace final
 {
   private:
-    Eigen::MatrixXd F(const FEM_PCC_1D_LocalSpace_Data::SegmentMapData &mapData, const Eigen::MatrixXd &x) const
+    Eigen::MatrixXd F(const Polydim::FEM::PCC::FEM_PCC_1D_LocalSpace_Data::SegmentMapData &mapData, const Eigen::MatrixXd &x) const
     {
         Eigen::MatrixXd points(3, x.cols());
 
@@ -62,7 +62,7 @@ class FEM_PCC_1D_LocalSpace final
         return points;
     }
 
-    Eigen::MatrixXd FInv(const FEM_PCC_1D_LocalSpace_Data::SegmentMapData &mapData, const Eigen::MatrixXd &x) const
+    Eigen::MatrixXd FInv(const Polydim::FEM::PCC::FEM_PCC_1D_LocalSpace_Data::SegmentMapData &mapData, const Eigen::MatrixXd &x) const
     {
         Eigen::MatrixXd points(3, x.cols());
 
@@ -72,53 +72,57 @@ class FEM_PCC_1D_LocalSpace final
         return points;
     }
 
-    inline Eigen::VectorXd DetJ(const FEM_PCC_1D_LocalSpace_Data::SegmentMapData &mapData, const Eigen::MatrixXd &x) const
+    inline Eigen::VectorXd DetJ(const Polydim::FEM::PCC::FEM_PCC_1D_LocalSpace_Data::SegmentMapData &mapData,
+                                const Eigen::MatrixXd &x) const
     {
         return Eigen::VectorXd::Constant(x.cols(), mapData.Length);
     }
 
-    Eigen::MatrixXd MapValues(const FEM_PCC_1D_LocalSpace_Data &local_space, const Eigen::MatrixXd &referenceValues) const;
+    Eigen::MatrixXd MapValues(const Polydim::FEM::PCC::FEM_PCC_1D_LocalSpace_Data &local_space,
+                              const Eigen::MatrixXd &referenceValues) const;
 
-    std::vector<Eigen::MatrixXd> MapDerivativeValues(const FEM_PCC_1D_LocalSpace_Data &local_space,
+    std::vector<Eigen::MatrixXd> MapDerivativeValues(const Polydim::FEM::PCC::FEM_PCC_1D_LocalSpace_Data &local_space,
                                                      const std::vector<Eigen::MatrixXd> &referenceDerivateValues) const;
 
     Gedim::Quadrature::QuadratureData InternalQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,
-                                                         const FEM_PCC_1D_LocalSpace_Data::SegmentMapData &mapData) const;
+                                                         const Polydim::FEM::PCC::FEM_PCC_1D_LocalSpace_Data::SegmentMapData &mapData) const;
 
   public:
-    FEM_PCC_1D_LocalSpace_Data CreateLocalSpace(const FEM_PCC_1D_ReferenceElement_Data &reference_element_data,
-                                                const FEM_PCC_1D_Segment_Geometry &segment) const;
+    Polydim::FEM::PCC::FEM_PCC_1D_LocalSpace_Data CreateLocalSpace(const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data,
+                                                                   const Polydim::FEM::PCC::FEM_PCC_1D_Segment_Geometry &segment) const;
 
-    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const FEM_PCC_1D_ReferenceElement_Data &reference_element_data,
-                                                       const FEM_PCC_1D_LocalSpace_Data &local_space) const
+    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data,
+                                                       const Polydim::FEM::PCC::FEM_PCC_1D_LocalSpace_Data &local_space) const
     {
         return MapValues(local_space, reference_element_data.ReferenceBasisFunctionValues);
     }
 
-    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const FEM_PCC_1D_ReferenceElement_Data &reference_element_data,
-                                                                              const FEM_PCC_1D_LocalSpace_Data &local_space) const
+    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(
+        const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data,
+        const Polydim::FEM::PCC::FEM_PCC_1D_LocalSpace_Data &local_space) const
     {
         return MapDerivativeValues(local_space, reference_element_data.ReferenceBasisFunctionDerivativeValues);
     }
 
-    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const FEM_PCC_1D_ReferenceElement_Data &reference_element_data,
-                                                       const FEM_PCC_1D_LocalSpace_Data &local_space,
+    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data,
+                                                       const Polydim::FEM::PCC::FEM_PCC_1D_LocalSpace_Data &local_space,
                                                        const Eigen::MatrixXd &points) const
     {
         const Eigen::MatrixXd referencePoints = FInv(local_space.MapData, points);
 
-        FEM_PCC_1D_ReferenceElement reference_element;
+        Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement reference_element;
 
         return MapValues(local_space, reference_element.EvaluateBasisFunctions(referencePoints, reference_element_data));
     }
 
-    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const FEM_PCC_1D_ReferenceElement_Data &reference_element_data,
-                                                                              const FEM_PCC_1D_LocalSpace_Data &local_space,
-                                                                              const Eigen::MatrixXd &points) const
+    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(
+        const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data,
+        const Polydim::FEM::PCC::FEM_PCC_1D_LocalSpace_Data &local_space,
+        const Eigen::MatrixXd &points) const
     {
         const Eigen::MatrixXd referencePoints = FInv(local_space.MapData, points);
 
-        FEM_PCC_1D_ReferenceElement reference_element;
+        Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement reference_element;
 
         return MapDerivativeValues(local_space, reference_element.EvaluateBasisFunctionDerivatives(referencePoints, reference_element_data));
     }

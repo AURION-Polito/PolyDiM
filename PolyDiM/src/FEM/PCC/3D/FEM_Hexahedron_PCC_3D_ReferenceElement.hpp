@@ -44,8 +44,8 @@ struct FEM_Hexahedron_PCC_3D_ReferenceElement_Data final
     Eigen::MatrixXd ReferenceBasisFunctionValues;
     std::vector<Eigen::MatrixXd> ReferenceBasisFunctionDerivativeValues;
 
-    FEM_PCC_1D_ReferenceElement_Data EdgeReferenceElement_Data;
-    FEM_Quadrilateral_PCC_2D_ReferenceElement_Data BoundaryReferenceElement_Data;
+    Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data EdgeReferenceElement_Data;
+    Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement_Data BoundaryReferenceElement_Data;
 };
 
 struct FEM_Hexahedron_PCC_3D_ReferenceElement final
@@ -67,7 +67,7 @@ struct FEM_Hexahedron_PCC_3D_ReferenceElement final
         if (order <= 0)
             throw std::runtime_error("not valid order");
 
-        FEM_Hexahedron_PCC_3D_ReferenceElement_Data result;
+        Polydim::FEM::PCC::FEM_Hexahedron_PCC_3D_ReferenceElement_Data result;
 
         result.Order = order;
         result.Dimension = 3;
@@ -91,8 +91,8 @@ struct FEM_Hexahedron_PCC_3D_ReferenceElement final
                                  {{2, 6}, 3},  {{6, 2}, 3},  {{10, 11}, 3}, {{11, 10}, 3}, {{7, 3}, 4},  {{3, 7}, 4},
                                  {{8, 10}, 4}, {{10, 8}, 4}, {{1, 5}, 5},   {{9, 11}, 5},  {{11, 9}, 5}, {{5, 1}, 5}};
 
-        FEM_PCC_1D_ReferenceElement edge_reference_element;
-        result.EdgeReferenceElement_Data = edge_reference_element.Create(order, FEM_PCC_1D_Types::Equispaced);
+        Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement edge_reference_element;
+        result.EdgeReferenceElement_Data = edge_reference_element.Create(order, Polydim::FEM::PCC::FEM_PCC_1D_Types::Equispaced);
         const Eigen::VectorXd reference_edge_dofs_poisitions = result.EdgeReferenceElement_Data.DofPositions.row(0);
 
         // Reordering Dofs using convention [point, edge, cell]
@@ -247,7 +247,7 @@ struct FEM_Hexahedron_PCC_3D_ReferenceElement final
             }
         }
 
-        FEM_Quadrilateral_PCC_2D_ReferenceElement boundary_reference_element;
+        Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement boundary_reference_element;
         result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order);
 
         result.ReferenceHexahedronQuadrature =
@@ -261,7 +261,7 @@ struct FEM_Hexahedron_PCC_3D_ReferenceElement final
     }
     // ***************************************************************************
     Eigen::MatrixXd EvaluateBasisFunctions(const Eigen::MatrixXd &points,
-                                           const FEM_Hexahedron_PCC_3D_ReferenceElement_Data &reference_element_data) const
+                                           const Polydim::FEM::PCC::FEM_Hexahedron_PCC_3D_ReferenceElement_Data &reference_element_data) const
     {
 
         const unsigned int num_points = points.cols();
@@ -272,7 +272,7 @@ struct FEM_Hexahedron_PCC_3D_ReferenceElement final
         Eigen::MatrixXd z = Eigen::MatrixXd::Zero(3, num_points);
         z.row(0) = points.row(2);
 
-        FEM_PCC_1D_ReferenceElement boundary_reference_element;
+        Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement boundary_reference_element;
         const Eigen::MatrixXd values_x =
             boundary_reference_element.EvaluateBasisFunctions(x, reference_element_data.EdgeReferenceElement_Data);
         const Eigen::MatrixXd values_y =
@@ -293,7 +293,7 @@ struct FEM_Hexahedron_PCC_3D_ReferenceElement final
     }
     // ***************************************************************************
     std::vector<Eigen::MatrixXd> EvaluateBasisFunctionDerivatives(const Eigen::MatrixXd &points,
-                                                                  const FEM_Hexahedron_PCC_3D_ReferenceElement_Data &reference_element_data) const
+                                                                  const Polydim::FEM::PCC::FEM_Hexahedron_PCC_3D_ReferenceElement_Data &reference_element_data) const
     {
         const unsigned int num_points = points.cols();
         Eigen::MatrixXd x = Eigen::MatrixXd::Zero(3, num_points);
@@ -303,7 +303,7 @@ struct FEM_Hexahedron_PCC_3D_ReferenceElement final
         Eigen::MatrixXd z = Eigen::MatrixXd::Zero(3, num_points);
         z.row(0) = points.row(2);
 
-        FEM_PCC_1D_ReferenceElement boundary_reference_element;
+        Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement boundary_reference_element;
         const Eigen::MatrixXd values_x =
             boundary_reference_element.EvaluateBasisFunctions(x, reference_element_data.EdgeReferenceElement_Data);
         const Eigen::MatrixXd values_y =
@@ -335,7 +335,7 @@ struct FEM_Hexahedron_PCC_3D_ReferenceElement final
     }
     // ***************************************************************************
     std::array<Eigen::MatrixXd, 9> EvaluateBasisFunctionSecondDerivatives(const Eigen::MatrixXd &,
-                                                                          const FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &) const
+                                                                          const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &) const
     {
         throw std::runtime_error("not implemented method");
     }

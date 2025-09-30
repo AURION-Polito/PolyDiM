@@ -74,14 +74,14 @@ struct FEM_Quadrilateral_PCC_2D_LocalSpace_Data final
     std::array<unsigned int, 2> Dof2DsIndex;
     Gedim::Quadrature::QuadratureData InternalQuadrature;
     std::vector<Gedim::Quadrature::QuadratureData> BoundaryQuadrature;
-    QuadrilateralType quadrilateral_type;
+    Polydim::FEM::PCC::QuadrilateralType quadrilateral_type;
 };
 
 struct FEM_PCC_2D_LocalSpace_Data final
 {
-    FEM_Triangle_PCC_2D_LocalSpace_Data triangle_local_space_data;
-    FEM_Quadrilateral_PCC_2D_LocalSpace_Data quadrilateral_local_space_data;
-    FEM_PCC_2D_Types fem_type;
+    Polydim::FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace_Data triangle_local_space_data;
+    Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_LocalSpace_Data quadrilateral_local_space_data;
+    Polydim::FEM::PCC::FEM_PCC_2D_Types fem_type;
 
     Gedim::Quadrature::QuadratureData InternalQuadrature;
     std::vector<Gedim::Quadrature::QuadratureData> BoundaryQuadrature;

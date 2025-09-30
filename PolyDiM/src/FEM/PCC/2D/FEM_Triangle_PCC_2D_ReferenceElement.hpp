@@ -43,7 +43,7 @@ struct FEM_Triangle_PCC_2D_ReferenceElement_Data final
     std::vector<Eigen::MatrixXd> ReferenceBasisFunctionDerivativeValues;
     std::array<Eigen::MatrixXd, 4> ReferenceBasisFunctionSecondDerivativeValues;
 
-    FEM_PCC_1D_ReferenceElement_Data BoundaryReferenceElement_Data;
+    Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data BoundaryReferenceElement_Data;
 
     Eigen::RowVectorXd EdgeInternalPoints;
     Eigen::VectorXd EdgeBasisCoefficients;
@@ -54,8 +54,8 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
   public:
     FEM_Triangle_PCC_2D_ReferenceElement_Data Create(const unsigned int order) const
     {
-        FEM_Triangle_PCC_2D_ReferenceElement_Data result;
-        VEM::PCC::VEM_PCC_Utilities<2> utilities;
+        Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement_Data result;
+        Polydim::VEM::PCC::VEM_PCC_Utilities<2> utilities;
 
         if (order == 0)
         {
@@ -69,7 +69,7 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
             result.DofPositions.setZero(3, result.NumBasisFunctions);
             result.DofPositions.col(0) << 1.0 / 3.0, 1.0 / 3.0, 0.0;
 
-            FEM_PCC_1D_ReferenceElement boundary_reference_element;
+            Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement boundary_reference_element;
             result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order, FEM_PCC_1D_Types::Equispaced);
 
             result.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * order);
@@ -155,7 +155,7 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
         result.EdgeInternalPoints = Eigen::VectorXd::LinSpaced(result.NumDofs1D + 2, 0.0, 1.0).segment(1, result.NumDofs1D);
         result.EdgeBasisCoefficients = utilities.ComputeEdgeBasisCoefficients(result.Order, result.EdgeInternalPoints);
 
-        FEM_PCC_1D_ReferenceElement boundary_reference_element;
+        Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement boundary_reference_element;
         result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order, FEM_PCC_1D_Types::Equispaced);
 
         result.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * order);

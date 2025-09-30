@@ -46,16 +46,16 @@ struct FEM_Tetrahedron_PCC_3D_ReferenceElement_Data final
     Eigen::MatrixXd ReferenceBasisFunctionValues;
     std::vector<Eigen::MatrixXd> ReferenceBasisFunctionDerivativeValues;
 
-    FEM_PCC_1D_ReferenceElement_Data EdgeReferenceElement_Data;
-    FEM_Triangle_PCC_2D_ReferenceElement_Data BoundaryReferenceElement_Data;
+    Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data EdgeReferenceElement_Data;
+    Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement_Data BoundaryReferenceElement_Data;
 };
 
 class FEM_Tetrahedron_PCC_3D_ReferenceElement final
 {
   public:
-    FEM_Tetrahedron_PCC_3D_ReferenceElement_Data Create(const unsigned int order) const
+    Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_ReferenceElement_Data Create(const unsigned int order) const
     {
-        FEM_Tetrahedron_PCC_3D_ReferenceElement_Data result;
+        Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_ReferenceElement_Data result;
 
         result.Order = order;
         result.Dimension = 3;
@@ -121,7 +121,7 @@ class FEM_Tetrahedron_PCC_3D_ReferenceElement final
             result.DofPositions.setZero(3, result.NumBasisFunctions);
             result.DofPositions.col(0) << 1.0 / 4.0, 1.0 / 4.0, 1.0 / 4.0;
 
-            FEM_Triangle_PCC_2D_ReferenceElement boundary_reference_element;
+            Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement boundary_reference_element;
             result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order);
 
             result.ReferenceTetrahedronQuadrature =
@@ -289,10 +289,10 @@ class FEM_Tetrahedron_PCC_3D_ReferenceElement final
             }
         }
 
-        FEM_PCC_1D_ReferenceElement edge_reference_element;
-        result.EdgeReferenceElement_Data = edge_reference_element.Create(order, FEM_PCC_1D_Types::Equispaced);
+        Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement edge_reference_element;
+        result.EdgeReferenceElement_Data = edge_reference_element.Create(order, Polydim::FEM::PCC::FEM_PCC_1D_Types::Equispaced);
 
-        FEM_Triangle_PCC_2D_ReferenceElement boundary_reference_element;
+        Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement boundary_reference_element;
         result.BoundaryReferenceElement_Data = boundary_reference_element.Create(order);
 
         result.ReferenceTetrahedronQuadrature =
@@ -346,7 +346,7 @@ class FEM_Tetrahedron_PCC_3D_ReferenceElement final
     }
     // ***************************************************************************
     Eigen::MatrixXd EvaluateBasisFunctions(const Eigen::MatrixXd &points,
-                                           const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data) const
+                                           const Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data) const
     {
         const Eigen::MatrixXd lambda_functions = EvaluateLambda(points);
         const unsigned int order = reference_element_data.Order;
@@ -376,8 +376,9 @@ class FEM_Tetrahedron_PCC_3D_ReferenceElement final
         return basis_functions_values;
     }
     // ***************************************************************************
-    std::vector<Eigen::MatrixXd> EvaluateBasisFunctionDerivatives(const Eigen::MatrixXd &points,
-                                                                  const FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data) const
+    std::vector<Eigen::MatrixXd> EvaluateBasisFunctionDerivatives(
+        const Eigen::MatrixXd &points,
+        const Polydim::FEM::PCC::FEM_Tetrahedron_PCC_3D_ReferenceElement_Data &reference_element_data) const
     {
 
         const std::vector<Eigen::MatrixXd> grad_lambda = EvaluateGradLambda(points);
