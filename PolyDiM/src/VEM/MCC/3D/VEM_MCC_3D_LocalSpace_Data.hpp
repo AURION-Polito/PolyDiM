@@ -61,7 +61,7 @@ struct VEM_MCC_3D_Velocity_LocalSpace_Data final
     unsigned int NumBasisFunctions;
 
     Gedim::Quadrature::QuadratureData InternalQuadrature;
-    Quadrature::VEM_Quadrature_3D::Faces_QuadratureData_MCC BoundaryQuadrature;
+    Polydim::VEM::Quadrature::VEM_Quadrature_3D::Faces_QuadratureData_MCC BoundaryQuadrature;
 
     Eigen::MatrixXd VanderInternal;
     Eigen::MatrixXd VanderInternalKp1;
