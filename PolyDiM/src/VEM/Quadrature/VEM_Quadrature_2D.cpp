@@ -27,9 +27,9 @@ namespace VEM
 namespace Quadrature
 {
 //****************************************************************************
-VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_PCC_2D(const unsigned int order) const
+Polydim::VEM::Quadrature::VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_PCC_2D(const unsigned int order) const
 {
-    VEM_QuadratureData_2D data;
+    Polydim::VEM::Quadrature::VEM_QuadratureData_2D data;
 
     data.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * order);
 
@@ -56,16 +56,16 @@ VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_PCC_2D(const unsigned int order
     return data;
 }
 //****************************************************************************
-VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_DF_PCC_3D(const unsigned int order) const
+Polydim::VEM::Quadrature::VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_DF_PCC_3D(const unsigned int order) const
 {
-    VEM_QuadratureData_2D data;
+    Polydim::VEM::Quadrature::VEM_QuadratureData_2D data;
     data.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * (order + 1));
     return data;
 }
 //****************************************************************************
-VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_DF_PCC_2D(const unsigned int order) const
+Polydim::VEM::Quadrature::VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_DF_PCC_2D(const unsigned int order) const
 {
-    VEM_QuadratureData_2D data;
+    Polydim::VEM::Quadrature::VEM_QuadratureData_2D data;
 
     data.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * order);
 
@@ -112,9 +112,9 @@ VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_DF_PCC_2D(const unsigned int or
     return data;
 }
 //****************************************************************************
-VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_MCC_2D(const unsigned int order) const
+Polydim::VEM::Quadrature::VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_MCC_2D(const unsigned int order) const
 {
-    VEM_QuadratureData_2D data;
+    Polydim::VEM::Quadrature::VEM_QuadratureData_2D data;
 
     data.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * (order + 1));
     data.ReferenceSegmentQuadrature = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * order + 1);
@@ -124,9 +124,9 @@ VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_MCC_2D(const unsigned int order
     return data;
 }
 //****************************************************************************
-VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_MCC_EdgeOrtho_2D(const unsigned int order) const
+Polydim::VEM::Quadrature::VEM_QuadratureData_2D VEM_Quadrature_2D::Compute_MCC_EdgeOrtho_2D(const unsigned int order) const
 {
-    VEM_QuadratureData_2D data;
+    Polydim::VEM::Quadrature::VEM_QuadratureData_2D data;
 
     data.ReferenceTriangleQuadrature = Gedim::Quadrature::Quadrature_Gauss2D_Triangle::FillPointsAndWeights(2 * (order + 1));
     data.ReferenceSegmentQuadrature = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * order + 2);
@@ -165,7 +165,7 @@ Gedim::Quadrature::QuadratureData VEM_Quadrature_2D::PolygonInternalQuadrature(c
     return result;
 }
 //****************************************************************************
-VEM_Quadrature_2D::Edges_QuadratureData VEM_Quadrature_2D::PolygonEdgesLobattoQuadrature(
+Polydim::VEM::Quadrature::VEM_Quadrature_2D::Edges_QuadratureData VEM_Quadrature_2D::PolygonEdgesLobattoQuadrature(
     const Eigen::MatrixXd &ReferenceSegmentInternalPoints,
     const Eigen::VectorXd &ReferenceSegmentInternalWeights,
     const Eigen::Vector2d &ReferenceSegmentExtremaWeights,
@@ -175,7 +175,7 @@ VEM_Quadrature_2D::Edges_QuadratureData VEM_Quadrature_2D::PolygonEdgesLobattoQu
     const Eigen::MatrixXd &edgeTangents,
     const Eigen::MatrixXd &edgeNormals) const
 {
-    Edges_QuadratureData result;
+    Polydim::VEM::Quadrature::VEM_Quadrature_2D::Edges_QuadratureData result;
 
     const unsigned int numVertices = polygonVertices.cols();
     const unsigned int numEdges = numVertices;
@@ -239,14 +239,14 @@ VEM_Quadrature_2D::Edges_QuadratureData VEM_Quadrature_2D::PolygonEdgesLobattoQu
     return result;
 }
 //****************************************************************************
-VEM_Quadrature_2D::Edges_QuadratureData VEM_Quadrature_2D::PolygonEdgesQuadrature(const Gedim::Quadrature::QuadratureData &data,
+Polydim::VEM::Quadrature::VEM_Quadrature_2D::Edges_QuadratureData VEM_Quadrature_2D::PolygonEdgesQuadrature(const Gedim::Quadrature::QuadratureData &data,
                                                                                   const Eigen::MatrixXd &polygonVertices,
                                                                                   const Eigen::VectorXd &edgeLengths,
                                                                                   const std::vector<bool> &edgeDirections,
                                                                                   const Eigen::MatrixXd &edgeTangents,
                                                                                   const Eigen::MatrixXd &edgeNormals) const
 {
-    Edges_QuadratureData result;
+    Polydim::VEM::Quadrature::VEM_Quadrature_2D::Edges_QuadratureData result;
 
     const unsigned int numVertices = polygonVertices.cols();
     const unsigned int numEdges = numVertices;
