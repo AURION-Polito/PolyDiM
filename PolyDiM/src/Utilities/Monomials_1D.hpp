@@ -21,41 +21,48 @@ namespace Utilities
 class Monomials_1D final
 {
   private:
-    Monomials_Utilities<1> utilities;
+    Polydim::Utilities::Monomials_Utilities<1> utilities;
 
   public:
-    Monomials_Data Compute(const unsigned int polynomial_degree) const;
+    Polydim::Utilities::Monomials_Data Compute(const unsigned int polynomial_degree) const;
 
-    inline Eigen::MatrixXi Exponents(const Monomials_Data &data) const
+    inline Eigen::MatrixXi Exponents(const Polydim::Utilities::Monomials_Data &data) const
     {
         return utilities.Exponents(data);
     }
 
-    inline Eigen::MatrixXd DerivativeMatrix(const Monomials_Data &data, const unsigned int &i) const
+    inline Eigen::MatrixXd DerivativeMatrix(const Polydim::Utilities::Monomials_Data &data, const unsigned int &i) const
     {
         return data.DerivativeMatrices[i];
     }
 
-    inline Eigen::MatrixXd D_x(const Monomials_Data &data) const
+    inline Eigen::MatrixXd D_x(const Polydim::Utilities::Monomials_Data &data) const
     {
         return data.DerivativeMatrices[0];
     }
 
     int Index(const Eigen::VectorXi &exponents) const;
-    std::vector<int> DerivativeIndices(const Monomials_Data &data, const unsigned int &index) const;
-    std::vector<int> SecondDerivativeIndices(const Monomials_Data &data, const unsigned int &index) const;
+    std::vector<int> DerivativeIndices(const Polydim::Utilities::Monomials_Data &data, const unsigned int &index) const;
+    std::vector<int> SecondDerivativeIndices(const Polydim::Utilities::Monomials_Data &data, const unsigned int &index) const;
 
-    inline Eigen::MatrixXd Vander(const Monomials_Data &data, const Eigen::MatrixXd &points, const Eigen::Vector3d &centroid, const double &diam) const
+    inline Eigen::MatrixXd Vander(const Polydim::Utilities::Monomials_Data &data,
+                                  const Eigen::MatrixXd &points,
+                                  const Eigen::Vector3d &centroid,
+                                  const double &diam) const
     {
         return utilities.Vander(data, points, centroid, diam);
     }
 
-    inline std::vector<Eigen::MatrixXd> VanderDerivatives(const Monomials_Data &data, const Eigen::MatrixXd &vander, const double &diam) const
+    inline std::vector<Eigen::MatrixXd> VanderDerivatives(const Polydim::Utilities::Monomials_Data &data,
+                                                          const Eigen::MatrixXd &vander,
+                                                          const double &diam) const
     {
         return utilities.VanderDerivatives(data, (*this), vander, diam);
     }
 
-    inline Eigen::MatrixXd VanderLaplacian(const Monomials_Data &data, const Eigen::MatrixXd &vander, const double &diam) const
+    inline Eigen::MatrixXd VanderLaplacian(const Polydim::Utilities::Monomials_Data &data,
+                                           const Eigen::MatrixXd &vander,
+                                           const double &diam) const
     {
         return utilities.VanderLaplacian(data, (*this), vander, diam);
     }

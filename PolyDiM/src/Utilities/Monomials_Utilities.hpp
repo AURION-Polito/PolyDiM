@@ -21,7 +21,7 @@ namespace Utilities
 {
 template <unsigned short dimension> struct Monomials_Utilities final
 {
-    Eigen::MatrixXi Exponents(const Monomials_Data &data) const
+    Eigen::MatrixXi Exponents(const Polydim::Utilities::Monomials_Data &data) const
     {
         Eigen::MatrixXi exponents(dimension, data.NumMonomials);
 
@@ -31,7 +31,10 @@ template <unsigned short dimension> struct Monomials_Utilities final
         return exponents;
     }
 
-    Eigen::MatrixXd Vander(const Monomials_Data &data, const Eigen::MatrixXd &points, const Eigen::Vector3d &centroid, const double &diam) const
+    Eigen::MatrixXd Vander(const Polydim::Utilities::Monomials_Data &data,
+                           const Eigen::MatrixXd &points,
+                           const Eigen::Vector3d &centroid,
+                           const double &diam) const
     {
         Eigen::MatrixXd vander;
         const unsigned int numPoints = points.cols();
@@ -68,7 +71,7 @@ template <unsigned short dimension> struct Monomials_Utilities final
     }
 
     template <typename MonomialType>
-    std::vector<Eigen::MatrixXd> VanderDerivatives(const Monomials_Data &data,
+    std::vector<Eigen::MatrixXd> VanderDerivatives(const Polydim::Utilities::Monomials_Data &data,
                                                    const MonomialType &monomials,
                                                    const Eigen::MatrixXd &Vander,
                                                    const double &diam) const
@@ -101,7 +104,10 @@ template <unsigned short dimension> struct Monomials_Utilities final
     }
 
     template <typename MonomialType>
-    Eigen::MatrixXd VanderLaplacian(const Monomials_Data &data, const MonomialType &monomials, const Eigen::MatrixXd &Vander, const double &diam) const
+    Eigen::MatrixXd VanderLaplacian(const Polydim::Utilities::Monomials_Data &data,
+                                    const MonomialType &monomials,
+                                    const Eigen::MatrixXd &Vander,
+                                    const double &diam) const
     {
         Eigen::MatrixXd vanderLaplacian;
 
