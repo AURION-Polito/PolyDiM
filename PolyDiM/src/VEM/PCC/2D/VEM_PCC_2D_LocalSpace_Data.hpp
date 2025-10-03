@@ -93,7 +93,7 @@ struct VEM_PCC_2D_LocalSpace_Data final
     Eigen::MatrixXd QmatrixInv;
     Eigen::MatrixXd Qmatrixkm1;
 
-    Polydim::Utilities::Inertia_Utilities::Inertia_Data inertia_data;
+    Polydim::Utilities::Inertia_Data inertia_data;
     Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry inertia_polygon;
     double constantStiff;
     double constantMass;

@@ -87,7 +87,7 @@ class VEM_PCC_3D_Inertia_LocalSpace final : public Polydim::VEM::PCC::I_VEM_PCC_
     void ComputePolynomialsDofs(const double &polytopeMeasure, Polydim::VEM::PCC::VEM_PCC_3D_LocalSpace_Data &localSpace) const;
 
     void ComputeGeometryProperties(const Gedim::GeometryUtilities &geometryUtilities,
-                                   const Polydim::Utilities::Inertia_Utilities::Inertia_Data &inertia_data,
+                                   const Polydim::Utilities::Inertia_Data &inertia_data,
                                    const PCC::VEM_PCC_3D_Polyhedron_Geometry &polyhedron,
                                    PCC::VEM_PCC_3D_Polyhedron_Geometry &inertia_geometric_data,
                                    std::vector<double> &inertia_faces_measure) const;

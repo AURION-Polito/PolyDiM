@@ -204,7 +204,7 @@ VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Inertia_LocalSpace::Compute3DUtilities(con
 }
 // ***************************************************************************
 void VEM_PCC_2D_Inertia_LocalSpace::ComputeGeometryProperties(const Gedim::GeometryUtilities &geometryUtilities,
-                                                              const Utilities::Inertia_Utilities::Inertia_Data &inertia_data,
+                                                              const Utilities::Inertia_Data &inertia_data,
                                                               const PCC::VEM_PCC_2D_Polygon_Geometry &polygon,
                                                               PCC::VEM_PCC_2D_Polygon_Geometry &inertia_geometric_data) const
 {

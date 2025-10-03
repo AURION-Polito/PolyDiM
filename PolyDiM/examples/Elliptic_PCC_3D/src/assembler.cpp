@@ -20,7 +20,7 @@ namespace examples
 {
 namespace Elliptic_PCC_3D
 {
-TODO("Remove function!")
+// TODO("Remove function!")
 void Assembler::Debug(const unsigned int &cell3DIndex,
                       const Gedim::MeshMatricesDAO &mesh,
                       const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
@@ -400,7 +400,7 @@ typename Assembler::Elliptic_PCC_3D_Problem_Data Assembler::Assemble(
 
     for (unsigned int c = 0; c < mesh.Cell3DTotalNumber(); ++c)
     {
-        TODO("Remove comments")
+        // TODO("Remove comments")
         // std::cout << "C3D " << c << " ";
         // std::cout << "C0D " << mesh.Cell3DVertex(c, 0) << ", ";
         // std::cout << mesh.Cell3DVertex(c, 1) << ", ";

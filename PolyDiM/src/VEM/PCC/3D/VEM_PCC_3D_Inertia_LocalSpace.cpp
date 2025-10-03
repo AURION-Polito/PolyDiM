@@ -189,7 +189,7 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Inertia_LocalSpace::CreateLocalSpace(const
 }
 // ***************************************************************************
 void VEM_PCC_3D_Inertia_LocalSpace::ComputeGeometryProperties(const Gedim::GeometryUtilities &geometryUtilities,
-                                                              const Utilities::Inertia_Utilities::Inertia_Data &inertia_data,
+                                                              const Utilities::Inertia_Data &inertia_data,
                                                               const PCC::VEM_PCC_3D_Polyhedron_Geometry &polyhedron,
                                                               PCC::VEM_PCC_3D_Polyhedron_Geometry &inertia_geometric_data,
                                                               std::vector<double> &inertia_faces_measure) const

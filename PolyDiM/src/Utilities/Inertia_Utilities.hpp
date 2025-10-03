@@ -18,18 +18,19 @@ namespace Polydim
 {
 namespace Utilities
 {
+
+struct Inertia_Data final
+{
+    Eigen::Matrix3d Fmatrix;
+    Eigen::Matrix3d FmatrixInv;
+    Eigen::Vector3d translation;
+    double absDetFmatrix;
+    double signDetQ;
+};
+
 struct Inertia_Utilities final
 {
     const Gedim::GeometryUtilities &geometryUtilities;
-
-    struct Inertia_Data final
-    {
-        Eigen::Matrix3d Fmatrix;
-        Eigen::Matrix3d FmatrixInv;
-        Eigen::Vector3d translation;
-        double absDetFmatrix;
-        double signDetQ;
-    };
 
     Inertia_Utilities(const Gedim::GeometryUtilities &geometryUtilities);
 
@@ -37,13 +38,13 @@ struct Inertia_Utilities final
                           const Eigen::Vector3d &centroid,
                           const double &diameter,
                           const std::vector<Eigen::Matrix3d> &triangulation_vertices,
-                          Polydim::Utilities::Inertia_Utilities::Inertia_Data &inertia_data) const;
+                          Polydim::Utilities::Inertia_Data &inertia_data) const;
 
     void InertiaMapping3D(const Eigen::MatrixXd &vertices,
                           const Eigen::Vector3d &centroid,
                           const double &diameter,
                           const std::vector<Eigen::MatrixXd> &tetrahedrons_vertices,
-                          Polydim::Utilities::Inertia_Utilities::Inertia_Data &inertia_data) const;
+                          Polydim::Utilities::Inertia_Data &inertia_data) const;
 };
 
 } // namespace Utilities
