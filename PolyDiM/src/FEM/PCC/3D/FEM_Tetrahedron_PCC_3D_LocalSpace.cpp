@@ -158,7 +158,7 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
 
             const auto face_internal_dofs_3D_from_reference_3D = Gedim::MapTetrahedron::F(localSpace.MapData, reference_face_dofs);
 
-            TODO("Remove cout and comments")
+            // ("Remove cout and comments")
             // std::cout << "\tFace " << f << " dir " << polyhedron.FacesDirection.at(f) << " dir " << ref_face_dir << "
             // s_i " << ref_face_s_i << " "; std::cout << "Ref F " << ref_f<< " "; std::cout << "vertices " <<
             // polyhedron.Faces[f](0, 0) << ", "; std::cout << polyhedron.Faces[f](0, 1) << ", "; std::cout <<
