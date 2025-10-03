@@ -19,12 +19,8 @@ namespace Polydim
 namespace Utilities
 {
 // ***************************************************************************
-Inertia_Utilities::Inertia_Utilities(const Gedim::GeometryUtilities &geometryUtilities)
-    : geometryUtilities(geometryUtilities)
-{
-}
-// ***************************************************************************
-void Inertia_Utilities::InertiaMapping2D(const MatrixXd &vertices,
+void Inertia_Utilities::InertiaMapping2D(const Gedim::GeometryUtilities &geometryUtilities,
+                                         const MatrixXd &vertices,
                                          const Vector3d &centroid,
                                          const double &diameter,
                                          const vector<Matrix3d> &triangulation_vertices,
@@ -94,7 +90,8 @@ void Inertia_Utilities::InertiaMapping2D(const MatrixXd &vertices,
     inertia_data.translation += Vector3d::Zero();
 }
 // ***************************************************************************
-void Inertia_Utilities::InertiaMapping3D(const MatrixXd &vertices,
+void Inertia_Utilities::InertiaMapping3D(const Gedim::GeometryUtilities &geometryUtilities,
+                                         const MatrixXd &vertices,
                                          const Vector3d &centroid,
                                          const double &diameter,
                                          const vector<MatrixXd> &tetrahedrons_vertices,

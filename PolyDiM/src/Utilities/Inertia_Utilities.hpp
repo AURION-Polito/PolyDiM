@@ -30,17 +30,15 @@ struct Inertia_Data final
 
 struct Inertia_Utilities final
 {
-    const Gedim::GeometryUtilities &geometryUtilities;
-
-    Inertia_Utilities(const Gedim::GeometryUtilities &geometryUtilities);
-
-    void InertiaMapping2D(const Eigen::MatrixXd &vertices,
+    void InertiaMapping2D(const Gedim::GeometryUtilities &geometryUtilities,
+                          const Eigen::MatrixXd &vertices,
                           const Eigen::Vector3d &centroid,
                           const double &diameter,
                           const std::vector<Eigen::Matrix3d> &triangulation_vertices,
                           Polydim::Utilities::Inertia_Data &inertia_data) const;
 
-    void InertiaMapping3D(const Eigen::MatrixXd &vertices,
+    void InertiaMapping3D(const Gedim::GeometryUtilities &geometryUtilities,
+                          const Eigen::MatrixXd &vertices,
                           const Eigen::Vector3d &centroid,
                           const double &diameter,
                           const std::vector<Eigen::MatrixXd> &tetrahedrons_vertices,

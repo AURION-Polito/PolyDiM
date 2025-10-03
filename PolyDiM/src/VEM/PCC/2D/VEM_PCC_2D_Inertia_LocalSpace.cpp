@@ -30,9 +30,10 @@ VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Inertia_LocalSpace::CreateLocalSpace(const
     geometryUtilitiesConfig.Tolerance1D = polygon.Tolerance1D;
     geometryUtilitiesConfig.Tolerance2D = polygon.Tolerance2D;
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
-    Utilities::Inertia_Utilities inertia_utilities(geometryUtilities);
+    Utilities::Inertia_Utilities inertia_utilities;
 
-    inertia_utilities.InertiaMapping2D(polygon.Vertices,
+    inertia_utilities.InertiaMapping2D(geometryUtilities,
+                                       polygon.Vertices,
                                        polygon.Centroid,
                                        polygon.Diameter,
                                        polygon.TriangulationVertices,
@@ -125,9 +126,10 @@ VEM_PCC_2D_LocalSpace_Data VEM_PCC_2D_Inertia_LocalSpace::Compute3DUtilities(con
     geometryUtilitiesConfig.Tolerance1D = polygon.Tolerance1D;
     geometryUtilitiesConfig.Tolerance2D = polygon.Tolerance2D;
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
-    Utilities::Inertia_Utilities inertia_utilities(geometryUtilities);
+    Utilities::Inertia_Utilities inertia_utilities;
 
-    inertia_utilities.InertiaMapping2D(polygon.Vertices,
+    inertia_utilities.InertiaMapping2D(geometryUtilities,
+                                       polygon.Vertices,
                                        polygon.Centroid,
                                        polygon.Diameter,
                                        polygon.TriangulationVertices,

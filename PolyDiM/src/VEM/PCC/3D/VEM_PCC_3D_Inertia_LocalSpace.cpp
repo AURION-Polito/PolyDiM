@@ -35,10 +35,11 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Inertia_LocalSpace::CreateLocalSpace(const
     VEM_PCC_3D_LocalSpace_Data localSpace;
     Quadrature::VEM_Quadrature_3D quadrature3D;
 
-    Utilities::Inertia_Utilities inertia_utilities(geometryUtilities);
+    Utilities::Inertia_Utilities inertia_utilities;
     std::vector<double> inertia_faces_measure;
 
-    inertia_utilities.InertiaMapping3D(polyhedron.Vertices,
+    inertia_utilities.InertiaMapping3D(geometryUtilities,
+                                       polyhedron.Vertices,
                                        polyhedron.Centroid,
                                        polyhedron.Diameter,
                                        polyhedron.TetrahedronVertices,
