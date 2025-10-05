@@ -56,11 +56,7 @@ void create_domain_mesh(const Polydim::examples::Elliptic_PCC_1D::Program_config
     }
     break;
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_1D::CsvImporter: {
-        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::import_mesh_1D(geometryUtilities,
-                                                                    meshUtilities,
-                                                                    config.MeshGenerator(),
-                                                                    config.MeshImportFilePath(),
-                                                                    mesh);
+        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::import_mesh_1D(config.MeshGenerator(), config.MeshImportFilePath(), mesh);
     }
     break;
     default:

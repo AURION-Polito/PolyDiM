@@ -108,11 +108,7 @@ void create_domain_mesh(const Polydim::examples::Stokes_DF_PCC_3D::Program_confi
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::CsvImporter:
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::VtkImporter:
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::OVMImporter: {
-        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::import_mesh_3D(geometryUtilities,
-                                                                    meshUtilities,
-                                                                    config.MeshGenerator(),
-                                                                    config.MeshImportFilePath(),
-                                                                    mesh);
+        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::import_mesh_3D(meshUtilities, config.MeshGenerator(), config.MeshImportFilePath(), mesh);
     }
     break;
     default:
