@@ -43,7 +43,7 @@ struct PDE_Domain_2D final
 
     Eigen::MatrixXd vertices;
     double area;
-    Domain_Shape_Types shape_type;
+    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types shape_type;
 };
 
 struct PDE_Domain_3D final
@@ -58,7 +58,7 @@ struct PDE_Domain_3D final
     Eigen::MatrixXi edges;
     std::vector<Eigen::MatrixXi> faces;
     double volume;
-    Domain_Shape_Types shape_type;
+    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_3D::Domain_Shape_Types shape_type;
 };
 
 enum struct MeshGenerator_Types_1D
@@ -92,21 +92,21 @@ enum struct MeshGenerator_Types_3D
 
 inline void create_mesh_1D(const Gedim::GeometryUtilities &geometry_utilities,
                            const Gedim::MeshUtilities &mesh_utilities,
-                           const MeshGenerator_Types_1D &mesh_type,
-                           const PDE_Domain_1D &pde_domain,
+                           const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_1D &mesh_type,
+                           const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_1D &pde_domain,
                            const double &max_relative_length,
                            Gedim::MeshMatricesDAO &mesh)
 {
     switch (mesh_type)
     {
-    case MeshGenerator_Types_1D::Minimal: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_1D::Minimal: {
         const Eigen::Vector3d segment_origin = pde_domain.vertices.col(0);
         const Eigen::Vector3d segment_tangent = pde_domain.vertices.col(1) - segment_origin;
 
         mesh_utilities.FillMesh1D(geometry_utilities, segment_origin, segment_tangent, {0.0, 1.0}, mesh);
     }
     break;
-    case MeshGenerator_Types_1D::Equispaced: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_1D::Equispaced: {
         const Eigen::Vector3d segment_origin = pde_domain.vertices.col(0);
         const Eigen::Vector3d segment_tangent = pde_domain.vertices.col(1) - segment_origin;
 
@@ -124,14 +124,14 @@ inline void create_mesh_1D(const Gedim::GeometryUtilities &geometry_utilities,
 
 inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
                            const Gedim::MeshUtilities &mesh_utilities,
-                           const MeshGenerator_Types_2D &mesh_type,
-                           const PDE_Domain_2D &pde_domain,
+                           const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D &mesh_type,
+                           const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D &pde_domain,
                            const double &max_relative_area,
                            Gedim::MeshMatricesDAO &mesh)
 {
     switch (mesh_type)
     {
-    case MeshGenerator_Types_2D::Triangular: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular: {
 #if ENABLE_TRIANGLE == 0
         throw std::runtime_error("Triangle library not active");
 #endif
@@ -139,11 +139,11 @@ inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
         mesh_utilities.CreateTriangularMesh(pde_domain.vertices, max_cell_area, mesh);
     }
     break;
-    case MeshGenerator_Types_2D::Minimal: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Minimal: {
         mesh_utilities.Mesh2DFromPolygon(pde_domain.vertices, {}, {}, mesh);
     }
     break;
-    case MeshGenerator_Types_2D::Polygonal: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Polygonal: {
 #if ENABLE_VORO == 0
         throw std::runtime_error("Voro library not active");
 #endif
@@ -152,10 +152,10 @@ inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
         mesh_utilities.CreatePolygonalMesh(geometry_utilities, pde_domain.vertices, num_cells, 10, mesh, 10);
     }
     break;
-    case MeshGenerator_Types_2D::Squared: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Squared: {
         switch (pde_domain.shape_type)
         {
-        case PDE_Domain_2D::Domain_Shape_Types::Parallelogram:
+        case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types::Parallelogram:
             break;
         default:
             throw std::runtime_error("Squared mesh cannot be created");
@@ -177,10 +177,10 @@ inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
                                            mesh);
     }
     break;
-    case MeshGenerator_Types_2D::RandomDistorted: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::RandomDistorted: {
         switch (pde_domain.shape_type)
         {
-        case PDE_Domain_2D::Domain_Shape_Types::Parallelogram:
+        case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types::Parallelogram:
             break;
         default:
             throw std::runtime_error("Squared mesh cannot be created");
@@ -212,14 +212,14 @@ inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
 
 inline void create_mesh_3D(const Gedim::GeometryUtilities &geometry_utilities,
                            const Gedim::MeshUtilities &mesh_utilities,
-                           const MeshGenerator_Types_3D &mesh_type,
-                           const PDE_Domain_3D &pde_domain,
+                           const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D &mesh_type,
+                           const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_3D &pde_domain,
                            const double &max_relative_volume,
                            Gedim::MeshMatricesDAO &mesh)
 {
     switch (mesh_type)
     {
-    case MeshGenerator_Types_3D::Tetrahedral: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Tetrahedral: {
 #if ENABLE_TETGEN == 0
         throw std::runtime_error("Tetgen library not active");
 #endif
@@ -227,11 +227,11 @@ inline void create_mesh_3D(const Gedim::GeometryUtilities &geometry_utilities,
         mesh_utilities.CreateTetrahedralMesh(pde_domain.vertices, pde_domain.edges, pde_domain.faces, max_cell_volume, mesh);
     }
     break;
-    case MeshGenerator_Types_3D::Minimal: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Minimal: {
         mesh_utilities.Mesh3DFromPolyhedron(pde_domain.vertices, pde_domain.edges, pde_domain.faces, {}, {}, {}, mesh);
     }
     break;
-    case MeshGenerator_Types_3D::Polyhedral: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Polyhedral: {
 #if ENABLE_VORO == 0
         throw std::runtime_error("Voro library not active");
 #endif
@@ -240,7 +240,7 @@ inline void create_mesh_3D(const Gedim::GeometryUtilities &geometry_utilities,
         mesh_utilities.CreatePolyhedralMesh(geometry_utilities, pde_domain.vertices, pde_domain.edges, pde_domain.faces, num_cells, 10, mesh, 10);
     }
     break;
-    case MeshGenerator_Types_3D::Cubic: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Cubic: {
         switch (pde_domain.shape_type)
         {
         case PDE_Domain_3D::Domain_Shape_Types::Parallelepiped:
@@ -276,13 +276,13 @@ inline void create_mesh_3D(const Gedim::GeometryUtilities &geometry_utilities,
 
 inline void import_mesh_1D(const Gedim::GeometryUtilities &geometry_utilities,
                            const Gedim::MeshUtilities &mesh_utilities,
-                           const MeshGenerator_Types_1D &mesh_type,
+                           const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_1D &mesh_type,
                            const std::string &file_path,
                            Gedim::MeshMatricesDAO &mesh)
 {
     switch (mesh_type)
     {
-    case MeshGenerator_Types_1D::CsvImporter: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_1D::CsvImporter: {
         Gedim::MeshFromCsvUtilities importerUtilities;
         Gedim::MeshFromCsvUtilities::Configuration meshImporterConfiguration;
         meshImporterConfiguration.Folder = file_path;
@@ -298,13 +298,13 @@ inline void import_mesh_1D(const Gedim::GeometryUtilities &geometry_utilities,
 
 inline void import_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
                            const Gedim::MeshUtilities &mesh_utilities,
-                           const MeshGenerator_Types_2D &mesh_type,
+                           const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D &mesh_type,
                            const std::string &file_path,
                            Gedim::MeshMatricesDAO &mesh)
 {
     switch (mesh_type)
     {
-    case MeshGenerator_Types_2D::CsvImporter: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::CsvImporter: {
         Gedim::MeshFromCsvUtilities importerUtilities;
         Gedim::MeshFromCsvUtilities::Configuration meshImporterConfiguration;
         meshImporterConfiguration.Folder = file_path;
@@ -313,7 +313,7 @@ inline void import_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
         importer.Import(meshImporterConfiguration, mesh);
     }
     break;
-    case MeshGenerator_Types_2D::OFFImporter: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::OFFImporter: {
         mesh_utilities.ImportObjectFileFormat(file_path, mesh);
     }
     break;
@@ -324,13 +324,13 @@ inline void import_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
 
 inline void import_mesh_3D(const Gedim::GeometryUtilities &geometry_utilities,
                            const Gedim::MeshUtilities &mesh_utilities,
-                           const MeshGenerator_Types_3D &mesh_type,
+                           const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D &mesh_type,
                            const std::string &file_path,
                            Gedim::MeshMatricesDAO &mesh)
 {
     switch (mesh_type)
     {
-    case MeshGenerator_Types_3D::CsvImporter: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::CsvImporter: {
         Gedim::MeshFromCsvUtilities importerUtilities;
         Gedim::MeshFromCsvUtilities::Configuration meshImporterConfiguration;
         meshImporterConfiguration.Folder = file_path;
@@ -339,12 +339,12 @@ inline void import_mesh_3D(const Gedim::GeometryUtilities &geometry_utilities,
         importer.Import(meshImporterConfiguration, mesh);
     }
     break;
-    case MeshGenerator_Types_3D::OVMImporter: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::OVMImporter: {
         std::vector<std::vector<bool>> meshCell3DsFacesOrientation;
         mesh_utilities.ImportOpenVolumeMesh(file_path, mesh, meshCell3DsFacesOrientation);
     }
     break;
-    case MeshGenerator_Types_3D::VtkImporter: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::VtkImporter: {
         mesh_utilities.ImportVtkMesh3D(file_path, mesh);
     }
     default:
