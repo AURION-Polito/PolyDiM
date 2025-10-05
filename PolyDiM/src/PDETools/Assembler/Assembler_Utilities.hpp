@@ -13,7 +13,6 @@
 #define __PDETOOLS_ASSEMBLER_AssemblerUtilities_HPP
 
 #include "DOFsManager.hpp"
-#include <iostream>
 #include <vector>
 
 namespace Polydim
@@ -45,9 +44,9 @@ struct local_count_dofs_data final
     std::vector<size_t> offsets_DOFs;
 };
 
-inline count_dofs_data count_dofs(const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data)
+inline Polydim::PDETools::Assembler_Utilities::count_dofs_data count_dofs(const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data)
 {
-    count_dofs_data data;
+    Polydim::PDETools::Assembler_Utilities::count_dofs_data data;
     data.num_total_dofs = dofs_data[0].NumberDOFs;
     data.num_total_strong = dofs_data[0].NumberStrongs;
     data.num_total_boundary_dofs = dofs_data[0].NumberBoundaryDOFs;
@@ -72,10 +71,10 @@ inline count_dofs_data count_dofs(const std::vector<Polydim::PDETools::DOFs::DOF
 }
 // ***************************************************************************
 template <unsigned int dimension>
-inline local_count_dofs_data local_count_dofs(const unsigned int cell_index,
-                                              const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data)
+inline Polydim::PDETools::Assembler_Utilities::local_count_dofs_data
+local_count_dofs(const unsigned int cell_index, const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data)
 {
-    local_count_dofs_data data;
+    Polydim::PDETools::Assembler_Utilities::local_count_dofs_data data;
     data.num_total_dofs = dofs_data[0].CellsGlobalDOFs[dimension].at(cell_index).size();
 
     const unsigned int numDOFHandler = dofs_data.size();

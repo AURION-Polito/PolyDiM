@@ -16,9 +16,9 @@
 #include "DOFsManager.hpp"
 #include "Eigen_Array.hpp"
 #include "Eigen_SparseArray.hpp"
+#include "LocalSpace_MCC_2D.hpp"
 #include "MeshMatricesDAO.hpp"
 #include "MeshUtilities.hpp"
-#include "local_space.hpp"
 #include "program_configuration.hpp"
 
 namespace Polydim
@@ -42,7 +42,7 @@ class Assembler final
 
     struct Performance_Data final
     {
-        std::vector<local_space::Performance_Data> Cell2DsPerformance;
+        std::vector<Polydim::PDETools::LocalSpace_MCC_2D::Performance_Data> Cell2DsPerformance;
     };
 
     struct PostProcess_Data final
@@ -72,8 +72,8 @@ class Assembler final
                            const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
                            const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                            const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
-                           const local_space::ReferenceElement_Data &reference_element_data,
-                           const local_space::LocalSpace_Data &local_space_data,
+                           const Polydim::PDETools::LocalSpace_MCC_2D::ReferenceElement_Data &reference_element_data,
+                           const Polydim::PDETools::LocalSpace_MCC_2D::LocalSpace_Data &local_space_data,
                            const test::I_Test &test,
                            Elliptic_MCC_2D_Problem_Data &assembler_data) const;
 
@@ -82,8 +82,8 @@ class Assembler final
                          const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
                          const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                          const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
-                         const local_space::ReferenceElement_Data &reference_element_data,
-                         const local_space::LocalSpace_Data &local_space_data,
+                         const Polydim::PDETools::LocalSpace_MCC_2D::ReferenceElement_Data &reference_element_data,
+                         const Polydim::PDETools::LocalSpace_MCC_2D::LocalSpace_Data &local_space_data,
                          const test::I_Test &test,
                          Elliptic_MCC_2D_Problem_Data &assembler_data) const;
 
@@ -94,20 +94,20 @@ class Assembler final
                                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
                                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
                                           const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
-                                          const local_space::ReferenceElement_Data &reference_element_data,
+                                          const Polydim::PDETools::LocalSpace_MCC_2D::ReferenceElement_Data &reference_element_data,
                                           const Polydim::examples::Elliptic_MCC_2D::test::I_Test &test) const;
 
     Assembler::Performance_Data ComputePerformance(const Polydim::examples::Elliptic_MCC_2D::Program_configuration &config,
                                                    const Gedim::MeshMatricesDAO &mesh,
                                                    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-                                                   const local_space::ReferenceElement_Data &reference_element_data) const;
+                                                   const Polydim::PDETools::LocalSpace_MCC_2D::ReferenceElement_Data &reference_element_data) const;
 
     PostProcess_Data PostProcessSolution(const Polydim::examples::Elliptic_MCC_2D::Program_configuration &config,
                                          const Gedim::MeshMatricesDAO &mesh,
                                          const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                          const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
                                          const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
-                                         const local_space::ReferenceElement_Data &reference_element_data,
+                                         const Polydim::PDETools::LocalSpace_MCC_2D::ReferenceElement_Data &reference_element_data,
                                          const Elliptic_MCC_2D_Problem_Data &assembler_data,
                                          const Polydim::examples::Elliptic_MCC_2D::test::I_Test &test) const;
 };

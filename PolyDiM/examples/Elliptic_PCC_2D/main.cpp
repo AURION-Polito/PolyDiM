@@ -104,14 +104,13 @@ int main(int argc, char **argv)
     Gedim::Profiler::StartTime("CreateDiscreteSpace");
 
     const auto reference_element_data =
-        Polydim::examples::Elliptic_PCC_2D::local_space::CreateReferenceElement(config.MethodType(), config.MethodOrder());
+        Polydim::PDETools::LocalSpace_PCC_2D::CreateReferenceElement(config.MethodType(), config.MethodOrder());
 
     Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data = {mesh};
 
     Polydim::PDETools::DOFs::DOFsManager dofManager;
 
-    const auto meshDOFsInfo =
-        Polydim::examples::Elliptic_PCC_2D::local_space::SetMeshDOFsInfo(reference_element_data, mesh, boundary_info);
+    const auto meshDOFsInfo = Polydim::PDETools::LocalSpace_PCC_2D::SetMeshDOFsInfo(reference_element_data, mesh, boundary_info);
     const auto dofs_data = dofManager.CreateDOFs<2>(meshDOFsInfo, mesh_connectivity_data);
 
     Gedim::Output::PrintGenericMessage("Discrete Space with " + std::to_string(dofs_data.NumberDOFs) + " DOFs and " +

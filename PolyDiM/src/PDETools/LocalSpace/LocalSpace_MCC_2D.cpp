@@ -9,19 +9,17 @@
 //
 // This file can be used citing references in CITATION.cff file.
 
-#include "local_space.hpp"
+#include "LocalSpace_MCC_2D.hpp"
 #include <memory>
 
 namespace Polydim
 {
-namespace examples
+namespace PDETools
 {
-namespace Elliptic_MCC_2D
-{
-namespace local_space
+namespace LocalSpace_MCC_2D
 {
 //***************************************************************************
-ReferenceElement_Data CreateReferenceElement(const Program_configuration::MethodTypes &method_type, const unsigned int method_order)
+ReferenceElement_Data CreateReferenceElement(const MethodTypes &method_type, const unsigned int method_order)
 {
     ReferenceElement_Data reference_element_data;
     reference_element_data.Method_Type = method_type;
@@ -29,26 +27,26 @@ ReferenceElement_Data CreateReferenceElement(const Program_configuration::Method
 
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::VEM_MCC:
-    case Program_configuration::MethodTypes::VEM_MCC_Partial:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho:
-    case Program_configuration::MethodTypes::VEM_MCC_EdgeOrtho:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
+    case MethodTypes::VEM_MCC:
+    case MethodTypes::VEM_MCC_Partial:
+    case MethodTypes::VEM_MCC_Ortho:
+    case MethodTypes::VEM_MCC_EdgeOrtho:
+    case MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
         switch (reference_element_data.Method_Type)
         {
-        case Program_configuration::MethodTypes::VEM_MCC:
+        case MethodTypes::VEM_MCC:
             reference_element_data.VEM_Type = VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_LocalSpace;
             break;
-        case Program_configuration::MethodTypes::VEM_MCC_Partial:
+        case MethodTypes::VEM_MCC_Partial:
             reference_element_data.VEM_Type = VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Partial_LocalSpace;
             break;
-        case Program_configuration::MethodTypes::VEM_MCC_Ortho:
+        case MethodTypes::VEM_MCC_Ortho:
             reference_element_data.VEM_Type = VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Ortho_LocalSpace;
             break;
-        case Program_configuration::MethodTypes::VEM_MCC_EdgeOrtho:
+        case MethodTypes::VEM_MCC_EdgeOrtho:
             reference_element_data.VEM_Type = VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_EdgeOrtho_LocalSpace;
             break;
-        case Program_configuration::MethodTypes::VEM_MCC_Ortho_EdgeOrtho:
+        case MethodTypes::VEM_MCC_Ortho_EdgeOrtho:
             reference_element_data.VEM_Type = VEM::MCC::VEM_MCC_2D_LocalSpace_Types::VEM_MCC_2D_Ortho_EdgeOrtho_LocalSpace;
             break;
         default:
@@ -76,7 +74,8 @@ ReferenceElement_Data CreateReferenceElement(const Program_configuration::Method
     return reference_element_data;
 }
 //***************************************************************************
-LocalSpace_Data CreateLocalSpace(const Polydim::examples::Elliptic_MCC_2D::Program_configuration &config,
+LocalSpace_Data CreateLocalSpace(const double &geometric_tolerance_1D,
+                                 const double &geometric_tolerance_2D,
                                  const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                  const unsigned int cell2D_index,
                                  const ReferenceElement_Data &reference_element_data)
@@ -85,13 +84,13 @@ LocalSpace_Data CreateLocalSpace(const Polydim::examples::Elliptic_MCC_2D::Progr
 
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::VEM_MCC:
-    case Program_configuration::MethodTypes::VEM_MCC_Partial:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho:
-    case Program_configuration::MethodTypes::VEM_MCC_EdgeOrtho:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
-        local_space_data.VEM_Geometry = {config.GeometricTolerance1D(),
-                                         config.GeometricTolerance2D(),
+    case MethodTypes::VEM_MCC:
+    case MethodTypes::VEM_MCC_Partial:
+    case MethodTypes::VEM_MCC_Ortho:
+    case MethodTypes::VEM_MCC_EdgeOrtho:
+    case MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
+        local_space_data.VEM_Geometry = {geometric_tolerance_1D,
+                                         geometric_tolerance_2D,
                                          mesh_geometric_data.Cell2DsVertices.at(cell2D_index),
                                          mesh_geometric_data.Cell2DsCentroids.at(cell2D_index),
                                          mesh_geometric_data.Cell2DsAreas.at(cell2D_index),
@@ -128,11 +127,11 @@ std::vector<Eigen::MatrixXd> VelocityBasisFunctionsValues(const ReferenceElement
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::VEM_MCC:
-    case Program_configuration::MethodTypes::VEM_MCC_Partial:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho:
-    case Program_configuration::MethodTypes::VEM_MCC_EdgeOrtho:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
+    case MethodTypes::VEM_MCC:
+    case MethodTypes::VEM_MCC_Partial:
+    case MethodTypes::VEM_MCC_Ortho:
+    case MethodTypes::VEM_MCC_EdgeOrtho:
+    case MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
         return reference_element_data.VEM_LocalSpace_Velocity->ComputeBasisFunctionsValues(local_space_data.VEM_LocalSpace_Data_Velocity,
                                                                                            projectionType);
     }
@@ -145,11 +144,11 @@ Eigen::MatrixXd PressureBasisFunctionsValues(const ReferenceElement_Data &refere
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::VEM_MCC:
-    case Program_configuration::MethodTypes::VEM_MCC_Partial:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho:
-    case Program_configuration::MethodTypes::VEM_MCC_EdgeOrtho:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
+    case MethodTypes::VEM_MCC:
+    case MethodTypes::VEM_MCC_Partial:
+    case MethodTypes::VEM_MCC_Ortho:
+    case MethodTypes::VEM_MCC_EdgeOrtho:
+    case MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
         return reference_element_data.VEM_LocalSpace_Pressure->ComputeBasisFunctionsValues(local_space_data.VEM_LocalSpace_Data_Pressure);
     }
     default:
@@ -162,11 +161,11 @@ Eigen::MatrixXd VelocityBasisFunctionsDivergenceValues(const ReferenceElement_Da
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::VEM_MCC:
-    case Program_configuration::MethodTypes::VEM_MCC_Partial:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho:
-    case Program_configuration::MethodTypes::VEM_MCC_EdgeOrtho:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
+    case MethodTypes::VEM_MCC:
+    case MethodTypes::VEM_MCC_Partial:
+    case MethodTypes::VEM_MCC_Ortho:
+    case MethodTypes::VEM_MCC_EdgeOrtho:
+    case MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
         return reference_element_data.VEM_LocalSpace_Velocity->ComputeBasisFunctionsDivergenceValues(
             local_space_data.VEM_LocalSpace_Data_Velocity);
     }
@@ -182,16 +181,16 @@ Eigen::MatrixXd VelocityBasisFunctionsValuesOnEdges(const unsigned int &edge_loc
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::VEM_MCC:
-    case Program_configuration::MethodTypes::VEM_MCC_Partial:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho: {
+    case MethodTypes::VEM_MCC:
+    case MethodTypes::VEM_MCC_Partial:
+    case MethodTypes::VEM_MCC_Ortho: {
         const double direction = local_space_data.VEM_Geometry.EdgesDirection[edge_local_index] ? 1.0 : -1.0;
 
         return direction * Eigen::MatrixXd::Identity(reference_element_data.VEM_ReferenceElement_Data_Velocity.NumDofs1D,
                                                      reference_element_data.VEM_ReferenceElement_Data_Velocity.NumDofs1D);
     }
-    case Program_configuration::MethodTypes::VEM_MCC_EdgeOrtho:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
+    case MethodTypes::VEM_MCC_EdgeOrtho:
+    case MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
         Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
         geometryUtilitiesConfig.Tolerance1D = local_space_data.VEM_Geometry.Tolerance1D;
         geometryUtilitiesConfig.Tolerance2D = local_space_data.VEM_Geometry.Tolerance2D;
@@ -237,11 +236,11 @@ Gedim::Quadrature::QuadratureData EdgeQuadrature(const ReferenceElement_Data &re
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::VEM_MCC:
-    case Program_configuration::MethodTypes::VEM_MCC_Partial:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho:
-    case Program_configuration::MethodTypes::VEM_MCC_EdgeOrtho:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
+    case MethodTypes::VEM_MCC:
+    case MethodTypes::VEM_MCC_Partial:
+    case MethodTypes::VEM_MCC_Ortho:
+    case MethodTypes::VEM_MCC_EdgeOrtho:
+    case MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
         Gedim::Quadrature::QuadratureData quadrature;
         unsigned int num_quadrature_points =
             reference_element_data.VEM_ReferenceElement_Data_Velocity.Quadrature.ReferenceSegmentQuadrature.Points.cols();
@@ -263,11 +262,11 @@ Gedim::Quadrature::QuadratureData InternalQuadrature(const ReferenceElement_Data
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::VEM_MCC:
-    case Program_configuration::MethodTypes::VEM_MCC_Partial:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho:
-    case Program_configuration::MethodTypes::VEM_MCC_EdgeOrtho:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
+    case MethodTypes::VEM_MCC:
+    case MethodTypes::VEM_MCC_Partial:
+    case MethodTypes::VEM_MCC_Ortho:
+    case MethodTypes::VEM_MCC_EdgeOrtho:
+    case MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
         return local_space_data.VEM_LocalSpace_Data_Velocity.InternalQuadrature;
     }
     default:
@@ -279,11 +278,11 @@ unsigned int VelocitySize(const ReferenceElement_Data &reference_element_data, c
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::VEM_MCC:
-    case Program_configuration::MethodTypes::VEM_MCC_Partial:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho:
-    case Program_configuration::MethodTypes::VEM_MCC_EdgeOrtho:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
+    case MethodTypes::VEM_MCC:
+    case MethodTypes::VEM_MCC_Partial:
+    case MethodTypes::VEM_MCC_Ortho:
+    case MethodTypes::VEM_MCC_EdgeOrtho:
+    case MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
         return local_space_data.VEM_LocalSpace_Data_Velocity.NumBasisFunctions;
     }
     default:
@@ -297,11 +296,11 @@ Eigen::MatrixXd StabilizationMatrix(const ReferenceElement_Data &reference_eleme
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::VEM_MCC:
-    case Program_configuration::MethodTypes::VEM_MCC_Partial:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho:
-    case Program_configuration::MethodTypes::VEM_MCC_EdgeOrtho:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
+    case MethodTypes::VEM_MCC:
+    case MethodTypes::VEM_MCC_Partial:
+    case MethodTypes::VEM_MCC_Ortho:
+    case MethodTypes::VEM_MCC_EdgeOrtho:
+    case MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
         return reference_element_data.VEM_LocalSpace_Velocity->ComputeDofiDofiStabilizationMatrix(local_space_data.VEM_LocalSpace_Data_Velocity,
                                                                                                   projectionType);
     }
@@ -316,9 +315,9 @@ Gedim::Quadrature::QuadratureData EdgeDofsCoordinates(const ReferenceElement_Dat
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::VEM_MCC:
-    case Program_configuration::MethodTypes::VEM_MCC_Partial:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho: {
+    case MethodTypes::VEM_MCC:
+    case MethodTypes::VEM_MCC_Partial:
+    case MethodTypes::VEM_MCC_Ortho: {
         unsigned int num_edge_dofs = reference_element_data.VEM_ReferenceElement_Data_Velocity.NumDofs1D;
 
         Gedim::Quadrature::QuadratureData edge_dofs_coordinates;
@@ -327,8 +326,8 @@ Gedim::Quadrature::QuadratureData EdgeDofsCoordinates(const ReferenceElement_Dat
                                                                                                           num_edge_dofs);
         return edge_dofs_coordinates;
     }
-    case Program_configuration::MethodTypes::VEM_MCC_EdgeOrtho:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
+    case MethodTypes::VEM_MCC_EdgeOrtho:
+    case MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
         Gedim::Quadrature::QuadratureData quadrature;
         unsigned int num_quadrature_points =
             reference_element_data.VEM_ReferenceElement_Data_Velocity.Quadrature.ReferenceSegmentQuadrature.Points.cols();
@@ -353,15 +352,15 @@ Eigen::VectorXd EdgeDofs(const ReferenceElement_Data &reference_element_data,
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::VEM_MCC:
-    case Program_configuration::MethodTypes::VEM_MCC_Partial:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho: {
+    case MethodTypes::VEM_MCC:
+    case MethodTypes::VEM_MCC_Partial:
+    case MethodTypes::VEM_MCC_Ortho: {
         const double direction = local_space_data.VEM_Geometry.EdgesDirection[edge_local_index] ? 1.0 : -1.0;
 
         return direction * strong_values;
     }
-    case Program_configuration::MethodTypes::VEM_MCC_EdgeOrtho:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
+    case MethodTypes::VEM_MCC_EdgeOrtho:
+    case MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
 
         Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
         geometryUtilitiesConfig.Tolerance1D = local_space_data.VEM_Geometry.Tolerance1D;
@@ -406,11 +405,11 @@ std::array<std::array<unsigned int, 4>, 2> ReferenceElementNumDOFs(const Referen
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::VEM_MCC:
-    case Program_configuration::MethodTypes::VEM_MCC_Partial:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho:
-    case Program_configuration::MethodTypes::VEM_MCC_EdgeOrtho:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
+    case MethodTypes::VEM_MCC:
+    case MethodTypes::VEM_MCC_Partial:
+    case MethodTypes::VEM_MCC_Ortho:
+    case MethodTypes::VEM_MCC_EdgeOrtho:
+    case MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
         std::array<std::array<unsigned int, 4>, 2> result;
         result[0] = {reference_element_data.VEM_ReferenceElement_Data_Velocity.NumDofs0D,
                      reference_element_data.VEM_ReferenceElement_Data_Velocity.NumDofs1D,
@@ -433,11 +432,11 @@ Performance_Data ComputePerformance(const ReferenceElement_Data &reference_eleme
 
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::VEM_MCC:
-    case Program_configuration::MethodTypes::VEM_MCC_Partial:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho:
-    case Program_configuration::MethodTypes::VEM_MCC_EdgeOrtho:
-    case Program_configuration::MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
+    case MethodTypes::VEM_MCC:
+    case MethodTypes::VEM_MCC_Partial:
+    case MethodTypes::VEM_MCC_Ortho:
+    case MethodTypes::VEM_MCC_EdgeOrtho:
+    case MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
         Polydim::VEM::MCC::VEM_MCC_PerformanceAnalysis performanceAnalysis;
 
         performance.VEM_Performance_Data.Analysis =
@@ -459,7 +458,6 @@ Performance_Data ComputePerformance(const ReferenceElement_Data &reference_eleme
     return performance;
 }
 //***************************************************************************
-} // namespace local_space
-} // namespace Elliptic_MCC_2D
-} // namespace examples
+} // namespace LocalSpace_MCC_2D
+} // namespace PDETools
 } // namespace Polydim

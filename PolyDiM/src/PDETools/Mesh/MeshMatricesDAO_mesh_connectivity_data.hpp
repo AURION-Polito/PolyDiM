@@ -24,6 +24,10 @@ struct MeshMatricesDAO_mesh_connectivity_data final
 {
     Gedim::MeshMatricesDAO &mesh_data;
 
+    inline unsigned int Dimension() const
+    {
+        return mesh_data.Dimension();
+    }
     inline unsigned int Cell0Ds_number() const
     {
         return mesh_data.Cell0DTotalNumber();

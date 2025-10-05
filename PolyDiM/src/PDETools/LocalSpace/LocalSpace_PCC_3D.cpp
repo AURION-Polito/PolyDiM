@@ -9,19 +9,17 @@
 //
 // This file can be used citing references in CITATION.cff file.
 
-#include "local_space.hpp"
+#include "LocalSpace_PCC_3D.hpp"
 #include <memory>
 
 namespace Polydim
 {
-namespace examples
+namespace PDETools
 {
-namespace Elliptic_PCC_3D
-{
-namespace local_space
+namespace LocalSpace_PCC_3D
 {
 //***************************************************************************
-ReferenceElement_Data CreateReferenceElement(const Program_configuration::MethodTypes &method_type, const unsigned int method_order)
+ReferenceElement_Data CreateReferenceElement(const MethodTypes &method_type, const unsigned int method_order)
 {
     ReferenceElement_Data reference_element_data;
     reference_element_data.Method_Type = method_type;
@@ -29,24 +27,24 @@ ReferenceElement_Data CreateReferenceElement(const Program_configuration::Method
 
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_PCC: {
+    case MethodTypes::FEM_PCC: {
         reference_element_data.FEM_ReferenceElement_3D = std::make_unique<FEM::PCC::FEM_PCC_3D_ReferenceElement>();
         reference_element_data.FEM_ReferenceElement_Data_3D = reference_element_data.FEM_ReferenceElement_3D->Create(method_order);
         reference_element_data.FEM_LocalSpace = std::make_unique<FEM::PCC::FEM_PCC_3D_LocalSpace>();
     }
     break;
-    case Program_configuration::MethodTypes::VEM_PCC:
-    case Program_configuration::MethodTypes::VEM_PCC_Inertia:
-    case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
+    case MethodTypes::VEM_PCC:
+    case MethodTypes::VEM_PCC_Inertia:
+    case MethodTypes::VEM_PCC_Ortho: {
         switch (reference_element_data.Method_Type)
         {
-        case Program_configuration::MethodTypes::VEM_PCC:
+        case MethodTypes::VEM_PCC:
             reference_element_data.VEM_Type = VEM::PCC::VEM_PCC_3D_LocalSpace_Types::VEM_PCC_3D_LocalSpace;
             break;
-        case Program_configuration::MethodTypes::VEM_PCC_Inertia:
+        case MethodTypes::VEM_PCC_Inertia:
             reference_element_data.VEM_Type = VEM::PCC::VEM_PCC_3D_LocalSpace_Types::VEM_PCC_3D_Inertia_LocalSpace;
             break;
-        case Program_configuration::MethodTypes::VEM_PCC_Ortho:
+        case MethodTypes::VEM_PCC_Ortho:
             reference_element_data.VEM_Type = VEM::PCC::VEM_PCC_3D_LocalSpace_Types::VEM_PCC_3D_Ortho_LocalSpace;
             break;
         default:
@@ -72,7 +70,9 @@ ReferenceElement_Data CreateReferenceElement(const Program_configuration::Method
     return reference_element_data;
 }
 //***************************************************************************
-LocalSpace_Data CreateLocalSpace(const Polydim::examples::Elliptic_PCC_3D::Program_configuration &config,
+LocalSpace_Data CreateLocalSpace(const double &geometric_tolerance_1D,
+                                 const double &geometric_tolerance_2D,
+                                 const double &geometric_tolerance_3D,
                                  const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
                                  const unsigned int cell3D_index,
                                  const ReferenceElement_Data &reference_element_data)
@@ -81,10 +81,10 @@ LocalSpace_Data CreateLocalSpace(const Polydim::examples::Elliptic_PCC_3D::Progr
 
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_PCC: {
-        local_space_data.FEM_Geometry = {config.GeometricTolerance1D(),
-                                         config.GeometricTolerance2D(),
-                                         config.GeometricTolerance3D(),
+    case MethodTypes::FEM_PCC: {
+        local_space_data.FEM_Geometry = {geometric_tolerance_1D,
+                                         geometric_tolerance_2D,
+                                         geometric_tolerance_3D,
                                          mesh_geometric_data.Cell3DsVertices.at(cell3D_index),
                                          mesh_geometric_data.Cell3DsEdges.at(cell3D_index),
                                          mesh_geometric_data.Cell3DsFaces.at(cell3D_index),
@@ -99,8 +99,8 @@ LocalSpace_Data CreateLocalSpace(const Polydim::examples::Elliptic_PCC_3D::Progr
         for (unsigned int f = 0; f < numFaces; f++)
         {
             local_space_data.FEM_Geometry.Faces_2D_Geometry[f] = {
-                config.GeometricTolerance1D(),
-                config.GeometricTolerance2D(),
+                geometric_tolerance_1D,
+                geometric_tolerance_2D,
                 mesh_geometric_data.Cell3DsFaces2DVertices.at(cell3D_index)[f],
                 mesh_geometric_data.Cell3DsFacesEdgeDirections.at(cell3D_index)[f],
                 mesh_geometric_data.Cell3DsFacesEdge2DTangents.at(cell3D_index)[f],
@@ -112,15 +112,15 @@ LocalSpace_Data CreateLocalSpace(const Polydim::examples::Elliptic_PCC_3D::Progr
                                                                     local_space_data.FEM_Geometry);
     }
     break;
-    case Program_configuration::MethodTypes::VEM_PCC:
-    case Program_configuration::MethodTypes::VEM_PCC_Inertia:
-    case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
+    case MethodTypes::VEM_PCC:
+    case MethodTypes::VEM_PCC_Inertia:
+    case MethodTypes::VEM_PCC_Ortho: {
         const unsigned int numFaces = mesh_geometric_data.Cell3DsFaces.at(cell3D_index).size();
         for (unsigned int f = 0; f < numFaces; f++)
         {
             local_space_data.VEM_Geometry.PolygonalFaces.push_back(
-                {config.GeometricTolerance1D(),
-                 config.GeometricTolerance2D(),
+                {geometric_tolerance_1D,
+                 geometric_tolerance_2D,
                  mesh_geometric_data.Cell3DsFaces2DVertices.at(cell3D_index)[f],
                  mesh_geometric_data.Cell3DsFaces2DCentroids.at(cell3D_index)[f],
                  mesh_geometric_data.Cell3DsFacesAreas.at(cell3D_index)[f],
@@ -132,9 +132,9 @@ LocalSpace_Data CreateLocalSpace(const Polydim::examples::Elliptic_PCC_3D::Progr
                  mesh_geometric_data.Cell3DsFacesEdge2DNormals.at(cell3D_index)[f]});
         }
 
-        local_space_data.VEM_Geometry.Polyhedron = {config.GeometricTolerance1D(),
-                                                    config.GeometricTolerance2D(),
-                                                    config.GeometricTolerance3D(),
+        local_space_data.VEM_Geometry.Polyhedron = {geometric_tolerance_1D,
+                                                    geometric_tolerance_2D,
+                                                    geometric_tolerance_3D,
                                                     mesh_geometric_data.Cell3DsVertices.at(cell3D_index),
                                                     mesh_geometric_data.Cell3DsEdges.at(cell3D_index),
                                                     mesh_geometric_data.Cell3DsFaces.at(cell3D_index),
@@ -169,13 +169,13 @@ Eigen::MatrixXd BasisFunctionsValues(const ReferenceElement_Data &reference_elem
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_PCC: {
+    case MethodTypes::FEM_PCC: {
         return reference_element_data.FEM_LocalSpace->ComputeBasisFunctionsValues(reference_element_data.FEM_ReferenceElement_Data_3D,
                                                                                   local_space_data.FEM_LocalSpace_Data);
     }
-    case Program_configuration::MethodTypes::VEM_PCC:
-    case Program_configuration::MethodTypes::VEM_PCC_Inertia:
-    case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
+    case MethodTypes::VEM_PCC:
+    case MethodTypes::VEM_PCC_Inertia:
+    case MethodTypes::VEM_PCC_Ortho: {
         return reference_element_data.VEM_LocalSpace->ComputeBasisFunctionsValues(local_space_data.VEM_LocalSpace_Data, projectionType);
     }
     default:
@@ -189,13 +189,13 @@ std::vector<Eigen::MatrixXd> BasisFunctionsDerivativeValues(const ReferenceEleme
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_PCC: {
+    case MethodTypes::FEM_PCC: {
         return reference_element_data.FEM_LocalSpace->ComputeBasisFunctionsDerivativeValues(reference_element_data.FEM_ReferenceElement_Data_3D,
                                                                                             local_space_data.FEM_LocalSpace_Data);
     }
-    case Program_configuration::MethodTypes::VEM_PCC:
-    case Program_configuration::MethodTypes::VEM_PCC_Inertia:
-    case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
+    case MethodTypes::VEM_PCC:
+    case MethodTypes::VEM_PCC_Inertia:
+    case MethodTypes::VEM_PCC_Ortho: {
         return reference_element_data.VEM_LocalSpace->ComputeBasisFunctionsDerivativeValues(local_space_data.VEM_LocalSpace_Data,
                                                                                             projectionType);
     }
@@ -209,12 +209,12 @@ Gedim::Quadrature::QuadratureData InternalQuadrature(const ReferenceElement_Data
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_PCC: {
+    case MethodTypes::FEM_PCC: {
         return local_space_data.FEM_LocalSpace_Data.InternalQuadrature;
     }
-    case Program_configuration::MethodTypes::VEM_PCC:
-    case Program_configuration::MethodTypes::VEM_PCC_Inertia:
-    case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
+    case MethodTypes::VEM_PCC:
+    case MethodTypes::VEM_PCC_Inertia:
+    case MethodTypes::VEM_PCC_Ortho: {
         return local_space_data.VEM_LocalSpace_Data.InternalQuadrature;
     }
     default:
@@ -226,12 +226,12 @@ unsigned int Size(const ReferenceElement_Data &reference_element_data, const Loc
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_PCC: {
+    case MethodTypes::FEM_PCC: {
         return local_space_data.FEM_LocalSpace_Data.NumberOfBasisFunctions;
     }
-    case Program_configuration::MethodTypes::VEM_PCC:
-    case Program_configuration::MethodTypes::VEM_PCC_Inertia:
-    case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
+    case MethodTypes::VEM_PCC:
+    case MethodTypes::VEM_PCC_Inertia:
+    case MethodTypes::VEM_PCC_Ortho: {
         return local_space_data.VEM_LocalSpace_Data.NumBasisFunctions;
     }
     default:
@@ -245,13 +245,13 @@ Eigen::MatrixXd StabilizationMatrix(const ReferenceElement_Data &reference_eleme
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_PCC: {
+    case MethodTypes::FEM_PCC: {
         return Eigen::MatrixXd::Zero(local_space_data.FEM_LocalSpace_Data.NumberOfBasisFunctions,
                                      local_space_data.FEM_LocalSpace_Data.NumberOfBasisFunctions);
     }
-    case Program_configuration::MethodTypes::VEM_PCC:
-    case Program_configuration::MethodTypes::VEM_PCC_Inertia:
-    case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
+    case MethodTypes::VEM_PCC:
+    case MethodTypes::VEM_PCC_Inertia:
+    case MethodTypes::VEM_PCC_Ortho: {
         return reference_element_data.VEM_LocalSpace->ComputeDofiDofiStabilizationMatrix(local_space_data.VEM_LocalSpace_Data,
                                                                                          projectionType);
     }
@@ -269,12 +269,12 @@ Gedim::Quadrature::QuadratureData FaceQuadrature(const ReferenceElement_Data &re
 
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_PCC: {
+    case MethodTypes::FEM_PCC: {
         return local_space_data.FEM_LocalSpace_Data.BoundaryQuadrature.at(face_local_index);
     }
-    case Program_configuration::MethodTypes::VEM_PCC:
-    case Program_configuration::MethodTypes::VEM_PCC_Inertia:
-    case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
+    case MethodTypes::VEM_PCC:
+    case MethodTypes::VEM_PCC_Inertia:
+    case MethodTypes::VEM_PCC_Ortho: {
         const unsigned int num_face_quadrature_points =
             local_space_data.VEM_LocalSpace_Data.facesLocalSpace[face_local_index].InternalQuadrature.Weights.size();
         faceQuadrature.Points =
@@ -298,14 +298,14 @@ Eigen::MatrixXd BasisFunctionsValuesOnFace(const unsigned int &face_local_index,
     // basis function of face including vertices, edges and face evaluated in quadrature_points
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_PCC: {
+    case MethodTypes::FEM_PCC: {
         return reference_element_data.FEM_LocalSpace->ComputeBasisFunctionsValuesOnFace(reference_element_data.FEM_ReferenceElement_Data_3D,
                                                                                         local_space_data.FEM_LocalSpace_Data,
                                                                                         face_local_index);
     }
-    case Program_configuration::MethodTypes::VEM_PCC:
-    case Program_configuration::MethodTypes::VEM_PCC_Inertia:
-    case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
+    case MethodTypes::VEM_PCC:
+    case MethodTypes::VEM_PCC_Inertia:
+    case MethodTypes::VEM_PCC_Ortho: {
         return local_space_data.VEM_LocalSpace_Data.FaceProjectedBasisFunctionsValues[face_local_index];
     }
     default:
@@ -322,7 +322,7 @@ Gedim::Quadrature::QuadratureData FaceDofsCoordinates(const ReferenceElement_Dat
 
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_PCC: {
+    case MethodTypes::FEM_PCC: {
 
         face_dofs_coordinates.Points =
             reference_element_data.FEM_LocalSpace->FaceDOFsCoordinates(reference_element_data.FEM_ReferenceElement_Data_3D,
@@ -330,9 +330,9 @@ Gedim::Quadrature::QuadratureData FaceDofsCoordinates(const ReferenceElement_Dat
                                                                        face_local_index);
         return face_dofs_coordinates;
     }
-    case Program_configuration::MethodTypes::VEM_PCC:
-    case Program_configuration::MethodTypes::VEM_PCC_Inertia:
-    case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
+    case MethodTypes::VEM_PCC:
+    case MethodTypes::VEM_PCC_Inertia:
+    case MethodTypes::VEM_PCC_Ortho: {
         const unsigned int num_face_quadrature_points =
             local_space_data.VEM_LocalSpace_Data.facesLocalSpace.at(face_local_index).InternalQuadrature.Weights.size();
         face_dofs_coordinates.Points =
@@ -358,12 +358,12 @@ Eigen::VectorXd FaceDofs(const ReferenceElement_Data &reference_element_data,
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_PCC: {
+    case MethodTypes::FEM_PCC: {
         return strong_values;
     }
-    case Program_configuration::MethodTypes::VEM_PCC:
-    case Program_configuration::MethodTypes::VEM_PCC_Inertia:
-    case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
+    case MethodTypes::VEM_PCC:
+    case MethodTypes::VEM_PCC_Inertia:
+    case MethodTypes::VEM_PCC_Ortho: {
         return local_space_data.VEM_LocalSpace_Data.FaceScaledMomentsBasis[face_local_index].transpose() *
                face_dofs_coordinates.Weights.asDiagonal() * strong_values;
     }
@@ -378,14 +378,14 @@ Eigen::MatrixXd EdgeDofsCoordinates(const ReferenceElement_Data &reference_eleme
 {
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_PCC: {
+    case MethodTypes::FEM_PCC: {
         return reference_element_data.FEM_LocalSpace->EdgeDOFsCoordinates(reference_element_data.FEM_ReferenceElement_Data_3D,
                                                                           local_space_data.FEM_LocalSpace_Data,
                                                                           edge_local_index);
     }
-    case Program_configuration::MethodTypes::VEM_PCC:
-    case Program_configuration::MethodTypes::VEM_PCC_Inertia:
-    case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
+    case MethodTypes::VEM_PCC:
+    case MethodTypes::VEM_PCC_Inertia:
+    case MethodTypes::VEM_PCC_Ortho: {
         const auto &referenceEdgeDOFsPoint = reference_element_data.VEM_ReferenceElement_Data_2D.Quadrature.ReferenceEdgeDOFsInternalPoints;
         const unsigned int num_edge_dofs = referenceEdgeDOFsPoint.cols();
 
@@ -430,13 +430,13 @@ PDETools::DOFs::DOFsManager::MeshDOFsInfo SetMeshDOFsInfo(
     {
         switch (reference_element_data.Method_Type)
         {
-        case Program_configuration::MethodTypes::FEM_PCC: {
+        case MethodTypes::FEM_PCC: {
             mesh_dof_info.CellsNumDOFs[0][c] = reference_element_data.FEM_ReferenceElement_Data_3D.NumDofs0D;
         }
         break;
-        case Program_configuration::MethodTypes::VEM_PCC:
-        case Program_configuration::MethodTypes::VEM_PCC_Inertia:
-        case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
+        case MethodTypes::VEM_PCC:
+        case MethodTypes::VEM_PCC_Inertia:
+        case MethodTypes::VEM_PCC_Ortho: {
             mesh_dof_info.CellsNumDOFs[0][c] = reference_element_data.VEM_ReferenceElement_Data_3D.NumDofs0D;
         }
         break;
@@ -456,13 +456,13 @@ PDETools::DOFs::DOFsManager::MeshDOFsInfo SetMeshDOFsInfo(
     {
         switch (reference_element_data.Method_Type)
         {
-        case Program_configuration::MethodTypes::FEM_PCC: {
+        case MethodTypes::FEM_PCC: {
             mesh_dof_info.CellsNumDOFs[1][c] = reference_element_data.FEM_ReferenceElement_Data_3D.NumDofs1D;
         }
         break;
-        case Program_configuration::MethodTypes::VEM_PCC:
-        case Program_configuration::MethodTypes::VEM_PCC_Inertia:
-        case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
+        case MethodTypes::VEM_PCC:
+        case MethodTypes::VEM_PCC_Inertia:
+        case MethodTypes::VEM_PCC_Ortho: {
             mesh_dof_info.CellsNumDOFs[1][c] = reference_element_data.VEM_ReferenceElement_Data_3D.NumDofs1D;
         }
         break;
@@ -481,7 +481,7 @@ PDETools::DOFs::DOFsManager::MeshDOFsInfo SetMeshDOFsInfo(
     {
         switch (reference_element_data.Method_Type)
         {
-        case Program_configuration::MethodTypes::FEM_PCC: {
+        case MethodTypes::FEM_PCC: {
             if (mesh.Cell2DNumberVertices(c) == 3)
                 mesh_dof_info.CellsNumDOFs[2][c] =
                     reference_element_data.FEM_ReferenceElement_Data_3D.tetrahedron_reference_element_data.NumDofs2D;
@@ -492,9 +492,9 @@ PDETools::DOFs::DOFsManager::MeshDOFsInfo SetMeshDOFsInfo(
                 throw std::runtime_error("not valid element");
         }
         break;
-        case Program_configuration::MethodTypes::VEM_PCC:
-        case Program_configuration::MethodTypes::VEM_PCC_Inertia:
-        case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
+        case MethodTypes::VEM_PCC:
+        case MethodTypes::VEM_PCC_Inertia:
+        case MethodTypes::VEM_PCC_Ortho: {
             mesh_dof_info.CellsNumDOFs[2][c] = reference_element_data.VEM_ReferenceElement_Data_3D.NumDofs2D;
         }
         break;
@@ -513,7 +513,7 @@ PDETools::DOFs::DOFsManager::MeshDOFsInfo SetMeshDOFsInfo(
     {
         switch (reference_element_data.Method_Type)
         {
-        case Program_configuration::MethodTypes::FEM_PCC: {
+        case MethodTypes::FEM_PCC: {
             if (mesh.Cell3DNumberVertices(c) == 4 && mesh.Cell3DNumberEdges(c) == 6 && mesh.Cell3DNumberFaces(c) == 4)
                 mesh_dof_info.CellsNumDOFs[3][c] =
                     reference_element_data.FEM_ReferenceElement_Data_3D.tetrahedron_reference_element_data.NumDofs3D;
@@ -524,9 +524,9 @@ PDETools::DOFs::DOFsManager::MeshDOFsInfo SetMeshDOFsInfo(
                 throw std::runtime_error("not valid element");
         }
         break;
-        case Program_configuration::MethodTypes::VEM_PCC:
-        case Program_configuration::MethodTypes::VEM_PCC_Inertia:
-        case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
+        case MethodTypes::VEM_PCC:
+        case MethodTypes::VEM_PCC_Inertia:
+        case MethodTypes::VEM_PCC_Ortho: {
             mesh_dof_info.CellsNumDOFs[3][c] = reference_element_data.VEM_ReferenceElement_Data_3D.NumDofs3D;
         }
         break;
@@ -545,14 +545,14 @@ Performance_Data ComputePerformance(const ReferenceElement_Data &reference_eleme
 
     switch (reference_element_data.Method_Type)
     {
-    case Program_configuration::MethodTypes::FEM_PCC: {
+    case MethodTypes::FEM_PCC: {
         performance.VEM_Performance_Data.NumInternalQuadraturePoints =
             local_space_data.FEM_LocalSpace_Data.InternalQuadrature.Weights.size();
     }
     break;
-    case Program_configuration::MethodTypes::VEM_PCC:
-    case Program_configuration::MethodTypes::VEM_PCC_Inertia:
-    case Program_configuration::MethodTypes::VEM_PCC_Ortho: {
+    case MethodTypes::VEM_PCC:
+    case MethodTypes::VEM_PCC_Inertia:
+    case MethodTypes::VEM_PCC_Ortho: {
         Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis performanceAnalysis;
 
         performance.VEM_Performance_Data.Analysis =
@@ -574,7 +574,6 @@ Performance_Data ComputePerformance(const ReferenceElement_Data &reference_eleme
     return performance;
 }
 //***************************************************************************
-} // namespace local_space
-} // namespace Elliptic_PCC_3D
-} // namespace examples
+} // namespace LocalSpace_PCC_3D
+} // namespace PDETools
 } // namespace Polydim

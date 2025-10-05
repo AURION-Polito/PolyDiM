@@ -11,12 +11,12 @@
 
 #include "DOFsManager.hpp"
 #include "Eigen_LUSolver.hpp"
+#include "LocalSpace_MCC_2D.hpp"
 #include "MeshMatricesDAO.hpp"
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
 #include "MeshUtilities.hpp"
 #include "VTKUtilities.hpp"
 #include "assembler.hpp"
-#include "local_space.hpp"
 #include "program_configuration.hpp"
 #include "program_utilities.hpp"
 #include "test_definition.hpp"
@@ -110,12 +110,11 @@ int main(int argc, char **argv)
     Gedim::Profiler::StartTime("CreateVEMSpace");
 
     const auto reference_element_data =
-        Polydim::examples::Elliptic_MCC_2D::local_space::CreateReferenceElement(config.MethodType(), config.MethodOrder());
+        Polydim::PDETools::LocalSpace_MCC_2D::CreateReferenceElement(config.MethodType(), config.MethodOrder());
 
     Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data = {mesh};
 
-    const auto reference_element_num_dofs =
-        Polydim::examples::Elliptic_MCC_2D::local_space::ReferenceElementNumDOFs(reference_element_data);
+    const auto reference_element_num_dofs = Polydim::PDETools::LocalSpace_MCC_2D::ReferenceElementNumDOFs(reference_element_data);
 
     Polydim::PDETools::DOFs::DOFsManager dofManager;
     std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> meshDOFsInfo(2);

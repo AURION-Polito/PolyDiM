@@ -13,6 +13,7 @@
 #define __program_configuration_H
 
 #include "Configurations.hpp"
+#include "LocalSpace_MCC_2D.hpp"
 #include "PDE_Mesh_Utilities.hpp"
 #include "test_definition.hpp"
 
@@ -24,15 +25,6 @@ namespace Elliptic_MCC_2D
 {
 struct Program_configuration final
 {
-
-    enum struct MethodTypes
-    {
-        VEM_MCC = 1,
-        VEM_MCC_Partial = 2,
-        VEM_MCC_Ortho = 3,
-        VEM_MCC_EdgeOrtho = 4,
-        VEM_MCC_Ortho_EdgeOrtho = 5
-    };
 
     Program_configuration()
     {
@@ -58,7 +50,7 @@ struct Program_configuration final
 
         /// Method parameters
         Gedim::Configurations::AddProperty("MethodType",
-                                           static_cast<unsigned int>(MethodTypes::VEM_MCC),
+                                           static_cast<unsigned int>(Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::VEM_MCC),
                                            "Method Type, 1 - Vem; 2 - Vem_Partial; 3 - Vem_Ortho; 4 - "
                                            "Vem_EdgeOrtho; 5 - Vem_Ortho_EdgeOrtho (Default: "
                                            "1)");
@@ -98,9 +90,9 @@ struct Program_configuration final
         return Gedim::Configurations::GetPropertyValue<double>("GeometricTolerance2D");
     }
 
-    inline MethodTypes MethodType() const
+    inline Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes MethodType() const
     {
-        return (MethodTypes)Gedim::Configurations::GetPropertyValue<unsigned int>("MethodType");
+        return (Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes)Gedim::Configurations::GetPropertyValue<unsigned int>("MethodType");
     }
     inline bool ComputeMethodPerformance() const
     {

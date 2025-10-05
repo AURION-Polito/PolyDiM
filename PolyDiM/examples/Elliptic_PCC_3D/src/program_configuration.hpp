@@ -13,6 +13,7 @@
 #define __program_configuration_H
 
 #include "Configurations.hpp"
+#include "LocalSpace_PCC_3D.hpp"
 #include "PDE_Mesh_Utilities.hpp"
 #include "test_definition.hpp"
 
@@ -24,13 +25,6 @@ namespace Elliptic_PCC_3D
 {
 struct Program_configuration final
 {
-    enum struct MethodTypes
-    {
-        FEM_PCC = 0,
-        VEM_PCC = 1,
-        VEM_PCC_Inertia = 2,
-        VEM_PCC_Ortho = 3
-    };
 
   public:
     Program_configuration()
@@ -60,7 +54,7 @@ struct Program_configuration final
 
         // Method parameters
         Gedim::Configurations::AddProperty("MethodType",
-                                           static_cast<unsigned int>(MethodTypes::FEM_PCC),
+                                           static_cast<unsigned int>(Polydim::PDETools::LocalSpace_PCC_3D::MethodTypes::FEM_PCC),
                                            "Method Type, 0 - FEM_PCC; 1 - EVem; 2 - EVem_Inertia; 3 - "
                                            "EVem_Ortho (Default: "
                                            "0)");
@@ -103,9 +97,9 @@ struct Program_configuration final
         return Gedim::Configurations::GetPropertyValue<double>("GeometricTolerance3D");
     }
 
-    inline MethodTypes MethodType() const
+    inline Polydim::PDETools::LocalSpace_PCC_3D::MethodTypes MethodType() const
     {
-        return (MethodTypes)Gedim::Configurations::GetPropertyValue<unsigned int>("MethodType");
+        return (Polydim::PDETools::LocalSpace_PCC_3D::MethodTypes)Gedim::Configurations::GetPropertyValue<unsigned int>("MethodType");
     }
     inline bool ComputeMethodPerformance() const
     {
