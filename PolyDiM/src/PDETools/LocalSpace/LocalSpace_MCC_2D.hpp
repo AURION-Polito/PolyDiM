@@ -43,7 +43,7 @@ struct ReferenceElement_Data final
     std::unique_ptr<Polydim::VEM::MCC::I_VEM_MCC_2D_Pressure_ReferenceElement> VEM_ReferenceElement_Pressure;
     Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data VEM_ReferenceElement_Data_Velocity;
     Polydim::VEM::MCC::VEM_MCC_2D_Pressure_ReferenceElement_Data VEM_ReferenceElement_Data_Pressure;
-    VEM::MCC::VEM_MCC_2D_LocalSpace_Types VEM_Type;
+    Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types VEM_Type;
     std::unique_ptr<VEM::MCC::I_VEM_MCC_2D_Velocity_LocalSpace> VEM_LocalSpace_Velocity;
     std::unique_ptr<VEM::MCC::I_VEM_MCC_2D_Pressure_LocalSpace> VEM_LocalSpace_Pressure;
 };
@@ -113,7 +113,7 @@ Gedim::Quadrature::QuadratureData EdgeQuadrature(const Polydim::PDETools::LocalS
                                                  const Polydim::PDETools::LocalSpace_MCC_2D::LocalSpace_Data &local_space_data,
                                                  const unsigned int edge_local_index);
 
-Gedim::Quadrature::QuadratureData InternalQuadrature(const ReferenceElement_Data &reference_element_data,
+Gedim::Quadrature::QuadratureData InternalQuadrature(const Polydim::PDETools::LocalSpace_MCC_2D::ReferenceElement_Data &reference_element_data,
                                                      const Polydim::PDETools::LocalSpace_MCC_2D::LocalSpace_Data &local_space_data);
 
 unsigned int VelocitySize(const Polydim::PDETools::LocalSpace_MCC_2D::ReferenceElement_Data &reference_element_data,
