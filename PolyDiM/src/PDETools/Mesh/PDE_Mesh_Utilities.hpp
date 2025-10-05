@@ -243,7 +243,7 @@ struct PDE_Mesh_Utilities
         case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Cubic: {
             switch (pde_domain.shape_type)
             {
-            case PDE_Domain_3D::Domain_Shape_Types::Parallelepiped:
+            case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_3D::Domain_Shape_Types::Parallelepiped:
                 break;
             default:
                 throw std::runtime_error("Cubic mesh cannot be created");
@@ -348,6 +348,7 @@ struct PDE_Mesh_Utilities
         case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::VtkImporter: {
             mesh_utilities.ImportVtkMesh3D(file_path, mesh);
         }
+        break;
         default:
             throw std::runtime_error("MeshGenerator_Types_3D " + std::to_string((unsigned int)mesh_type) + " not supported");
         }
