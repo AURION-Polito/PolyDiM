@@ -109,7 +109,7 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("CreateVEMSpace of order " + std::to_string(config.VemOrder()) + " and DOFs...", true);
     Gedim::Profiler::StartTime("CreateVEMSpace");
 
-    Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data = {mesh};
+    Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data(mesh);
 
     const auto vem_pressure_reference_element = Polydim::VEM::MCC::create_VEM_MCC_3D_pressure_reference_element(config.VemType());
     const auto pressure_reference_element_data = vem_pressure_reference_element->Create(config.VemOrder());

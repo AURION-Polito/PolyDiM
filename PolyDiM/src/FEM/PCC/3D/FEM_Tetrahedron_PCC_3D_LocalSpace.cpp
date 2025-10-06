@@ -158,29 +158,6 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
 
             const auto face_internal_dofs_3D_from_reference_3D = Gedim::MapTetrahedron::F(localSpace.MapData, reference_face_dofs);
 
-            // ("Remove cout and comments")
-            // std::cout << "\tFace " << f << " dir " << polyhedron.FacesDirection.at(f) << " dir " << ref_face_dir << "
-            // s_i " << ref_face_s_i << " "; std::cout << "Ref F " << ref_f<< " "; std::cout << "vertices " <<
-            // polyhedron.Faces[f](0, 0) << ", "; std::cout << polyhedron.Faces[f](0, 1) << ", "; std::cout <<
-            // polyhedron.Faces[f](0, 2) << " "; std::cout << "edges " <<
-            // localSpace.polyhedron_to_reference_edge_index[polyhedron.Faces[f](1, 0)] << ", "; std::cout <<
-            // localSpace.polyhedron_to_reference_edge_index[polyhedron.Faces[f](1, 1)] << ", "; std::cout <<
-            // localSpace.polyhedron_to_reference_edge_index[polyhedron.Faces[f](1, 2)]<< std::endl;
-
-            //          std::cout<< "inter_from_2D:\n"<< face_internal_dofs_3D_from_reference_2D<< std::endl;
-            //          std::cout<< "inter_from_3D:\n"<< face_internal_dofs_3D_from_reference_3D<< std::endl;
-
-            // std::array<unsigned int, 3> original_dmo;
-            // unsigned int s_h = 0;
-            // for (unsigned int d = localSpace.Dof2DsIndex[f]; d < localSpace.Dof2DsIndex[f + 1]; d++)
-            // {
-            //   original_dmo[face_dof_counter + s_h] = d;
-            //   s_h++;
-            // }
-            // std::cout << " o_dmo " << original_dmo[face_dof_counter] << ", ";
-            // std::cout << original_dmo[face_dof_counter + 1] << ", ";
-            // std::cout << original_dmo[face_dof_counter + 2] << " ";
-
             unsigned int shift = 0;
             for (unsigned int d = localSpace.Dof2DsIndex[f]; d < localSpace.Dof2DsIndex[f + 1]; d++)
             {
@@ -194,10 +171,6 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
                 shift++;
             }
         }
-
-        // std::cout << " dmo " << localSpace.DofsMeshOrder[face_dof_counter] << ", ";
-        // std::cout << localSpace.DofsMeshOrder[face_dof_counter + 1] << ", ";
-        // std::cout << localSpace.DofsMeshOrder[face_dof_counter + 2] << std::endl;
     }
 
     localSpace.Dof3DsIndex.fill(localSpace.Dof2DsIndex[4]);

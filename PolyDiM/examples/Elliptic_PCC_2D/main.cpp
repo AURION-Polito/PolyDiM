@@ -106,7 +106,7 @@ int main(int argc, char **argv)
     const auto reference_element_data =
         Polydim::PDETools::LocalSpace_PCC_2D::CreateReferenceElement(config.MethodType(), config.MethodOrder());
 
-    Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data = {mesh};
+    Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data(mesh);
 
     Polydim::PDETools::DOFs::DOFsManager dofManager;
 

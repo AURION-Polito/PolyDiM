@@ -20,9 +20,13 @@ namespace PDETools
 {
 namespace Mesh
 {
-struct MeshMatricesDAO_mesh_connectivity_data final
+class MeshMatricesDAO_mesh_connectivity_data final
 {
-    Gedim::MeshMatricesDAO &mesh_data;
+  private:
+    const Gedim::MeshMatricesDAO &mesh_data;
+
+  public:
+    MeshMatricesDAO_mesh_connectivity_data(const Gedim::MeshMatricesDAO &mesh_data);
 
     inline unsigned int Dimension() const
     {

@@ -206,66 +206,47 @@ class FEM_Tetrahedron_PCC_3D_ReferenceElement final
 
             if (order > 2)
             {
-                // ("To remove cout!")
-
-                using namespace Gedim;
                 // face x - y
-                std::cout << "0 xy" << std::endl;
                 for (unsigned int d1 = 0; d1 < result.NumDofs1D - 1; d1++) // x
                 {
                     for (unsigned int d2 = 0; d2 < result.NumDofs1D - 1 - d1; d2++) // y
                     {
-                        std::cout << "\t{ " << dof << ", ";
                         result.DofPositions.col(dof) << (d1 + 1.0) / ((double)order), (d2 + 1.0) / ((double)order), 0.0;
-                        std::cout << "coord " << std::scientific << result.DofPositions.col(dof).transpose() << ", ";
                         result.DofTypes[dof] = {order - d1 - d2 - 2, d1 + 1, d2 + 1, 0};
-                        std::cout << "types " << result.DofTypes[dof] << "} " << std::endl;
                         dof++;
                     }
                 }
 
                 // face x - z
-                std::cout << "1 xz" << std::endl;
                 for (unsigned int d1 = 0; d1 < result.NumDofs1D - 1; d1++) // x
                 {
                     for (unsigned int d2 = 0; d2 < result.NumDofs1D - 1 - d1; d2++) // z
                     {
-                        std::cout << "\t{ " << dof << ", ";
                         result.DofPositions.col(dof) << (d1 + 1.0) / ((double)order), 0.0, (d2 + 1.0) / ((double)order);
-                        std::cout << "coord " << std::scientific << result.DofPositions.col(dof).transpose() << ", ";
                         result.DofTypes[dof] = {order - d1 - d2 - 2, d1 + 1, 0, d2 + 1};
-                        std::cout << "types " << result.DofTypes[dof] << "} " << std::endl;
                         dof++;
                     }
                 }
 
                 // face y - z
-                std::cout << "2 yz" << std::endl;
                 for (unsigned int d1 = 0; d1 < result.NumDofs1D - 1; d1++) // y
                 {
                     for (unsigned int d2 = 0; d2 < result.NumDofs1D - 1 - d1; d2++) // z
                     {
-                        std::cout << "\t{ " << dof << ", ";
                         result.DofPositions.col(dof) << 0.0, (d1 + 1.0) / ((double)order), (d2 + 1.0) / ((double)order);
-                        std::cout << "coord " << std::scientific << result.DofPositions.col(dof).transpose() << ", ";
                         result.DofTypes[dof] = {order - d1 - d2 - 2, 0, d1 + 1, d2 + 1};
-                        std::cout << "types " << result.DofTypes[dof] << "} " << std::endl;
                         dof++;
                     }
                 }
 
                 // face x - y - z
-                std::cout << "3 xyz" << std::endl;
                 for (unsigned int d1 = 0; d1 < result.NumDofs1D - 1; d1++) // x
                 {
                     for (unsigned int d2 = 0; d2 < result.NumDofs1D - 1 - d1; d2++) // y
                     {
-                        std::cout << "\t{ " << dof << ", ";
                         result.DofPositions.col(dof) << (d1 + 1.0) / ((double)order), (d2 + 1.0) / ((double)order),
                             1.0 - (d1 + 1.0) / ((double)order) - (d2 + 1.0) / ((double)order);
-                        std::cout << "coord " << std::scientific << result.DofPositions.col(dof).transpose() << ", ";
                         result.DofTypes[dof] = {0, d1 + 1, d2 + 1, order - d1 - d2 - 2};
-                        std::cout << "types " << result.DofTypes[dof] << "} " << std::endl;
                         dof++;
                     }
                 }

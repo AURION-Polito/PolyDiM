@@ -7,6 +7,10 @@ Release
 release
 *.idea
 
+# Python
+*.venv
+*pycache*
+
 # Compiled Object files
 *.slo
 *.lo

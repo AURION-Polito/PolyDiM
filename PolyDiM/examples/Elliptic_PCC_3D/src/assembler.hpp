@@ -65,14 +65,6 @@ class Assembler final
     };
 
   private:
-    void Debug(const unsigned int &cell3DIndex,
-               const Gedim::MeshMatricesDAO &mesh,
-               const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
-               const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-               const Polydim::PDETools::LocalSpace_PCC_3D::ReferenceElement_Data &reference_element_data,
-               const Polydim::PDETools::LocalSpace_PCC_3D::LocalSpace_Data &local_space_data,
-               const Polydim::examples::Elliptic_PCC_3D::test::I_Test &test,
-               Elliptic_PCC_3D_Problem_Data &assembler_data) const;
     void ComputeStrongTerm(const unsigned int &cell3DIndex,
                            const Gedim::MeshMatricesDAO &mesh,
                            const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
