@@ -32,7 +32,7 @@ enum struct ProjectionTypes
     Pi0klm1 = 4
 };
 
-template <unsigned short dimension> struct VEM_PCC_Utilities final
+struct VEM_PCC_Utilities final
 {
     Eigen::VectorXd ComputeEdgeBasisCoefficients(const unsigned int &order, const Eigen::VectorXd &edgeInternalPoints) const
     {
@@ -70,7 +70,8 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
         Pi0k = Hmatrix.llt().solve(Cmatrix);
     }
 
-    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const ProjectionTypes &projectionType,
+    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const unsigned int dimension,
+                                                                       const Polydim::VEM::PCC::ProjectionTypes &projectionType,
                                                                        const unsigned int &Nkm1,
                                                                        const Eigen::MatrixXd &vanderInternal,
                                                                        const std::vector<Eigen::MatrixXd> &vanderInternalDerivatives,
@@ -79,7 +80,7 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
     {
         switch (projectionType)
         {
-        case ProjectionTypes::PiNabla: {
+        case Polydim::VEM::PCC::ProjectionTypes::PiNabla: {
             std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValues(dimension);
 
             for (unsigned short i = 0; i < dimension; ++i)
@@ -87,7 +88,7 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
 
             return basisFunctionsDerivativeValues;
         }
-        case ProjectionTypes::Pi0km1Der: {
+        case Polydim::VEM::PCC::ProjectionTypes::Pi0km1Der: {
             std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValues(dimension);
 
             for (unsigned short i = 0; i < dimension; ++i)
@@ -100,14 +101,15 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
         }
     }
 
-    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const ProjectionTypes &projectionType,
+    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const unsigned int dimension,
+                                                         const Polydim::VEM::PCC::ProjectionTypes &projectionType,
                                                          const unsigned int &Nkm1,
                                                          const std::vector<Eigen::MatrixXd> &vanderInternalDerivatives,
                                                          const std::vector<Eigen::MatrixXd> &pi0km1Der) const
     {
         switch (projectionType)
         {
-        case ProjectionTypes::Pi0km1Der: {
+        case Polydim::VEM::PCC::ProjectionTypes::Pi0km1Der: {
             Eigen::MatrixXd basisFunctionsLaplacianValues = vanderInternalDerivatives[0].leftCols(Nkm1) * pi0km1Der[0];
             for (unsigned int d = 1; d < dimension; ++d)
                 basisFunctionsLaplacianValues += vanderInternalDerivatives[d].leftCols(Nkm1) * pi0km1Der[d];
@@ -119,7 +121,7 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
         }
     }
 
-    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const ProjectionTypes &projectionType,
+    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const Polydim::VEM::PCC::ProjectionTypes &projectionType,
                                                        const unsigned int &Nkm1,
                                                        const Eigen::MatrixXd &pi0km1,
                                                        const Eigen::MatrixXd &pi0k,
@@ -127,9 +129,9 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
     {
         switch (projectionType)
         {
-        case ProjectionTypes::Pi0km1:
+        case Polydim::VEM::PCC::ProjectionTypes::Pi0km1:
             return vanderInternal.leftCols(Nkm1) * pi0km1;
-        case ProjectionTypes::Pi0k:
+        case Polydim::VEM::PCC::ProjectionTypes::Pi0k:
             return vanderInternal * pi0k;
         default:
             throw std::runtime_error("Unknown projector type");
@@ -142,7 +144,7 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
     }
 
     template <typename MonomialType>
-    inline Eigen::MatrixXd ComputePolynomialsValues(const Utilities::Monomials_Data &data,
+    inline Eigen::MatrixXd ComputePolynomialsValues(const Polydim::Utilities::Monomials_Data &data,
                                                     const MonomialType &monomials,
                                                     const Eigen::Vector3d &centroid,
                                                     const double &diameter,
@@ -157,7 +159,7 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
     }
 
     template <typename MonomialType>
-    inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const Utilities::Monomials_Data &data,
+    inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const Polydim::Utilities::Monomials_Data &data,
                                                                            const MonomialType &monomials,
                                                                            const double &diameter,
                                                                            const Eigen::MatrixXd &vander) const
@@ -166,7 +168,7 @@ template <unsigned short dimension> struct VEM_PCC_Utilities final
     }
 
     template <typename MonomialType>
-    inline Eigen::MatrixXd ComputePolynomialsLaplacianValues(const Utilities::Monomials_Data &data,
+    inline Eigen::MatrixXd ComputePolynomialsLaplacianValues(const Polydim::Utilities::Monomials_Data &data,
                                                              const MonomialType &monomials,
                                                              const double &diameter,
                                                              const Eigen::MatrixXd &vander) const

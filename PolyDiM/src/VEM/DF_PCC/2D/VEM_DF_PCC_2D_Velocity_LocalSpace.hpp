@@ -31,7 +31,7 @@ namespace DF_PCC
 class VEM_DF_PCC_2D_Velocity_LocalSpace final : public Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace
 {
   private:
-    Polydim::VEM::DF_PCC::VEM_DF_PCC_Utilities<2> utilities;
+    Polydim::VEM::DF_PCC::VEM_DF_PCC_Utilities utilities;
     Polydim::Utilities::Monomials_2D monomials;
     Polydim::Utilities::GBasis_2D g_basis;
 
@@ -89,9 +89,15 @@ class VEM_DF_PCC_2D_Velocity_LocalSpace final : public Polydim::VEM::DF_PCC::I_V
         switch (projectionType)
         {
         case ProjectionTypes::PiNabla:
-            return utilities.ComputeDofiDofiStabilizationMatrix(localSpace.PiNabla, 1.0, localSpace.Dmatrix);
+            return utilities.ComputeDofiDofiStabilizationMatrix(localSpace.Dimension,
+                                                                localSpace.PiNabla,
+                                                                1.0,
+                                                                localSpace.Dmatrix);
         case ProjectionTypes::Pi0k:
-            return utilities.ComputeDofiDofiStabilizationMatrix(localSpace.Pi0k, localSpace.Measure, localSpace.Dmatrix);
+            return utilities.ComputeDofiDofiStabilizationMatrix(localSpace.Dimension,
+                                                                localSpace.Pi0k,
+                                                                localSpace.Measure,
+                                                                localSpace.Dmatrix);
         default:
             throw std::runtime_error("not valid projection type");
         }
@@ -112,7 +118,8 @@ class VEM_DF_PCC_2D_Velocity_LocalSpace final : public Polydim::VEM::DF_PCC::I_V
     inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace,
                                                                     const Polydim::VEM::DF_PCC::ProjectionTypes &projectionType) const
     {
-        return utilities.ComputeBasisFunctionsValues(projectionType,
+        return utilities.ComputeBasisFunctionsValues(localSpace.Dimension,
+                                                     projectionType,
                                                      localSpace.Nkm2,
                                                      localSpace.Pi0km2,
                                                      localSpace.Pi0k,
@@ -123,7 +130,8 @@ class VEM_DF_PCC_2D_Velocity_LocalSpace final : public Polydim::VEM::DF_PCC::I_V
         const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_LocalSpace_Data &localSpace,
         const Polydim::VEM::DF_PCC::ProjectionTypes &projectionType) const
     {
-        return utilities.ComputeBasisFunctionsDerivativeValues(projectionType,
+        return utilities.ComputeBasisFunctionsDerivativeValues(localSpace.Dimension,
+                                                               projectionType,
                                                                localSpace.Nkm1,
                                                                localSpace.VanderInternal,
                                                                localSpace.VanderInternalDerivatives,
@@ -138,7 +146,8 @@ class VEM_DF_PCC_2D_Velocity_LocalSpace final : public Polydim::VEM::DF_PCC::I_V
         const Polydim::VEM::DF_PCC::ProjectionTypes &projectionType,
         const Eigen::MatrixXd &points) const
     {
-        return utilities.ComputeBasisFunctionsValues(projectionType,
+        return utilities.ComputeBasisFunctionsValues(localSpace.Dimension,
+                                                     projectionType,
                                                      localSpace.Nkm2,
                                                      localSpace.Pi0km2,
                                                      localSpace.Pi0k,
@@ -153,6 +162,7 @@ class VEM_DF_PCC_2D_Velocity_LocalSpace final : public Polydim::VEM::DF_PCC::I_V
         const Eigen::MatrixXd &points) const
     {
         return utilities.ComputeBasisFunctionsDerivativeValues(
+            localSpace.Dimension,
             projectionType,
             localSpace.Nkm1,
             ComputePolynomialsValues(reference_element_data, polygon, points),

@@ -54,7 +54,7 @@ class FEM_Triangle_PCC_2D_ReferenceElement final
     FEM_Triangle_PCC_2D_ReferenceElement_Data Create(const unsigned int order) const
     {
         Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement_Data result;
-        Polydim::VEM::PCC::VEM_PCC_Utilities<2> utilities;
+        Polydim::VEM::PCC::VEM_PCC_Utilities utilities;
 
         if (order == 0)
         {

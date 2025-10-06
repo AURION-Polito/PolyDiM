@@ -32,7 +32,7 @@ namespace PCC
 class VEM_PCC_3D_LocalSpace final : public Polydim::VEM::PCC::I_VEM_PCC_3D_LocalSpace
 {
   private:
-    Polydim::VEM::PCC::VEM_PCC_Utilities<3> utilities;
+    Polydim::VEM::PCC::VEM_PCC_Utilities utilities;
     Polydim::Utilities::Monomials_3D monomials;
 
     void InitializeProjectorsComputation(const Polydim::VEM::PCC::VEM_PCC_3D_ReferenceElement_Data &reference_element_data,
@@ -142,7 +142,8 @@ class VEM_PCC_3D_LocalSpace final : public Polydim::VEM::PCC::I_VEM_PCC_3D_Local
     inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const Polydim::VEM::PCC::VEM_PCC_3D_LocalSpace_Data &localSpace,
                                                                               const Polydim::VEM::PCC::ProjectionTypes &projectionType) const
     {
-        return utilities.ComputeBasisFunctionsDerivativeValues(projectionType,
+        return utilities.ComputeBasisFunctionsDerivativeValues(localSpace.Dimension,
+                                                               projectionType,
                                                                localSpace.Nkm1,
                                                                localSpace.VanderInternal,
                                                                localSpace.VanderInternalDerivatives,
@@ -153,7 +154,8 @@ class VEM_PCC_3D_LocalSpace final : public Polydim::VEM::PCC::I_VEM_PCC_3D_Local
     inline Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const Polydim::VEM::PCC::VEM_PCC_3D_LocalSpace_Data &localSpace,
                                                                 const Polydim::VEM::PCC::ProjectionTypes &projectionType) const
     {
-        return utilities.ComputeBasisFunctionsLaplacianValues(projectionType,
+        return utilities.ComputeBasisFunctionsLaplacianValues(localSpace.Dimension,
+                                                              projectionType,
                                                               localSpace.Nkm1,
                                                               localSpace.VanderInternalDerivatives,
                                                               localSpace.Pi0km1Der);
@@ -178,6 +180,7 @@ class VEM_PCC_3D_LocalSpace final : public Polydim::VEM::PCC::I_VEM_PCC_3D_Local
         const Eigen::MatrixXd &points) const
     {
         return utilities.ComputeBasisFunctionsDerivativeValues(
+            localSpace.Dimension,
             projectionType,
             localSpace.Nkm1,
             ComputePolynomialsValues(reference_element_data, localSpace, points),
@@ -192,6 +195,7 @@ class VEM_PCC_3D_LocalSpace final : public Polydim::VEM::PCC::I_VEM_PCC_3D_Local
                                                                 const Eigen::MatrixXd &points) const
     {
         return utilities.ComputeBasisFunctionsLaplacianValues(
+            localSpace.Dimension,
             projectionType,
             localSpace.Nkm1,
             localSpace.Pi0km1Der,

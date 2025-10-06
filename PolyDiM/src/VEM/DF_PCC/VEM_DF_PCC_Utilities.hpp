@@ -31,7 +31,7 @@ enum struct ProjectionTypes
     Pi0km1Der = 3
 };
 
-template <unsigned short dimension> struct VEM_DF_PCC_Utilities final
+struct VEM_DF_PCC_Utilities final
 {
     Eigen::VectorXd ComputeEdgeBasisCoefficients(const unsigned int &order, const Eigen::VectorXd &edgeInternalPoints) const
     {
@@ -41,7 +41,8 @@ template <unsigned short dimension> struct VEM_DF_PCC_Utilities final
         return Interpolation::Lagrange::Lagrange_1D_coefficients(interpolation_points_x);
     }
 
-    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const ProjectionTypes &projectionType,
+    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const unsigned int dimension,
+                                                                       const Polydim::VEM::DF_PCC::ProjectionTypes &projectionType,
                                                                        const unsigned int &Nkm1,
                                                                        const Eigen::MatrixXd &vanderInternal,
                                                                        const std::vector<Eigen::MatrixXd> &vanderInternalDerivatives,
@@ -50,7 +51,7 @@ template <unsigned short dimension> struct VEM_DF_PCC_Utilities final
     {
         switch (projectionType)
         {
-        case ProjectionTypes::PiNabla: {
+        case Polydim::VEM::DF_PCC::ProjectionTypes::PiNabla: {
             std::vector<Eigen::MatrixXd> basisFunctionDerivativeValues(dimension * dimension);
 
             for (unsigned short j = 0; j < dimension; ++j)
@@ -59,7 +60,7 @@ template <unsigned short dimension> struct VEM_DF_PCC_Utilities final
 
             return basisFunctionDerivativeValues;
         }
-        case ProjectionTypes::Pi0km1Der: {
+        case Polydim::VEM::DF_PCC::ProjectionTypes::Pi0km1Der: {
             std::vector<Eigen::MatrixXd> basisFunctionDerivativeValues(dimension * dimension);
 
             for (unsigned short j = 0; j < dimension; ++j)
@@ -81,7 +82,8 @@ template <unsigned short dimension> struct VEM_DF_PCC_Utilities final
         return vanderInternal.leftCols(Nkm1) * vmatrix;
     }
 
-    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const ProjectionTypes &projectionType,
+    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const unsigned int dimension,
+                                                                    const Polydim::VEM::DF_PCC::ProjectionTypes &projectionType,
                                                                     const unsigned int &Nkm2,
                                                                     const std::vector<Eigen::MatrixXd> &pi0km2,
                                                                     const std::vector<Eigen::MatrixXd> &pi0k,
@@ -90,11 +92,11 @@ template <unsigned short dimension> struct VEM_DF_PCC_Utilities final
         std::vector<Eigen::MatrixXd> basisFunctionValues(dimension);
         switch (projectionType)
         {
-        case ProjectionTypes::Pi0km2:
+        case Polydim::VEM::DF_PCC::ProjectionTypes::Pi0km2:
             for (unsigned short i = 0; i < dimension; ++i)
                 basisFunctionValues[i] = vanderInternal.leftCols(Nkm2) * pi0km2[i];
             break;
-        case ProjectionTypes::Pi0k:
+        case Polydim::VEM::DF_PCC::ProjectionTypes::Pi0k:
             for (unsigned short i = 0; i < dimension; ++i)
                 basisFunctionValues[i] = vanderInternal * pi0k[i];
             break;
@@ -110,7 +112,7 @@ template <unsigned short dimension> struct VEM_DF_PCC_Utilities final
     }
 
     template <typename MonomialType>
-    inline Eigen::MatrixXd ComputePolynomialsValues(const Utilities::Monomials_Data &data,
+    inline Eigen::MatrixXd ComputePolynomialsValues(const Polydim::Utilities::Monomials_Data &data,
                                                     const MonomialType &monomials,
                                                     const Eigen::Vector3d &centroid,
                                                     const double &diameter,
@@ -125,7 +127,7 @@ template <unsigned short dimension> struct VEM_DF_PCC_Utilities final
     }
 
     template <typename MonomialType>
-    inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const Utilities::Monomials_Data &data,
+    inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const Polydim::Utilities::Monomials_Data &data,
                                                                            const MonomialType &monomials,
                                                                            const double &diameter,
                                                                            const Eigen::MatrixXd &vander) const
@@ -134,7 +136,7 @@ template <unsigned short dimension> struct VEM_DF_PCC_Utilities final
     }
 
     template <typename MonomialType>
-    inline Eigen::MatrixXd ComputePolynomialsLaplacianValues(const Utilities::Monomials_Data &data,
+    inline Eigen::MatrixXd ComputePolynomialsLaplacianValues(const Polydim::Utilities::Monomials_Data &data,
                                                              const MonomialType &monomials,
                                                              const double &diameter,
                                                              const Eigen::MatrixXd &vander) const
@@ -152,7 +154,8 @@ template <unsigned short dimension> struct VEM_DF_PCC_Utilities final
         return Interpolation::Lagrange::Lagrange_1D_values(interpolation_points_x, edgeBasisCoefficients, pointsCurvilinearCoordinates);
     }
 
-    Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const std::vector<Eigen::MatrixXd> &projector,
+    Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const unsigned int dimension,
+                                                       const std::vector<Eigen::MatrixXd> &projector,
                                                        const double &coefficient,
                                                        const std::vector<Eigen::MatrixXd> &dmatrix) const
     {

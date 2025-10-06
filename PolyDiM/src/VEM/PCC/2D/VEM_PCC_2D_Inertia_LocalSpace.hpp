@@ -27,7 +27,7 @@ namespace PCC
 class VEM_PCC_2D_Inertia_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
 {
   private:
-    VEM_PCC_Utilities<2> utilities;
+    VEM_PCC_Utilities utilities;
     Utilities::Monomials_2D monomials;
 
     void InitializeProjectorsComputation(const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data &reference_element_data,

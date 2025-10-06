@@ -36,7 +36,7 @@ enum class MethodTypes
 
 class ReferenceElement_Data final
 {
-public:
+  public:
     Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes Method_Type;
     unsigned int Order;
 
@@ -51,7 +51,7 @@ public:
 
 class LocalSpace_Data final
 {
-public:
+  public:
     Polydim::VEM::MCC::VEM_MCC_2D_Polygon_Geometry VEM_Geometry;
     Polydim::VEM::MCC::VEM_MCC_2D_Velocity_LocalSpace_Data VEM_LocalSpace_Data_Velocity;
     Polydim::VEM::MCC::VEM_MCC_2D_Pressure_LocalSpace_Data VEM_LocalSpace_Data_Pressure;
@@ -59,10 +59,10 @@ public:
 
 class Performance_Data final
 {
-public:
+  public:
     class Cell2D_Performance final
     {
-    public:
+      public:
         unsigned int NumBoundaryQuadraturePoints = 0;
         unsigned int NumInternalQuadraturePoints = 0;
         Polydim::VEM::MCC::VEM_MCC_PerformanceAnalysis_Data Analysis;

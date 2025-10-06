@@ -30,7 +30,7 @@ namespace MCC
 class VEM_MCC_3D_Velocity_LocalSpace final : public I_VEM_MCC_3D_Velocity_LocalSpace
 {
   private:
-    Polydim::VEM::MCC::VEM_MCC_Utilities<3> utilities;
+    Polydim::VEM::MCC::VEM_MCC_Utilities utilities;
     Polydim::Utilities::Monomials_3D monomials3D;
     Polydim::Utilities::Monomials_2D monomials2D;
 
@@ -69,7 +69,8 @@ class VEM_MCC_3D_Velocity_LocalSpace final : public I_VEM_MCC_3D_Velocity_LocalS
 
     void ComputePolynomialBasisDofs(const double &polytopeMeasure, Polydim::VEM::MCC::VEM_MCC_3D_Velocity_LocalSpace_Data &localSpace) const
     {
-        localSpace.Dmatrix = utilities.ComputePolynomialBasisDofs(polytopeMeasure,
+        localSpace.Dmatrix = utilities.ComputePolynomialBasisDofs(localSpace.Dimension,
+                                                                  polytopeMeasure,
                                                                   localSpace.Order,
                                                                   localSpace.Nk,
                                                                   localSpace.NumBoundaryBasisFunctions,
@@ -103,7 +104,7 @@ class VEM_MCC_3D_Velocity_LocalSpace final : public I_VEM_MCC_3D_Velocity_LocalS
         switch (projectionType)
         {
         case Polydim::VEM::MCC::ProjectionTypes::Pi0k:
-            return utilities.ComputeBasisFunctionsValues(localSpace.Pi0k, localSpace.GkVanderInternal);
+            return utilities.ComputeBasisFunctionsValues(localSpace.Dimension, localSpace.Pi0k, localSpace.GkVanderInternal);
         default:
             throw std::runtime_error("not valid projectors");
         }

@@ -26,9 +26,10 @@ enum struct ProjectionTypes
     Pi0k = 1,
 };
 
-template <unsigned short dimension> struct VEM_MCC_Utilities final
+struct VEM_MCC_Utilities final
 {
-    Eigen::MatrixXd ComputePolynomialBasisDofs(const double &polytopeMeasure,
+    Eigen::MatrixXd ComputePolynomialBasisDofs(const unsigned int dimension,
+                                               const double &polytopeMeasure,
                                                const unsigned int &order,
                                                const unsigned int &Nk,
                                                const unsigned int &NumBoundaryBasisFunctions,
@@ -222,7 +223,9 @@ template <unsigned short dimension> struct VEM_MCC_Utilities final
         }
     }
 
-    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const Eigen::MatrixXd &projector, const Eigen::MatrixXd &GVander) const
+    std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const unsigned int dimension,
+                                                             const Eigen::MatrixXd &projector,
+                                                             const Eigen::MatrixXd &GVander) const
     {
         const unsigned int numQuadrature = GVander.cols() / dimension;
         const Eigen::MatrixXd temp = GVander.transpose() * projector;
