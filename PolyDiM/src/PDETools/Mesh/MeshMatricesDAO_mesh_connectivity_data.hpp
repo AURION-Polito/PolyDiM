@@ -24,8 +24,7 @@ struct MeshMatricesDAO_mesh_connectivity_data final
 {
     const Gedim::MeshMatricesDAO &mesh_data;
 
-    MeshMatricesDAO_mesh_connectivity_data(const Gedim::MeshMatricesDAO &mesh_data) :
-      mesh_data(mesh_data) { }
+    MeshMatricesDAO_mesh_connectivity_data(const Gedim::MeshMatricesDAO &mesh_data);
 
     inline unsigned int Dimension() const
     {
