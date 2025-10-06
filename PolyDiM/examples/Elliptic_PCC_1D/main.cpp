@@ -108,7 +108,7 @@ int main(int argc, char **argv)
     const auto reference_element_data = reference_element->Create(config.MethodOrder());
     const auto local_space = Polydim::FEM::PCC::create_FEM_PCC_1D_local_space(config.MethodType());
 
-    Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data = {mesh};
+    Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data(mesh);
 
     Polydim::PDETools::DOFs::DOFsManager dofManager;
     const auto meshDOFsInfo = dofManager.Create_Constant_DOFsInfo<1>(

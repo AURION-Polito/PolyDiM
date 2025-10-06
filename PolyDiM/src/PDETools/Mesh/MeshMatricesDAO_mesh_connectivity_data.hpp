@@ -22,7 +22,10 @@ namespace Mesh
 {
 struct MeshMatricesDAO_mesh_connectivity_data final
 {
-    Gedim::MeshMatricesDAO &mesh_data;    
+    const Gedim::MeshMatricesDAO &mesh_data;
+
+    MeshMatricesDAO_mesh_connectivity_data(const Gedim::MeshMatricesDAO &mesh_data) :
+      mesh_data(mesh_data) { }
 
     inline unsigned int Dimension() const
     {
