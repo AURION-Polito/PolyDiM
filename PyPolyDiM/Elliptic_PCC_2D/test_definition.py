@@ -6,7 +6,7 @@ class ITest(ABC):
 
     @staticmethod
     @abstractmethod
-    def domain():
+    def domain() -> polydim.pde_tools.mesh.pde_mesh_utilities.PDE_Domain_2D:
         pass
 
     @staticmethod
@@ -41,8 +41,16 @@ class ITest(ABC):
 class EllipticPolynomialProblem(ITest):
 
     @staticmethod
-    def domain():
-        return
+    def domain() -> polydim.pde_tools.mesh.pde_mesh_utilities.PDE_Domain_2D:
+        pde_domain = polydim.pde_tools.mesh.pde_mesh_utilities.PDE_Domain_2D()
+
+        pde_domain.vertices = np.array([[0.0, 1.0, 1.0, 0.0],
+                                       [0.0, 0.0, 1.0, 1.0],
+                                       [0.0, 0.0, 0.0, 0.0]])
+
+        pde_domain.area = 1.0
+
+        return pde_domain
 
     @staticmethod
     def boundary_info():
