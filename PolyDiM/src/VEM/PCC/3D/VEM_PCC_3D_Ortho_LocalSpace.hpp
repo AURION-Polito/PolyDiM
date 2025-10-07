@@ -35,7 +35,7 @@ namespace PCC
 class VEM_PCC_3D_Ortho_LocalSpace final : public I_VEM_PCC_3D_LocalSpace
 {
   private:
-    VEM_PCC_Utilities<3> utilities;
+    VEM_PCC_Utilities utilities;
     Utilities::Monomials_3D monomials;
 
     void InitializeProjectorsComputation(const Polydim::VEM::PCC::VEM_PCC_3D_ReferenceElement_Data &reference_element_data,

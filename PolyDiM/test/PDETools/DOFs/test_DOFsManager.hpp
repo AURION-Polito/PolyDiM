@@ -30,7 +30,7 @@ TEST(TEST_DOFsManager, TEST_CreateDOFs_0D)
     dofs_info.CellsBoundaryInfo[0].resize(1, {PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None, 0});
     dofs_info.CellsNumDOFs[0].resize(1, 2);
 
-    const auto dofs_data = dofs_manager.CreateDOFs<0>(dofs_info);
+    const auto dofs_data = dofs_manager.CreateDOFs_0D(dofs_info);
 
     ASSERT_EQ(2, dofs_data.NumberDOFs);
     ASSERT_EQ(0, dofs_data.NumberStrongs);
@@ -76,7 +76,7 @@ TEST(TEST_DOFsManager, TEST_CreateDOFs_1D)
     dofs_info.CellsBoundaryInfo[1].resize(1, {PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None, 0});
     dofs_info.CellsNumDOFs[1].resize(1, 2);
 
-    const auto dofs_data = dofs_manager.CreateDOFs<1>(dofs_info, Test_DOFsManager_mesh_connectivity_data_1D());
+    const auto dofs_data = dofs_manager.CreateDOFs_1D(dofs_info, Test_DOFsManager_mesh_connectivity_data_1D());
 
     ASSERT_EQ(3, dofs_data.NumberDOFs);
     ASSERT_EQ(1, dofs_data.NumberStrongs);

@@ -35,4 +35,3 @@ def create_mesh(geometry_utilities: gedim.GeometryUtilities, mesh_utilities: ged
                                                                   mesh)
     else:
         raise ValueError("MeshGenerator " + str(mesh_type) + " not supported")
-

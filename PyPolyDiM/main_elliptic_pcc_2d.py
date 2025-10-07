@@ -29,7 +29,3 @@ if __name__=='__main__':
     mesh = gedim.MeshMatricesDAO(mesh_data)
 
     create_mesh(geometry_utilities, mesh_utilities, mesh_type, args.max_relative_area, args.import_path, pde_domain, mesh)
-
-
-
-

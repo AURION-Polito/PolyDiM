@@ -171,7 +171,6 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
                 shift++;
             }
         }
-
     }
 
     localSpace.Dof3DsIndex.fill(localSpace.Dof2DsIndex[4]);

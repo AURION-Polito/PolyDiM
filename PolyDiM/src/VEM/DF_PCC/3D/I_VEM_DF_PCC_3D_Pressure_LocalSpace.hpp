@@ -15,7 +15,6 @@
 #include "Eigen/Eigen"
 #include "I_VEM_DF_PCC_3D_ReferenceElement.hpp"
 #include "VEM_DF_PCC_3D_LocalSpace_Data.hpp"
-#include <vector>
 
 namespace Polydim
 {

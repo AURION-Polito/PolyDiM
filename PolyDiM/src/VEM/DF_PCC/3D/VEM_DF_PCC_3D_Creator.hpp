@@ -18,6 +18,7 @@
 #include "VEM_DF_PCC_3D_Reduced_Velocity_LocalSpace.hpp"
 #include "VEM_DF_PCC_3D_ReferenceElement.hpp"
 #include "VEM_DF_PCC_3D_Velocity_LocalSpace.hpp"
+#include "VEM_PCC_2D_ReferenceElement.hpp"
 #include <memory>
 
 namespace Polydim

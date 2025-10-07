@@ -109,7 +109,7 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("CreateVEMSpace of order " + std::to_string(config.VemOrder()) + " and DOFs...", true);
     Gedim::Profiler::StartTime("CreateVEMSpace");
 
-    Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data = {mesh};
+    Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data(mesh);
 
     const auto vem_pressure_reference_element = Polydim::VEM::MCC::create_VEM_MCC_3D_pressure_reference_element(config.VemType());
     const auto pressure_reference_element_data = vem_pressure_reference_element->Create(config.VemOrder());
@@ -123,16 +123,16 @@ int main(int argc, char **argv)
     std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> meshDOFsInfo(2);
     std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> dofs_data(2);
 
-    meshDOFsInfo[0] = dofManager.Create_Constant_DOFsInfo<3>(mesh_connectivity_data,
+    meshDOFsInfo[0] = dofManager.Create_Constant_DOFsInfo_3D(mesh_connectivity_data,
                                                              {{velocity_reference_element_data.NumDofs0D,
                                                                velocity_reference_element_data.NumDofs1D,
                                                                velocity_reference_element_data.NumDofs2D,
                                                                velocity_reference_element_data.NumDofs3D},
                                                               boundary_info});
 
-    dofs_data[0] = dofManager.CreateDOFs<3>(meshDOFsInfo[0], mesh_connectivity_data);
+    dofs_data[0] = dofManager.CreateDOFs_3D(meshDOFsInfo[0], mesh_connectivity_data);
 
-    meshDOFsInfo[1] = dofManager.Create_Constant_DOFsInfo<3>(mesh_connectivity_data,
+    meshDOFsInfo[1] = dofManager.Create_Constant_DOFsInfo_3D(mesh_connectivity_data,
                                                              {{
                                                                   pressure_reference_element_data.NumDofs0D,
                                                                   pressure_reference_element_data.NumDofs1D,
@@ -141,7 +141,7 @@ int main(int argc, char **argv)
                                                               },
                                                               boundary_info});
 
-    dofs_data[1] = dofManager.CreateDOFs<3>(meshDOFsInfo[1], mesh_connectivity_data);
+    dofs_data[1] = dofManager.CreateDOFs_3D(meshDOFsInfo[1], mesh_connectivity_data);
 
     const auto count_dofs = Polydim::PDETools::Assembler_Utilities::count_dofs(dofs_data);
 

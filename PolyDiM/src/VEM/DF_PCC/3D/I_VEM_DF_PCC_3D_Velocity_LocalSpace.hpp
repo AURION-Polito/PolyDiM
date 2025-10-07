@@ -14,11 +14,9 @@
 
 #include "Eigen/Eigen"
 #include "I_VEM_DF_PCC_3D_ReferenceElement.hpp"
-#include "Monomials_3D.hpp"
+#include "I_VEM_PCC_2D_ReferenceElement.hpp"
 #include "VEM_DF_PCC_3D_LocalSpace_Data.hpp"
 #include "VEM_DF_PCC_Utilities.hpp"
-#include "VEM_PCC_2D_LocalSpace.hpp"
-#include "VEM_PCC_2D_ReferenceElement.hpp"
 #include <vector>
 
 namespace Polydim

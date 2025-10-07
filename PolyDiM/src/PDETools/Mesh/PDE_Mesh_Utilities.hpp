@@ -25,15 +25,17 @@ namespace Mesh
 {
 namespace PDE_Mesh_Utilities
 {
-struct PDE_Domain_1D final
+class PDE_Domain_1D final
 {
+  public:
     Eigen::MatrixXd vertices;
     double length;
 };
 
-struct PDE_Domain_2D final
+class PDE_Domain_2D final
 {
-    enum struct Domain_Shape_Types
+  public:
+    enum class Domain_Shape_Types
     {
         Parallelogram = 0,
         Polygon = 1
@@ -44,9 +46,10 @@ struct PDE_Domain_2D final
     Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types shape_type;
 };
 
-struct PDE_Domain_3D final
+class PDE_Domain_3D final
 {
-    enum struct Domain_Shape_Types
+  public:
+    enum class Domain_Shape_Types
     {
         Parallelepiped = 0,
         Polygon = 1
@@ -59,14 +62,14 @@ struct PDE_Domain_3D final
     Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_3D::Domain_Shape_Types shape_type;
 };
 
-enum struct MeshGenerator_Types_1D
+enum class MeshGenerator_Types_1D
 {
     Equispaced = 0,  ///< equispaced mesh
     Minimal = 2,     ///< minimal mesh
     CsvImporter = 1, ///< imported csv mesh
 };
 
-enum struct MeshGenerator_Types_2D
+enum class MeshGenerator_Types_2D
 {
     Triangular = 0,  ///< generated triangular mesh
     Minimal = 1,     ///< generated minimal mesh
@@ -77,7 +80,7 @@ enum struct MeshGenerator_Types_2D
     RandomDistorted = 6
 };
 
-enum struct MeshGenerator_Types_3D
+enum class MeshGenerator_Types_3D
 {
     Tetrahedral = 0, ///< generated tetrahedral mesh
     Minimal = 1,     ///< generated minimal mesh

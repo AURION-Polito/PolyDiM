@@ -112,7 +112,7 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("CreateVEMSpace of order " + std::to_string(config.VemOrder()) + " and DOFs...", true);
     Gedim::Profiler::StartTime("CreateVEMSpace");
 
-    Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data = {mesh};
+    Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data(mesh);
 
     const auto vem_velocity_reference_element_2D =
         Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_velocity_reference_element_2D(config.VemType());
@@ -130,37 +130,37 @@ int main(int argc, char **argv)
 
     for (unsigned int i = 0; i < 3; i++)
     {
-        mesh_dofs_info[i] = dofManager.Create_Constant_DOFsInfo<3>(
+        mesh_dofs_info[i] = dofManager.Create_Constant_DOFsInfo_3D(
             mesh_connectivity_data,
             {{velocity_reference_element_data_3D.NumDofs0D, velocity_reference_element_data_3D.NumDofs1D, 0, 0}, boundary_info});
 
-        dofs_data[i] = dofManager.CreateDOFs<3>(mesh_dofs_info[i], mesh_connectivity_data);
+        dofs_data[i] = dofManager.CreateDOFs_3D(mesh_dofs_info[i], mesh_connectivity_data);
     }
 
     for (unsigned int i = 3; i < 6; i++)
     {
         mesh_dofs_info[i] =
-            dofManager.Create_Constant_DOFsInfo<3>(mesh_connectivity_data,
+            dofManager.Create_Constant_DOFsInfo_3D(mesh_connectivity_data,
                                                    {{0, 0, velocity_reference_element_data_3D.NumDofs2D, 0}, boundary_info});
 
-        dofs_data[i] = dofManager.CreateDOFs<3>(mesh_dofs_info[i], mesh_connectivity_data);
+        dofs_data[i] = dofManager.CreateDOFs_3D(mesh_dofs_info[i], mesh_connectivity_data);
     }
 
-    mesh_dofs_info[6] = dofManager.Create_Constant_DOFsInfo<3>(
+    mesh_dofs_info[6] = dofManager.Create_Constant_DOFsInfo_3D(
         mesh_connectivity_data,
         {{0, 0, 0, velocity_reference_element_data_3D.NumDofs3D_BigOPlus + velocity_reference_element_data_3D.NumDofs3D_Divergence},
          boundary_info});
 
-    dofs_data[6] = dofManager.CreateDOFs<3>(mesh_dofs_info[6], mesh_connectivity_data);
+    dofs_data[6] = dofManager.CreateDOFs_3D(mesh_dofs_info[6], mesh_connectivity_data);
 
-    mesh_dofs_info[7] = dofManager.Create_Constant_DOFsInfo<3>(mesh_connectivity_data,
+    mesh_dofs_info[7] = dofManager.Create_Constant_DOFsInfo_3D(mesh_connectivity_data,
                                                                {{pressure_reference_element_data_3D.NumDofs0D,
                                                                  pressure_reference_element_data_3D.NumDofs1D,
                                                                  pressure_reference_element_data_3D.NumDofs2D,
                                                                  pressure_reference_element_data_3D.NumDofs3D},
                                                                 boundary_info});
 
-    dofs_data[7] = dofManager.CreateDOFs<3>(mesh_dofs_info[7], mesh_connectivity_data);
+    dofs_data[7] = dofManager.CreateDOFs_3D(mesh_dofs_info[7], mesh_connectivity_data);
 
     auto count_dofs = Polydim::PDETools::Assembler_Utilities::count_dofs(dofs_data);
     if (count_dofs.num_total_boundary_dofs == 0)
@@ -284,24 +284,24 @@ int main(int argc, char **argv)
 
         for (unsigned int i = 0; i < 3; i++)
         {
-            full_mesh_dofs_info[i] = dofManager.Create_Constant_DOFsInfo<3>(
+            full_mesh_dofs_info[i] = dofManager.Create_Constant_DOFsInfo_3D(
                 mesh_connectivity_data,
                 {{full_velocity_reference_element_data_3D.NumDofs0D, full_velocity_reference_element_data_3D.NumDofs1D, 0, 0},
                  boundary_info});
 
-            full_dofs_data[i] = dofManager.CreateDOFs<3>(full_mesh_dofs_info[i], mesh_connectivity_data);
+            full_dofs_data[i] = dofManager.CreateDOFs_3D(full_mesh_dofs_info[i], mesh_connectivity_data);
         }
 
         for (unsigned int i = 3; i < 6; i++)
         {
-            full_mesh_dofs_info[i] = dofManager.Create_Constant_DOFsInfo<3>(
+            full_mesh_dofs_info[i] = dofManager.Create_Constant_DOFsInfo_3D(
                 mesh_connectivity_data,
                 {{0, 0, full_velocity_reference_element_data_3D.NumDofs2D, 0}, boundary_info});
 
-            full_dofs_data[i] = dofManager.CreateDOFs<3>(full_mesh_dofs_info[i], mesh_connectivity_data);
+            full_dofs_data[i] = dofManager.CreateDOFs_3D(full_mesh_dofs_info[i], mesh_connectivity_data);
         }
 
-        full_mesh_dofs_info[6] = dofManager.Create_Constant_DOFsInfo<3>(
+        full_mesh_dofs_info[6] = dofManager.Create_Constant_DOFsInfo_3D(
             mesh_connectivity_data,
             {{0,
               0,
@@ -309,16 +309,16 @@ int main(int argc, char **argv)
               full_velocity_reference_element_data_3D.NumDofs3D_BigOPlus + full_velocity_reference_element_data_3D.NumDofs3D_Divergence},
              boundary_info});
 
-        full_dofs_data[6] = dofManager.CreateDOFs<3>(full_mesh_dofs_info[6], mesh_connectivity_data);
+        full_dofs_data[6] = dofManager.CreateDOFs_3D(full_mesh_dofs_info[6], mesh_connectivity_data);
 
-        full_mesh_dofs_info[7] = dofManager.Create_Constant_DOFsInfo<3>(mesh_connectivity_data,
+        full_mesh_dofs_info[7] = dofManager.Create_Constant_DOFsInfo_3D(mesh_connectivity_data,
                                                                         {{full_pressure_reference_element_data_3D.NumDofs0D,
                                                                           full_pressure_reference_element_data_3D.NumDofs1D,
                                                                           full_pressure_reference_element_data_3D.NumDofs2D,
                                                                           full_pressure_reference_element_data_3D.NumDofs3D},
                                                                          boundary_info});
 
-        full_dofs_data[7] = dofManager.CreateDOFs<3>(full_mesh_dofs_info[7], mesh_connectivity_data);
+        full_dofs_data[7] = dofManager.CreateDOFs_3D(full_mesh_dofs_info[7], mesh_connectivity_data);
 
         auto full_count_dofs = Polydim::PDETools::Assembler_Utilities::count_dofs(full_dofs_data);
         if (full_count_dofs.num_total_boundary_dofs == 0)

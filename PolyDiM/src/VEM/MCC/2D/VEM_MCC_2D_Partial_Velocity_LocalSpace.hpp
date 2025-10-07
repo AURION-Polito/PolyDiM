@@ -33,7 +33,7 @@ namespace MCC
 class VEM_MCC_2D_Partial_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_LocalSpace
 {
   private:
-    Polydim::VEM::MCC::VEM_MCC_Utilities<2> utilities;
+    Polydim::VEM::MCC::VEM_MCC_Utilities utilities;
     Polydim::Utilities::Monomials_2D monomials;
 
     void InitializeProjectorsComputation(const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
@@ -65,7 +65,8 @@ class VEM_MCC_2D_Partial_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocit
 
     void ComputePolynomialBasisDofs(const double &polytopeMeasure, Polydim::VEM::MCC::VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const
     {
-        localSpace.Dmatrix = utilities.ComputePolynomialBasisDofs(polytopeMeasure,
+        localSpace.Dmatrix = utilities.ComputePolynomialBasisDofs(localSpace.Dimension,
+                                                                  polytopeMeasure,
                                                                   localSpace.Order,
                                                                   localSpace.Nk,
                                                                   localSpace.NumBoundaryBasisFunctions,
@@ -99,7 +100,7 @@ class VEM_MCC_2D_Partial_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocit
         switch (projectionType)
         {
         case ProjectionTypes::Pi0k:
-            return utilities.ComputeBasisFunctionsValues(localSpace.Pi0k, localSpace.GkVanderInternal);
+            return utilities.ComputeBasisFunctionsValues(localSpace.Dimension, localSpace.Pi0k, localSpace.GkVanderInternal);
         default:
             throw std::runtime_error("not valid projectors");
         }

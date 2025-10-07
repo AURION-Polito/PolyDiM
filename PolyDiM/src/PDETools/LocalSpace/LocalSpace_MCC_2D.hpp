@@ -25,7 +25,7 @@ namespace PDETools
 {
 namespace LocalSpace_MCC_2D
 {
-enum struct MethodTypes
+enum class MethodTypes
 {
     VEM_MCC = 1,
     VEM_MCC_Partial = 2,
@@ -34,8 +34,9 @@ enum struct MethodTypes
     VEM_MCC_Ortho_EdgeOrtho = 5
 };
 
-struct ReferenceElement_Data final
+class ReferenceElement_Data final
 {
+  public:
     Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes Method_Type;
     unsigned int Order;
 
@@ -48,17 +49,20 @@ struct ReferenceElement_Data final
     std::unique_ptr<VEM::MCC::I_VEM_MCC_2D_Pressure_LocalSpace> VEM_LocalSpace_Pressure;
 };
 
-struct LocalSpace_Data final
+class LocalSpace_Data final
 {
+  public:
     Polydim::VEM::MCC::VEM_MCC_2D_Polygon_Geometry VEM_Geometry;
     Polydim::VEM::MCC::VEM_MCC_2D_Velocity_LocalSpace_Data VEM_LocalSpace_Data_Velocity;
     Polydim::VEM::MCC::VEM_MCC_2D_Pressure_LocalSpace_Data VEM_LocalSpace_Data_Pressure;
 };
 
-struct Performance_Data final
+class Performance_Data final
 {
-    struct Cell2D_Performance final
+  public:
+    class Cell2D_Performance final
     {
+      public:
         unsigned int NumBoundaryQuadraturePoints = 0;
         unsigned int NumInternalQuadraturePoints = 0;
         Polydim::VEM::MCC::VEM_MCC_PerformanceAnalysis_Data Analysis;

@@ -235,6 +235,11 @@ Assembler::Elastic_PCC_2D_Problem_Data Assembler::Assemble(const Polydim::exampl
 
     Polydim::PDETools::Equations::EllipticEquation equation;
 
+    std::vector<std::reference_wrapper<const Polydim::PDETools::DOFs::DOFsManager::DOFsData>> dofs_data_ref;
+    dofs_data_ref.reserve(2);
+    dofs_data_ref.push_back(std::cref(static_cast<const Polydim::PDETools::DOFs::DOFsManager::DOFsData &>(dofs_data)));
+    dofs_data_ref.push_back(std::cref(static_cast<const Polydim::PDETools::DOFs::DOFsManager::DOFsData &>(dofs_data)));
+
     for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); ++c)
     {
         const auto local_space_data = local_space::CreateLocalSpace(config, mesh_geometric_data, c, reference_element_data);
@@ -255,8 +260,7 @@ Assembler::Elastic_PCC_2D_Problem_Data Assembler::Assemble(const Polydim::exampl
         const auto lame_coefficients_values = test.lame_coefficients(cell2D_internal_quadrature.Points);
         const auto source_term_values = test.source_term(cell2D_internal_quadrature.Points);
 
-        const auto local_count_dofs =
-            Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, {std::cref(dofs_data), std::cref(dofs_data)});
+        const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, dofs_data_ref);
 
         const Eigen::MatrixXd local_A =
             2.0 * equation.ComputeCellDiffusionMatrix(lame_coefficients_values[0],
@@ -336,6 +340,11 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
                                                            const Elastic_PCC_2D_Problem_Data &assembler_data,
                                                            const Polydim::examples::Elastic_PCC_2D::test::I_Test &test) const
 {
+    std::vector<std::reference_wrapper<const Polydim::PDETools::DOFs::DOFsManager::DOFsData>> dofs_data_ref;
+    dofs_data_ref.reserve(2);
+    dofs_data_ref.push_back(std::cref(static_cast<const Polydim::PDETools::DOFs::DOFsManager::DOFsData &>(dofs_data)));
+    dofs_data_ref.push_back(std::cref(static_cast<const Polydim::PDETools::DOFs::DOFsManager::DOFsData &>(dofs_data)));
+
     PostProcess_Data result;
 
     result.residual_norm = 0.0;
@@ -413,12 +422,11 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
 
         const auto cell2D_internal_quadrature = local_space::InternalQuadrature(reference_element_data, local_space_data);
 
-        const auto local_count_dofs =
-            Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, {std::cref(dofs_data), std::cref(dofs_data)});
+        const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, dofs_data_ref);
 
         const Eigen::VectorXd dofs_values =
             PDETools::Assembler_Utilities::global_solution_to_local_solution<2>(c,
-                                                                                {std::cref(dofs_data), std::cref(dofs_data)},
+                                                                                dofs_data_ref,
                                                                                 local_count_dofs.num_total_dofs,
                                                                                 local_count_dofs.offsets_DOFs,
                                                                                 count_dofs.offsets_DOFs,

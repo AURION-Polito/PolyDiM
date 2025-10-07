@@ -26,7 +26,7 @@ namespace PCC
 class VEM_PCC_2D_Ortho_LocalSpace final : public Polydim::VEM::PCC::I_VEM_PCC_2D_LocalSpace
 {
   private:
-    Polydim::VEM::PCC::VEM_PCC_Utilities<2> utilities;
+    Polydim::VEM::PCC::VEM_PCC_Utilities utilities;
     Polydim::Utilities::Monomials_2D monomials;
 
     void InitializeProjectorsComputation(const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data &reference_element_data,

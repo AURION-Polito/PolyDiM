@@ -112,7 +112,7 @@ int main(int argc, char **argv)
     const auto reference_element_data =
         Polydim::PDETools::LocalSpace_MCC_2D::CreateReferenceElement(config.MethodType(), config.MethodOrder());
 
-    Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data = {mesh};
+    Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data(mesh);
 
     const auto reference_element_num_dofs = Polydim::PDETools::LocalSpace_MCC_2D::ReferenceElementNumDOFs(reference_element_data);
 
@@ -123,9 +123,9 @@ int main(int argc, char **argv)
     for (unsigned int h = 0; h < 2; h++)
     {
         meshDOFsInfo[h] =
-            dofManager.Create_Constant_DOFsInfo<2>(mesh_connectivity_data, {reference_element_num_dofs[h], boundary_info});
+            dofManager.Create_Constant_DOFsInfo_2D(mesh_connectivity_data, {reference_element_num_dofs[h], boundary_info});
 
-        dofs_data[h] = dofManager.CreateDOFs<2>(meshDOFsInfo[h], mesh_connectivity_data);
+        dofs_data[h] = dofManager.CreateDOFs_2D(meshDOFsInfo[h], mesh_connectivity_data);
     }
 
     const auto count_dofs = Polydim::PDETools::Assembler_Utilities::count_dofs(dofs_data);

@@ -107,12 +107,12 @@ int main(int argc, char **argv)
     const auto reference_element_data =
         Polydim::examples::Elastic_PCC_2D::local_space::CreateReferenceElement(config.MethodType(), config.MethodOrder());
 
-    Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data = {mesh};
+    Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data(mesh);
 
     Polydim::PDETools::DOFs::DOFsManager dofManager;
     const auto meshDOFsInfo =
         Polydim::examples::Elastic_PCC_2D::local_space::SetMeshDOFsInfo(reference_element_data, mesh, boundary_info);
-    const auto dofs_data = dofManager.CreateDOFs<2>(meshDOFsInfo, mesh_connectivity_data);
+    const auto dofs_data = dofManager.CreateDOFs_2D(meshDOFsInfo, mesh_connectivity_data);
     const auto count_dofs = Polydim::PDETools::Assembler_Utilities::count_dofs({std::cref(dofs_data), std::cref(dofs_data)});
 
     Gedim::Output::PrintGenericMessage("Discrete Space with " + std::to_string(count_dofs.num_total_dofs) +
