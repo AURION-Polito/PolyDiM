@@ -23,8 +23,9 @@ namespace VEM
 namespace PCC
 {
 
-struct VEM_PCC_3D_Polyhedron_Geometry final
+class VEM_PCC_3D_Polyhedron_Geometry final
 {
+public:
     double Tolerance1D;
     double Tolerance2D;
     double Tolerance3D;
@@ -46,8 +47,9 @@ struct VEM_PCC_3D_Polyhedron_Geometry final
     Eigen::MatrixXd EdgesTangent;
 };
 
-struct VEM_PCC_3D_LocalSpace_Data final
+class VEM_PCC_3D_LocalSpace_Data final
 {
+public:
     Gedim::Quadrature::QuadratureData InternalQuadrature;
     Polydim::VEM::Quadrature::VEM_Quadrature_3D::Faces_QuadratureData_PCC BoundaryQuadrature;
 
