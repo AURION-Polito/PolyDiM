@@ -44,11 +44,11 @@ struct ReferenceElement_Data final
     std::unique_ptr<Polydim::VEM::PCC::I_VEM_PCC_2D_ReferenceElement> VEM_ReferenceElement;
     Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data VEM_ReferenceElement_Data;
     Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace_Types VEM_Type;
-    std::unique_ptr<VEM::PCC::I_VEM_PCC_2D_LocalSpace> VEM_LocalSpace;
+    std::unique_ptr<Polydim::VEM::PCC::I_VEM_PCC_2D_LocalSpace> VEM_LocalSpace;
 
     std::unique_ptr<Polydim::FEM::PCC::FEM_PCC_2D_ReferenceElement> FEM_ReferenceElement;
     Polydim::FEM::PCC::FEM_PCC_2D_ReferenceElement_Data FEM_ReferenceElement_Data;
-    std::unique_ptr<FEM::PCC::FEM_PCC_2D_LocalSpace> FEM_LocalSpace;
+    std::unique_ptr<Polydim::FEM::PCC::FEM_PCC_2D_LocalSpace> FEM_LocalSpace;
 };
 
 struct LocalSpace_Data final
@@ -76,7 +76,7 @@ Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data CreateReferenceEleme
                                                                                    const unsigned int method_order);
 
 Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo SetMeshDOFsInfo(
-    const ReferenceElement_Data &reference_element_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
     const Gedim::MeshMatricesDAO &mesh,
     const std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> &boundary_info);
 
