@@ -69,20 +69,18 @@ class DOFsManager
                 None = 3
             };
 
-            BoundaryTypes Type;
+            Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes Type;
             unsigned int Marker;
         };
 
         std::array<std::vector<unsigned int>, DOFSMANAGER_MAX_DIMENSION + 1> CellsNumDOFs;
-        std::array<std::vector<BoundaryInfo>, DOFSMANAGER_MAX_DIMENSION + 1> CellsBoundaryInfo;
+        std::array<std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, DOFSMANAGER_MAX_DIMENSION + 1> CellsBoundaryInfo;
     };
-
-    using BoundaryTypes = typename MeshDOFsInfo::BoundaryInfo::BoundaryTypes;
 
     struct ConstantDOFsInfo final
     {
         std::array<unsigned int, DOFSMANAGER_MAX_DIMENSION + 1> NumDOFs;
-        std::map<unsigned int, MeshDOFsInfo::BoundaryInfo> BoundaryInfo;
+        std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> BoundaryInfo;
     };
 
     struct DOFsData final
@@ -96,7 +94,7 @@ class DOFsManager
                 DOF = 2
             };
 
-            Types Type;
+            Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types Type;
             unsigned int Global_Index;
         };
 
@@ -111,15 +109,15 @@ class DOFsManager
         unsigned int NumberInternalDOFs;
         unsigned int NumberBoundaryDOFs;
         unsigned int NumberStrongs;
-        std::array<std::vector<std::vector<DOF>>, DOFSMANAGER_MAX_DIMENSION + 1> CellsDOFs;
-        std::array<std::vector<std::vector<GlobalCell_DOF>>, DOFSMANAGER_MAX_DIMENSION + 1> CellsGlobalDOFs;
+        std::array<std::vector<std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF>>, DOFSMANAGER_MAX_DIMENSION + 1> CellsDOFs;
+        std::array<std::vector<std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData::GlobalCell_DOF>>, DOFSMANAGER_MAX_DIMENSION + 1> CellsGlobalDOFs;
     };
 
   private:
     void ConcatenateGlobalDOFs(const unsigned int local_cell_dimension,
                                const unsigned int local_cell_index,
-                               const std::vector<typename DOFsData::DOF> &local_cell_DOFs,
-                               std::vector<typename DOFsData::GlobalCell_DOF> &global_cell_DOFs,
+                               const std::vector<typename Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF> &local_cell_DOFs,
+                               std::vector<typename Polydim::PDETools::DOFs::DOFsManager::DOFsData::GlobalCell_DOF> &global_cell_DOFs,
                                unsigned int &globalDOF_counter) const
     {
         for (unsigned int d = 0; d < local_cell_DOFs.size(); d++)
@@ -130,7 +128,7 @@ class DOFsManager
         }
     }
 
-    void CreateCellDOFs(const MeshDOFsInfo &meshDOFsInfo, DOFsData &dofs, const unsigned int dim) const
+    void CreateCellDOFs(const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &meshDOFsInfo, Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs, const unsigned int dim) const
     {
         const auto &cells_num_dofs = meshDOFsInfo.CellsNumDOFs.at(dim);
         const auto &cells_boundary_info = meshDOFsInfo.CellsBoundaryInfo.at(dim);
@@ -143,13 +141,13 @@ class DOFsManager
             const unsigned int numCellDofs = cells_num_dofs.at(c);
 
             const auto &cell_boundary_info = cells_boundary_info.at(c);
-            const BoundaryTypes &cellBoundaryType = cell_boundary_info.Type;
+            const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes &cellBoundaryType = cell_boundary_info.Type;
 
             cellsDOFs.at(c).resize(numCellDofs);
 
             switch (cellBoundaryType)
             {
-            case BoundaryTypes::None: {
+            case Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None: {
                 for (unsigned int d = 0; d < numCellDofs; d++)
                 {
                     auto &dof = cellsDOFs.at(c).at(d);
@@ -161,7 +159,7 @@ class DOFsManager
                 dofs.NumberInternalDOFs += numCellDofs;
             }
             break;
-            case BoundaryTypes::Strong: {
+            case Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong: {
                 for (unsigned int d = 0; d < numCellDofs; d++)
                 {
                     auto &dof = cellsDOFs.at(c).at(d);
@@ -172,7 +170,7 @@ class DOFsManager
                 dofs.NumberStrongs += numCellDofs;
             }
             break;
-            case BoundaryTypes::Weak: {
+            case Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak: {
                 for (unsigned int d = 0; d < numCellDofs; d++)
                 {
                     auto &dof = cellsDOFs.at(c).at(d);
@@ -193,8 +191,8 @@ class DOFsManager
 
     template <unsigned int dimension, class mesh_connectivity_data_class>
     void Create_Constant_DOFsInfo_0D(const mesh_connectivity_data_class &mesh,
-                                     const ConstantDOFsInfo &boundary_info,
-                                     MeshDOFsInfo &mesh_dof_info) const
+                                     const Polydim::PDETools::DOFs::DOFsManager::ConstantDOFsInfo &boundary_info,
+                                     Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dof_info) const
         requires(is_mesh_connectivity_class_0D<mesh_connectivity_data_class>)
     {
         mesh_dof_info.CellsNumDOFs[0].resize(mesh.Cell0Ds_number(), boundary_info.NumDOFs[0]);
@@ -208,8 +206,8 @@ class DOFsManager
 
     template <unsigned int dimension, class mesh_connectivity_data_class>
     void Create_Constant_DOFsInfo_1D(const mesh_connectivity_data_class &mesh,
-                                     const ConstantDOFsInfo &boundary_info,
-                                     MeshDOFsInfo &mesh_dof_info) const
+                                     const Polydim::PDETools::DOFs::DOFsManager::ConstantDOFsInfo &boundary_info,
+                                     Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dof_info) const
         requires(is_mesh_connectivity_class_1D<mesh_connectivity_data_class>)
     {
         mesh_dof_info.CellsNumDOFs[1].resize(mesh.Cell1Ds_number(), boundary_info.NumDOFs[1]);
@@ -223,8 +221,8 @@ class DOFsManager
 
     template <unsigned int dimension, class mesh_connectivity_data_class>
     void Create_Constant_DOFsInfo_2D(const mesh_connectivity_data_class &mesh,
-                                     const ConstantDOFsInfo &boundary_info,
-                                     MeshDOFsInfo &mesh_dof_info) const
+                                     const Polydim::PDETools::DOFs::DOFsManager::ConstantDOFsInfo &boundary_info,
+                                     Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dof_info) const
         requires(is_mesh_connectivity_class_2D<mesh_connectivity_data_class>)
     {
         mesh_dof_info.CellsNumDOFs[2].resize(mesh.Cell2Ds_number(), boundary_info.NumDOFs[2]);
@@ -238,8 +236,8 @@ class DOFsManager
 
     template <unsigned int dimension, class mesh_connectivity_data_class>
     void Create_Constant_DOFsInfo_3D(const mesh_connectivity_data_class &mesh,
-                                     const ConstantDOFsInfo &boundary_info,
-                                     MeshDOFsInfo &mesh_dof_info) const
+                                     const Polydim::PDETools::DOFs::DOFsManager::ConstantDOFsInfo &boundary_info,
+                                    Polydim::PDETools::DOFs::DOFsManager:: MeshDOFsInfo &mesh_dof_info) const
         requires(is_mesh_connectivity_class_3D<mesh_connectivity_data_class>)
     {
         mesh_dof_info.CellsNumDOFs[3].resize(mesh.Cell3Ds_number(), boundary_info.NumDOFs[3]);
@@ -433,7 +431,7 @@ class DOFsManager
 
   public:
     template <class mesh_connectivity_data_class>
-    MeshDOFsInfo Create_Constant_DOFsInfo_0D(const mesh_connectivity_data_class &mesh, const ConstantDOFsInfo &boundary_info) const
+    Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo Create_Constant_DOFsInfo_0D(const mesh_connectivity_data_class &mesh, const Polydim::PDETools::DOFs::DOFsManager::ConstantDOFsInfo &boundary_info) const
     {
         Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo meshDOFsInfo;
 
@@ -443,7 +441,7 @@ class DOFsManager
     }
 
     template <class mesh_connectivity_data_class>
-    MeshDOFsInfo Create_Constant_DOFsInfo_1D(const mesh_connectivity_data_class &mesh, const ConstantDOFsInfo &boundary_info) const
+    Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo Create_Constant_DOFsInfo_1D(const mesh_connectivity_data_class &mesh, const Polydim::PDETools::DOFs::DOFsManager::ConstantDOFsInfo &boundary_info) const
     {
         Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo meshDOFsInfo;
 
@@ -454,7 +452,7 @@ class DOFsManager
     }
 
     template <class mesh_connectivity_data_class>
-    MeshDOFsInfo Create_Constant_DOFsInfo_2D(const mesh_connectivity_data_class &mesh, const ConstantDOFsInfo &boundary_info) const
+    Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo Create_Constant_DOFsInfo_2D(const mesh_connectivity_data_class &mesh, const Polydim::PDETools::DOFs::DOFsManager::ConstantDOFsInfo &boundary_info) const
     {
         Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo meshDOFsInfo;
 
@@ -466,7 +464,7 @@ class DOFsManager
     }
 
     template <class mesh_connectivity_data_class>
-    MeshDOFsInfo Create_Constant_DOFsInfo_3D(const mesh_connectivity_data_class &mesh, const ConstantDOFsInfo &boundary_info) const
+    Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo Create_Constant_DOFsInfo_3D(const mesh_connectivity_data_class &mesh, const Polydim::PDETools::DOFs::DOFsManager::ConstantDOFsInfo &boundary_info) const
     {
         Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo meshDOFsInfo;
 
@@ -478,7 +476,7 @@ class DOFsManager
         return meshDOFsInfo;
     }
 
-    DOFsData CreateDOFs_0D(const MeshDOFsInfo &meshDOFsInfo) const
+    Polydim::PDETools::DOFs::DOFsManager::DOFsData CreateDOFs_0D(const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &meshDOFsInfo) const
     {
         DOFsData result;
 
@@ -493,7 +491,7 @@ class DOFsManager
     }
 
     template <class mesh_connectivity_data_class>
-    DOFsData CreateDOFs_1D(const MeshDOFsInfo &meshDOFsInfo, const mesh_connectivity_data_class &mesh) const
+    Polydim::PDETools::DOFs::DOFsManager::DOFsData CreateDOFs_1D(const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &meshDOFsInfo, const mesh_connectivity_data_class &mesh) const
     {
         DOFsData result;
 
@@ -509,7 +507,7 @@ class DOFsManager
     }
 
     template <class mesh_connectivity_data_class>
-    DOFsData CreateDOFs_2D(const MeshDOFsInfo &meshDOFsInfo, const mesh_connectivity_data_class &mesh) const
+    Polydim::PDETools::DOFs::DOFsManager::DOFsData CreateDOFs_2D(const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &meshDOFsInfo, const mesh_connectivity_data_class &mesh) const
     {
         DOFsData result;
 
@@ -526,7 +524,7 @@ class DOFsManager
     }
 
     template <class mesh_connectivity_data_class>
-    DOFsData CreateDOFs_3D(const MeshDOFsInfo &meshDOFsInfo, const mesh_connectivity_data_class &mesh) const
+    Polydim::PDETools::DOFs::DOFsManager::DOFsData CreateDOFs_3D(const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &meshDOFsInfo, const mesh_connectivity_data_class &mesh) const
     {
         DOFsData result;
 
