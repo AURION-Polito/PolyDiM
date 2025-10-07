@@ -72,10 +72,10 @@ inline Polydim::PDETools::Assembler_Utilities::count_dofs_data count_dofs(const 
 // ***************************************************************************
 template <unsigned int dimension>
 inline Polydim::PDETools::Assembler_Utilities::local_count_dofs_data
-local_count_dofs(const unsigned int cell_index, const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data)
+local_count_dofs(const unsigned int cell_index, const std::vector<std::reference_wrapper<const Polydim::PDETools::DOFs::DOFsManager::DOFsData>> &dofs_data)
 {
     Polydim::PDETools::Assembler_Utilities::local_count_dofs_data data;
-    data.num_total_dofs = dofs_data[0].CellsGlobalDOFs[dimension].at(cell_index).size();
+    data.num_total_dofs = dofs_data[0].get().CellsGlobalDOFs[dimension].at(cell_index).size();
 
     const unsigned int numDOFHandler = dofs_data.size();
     data.offsets_DOFs.resize(numDOFHandler);
@@ -83,16 +83,41 @@ local_count_dofs(const unsigned int cell_index, const std::vector<Polydim::PDETo
 
     for (unsigned int i = 1; i < numDOFHandler; i++)
     {
-        data.num_total_dofs += dofs_data[i].CellsGlobalDOFs[dimension].at(cell_index).size();
-        data.offsets_DOFs[i] = data.offsets_DOFs[i - 1] + dofs_data[i - 1].CellsGlobalDOFs[dimension].at(cell_index).size();
+        data.num_total_dofs += dofs_data[i].get().CellsGlobalDOFs[dimension].at(cell_index).size();
+        data.offsets_DOFs[i] = data.offsets_DOFs[i - 1] + dofs_data[i - 1].get().CellsGlobalDOFs[dimension].at(cell_index).size();
     }
 
     return data;
 }
 // ***************************************************************************
+template <unsigned int dimension>
+inline Polydim::PDETools::Assembler_Utilities::local_count_dofs_data
+local_count_dofs(const unsigned int cell_index, const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data)
+{
+  std::vector<std::reference_wrapper<const Polydim::PDETools::DOFs::DOFsManager::DOFsData>> dofs_data_ref;
+  dofs_data_ref.reserve(1);
+  dofs_data_ref.push_back(std::cref(static_cast<const Polydim::PDETools::DOFs::DOFsManager::DOFsData &>(dofs_data)));
+
+  return local_count_dofs<dimension>(cell_index,
+                                     dofs_data_ref);
+}
+// ***************************************************************************
+template <unsigned int dimension>
+inline Polydim::PDETools::Assembler_Utilities::local_count_dofs_data
+local_count_dofs(const unsigned int cell_index, const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data)
+{
+  std::vector<std::reference_wrapper<const Polydim::PDETools::DOFs::DOFsManager::DOFsData>> dofs_data_ref;
+  dofs_data_ref.reserve(dofs_data.size());
+  for (unsigned int c = 0; c < dofs_data.size(); c++)
+      dofs_data_ref.push_back(std::cref(static_cast<const Polydim::PDETools::DOFs::DOFsManager::DOFsData &>(dofs_data.at(c))));
+
+  return local_count_dofs<dimension>(cell_index,
+                                     dofs_data_ref);
+}
+// ***************************************************************************
 template <unsigned int dimension, typename global_solution_type>
 inline Eigen::VectorXd global_solution_to_local_solution(const unsigned int cell_index,
-                                                         const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                                                         const std::vector<std::reference_wrapper<const Polydim::PDETools::DOFs::DOFsManager::DOFsData>> &dofs_data,
                                                          const unsigned int &num_local_DOFs,
                                                          const std::vector<size_t> &local_offsets_DOFs,
                                                          const std::vector<size_t> &global_offsets_DOFs,
@@ -105,12 +130,13 @@ inline Eigen::VectorXd global_solution_to_local_solution(const unsigned int cell
     const unsigned int numDOFHandler = dofs_data.size();
     for (unsigned int h = 0; h < numDOFHandler; h++)
     {
-        const auto &global_dof = dofs_data[h].CellsGlobalDOFs[dimension].at(cell_index);
+      const auto& dofs = dofs_data[h].get();
+        const auto &global_dof = dofs.CellsGlobalDOFs[dimension].at(cell_index);
         for (unsigned int loc_i = 0; loc_i < global_dof.size(); ++loc_i)
         {
             const auto &global_dof_i = global_dof.at(loc_i);
             const auto &local_dof_i =
-                dofs_data[h].CellsDOFs.at(global_dof_i.Dimension).at(global_dof_i.CellIndex).at(global_dof_i.DOFIndex);
+                dofs.CellsDOFs.at(global_dof_i.Dimension).at(global_dof_i.CellIndex).at(global_dof_i.DOFIndex);
 
             switch (local_dof_i.Type)
             {
@@ -129,6 +155,55 @@ inline Eigen::VectorXd global_solution_to_local_solution(const unsigned int cell
     }
 
     return local_solution_dofs;
+}
+// ***************************************************************************
+template <unsigned int dimension, typename global_solution_type>
+inline Eigen::VectorXd global_solution_to_local_solution(const unsigned int cell_index,
+                                                         const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                                                         const unsigned int &num_local_DOFs,
+                                                         const std::vector<size_t> &local_offsets_DOFs,
+                                                         const std::vector<size_t> &global_offsets_DOFs,
+                                                         const std::vector<size_t> &global_offsets_Strongs,
+                                                         const global_solution_type &global_solution_DOFs,
+                                                         const global_solution_type &global_solution_Strongs)
+{
+  std::vector<std::reference_wrapper<const Polydim::PDETools::DOFs::DOFsManager::DOFsData>> dofs_data_ref;
+  dofs_data_ref.reserve(1);
+  dofs_data_ref.push_back(std::cref(static_cast<const Polydim::PDETools::DOFs::DOFsManager::DOFsData &>(dofs_data)));
+
+  return global_solution_to_local_solution<dimension, global_solution_type>(cell_index,
+                                                                            dofs_data_ref,
+                                                                            num_local_DOFs,
+                                                                            local_offsets_DOFs,
+                                                                            global_offsets_DOFs,
+                                                                            global_offsets_Strongs,
+                                                                            global_solution_DOFs,
+                                                                            global_solution_Strongs);
+}
+// ***************************************************************************
+template <unsigned int dimension, typename global_solution_type>
+inline Eigen::VectorXd global_solution_to_local_solution(const unsigned int cell_index,
+                                                         const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                                                         const unsigned int &num_local_DOFs,
+                                                         const std::vector<size_t> &local_offsets_DOFs,
+                                                         const std::vector<size_t> &global_offsets_DOFs,
+                                                         const std::vector<size_t> &global_offsets_Strongs,
+                                                         const global_solution_type &global_solution_DOFs,
+                                                         const global_solution_type &global_solution_Strongs)
+{
+  std::vector<std::reference_wrapper<const Polydim::PDETools::DOFs::DOFsManager::DOFsData>> dofs_data_ref;
+  dofs_data_ref.reserve(dofs_data.size());
+  for (unsigned int c = 0; c < dofs_data.size(); c++)
+      dofs_data_ref.push_back(std::cref(static_cast<const Polydim::PDETools::DOFs::DOFsManager::DOFsData &>(dofs_data.at(c))));
+
+  return global_solution_to_local_solution<dimension, global_solution_type>(cell_index,
+                                                                            dofs_data_ref,
+                                                                            num_local_DOFs,
+                                                                            local_offsets_DOFs,
+                                                                            global_offsets_DOFs,
+                                                                            global_offsets_Strongs,
+                                                                            global_solution_DOFs,
+                                                                            global_solution_Strongs);
 }
 // ***************************************************************************
 template <unsigned int dimension, typename local_lhs_type, typename local_rhs_type, typename global_lhs_type, typename global_rhs_type>

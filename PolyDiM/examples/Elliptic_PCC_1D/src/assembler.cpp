@@ -261,10 +261,10 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
         const auto exact_solution_values = test.exact_solution(local_space_data.InternalQuadrature.Points);
         const auto exact_derivative_solution_values = test.exact_derivative_solution(local_space_data.InternalQuadrature.Points);
 
-        const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<1>(c, {std::cref(dofs_data)});
+        const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<1>(c, dofs_data);
         const Eigen::VectorXd dofs_values =
             PDETools::Assembler_Utilities::global_solution_to_local_solution<1>(c,
-                                                                                {std::cref(dofs_data)},
+                                                                                dofs_data,
                                                                                 local_count_dofs.num_total_dofs,
                                                                                 local_count_dofs.offsets_DOFs,
                                                                                 {0},
