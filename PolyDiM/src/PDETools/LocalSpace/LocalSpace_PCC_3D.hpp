@@ -29,7 +29,7 @@ namespace PDETools
 {
 namespace LocalSpace_PCC_3D
 {
-enum struct MethodTypes
+enum class MethodTypes
 {
     FEM_PCC = 0,
     VEM_PCC = 1,
@@ -37,8 +37,9 @@ enum struct MethodTypes
     VEM_PCC_Ortho = 3
 };
 
-struct ReferenceElement_Data final
+class ReferenceElement_Data final
 {
+  public:
     Polydim::PDETools::LocalSpace_PCC_3D::MethodTypes Method_Type;
     unsigned int Order;
 
@@ -54,10 +55,12 @@ struct ReferenceElement_Data final
     std::unique_ptr<Polydim::FEM::PCC::FEM_PCC_3D_LocalSpace> FEM_LocalSpace;
 };
 
-struct LocalSpace_Data final
+class LocalSpace_Data final
 {
-    struct VEM_Geometry final
+  public:
+    class VEM_Geometry final
     {
+      public:
         std::vector<Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry> PolygonalFaces;
         Polydim::VEM::PCC::VEM_PCC_3D_Polyhedron_Geometry Polyhedron;
     };
@@ -69,10 +72,12 @@ struct LocalSpace_Data final
     Polydim::FEM::PCC::FEM_PCC_3D_LocalSpace_Data FEM_LocalSpace_Data;
 };
 
-struct Performance_Data final
+class Performance_Data final
 {
-    struct Cell3D_Performance final
+  public:
+    class Cell3D_Performance final
     {
+      public:
         unsigned int NumBoundaryQuadraturePoints = 0;
         unsigned int NumInternalQuadraturePoints = 0;
         Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis_Data Analysis;

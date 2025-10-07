@@ -38,7 +38,7 @@ enum struct MethodTypes
 
 class ReferenceElement_Data final
 {
- public:
+  public:
     Polydim::PDETools::LocalSpace_PCC_2D::MethodTypes Method_Type;
     unsigned int Order;
 
@@ -54,7 +54,7 @@ class ReferenceElement_Data final
 
 class LocalSpace_Data final
 {
-    public:
+  public:
     Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry VEM_Geometry;
     Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace_Data VEM_LocalSpace_Data;
 
@@ -64,10 +64,10 @@ class LocalSpace_Data final
 
 class Performance_Data final
 {
-    public:
+  public:
     class Cell2D_Performance final
     {
-        public:
+      public:
         unsigned int NumBoundaryQuadraturePoints = 0;
         unsigned int NumInternalQuadraturePoints = 0;
         Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis_Data Analysis;
