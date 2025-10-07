@@ -14,6 +14,7 @@
 
 #include "DOFsManager.hpp"
 #include "FEM_PCC_3D_LocalSpace.hpp"
+#include "I_VEM_PCC_2D_ReferenceElement.hpp"
 #include "I_VEM_PCC_3D_ReferenceElement.hpp"
 #include "MeshMatricesDAO.hpp"
 #include "MeshUtilities.hpp"

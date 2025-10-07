@@ -36,8 +36,9 @@ enum struct MethodTypes
     VEM_PCC_Ortho = 3
 };
 
-struct ReferenceElement_Data final
+class ReferenceElement_Data final
 {
+ public:
     Polydim::PDETools::LocalSpace_PCC_2D::MethodTypes Method_Type;
     unsigned int Order;
 
@@ -51,8 +52,9 @@ struct ReferenceElement_Data final
     std::unique_ptr<Polydim::FEM::PCC::FEM_PCC_2D_LocalSpace> FEM_LocalSpace;
 };
 
-struct LocalSpace_Data final
+class LocalSpace_Data final
 {
+    public:
     Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry VEM_Geometry;
     Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace_Data VEM_LocalSpace_Data;
 
@@ -60,10 +62,12 @@ struct LocalSpace_Data final
     Polydim::FEM::PCC::FEM_PCC_2D_LocalSpace_Data FEM_LocalSpace_Data;
 };
 
-struct Performance_Data final
+class Performance_Data final
 {
-    struct Cell2D_Performance final
+    public:
+    class Cell2D_Performance final
     {
+        public:
         unsigned int NumBoundaryQuadraturePoints = 0;
         unsigned int NumInternalQuadraturePoints = 0;
         Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis_Data Analysis;
