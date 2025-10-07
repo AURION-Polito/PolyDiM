@@ -112,7 +112,7 @@ int main(int argc, char **argv)
     Polydim::PDETools::DOFs::DOFsManager dofManager;
 
     const auto meshDOFsInfo = Polydim::PDETools::LocalSpace_PCC_3D::SetMeshDOFsInfo(reference_element_data, mesh, boundary_info);
-    const auto dofs_data = dofManager.CreateDOFs<3>(meshDOFsInfo, mesh_connectivity_data);
+    const auto dofs_data = dofManager.CreateDOFs_3D(meshDOFsInfo, mesh_connectivity_data);
 
     Gedim::Output::PrintGenericMessage("Discrete Space with " + std::to_string(dofs_data.NumberDOFs) + " DOFs and " +
                                            std::to_string(dofs_data.NumberStrongs) + " STRONGs",

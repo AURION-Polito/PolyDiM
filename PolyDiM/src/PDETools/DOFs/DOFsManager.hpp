@@ -432,59 +432,53 @@ class DOFsManager
     }
 
   public:
-    template <unsigned int dimension, class mesh_connectivity_data_class>
-    MeshDOFsInfo Create_Constant_DOFsInfo(const mesh_connectivity_data_class &mesh, const ConstantDOFsInfo &boundary_info) const
-        requires(dimension == 0)
+    template <class mesh_connectivity_data_class>
+    MeshDOFsInfo Create_Constant_DOFsInfo_0D(const mesh_connectivity_data_class &mesh, const ConstantDOFsInfo &boundary_info) const
     {
         Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo meshDOFsInfo;
 
-        Create_Constant_DOFsInfo_0D<dimension>(mesh, boundary_info, meshDOFsInfo);
+        Create_Constant_DOFsInfo_0D<0>(mesh, boundary_info, meshDOFsInfo);
 
         return meshDOFsInfo;
     }
 
-    template <unsigned int dimension, class mesh_connectivity_data_class>
-    MeshDOFsInfo Create_Constant_DOFsInfo(const mesh_connectivity_data_class &mesh, const ConstantDOFsInfo &boundary_info) const
-        requires(dimension == 1)
+    template <class mesh_connectivity_data_class>
+    MeshDOFsInfo Create_Constant_DOFsInfo_1D(const mesh_connectivity_data_class &mesh, const ConstantDOFsInfo &boundary_info) const
     {
         Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo meshDOFsInfo;
 
-        Create_Constant_DOFsInfo_0D<dimension>(mesh, boundary_info, meshDOFsInfo);
-        Create_Constant_DOFsInfo_1D<dimension>(mesh, boundary_info, meshDOFsInfo);
+        Create_Constant_DOFsInfo_0D<1>(mesh, boundary_info, meshDOFsInfo);
+        Create_Constant_DOFsInfo_1D<1>(mesh, boundary_info, meshDOFsInfo);
 
         return meshDOFsInfo;
     }
 
-    template <unsigned int dimension, class mesh_connectivity_data_class>
-    MeshDOFsInfo Create_Constant_DOFsInfo(const mesh_connectivity_data_class &mesh, const ConstantDOFsInfo &boundary_info) const
-        requires(dimension == 2)
+    template <class mesh_connectivity_data_class>
+    MeshDOFsInfo Create_Constant_DOFsInfo_2D(const mesh_connectivity_data_class &mesh, const ConstantDOFsInfo &boundary_info) const
     {
         Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo meshDOFsInfo;
 
-        Create_Constant_DOFsInfo_0D<dimension>(mesh, boundary_info, meshDOFsInfo);
-        Create_Constant_DOFsInfo_1D<dimension>(mesh, boundary_info, meshDOFsInfo);
-        Create_Constant_DOFsInfo_2D<dimension>(mesh, boundary_info, meshDOFsInfo);
+        Create_Constant_DOFsInfo_0D<2>(mesh, boundary_info, meshDOFsInfo);
+        Create_Constant_DOFsInfo_1D<2>(mesh, boundary_info, meshDOFsInfo);
+        Create_Constant_DOFsInfo_2D<2>(mesh, boundary_info, meshDOFsInfo);
 
         return meshDOFsInfo;
     }
 
-    template <unsigned int dimension, class mesh_connectivity_data_class>
-    MeshDOFsInfo Create_Constant_DOFsInfo(const mesh_connectivity_data_class &mesh, const ConstantDOFsInfo &boundary_info) const
-        requires(dimension == 3)
+    template <class mesh_connectivity_data_class>
+    MeshDOFsInfo Create_Constant_DOFsInfo_3D(const mesh_connectivity_data_class &mesh, const ConstantDOFsInfo &boundary_info) const
     {
         Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo meshDOFsInfo;
 
-        Create_Constant_DOFsInfo_0D<dimension>(mesh, boundary_info, meshDOFsInfo);
-        Create_Constant_DOFsInfo_1D<dimension>(mesh, boundary_info, meshDOFsInfo);
-        Create_Constant_DOFsInfo_2D<dimension>(mesh, boundary_info, meshDOFsInfo);
-        Create_Constant_DOFsInfo_3D<dimension>(mesh, boundary_info, meshDOFsInfo);
+        Create_Constant_DOFsInfo_0D<3>(mesh, boundary_info, meshDOFsInfo);
+        Create_Constant_DOFsInfo_1D<3>(mesh, boundary_info, meshDOFsInfo);
+        Create_Constant_DOFsInfo_2D<3>(mesh, boundary_info, meshDOFsInfo);
+        Create_Constant_DOFsInfo_3D<3>(mesh, boundary_info, meshDOFsInfo);
 
         return meshDOFsInfo;
     }
 
-    template <unsigned int dimension>
-    DOFsData CreateDOFs(const MeshDOFsInfo &meshDOFsInfo) const
-        requires(dimension == 0)
+    DOFsData CreateDOFs_0D(const MeshDOFsInfo &meshDOFsInfo) const
     {
         DOFsData result;
 
@@ -493,14 +487,13 @@ class DOFsManager
         result.NumberBoundaryDOFs = 0;
         result.NumberInternalDOFs = 0;
 
-        CreateCell0DDOFs<dimension>(meshDOFsInfo, result);
+        CreateCell0DDOFs<0>(meshDOFsInfo, result);
 
         return result;
     }
 
-    template <unsigned int dimension, class mesh_connectivity_data_class>
-    DOFsData CreateDOFs(const MeshDOFsInfo &meshDOFsInfo, const mesh_connectivity_data_class &mesh) const
-        requires(dimension == 1)
+    template <class mesh_connectivity_data_class>
+    DOFsData CreateDOFs_1D(const MeshDOFsInfo &meshDOFsInfo, const mesh_connectivity_data_class &mesh) const
     {
         DOFsData result;
 
@@ -509,16 +502,14 @@ class DOFsManager
         result.NumberBoundaryDOFs = 0;
         result.NumberInternalDOFs = 0;
 
-        CreateCell0DDOFs<dimension>(meshDOFsInfo, result);
-
-        CreateCell1DDOFs<dimension>(meshDOFsInfo, mesh, result);
+        CreateCell0DDOFs<1>(meshDOFsInfo, result);
+        CreateCell1DDOFs<1>(meshDOFsInfo, mesh, result);
 
         return result;
     }
 
-    template <unsigned int dimension, class mesh_connectivity_data_class>
-    DOFsData CreateDOFs(const MeshDOFsInfo &meshDOFsInfo, const mesh_connectivity_data_class &mesh) const
-        requires(dimension == 2)
+    template <class mesh_connectivity_data_class>
+    DOFsData CreateDOFs_2D(const MeshDOFsInfo &meshDOFsInfo, const mesh_connectivity_data_class &mesh) const
     {
         DOFsData result;
 
@@ -527,18 +518,15 @@ class DOFsManager
         result.NumberBoundaryDOFs = 0;
         result.NumberInternalDOFs = 0;
 
-        CreateCell0DDOFs<dimension>(meshDOFsInfo, result);
-
-        CreateCell1DDOFs<dimension>(meshDOFsInfo, mesh, result);
-
-        CreateCell2DDOFs<dimension>(meshDOFsInfo, mesh, result);
+        CreateCell0DDOFs<2>(meshDOFsInfo, result);
+        CreateCell1DDOFs<2>(meshDOFsInfo, mesh, result);
+        CreateCell2DDOFs<2>(meshDOFsInfo, mesh, result);
 
         return result;
     }
 
-    template <unsigned int dimension, class mesh_connectivity_data_class>
-    DOFsData CreateDOFs(const MeshDOFsInfo &meshDOFsInfo, const mesh_connectivity_data_class &mesh) const
-        requires(dimension == 3)
+    template <class mesh_connectivity_data_class>
+    DOFsData CreateDOFs_3D(const MeshDOFsInfo &meshDOFsInfo, const mesh_connectivity_data_class &mesh) const
     {
         DOFsData result;
 
@@ -547,13 +535,10 @@ class DOFsManager
         result.NumberBoundaryDOFs = 0;
         result.NumberInternalDOFs = 0;
 
-        CreateCell0DDOFs<dimension>(meshDOFsInfo, result);
-
-        CreateCell1DDOFs<dimension>(meshDOFsInfo, mesh, result);
-
-        CreateCell2DDOFs<dimension>(meshDOFsInfo, mesh, result);
-
-        CreateCell3DDOFs<dimension>(meshDOFsInfo, mesh, result);
+        CreateCell0DDOFs<3>(meshDOFsInfo, result);
+        CreateCell1DDOFs<3>(meshDOFsInfo, mesh, result);
+        CreateCell2DDOFs<3>(meshDOFsInfo, mesh, result);
+        CreateCell3DDOFs<3>(meshDOFsInfo, mesh, result);
 
         return result;
     }

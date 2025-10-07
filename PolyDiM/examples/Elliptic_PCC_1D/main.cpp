@@ -111,11 +111,11 @@ int main(int argc, char **argv)
     Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data(mesh);
 
     Polydim::PDETools::DOFs::DOFsManager dofManager;
-    const auto meshDOFsInfo = dofManager.Create_Constant_DOFsInfo<1>(
+    const auto meshDOFsInfo = dofManager.Create_Constant_DOFsInfo_1D(
         mesh_connectivity_data,
         {{reference_element_data.NumDofs0D, reference_element_data.NumDofs1D, 0, 0}, boundary_info});
 
-    const auto dofs_data = dofManager.CreateDOFs<1>(meshDOFsInfo, mesh_connectivity_data);
+    const auto dofs_data = dofManager.CreateDOFs_1D(meshDOFsInfo, mesh_connectivity_data);
 
     Gedim::Output::PrintGenericMessage("Discrete Space with " + std::to_string(dofs_data.NumberDOFs) + " DOFs and " +
                                            std::to_string(dofs_data.NumberStrongs) + " STRONGs",
