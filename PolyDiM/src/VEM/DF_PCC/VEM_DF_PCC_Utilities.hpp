@@ -13,6 +13,7 @@
 #define __VEM_DF_PCC_Utilities_HPP
 
 #include "Eigen/Eigen"
+#include "Gedim_Macro.hpp"
 #include "Monomials_Data.hpp"
 #include "lagrange_1D.hpp"
 
@@ -106,10 +107,18 @@ struct VEM_DF_PCC_Utilities final
         return basisFunctionValues;
     }
 
+#if PYBIND == 1
+    template <typename MonomialType>
+    inline Eigen::MatrixXd ComputePolynomialsValues(const Eigen::MatrixXd &vanderInternal, const MonomialType &monomials) const
+    {
+        return vanderInternal;
+    }
+#else
     inline Eigen::MatrixXd ComputePolynomialsValues(const Eigen::MatrixXd &vanderInternal) const
     {
         return vanderInternal;
     }
+#endif
 
     template <typename MonomialType>
     inline Eigen::MatrixXd ComputePolynomialsValues(const Polydim::Utilities::Monomials_Data &data,
@@ -121,10 +130,19 @@ struct VEM_DF_PCC_Utilities final
         return monomials.Vander(data, points, centroid, diameter);
     }
 
+#if PYBIND == 1
+    template <typename MonomialType>
+    inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const std::vector<Eigen::MatrixXd> &vanderInternalDerivatives,
+                                                                           const MonomialType &monomials) const
+    {
+        return vanderInternalDerivatives;
+    }
+#else
     inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const std::vector<Eigen::MatrixXd> &vanderInternalDerivatives) const
     {
         return vanderInternalDerivatives;
     }
+#endif
 
     template <typename MonomialType>
     inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const Polydim::Utilities::Monomials_Data &data,

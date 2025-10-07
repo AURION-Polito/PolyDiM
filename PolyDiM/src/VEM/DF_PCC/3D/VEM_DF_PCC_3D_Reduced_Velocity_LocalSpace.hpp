@@ -179,7 +179,11 @@ class VEM_DF_PCC_3D_Reduced_Velocity_LocalSpace final : public Polydim::VEM::DF_
 
     inline Eigen::MatrixXd ComputePolynomialsValues(const Polydim::VEM::DF_PCC::VEM_DF_PCC_3D_Velocity_LocalSpace_Data &localSpace) const
     {
+#if PYBIND == 1
+        return utilities.ComputePolynomialsValues(localSpace.VanderInternal, monomials);
+#else
         return utilities.ComputePolynomialsValues(localSpace.VanderInternal);
+#endif
     }
 
     inline Eigen::MatrixXd ComputePolynomialsValues(const Polydim::VEM::DF_PCC::VEM_DF_PCC_3D_Velocity_ReferenceElement_Data &reference_element_data,
@@ -195,7 +199,11 @@ class VEM_DF_PCC_3D_Reduced_Velocity_LocalSpace final : public Polydim::VEM::DF_
 
     inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const Polydim::VEM::DF_PCC::VEM_DF_PCC_3D_Velocity_LocalSpace_Data &localSpace) const
     {
+#if PYBIND == 1
+        return utilities.ComputePolynomialsDerivativeValues(localSpace.VanderInternalDerivatives, monomials);
+#else
         return utilities.ComputePolynomialsDerivativeValues(localSpace.VanderInternalDerivatives);
+#endif
     }
 
     inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(

@@ -204,7 +204,11 @@ class VEM_PCC_3D_LocalSpace final : public Polydim::VEM::PCC::I_VEM_PCC_3D_Local
 
     inline Eigen::MatrixXd ComputePolynomialsValues(const Polydim::VEM::PCC::VEM_PCC_3D_LocalSpace_Data &localSpace) const
     {
+#if PYBIND == 1
+        return utilities.ComputePolynomialsValues(localSpace.VanderInternal, monomials);
+#else
         return utilities.ComputePolynomialsValues(localSpace.VanderInternal);
+#endif
     }
 
     inline Eigen::MatrixXd ComputePolynomialsValues(const Polydim::VEM::PCC::VEM_PCC_3D_ReferenceElement_Data &reference_element_data,
@@ -220,7 +224,11 @@ class VEM_PCC_3D_LocalSpace final : public Polydim::VEM::PCC::I_VEM_PCC_3D_Local
 
     inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const Polydim::VEM::PCC::VEM_PCC_3D_LocalSpace_Data &localSpace) const
     {
+#if PYBIND == 1
+        return utilities.ComputePolynomialsDerivativeValues(localSpace.VanderInternalDerivatives, monomials);
+#else
         return utilities.ComputePolynomialsDerivativeValues(localSpace.VanderInternalDerivatives);
+#endif
     }
 
     inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const Polydim::VEM::PCC::VEM_PCC_3D_ReferenceElement_Data &reference_element_data,
