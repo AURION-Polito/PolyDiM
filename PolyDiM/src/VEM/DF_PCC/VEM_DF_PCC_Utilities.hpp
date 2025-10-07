@@ -38,7 +38,7 @@ struct VEM_DF_PCC_Utilities final
         // Compute basis function coefficients on the generic edge.
         Eigen::VectorXd interpolation_points_x(order + 1);
         interpolation_points_x << 0.0, 1.0, edgeInternalPoints;
-        return Interpolation::Lagrange::Lagrange_1D_coefficients(interpolation_points_x);
+        return Polydim::Interpolation::Lagrange::Lagrange_1D_coefficients(interpolation_points_x);
     }
 
     std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const unsigned int dimension,
@@ -151,7 +151,7 @@ struct VEM_DF_PCC_Utilities final
     {
         Eigen::VectorXd interpolation_points_x(order + 1);
         interpolation_points_x << 0.0, 1.0, edgeInternalPoints.transpose();
-        return Interpolation::Lagrange::Lagrange_1D_values(interpolation_points_x, edgeBasisCoefficients, pointsCurvilinearCoordinates);
+        return Polydim::Interpolation::Lagrange::Lagrange_1D_values(interpolation_points_x, edgeBasisCoefficients, pointsCurvilinearCoordinates);
     }
 
     Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const unsigned int dimension,

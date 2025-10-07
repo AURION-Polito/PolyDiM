@@ -260,8 +260,7 @@ Assembler::Elastic_PCC_2D_Problem_Data Assembler::Assemble(const Polydim::exampl
         const auto lame_coefficients_values = test.lame_coefficients(cell2D_internal_quadrature.Points);
         const auto source_term_values = test.source_term(cell2D_internal_quadrature.Points);
 
-        const auto local_count_dofs =
-            Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, dofs_data_ref);
+        const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, dofs_data_ref);
 
         const Eigen::MatrixXd local_A =
             2.0 * equation.ComputeCellDiffusionMatrix(lame_coefficients_values[0],
@@ -423,8 +422,7 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
 
         const auto cell2D_internal_quadrature = local_space::InternalQuadrature(reference_element_data, local_space_data);
 
-        const auto local_count_dofs =
-            Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, dofs_data_ref);
+        const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, dofs_data_ref);
 
         const Eigen::VectorXd dofs_values =
             PDETools::Assembler_Utilities::global_solution_to_local_solution<2>(c,
