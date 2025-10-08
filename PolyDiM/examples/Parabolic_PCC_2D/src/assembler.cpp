@@ -20,7 +20,7 @@ namespace Polydim
 {
 namespace examples
 {
-namespace Elliptic_PCC_2D
+namespace Parabolic_PCC_2D
 {
 //***************************************************************************
 void Assembler::ComputeStrongTerm(const unsigned int cell2D_index,
@@ -30,7 +30,7 @@ void Assembler::ComputeStrongTerm(const unsigned int cell2D_index,
                                   const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                                   const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data,
                                   const test::I_Test &test,
-                                  Elliptic_PCC_2D_Problem_Data &assembler_data) const
+                                  Parabolic_PCC_2D_Problem_Data &assembler_data) const
 {
     // Assemble strong boundary condition on Cell0Ds
     for (unsigned int v = 0; v < mesh.Cell2DNumberVertices(cell2D_index); ++v)
@@ -112,8 +112,8 @@ void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
                                 const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                                 const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                                 const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data,
-                                const Polydim::examples::Elliptic_PCC_2D::test::I_Test &test,
-                                Elliptic_PCC_2D_Problem_Data &assembler_data) const
+                                const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
+                                Parabolic_PCC_2D_Problem_Data &assembler_data) const
 {
     const unsigned numVertices = mesh_geometric_data.Cell2DsVertices.at(cell2DIndex).cols();
 
@@ -231,25 +231,22 @@ Eigen::MatrixXd Assembler::ComputeSUPGForcingTerm(const std::array<Eigen::Vector
     return vander_beta_matrix.transpose() * quadrature_weights.asDiagonal() * source_term_values;
 }
 // ***************************************************************************
-Assembler::Elliptic_PCC_2D_Problem_Data Assembler::Assemble(
-    const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
+Assembler::Parabolic_PCC_2D_Problem_Data Assembler::Assemble(
+    const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
     const Gedim::MeshMatricesDAO &mesh,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
     const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
     const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
-    const Polydim::examples::Elliptic_PCC_2D::test::I_Test &test) const
+    const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test) const
 {
-    Elliptic_PCC_2D_Problem_Data result;
+    Parabolic_PCC_2D_Problem_Data result;
 
     result.globalMatrixA.SetSize(dofs_data.NumberDOFs, dofs_data.NumberDOFs, Gedim::ISparseArray::SparseArrayTypes::None);
     result.dirichletMatrixA.SetSize(dofs_data.NumberDOFs, dofs_data.NumberStrongs);
     result.rightHandSide.SetSize(dofs_data.NumberDOFs);
     result.solution.SetSize(dofs_data.NumberDOFs);
     result.solutionDirichlet.SetSize(dofs_data.NumberStrongs);
-
-    result.peclet_number.resize(mesh.Cell2DTotalNumber());
-    result.stability_parameter.resize(mesh.Cell2DTotalNumber());
 
     Polydim::PDETools::Equations::EllipticEquation equation;
 
@@ -291,31 +288,8 @@ Assembler::Elliptic_PCC_2D_Problem_Data Assembler::Assemble(
         const double k_max = diffusion_term_values.cwiseAbs().maxCoeff();
         const double &diameter = mesh_geometric_data.Cell2DsDiameters.at(c);
 
-        result.peclet_number[c] = config.PecletConstant() * diameter * b_norm / (2.0 * k_max);
-
-        if (config.SUPG())
-        {
-            result.stability_parameter[c] = (diameter / b_norm) * std::min(1.0, result.peclet_number[c]);
-
-            const auto basis_functions_laplacian_values =
-                Polydim::PDETools::LocalSpace_PCC_2D::BasisFunctionsLaplacianValues(reference_element_data, local_space_data);
-
-            local_B += result.stability_parameter[c] * ComputeSUPGMatrix(advection_term_values,
-                                                                         diffusion_term_values,
-                                                                         basis_functions_laplacian_values,
-                                                                         basis_functions_derivative_values,
-                                                                         cell2D_internal_quadrature.Weights);
-
-            local_rhs += result.stability_parameter[c] * ComputeSUPGForcingTerm(advection_term_values,
-                                                                                source_term_values,
-                                                                                basis_functions_derivative_values,
-                                                                                cell2D_internal_quadrature.Weights);
-        }
-        else
-            result.stability_parameter[c] = 0.0;
-
         const Eigen::MatrixXd local_A_stab =
-            (k_max + result.stability_parameter[c] * b_norm) *
+            k_max *
             Polydim::PDETools::LocalSpace_PCC_2D::StabilizationMatrix(reference_element_data, local_space_data);
 
         const auto &global_dofs = dofs_data.CellsGlobalDOFs[2].at(c);
@@ -350,7 +324,7 @@ Assembler::Elliptic_PCC_2D_Problem_Data Assembler::Assemble(
     return result;
 }
 // ***************************************************************************
-Assembler::Performance_Data Assembler::ComputePerformance(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
+Assembler::Performance_Data Assembler::ComputePerformance(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
                                                           const Gedim::MeshMatricesDAO &mesh,
                                                           const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                                           const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data) const
@@ -374,13 +348,13 @@ Assembler::Performance_Data Assembler::ComputePerformance(const Polydim::example
     return result;
 }
 // ***************************************************************************
-Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
+Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
                                                            const Gedim::MeshMatricesDAO &mesh,
                                                            const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                                            const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                                                            const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
-                                                           const Elliptic_PCC_2D_Problem_Data &assembler_data,
-                                                           const Polydim::examples::Elliptic_PCC_2D::test::I_Test &test) const
+                                                           const Parabolic_PCC_2D_Problem_Data &assembler_data,
+                                                           const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test) const
 {
     PostProcess_Data result;
 
@@ -492,6 +466,6 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
 
     return result;
 }
-} // namespace Elliptic_PCC_2D
+} // namespace Parabolic_PCC_2D
 } // namespace examples
 } // namespace Polydim

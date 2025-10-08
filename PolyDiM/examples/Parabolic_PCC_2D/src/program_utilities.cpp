@@ -18,29 +18,27 @@ namespace Polydim
 {
 namespace examples
 {
-namespace Elliptic_PCC_2D
+namespace Parabolic_PCC_2D
 {
 namespace program_utilities
 {
 // ***************************************************************************
-std::unique_ptr<Polydim::examples::Elliptic_PCC_2D::test::I_Test> create_test(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config)
+std::unique_ptr<Polydim::examples::Parabolic_PCC_2D::test::I_Test> create_test(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config)
 {
     switch (config.TestType())
     {
-    case Polydim::examples::Elliptic_PCC_2D::test::Test_Types::Patch_Test:
-        return std::make_unique<Polydim::examples::Elliptic_PCC_2D::test::Patch_Test>();
-    case Polydim::examples::Elliptic_PCC_2D::test::Test_Types::Elliptic_Polynomial_Problem:
-        return std::make_unique<Polydim::examples::Elliptic_PCC_2D::test::Elliptic_Polynomial_Problem>();
-    case Polydim::examples::Elliptic_PCC_2D::test::Test_Types::SUPG_AdvDiff_Problem:
-        return std::make_unique<Polydim::examples::Elliptic_PCC_2D::test::SUPG_AdvDiff_Problem>();
-    case Polydim::examples::Elliptic_PCC_2D::test::Test_Types::Elliptic_Problem:
-        return std::make_unique<Polydim::examples::Elliptic_PCC_2D::test::Elliptic_Problem>();
+    case Polydim::examples::Parabolic_PCC_2D::test::Test_Types::Patch_Test:
+        return std::make_unique<Polydim::examples::Parabolic_PCC_2D::test::Patch_Test>();
+    case Polydim::examples::Parabolic_PCC_2D::test::Test_Types::Elliptic_Polynomial_Problem:
+        return std::make_unique<Polydim::examples::Parabolic_PCC_2D::test::Elliptic_Polynomial_Problem>();
+    case Polydim::examples::Parabolic_PCC_2D::test::Test_Types::Elliptic_Problem:
+        return std::make_unique<Polydim::examples::Parabolic_PCC_2D::test::Elliptic_Problem>();
     default:
         throw std::runtime_error("Test type " + std::to_string((unsigned int)config.TestType()) + " not supported");
     }
 }
 // ***************************************************************************
-void create_domain_mesh(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
+void create_domain_mesh(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
                         const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D &domain,
                         Gedim::MeshMatricesDAO &mesh)
 {
@@ -76,7 +74,7 @@ void create_domain_mesh(const Polydim::examples::Elliptic_PCC_2D::Program_config
     }
 }
 // ***************************************************************************
-Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_properties(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
+Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_properties(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
                                                                                   const Gedim::MeshMatricesDAO &mesh)
 {
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
@@ -89,11 +87,11 @@ Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_propertie
     return Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_2D_geometry_data(geometryUtilities, meshUtilities, mesh);
 }
 // ***************************************************************************
-void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
+void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
                      const Gedim::MeshMatricesDAO &mesh,
                      const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-                     const Polydim::examples::Elliptic_PCC_2D::Assembler::Elliptic_PCC_2D_Problem_Data &assembler_data,
-                     const Polydim::examples::Elliptic_PCC_2D::Assembler::PostProcess_Data &post_process_data,
+                     const Polydim::examples::Parabolic_PCC_2D::Assembler::Parabolic_PCC_2D_Problem_Data &assembler_data,
+                     const Polydim::examples::Parabolic_PCC_2D::Assembler::PostProcess_Data &post_process_data,
                      const std::string &exportSolutionFolder,
                      const std::string &exportVtuFolder)
 {
@@ -203,14 +201,14 @@ void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configura
     }
 }
 // ***************************************************************************
-void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
+void export_dofs(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
                  const Gedim::MeshMatricesDAO &mesh,
                  const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                  const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
                  const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                  const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
-                 const Polydim::examples::Elliptic_PCC_2D::Assembler::Elliptic_PCC_2D_Problem_Data &assembler_data,
-                 const Polydim::examples::Elliptic_PCC_2D::Assembler::PostProcess_Data &post_process_data,
+                 const Polydim::examples::Parabolic_PCC_2D::Assembler::Parabolic_PCC_2D_Problem_Data &assembler_data,
+                 const Polydim::examples::Parabolic_PCC_2D::Assembler::PostProcess_Data &post_process_data,
                  const std::string &exportVtuFolder)
 {
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
@@ -422,7 +420,7 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration
     }
 }
 // ***************************************************************************
-void export_performance(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
+void export_performance(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
                         const Assembler::Performance_Data &performance_data,
                         const std::string &exportFolder)
 {
@@ -474,6 +472,6 @@ void export_performance(const Polydim::examples::Elliptic_PCC_2D::Program_config
 }
 // ***************************************************************************
 } // namespace program_utilities
-} // namespace Elliptic_PCC_2D
+} // namespace Parabolic_PCC_2D
 } // namespace examples
 } // namespace Polydim
