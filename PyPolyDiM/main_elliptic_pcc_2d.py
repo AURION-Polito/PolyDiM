@@ -1,31 +1,78 @@
 import argparse
-import numpy
 from pypolydim import polydim, gedim
 from Elliptic_PCC_2D.program_utilities import create_test, create_mesh
+from Elliptic_PCC_2D.assembler import Assembler
+from pypolydim.vtk_utilities import VTKUtilities
+from pypolydim.assembler_utilities import assembler_utilities
+
 
 if __name__=='__main__':
 
     parser =argparse.ArgumentParser()
-    parser.add_argument('-order','--method-order',dest='method_order', default=1, type=int, help="Method order")
+    parser.add_argument('-order','--method-order',dest='method_order', default=4, type=int, help="Method order")
     parser.add_argument('-method','--method-type',dest='method_type', default=1, type=int, help="Method type")
     parser.add_argument('-test', '--test-id', dest='test_id', default=1, type=int, help="Test type")
-    parser.add_argument('-mesh', '--mesh-type', dest='mesh_type', default=5, type=int, help="Mesh type")
+    parser.add_argument('-mesh', '--mesh-type', dest='mesh_type', default=0, type=int, help="Mesh type")
     parser.add_argument('-area', '--mesh-max-relative-area', dest='max_relative_area', default=0.1, type=float, help="Mesh max relative area")
     parser.add_argument('-import', '--import-path', dest='import_path', default='./', type=str, help="Mesh Import Path")
     args = parser.parse_args()
 
     mesh_type = polydim.pde_tools.mesh.pde_mesh_utilities.MeshGenerator_Types_2D(args.mesh_type)
+    method_type = polydim.pde_tools.local_space_pcc_2_d.MethodTypes(args.method_type)
+    method_order = args.method_order
 
     # Set problem
     test = create_test(args.test_id)
     pde_domain = test.domain()
+    boundary_info = test.boundary_info()
 
     # Create mesh
     geometry_utilities_config = gedim.GeometryUtilitiesConfig()
     geometry_utilities = gedim.GeometryUtilities(geometry_utilities_config)
     mesh_utilities = gedim.MeshUtilities()
+    vtk_utilities = VTKUtilities()
 
     mesh_data = gedim.MeshMatrices()
     mesh = gedim.MeshMatricesDAO(mesh_data)
 
     create_mesh(geometry_utilities, mesh_utilities, mesh_type, args.max_relative_area, args.import_path, pde_domain, mesh)
+    vtk_utilities.export_mesh(".", mesh)
+
+
+    # Compute Geometric Properties
+    mesh_geometric_data = polydim.pde_tools.mesh.pde_mesh_utilities.compute_mesh_2_d_geometry_data(geometry_utilities, mesh_utilities, mesh)
+
+    # Create Discrete Local Space
+    reference_element_data = polydim.pde_tools.local_space_pcc_2_d.create_reference_element(method_type, method_order)
+
+    mesh_connectivity_data = polydim.pde_tools.mesh.MeshMatricesDAO_mesh_connectivity_data(mesh)
+
+    dof_manager = polydim.pde_tools.do_fs.DOFsManager()
+    mesh_do_fs_info = polydim.pde_tools.local_space_pcc_2_d.set_mesh_do_fs_info(reference_element_data, mesh, boundary_info)
+    do_fs_data = dof_manager.create_do_fs_2_d(mesh_do_fs_info, mesh_connectivity_data)
+    assembler_utilities_obj = assembler_utilities()
+    count_do_fs_data = assembler_utilities_obj.count_do_fs([do_fs_data])
+
+    print("Discrete space with ", do_fs_data.number_do_fs, " DOFs and ", do_fs_data.number_strongs, " STRONG")
+
+    assembler = Assembler()
+    assembler_data = assembler.assemble(mesh,
+                                        mesh_geometric_data,
+                                        mesh_do_fs_info,
+                                        do_fs_data,
+                                        reference_element_data,
+                                        test)
+
+    assembler.solve(do_fs_data, assembler_data)
+
+    post_process_data = assembler.post_process_solution(mesh,
+                                                        mesh_geometric_data,
+                                                        do_fs_data,
+                                                        count_do_fs_data,
+                                                        reference_element_data,
+                                                        assembler_data,
+                                                        test)
+
+    print("L2 error: ", post_process_data.error_l2, " H1 error: ", post_process_data.error_h1)
+
+
