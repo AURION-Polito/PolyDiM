@@ -15,11 +15,11 @@
 #include "program_utilities.hpp"
 #include "test_definition.hpp"
 
-unsigned int Polydim::examples::Elliptic_PCC_2D::test::Patch_Test::order;
+unsigned int Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::order;
 
 int main(int argc, char **argv)
 {
-    Polydim::examples::Elliptic_PCC_2D::Program_configuration config;
+    Polydim::examples::Parabolic_PCC_2D::Program_configuration config;
 
     if (!Gedim::Output::FileExists("./Parameters.ini"))
         Gedim::Configurations::ExportToIni("./Parameters.ini", false);
@@ -55,9 +55,9 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("SetProblem...", true);
     Gedim::Profiler::StartTime("SetProblem");
 
-    Polydim::examples::Elliptic_PCC_2D::test::Patch_Test::order = config.MethodOrder();
+    Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::order = config.MethodOrder();
 
-    const auto test = Polydim::examples::Elliptic_PCC_2D::program_utilities::create_test(config);
+    const auto test = Polydim::examples::Parabolic_PCC_2D::program_utilities::create_test(config);
 
     const auto domain = test->domain();
     const auto boundary_info = test->boundary_info();
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
     Gedim::MeshMatrices meshData;
     Gedim::MeshMatricesDAO mesh(meshData);
 
-    Polydim::examples::Elliptic_PCC_2D::program_utilities::create_domain_mesh(config, domain, mesh);
+    Polydim::examples::Parabolic_PCC_2D::program_utilities::create_domain_mesh(config, domain, mesh);
 
     Gedim::Profiler::StopTime("CreateMesh");
     Gedim::Output::PrintStatusProgram("CreateMesh");
@@ -94,7 +94,7 @@ int main(int argc, char **argv)
     Gedim::Profiler::StartTime("ComputeGeometricProperties");
 
     const auto meshGeometricData =
-        Polydim::examples::Elliptic_PCC_2D::program_utilities::create_domain_mesh_geometric_properties(config, mesh);
+        Polydim::examples::Parabolic_PCC_2D::program_utilities::create_domain_mesh_geometric_properties(config, mesh);
 
     Gedim::Profiler::StopTime("ComputeGeometricProperties");
     Gedim::Output::PrintStatusProgram("ComputeGeometricProperties");
@@ -125,7 +125,7 @@ int main(int argc, char **argv)
                                        true);
     Gedim::Profiler::StartTime("AssembleSystem");
 
-    Polydim::examples::Elliptic_PCC_2D::Assembler assembler;
+    Polydim::examples::Parabolic_PCC_2D::Assembler assembler;
     auto assembler_data =
         assembler.Assemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, reference_element_data, *test);
 
@@ -164,9 +164,9 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("ExportSolution...", true);
     Gedim::Profiler::StartTime("ExportSolution");
 
-    Polydim::examples::Elliptic_PCC_2D::program_utilities::export_solution(config, mesh, dofs_data, assembler_data, post_process_data, exportSolutionFolder, exportVtuFolder);
+    Polydim::examples::Parabolic_PCC_2D::program_utilities::export_solution(config, mesh, dofs_data, assembler_data, post_process_data, exportSolutionFolder, exportVtuFolder);
 
-    Polydim::examples::Elliptic_PCC_2D::program_utilities::export_dofs(config,
+    Polydim::examples::Parabolic_PCC_2D::program_utilities::export_dofs(config,
                                                                        mesh,
                                                                        meshGeometricData,
                                                                        meshDOFsInfo,
@@ -186,7 +186,7 @@ int main(int argc, char **argv)
     {
         const auto performance = assembler.ComputePerformance(config, mesh, meshGeometricData, reference_element_data);
 
-        Polydim::examples::Elliptic_PCC_2D::program_utilities::export_performance(config, performance, exportSolutionFolder);
+        Polydim::examples::Parabolic_PCC_2D::program_utilities::export_performance(config, performance, exportSolutionFolder);
     }
 
     Gedim::Profiler::StopTime("ComputeMethodPerformance");

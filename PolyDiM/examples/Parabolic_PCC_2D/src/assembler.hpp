@@ -25,21 +25,18 @@ namespace Polydim
 {
 namespace examples
 {
-namespace Elliptic_PCC_2D
+namespace Parabolic_PCC_2D
 {
 class Assembler final
 {
   public:
-    struct Elliptic_PCC_2D_Problem_Data final
+    struct Parabolic_PCC_2D_Problem_Data final
     {
         Gedim::Eigen_SparseArray<> globalMatrixA;
         Gedim::Eigen_SparseArray<> dirichletMatrixA;
         Gedim::Eigen_Array<> rightHandSide;
         Gedim::Eigen_Array<> solution;
         Gedim::Eigen_Array<> solutionDirichlet;
-
-        std::vector<double> stability_parameter;
-        std::vector<double> peclet_number;
     };
 
     struct Performance_Data final
@@ -73,8 +70,8 @@ class Assembler final
                            const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                            const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                            const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data,
-                           const Polydim::examples::Elliptic_PCC_2D::test::I_Test &test,
-                           Elliptic_PCC_2D_Problem_Data &assembler_data) const;
+                           const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
+                           Parabolic_PCC_2D_Problem_Data &assembler_data) const;
 
     void ComputeWeakTerm(const unsigned int cell2DIndex,
                          const Gedim::MeshMatricesDAO &mesh,
@@ -83,8 +80,8 @@ class Assembler final
                          const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                          const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                          const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data,
-                         const Polydim::examples::Elliptic_PCC_2D::test::I_Test &test,
-                         Elliptic_PCC_2D_Problem_Data &assembler_data) const;
+                         const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
+                         Parabolic_PCC_2D_Problem_Data &assembler_data) const;
 
     Eigen::MatrixXd ComputeSUPGMatrix(const std::array<Eigen::VectorXd, 3> &advection_term_values,
                                       const Eigen::VectorXd &diffusion_term_values,
@@ -98,28 +95,28 @@ class Assembler final
                                            const Eigen::VectorXd &quadrature_weights) const;
 
   public:
-    Elliptic_PCC_2D_Problem_Data Assemble(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
+    Parabolic_PCC_2D_Problem_Data Assemble(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
                                           const Gedim::MeshMatricesDAO &mesh,
                                           const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                           const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
                                           const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                                           const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
-                                          const Polydim::examples::Elliptic_PCC_2D::test::I_Test &test) const;
+                                          const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test) const;
 
-    Performance_Data ComputePerformance(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
+    Performance_Data ComputePerformance(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
                                         const Gedim::MeshMatricesDAO &mesh,
                                         const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                         const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data) const;
 
-    PostProcess_Data PostProcessSolution(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
+    PostProcess_Data PostProcessSolution(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
                                          const Gedim::MeshMatricesDAO &mesh,
                                          const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                          const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                                          const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
-                                         const Elliptic_PCC_2D_Problem_Data &assembler_data,
-                                         const Polydim::examples::Elliptic_PCC_2D::test::I_Test &test) const;
+                                         const Parabolic_PCC_2D_Problem_Data &assembler_data,
+                                         const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test) const;
 };
-} // namespace Elliptic_PCC_2D
+} // namespace Parabolic_PCC_2D
 } // namespace examples
 } // namespace Polydim
 
