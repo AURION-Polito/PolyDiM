@@ -2,10 +2,11 @@ from Elliptic_PCC_2D.test_definition import ITest, EllipticPolynomialProblem
 from pypolydim import gedim, polydim
 def create_test(test_id: int) -> ITest:
 
-    if test_id == 1:
-        return EllipticPolynomialProblem()
-    else:
-        raise ValueError("not valid test id")
+    match test_id:
+        case 1:
+            return EllipticPolynomialProblem()
+        case _:
+            raise ValueError("not valid test id")
 
 def create_mesh(geometry_utilities: gedim.GeometryUtilities, mesh_utilities: gedim.MeshUtilities,
                 mesh_type: polydim.pde_tools.mesh.pde_mesh_utilities.MeshGenerator_Types_2D,
@@ -31,7 +32,7 @@ def create_mesh(geometry_utilities: gedim.GeometryUtilities, mesh_utilities: ged
 
         polydim.pde_tools.mesh.pde_mesh_utilities.import_mesh_2_d(mesh_utilities,
                                                                   mesh_type,
-                                                                  file_path,
+                                                                  import_path,
                                                                   mesh)
     else:
         raise ValueError("MeshGenerator " + str(mesh_type) + " not supported")
