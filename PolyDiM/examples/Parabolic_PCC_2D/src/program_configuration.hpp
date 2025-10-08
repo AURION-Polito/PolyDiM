@@ -29,7 +29,8 @@ struct Program_configuration final
     {
         Gedim::Configurations::AddProperty("TestType",
                                            static_cast<unsigned int>(Polydim::examples::Parabolic_PCC_2D::test::Test_Types::Patch_Test),
-                                           "Test Type 1 - Patch_Test; 2 - Elliptic_Polynomial_Problem; 3 -  - Elliptic_Problem "
+                                           "Test Type 1 - Patch_Test; 2 - Elliptic_Polynomial_Problem; 3 -  - "
+                                           "Elliptic_Problem "
                                            "(Default: 1)");
         // Export parameters
         Gedim::Configurations::AddProperty("ExportFolder", "./Run", "Folder where to export data (Default: ./Export)");

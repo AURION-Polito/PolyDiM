@@ -69,14 +69,24 @@ struct Patch_Test final : public I_Test
 
     std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info() const
     {
+        // return {{0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+        //         {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+        //         {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+        //         {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+        //         {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+        //         {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+        //         {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
+        //         {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 4}},
+        //         {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
+
         return {{0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
                 {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
-                {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 4}},
+                {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
     }
 

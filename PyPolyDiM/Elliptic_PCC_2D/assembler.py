@@ -54,16 +54,16 @@ class Assembler:
             cell0_d_index = mesh.cell2_d_vertex(cell2_d_index, v)
             boundary_info = mesh_do_fs_info.cells_boundary_info[0][cell0_d_index]
 
-            if boundary_info.type is not polydim.pde_tools.do_fs.DOFsManager.MeshDOFsInfo.BoundaryInfo.BoundaryTypes.strong:
+            if boundary_info.type != polydim.pde_tools.do_fs.DOFsManager.MeshDOFsInfo.BoundaryInfo.BoundaryTypes.strong:
                 continue
 
-            coordinates = mesh.cell0_d_coordinates(cell0_d_index)
+            coordinates = np.expand_dims(mesh.cell0_d_coordinates(cell0_d_index), axis=1)
 
             strong_boundary_values = test.strong_boundary_condition(boundary_info.marker, coordinates)
 
             local_dofs = do_fs_data.cells_do_fs[0][cell0_d_index]
 
-            assert(len(local_dofs) == strong_boundary_values.size())
+            assert(len(local_dofs) == len(strong_boundary_values))
 
             for loc_i in range(len(local_dofs)):
 
@@ -94,8 +94,7 @@ class Assembler:
 
             strong_boundary_values = test.strong_boundary_condition(boundary_info.marker, edge_do_fs_coordinates)
 
-            assert(len(local_dofs) == len(strong_boundary_values))
-
+            assert len(local_dofs) == len(strong_boundary_values)
 
             for loc_i in range(len(local_dofs)):
 

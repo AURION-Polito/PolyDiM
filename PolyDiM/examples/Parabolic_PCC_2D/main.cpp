@@ -164,17 +164,23 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("ExportSolution...", true);
     Gedim::Profiler::StartTime("ExportSolution");
 
-    Polydim::examples::Parabolic_PCC_2D::program_utilities::export_solution(config, mesh, dofs_data, assembler_data, post_process_data, exportSolutionFolder, exportVtuFolder);
+    Polydim::examples::Parabolic_PCC_2D::program_utilities::export_solution(config,
+                                                                            mesh,
+                                                                            dofs_data,
+                                                                            assembler_data,
+                                                                            post_process_data,
+                                                                            exportSolutionFolder,
+                                                                            exportVtuFolder);
 
     Polydim::examples::Parabolic_PCC_2D::program_utilities::export_dofs(config,
-                                                                       mesh,
-                                                                       meshGeometricData,
-                                                                       meshDOFsInfo,
-                                                                       dofs_data,
-                                                                       reference_element_data,
-                                                                       assembler_data,
-                                                                       post_process_data,
-                                                                       exportVtuFolder);
+                                                                        mesh,
+                                                                        meshGeometricData,
+                                                                        meshDOFsInfo,
+                                                                        dofs_data,
+                                                                        reference_element_data,
+                                                                        assembler_data,
+                                                                        post_process_data,
+                                                                        exportVtuFolder);
 
     Gedim::Profiler::StopTime("ExportSolution");
     Gedim::Output::PrintStatusProgram("ExportSolution");

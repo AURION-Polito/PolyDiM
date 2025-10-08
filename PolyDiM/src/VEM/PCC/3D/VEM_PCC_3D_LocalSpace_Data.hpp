@@ -25,7 +25,7 @@ namespace PCC
 
 class VEM_PCC_3D_Polyhedron_Geometry final
 {
-public:
+  public:
     double Tolerance1D;
     double Tolerance2D;
     double Tolerance3D;
@@ -49,7 +49,7 @@ public:
 
 class VEM_PCC_3D_LocalSpace_Data final
 {
-public:
+  public:
     Gedim::Quadrature::QuadratureData InternalQuadrature;
     Polydim::VEM::Quadrature::VEM_Quadrature_3D::Faces_QuadratureData_PCC BoundaryQuadrature;
 

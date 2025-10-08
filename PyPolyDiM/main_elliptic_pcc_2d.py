@@ -63,6 +63,8 @@ if __name__=='__main__':
                                         reference_element_data,
                                         test)
 
+    print("ciao")
+
     assembler.solve(do_fs_data, assembler_data)
 
     post_process_data = assembler.post_process_solution(mesh,
@@ -74,5 +76,7 @@ if __name__=='__main__':
                                                         test)
 
     print("L2 error: ", post_process_data.error_l2, " H1 error: ", post_process_data.error_h1)
+
+    vtk_utilities.export_solution('./solution', mesh, post_process_data.cell0_ds_numeric, cell0_d_exact_solution=post_process_data.cell0_ds_exact)
 
 
