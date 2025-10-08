@@ -23,8 +23,9 @@ namespace VEM
 namespace PCC
 {
 
-struct VEM_PCC_2D_Polygon_Geometry final
+class VEM_PCC_2D_Polygon_Geometry final
 {
+public:
     double Tolerance1D;
     double Tolerance2D;
 
@@ -39,8 +40,9 @@ struct VEM_PCC_2D_Polygon_Geometry final
     Eigen::MatrixXd EdgesNormal;
 };
 
-struct VEM_PCC_2D_LocalSpace_Data final
+class VEM_PCC_2D_LocalSpace_Data final
 {
+public:
     unsigned int Dimension;
     unsigned int Order;
     unsigned int NumVertexBasisFunctions;
