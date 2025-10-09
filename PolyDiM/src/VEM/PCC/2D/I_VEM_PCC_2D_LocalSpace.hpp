@@ -145,6 +145,8 @@ class I_VEM_PCC_2D_LocalSpace
     /// \return A matrix containing the values of a basis function on each column.
     virtual Eigen::MatrixXd ComputeValuesOnEdge(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                                 const Eigen::VectorXd &pointsCurvilinearCoordinates) const = 0;
+
+    virtual Eigen::MatrixXd ComputeScaledPolynomialsValues(const Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace_Data &localSpace) const = 0;
 };
 } // namespace PCC
 } // namespace VEM

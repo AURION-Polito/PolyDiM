@@ -55,7 +55,6 @@ struct Program_configuration final
                                            "(Default: "
                                            "0)");
         Gedim::Configurations::AddProperty("MethodOrder", static_cast<unsigned int>(1), "Method order (Default: 1)");
-        Gedim::Configurations::AddProperty("ComputeMethodPerformance", true, "Compute Method Performance (Default: false)");
         Gedim::Configurations::AddProperty("TimeStep", 0.5, "Max Time (Default: 0.5)");
         Gedim::Configurations::AddProperty("MaxTime", 1.0, "Time Step (Default: 1.0)");
         Gedim::Configurations::AddProperty("Theta", 0.0, "Theta parameter for theta-method [0, 1] (Default: 0.0)");
@@ -97,10 +96,6 @@ struct Program_configuration final
     {
         return static_cast<Polydim::PDETools::LocalSpace_PCC_2D::MethodTypes>(
             Gedim::Configurations::GetPropertyValue<unsigned int>("MethodType"));
-    }
-    inline bool ComputeMethodPerformance() const
-    {
-        return Gedim::Configurations::GetPropertyValue<bool>("ComputeMethodPerformance");
     }
     inline unsigned int MethodOrder() const
     {

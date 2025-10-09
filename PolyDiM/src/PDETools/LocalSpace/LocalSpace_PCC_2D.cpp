@@ -294,6 +294,59 @@ Eigen::MatrixXd EdgeDofsCoordinates(const ReferenceElement_Data &reference_eleme
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
     }
 }
+// ***************************************************************************
+Gedim::Quadrature::QuadratureData InternalDofsCoordinates(const ReferenceElement_Data &reference_element_data,
+                                                          const LocalSpace_Data &local_space_data)
+{
+    Gedim::Quadrature::QuadratureData face_dofs_coordinates;
+
+    switch (reference_element_data.Method_Type)
+    {
+    case MethodTypes::FEM_PCC: {
+
+        face_dofs_coordinates.Points =
+            reference_element_data.FEM_LocalSpace->InternalDOFsCoordinates(reference_element_data.FEM_ReferenceElement_Data,
+                                                                           local_space_data.FEM_LocalSpace_Data);
+        return face_dofs_coordinates;
+    }
+    case MethodTypes::VEM_PCC:
+    case MethodTypes::VEM_PCC_Inertia:
+    case MethodTypes::VEM_PCC_Ortho: {
+
+        face_dofs_coordinates.Points = local_space_data.VEM_LocalSpace_Data.InternalQuadrature.Points;
+
+        face_dofs_coordinates.Weights = local_space_data.VEM_LocalSpace_Data.InternalQuadrature.Weights;
+
+        return face_dofs_coordinates;
+    }
+    default:
+        throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
+    }
+}
+// ***************************************************************************
+Eigen::VectorXd InternalDofs(const ReferenceElement_Data &reference_element_data,
+                             const LocalSpace_Data &local_space_data,
+                             const Eigen::VectorXd &values_at_dofs,
+                             const Gedim::Quadrature::QuadratureData &internal_dofs_coordinates)
+{
+    switch (reference_element_data.Method_Type)
+    {
+    case MethodTypes::FEM_PCC: {
+        return values_at_dofs;
+    }
+    case MethodTypes::VEM_PCC:
+    case MethodTypes::VEM_PCC_Inertia:
+    case MethodTypes::VEM_PCC_Ortho: {
+
+        const auto scaled_polynomial =
+            reference_element_data.VEM_LocalSpace->ComputeScaledPolynomialsValues(local_space_data.VEM_LocalSpace_Data);
+
+        return scaled_polynomial.transpose() * internal_dofs_coordinates.Weights.asDiagonal() * values_at_dofs;
+    }
+    default:
+        throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
+    }
+}
 //***************************************************************************
 PDETools::DOFs::DOFsManager::MeshDOFsInfo SetMeshDOFsInfo(
     const ReferenceElement_Data &reference_element_data,

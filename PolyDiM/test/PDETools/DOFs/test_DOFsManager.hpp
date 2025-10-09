@@ -37,13 +37,12 @@ TEST(TEST_DOFsManager, TEST_CreateDOFs_0D)
     ASSERT_EQ(2, dofs_data.NumberInternalDOFs);
     ASSERT_EQ(0, dofs_data.NumberBoundaryDOFs);
 
-    const auto cells_dofs_indices = dofs_manager.ComputeCellsDOFsIndices(dofs_data,
-                                                                         0);
+    const auto cells_dofs_indices = dofs_manager.ComputeCellsDOFsIndices(dofs_data, 0);
 
-    ASSERT_EQ(std::vector<std::vector<unsigned int>>({ { 0u, 1u } }), cells_dofs_indices.Cells_DOFs_LocalIndex);
-    ASSERT_EQ(std::vector<std::vector<unsigned int>>({ { 0u, 1u } }), cells_dofs_indices.Cells_DOFs_GlobalIndex);
-    ASSERT_EQ(std::vector<std::vector<unsigned int>>({ { } }), cells_dofs_indices.Cells_Strongs_LocalIndex);
-    ASSERT_EQ(std::vector<std::vector<unsigned int>>({ { } }), cells_dofs_indices.Cells_Strongs_GlobalIndex);
+    ASSERT_EQ(std::vector<std::vector<unsigned int>>({{0u, 1u}}), cells_dofs_indices.Cells_DOFs_LocalIndex);
+    ASSERT_EQ(std::vector<std::vector<unsigned int>>({{0u, 1u}}), cells_dofs_indices.Cells_DOFs_GlobalIndex);
+    ASSERT_EQ(std::vector<std::vector<unsigned int>>({{}}), cells_dofs_indices.Cells_Strongs_LocalIndex);
+    ASSERT_EQ(std::vector<std::vector<unsigned int>>({{}}), cells_dofs_indices.Cells_Strongs_GlobalIndex);
 }
 
 TEST(TEST_DOFsManager, TEST_CreateDOFs_1D)
@@ -91,13 +90,12 @@ TEST(TEST_DOFsManager, TEST_CreateDOFs_1D)
     ASSERT_EQ(2, dofs_data.NumberInternalDOFs);
     ASSERT_EQ(1, dofs_data.NumberBoundaryDOFs);
 
-    const auto cells_dofs_indices = dofs_manager.ComputeCellsDOFsIndices(dofs_data,
-                                                                         1);
+    const auto cells_dofs_indices = dofs_manager.ComputeCellsDOFsIndices(dofs_data, 1);
 
-    ASSERT_EQ(std::vector<std::vector<unsigned int>>({ { 0, 2, 3 } }), cells_dofs_indices.Cells_DOFs_LocalIndex);
-    ASSERT_EQ(std::vector<std::vector<unsigned int>>({ { 0, 1, 2 } }), cells_dofs_indices.Cells_DOFs_GlobalIndex);
-    ASSERT_EQ(std::vector<std::vector<unsigned int>>({ { 1 } }), cells_dofs_indices.Cells_Strongs_LocalIndex);
-    ASSERT_EQ(std::vector<std::vector<unsigned int>>({ { 0 } }), cells_dofs_indices.Cells_Strongs_GlobalIndex);
+    ASSERT_EQ(std::vector<std::vector<unsigned int>>({{0, 2, 3}}), cells_dofs_indices.Cells_DOFs_LocalIndex);
+    ASSERT_EQ(std::vector<std::vector<unsigned int>>({{0, 1, 2}}), cells_dofs_indices.Cells_DOFs_GlobalIndex);
+    ASSERT_EQ(std::vector<std::vector<unsigned int>>({{1}}), cells_dofs_indices.Cells_Strongs_LocalIndex);
+    ASSERT_EQ(std::vector<std::vector<unsigned int>>({{0}}), cells_dofs_indices.Cells_Strongs_GlobalIndex);
 }
 
 } // namespace UnitTesting

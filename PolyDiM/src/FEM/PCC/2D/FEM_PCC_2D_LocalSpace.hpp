@@ -192,6 +192,24 @@ class FEM_PCC_2D_LocalSpace final
             throw std::runtime_error("not valid fem type");
         }
     }
+
+    Eigen::MatrixXd InternalDOFsCoordinates(const Polydim::FEM::PCC::FEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                            const Polydim::FEM::PCC::FEM_PCC_2D_LocalSpace_Data &local_space) const
+    {
+        switch (local_space.fem_type)
+        {
+        case Polydim::FEM::PCC::FEM_PCC_2D_Types::Triangle: {
+            return triangle_local_space.InternalDOFsCoordinates(reference_element_data.triangle_reference_element_data,
+                                                                local_space.triangle_local_space_data);
+        }
+        case Polydim::FEM::PCC::FEM_PCC_2D_Types::Quadrilateral: {
+            return quadrilateral_local_space.InternalDOFsCoordinates(reference_element_data.quadrilateral_reference_element_data,
+                                                                     local_space.quadrilateral_local_space_data);
+        }
+        default:
+            throw std::runtime_error("not valid fem type");
+        }
+    }
 };
 } // namespace PCC
 } // namespace FEM

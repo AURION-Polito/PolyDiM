@@ -198,6 +198,12 @@ class VEM_PCC_2D_Ortho_LocalSpace final : public Polydim::VEM::PCC::I_VEM_PCC_2D
                localSpace.Qmatrix.transpose();
     }
 
+    inline Eigen::MatrixXd ComputeScaledPolynomialsValues(const Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace_Data &localSpace) const
+    {
+        return (1.0 / localSpace.Measure) * localSpace.VanderInternal.leftCols(localSpace.Nkm2) *
+               localSpace.Qmatrix.transpose().topLeftCorner(localSpace.Nkm2, localSpace.Nkm2);
+    }
+
     inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace_Data &localSpace) const
     {
         std::vector<Eigen::MatrixXd> polynomialBasisDerivativeValues(localSpace.Dimension);

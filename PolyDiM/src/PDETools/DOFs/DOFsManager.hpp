@@ -426,6 +426,7 @@ class DOFsManager
             ConcatenateGlobalDOFs(3, cell3DIndex, dofs.CellsDOFs.at(3).at(cell3DIndex), cellsGlobalDOFs[cell3DIndex], globalDOF_counter);
         }
     }
+
   public:
     template <class mesh_connectivity_data_class>
     MeshDOFsInfo Create_Constant_DOFsInfo_0D(const mesh_connectivity_data_class &mesh, const ConstantDOFsInfo &boundary_info) const
@@ -578,9 +579,7 @@ class DOFsManager
         return result;
     }
 
-
-    CellsDOFsIndicesData ComputeCellsDOFsIndices(const DOFsData& dofs,
-                                                 const unsigned int dim) const;
+    CellsDOFsIndicesData ComputeCellsDOFsIndices(const DOFsData &dofs, const unsigned int dim) const;
 };
 } // namespace DOFs
 } // namespace PDETools

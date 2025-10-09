@@ -70,7 +70,8 @@ class Assembler final
                            const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                            const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                            const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data,
-                           const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
+                           const test::I_Test &test,
+                           const double &time_value,
                            Parabolic_PCC_2D_Problem_Data &assembler_data) const;
 
     void ComputeWeakTerm(const unsigned int cell2DIndex,
@@ -81,18 +82,8 @@ class Assembler final
                          const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                          const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data,
                          const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
+                         const double &time_value,
                          Parabolic_PCC_2D_Problem_Data &assembler_data) const;
-
-    Eigen::MatrixXd ComputeSUPGMatrix(const std::array<Eigen::VectorXd, 3> &advection_term_values,
-                                      const Eigen::VectorXd &diffusion_term_values,
-                                      const Eigen::MatrixXd &basis_functions_values,
-                                      const std::vector<Eigen::MatrixXd> &basis_functions_derivative_values,
-                                      const Eigen::VectorXd &quadrature_weights) const;
-
-    Eigen::MatrixXd ComputeSUPGForcingTerm(const std::array<Eigen::VectorXd, 3> &advection_term_values,
-                                           const Eigen::VectorXd &forcing_term_values,
-                                           const std::vector<Eigen::MatrixXd> &basis_functions_derivative_values,
-                                           const Eigen::VectorXd &quadrature_weights) const;
 
   public:
     Parabolic_PCC_2D_Problem_Data Assemble(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
@@ -101,12 +92,8 @@ class Assembler final
                                            const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
                                            const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                                            const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
-                                           const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test) const;
-
-    Performance_Data ComputePerformance(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
-                                        const Gedim::MeshMatricesDAO &mesh,
-                                        const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-                                        const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data) const;
+                                           const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
+                                           const double &time_value) const;
 
     PostProcess_Data PostProcessSolution(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
                                          const Gedim::MeshMatricesDAO &mesh,
@@ -114,7 +101,17 @@ class Assembler final
                                          const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                                          const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                                          const Parabolic_PCC_2D_Problem_Data &assembler_data,
-                                         const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test) const;
+                                         const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
+                                         const double &time_value) const;
+
+    void ComputeInitalCondition(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
+                                const Gedim::IMeshDAO &mesh,
+                                const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                                const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
+                                const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
+                                Gedim::Eigen_Array<> &initial_condition_dirichlet,
+                                Gedim::Eigen_Array<> &initial_condition) const;
 };
 } // namespace Parabolic_PCC_2D
 } // namespace examples
