@@ -4,16 +4,17 @@ from Elliptic_PCC_2D.program_utilities import create_test, create_mesh
 from Elliptic_PCC_2D.assembler import Assembler
 from pypolydim.vtk_utilities import VTKUtilities
 from pypolydim.assembler_utilities import assembler_utilities
+import cProfile
 
 
-if __name__=='__main__':
+def main():
 
     parser =argparse.ArgumentParser()
     parser.add_argument('-order','--method-order',dest='method_order', default=4, type=int, help="Method order")
     parser.add_argument('-method','--method-type',dest='method_type', default=1, type=int, help="Method type")
     parser.add_argument('-test', '--test-id', dest='test_id', default=1, type=int, help="Test type")
     parser.add_argument('-mesh', '--mesh-type', dest='mesh_type', default=0, type=int, help="Mesh type")
-    parser.add_argument('-area', '--mesh-max-relative-area', dest='max_relative_area', default=0.1, type=float, help="Mesh max relative area")
+    parser.add_argument('-area', '--mesh-max-relative-area', dest='max_relative_area', default=0.05, type=float, help="Mesh max relative area")
     parser.add_argument('-import', '--import-path', dest='import_path', default='./', type=str, help="Mesh Import Path")
     args = parser.parse_args()
 
@@ -79,4 +80,10 @@ if __name__=='__main__':
 
     vtk_utilities.export_solution('./solution', mesh, post_process_data.cell0_ds_numeric, cell0_d_exact_solution=post_process_data.cell0_ds_exact)
 
+if __name__=='__main__':
 
+    pr = cProfile.Profile()
+    pr.enable()
+    main()
+    pr.disable()
+    pr.dump_stats("program.prof")  # call "snakeviz program.proof" from command line to visualize the result
