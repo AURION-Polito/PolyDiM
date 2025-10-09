@@ -2,8 +2,8 @@ import argparse
 import os.path
 
 from pypolydim import polydim, gedim
-from Elliptic_PCC_2D.program_utilities import create_test, create_mesh
-from Elliptic_PCC_2D.assembler import Assembler
+from Elliptic_PCC_3D.program_utilities import create_test, create_mesh
+from Elliptic_PCC_3D.assembler import Assembler
 from pypolydim.vtk_utilities import VTKUtilities
 from pypolydim.assembler_utilities import assembler_utilities
 import cProfile
@@ -12,12 +12,12 @@ import cProfile
 def main():
 
     parser =argparse.ArgumentParser()
-    parser.add_argument('-order','--method-order',dest='method_order', default=4, type=int, help="Method order")
+    parser.add_argument('-order','--method-order',dest='method_order', default=1, type=int, help="Method order")
     parser.add_argument('-method','--method-type',dest='method_type', default=1, type=int, help="Method type")
     parser.add_argument('-test', '--test-id', dest='test_id', default=1, type=int, help="Test type")
     parser.add_argument('-mesh', '--mesh-type', dest='mesh_type', default=0, type=int, help="Mesh type")
-    parser.add_argument('-area', '--mesh-max-relative-area', dest='max_relative_area', default=0.1, type=float, help="Mesh max relative area")
-    parser.add_argument('-export', '--export-path', dest='export_path', default='./Export/Elliptic_PCC_2D', type=str, help="Export Path")
+    parser.add_argument('-volume', '--mesh-max-relative-volume', dest='max_relative_volume', default=0.1, type=float, help="Mesh max relative volume")
+    parser.add_argument('-export', '--export-path', dest='export_path', default='./Export/Elliptic_PCC_3D', type=str, help="Export Path")
     parser.add_argument('-import', '--import-path', dest='import_path', default='./', type=str, help="Mesh Import Path")
     args = parser.parse_args()
 
@@ -30,8 +30,8 @@ def main():
     if not os.path.exists(export_mesh_path):
         os.makedirs(export_mesh_path)
 
-    mesh_type = polydim.pde_tools.mesh.pde_mesh_utilities.MeshGenerator_Types_2D(args.mesh_type)
-    method_type = polydim.pde_tools.local_space_pcc_2_d.MethodTypes(args.method_type)
+    mesh_type = polydim.pde_tools.mesh.pde_mesh_utilities.MeshGenerator_Types_3D(args.mesh_type)
+    method_type = polydim.pde_tools.local_space_pcc_3_d.MethodTypes(args.method_type)
     method_order = args.method_order
 
     print("Set problem...")
