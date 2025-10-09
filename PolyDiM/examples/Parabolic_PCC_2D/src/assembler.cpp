@@ -289,8 +289,7 @@ Assembler::Parabolic_PCC_2D_Problem_Data Assembler::Assemble(
         const double &diameter = mesh_geometric_data.Cell2DsDiameters.at(c);
 
         const Eigen::MatrixXd local_A_stab =
-            k_max *
-            Polydim::PDETools::LocalSpace_PCC_2D::StabilizationMatrix(reference_element_data, local_space_data);
+            k_max * Polydim::PDETools::LocalSpace_PCC_2D::StabilizationMatrix(reference_element_data, local_space_data);
 
         const auto &global_dofs = dofs_data.CellsGlobalDOFs[2].at(c);
 

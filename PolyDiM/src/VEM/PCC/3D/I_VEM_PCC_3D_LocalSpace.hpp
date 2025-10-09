@@ -36,11 +36,9 @@ class I_VEM_PCC_3D_LocalSpace
 
     /// \brief Compute data of VEM space on a polygon.
     /// \param reference_element_data Data of the reference element of the VEM space.
-    /// \param polygon The geometry of the polygon
-    /// \return A data structure containing the information about the local VEM space.
+    /// \return A data structure containing the information about the geometry of local VEM space.
     virtual VEM_PCC_3D_LocalSpace_Data CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data_2D,
                                                         const VEM_PCC_3D_ReferenceElement_Data &reference_element_data_3D,
-                                                        const std::vector<VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
                                                         const VEM_PCC_3D_Polyhedron_Geometry &polyhedron) const = 0;
     /// \brief Compute matrix representation of dofi-dofi stabilization.
     /// \param localSpace Data of the local space.
@@ -152,6 +150,9 @@ class I_VEM_PCC_3D_LocalSpace
     virtual Eigen::MatrixXd ComputeValuesOnEdge(const VEM_PCC_3D_ReferenceElement_Data &reference_element_data,
                                                 const VEM_PCC_3D_LocalSpace_Data &localSpace,
                                                 const Eigen::VectorXd &pointsCurvilinearCoordinates) const = 0;
+
+    virtual Eigen::MatrixXd EdgeDOFsCoordinates(const Polydim::VEM::PCC::VEM_PCC_3D_LocalSpace_Data &localSpace,
+                                                const unsigned int edge_local_index) const = 0;
 };
 } // namespace PCC
 } // namespace VEM

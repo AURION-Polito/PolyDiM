@@ -207,11 +207,11 @@ TEST(Test_FEM_Tetrahedron_PCC_3D, Test_FEM_Tetrahedron_PCC_3D_local_space)
                                                                         tetrahedron_data.Vertices,
                                                                         tetrahedron_data.Edges,
                                                                         tetrahedron_data.Faces,
-                                                                        {},
                                                                         tetrahedron_data.EdgesDirection,
                                                                         tetrahedron_data.FacesDirection,
                                                                         tetrahedron_data.FacesRotationMatrix,
-                                                                        tetrahedron_data.FacesTranslation};
+                                                                        tetrahedron_data.FacesTranslation,
+                                                                        {}};
     tetra_geometry.Faces_2D_Geometry.resize(4);
     for (unsigned int f = 0; f < 4; ++f)
     {

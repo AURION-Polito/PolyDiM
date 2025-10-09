@@ -29,7 +29,8 @@ struct Program_configuration final
     {
         Gedim::Configurations::AddProperty("TestType",
                                            static_cast<unsigned int>(Polydim::examples::Parabolic_PCC_2D::test::Test_Types::Patch_Test),
-                                           "Test Type 1 - Patch_Test; 2 - Elliptic_Polynomial_Problem; 3 -  - Elliptic_Problem "
+                                           "Test Type 1 - Patch_Test; 2 - Elliptic_Polynomial_Problem; 3 -  - "
+                                           "Elliptic_Problem "
                                            "(Default: 1)");
         // Export parameters
         Gedim::Configurations::AddProperty("ExportFolder", "./Run", "Folder where to export data (Default: ./Export)");
@@ -55,6 +56,9 @@ struct Program_configuration final
                                            "0)");
         Gedim::Configurations::AddProperty("MethodOrder", static_cast<unsigned int>(1), "Method order (Default: 1)");
         Gedim::Configurations::AddProperty("ComputeMethodPerformance", true, "Compute Method Performance (Default: false)");
+        Gedim::Configurations::AddProperty("TimeStep", 0.5, "Max Time (Default: 0.5)");
+        Gedim::Configurations::AddProperty("MaxTime", 1.0, "Time Step (Default: 1.0)");
+        Gedim::Configurations::AddProperty("Theta", 0.0, "Theta parameter for theta-method [0, 1] (Default: 0.0)");
     }
 
     inline std::string ExportFolder() const
@@ -101,6 +105,18 @@ struct Program_configuration final
     inline unsigned int MethodOrder() const
     {
         return Gedim::Configurations::GetPropertyValue<unsigned int>("MethodOrder");
+    }
+    inline double TimeStep() const
+    {
+        return Gedim::Configurations::GetPropertyValue<double>("TimeStep");
+    }
+    inline double MaxTime() const
+    {
+        return Gedim::Configurations::GetPropertyValue<double>("MaxTime");
+    }
+    inline double Theta() const
+    {
+        return Gedim::Configurations::GetPropertyValue<double>("Theta");
     }
 };
 } // namespace Parabolic_PCC_2D

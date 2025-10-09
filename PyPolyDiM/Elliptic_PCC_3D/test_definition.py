@@ -6,7 +6,7 @@ class ITest(ABC):
 
     @staticmethod
     @abstractmethod
-    def domain() -> polydim.pde_tools.mesh.pde_mesh_utilities.PDE_Domain_2D:
+    def domain() -> polydim.pde_tools.mesh.pde_mesh_utilities.PDE_Domain_3D:
         pass
 
     @staticmethod
@@ -41,15 +41,51 @@ class ITest(ABC):
 class EllipticPolynomialProblem(ITest):
 
     @staticmethod
-    def domain() -> polydim.pde_tools.mesh.pde_mesh_utilities.PDE_Domain_2D:
-        pde_domain = polydim.pde_tools.mesh.pde_mesh_utilities.PDE_Domain_2D()
+    def domain() -> polydim.pde_tools.mesh.pde_mesh_utilities.PDE_Domain_3D:
+        pde_domain = polydim.pde_tools.mesh.pde_mesh_utilities.PDE_Domain_3D()
 
-        pde_domain.vertices = np.array([[0.0, 1.0, 1.0, 0.0],
-                                       [0.0, 0.0, 1.0, 1.0],
-                                       [0.0, 0.0, 0.0, 0.0]])
+        pde_domain.vertices = np.array([[0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0],
+                                       [0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0],
+                                       [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]])
 
-        pde_domain.area = 1.0
-        pde_domain.shape_type = polydim.pde_tools.mesh.pde_mesh_utilities.PDE_Domain_2D.Domain_Shape_Types.parallelogram
+        # create edges
+        pde_domain.edges = np.zeros([2, 12])
+        pde_domain.edges[:, 0] = [0, 1]
+        pde_domain.edges[:, 1] = [1, 2]
+        pde_domain.edges[:, 2] = [2, 3]
+        pde_domain.edges[:, 3] = [3, 0]
+        pde_domain.edges[:, 4] = [4, 5]
+        pde_domain.edges[:, 5] = [5, 6]
+        pde_domain.edges[:, 6] = [6, 7]
+        pde_domain.edges[:, 7] = [7, 4]
+        pde_domain.edges[:, 8] = [0, 4]
+        pde_domain.edges[:, 9] = [1, 5]
+        pde_domain.edges[:, 10] = [2, 6]
+        pde_domain.edges[:, 11] = [3, 7]
+
+        # create faces
+        pde_domain.faces = []
+        face = np.zeros([2, 4])
+        pde_domain.faces[0].row(0) << 0, 1, 2, 3;
+        pde_domain.faces[0].row(1) << 0, 1, 2, 3;
+
+        pde_domain.faces[1].row(0) << 4, 5, 6, 7;
+        pde_domain.faces[1].row(1) << 4, 5, 6, 7;
+
+        pde_domain.faces[2].row(0) << 0, 3, 7, 4;
+        pde_domain.faces[2].row(1) << 3, 11, 7, 8;
+
+        pde_domain.faces[3].row(0) << 1, 2, 6, 5;
+        pde_domain.faces[3].row(1) << 1, 10, 5, 9;
+
+        pde_domain.faces[4].row(0) << 0, 1, 5, 4;
+        pde_domain.faces[4].row(1) << 0, 9, 4, 8;
+
+        pde_domain.faces[5].row(0) << 3, 2, 6, 7;
+        pde_domain.faces[5].row(1) << 2, 10, 6, 11;
+
+        pde_domain.volume = 1.0
+        pde_domain.shape_type = polydim.pde_tools.mesh.pde_mesh_utilities.PDE_Domain_3D.Domain_Shape_Types.parallelepiped
 
         return pde_domain
 

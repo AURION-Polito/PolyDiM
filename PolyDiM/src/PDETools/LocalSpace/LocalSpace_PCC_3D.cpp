@@ -88,11 +88,11 @@ LocalSpace_Data CreateLocalSpace(const double &geometric_tolerance_1D,
                                          mesh_geometric_data.Cell3DsVertices.at(cell3D_index),
                                          mesh_geometric_data.Cell3DsEdges.at(cell3D_index),
                                          mesh_geometric_data.Cell3DsFaces.at(cell3D_index),
-                                         {},
                                          mesh_geometric_data.Cell3DsEdgeDirections.at(cell3D_index),
                                          mesh_geometric_data.Cell3DsFacesNormalGlobalDirection.at(cell3D_index),
                                          mesh_geometric_data.Cell3DsFacesRotationMatrices.at(cell3D_index),
-                                         mesh_geometric_data.Cell3DsFacesTranslations.at(cell3D_index)};
+                                         mesh_geometric_data.Cell3DsFacesTranslations.at(cell3D_index),
+                                         {}};
 
         const unsigned int numFaces = mesh_geometric_data.Cell3DsFaces.at(cell3D_index).size();
         local_space_data.FEM_Geometry.Faces_2D_Geometry.resize(numFaces);
@@ -115,10 +115,29 @@ LocalSpace_Data CreateLocalSpace(const double &geometric_tolerance_1D,
     case MethodTypes::VEM_PCC:
     case MethodTypes::VEM_PCC_Inertia:
     case MethodTypes::VEM_PCC_Ortho: {
+
+        local_space_data.VEM_Geometry = {geometric_tolerance_1D,
+                                         geometric_tolerance_2D,
+                                         geometric_tolerance_3D,
+                                         mesh_geometric_data.Cell3DsVertices.at(cell3D_index),
+                                         mesh_geometric_data.Cell3DsEdges.at(cell3D_index),
+                                         mesh_geometric_data.Cell3DsFaces.at(cell3D_index),
+                                         mesh_geometric_data.Cell3DsCentroids.at(cell3D_index),
+                                         mesh_geometric_data.Cell3DsVolumes.at(cell3D_index),
+                                         mesh_geometric_data.Cell3DsDiameters.at(cell3D_index),
+                                         mesh_geometric_data.Cell3DsTetrahedronPoints.at(cell3D_index),
+                                         mesh_geometric_data.Cell3DsFacesRotationMatrices.at(cell3D_index),
+                                         mesh_geometric_data.Cell3DsFacesTranslations.at(cell3D_index),
+                                         mesh_geometric_data.Cell3DsFacesNormals.at(cell3D_index),
+                                         mesh_geometric_data.Cell3DsFacesNormalDirections.at(cell3D_index),
+                                         mesh_geometric_data.Cell3DsEdgeDirections.at(cell3D_index),
+                                         mesh_geometric_data.Cell3DsEdgeTangents.at(cell3D_index),
+                                         {}};
+
         const unsigned int numFaces = mesh_geometric_data.Cell3DsFaces.at(cell3D_index).size();
         for (unsigned int f = 0; f < numFaces; f++)
         {
-            local_space_data.VEM_Geometry.PolygonalFaces.push_back(
+            local_space_data.VEM_Geometry.Faces_2D_Geometry.push_back(
                 {geometric_tolerance_1D,
                  geometric_tolerance_2D,
                  mesh_geometric_data.Cell3DsFaces2DVertices.at(cell3D_index)[f],
@@ -132,28 +151,10 @@ LocalSpace_Data CreateLocalSpace(const double &geometric_tolerance_1D,
                  mesh_geometric_data.Cell3DsFacesEdge2DNormals.at(cell3D_index)[f]});
         }
 
-        local_space_data.VEM_Geometry.Polyhedron = {geometric_tolerance_1D,
-                                                    geometric_tolerance_2D,
-                                                    geometric_tolerance_3D,
-                                                    mesh_geometric_data.Cell3DsVertices.at(cell3D_index),
-                                                    mesh_geometric_data.Cell3DsEdges.at(cell3D_index),
-                                                    mesh_geometric_data.Cell3DsFaces.at(cell3D_index),
-                                                    mesh_geometric_data.Cell3DsCentroids.at(cell3D_index),
-                                                    mesh_geometric_data.Cell3DsVolumes.at(cell3D_index),
-                                                    mesh_geometric_data.Cell3DsDiameters.at(cell3D_index),
-                                                    mesh_geometric_data.Cell3DsTetrahedronPoints.at(cell3D_index),
-                                                    mesh_geometric_data.Cell3DsFacesRotationMatrices.at(cell3D_index),
-                                                    mesh_geometric_data.Cell3DsFacesTranslations.at(cell3D_index),
-                                                    mesh_geometric_data.Cell3DsFacesNormals.at(cell3D_index),
-                                                    mesh_geometric_data.Cell3DsFacesNormalDirections.at(cell3D_index),
-                                                    mesh_geometric_data.Cell3DsEdgeDirections.at(cell3D_index),
-                                                    mesh_geometric_data.Cell3DsEdgeTangents.at(cell3D_index)};
-
         local_space_data.VEM_LocalSpace_Data =
             reference_element_data.VEM_LocalSpace->CreateLocalSpace(reference_element_data.VEM_ReferenceElement_Data_2D,
                                                                     reference_element_data.VEM_ReferenceElement_Data_3D,
-                                                                    local_space_data.VEM_Geometry.PolygonalFaces,
-                                                                    local_space_data.VEM_Geometry.Polyhedron);
+                                                                    local_space_data.VEM_Geometry);
     }
     break;
     default:
@@ -386,28 +387,7 @@ Eigen::MatrixXd EdgeDofsCoordinates(const ReferenceElement_Data &reference_eleme
     case MethodTypes::VEM_PCC:
     case MethodTypes::VEM_PCC_Inertia:
     case MethodTypes::VEM_PCC_Ortho: {
-        const auto &referenceEdgeDOFsPoint = reference_element_data.VEM_ReferenceElement_Data_2D.Quadrature.ReferenceEdgeDOFsInternalPoints;
-        const unsigned int num_edge_dofs = referenceEdgeDOFsPoint.cols();
-
-        if (num_edge_dofs == 0)
-            return Eigen::MatrixXd(0, 0);
-
-        const Eigen::Vector3d edge_origin = local_space_data.VEM_Geometry.Polyhedron.EdgesDirection.at(edge_local_index)
-                                                ? local_space_data.VEM_Geometry.Polyhedron.Vertices.col(
-                                                      local_space_data.VEM_Geometry.Polyhedron.Edges(0, edge_local_index))
-                                                : local_space_data.VEM_Geometry.Polyhedron.Vertices.col(
-                                                      local_space_data.VEM_Geometry.Polyhedron.Edges(1, edge_local_index));
-
-        const Eigen::Vector3d edge_tangent = local_space_data.VEM_Geometry.Polyhedron.EdgesTangent.col(edge_local_index);
-        const double edge_direction = local_space_data.VEM_Geometry.Polyhedron.EdgesDirection[edge_local_index] ? 1.0 : -1.0;
-
-        Eigen::MatrixXd edge_dofs_coordinates = Eigen::MatrixXd::Zero(3, num_edge_dofs);
-        for (unsigned int r = 0; r < num_edge_dofs; r++)
-        {
-            edge_dofs_coordinates.col(r) << edge_origin + edge_direction * referenceEdgeDOFsPoint(0, r) * edge_tangent;
-        }
-
-        return edge_dofs_coordinates;
+        return reference_element_data.VEM_LocalSpace->EdgeDOFsCoordinates(local_space_data.VEM_LocalSpace_Data, edge_local_index);
     }
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + "not supported");

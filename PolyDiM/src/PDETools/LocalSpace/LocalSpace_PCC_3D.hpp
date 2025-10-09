@@ -19,9 +19,9 @@
 #include "MeshMatricesDAO.hpp"
 #include "MeshUtilities.hpp"
 #include "QuadratureData.hpp"
+#include "VEM_PCC_2D_LocalSpace_Data.hpp"
 #include "VEM_PCC_3D_Creator.hpp"
 #include "VEM_PCC_3D_LocalSpace_Data.hpp"
-#include "VEM_PCC_2D_LocalSpace_Data.hpp"
 #include "VEM_PCC_PerformanceAnalysis.hpp"
 
 namespace Polydim
@@ -59,14 +59,7 @@ class ReferenceElement_Data final
 class LocalSpace_Data final
 {
   public:
-    class VEM_Geometry final
-    {
-      public:
-        std::vector<Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry> PolygonalFaces;
-        Polydim::VEM::PCC::VEM_PCC_3D_Polyhedron_Geometry Polyhedron;
-    };
-public:
-    Polydim::PDETools::LocalSpace_PCC_3D::LocalSpace_Data::VEM_Geometry VEM_Geometry;
+    Polydim::VEM::PCC::VEM_PCC_3D_Polyhedron_Geometry VEM_Geometry;
     Polydim::VEM::PCC::VEM_PCC_3D_LocalSpace_Data VEM_LocalSpace_Data;
 
     Polydim::FEM::PCC::FEM_PCC_3D_Polyhedron_Geometry FEM_Geometry;

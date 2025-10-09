@@ -46,11 +46,12 @@ struct FEM_PCC_3D_Polyhedron_Geometry final
     Eigen::MatrixXd Vertices;
     Eigen::MatrixXi Edges;
     std::vector<Eigen::MatrixXi> Faces;
-    std::vector<Polydim::FEM::PCC::FEM_PCC_2D_Polygon_Geometry> Faces_2D_Geometry;
     std::vector<bool> EdgesDirection;
     std::vector<bool> FacesDirection;
     std::vector<Eigen::Matrix3d> FacesRotationMatrix;
     std::vector<Eigen::Vector3d> FacesTranslation;
+
+    std::vector<Polydim::FEM::PCC::FEM_PCC_2D_Polygon_Geometry> Faces_2D_Geometry;
 };
 
 struct FEM_Hexahedron_PCC_3D_LocalSpace_Data final

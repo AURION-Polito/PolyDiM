@@ -93,7 +93,6 @@ class VEM_PCC_3D_Ortho_LocalSpace final : public I_VEM_PCC_3D_LocalSpace
     Polydim::VEM::PCC::VEM_PCC_3D_LocalSpace_Data CreateLocalSpace(
         const VEM_PCC_2D_ReferenceElement_Data &reference_element_data_2D,
         const Polydim::VEM::PCC::VEM_PCC_3D_ReferenceElement_Data &reference_element_data_3D,
-        const std::vector<VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
         const Polydim::VEM::PCC::VEM_PCC_3D_Polyhedron_Geometry &polyhedron) const;
 
     inline Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const Polydim::VEM::PCC::VEM_PCC_3D_LocalSpace_Data &localSpace,
@@ -289,6 +288,12 @@ class VEM_PCC_3D_Ortho_LocalSpace final : public I_VEM_PCC_3D_LocalSpace
                                                              const Eigen::MatrixXd &) const
     {
         throw std::runtime_error("Unimplemented method");
+    }
+
+    inline Eigen::MatrixXd EdgeDOFsCoordinates(const Polydim::VEM::PCC::VEM_PCC_3D_LocalSpace_Data &localSpace,
+                                               const unsigned int edge_local_index) const
+    {
+        return localSpace.EdgesDOFsCoordinates[edge_local_index];
     }
 };
 } // namespace PCC

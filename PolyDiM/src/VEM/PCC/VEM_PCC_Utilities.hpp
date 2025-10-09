@@ -71,6 +71,33 @@ struct VEM_PCC_Utilities final
         Pi0k = Hmatrix.llt().solve(Cmatrix);
     }
 
+    inline Eigen::MatrixXd EdgeDOFsCoordinates(const Eigen::RowVectorXd &referenceEdgeDOFsPoint,
+                                               const Eigen::MatrixXd &vertices,
+                                               const Eigen::MatrixXi &edges,
+                                               const std::vector<bool> &edgesDirection,
+                                               const Eigen::MatrixXd &edgesTangent,
+                                               const unsigned int &edge_local_index) const
+    {
+
+        const unsigned int num_edge_dofs = referenceEdgeDOFsPoint.cols();
+
+        if (num_edge_dofs == 0)
+            return Eigen::MatrixXd(0, 0);
+
+        const Eigen::Vector3d edge_origin = edgesDirection.at(edge_local_index) ? vertices.col(edges(0, edge_local_index))
+                                                                                : vertices.col(edges(1, edge_local_index));
+
+        const Eigen::Vector3d edge_tangent = edgesTangent.col(edge_local_index);
+        const double edge_direction = edgesDirection[edge_local_index] ? 1.0 : -1.0;
+
+        Eigen::MatrixXd edge_dofs_coordinates = Eigen::MatrixXd::Zero(3, num_edge_dofs);
+        for (unsigned int r = 0; r < num_edge_dofs; r++)
+        {
+            edge_dofs_coordinates.col(r) << edge_origin + edge_direction * referenceEdgeDOFsPoint(0, r) * edge_tangent;
+        }
+        return edge_dofs_coordinates;
+    }
+
     std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const unsigned int dimension,
                                                                        const Polydim::VEM::PCC::ProjectionTypes &projectionType,
                                                                        const unsigned int &Nkm1,
