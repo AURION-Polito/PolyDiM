@@ -46,43 +46,19 @@ class EllipticPolynomialProblem(ITest):
 
         pde_domain.vertices = np.array([[0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0],
                                        [0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0],
-                                       [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]])
+                                       [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]], dtype=np.float64)
 
         # create edges
-        pde_domain.edges = np.zeros([2, 12])
-        pde_domain.edges[:, 0] = [0, 1]
-        pde_domain.edges[:, 1] = [1, 2]
-        pde_domain.edges[:, 2] = [2, 3]
-        pde_domain.edges[:, 3] = [3, 0]
-        pde_domain.edges[:, 4] = [4, 5]
-        pde_domain.edges[:, 5] = [5, 6]
-        pde_domain.edges[:, 6] = [6, 7]
-        pde_domain.edges[:, 7] = [7, 4]
-        pde_domain.edges[:, 8] = [0, 4]
-        pde_domain.edges[:, 9] = [1, 5]
-        pde_domain.edges[:, 10] = [2, 6]
-        pde_domain.edges[:, 11] = [3, 7]
+        pde_domain.edges = np.array([[0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3],
+                                       [1, 2, 3, 0, 5, 6, 7, 4, 4, 5, 6, 7]], dtype=np.int64)
 
         # create faces
-        pde_domain.faces = []
-        face = np.zeros([2, 4])
-        pde_domain.faces[0].row(0) << 0, 1, 2, 3;
-        pde_domain.faces[0].row(1) << 0, 1, 2, 3;
-
-        pde_domain.faces[1].row(0) << 4, 5, 6, 7;
-        pde_domain.faces[1].row(1) << 4, 5, 6, 7;
-
-        pde_domain.faces[2].row(0) << 0, 3, 7, 4;
-        pde_domain.faces[2].row(1) << 3, 11, 7, 8;
-
-        pde_domain.faces[3].row(0) << 1, 2, 6, 5;
-        pde_domain.faces[3].row(1) << 1, 10, 5, 9;
-
-        pde_domain.faces[4].row(0) << 0, 1, 5, 4;
-        pde_domain.faces[4].row(1) << 0, 9, 4, 8;
-
-        pde_domain.faces[5].row(0) << 3, 2, 6, 7;
-        pde_domain.faces[5].row(1) << 2, 10, 6, 11;
+        pde_domain.faces = [np.array([[0, 1, 2, 3], [0, 1, 2, 3]], dtype=np.int64),
+                            np.array([[4, 5, 6, 7], [4, 5, 6, 7]], dtype=np.int64),
+                            np.array([[0, 3, 7, 4], [3, 11, 7, 8]], dtype=np.int64),
+                            np.array([[1, 2, 6, 5], [1, 10, 5, 9]], dtype=np.int64),
+                            np.array([[0, 1, 5, 4], [0, 9, 4, 8]], dtype=np.int64),
+                            np.array([[3, 2, 6, 7], [2, 10, 6, 11]], dtype=np.int64)]
 
         pde_domain.volume = 1.0
         pde_domain.shape_type = polydim.pde_tools.mesh.pde_mesh_utilities.PDE_Domain_3D.Domain_Shape_Types.parallelepiped
@@ -108,7 +84,25 @@ class EllipticPolynomialProblem(ITest):
             5: info_dirichlet,
             6: info_dirichlet,
             7: info_dirichlet,
-            8: info_dirichlet
+            8: info_dirichlet,
+            9: info_dirichlet,
+            10: info_dirichlet,
+            11: info_dirichlet,
+            12: info_dirichlet,
+            13: info_dirichlet,
+            14: info_dirichlet,
+            15: info_dirichlet,
+            16: info_dirichlet,
+            17: info_dirichlet,
+            18: info_dirichlet,
+            19: info_dirichlet,
+            20: info_dirichlet,
+            21: info_dirichlet,
+            22: info_dirichlet,
+            23: info_dirichlet,
+            24: info_dirichlet,
+            25: info_dirichlet,
+            26: info_dirichlet
         }
 
     def diffusion_term(self, points: np.ndarray) -> np.ndarray:
@@ -132,4 +126,5 @@ class EllipticPolynomialProblem(ITest):
 
     def exact_derivative_solution(self, points: np.ndarray):
         return [16.0 * (1.0 - 2.0 * points[0, :]) * points[1, :] * (1.0 - points[1, :]),
-                16.0 * points[0, :] * (1.0 - points[0, :]) * (1.0 - 2.0 * points[1, :])]
+                16.0 * points[0, :] * (1.0 - points[0, :]) * (1.0 - 2.0 * points[1, :]),
+                np.zeros(points.shape[1])]

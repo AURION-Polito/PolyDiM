@@ -2,7 +2,7 @@ import argparse
 import os.path
 
 from pypolydim import polydim, gedim
-from Elliptic_PCC_2D.program_utilities import create_test, create_mesh
+from Elliptic_PCC_2D.program_utilities import create_test, create_mesh, export_errors
 from Elliptic_PCC_2D.assembler import Assembler
 from pypolydim.vtk_utilities import VTKUtilities
 from pypolydim.assembler_utilities import assembler_utilities
@@ -12,10 +12,12 @@ import cProfile
 def main():
 
     parser =argparse.ArgumentParser()
-    parser.add_argument('-order','--method-order',dest='method_order', default=4, type=int, help="Method order")
+    parser.add_argument('-order','--method-order',dest='method_order', default=1, type=int, help="Method order")
     parser.add_argument('-method','--method-type',dest='method_type', default=1, type=int, help="Method type")
     parser.add_argument('-test', '--test-id', dest='test_id', default=1, type=int, help="Test type")
     parser.add_argument('-mesh', '--mesh-type', dest='mesh_type', default=0, type=int, help="Mesh type")
+    parser.add_argument('-tol1', '--tolerance-1-d', dest='tolerance1_d', default=1.0e-12, type=float, help="Geometric Tolerance 1D")
+    parser.add_argument('-tol2', '--tolerance-2-d', dest='tolerance2_d', default=1.0e-14, type=float, help="Geometric Tolerance 2D")
     parser.add_argument('-area', '--mesh-max-relative-area', dest='max_relative_area', default=0.1, type=float, help="Mesh max relative area")
     parser.add_argument('-export', '--export-path', dest='export_path', default='./Export/Elliptic_PCC_2D', type=str, help="Export Path")
     parser.add_argument('-import', '--import-path', dest='import_path', default='./', type=str, help="Mesh Import Path")
@@ -41,6 +43,8 @@ def main():
 
     print("Create mesh...")
     geometry_utilities_config = gedim.GeometryUtilitiesConfig()
+    geometry_utilities_config.tolerance1_d = args.tolerance1_d
+    geometry_utilities_config.tolerance2_d = args.tolerance2_d
     geometry_utilities = gedim.GeometryUtilities(geometry_utilities_config)
     mesh_utilities = gedim.MeshUtilities()
     vtk_utilities = VTKUtilities()
@@ -66,15 +70,17 @@ def main():
     do_fs_data = dof_manager.create_do_fs_2_d(mesh_do_fs_info, mesh_connectivity_data)
     assembler_utilities_obj = assembler_utilities()
     count_do_fs_data = assembler_utilities_obj.count_do_fs([do_fs_data])
-
+    do_fs_data_indices = dof_manager.compute_cells_do_fs_indices(do_fs_data, 2)
 
     print('\x1b[6;30;42m' + "Created discrete space with ", do_fs_data.number_do_fs, " DOFs and ", do_fs_data.number_strongs, " STRONGs" + '\x1b[0m')
     print("Assemble...")
     assembler = Assembler()
-    assembler_data = assembler.assemble(mesh,
+    assembler_data = assembler.assemble(geometry_utilities_config,
+                                        mesh,
                                         mesh_geometric_data,
                                         mesh_do_fs_info,
                                         do_fs_data,
+                                        do_fs_data_indices,
                                         reference_element_data,
                                         test)
 
@@ -82,19 +88,22 @@ def main():
     assembler.solve(do_fs_data, assembler_data)
 
     print("Compute Errors...")
-    post_process_data = assembler.post_process_solution(mesh,
+    post_process_data = assembler.post_process_solution(geometry_utilities_config,
+                                                        mesh,
                                                         mesh_geometric_data,
                                                         do_fs_data,
+                                                        do_fs_data_indices,
                                                         count_do_fs_data,
                                                         reference_element_data,
                                                         assembler_data,
                                                         test)
 
-    print()
-    print("L2 error: ", post_process_data.error_l2, " H1 error: ", post_process_data.error_h1)
-
     print("Export Solution...")
-    vtk_utilities.export_solution(export_file_path + '/solution', mesh, post_process_data.cell0_ds_numeric, cell0_d_exact_solution=post_process_data.cell0_ds_exact)
+
+    export_errors(args.test_id, args.method_type, args.method_order, mesh, count_do_fs_data, post_process_data)
+
+    vtk_utilities.export_solution(export_file_path + '/solution', mesh, post_process_data.cell0_ds_numeric,
+                                  cell0_d_exact_solution=post_process_data.cell0_ds_exact)
 
     print('\x1b[6;30;42m' + "Finish" + '\x1b[0m')
 if __name__=='__main__':

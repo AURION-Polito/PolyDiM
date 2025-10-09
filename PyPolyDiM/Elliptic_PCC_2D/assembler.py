@@ -120,10 +120,12 @@ class Assembler:
 
 
     def assemble(self,
+                 geometry_utilities_confi: gedim.GeometryUtilitiesConfig,
                  mesh: gedim.MeshMatricesDAO,
                  mesh_geometric_data: gedim.MeshUtilities.MeshGeometricData2D,
                  mesh_do_fs_info: polydim.pde_tools.do_fs.DOFsManager.MeshDOFsInfo,
                  do_fs_data: polydim.pde_tools.do_fs.DOFsManager.DOFsData,
+                 do_fs_data_indices: polydim.pde_tools.do_fs.DOFsManager.CellsDOFsIndicesData,
                  reference_element_data: polydim.pde_tools.local_space_pcc_2_d.ReferenceElement_Data,
                  test: ITest) -> EllipticPCC2DProblemData:
 
@@ -134,8 +136,8 @@ class Assembler:
 
         for c in range(mesh.cell2_d_total_number()):
 
-            local_space_data = polydim.pde_tools.local_space_pcc_2_d.create_local_space(1.0e-12,
-                                                                                        1.0e-14,
+            local_space_data = polydim.pde_tools.local_space_pcc_2_d.create_local_space(geometry_utilities_confi.tolerance1_d,
+                                                                                        geometry_utilities_confi.tolerance2_d,
                                                                                         mesh_geometric_data,
                                                                                         c,
                                                                                         reference_element_data)
@@ -167,7 +169,7 @@ class Assembler:
             assert polydim.pde_tools.local_space_pcc_2_d.size(reference_element_data, local_space_data) == len(global_do_fs)
 
             local_to_global_data = assembler_utilities.LocalMatrixToGlobalMatrixDOFsData()
-            local_to_global_data.do_fs_data = [do_fs_data]
+            local_to_global_data.do_fs_data_indices = [do_fs_data_indices]
             local_to_global_data.local_offsets = [0]
             local_to_global_data.global_offsets_do_fs = [0]
             local_to_global_data.global_offsets_strongs = [0]
@@ -182,6 +184,7 @@ class Assembler:
                                                                        local_rhs,
                                                                        result.right_hand_side)
 
+
             self.compute_strong_term(c, mesh, mesh_do_fs_info, do_fs_data, reference_element_data, local_space_data, test, result)
 
         result.global_matrix_a = result.global_matrix_a_data.create(do_fs_data.number_do_fs, do_fs_data.number_do_fs)
@@ -191,9 +194,11 @@ class Assembler:
 
 
     def post_process_solution(self,
+                              geometry_utilities_confi: gedim.GeometryUtilitiesConfig,
                               mesh: gedim.MeshMatricesDAO,
                               mesh_geometric_data: gedim.MeshUtilities.MeshGeometricData2D,
                               do_fs_data: polydim.pde_tools.do_fs.DOFsManager.DOFsData,
+                              do_fs_data_indices: polydim.pde_tools.do_fs.DOFsManager.CellsDOFsIndicesData,
                               count_do_fs_data: assembler_utilities.CountDOFsData,
                               reference_element_data: polydim.pde_tools.local_space_pcc_2_d.ReferenceElement_Data,
                               assembler_data: EllipticPCC2DProblemData,
@@ -243,11 +248,11 @@ class Assembler:
         for c in range(mesh.cell2_d_total_number()):
 
             local_space_data=polydim.pde_tools.local_space_pcc_2_d.create_local_space(
-              1.0e-12,
-              1.0e-14,
-              mesh_geometric_data,
-              c,
-              reference_element_data)
+                geometry_utilities_confi.tolerance1_d,
+                geometry_utilities_confi.tolerance2_d,
+                mesh_geometric_data,
+                c,
+                reference_element_data)
 
             basis_functions_values = polydim.pde_tools.local_space_pcc_2_d.basis_functions_values(
                 reference_element_data, local_space_data, polydim.vem.pcc.ProjectionTypes.pi0k)
@@ -265,7 +270,7 @@ class Assembler:
 
             do_fs_values = assembler_utilities_obj.global_solution_to_local_solution(2,
                                                                                      c,
-                                                                                     [do_fs_data],
+                                                                                     [do_fs_data_indices],
                                                                                      count_do_fs_data,
                                                                                      local_count_do_fs,
                                                                                      assembler_data.solution,

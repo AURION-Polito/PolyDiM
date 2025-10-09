@@ -1,5 +1,8 @@
 from Elliptic_PCC_2D.test_definition import ITest, EllipticPolynomialProblem
 from pypolydim import gedim, polydim
+from pypolydim.assembler_utilities import assembler_utilities
+from Elliptic_PCC_2D.assembler import Assembler
+
 def create_test(test_id: int) -> ITest:
 
     match test_id:
@@ -7,6 +10,7 @@ def create_test(test_id: int) -> ITest:
             return EllipticPolynomialProblem()
         case _:
             raise ValueError("not valid test id")
+
 
 def create_mesh(geometry_utilities: gedim.GeometryUtilities, mesh_utilities: gedim.MeshUtilities,
                 mesh_type: polydim.pde_tools.mesh.pde_mesh_utilities.MeshGenerator_Types_2D,
@@ -36,3 +40,21 @@ def create_mesh(geometry_utilities: gedim.GeometryUtilities, mesh_utilities: ged
                                                                   mesh)
     else:
         raise ValueError("MeshGenerator " + str(mesh_type) + " not supported")
+
+
+def export_errors(test_id: int, method_id: int, method_order: int,
+                  mesh:  gedim.MeshMatricesDAO,
+                  count_do_fs_data: assembler_utilities.CountDOFsData,
+                  post_process_data: Assembler.PostProcessData) -> None:
+
+    print("{:<5} {:<7} {:<5} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10}"
+          .format('Test', 'Method', 'Order', 'Cell2Ds', 'DOFs',
+                  'Strongs', 'h', 'errorL2',  'errorH1', 'normL2', 'normH1', 'residual'))
+
+    print(
+        "{:<5d} {:<7d} {:<5d} {:<10d} {:<10d} {:<10d} {:<10.2e} {:<10.2e} {:<10.2e} {:<10.2e} {:<10.2e} {:<10.2e}"
+        .format(test_id, method_id, method_order, mesh.cell2_d_total_number(),
+                count_do_fs_data.num_total_do_fs, count_do_fs_data.num_total_strongs,
+                post_process_data.mesh_size, post_process_data.error_l2, post_process_data.error_h1,
+                post_process_data.norm_l2, post_process_data.norm_h1, post_process_data.residual_norm))
+
