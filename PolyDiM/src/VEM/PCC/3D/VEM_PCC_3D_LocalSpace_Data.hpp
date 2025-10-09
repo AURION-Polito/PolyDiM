@@ -45,6 +45,8 @@ class VEM_PCC_3D_Polyhedron_Geometry final
 
     std::vector<bool> EdgesDirection;
     Eigen::MatrixXd EdgesTangent;
+
+    std::vector<Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry> Faces_2D_Geometry;
 };
 
 class VEM_PCC_3D_LocalSpace_Data final
@@ -79,6 +81,7 @@ class VEM_PCC_3D_LocalSpace_Data final
     double Measure;
 
     Eigen::VectorXd EdgeBasisCoefficients;
+    std::vector<Eigen::MatrixXd> EdgesDOFsCoordinates;
     Eigen::MatrixXd PiNabla;
     Eigen::MatrixXd Pi0km1;
     Eigen::MatrixXd Pi0k;

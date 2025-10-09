@@ -22,7 +22,6 @@ namespace PCC
 //****************************************************************************
 VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Ortho_LocalSpace::CreateLocalSpace(const VEM_PCC_2D_ReferenceElement_Data &reference_element_data_2D,
                                                                          const VEM_PCC_3D_ReferenceElement_Data &reference_element_data_3D,
-                                                                         const std::vector<VEM_PCC_2D_Polygon_Geometry> &polygonalFaces,
                                                                          const VEM_PCC_3D_Polyhedron_Geometry &polyhedron) const
 {
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
@@ -45,7 +44,8 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Ortho_LocalSpace::CreateLocalSpace(const V
     localSpace.facesLocalSpace.resize(numFaces);
     for (unsigned int f = 0; f < numFaces; f++)
     {
-        localSpace.facesLocalSpace[f] = faceVemValues.Compute3DUtilities(reference_element_data_2D, polygonalFaces[f]);
+        localSpace.facesLocalSpace[f] =
+            faceVemValues.Compute3DUtilities(reference_element_data_2D, polyhedron.Faces_2D_Geometry[f]);
 
         facesQuadraturePoints[f] = localSpace.facesLocalSpace[f].InternalQuadrature.Points;
         facesQuadratureWeights[f] = localSpace.facesLocalSpace[f].InternalQuadrature.Weights;
@@ -56,6 +56,15 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Ortho_LocalSpace::CreateLocalSpace(const V
 
     localSpace.EdgeBasisCoefficients =
         utilities.ComputeEdgeBasisCoefficients(reference_element_data_2D.Order, localSpace.EdgeInternalPoints);
+
+    localSpace.EdgesDOFsCoordinates.resize(polyhedron.Edges.cols());
+    for (unsigned int e = 0; e < polyhedron.Edges.cols(); e++)
+        localSpace.EdgesDOFsCoordinates[e] = utilities.EdgeDOFsCoordinates(localSpace.EdgeInternalPoints,
+                                                                           polyhedron.Vertices,
+                                                                           polyhedron.Edges,
+                                                                           polyhedron.EdgesDirection,
+                                                                           polyhedron.EdgesTangent,
+                                                                           e);
 
     localSpace.InternalQuadrature =
         quadrature3D.PolyhedronInternalQuadrature(reference_element_data_3D.Quadrature, geometryUtilities, polyhedron.TetrahedronVertices);
@@ -91,7 +100,7 @@ VEM_PCC_3D_LocalSpace_Data VEM_PCC_3D_Ortho_LocalSpace::CreateLocalSpace(const V
 
     ComputeFaceProjectors(faceVemValues,
                           polyhedron.Faces,
-                          polygonalFaces,
+                          polyhedron.Faces_2D_Geometry,
                           localSpace.BoundaryQuadrature.Quadrature.Points,
                           localSpace.BoundaryQuadrature.Quadrature.Weights,
                           localSpace);

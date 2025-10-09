@@ -157,28 +157,28 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_3D_Inertia_O1_O2_O3)
                                   polyhedron_data.PolygonalFaces[f].EdgesNormal});
     }
 
-    Polydim::VEM::PCC::VEM_PCC_3D_Polyhedron_Geometry polyhedron = {
-        geometry_utilities_config.Tolerance1D,
-        geometry_utilities_config.Tolerance2D,
-        geometry_utilities_config.Tolerance3D,
+    Polydim::VEM::PCC::VEM_PCC_3D_Polyhedron_Geometry polyhedron = {geometry_utilities_config.Tolerance1D,
+                                                                    geometry_utilities_config.Tolerance2D,
+                                                                    geometry_utilities_config.Tolerance3D,
 
-        polyhedron_data.Vertices,
+                                                                    polyhedron_data.Vertices,
 
-        polyhedron_data.Edges,
-        polyhedron_data.Faces,
-        polyhedron_data.Centroid,
-        polyhedron_data.Measure,
-        polyhedron_data.Diameter,
-        polyhedron_data.TetrahedronVertices,
+                                                                    polyhedron_data.Edges,
+                                                                    polyhedron_data.Faces,
+                                                                    polyhedron_data.Centroid,
+                                                                    polyhedron_data.Measure,
+                                                                    polyhedron_data.Diameter,
+                                                                    polyhedron_data.TetrahedronVertices,
 
-        polyhedron_data.FacesRotationMatrix,
-        polyhedron_data.FacesTranslation,
-        polyhedron_data.FacesNormals,
-        polyhedron_data.FacesNormalDirection,
+                                                                    polyhedron_data.FacesRotationMatrix,
+                                                                    polyhedron_data.FacesTranslation,
+                                                                    polyhedron_data.FacesNormals,
+                                                                    polyhedron_data.FacesNormalDirection,
 
-        polyhedron_data.EdgesDirection,
-        polyhedron_data.EdgesTangent,
-    };
+                                                                    polyhedron_data.EdgesDirection,
+                                                                    polyhedron_data.EdgesTangent,
+
+                                                                    polygonalFaces};
 
     for (unsigned int k = 1; k < 4; k++)
     {
@@ -188,8 +188,7 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_3D_Inertia_O1_O2_O3)
 
         const auto reference_element_data_2D = vem_reference_element_2D.Create(k);
         const auto reference_element_data_3D = vem_reference_element_3D.Create(k);
-        const auto local_space =
-            vem_local_space.CreateLocalSpace(reference_element_data_2D, reference_element_data_3D, polygonalFaces, polyhedron);
+        const auto local_space = vem_local_space.CreateLocalSpace(reference_element_data_2D, reference_element_data_3D, polyhedron);
 
         // Test VEM performances
         Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis performanceAnalysis;

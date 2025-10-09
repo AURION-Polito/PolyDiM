@@ -59,13 +59,7 @@ class ReferenceElement_Data final
 class LocalSpace_Data final
 {
   public:
-    struct VEM_Geometry final
-    {
-        std::vector<Polydim::VEM::PCC::VEM_PCC_2D_Polygon_Geometry> PolygonalFaces;
-        Polydim::VEM::PCC::VEM_PCC_3D_Polyhedron_Geometry Polyhedron;
-    };
-
-    Polydim::PDETools::LocalSpace_PCC_3D::LocalSpace_Data::VEM_Geometry VEM_Geometry;
+    Polydim::VEM::PCC::VEM_PCC_3D_Polyhedron_Geometry VEM_Geometry;
     Polydim::VEM::PCC::VEM_PCC_3D_LocalSpace_Data VEM_LocalSpace_Data;
 
     Polydim::FEM::PCC::FEM_PCC_3D_Polyhedron_Geometry FEM_Geometry;

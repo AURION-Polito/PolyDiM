@@ -213,11 +213,11 @@ TEST(Test_FEM_Hexahedron_PCC_3D, Test_FEM_Hexahedron_PCC_3D)
                                                                        hexa_data.Vertices,
                                                                        hexa_data.Edges,
                                                                        hexa_data.Faces,
-                                                                       {},
                                                                        hexa_data.EdgesDirection,
                                                                        hexa_data.FacesDirection,
                                                                        hexa_data.FacesRotationMatrix,
-                                                                       hexa_data.FacesTranslation};
+                                                                       hexa_data.FacesTranslation,
+                                                                       {}};
     hexa_geometry.Faces_2D_Geometry.resize(6);
     for (unsigned int f = 0; f < 6; ++f)
     {
