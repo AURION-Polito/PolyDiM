@@ -102,7 +102,7 @@ namespace Polydim
 
         for (unsigned int c = 0; c < num_cells; ++c)
         {
-          const auto& global_dofs = dofs.CellsGlobalDOFs[0][c];
+          const auto& global_dofs = dofs.CellsGlobalDOFs[dimension][c];
 
           std::list<unsigned int> dofs_local_index;
           std::list<unsigned int> dofs_global_index;
