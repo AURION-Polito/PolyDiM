@@ -78,8 +78,8 @@ TEST(TEST_DOFsManager, TEST_CreateDOFs_1D)
 
     PDETools::DOFs::DOFsManager::MeshDOFsInfo dofs_info;
     dofs_info.CellsBoundaryInfo[0].resize(2);
-    dofs_info.CellsBoundaryInfo[0][0] = {PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong, 2};
-    dofs_info.CellsBoundaryInfo[0][1] = {PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak, 1};
+    dofs_info.CellsBoundaryInfo[0][0] = {PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak, 1};
+    dofs_info.CellsBoundaryInfo[0][1] = {PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong, 2};
     dofs_info.CellsNumDOFs[0].resize(2, 1);
     dofs_info.CellsBoundaryInfo[1].resize(1, {PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::None, 0});
     dofs_info.CellsNumDOFs[1].resize(1, 2);
@@ -93,6 +93,11 @@ TEST(TEST_DOFsManager, TEST_CreateDOFs_1D)
 
     const auto cells_dofs_indices = dofs_manager.ComputeCellsDOFsIndices(dofs_data,
                                                                          1);
+
+    ASSERT_EQ(std::vector<std::vector<unsigned int>>({ { 0, 2, 3 } }), cells_dofs_indices.Cells_DOFs_LocalIndex);
+    ASSERT_EQ(std::vector<std::vector<unsigned int>>({ { 0, 1, 2 } }), cells_dofs_indices.Cells_DOFs_GlobalIndex);
+    ASSERT_EQ(std::vector<std::vector<unsigned int>>({ { 1 } }), cells_dofs_indices.Cells_Strongs_LocalIndex);
+    ASSERT_EQ(std::vector<std::vector<unsigned int>>({ { 0 } }), cells_dofs_indices.Cells_Strongs_GlobalIndex);
 }
 
 } // namespace UnitTesting
