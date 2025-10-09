@@ -22,6 +22,139 @@ namespace examples
 {
 namespace Parabolic_PCC_2D
 {
+// ***************************************************************************
+void Assembler::ComputeInitalCondition(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
+                                       const Gedim::IMeshDAO &mesh,
+                                       const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                       const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                                       const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
+                                       const test::I_Test &test,
+                                       Gedim::Eigen_Array<> &initial_condition,
+                                       Gedim::Eigen_Array<> &initial_condition_dirichlet) const
+{
+    initial_condition.SetSize(dofs_data.NumberDOFs);
+    initial_condition_dirichlet.SetSize(dofs_data.NumberStrongs);
+
+    // Assemble equation elements
+    for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
+    {
+        // DOFs: vertices
+        const Eigen::MatrixXd coordinates = mesh.Cell2DVerticesCoordinates(c);
+        const Eigen::VectorXd dofs_vertices = test.initial_solution(coordinates);
+
+        // Assemble local numerical solution
+        unsigned int count = 0;
+        for (unsigned int p = 0; p < mesh.Cell2DNumberVertices(c); p++)
+        {
+            const unsigned int cell0D_index = mesh.Cell2DVertex(c, p);
+
+            const auto local_dofs = dofs_data.CellsDOFs.at(0).at(cell0D_index);
+            for (unsigned int loc_i = 0; loc_i < local_dofs.size(); loc_i++)
+            {
+                const auto &local_dof_i = local_dofs.at(loc_i);
+                const int global_i = local_dof_i.Global_Index;
+
+                switch (local_dof_i.Type)
+                {
+                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong: {
+                    initial_condition_dirichlet.SetValue(global_i, dofs_vertices(count++));
+                }
+                break;
+                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
+                    initial_condition.SetValue(global_i, dofs_vertices(count++));
+                }
+                break;
+                default:
+                    throw std::runtime_error("Unknown DOF Type");
+                }
+            }
+        }
+
+        // Assemble strong boundary condition on Cell1Ds
+        if (reference_element_data.Order > 1)
+        {
+
+            const auto local_space_data =
+                Polydim::PDETools::LocalSpace_PCC_2D::CreateLocalSpace(config.GeometricTolerance1D(),
+                                                                       config.GeometricTolerance2D(),
+                                                                       mesh_geometric_data,
+                                                                       c,
+                                                                       reference_element_data);
+
+            // Assemble strong boundary condition on Cell1Ds
+            for (unsigned int ed = 0; ed < mesh.Cell2DNumberEdges(c); ++ed)
+            {
+                const unsigned int cell1D_index = mesh.Cell2DEdge(c, ed);
+
+                const auto local_dofs = dofs_data.CellsDOFs.at(1).at(cell1D_index);
+
+                const auto edge_dofs_coordinates =
+                    Polydim::PDETools::LocalSpace_PCC_2D::EdgeDofsCoordinates(reference_element_data, local_space_data, ed);
+
+                const Eigen::VectorXd dofs_edge = test.initial_solution(edge_dofs_coordinates);
+
+                for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
+                {
+                    const auto &local_dof_i = local_dofs.at(loc_i);
+                    const int global_i = local_dof_i.Global_Index;
+
+                    switch (local_dof_i.Type)
+                    {
+                    case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong: {
+                        initial_condition_dirichlet.SetValue(global_i, dofs_edge(loc_i));
+                    }
+                    break;
+                    case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
+                        initial_condition.SetValue(global_i, dofs_edge(loc_i));
+                    }
+                    break;
+                    default:
+                        throw std::runtime_error("Unknown DOF Type");
+                    }
+                }
+            }
+
+            const auto local_dofs = dofs_data.CellsDOFs.at(2).at(c);
+
+            if (local_dofs.size())
+            {
+                const auto internal_dofs_coordinates =
+                    Polydim::PDETools::LocalSpace_PCC_2D::InternalDofsCoordinates(reference_element_data, local_space_data);
+
+                const Eigen::VectorXd initial_values_at_dofs = test.initial_solution(internal_dofs_coordinates.Points);
+
+                const Eigen::VectorXd dofs_internal =
+                    Polydim::PDETools::LocalSpace_PCC_2D::InternalDofs(reference_element_data,
+                                                                       local_space_data,
+                                                                       initial_values_at_dofs,
+                                                                       internal_dofs_coordinates);
+
+                for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
+                {
+                    const auto &local_dof_i = local_dofs.at(loc_i);
+                    const int global_i = local_dof_i.Global_Index;
+
+                    switch (local_dof_i.Type)
+                    {
+                    case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong: {
+                        initial_condition_dirichlet.SetValue(global_i, dofs_internal(loc_i));
+                    }
+                    break;
+                    case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
+                        initial_condition.SetValue(global_i, dofs_internal(loc_i));
+                    }
+                    break;
+                    default:
+                        throw std::runtime_error("Unknown DOF Type");
+                    }
+                }
+            }
+        }
+    }
+
+    initial_condition.Create();
+    initial_condition_dirichlet.Create();
+}
 //***************************************************************************
 void Assembler::ComputeStrongTerm(const unsigned int cell2D_index,
                                   const Gedim::MeshMatricesDAO &mesh,
@@ -29,8 +162,8 @@ void Assembler::ComputeStrongTerm(const unsigned int cell2D_index,
                                   const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                                   const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                                   const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data,
-                                  const test::I_Test &test,
-                                  const double& time_value,
+                                  const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
+                                  const double &time_value,
                                   Parabolic_PCC_2D_Problem_Data &assembler_data) const
 {
     // Assemble strong boundary condition on Cell0Ds
@@ -114,7 +247,7 @@ void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
                                 const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                                 const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data,
                                 const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
-                                const double& time_value,
+                                const double &time_value,
                                 Parabolic_PCC_2D_Problem_Data &assembler_data) const
 {
     const unsigned numVertices = mesh_geometric_data.Cell2DsVertices.at(cell2DIndex).cols();
@@ -212,7 +345,7 @@ Assembler::Parabolic_PCC_2D_Problem_Data Assembler::Assemble(
     const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
     const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
-    const double& time_value) const
+    const double &time_value) const
 {
     Parabolic_PCC_2D_Problem_Data result;
 
@@ -296,12 +429,12 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
                                                            const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                                                            const Parabolic_PCC_2D_Problem_Data &assembler_data,
                                                            const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
-                                                           const double& time_value) const
+                                                           const double &time_value) const
 {
     PostProcess_Data result;
 
     result.residual_norm = 0.0;
-    if (dofs_data.NumberDOFs > 0)
+    if (dofs_data.NumberDOFs > 0 && assembler_data.rightHandSide.Size() > 0)
     {
         Gedim::Eigen_Array<> residual;
         residual.SetSize(dofs_data.NumberDOFs);

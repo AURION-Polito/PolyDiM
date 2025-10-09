@@ -70,8 +70,8 @@ class Assembler final
                            const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                            const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                            const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data,
-                           const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
-                           const double& time_value,
+                           const test::I_Test &test,
+                           const double &time_value,
                            Parabolic_PCC_2D_Problem_Data &assembler_data) const;
 
     void ComputeWeakTerm(const unsigned int cell2DIndex,
@@ -82,7 +82,7 @@ class Assembler final
                          const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                          const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data,
                          const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
-                         const double& time_value,
+                         const double &time_value,
                          Parabolic_PCC_2D_Problem_Data &assembler_data) const;
 
   public:
@@ -93,7 +93,7 @@ class Assembler final
                                            const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                                            const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                                            const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
-                                           const double& time_value) const;
+                                           const double &time_value) const;
 
     PostProcess_Data PostProcessSolution(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
                                          const Gedim::MeshMatricesDAO &mesh,
@@ -102,7 +102,16 @@ class Assembler final
                                          const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                                          const Parabolic_PCC_2D_Problem_Data &assembler_data,
                                          const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
-                                         const double& time_value) const;
+                                         const double &time_value) const;
+
+    void ComputeInitalCondition(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
+                                const Gedim::IMeshDAO &mesh,
+                                const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                                const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
+                                const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
+                                Gedim::Eigen_Array<> &initial_condition_dirichlet,
+                                Gedim::Eigen_Array<> &initial_condition) const;
 };
 } // namespace Parabolic_PCC_2D
 } // namespace examples

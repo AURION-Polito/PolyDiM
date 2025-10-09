@@ -145,6 +145,22 @@ class FEM_Quadrilateral_PCC_2D_LocalSpace final
         return edge_dofs_coordinates;
     }
 
+    Eigen::MatrixXd InternalDOFsCoordinates(const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                            const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space) const
+    {
+        const auto &dof_coordinates = local_space.Dofs;
+
+        const unsigned int starting_index = local_space.Dof2DsIndex.at(0);
+        const unsigned int num_internal_dofs = reference_element_data.NumDofs2D;
+
+        if (num_internal_dofs == 0)
+            return Eigen::MatrixXd(0, 0);
+
+        const Eigen::MatrixXd face_dofs_coordinates = dof_coordinates.block(0, starting_index, 3, num_internal_dofs);
+
+        return face_dofs_coordinates;
+    }
+
     Eigen::MatrixXd ComputeBasisFunctionsValuesOnEdge(const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data) const
     {
         return reference_element_data.BoundaryReferenceElement_Data.ReferenceBasisFunctionValues;

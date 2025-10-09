@@ -117,6 +117,14 @@ Eigen::MatrixXd EdgeDofsCoordinates(const Polydim::PDETools::LocalSpace_PCC_2D::
                                     const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data,
                                     const unsigned int edge_local_index);
 
+Gedim::Quadrature::QuadratureData InternalDofsCoordinates(const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
+                                                          const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data);
+
+Eigen::VectorXd InternalDofs(const ReferenceElement_Data &reference_element_data,
+                             const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data,
+                             const Eigen::VectorXd &values_at_dofs,
+                             const Gedim::Quadrature::QuadratureData &internal_dofs_coordinates);
+
 Gedim::Quadrature::QuadratureData InternalQuadrature(const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                                                      const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data);
 
