@@ -289,30 +289,6 @@ Assembler::Parabolic_PCC_2D_Problem_Data Assembler::Assemble(
     return result;
 }
 // ***************************************************************************
-Assembler::Performance_Data Assembler::ComputePerformance(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
-                                                          const Gedim::MeshMatricesDAO &mesh,
-                                                          const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-                                                          const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data) const
-{
-    Assembler::Performance_Data result;
-    result.Cell2DsPerformance.resize(mesh.Cell2DTotalNumber());
-
-    // Assemble equation elements
-    for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
-    {
-        const auto local_space_data = Polydim::PDETools::LocalSpace_PCC_2D::CreateLocalSpace(config.GeometricTolerance1D(),
-                                                                                             config.GeometricTolerance2D(),
-                                                                                             mesh_geometric_data,
-                                                                                             c,
-                                                                                             reference_element_data);
-
-        result.Cell2DsPerformance[c] =
-            Polydim::PDETools::LocalSpace_PCC_2D::ComputePerformance(reference_element_data, local_space_data);
-    }
-
-    return result;
-}
-// ***************************************************************************
 Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
                                                            const Gedim::MeshMatricesDAO &mesh,
                                                            const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,

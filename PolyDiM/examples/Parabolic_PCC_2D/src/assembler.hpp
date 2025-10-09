@@ -95,11 +95,6 @@ class Assembler final
                                            const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
                                            const double& time_value) const;
 
-    Performance_Data ComputePerformance(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
-                                        const Gedim::MeshMatricesDAO &mesh,
-                                        const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-                                        const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data) const;
-
     PostProcess_Data PostProcessSolution(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
                                          const Gedim::MeshMatricesDAO &mesh,
                                          const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
