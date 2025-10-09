@@ -121,86 +121,24 @@ class DOFsManager
         std::array<std::vector<std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData::GlobalCell_DOF>>, DOFSMANAGER_MAX_DIMENSION + 1> CellsGlobalDOFs;
     };
 
+    struct CellsDOFsIndicesData final
+    {
+        std::vector<std::vector<unsigned int>> Cells_DOFs_LocalIndex;
+        std::vector<std::vector<unsigned int>> Cells_Strongs_LocalIndex;
+        std::vector<std::vector<unsigned int>> Cells_DOFs_GlobalIndex;
+        std::vector<std::vector<unsigned int>> Cells_Strongs_GlobalIndex;
+    };
+
   private:
     void ConcatenateGlobalDOFs(const unsigned int local_cell_dimension,
                                const unsigned int local_cell_index,
                                const std::vector<typename DOFsData::DOF> &local_cell_DOFs,
                                std::vector<typename DOFsData::GlobalCell_DOF> &global_cell_DOFs,
-                               unsigned int &globalDOF_counter) const
-    {
-        for (unsigned int d = 0; d < local_cell_DOFs.size(); d++)
-        {
-            global_cell_DOFs[globalDOF_counter] = {local_cell_dimension, local_cell_index, d};
+                               unsigned int &globalDOF_counter) const;
 
-            globalDOF_counter++;
-        }
-    }
+    void CreateCellDOFs(const MeshDOFsInfo &meshDOFsInfo, DOFsData &dofs, const unsigned int dim) const;
 
-    void CreateCellDOFs(const MeshDOFsInfo &meshDOFsInfo, DOFsData &dofs, const unsigned int dim) const
-    {
-        const auto &cells_num_dofs = meshDOFsInfo.CellsNumDOFs.at(dim);
-        const auto &cells_boundary_info = meshDOFsInfo.CellsBoundaryInfo.at(dim);
-        const unsigned int numCells = cells_num_dofs.size();
-        auto &cellsDOFs = dofs.CellsDOFs.at(dim);
-        cellsDOFs.resize(numCells);
-
-        for (unsigned int c = 0; c < numCells; c++)
-        {
-            const unsigned int numCellDofs = cells_num_dofs.at(c);
-
-            const auto &cell_boundary_info = cells_boundary_info.at(c);
-            const BoundaryTypes &cellBoundaryType = cell_boundary_info.Type;
-
-            cellsDOFs.at(c).resize(numCellDofs);
-
-            switch (cellBoundaryType)
-            {
-            case BoundaryTypes::None: {
-                for (unsigned int d = 0; d < numCellDofs; d++)
-                {
-                    auto &dof = cellsDOFs.at(c).at(d);
-                    dof.Type = DOFsData::DOF::Types::DOF;
-                    dof.Global_Index = dofs.NumberDOFs + d;
-                }
-
-                dofs.NumberDOFs += numCellDofs;
-                dofs.NumberInternalDOFs += numCellDofs;
-            }
-            break;
-            case BoundaryTypes::Strong: {
-                for (unsigned int d = 0; d < numCellDofs; d++)
-                {
-                    auto &dof = cellsDOFs.at(c).at(d);
-                    dof.Type = DOFsData::DOF::Types::Strong;
-                    dof.Global_Index = dofs.NumberStrongs + d;
-                }
-
-                dofs.NumberStrongs += numCellDofs;
-            }
-            break;
-            case BoundaryTypes::Weak: {
-                for (unsigned int d = 0; d < numCellDofs; d++)
-                {
-                    auto &dof = cellsDOFs.at(c).at(d);
-                    dof.Type = DOFsData::DOF::Types::DOF;
-                    dof.Global_Index = dofs.NumberDOFs + d;
-                }
-
-                dofs.NumberDOFs += numCellDofs;
-                dofs.NumberBoundaryDOFs += numCellDofs;
-            }
-            break;
-            default:
-                throw std::runtime_error("Unknown BoundaryTypes");
-                break;
-            }
-        }
-    }
-#if PYBIND == 1
     template <class mesh_connectivity_data_class>
-#else
-    template <unsigned int dimension, class mesh_connectivity_data_class>
-#endif
     void Create_Constant_DOFsInfo_0D(const mesh_connectivity_data_class &mesh,
                                      const ConstantDOFsInfo &boundary_info,
                                      MeshDOFsInfo &mesh_dof_info) const
@@ -218,11 +156,7 @@ class DOFsManager
         }
     }
 
-#if PYBIND == 1
     template <class mesh_connectivity_data_class>
-#else
-    template <unsigned int dimension, class mesh_connectivity_data_class>
-#endif
     void Create_Constant_DOFsInfo_1D(const mesh_connectivity_data_class &mesh,
                                      const ConstantDOFsInfo &boundary_info,
                                      MeshDOFsInfo &mesh_dof_info) const
@@ -240,11 +174,7 @@ class DOFsManager
         }
     }
 
-#if PYBIND == 1
     template <class mesh_connectivity_data_class>
-#else
-    template <unsigned int dimension, class mesh_connectivity_data_class>
-#endif
     void Create_Constant_DOFsInfo_2D(const mesh_connectivity_data_class &mesh,
                                      const ConstantDOFsInfo &boundary_info,
                                      MeshDOFsInfo &mesh_dof_info) const
@@ -262,11 +192,7 @@ class DOFsManager
         }
     }
 
-#if PYBIND == 1
     template <class mesh_connectivity_data_class>
-#else
-    template <unsigned int dimension, class mesh_connectivity_data_class>
-#endif
     void Create_Constant_DOFsInfo_3D(const mesh_connectivity_data_class &mesh,
                                      const ConstantDOFsInfo &boundary_info,
                                      MeshDOFsInfo &mesh_dof_info) const
@@ -500,7 +426,6 @@ class DOFsManager
             ConcatenateGlobalDOFs(3, cell3DIndex, dofs.CellsDOFs.at(3).at(cell3DIndex), cellsGlobalDOFs[cell3DIndex], globalDOF_counter);
         }
     }
-
   public:
     template <class mesh_connectivity_data_class>
     MeshDOFsInfo Create_Constant_DOFsInfo_0D(const mesh_connectivity_data_class &mesh, const ConstantDOFsInfo &boundary_info) const
@@ -652,6 +577,10 @@ class DOFsManager
 
         return result;
     }
+
+
+    CellsDOFsIndicesData ComputeCellsDOFsIndices(const DOFsData& dofs,
+                                                 const unsigned int dim) const;
 };
 } // namespace DOFs
 } // namespace PDETools
