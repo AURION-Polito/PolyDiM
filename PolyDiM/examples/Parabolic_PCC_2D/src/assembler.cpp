@@ -23,17 +23,17 @@ namespace examples
 namespace Parabolic_PCC_2D
 {
 // ***************************************************************************
-void Assembler::ComputeInitalCondition(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
+Assembler::Parabolic_PCC_2D_Initial_Data Assembler::ComputeInitalCondition(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
                                        const Gedim::IMeshDAO &mesh,
                                        const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                        const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                                        const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
-                                       const test::I_Test &test,
-                                       Gedim::Eigen_Array<> &initial_condition,
-                                       Gedim::Eigen_Array<> &initial_condition_dirichlet) const
+                                       const test::I_Test &test) const
 {
-    initial_condition.SetSize(dofs_data.NumberDOFs);
-    initial_condition_dirichlet.SetSize(dofs_data.NumberStrongs);
+  Parabolic_PCC_2D_Initial_Data result;
+
+    result.initial_condition.SetSize(dofs_data.NumberDOFs);
+    result.initial_condition_dirichlet.SetSize(dofs_data.NumberStrongs);
 
     // Assemble equation elements
     for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
@@ -57,11 +57,11 @@ void Assembler::ComputeInitalCondition(const Polydim::examples::Parabolic_PCC_2D
                 switch (local_dof_i.Type)
                 {
                 case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong: {
-                    initial_condition_dirichlet.SetValue(global_i, dofs_vertices(count++));
+                    result.initial_condition_dirichlet.SetValue(global_i, dofs_vertices(count++));
                 }
                 break;
                 case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
-                    initial_condition.SetValue(global_i, dofs_vertices(count++));
+                    result.initial_condition.SetValue(global_i, dofs_vertices(count++));
                 }
                 break;
                 default:
@@ -101,11 +101,11 @@ void Assembler::ComputeInitalCondition(const Polydim::examples::Parabolic_PCC_2D
                     switch (local_dof_i.Type)
                     {
                     case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong: {
-                        initial_condition_dirichlet.SetValue(global_i, dofs_edge(loc_i));
+                        result.initial_condition_dirichlet.SetValue(global_i, dofs_edge(loc_i));
                     }
                     break;
                     case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
-                        initial_condition.SetValue(global_i, dofs_edge(loc_i));
+                        result.initial_condition.SetValue(global_i, dofs_edge(loc_i));
                     }
                     break;
                     default:
@@ -137,11 +137,11 @@ void Assembler::ComputeInitalCondition(const Polydim::examples::Parabolic_PCC_2D
                     switch (local_dof_i.Type)
                     {
                     case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong: {
-                        initial_condition_dirichlet.SetValue(global_i, dofs_internal(loc_i));
+                        result.initial_condition_dirichlet.SetValue(global_i, dofs_internal(loc_i));
                     }
                     break;
                     case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
-                        initial_condition.SetValue(global_i, dofs_internal(loc_i));
+                        result.initial_condition.SetValue(global_i, dofs_internal(loc_i));
                     }
                     break;
                     default:
@@ -152,8 +152,10 @@ void Assembler::ComputeInitalCondition(const Polydim::examples::Parabolic_PCC_2D
         }
     }
 
-    initial_condition.Create();
-    initial_condition_dirichlet.Create();
+    result.initial_condition.Create();
+    result.initial_condition_dirichlet.Create();
+
+    return result;
 }
 //***************************************************************************
 void Assembler::ComputeStrongTerm(const unsigned int cell2D_index,

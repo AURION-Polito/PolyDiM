@@ -65,7 +65,7 @@ int main(int argc, char **argv)
     // export domain
     {
         Gedim::VTKUtilities vtkUtilities;
-        vtkUtilities.AddPolygon(domain.vertices);
+        vtkUtilities.AddPolygon(domain.spatial_domain.vertices);
         vtkUtilities.Export(exportVtuFolder + "/Domain.vtu");
     }
 
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
     Gedim::MeshMatrices meshData;
     Gedim::MeshMatricesDAO mesh(meshData);
 
-    Polydim::examples::Parabolic_PCC_2D::program_utilities::create_domain_mesh(config, domain, mesh);
+    Polydim::examples::Parabolic_PCC_2D::program_utilities::create_domain_mesh(config, domain.spatial_domain, mesh);
 
     Gedim::Profiler::StopTime("CreateMesh");
     Gedim::Output::PrintStatusProgram("CreateMesh");
@@ -120,102 +120,83 @@ int main(int argc, char **argv)
     Gedim::Profiler::StopTime("CreateDiscreteSpace");
     Gedim::Output::PrintStatusProgram("CreateDiscreteSpace");
 
-    const auto time_steps = Polydim::examples::Parabolic_PCC_2D::program_utilities::create_time_steps(config);
+    const auto time_steps = Polydim::examples::Parabolic_PCC_2D::program_utilities::create_time_steps(config,
+                                                                                                      domain.time_domain);
 
     Polydim::examples::Parabolic_PCC_2D::Assembler assembler;
 
-    Gedim::Eigen_Array<> initial_condition_dirichlet;
-    Gedim::Eigen_Array<> initial_condition;
+    const auto initial_condition = assembler.ComputeInitalCondition(config, mesh, meshGeometricData, dofs_data, reference_element_data, *test);
 
-    assembler.ComputeInitalCondition(config, mesh, meshGeometricData, dofs_data, reference_element_data, *test, initial_condition, initial_condition_dirichlet);
+    Gedim::Output::PrintGenericMessage("AssembleSystem Discrete Type " +
+                                           std::to_string(static_cast<unsigned int>(config.MethodType())) + "...",
+                                       true);
+    Gedim::Profiler::StartTime("AssembleSystem");
 
-    Polydim::examples::Parabolic_PCC_2D::Assembler::Parabolic_PCC_2D_Problem_Data assembler_data;
-    assembler_data.solution.SetSize(dofs_data.NumberDOFs);
-    assembler_data.solution.Copy(initial_condition);
-    assembler_data.solutionDirichlet.SetSize(dofs_data.NumberStrongs);
-    assembler_data.solutionDirichlet.Copy(initial_condition_dirichlet);
+    for (unsigned int t = 1; t < time_steps.size(); t++)
+    {
+        const double time_value = time_steps.at(t);
 
-    auto post_process_data =
-        assembler.PostProcessSolution(config, mesh, meshGeometricData, dofs_data, reference_element_data, assembler_data, *test, 0.0);
+        auto assembler_data =
+            assembler.Assemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, reference_element_data,
+            *test, time_value);
 
-    Polydim::examples::Parabolic_PCC_2D::program_utilities::export_solution(config,
+        Gedim::Profiler::StopTime("AssembleSystem");
+        Gedim::Output::PrintStatusProgram("AssembleSystem");
+
+        if (dofs_data.NumberDOFs > 0)
+        {
+            Gedim::Output::PrintGenericMessage("Factorize...", true);
+            Gedim::Profiler::StartTime("Factorize");
+
+            Gedim::Eigen_LUSolver solver;
+            solver.Initialize(assembler_data.globalMatrixA);
+
+            Gedim::Profiler::StopTime("Factorize");
+            Gedim::Output::PrintStatusProgram("Factorize");
+
+            Gedim::Output::PrintGenericMessage("Solve...", true);
+            Gedim::Profiler::StartTime("Solve");
+
+            solver.Solve(assembler_data.rightHandSide, assembler_data.solution);
+
+            Gedim::Profiler::StopTime("Solve");
+            Gedim::Output::PrintStatusProgram("Solve");
+        }
+
+        Gedim::Output::PrintGenericMessage("ComputeErrors...", true);
+        Gedim::Profiler::StartTime("ComputeErrors");
+
+        auto post_process_data =
+            assembler.PostProcessSolution(config, mesh, meshGeometricData, dofs_data, reference_element_data,
+            assembler_data, *test, time_value);
+
+        Gedim::Profiler::StopTime("ComputeErrors");
+        Gedim::Output::PrintStatusProgram("ComputeErrors");
+
+        Gedim::Output::PrintGenericMessage("ExportSolution...", true);
+        Gedim::Profiler::StartTime("ExportSolution");
+
+        Polydim::examples::Parabolic_PCC_2D::program_utilities::export_solution(config,
+                                                                                mesh,
+                                                                                dofs_data,
+                                                                                assembler_data,
+                                                                                post_process_data,
+                                                                                exportSolutionFolder,
+                                                                                exportVtuFolder);
+
+        Polydim::examples::Parabolic_PCC_2D::program_utilities::export_dofs(config,
                                                                             mesh,
+                                                                            meshGeometricData,
+                                                                            meshDOFsInfo,
                                                                             dofs_data,
+                                                                            reference_element_data,
                                                                             assembler_data,
                                                                             post_process_data,
-                                                                            exportSolutionFolder,
                                                                             exportVtuFolder);
 
-    // Gedim::Output::PrintGenericMessage("AssembleSystem Discrete Type " +
-    //                                        std::to_string(static_cast<unsigned int>(config.MethodType())) + "...",
-    //                                    true);
-    // Gedim::Profiler::StartTime("AssembleSystem");
-
-    // for (unsigned int t = 1; t < time_steps.size(); t++)
-    // {
-    //     const double time_value = time_steps.at(t);
-
-    //     auto assembler_data =
-    //         assembler.Assemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, reference_element_data,
-    //         *test, time_value);
-
-    //     Gedim::Profiler::StopTime("AssembleSystem");
-    //     Gedim::Output::PrintStatusProgram("AssembleSystem");
-
-    //     if (dofs_data.NumberDOFs > 0)
-    //     {
-    //         Gedim::Output::PrintGenericMessage("Factorize...", true);
-    //         Gedim::Profiler::StartTime("Factorize");
-
-    //         Gedim::Eigen_LUSolver solver;
-    //         solver.Initialize(assembler_data.globalMatrixA);
-
-    //         Gedim::Profiler::StopTime("Factorize");
-    //         Gedim::Output::PrintStatusProgram("Factorize");
-
-    //         Gedim::Output::PrintGenericMessage("Solve...", true);
-    //         Gedim::Profiler::StartTime("Solve");
-
-    //         solver.Solve(assembler_data.rightHandSide, assembler_data.solution);
-
-    //         Gedim::Profiler::StopTime("Solve");
-    //         Gedim::Output::PrintStatusProgram("Solve");
-    //     }
-
-    //     Gedim::Output::PrintGenericMessage("ComputeErrors...", true);
-    //     Gedim::Profiler::StartTime("ComputeErrors");
-
-    //     auto post_process_data =
-    //         assembler.PostProcessSolution(config, mesh, meshGeometricData, dofs_data, reference_element_data,
-    //         assembler_data, *test, time_value);
-
-    //     Gedim::Profiler::StopTime("ComputeErrors");
-    //     Gedim::Output::PrintStatusProgram("ComputeErrors");
-
-    //     Gedim::Output::PrintGenericMessage("ExportSolution...", true);
-    //     Gedim::Profiler::StartTime("ExportSolution");
-
-    //     Polydim::examples::Parabolic_PCC_2D::program_utilities::export_solution(config,
-    //                                                                             mesh,
-    //                                                                             dofs_data,
-    //                                                                             assembler_data,
-    //                                                                             post_process_data,
-    //                                                                             exportSolutionFolder,
-    //                                                                             exportVtuFolder);
-
-    //     Polydim::examples::Parabolic_PCC_2D::program_utilities::export_dofs(config,
-    //                                                                         mesh,
-    //                                                                         meshGeometricData,
-    //                                                                         meshDOFsInfo,
-    //                                                                         dofs_data,
-    //                                                                         reference_element_data,
-    //                                                                         assembler_data,
-    //                                                                         post_process_data,
-    //                                                                         exportVtuFolder);
-
-    //     Gedim::Profiler::StopTime("ExportSolution");
-    //     Gedim::Output::PrintStatusProgram("ExportSolution");
-    // }
+        Gedim::Profiler::StopTime("ExportSolution");
+        Gedim::Output::PrintStatusProgram("ExportSolution");
+    }
 
     return 0;
 }

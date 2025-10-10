@@ -30,6 +30,12 @@ namespace Parabolic_PCC_2D
 class Assembler final
 {
   public:
+    struct Parabolic_PCC_2D_Initial_Data final
+    {
+        Gedim::Eigen_Array<> initial_condition;
+        Gedim::Eigen_Array<> initial_condition_dirichlet;
+    };
+
     struct Parabolic_PCC_2D_Problem_Data final
     {
         Gedim::Eigen_SparseArray<> globalMatrixA;
@@ -104,14 +110,12 @@ class Assembler final
                                          const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
                                          const double &time_value) const;
 
-    void ComputeInitalCondition(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
+    Parabolic_PCC_2D_Initial_Data ComputeInitalCondition(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
                                 const Gedim::IMeshDAO &mesh,
                                 const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                 const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                                 const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
-                                const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
-                                Gedim::Eigen_Array<> &initial_condition_dirichlet,
-                                Gedim::Eigen_Array<> &initial_condition) const;
+                                const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test) const;
 };
 } // namespace Parabolic_PCC_2D
 } // namespace examples

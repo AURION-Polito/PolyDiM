@@ -57,7 +57,7 @@ void export_performance(const Program_configuration &config,
                         const Assembler::Performance_Data &performance_data,
                         const std::string &exportFolder);
 
-std::vector<double> create_time_steps(const Program_configuration &config);
+std::vector<double> create_time_steps(const Program_configuration &config, const std::array<double, 2>& time_domain);
 
 } // namespace program_utilities
 } // namespace Parabolic_PCC_2D

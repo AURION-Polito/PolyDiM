@@ -32,9 +32,15 @@ enum struct Test_Types
     Elliptic_Problem = 3
 };
 
+struct PDE_Time_Domain_2D
+{
+    std::array<double, 2> time_domain;
+    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D spatial_domain;
+};
+
 struct I_Test
 {
-    virtual Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain() const = 0;
+    virtual PDE_Time_Domain_2D domain() const = 0;
     virtual std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info() const = 0;
     virtual Eigen::VectorXd diffusion_term(const Eigen::MatrixXd &points) const = 0;
     virtual Eigen::VectorXd source_term(const Eigen::MatrixXd &points, const double &time_value) const = 0;
@@ -54,17 +60,19 @@ struct Patch_Test final : public I_Test
 {
     static unsigned int order;
 
-    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain() const
+    PDE_Time_Domain_2D domain() const
     {
-        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain;
+      PDE_Time_Domain_2D domain;
 
-        domain.area = 1.0;
+        domain.spatial_domain.area = 1.0;
 
-        domain.vertices = Eigen::MatrixXd::Zero(3, 4);
-        domain.vertices.row(0) << 0.0, 1.0, 1.0, 0.0;
-        domain.vertices.row(1) << 0.0, 0.0, 1.0, 1.0;
+        domain.spatial_domain.vertices = Eigen::MatrixXd::Zero(3, 4);
+        domain.spatial_domain.vertices.row(0) << 0.0, 1.0, 1.0, 0.0;
+        domain.spatial_domain.vertices.row(1) << 0.0, 0.0, 1.0, 1.0;
 
-        domain.shape_type = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types::Parallelogram;
+        domain.spatial_domain.shape_type = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types::Parallelogram;
+
+        domain.time_domain = { 0.0, 1.0 };
 
         return domain;
     }
@@ -165,17 +173,19 @@ struct Patch_Test final : public I_Test
 // ***************************************************************************
 struct Elliptic_Polynomial_Problem final : public I_Test
 {
-    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain() const
+    PDE_Time_Domain_2D domain() const
     {
-        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain;
+        PDE_Time_Domain_2D domain;
 
-        domain.area = 1.0;
+        domain.spatial_domain.area = 1.0;
 
-        domain.vertices = Eigen::MatrixXd::Zero(3, 4);
-        domain.vertices.row(0) << 0.0, 1.0, 1.0, 0.0;
-        domain.vertices.row(1) << 0.0, 0.0, 1.0, 1.0;
+        domain.spatial_domain.vertices = Eigen::MatrixXd::Zero(3, 4);
+        domain.spatial_domain.vertices.row(0) << 0.0, 1.0, 1.0, 0.0;
+        domain.spatial_domain.vertices.row(1) << 0.0, 0.0, 1.0, 1.0;
 
-        domain.shape_type = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types::Parallelogram;
+        domain.spatial_domain.shape_type = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types::Parallelogram;
+
+        domain.time_domain = { 0.0, 1.0 };
 
         return domain;
     }
@@ -248,17 +258,19 @@ struct Elliptic_Polynomial_Problem final : public I_Test
 // ***************************************************************************
 struct Elliptic_Problem final : public I_Test
 {
-    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain() const
+    PDE_Time_Domain_2D domain() const
     {
-        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain;
+        PDE_Time_Domain_2D domain;
 
-        domain.area = 1.0;
+        domain.spatial_domain.area = 1.0;
 
-        domain.vertices = Eigen::MatrixXd::Zero(3, 4);
-        domain.vertices.row(0) << 0.0, 1.0, 1.0, 0.0;
-        domain.vertices.row(1) << 0.0, 0.0, 1.0, 1.0;
+        domain.spatial_domain.vertices = Eigen::MatrixXd::Zero(3, 4);
+        domain.spatial_domain.vertices.row(0) << 0.0, 1.0, 1.0, 0.0;
+        domain.spatial_domain.vertices.row(1) << 0.0, 0.0, 1.0, 1.0;
 
-        domain.shape_type = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types::Parallelogram;
+        domain.spatial_domain.shape_type = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types::Parallelogram;
+
+        domain.time_domain = { 0.0, 1.0 };
 
         return domain;
     }

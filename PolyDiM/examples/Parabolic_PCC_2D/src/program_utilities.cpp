@@ -471,7 +471,8 @@ void export_performance(const Polydim::examples::Parabolic_PCC_2D::Program_confi
     }
 }
 // ***************************************************************************
-std::vector<double> create_time_steps(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config)
+std::vector<double> create_time_steps(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
+                                      const std::array<double, 2>& time_domain)
 {
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
     geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance1D();
@@ -481,7 +482,7 @@ std::vector<double> create_time_steps(const Polydim::examples::Parabolic_PCC_2D:
     Gedim::Output::Assert(geometryUtilities.IsValuePositive(config.TimeStep(), geometryUtilities.Tolerance1D()));
     std::vector<double> times = geometryUtilities.EquispaceCoordinates(config.TimeStep(), true);
     for (unsigned int t = 0; t < times.size(); t++)
-        times[t] *= config.MaxTime();
+        times[t] = (time_domain.at(1) - time_domain.at(0)) * times[t] + time_domain.at(0);
 
     return times;
 }
