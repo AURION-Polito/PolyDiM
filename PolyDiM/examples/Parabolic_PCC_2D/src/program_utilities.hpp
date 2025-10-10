@@ -38,8 +38,7 @@ Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_propertie
 void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
                      const Gedim::MeshMatricesDAO &mesh,
                      const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-                     const Polydim::examples::Parabolic_PCC_2D::Assembler::Parabolic_PCC_2D_Static_Problem_Data &assembler_static_data,
-                     const Polydim::examples::Parabolic_PCC_2D::Assembler::Parabolic_PCC_2D_Problem_Data &assembler_data,
+                     const Gedim::Eigen_SparseArray<>& A,
                      const Polydim::examples::Parabolic_PCC_2D::Assembler::PostProcess_Data &post_process_data,
                      const std::string &exportSolutionFolder,
                      const std::string &exportVtuFolder);

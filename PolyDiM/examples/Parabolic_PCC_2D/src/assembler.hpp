@@ -123,7 +123,8 @@ class Assembler final
                                          const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                                          const Parabolic_PCC_2D_Problem_Data &assembler_data,
                                          const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
-                                         const Assembler::Parabolic_PCC_2D_Static_Problem_Data& static_assembler_data,
+                                         const Gedim::Eigen_SparseArray<>& A,
+                                         const Gedim::Eigen_Array<>& rhs,
                                          const double &time_value) const;
 
     Parabolic_PCC_2D_Initial_Data ComputeInitalCondition(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,

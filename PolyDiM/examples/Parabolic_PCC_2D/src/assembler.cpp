@@ -502,18 +502,19 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
                                                            const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                                                            const Parabolic_PCC_2D_Problem_Data &assembler_data,
                                                            const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
-                                                           const Assembler::Parabolic_PCC_2D_Static_Problem_Data& static_assembler_data,
+                                                           const Gedim::Eigen_SparseArray<>& A,
+                                                           const Gedim::Eigen_Array<>& rhs,
                                                            const double &time_value) const
 {
     PostProcess_Data result;
 
     result.residual_norm = 0.0;
-    if (dofs_data.NumberDOFs > 0 && assembler_data.rightHandSide.Size() > 0)
+    if (dofs_data.NumberDOFs > 0 && rhs.Size() > 0)
     {
         Gedim::Eigen_Array<> residual;
         residual.SetSize(dofs_data.NumberDOFs);
-        residual.SumMultiplication(static_assembler_data.globalMatrixA, assembler_data.solution);
-        residual -= assembler_data.rightHandSide;
+        residual.SumMultiplication(A, assembler_data.solution);
+        residual -= rhs;
 
         result.residual_norm = residual.Norm();
     }

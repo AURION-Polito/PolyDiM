@@ -166,7 +166,8 @@ int main(int argc, char **argv)
             *test, static_assembler_data, time_value);
 
         auto& u_kp1 = assembler_data_kp1.solution;
-        auto u_D_kp1 = assembler_data_kp1.solutionDirichlet;
+        auto& u_D_kp1 = assembler_data_kp1.solutionDirichlet;
+        auto& f_kp1 = assembler_data_kp1.rightHandSide;
 
         auto rhs_f_kp1 = assembler_data_kp1.rightHandSide;
         rhs_f_kp1 *= (dt * theta);
@@ -209,7 +210,7 @@ int main(int argc, char **argv)
 
         auto post_process_data =
             assembler.PostProcessSolution(config, mesh, meshGeometricData, dofs_data, reference_element_data,
-            assembler_data_kp1, *test, static_assembler_data, time_value);
+            assembler_data_kp1, *test, Kp1, rhs, time_value);
 
         Gedim::Profiler::StopTime("ComputeErrors");
         Gedim::Output::PrintStatusProgram("ComputeErrors");
@@ -220,8 +221,7 @@ int main(int argc, char **argv)
         Polydim::examples::Parabolic_PCC_2D::program_utilities::export_solution(config,
                                                                                 mesh,
                                                                                 dofs_data,
-                                                                                static_assembler_data,
-                                                                                assembler_data_kp1,
+                                                                                Kp1,
                                                                                 post_process_data,
                                                                                 exportSolutionFolder,
                                                                                 exportVtuFolder);
@@ -238,6 +238,10 @@ int main(int argc, char **argv)
 
         Gedim::Profiler::StopTime("ExportSolution");
         Gedim::Output::PrintStatusProgram("ExportSolution");
+
+        u_k = u_kp1;
+        u_D_k = u_D_kp1;
+        f_k = f_kp1;
     }
 
     return 0;
