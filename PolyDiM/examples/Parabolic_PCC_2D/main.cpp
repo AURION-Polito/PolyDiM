@@ -145,9 +145,41 @@ int main(int argc, char **argv)
         const double time_value = time_steps.at(t);
         const double dt = time_steps.at(t) - time_steps.at(t - 1);
 
+        auto Kp1 = static_assembler_data.globalMatrixA;
+        Kp1 *= dt * theta;
+        Kp1 += static_assembler_data.globalMatrixM;
+
+        auto Kp1_D = static_assembler_data.dirichletMatrixA;
+        Kp1_D *= dt * theta;
+        Kp1_D += static_assembler_data.dirichletMatrixM;
+
+        auto K = static_assembler_data.globalMatrixA;
+        K *= -dt * (1.0 - theta);
+        K += static_assembler_data.globalMatrixM;
+
+        auto K_D = static_assembler_data.dirichletMatrixA;
+        K_D *= -dt * (1.0 - theta);
+        K_D += static_assembler_data.dirichletMatrixM;
+
         auto assembler_data_kp1 =
             assembler.Assemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, reference_element_data,
             *test, static_assembler_data, time_value);
+
+        auto& u_kp1 = assembler_data_kp1.solution;
+        auto u_D_kp1 = assembler_data_kp1.solutionDirichlet;
+
+        auto rhs_f_kp1 = assembler_data_kp1.rightHandSide;
+        rhs_f_kp1 *= (dt * theta);
+        auto rhs_f_k = f_k;
+        rhs_f_k *= dt * (1.0 - theta);
+        auto rhs = rhs_f_kp1 +
+                   rhs_f_k;
+        rhs.SumMultiplication(K,
+                              u_k);
+        rhs.SumMultiplication(K_D,
+                              u_D_k);
+        rhs.SubtractionMultiplication(K_D,
+                                      u_D_kp1);
 
         Gedim::Profiler::StopTime("AssembleSystem");
         Gedim::Output::PrintStatusProgram("AssembleSystem");
@@ -158,7 +190,7 @@ int main(int argc, char **argv)
             Gedim::Profiler::StartTime("Factorize");
 
             Gedim::Eigen_LUSolver solver;
-            solver.Initialize(static_assembler_data.dirichletMatrixA);
+            solver.Initialize(Kp1);
 
             Gedim::Profiler::StopTime("Factorize");
             Gedim::Output::PrintStatusProgram("Factorize");
@@ -166,7 +198,7 @@ int main(int argc, char **argv)
             Gedim::Output::PrintGenericMessage("Solve...", true);
             Gedim::Profiler::StartTime("Solve");
 
-            solver.Solve(assembler_data_kp1.rightHandSide, assembler_data_kp1.solution);
+            solver.Solve(rhs, u_kp1);
 
             Gedim::Profiler::StopTime("Solve");
             Gedim::Output::PrintStatusProgram("Solve");

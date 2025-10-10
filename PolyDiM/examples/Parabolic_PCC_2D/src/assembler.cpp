@@ -386,6 +386,16 @@ Assembler::Parabolic_PCC_2D_Static_Problem_Data Assembler::StaticAssemble(
         const Eigen::MatrixXd local_A_stab =
             k_max * Polydim::PDETools::LocalSpace_PCC_2D::StabilizationMatrix(reference_element_data, local_space_data);
 
+        const Eigen::VectorXd ones_reaction_term_values = Eigen::VectorXd::Ones(cell2D_internal_quadrature.Points.cols());
+        const Eigen::MatrixXd local_M = equation.ComputeCellReactionMatrix(ones_reaction_term_values,
+                                                                            basis_functions_values,
+                                                                            cell2D_internal_quadrature.Weights);
+
+        const Eigen::MatrixXd local_M_stab =
+            Polydim::PDETools::LocalSpace_PCC_2D::StabilizationMatrix(reference_element_data, local_space_data,
+                                                                      Polydim::VEM::PCC::ProjectionTypes::Pi0k);
+
+
         const auto &global_dofs = dofs_data.CellsGlobalDOFs[2].at(c);
 
         assert(Polydim::PDETools::LocalSpace_PCC_2D::Size(reference_element_data, local_space_data) == global_dofs.size());
@@ -399,6 +409,13 @@ Assembler::Parabolic_PCC_2D_Static_Problem_Data Assembler::StaticAssemble(
                                                                                           local_A + local_A_stab,
                                                                                           result.globalMatrixA,
                                                                                           result.dirichletMatrixA);
+
+        Polydim::PDETools::Assembler_Utilities::assemble_local_matrix_to_global_matrix<2>(c,
+                                                                                          local_matrix_to_global_matrix_dofs_data,
+                                                                                          local_matrix_to_global_matrix_dofs_data,
+                                                                                          local_M + local_M_stab,
+                                                                                          result.globalMatrixM,
+                                                                                          result.dirichletMatrixM);
 
     }
 
