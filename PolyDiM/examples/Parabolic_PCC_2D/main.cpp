@@ -140,6 +140,22 @@ int main(int argc, char **argv)
     auto f_k = initial_assembler_data.rightHandSide;
     const auto theta = config.Theta();
 
+    Gedim::Output::PrintGenericMessage("ExportSolution...", true);
+    Gedim::Profiler::StartTime("ExportSolution");
+
+    Polydim::examples::Parabolic_PCC_2D::program_utilities::export_solution(config,
+                                                                            mesh,
+                                                                            dofs_data,
+                                                                            static_assembler_data.globalMatrixA,
+                                                                            {},
+                                                                            0,
+                                                                            time_steps.at(0),
+                                                                            exportSolutionFolder,
+                                                                            exportVtuFolder);
+
+    Gedim::Profiler::StopTime("ExportSolution");
+    Gedim::Output::PrintStatusProgram("ExportSolution");
+
     for (unsigned int t = 1; t < time_steps.size(); t++)
     {
         const double time_value = time_steps.at(t);
@@ -223,6 +239,8 @@ int main(int argc, char **argv)
                                                                                 dofs_data,
                                                                                 Kp1,
                                                                                 post_process_data,
+                                                                                t,
+                                                                                time_value,
                                                                                 exportSolutionFolder,
                                                                                 exportVtuFolder);
 

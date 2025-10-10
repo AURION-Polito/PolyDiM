@@ -92,6 +92,8 @@ void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configur
                      const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                      const Gedim::Eigen_SparseArray<>& A,
                      const Polydim::examples::Parabolic_PCC_2D::Assembler::PostProcess_Data &post_process_data,
+                     const unsigned int time_index,
+                     const double& time_value,
                      const std::string &exportSolutionFolder,
                      const std::string &exportVtuFolder)
 {
@@ -108,6 +110,8 @@ void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configur
         std::cout << "Dofs" << separator;
         std::cout << "Strongs" << separator;
         std::cout << "h" << separator;
+        std::cout << "time_index" << separator;
+        std::cout << "time_value" << separator;
         std::cout << "errorL2" << separator;
         std::cout << "errorH1" << separator;
         std::cout << "normL2" << separator;
@@ -123,6 +127,8 @@ void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configur
         std::cout << std::scientific << dofs_data.NumberDOFs << separator;
         std::cout << std::scientific << dofs_data.NumberStrongs << separator;
         std::cout << std::scientific << post_process_data.mesh_size << separator;
+        std::cout << std::scientific << time_index << separator;
+        std::cout << std::scientific << time_value << separator;
         std::cout << std::scientific << post_process_data.error_L2 << separator;
         std::cout << std::scientific << post_process_data.error_H1 << separator;
         std::cout << std::scientific << post_process_data.norm_L2 << separator;
@@ -147,6 +153,8 @@ void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configur
             errorFile << "Dofs" << separator;
             errorFile << "Strongs" << separator;
             errorFile << "h" << separator;
+            errorFile << "time_index" << separator;
+            errorFile << "time_value" << separator;
             errorFile << "errorL2" << separator;
             errorFile << "errorH1" << separator;
             errorFile << "normL2" << separator;
@@ -163,6 +171,8 @@ void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configur
         errorFile << std::scientific << dofs_data.NumberDOFs << separator;
         errorFile << std::scientific << dofs_data.NumberStrongs << separator;
         errorFile << std::scientific << post_process_data.mesh_size << separator;
+        errorFile << std::scientific << time_index << separator;
+        errorFile << std::scientific << time_value << separator;
         errorFile << std::scientific << post_process_data.error_L2 << separator;
         errorFile << std::scientific << post_process_data.error_H1 << separator;
         errorFile << std::scientific << post_process_data.norm_L2 << separator;
@@ -195,8 +205,12 @@ void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configur
                                    static_cast<unsigned int>(post_process_data.cell2Ds_error_H1.size()),
                                    post_process_data.cell2Ds_error_H1.data()}});
 
-            exporter.Export(exportVtuFolder + "/Solution_" + std::to_string(TEST_ID) + "_" + std::to_string(Method_ID) +
-                            +"_" + std::to_string(config.MethodOrder()) + ".vtu");
+            exporter.Export(exportVtuFolder + "/Solution" +
+                            "_" + std::to_string(TEST_ID) +
+                            "_" + std::to_string(Method_ID) +
+                            + "_" + std::to_string(config.MethodOrder()) +
+                            + "_" + std::to_string(time_index) +
+                            ".vtu");
         }
     }
 }

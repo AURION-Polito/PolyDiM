@@ -104,7 +104,10 @@ struct Patch_Test final : public I_Test
         for (int i = 0; i < max_order; ++i)
             source_term.array() *= polynomial;
 
-        return -source_term;
+        source_term *= -1.0;
+        source_term.array() += 1.0;
+
+        return source_term;
     };
 
     Eigen::VectorXd initial_solution(const Eigen::MatrixXd &points) const

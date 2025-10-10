@@ -39,7 +39,7 @@ void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configur
                      const Gedim::MeshMatricesDAO &mesh,
                      const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                      const Gedim::Eigen_SparseArray<>& A,
-                     const Polydim::examples::Parabolic_PCC_2D::Assembler::PostProcess_Data &post_process_data,
+                     const Polydim::examples::Parabolic_PCC_2D::Assembler::PostProcess_Data &post_process_data, const unsigned int time_index, const double& time_value,
                      const std::string &exportSolutionFolder,
                      const std::string &exportVtuFolder);
 
