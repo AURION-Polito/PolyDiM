@@ -131,9 +131,12 @@ int main(int argc, char **argv)
 
     const auto static_assembler_data = assembler.StaticAssemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, reference_element_data, *test);
     const auto initial_condition = assembler.ComputeInitalCondition(config, mesh, meshGeometricData, dofs_data, reference_element_data, *test);
-    const auto initial_assembler_data =
+    auto initial_assembler_data =
         assembler.Assemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, reference_element_data,
         *test, static_assembler_data, time_steps[0]);
+
+    initial_assembler_data.solution = initial_condition.initial_condition;
+    initial_assembler_data.solutionDirichlet = initial_condition.initial_condition_dirichlet;
 
     auto u_k = initial_condition.initial_condition;
     auto u_D_k = initial_condition.initial_condition_dirichlet;
@@ -143,11 +146,15 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("ExportSolution...", true);
     Gedim::Profiler::StartTime("ExportSolution");
 
+    auto initial_post_process_data =
+        assembler.PostProcessSolution(config, mesh, meshGeometricData, dofs_data, reference_element_data,
+        initial_assembler_data, *test, static_assembler_data.globalMatrixA, f_k, time_steps.at(0));
+
     Polydim::examples::Parabolic_PCC_2D::program_utilities::export_solution(config,
                                                                             mesh,
                                                                             dofs_data,
                                                                             static_assembler_data.globalMatrixA,
-                                                                            {},
+                                                                            initial_post_process_data,
                                                                             0,
                                                                             time_steps.at(0),
                                                                             exportSolutionFolder,
