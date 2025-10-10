@@ -15,7 +15,8 @@
 #include "program_utilities.hpp"
 #include "test_definition.hpp"
 
-unsigned int Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::order;
+unsigned int Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::space_order;
+unsigned int Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::time_order;
 
 int main(int argc, char **argv)
 {
@@ -55,7 +56,8 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("SetProblem...", true);
     Gedim::Profiler::StartTime("SetProblem");
 
-    Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::order = config.MethodOrder();
+    Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::space_order = config.MethodOrder();
+    Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::time_order = config.Theta() == 0.5 ? 2 : 1;
 
     const auto test = Polydim::examples::Parabolic_PCC_2D::program_utilities::create_test(config);
 

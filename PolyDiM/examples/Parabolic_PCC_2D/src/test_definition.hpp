@@ -58,7 +58,8 @@ struct I_Test
 // ***************************************************************************
 struct Patch_Test final : public I_Test
 {
-    static unsigned int order;
+    static unsigned int space_order;
+    static unsigned int time_order;
 
     PDE_Time_Domain_2D domain() const
     {
@@ -97,10 +98,10 @@ struct Patch_Test final : public I_Test
 
     Eigen::VectorXd source_term(const Eigen::MatrixXd &points, const double &time_value) const
     {
-        Eigen::VectorXd source_term = Eigen::VectorXd::Constant(points.cols(), 2.0 * order * (order - 1));
+        Eigen::VectorXd source_term = Eigen::VectorXd::Constant(points.cols(), 2.0 * space_order * (space_order - 1));
         const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
 
-        const int max_order = order - 2;
+        const int max_order = space_order - 2;
         for (int i = 0; i < max_order; ++i)
             source_term.array() *= polynomial;
 
@@ -129,7 +130,7 @@ struct Patch_Test final : public I_Test
         Eigen::VectorXd derivatives = Eigen::VectorXd::Constant(points.cols(), 1.0);
         const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
 
-        const int max_order = order - 1;
+        const int max_order = space_order - 1;
         for (int i = 0; i < max_order; ++i)
             derivatives.array() *= polynomial;
 
@@ -138,9 +139,9 @@ struct Patch_Test final : public I_Test
         switch (marker)
         {
         case 2:
-            return order * derivatives.array();
+            return space_order * derivatives.array();
         case 4:
-            return order * derivatives.array();
+            return space_order * derivatives.array();
         default:
             throw std::runtime_error("not valid marker");
         }
@@ -153,7 +154,7 @@ struct Patch_Test final : public I_Test
         const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
 
         Eigen::VectorXd result = Eigen::VectorXd::Constant(points.cols(), 1.0);
-        for (int i = 0; i < order; ++i)
+        for (int i = 0; i < space_order; ++i)
             result.array() *= polynomial;
 
         result.array() += time_value;
@@ -163,10 +164,10 @@ struct Patch_Test final : public I_Test
 
     std::array<Eigen::VectorXd, 3> exact_derivative_solution(const Eigen::MatrixXd &points, const double &time_value) const
     {
-        Eigen::VectorXd derivatives = Eigen::VectorXd::Constant(points.cols(), order);
+        Eigen::VectorXd derivatives = Eigen::VectorXd::Constant(points.cols(), space_order);
         const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
 
-        const int max_order = order - 1;
+        const int max_order = space_order - 1;
         for (int i = 0; i < max_order; ++i)
             derivatives.array() *= polynomial;
 
