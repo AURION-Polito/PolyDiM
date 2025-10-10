@@ -184,6 +184,13 @@ int main(int argc, char **argv)
         K_D *= -dt * (1.0 - theta);
         K_D += static_assembler_data.dirichletMatrixM;
 
+        {
+          using namespace Gedim;
+          std::cout.precision(2);
+          std::cout<< std::scientific<< "M "<< static_assembler_data.globalMatrixM<< std::endl;
+          std::cout<< std::scientific<< "K "<< Kp1<< std::endl;
+        }
+
         auto assembler_data_kp1 =
             assembler.Assemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, reference_element_data,
             *test, static_assembler_data, time_value);
