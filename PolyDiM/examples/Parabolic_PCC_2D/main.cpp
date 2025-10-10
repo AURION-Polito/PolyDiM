@@ -80,7 +80,8 @@ int main(int argc, char **argv)
     Gedim::MeshMatricesDAO mesh(meshData);
 
     Polydim::examples::Parabolic_PCC_2D::program_utilities::create_domain_mesh(config, domain.spatial_domain, mesh);
-
+    const auto time_steps = Polydim::examples::Parabolic_PCC_2D::program_utilities::create_time_steps(config,
+                                                                                                      domain.time_domain);
     Gedim::Profiler::StopTime("CreateMesh");
     Gedim::Output::PrintStatusProgram("CreateMesh");
 
@@ -120,25 +121,33 @@ int main(int argc, char **argv)
     Gedim::Profiler::StopTime("CreateDiscreteSpace");
     Gedim::Output::PrintStatusProgram("CreateDiscreteSpace");
 
-    const auto time_steps = Polydim::examples::Parabolic_PCC_2D::program_utilities::create_time_steps(config,
-                                                                                                      domain.time_domain);
-
-    Polydim::examples::Parabolic_PCC_2D::Assembler assembler;
-
-    const auto initial_condition = assembler.ComputeInitalCondition(config, mesh, meshGeometricData, dofs_data, reference_element_data, *test);
 
     Gedim::Output::PrintGenericMessage("AssembleSystem Discrete Type " +
                                            std::to_string(static_cast<unsigned int>(config.MethodType())) + "...",
                                        true);
     Gedim::Profiler::StartTime("AssembleSystem");
 
+    Polydim::examples::Parabolic_PCC_2D::Assembler assembler;
+
+    const auto static_assembler_data = assembler.StaticAssemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, reference_element_data, *test);
+    const auto initial_condition = assembler.ComputeInitalCondition(config, mesh, meshGeometricData, dofs_data, reference_element_data, *test);
+    const auto initial_assembler_data =
+        assembler.Assemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, reference_element_data,
+        *test, static_assembler_data, time_steps[0]);
+
+    auto u_k = initial_condition.initial_condition;
+    auto u_D_k = initial_condition.initial_condition_dirichlet;
+    auto f_k = initial_assembler_data.rightHandSide;
+    const auto theta = config.Theta();
+
     for (unsigned int t = 1; t < time_steps.size(); t++)
     {
         const double time_value = time_steps.at(t);
+        const double dt = time_steps.at(t) - time_steps.at(t - 1);
 
-        auto assembler_data =
+        auto assembler_data_kp1 =
             assembler.Assemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, reference_element_data,
-            *test, time_value);
+            *test, static_assembler_data, time_value);
 
         Gedim::Profiler::StopTime("AssembleSystem");
         Gedim::Output::PrintStatusProgram("AssembleSystem");
@@ -149,7 +158,7 @@ int main(int argc, char **argv)
             Gedim::Profiler::StartTime("Factorize");
 
             Gedim::Eigen_LUSolver solver;
-            solver.Initialize(assembler_data.globalMatrixA);
+            solver.Initialize(static_assembler_data.dirichletMatrixA);
 
             Gedim::Profiler::StopTime("Factorize");
             Gedim::Output::PrintStatusProgram("Factorize");
@@ -157,7 +166,7 @@ int main(int argc, char **argv)
             Gedim::Output::PrintGenericMessage("Solve...", true);
             Gedim::Profiler::StartTime("Solve");
 
-            solver.Solve(assembler_data.rightHandSide, assembler_data.solution);
+            solver.Solve(assembler_data_kp1.rightHandSide, assembler_data_kp1.solution);
 
             Gedim::Profiler::StopTime("Solve");
             Gedim::Output::PrintStatusProgram("Solve");
@@ -168,7 +177,7 @@ int main(int argc, char **argv)
 
         auto post_process_data =
             assembler.PostProcessSolution(config, mesh, meshGeometricData, dofs_data, reference_element_data,
-            assembler_data, *test, time_value);
+            assembler_data_kp1, *test, static_assembler_data, time_value);
 
         Gedim::Profiler::StopTime("ComputeErrors");
         Gedim::Output::PrintStatusProgram("ComputeErrors");
@@ -179,7 +188,8 @@ int main(int argc, char **argv)
         Polydim::examples::Parabolic_PCC_2D::program_utilities::export_solution(config,
                                                                                 mesh,
                                                                                 dofs_data,
-                                                                                assembler_data,
+                                                                                static_assembler_data,
+                                                                                assembler_data_kp1,
                                                                                 post_process_data,
                                                                                 exportSolutionFolder,
                                                                                 exportVtuFolder);
@@ -190,7 +200,7 @@ int main(int argc, char **argv)
                                                                             meshDOFsInfo,
                                                                             dofs_data,
                                                                             reference_element_data,
-                                                                            assembler_data,
+                                                                            assembler_data_kp1,
                                                                             post_process_data,
                                                                             exportVtuFolder);
 

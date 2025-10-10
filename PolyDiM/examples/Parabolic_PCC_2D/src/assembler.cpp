@@ -339,6 +339,78 @@ void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
     }
 }
 // ***************************************************************************
+Assembler::Parabolic_PCC_2D_Static_Problem_Data Assembler::StaticAssemble(
+    const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
+    const Gedim::MeshMatricesDAO &mesh,
+    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+    const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+    const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
+    const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test) const
+{
+    Parabolic_PCC_2D_Static_Problem_Data result;
+
+    result.globalMatrixA.SetSize(dofs_data.NumberDOFs, dofs_data.NumberDOFs, Gedim::ISparseArray::SparseArrayTypes::None);
+    result.dirichletMatrixA.SetSize(dofs_data.NumberDOFs, dofs_data.NumberStrongs);
+    result.globalMatrixM.SetSize(dofs_data.NumberDOFs, dofs_data.NumberDOFs, Gedim::ISparseArray::SparseArrayTypes::None);
+    result.dirichletMatrixM.SetSize(dofs_data.NumberDOFs, dofs_data.NumberStrongs);
+
+    Polydim::PDETools::Equations::EllipticEquation equation;
+
+    for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); ++c)
+    {
+        const auto local_space_data = Polydim::PDETools::LocalSpace_PCC_2D::CreateLocalSpace(config.GeometricTolerance1D(),
+                                                                                             config.GeometricTolerance2D(),
+                                                                                             mesh_geometric_data,
+                                                                                             c,
+                                                                                             reference_element_data);
+
+        const auto basis_functions_values =
+            Polydim::PDETools::LocalSpace_PCC_2D::BasisFunctionsValues(reference_element_data, local_space_data);
+
+        const auto basis_functions_derivative_values =
+            Polydim::PDETools::LocalSpace_PCC_2D::BasisFunctionsDerivativeValues(reference_element_data, local_space_data);
+
+        const auto cell2D_internal_quadrature =
+            Polydim::PDETools::LocalSpace_PCC_2D::InternalQuadrature(reference_element_data, local_space_data);
+
+        const auto diffusion_term_values = test.diffusion_term(cell2D_internal_quadrature.Points);
+
+        const Eigen::MatrixXd local_A = equation.ComputeCellDiffusionMatrix(diffusion_term_values,
+                                                                            basis_functions_derivative_values,
+                                                                            cell2D_internal_quadrature.Weights);
+
+        const double k_max = diffusion_term_values.cwiseAbs().maxCoeff();
+        const double &diameter = mesh_geometric_data.Cell2DsDiameters.at(c);
+
+        const Eigen::MatrixXd local_A_stab =
+            k_max * Polydim::PDETools::LocalSpace_PCC_2D::StabilizationMatrix(reference_element_data, local_space_data);
+
+        const auto &global_dofs = dofs_data.CellsGlobalDOFs[2].at(c);
+
+        assert(Polydim::PDETools::LocalSpace_PCC_2D::Size(reference_element_data, local_space_data) == global_dofs.size());
+
+        Polydim::PDETools::Assembler_Utilities::local_matrix_to_global_matrix_dofs_data local_matrix_to_global_matrix_dofs_data =
+            {{std::cref(dofs_data)}, {0}, {0}, {0}};
+
+        Polydim::PDETools::Assembler_Utilities::assemble_local_matrix_to_global_matrix<2>(c,
+                                                                                          local_matrix_to_global_matrix_dofs_data,
+                                                                                          local_matrix_to_global_matrix_dofs_data,
+                                                                                          local_A + local_A_stab,
+                                                                                          result.globalMatrixA,
+                                                                                          result.dirichletMatrixA);
+
+    }
+
+    result.globalMatrixA.Create();
+    result.dirichletMatrixA.Create();
+    result.globalMatrixM.Create();
+    result.dirichletMatrixM.Create();
+
+    return result;
+}
+
+// ***************************************************************************
 Assembler::Parabolic_PCC_2D_Problem_Data Assembler::Assemble(
     const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
     const Gedim::MeshMatricesDAO &mesh,
@@ -347,12 +419,11 @@ Assembler::Parabolic_PCC_2D_Problem_Data Assembler::Assemble(
     const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
     const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
+    const Assembler::Parabolic_PCC_2D_Static_Problem_Data& static_assembler_data,
     const double &time_value) const
 {
     Parabolic_PCC_2D_Problem_Data result;
 
-    result.globalMatrixA.SetSize(dofs_data.NumberDOFs, dofs_data.NumberDOFs, Gedim::ISparseArray::SparseArrayTypes::None);
-    result.dirichletMatrixA.SetSize(dofs_data.NumberDOFs, dofs_data.NumberStrongs);
     result.rightHandSide.SetSize(dofs_data.NumberDOFs);
     result.solution.SetSize(dofs_data.NumberDOFs);
     result.solutionDirichlet.SetSize(dofs_data.NumberStrongs);
@@ -376,23 +447,12 @@ Assembler::Parabolic_PCC_2D_Problem_Data Assembler::Assemble(
         const auto cell2D_internal_quadrature =
             Polydim::PDETools::LocalSpace_PCC_2D::InternalQuadrature(reference_element_data, local_space_data);
 
-        const auto diffusion_term_values = test.diffusion_term(cell2D_internal_quadrature.Points);
         const auto source_term_values = test.source_term(cell2D_internal_quadrature.Points, time_value);
-
-        const Eigen::MatrixXd local_A = equation.ComputeCellDiffusionMatrix(diffusion_term_values,
-                                                                            basis_functions_derivative_values,
-                                                                            cell2D_internal_quadrature.Weights);
 
         Eigen::VectorXd local_rhs =
             equation.ComputeCellForcingTerm(source_term_values, basis_functions_values, cell2D_internal_quadrature.Weights);
 
-        const double k_max = diffusion_term_values.cwiseAbs().maxCoeff();
-        const double &diameter = mesh_geometric_data.Cell2DsDiameters.at(c);
-
-        const Eigen::MatrixXd local_A_stab =
-            k_max * Polydim::PDETools::LocalSpace_PCC_2D::StabilizationMatrix(reference_element_data, local_space_data);
-
-        const auto &global_dofs = dofs_data.CellsGlobalDOFs[2].at(c);
+          const auto &global_dofs = dofs_data.CellsGlobalDOFs[2].at(c);
 
         assert(Polydim::PDETools::LocalSpace_PCC_2D::Size(reference_element_data, local_space_data) == global_dofs.size());
 
@@ -401,11 +461,7 @@ Assembler::Parabolic_PCC_2D_Problem_Data Assembler::Assemble(
 
         Polydim::PDETools::Assembler_Utilities::assemble_local_matrix_to_global_matrix<2>(c,
                                                                                           local_matrix_to_global_matrix_dofs_data,
-                                                                                          local_matrix_to_global_matrix_dofs_data,
-                                                                                          local_A + local_A_stab,
                                                                                           local_rhs,
-                                                                                          result.globalMatrixA,
-                                                                                          result.dirichletMatrixA,
                                                                                           result.rightHandSide);
 
         ComputeStrongTerm(c, mesh, mesh_dofs_info, dofs_data, reference_element_data, local_space_data, test, time_value, result);
@@ -415,11 +471,9 @@ Assembler::Parabolic_PCC_2D_Problem_Data Assembler::Assemble(
 
     result.rightHandSide.Create();
     result.solutionDirichlet.Create();
-    result.globalMatrixA.Create();
-    result.dirichletMatrixA.Create();
 
     if (dofs_data.NumberStrongs > 0)
-        result.rightHandSide.SubtractionMultiplication(result.dirichletMatrixA, result.solutionDirichlet);
+        result.rightHandSide.SubtractionMultiplication(static_assembler_data.dirichletMatrixA, result.solutionDirichlet);
 
     return result;
 }
@@ -431,6 +485,7 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
                                                            const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                                                            const Parabolic_PCC_2D_Problem_Data &assembler_data,
                                                            const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
+                                                           const Assembler::Parabolic_PCC_2D_Static_Problem_Data& static_assembler_data,
                                                            const double &time_value) const
 {
     PostProcess_Data result;
@@ -440,7 +495,7 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
     {
         Gedim::Eigen_Array<> residual;
         residual.SetSize(dofs_data.NumberDOFs);
-        residual.SumMultiplication(assembler_data.globalMatrixA, assembler_data.solution);
+        residual.SumMultiplication(static_assembler_data.globalMatrixA, assembler_data.solution);
         residual -= assembler_data.rightHandSide;
 
         result.residual_norm = residual.Norm();
