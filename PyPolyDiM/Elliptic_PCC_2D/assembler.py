@@ -15,9 +15,9 @@ class Assembler:
             self.dirichlet_matrix_a_data = assembler_utilities.SparseMatrix()
             self.global_matrix_a: coo_array
             self.dirichlet_matrix_a: coo_array
-            self.right_hand_side: np.ndarray
-            self.solution: np.ndarray
-            self.solution_dirichlet: np.ndarray
+            self.right_hand_side: np.ndarray = np.ndarray(0)
+            self.solution: np.ndarray = np.ndarray(0)
+            self.solution_dirichlet: np.ndarray = np.ndarray(0)
 
 
     class PostProcessData:
@@ -109,6 +109,85 @@ class Assembler:
                     case _:
                         raise ValueError("Unknown DOF Type")
 
+    def compute_weak_term(self,
+                          cell2_d_index: int,
+                          mesh: gedim.MeshMatricesDAO,
+                          mesh_geometric_data: gedim.MeshUtilities.MeshGeometricData2D,
+                          mesh_do_fs_info: polydim.pde_tools.do_fs.DOFsManager.MeshDOFsInfo,
+                          do_fs_data: polydim.pde_tools.do_fs.DOFsManager.DOFsData,
+                          reference_element_data: polydim.pde_tools.local_space_pcc_2_d.ReferenceElement_Data,
+                          local_space_data: polydim.pde_tools.local_space_pcc_2_d.LocalSpace_Data,
+                          test: ITest,
+                          assembler_data: EllipticPCC2DProblemData) -> None:
+
+        num_vertices = mesh.cell2_d_number_vertices(cell2_d_index)
+
+        for ed in range(num_vertices):
+            cell1_d_index = mesh.cell2_d_edge(cell2_d_index, ed)
+
+            boundary_info = mesh_do_fs_info.cells_boundary_info[1][cell1_d_index]
+
+            if boundary_info.type != polydim.pde_tools.do_fs.DOFsManager.MeshDOFsInfo.BoundaryInfo.BoundaryTypes.weak:
+                continue
+
+            # compute vem values
+            weak_reference_segment = gedim.quadrature.Quadrature_Gauss1D.fill_points_and_weights(2 * reference_element_data.order)
+            points_curvilinear_coordinates = weak_reference_segment.points[0, :]
+
+            # map edge internal quadrature points
+            edge_start = mesh_geometric_data.cell2_ds_vertices[cell2_d_index][:, ed] if mesh_geometric_data.cell2_ds_edge_directions[cell2_d_index][ed] else mesh_geometric_data.cell2_ds_vertices[cell2_d_index][:, (ed + 1) % num_vertices]
+            edge_tangent = mesh_geometric_data.cell2_ds_edge_tangents[cell2_d_index][:, ed]
+            direction = 1.0 if mesh_geometric_data.cell2_ds_edge_directions[cell2_d_index][ed] else -1.0
+            num_edge_weak_quadrature_points = weak_reference_segment.points.shape[1]
+
+            weak_quadrature_points = np.zeros([3, num_edge_weak_quadrature_points])
+            for q in range(num_edge_weak_quadrature_points):
+                weak_quadrature_points[:, q] = edge_start + direction * weak_reference_segment.points[0, q] * edge_tangent
+
+            edge_length = mesh_geometric_data.cell2_ds_edge_lengths[cell2_d_index][ed]
+            weak_quadrature_weights = weak_reference_segment.weights * edge_length
+
+            neumann_values = test.weak_boundary_condition(boundary_info.marker, weak_quadrature_points)
+            weak_basis_function_values = (polydim.pde_tools.
+                                          local_space_pcc_2_d.
+                                          basis_functions_values_on_edge(ed, reference_element_data,
+                                                                         local_space_data,
+                                                                         points_curvilinear_coordinates))
+
+            # compute values of Neumann
+            neumann_contributions = (weak_basis_function_values.T @
+                                     np.diag(weak_quadrature_weights) @
+                                     neumann_values)
+
+            for p in range(2):
+                cell0_d_index = mesh.cell1_d_vertex(cell1_d_index, p)
+                local_do_fs = do_fs_data.cells_do_fs[0][cell0_d_index]
+
+                for loc_i in range(len(local_do_fs)):
+                    local_dof_i = local_do_fs[loc_i]
+
+                    match local_dof_i.type:
+                        case polydim.pde_tools.do_fs.DOFsManager.DOFsData.DOF.Types.strong:
+                            continue
+                        case polydim.pde_tools.do_fs.DOFsManager.DOFsData.DOF.Types.dof:
+                            assembler_data.right_hand_side[local_dof_i.global_index] += neumann_contributions[p]
+                            pass
+                        case _:
+                            raise ValueError("Unknown DOF Type")
+
+            local_do_fs = do_fs_data.cells_do_fs[1][cell1_d_index]
+            for loc_i in range(len(local_do_fs)):
+                local_dof_i = local_do_fs[loc_i]
+
+                match local_dof_i.type:
+                    case polydim.pde_tools.do_fs.DOFsManager.DOFsData.DOF.Types.strong:
+                        continue
+                    case polydim.pde_tools.do_fs.DOFsManager.DOFsData.DOF.Types.dof:
+                        assembler_data.right_hand_side[local_dof_i.global_index] += neumann_contributions[loc_i + 2]
+                        pass
+                    case _:
+                        raise ValueError("Unknown DOF Type")
+
     @staticmethod
     def solve(do_fs_data: polydim.pde_tools.do_fs.DOFsManager.DOFsData,
               assembler_data: EllipticPCC2DProblemData) -> None:
@@ -185,7 +264,10 @@ class Assembler:
                                                                        result.right_hand_side)
 
 
-            self.compute_strong_term(c, mesh, mesh_do_fs_info, do_fs_data, reference_element_data, local_space_data, test, result)
+            self.compute_strong_term(c, mesh, mesh_do_fs_info, do_fs_data, reference_element_data, local_space_data,
+                                     test, result)
+            self.compute_weak_term(c, mesh, mesh_geometric_data, mesh_do_fs_info, do_fs_data, reference_element_data,
+                                   local_space_data, test, result)
 
         result.global_matrix_a = result.global_matrix_a_data.create(do_fs_data.number_do_fs, do_fs_data.number_do_fs)
         result.dirichlet_matrix_a = result.dirichlet_matrix_a_data.create(do_fs_data.number_do_fs, do_fs_data.number_strongs)

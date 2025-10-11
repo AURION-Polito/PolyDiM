@@ -4,7 +4,7 @@ import os.path
 from pypolydim import polydim, gedim
 from Elliptic_PCC_2D.program_utilities import create_test, create_mesh, export_errors
 from Elliptic_PCC_2D.assembler import Assembler
-from pypolydim.vtk_utilities import VTKUtilities
+from pypolydim.export_vtk_utilities import ExportVTKUtilities
 from pypolydim.assembler_utilities import assembler_utilities
 import cProfile
 
@@ -18,7 +18,7 @@ def main():
     parser.add_argument('-mesh', '--mesh-type', dest='mesh_type', default=0, type=int, help="Mesh type")
     parser.add_argument('-tol1', '--tolerance-1-d', dest='tolerance1_d', default=1.0e-12, type=float, help="Geometric Tolerance 1D")
     parser.add_argument('-tol2', '--tolerance-2-d', dest='tolerance2_d', default=1.0e-14, type=float, help="Geometric Tolerance 2D")
-    parser.add_argument('-area', '--mesh-max-relative-area', dest='max_relative_area', default=0.1, type=float, help="Mesh max relative area")
+    parser.add_argument('-area', '--mesh-max-relative-area', dest='max_relative_area', default=0.05, type=float, help="Mesh max relative area")
     parser.add_argument('-export', '--export-path', dest='export_path', default='./Export/Elliptic_PCC_2D', type=str, help="Export Path")
     parser.add_argument('-import', '--import-path', dest='import_path', default='./', type=str, help="Mesh Import Path")
     args = parser.parse_args()
@@ -47,7 +47,7 @@ def main():
     geometry_utilities_config.tolerance2_d = args.tolerance2_d
     geometry_utilities = gedim.GeometryUtilities(geometry_utilities_config)
     mesh_utilities = gedim.MeshUtilities()
-    vtk_utilities = VTKUtilities()
+    vtk_utilities = ExportVTKUtilities()
 
     mesh_data = gedim.MeshMatrices()
     mesh = gedim.MeshMatricesDAO(mesh_data)
@@ -100,10 +100,13 @@ def main():
 
     print("Export Solution...")
 
-    export_errors(args.test_id, args.method_type, args.method_order, mesh, count_do_fs_data, post_process_data)
+    export_errors(export_file_path, args.test_id, args.mesh_type, args.method_type, args.method_order, mesh, count_do_fs_data, post_process_data)
 
-    vtk_utilities.export_solution(export_file_path + '/solution', mesh, post_process_data.cell0_ds_numeric,
-                                  cell0_d_exact_solution=post_process_data.cell0_ds_exact)
+    vtk_utilities.export_solution(export_file_path + '/Solution_' + str(args.test_id) + '_' + str(args.method_type)
+                                  + '_' + str(method_order), mesh, post_process_data.cell0_ds_numeric,
+                                  cell0_d_exact_solution=post_process_data.cell0_ds_exact,
+                                  cell2_ds_error_l2=post_process_data.cell2_ds_error_l2,
+                                  cell2_ds_error_h1=post_process_data.cell2_ds_error_h1)
 
     print('\x1b[6;30;42m' + "Finish" + '\x1b[0m')
 if __name__=='__main__':

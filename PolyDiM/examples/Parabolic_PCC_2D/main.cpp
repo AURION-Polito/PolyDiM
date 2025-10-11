@@ -82,8 +82,7 @@ int main(int argc, char **argv)
     Gedim::MeshMatricesDAO mesh(meshData);
 
     Polydim::examples::Parabolic_PCC_2D::program_utilities::create_domain_mesh(config, domain.spatial_domain, mesh);
-    const auto time_steps = Polydim::examples::Parabolic_PCC_2D::program_utilities::create_time_steps(config,
-                                                                                                      domain.time_domain);
+    const auto time_steps = Polydim::examples::Parabolic_PCC_2D::program_utilities::create_time_steps(config, domain.time_domain);
     Gedim::Profiler::StopTime("CreateMesh");
     Gedim::Output::PrintStatusProgram("CreateMesh");
 
@@ -123,7 +122,6 @@ int main(int argc, char **argv)
     Gedim::Profiler::StopTime("CreateDiscreteSpace");
     Gedim::Output::PrintStatusProgram("CreateDiscreteSpace");
 
-
     Gedim::Output::PrintGenericMessage("AssembleSystem Discrete Type " +
                                            std::to_string(static_cast<unsigned int>(config.MethodType())) + "...",
                                        true);
@@ -131,11 +129,12 @@ int main(int argc, char **argv)
 
     Polydim::examples::Parabolic_PCC_2D::Assembler assembler;
 
-    const auto static_assembler_data = assembler.StaticAssemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, reference_element_data, *test);
-    const auto initial_condition = assembler.ComputeInitalCondition(config, mesh, meshGeometricData, dofs_data, reference_element_data, *test);
+    const auto static_assembler_data =
+        assembler.StaticAssemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, reference_element_data, *test);
+    const auto initial_condition =
+        assembler.ComputeInitalCondition(config, mesh, meshGeometricData, dofs_data, reference_element_data, *test);
     auto initial_assembler_data =
-        assembler.Assemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, reference_element_data,
-        *test, static_assembler_data, time_steps[0]);
+        assembler.Assemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, reference_element_data, *test, static_assembler_data, time_steps[0]);
 
     initial_assembler_data.solution = initial_condition.initial_condition;
     initial_assembler_data.solutionDirichlet = initial_condition.initial_condition_dirichlet;
@@ -148,9 +147,16 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("ExportSolution...", true);
     Gedim::Profiler::StartTime("ExportSolution");
 
-    auto initial_post_process_data =
-        assembler.PostProcessSolution(config, mesh, meshGeometricData, dofs_data, reference_element_data,
-        initial_assembler_data, *test, static_assembler_data.globalMatrixA, f_k, time_steps.at(0));
+    auto initial_post_process_data = assembler.PostProcessSolution(config,
+                                                                   mesh,
+                                                                   meshGeometricData,
+                                                                   dofs_data,
+                                                                   reference_element_data,
+                                                                   initial_assembler_data,
+                                                                   *test,
+                                                                   static_assembler_data.globalMatrixA,
+                                                                   f_k,
+                                                                   time_steps.at(0));
 
     Polydim::examples::Parabolic_PCC_2D::program_utilities::export_solution(config,
                                                                             mesh,
@@ -187,25 +193,20 @@ int main(int argc, char **argv)
         K_D += static_assembler_data.dirichletMatrixM;
 
         auto assembler_data_kp1 =
-            assembler.Assemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, reference_element_data,
-            *test, static_assembler_data, time_value);
+            assembler.Assemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, reference_element_data, *test, static_assembler_data, time_value);
 
-        auto& u_kp1 = assembler_data_kp1.solution;
-        auto& u_D_kp1 = assembler_data_kp1.solutionDirichlet;
-        auto& f_kp1 = assembler_data_kp1.rightHandSide;
+        auto &u_kp1 = assembler_data_kp1.solution;
+        auto &u_D_kp1 = assembler_data_kp1.solutionDirichlet;
+        auto &f_kp1 = assembler_data_kp1.rightHandSide;
 
         auto rhs_f_kp1 = assembler_data_kp1.rightHandSide;
         rhs_f_kp1 *= (dt * theta);
         auto rhs_f_k = f_k;
         rhs_f_k *= dt * (1.0 - theta);
-        auto rhs = rhs_f_kp1 +
-                   rhs_f_k;
-        rhs.SumMultiplication(K,
-                              u_k);
-        rhs.SumMultiplication(K_D,
-                              u_D_k);
-        rhs.SubtractionMultiplication(K_D,
-                                      u_D_kp1);
+        auto rhs = rhs_f_kp1 + rhs_f_k;
+        rhs.SumMultiplication(K, u_k);
+        rhs.SumMultiplication(K_D, u_D_k);
+        rhs.SubtractionMultiplication(K_D, u_D_kp1);
 
         Gedim::Profiler::StopTime("AssembleSystem");
         Gedim::Output::PrintStatusProgram("AssembleSystem");
@@ -234,8 +235,7 @@ int main(int argc, char **argv)
         Gedim::Profiler::StartTime("ComputeErrors");
 
         auto post_process_data =
-            assembler.PostProcessSolution(config, mesh, meshGeometricData, dofs_data, reference_element_data,
-            assembler_data_kp1, *test, Kp1, rhs, time_value);
+            assembler.PostProcessSolution(config, mesh, meshGeometricData, dofs_data, reference_element_data, assembler_data_kp1, *test, Kp1, rhs, time_value);
 
         Gedim::Profiler::StopTime("ComputeErrors");
         Gedim::Output::PrintStatusProgram("ComputeErrors");

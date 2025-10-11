@@ -63,7 +63,7 @@ struct Patch_Test final : public I_Test
 
     PDE_Time_Domain_2D domain() const
     {
-      PDE_Time_Domain_2D domain;
+        PDE_Time_Domain_2D domain;
 
         domain.spatial_domain.area = 1.0;
 
@@ -73,7 +73,7 @@ struct Patch_Test final : public I_Test
 
         domain.spatial_domain.shape_type = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types::Parallelogram;
 
-        domain.time_domain = { 0.0, 1.0 };
+        domain.time_domain = {0.0, 1.0};
 
         return domain;
     }
@@ -189,7 +189,7 @@ struct Elliptic_Polynomial_Problem final : public I_Test
 
         domain.spatial_domain.shape_type = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types::Parallelogram;
 
-        domain.time_domain = { 0.0, 1.0 };
+        domain.time_domain = {0.0, 1.0};
 
         return domain;
     }
@@ -274,7 +274,7 @@ struct Elliptic_Problem final : public I_Test
 
         domain.spatial_domain.shape_type = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types::Parallelogram;
 
-        domain.time_domain = { 0.0, 1.0 };
+        domain.time_domain = {0.0, 1.0};
 
         return domain;
     }

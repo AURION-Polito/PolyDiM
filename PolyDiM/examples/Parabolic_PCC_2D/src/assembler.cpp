@@ -23,14 +23,15 @@ namespace examples
 namespace Parabolic_PCC_2D
 {
 // ***************************************************************************
-Assembler::Parabolic_PCC_2D_Initial_Data Assembler::ComputeInitalCondition(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
-                                       const Gedim::IMeshDAO &mesh,
-                                       const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-                                       const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-                                       const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
-                                       const test::I_Test &test) const
+Assembler::Parabolic_PCC_2D_Initial_Data Assembler::ComputeInitalCondition(
+    const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
+    const Gedim::IMeshDAO &mesh,
+    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+    const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
+    const test::I_Test &test) const
 {
-  Parabolic_PCC_2D_Initial_Data result;
+    Parabolic_PCC_2D_Initial_Data result;
 
     result.initial_condition.SetSize(dofs_data.NumberDOFs);
     result.initial_condition_dirichlet.SetSize(dofs_data.NumberStrongs);
@@ -388,13 +389,13 @@ Assembler::Parabolic_PCC_2D_Static_Problem_Data Assembler::StaticAssemble(
 
         const Eigen::VectorXd ones_reaction_term_values = Eigen::VectorXd::Ones(cell2D_internal_quadrature.Points.cols());
         const Eigen::MatrixXd local_M = equation.ComputeCellReactionMatrix(ones_reaction_term_values,
-                                                                            basis_functions_values,
-                                                                            cell2D_internal_quadrature.Weights);
+                                                                           basis_functions_values,
+                                                                           cell2D_internal_quadrature.Weights);
 
         const Eigen::MatrixXd local_M_stab =
-            Polydim::PDETools::LocalSpace_PCC_2D::StabilizationMatrix(reference_element_data, local_space_data,
+            Polydim::PDETools::LocalSpace_PCC_2D::StabilizationMatrix(reference_element_data,
+                                                                      local_space_data,
                                                                       Polydim::VEM::PCC::ProjectionTypes::Pi0k);
-
 
         const auto &global_dofs = dofs_data.CellsGlobalDOFs[2].at(c);
 
@@ -416,7 +417,6 @@ Assembler::Parabolic_PCC_2D_Static_Problem_Data Assembler::StaticAssemble(
                                                                                           local_M + local_M_stab,
                                                                                           result.globalMatrixM,
                                                                                           result.dirichletMatrixM);
-
     }
 
     result.globalMatrixA.Create();
@@ -436,7 +436,7 @@ Assembler::Parabolic_PCC_2D_Problem_Data Assembler::Assemble(
     const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
     const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
-    const Assembler::Parabolic_PCC_2D_Static_Problem_Data& static_assembler_data,
+    const Assembler::Parabolic_PCC_2D_Static_Problem_Data &static_assembler_data,
     const double &time_value) const
 {
     Parabolic_PCC_2D_Problem_Data result;
@@ -469,7 +469,7 @@ Assembler::Parabolic_PCC_2D_Problem_Data Assembler::Assemble(
         Eigen::VectorXd local_rhs =
             equation.ComputeCellForcingTerm(source_term_values, basis_functions_values, cell2D_internal_quadrature.Weights);
 
-          const auto &global_dofs = dofs_data.CellsGlobalDOFs[2].at(c);
+        const auto &global_dofs = dofs_data.CellsGlobalDOFs[2].at(c);
 
         assert(Polydim::PDETools::LocalSpace_PCC_2D::Size(reference_element_data, local_space_data) == global_dofs.size());
 
@@ -502,8 +502,8 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
                                                            const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                                                            const Parabolic_PCC_2D_Problem_Data &assembler_data,
                                                            const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
-                                                           const Gedim::Eigen_SparseArray<>& A,
-                                                           const Gedim::Eigen_Array<>& rhs,
+                                                           const Gedim::Eigen_SparseArray<> &A,
+                                                           const Gedim::Eigen_Array<> &rhs,
                                                            const double &time_value) const
 {
     PostProcess_Data result;

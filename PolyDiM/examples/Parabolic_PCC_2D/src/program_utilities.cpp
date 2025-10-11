@@ -90,10 +90,10 @@ Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_propertie
 void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
                      const Gedim::MeshMatricesDAO &mesh,
                      const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-                     const Gedim::Eigen_SparseArray<>& A,
+                     const Gedim::Eigen_SparseArray<> &A,
                      const Polydim::examples::Parabolic_PCC_2D::Assembler::PostProcess_Data &post_process_data,
                      const unsigned int time_index,
-                     const double& time_value,
+                     const double &time_value,
                      const std::string &exportSolutionFolder,
                      const std::string &exportVtuFolder)
 {
@@ -205,12 +205,8 @@ void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configur
                                    static_cast<unsigned int>(post_process_data.cell2Ds_error_H1.size()),
                                    post_process_data.cell2Ds_error_H1.data()}});
 
-            exporter.Export(exportVtuFolder + "/Solution" +
-                            "_" + std::to_string(TEST_ID) +
-                            "_" + std::to_string(Method_ID) +
-                            + "_" + std::to_string(config.MethodOrder()) +
-                            + "_" + std::to_string(time_index) +
-                            ".vtu");
+            exporter.Export(exportVtuFolder + "/Solution" + "_" + std::to_string(TEST_ID) + "_" + std::to_string(Method_ID) +
+                            +"_" + std::to_string(config.MethodOrder()) + +"_" + std::to_string(time_index) + ".vtu");
         }
     }
 }
@@ -486,7 +482,7 @@ void export_performance(const Polydim::examples::Parabolic_PCC_2D::Program_confi
 }
 // ***************************************************************************
 std::vector<double> create_time_steps(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
-                                      const std::array<double, 2>& time_domain)
+                                      const std::array<double, 2> &time_domain)
 {
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
     geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance1D();

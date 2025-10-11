@@ -63,15 +63,27 @@ class EllipticPolynomialProblem(ITest):
             polydim.pde_tools.do_fs.DOFsManager.MeshDOFsInfo.BoundaryInfo.BoundaryTypes.strong)
         info_dirichlet.marker = 1
 
+        info_neumann_top = polydim.pde_tools.do_fs.DOFsManager.MeshDOFsInfo.BoundaryInfo(
+            polydim.pde_tools.do_fs.DOFsManager.MeshDOFsInfo.BoundaryInfo.BoundaryTypes.weak)
+        info_neumann_top.marker = 4
+
+        info_neumann_right = polydim.pde_tools.do_fs.DOFsManager.MeshDOFsInfo.BoundaryInfo(
+            polydim.pde_tools.do_fs.DOFsManager.MeshDOFsInfo.BoundaryInfo.BoundaryTypes.weak)
+        info_neumann_right.marker = 2
+
+        info_neumann_none = polydim.pde_tools.do_fs.DOFsManager.MeshDOFsInfo.BoundaryInfo(
+            polydim.pde_tools.do_fs.DOFsManager.MeshDOFsInfo.BoundaryInfo.BoundaryTypes.none)
+        info_neumann_none.marker = 0
+
         return {
             0: info_internal,
             1: info_dirichlet,
             2: info_dirichlet,
-            3: info_dirichlet,
+            3: info_neumann_none,
             4: info_dirichlet,
             5: info_dirichlet,
-            6: info_dirichlet,
-            7: info_dirichlet,
+            6: info_neumann_right,
+            7: info_neumann_top,
             8: info_dirichlet
         }
 
@@ -89,7 +101,16 @@ class EllipticPolynomialProblem(ITest):
         return self.exact_solution(points)
 
     def weak_boundary_condition(self, marker: int, points: np.ndarray):
-        raise ValueError("not valid marker")
+
+        derivatives = self.exact_derivative_solution(points)
+
+        match marker:
+            case 2:
+                return derivatives[0]
+            case 4:
+                return derivatives[1]
+            case _:
+                raise ValueError("unknown marker")
 
     def exact_solution(self, points: np.ndarray):
         return 16.0 * points[0, :] * (1.0 - points[0, :]) * points[1, :] * (1.0 - points[1, :]) + 1.1

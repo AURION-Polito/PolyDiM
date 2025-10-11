@@ -38,8 +38,10 @@ Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_propertie
 void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
                      const Gedim::MeshMatricesDAO &mesh,
                      const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-                     const Gedim::Eigen_SparseArray<>& A,
-                     const Polydim::examples::Parabolic_PCC_2D::Assembler::PostProcess_Data &post_process_data, const unsigned int time_index, const double& time_value,
+                     const Gedim::Eigen_SparseArray<> &A,
+                     const Polydim::examples::Parabolic_PCC_2D::Assembler::PostProcess_Data &post_process_data,
+                     const unsigned int time_index,
+                     const double &time_value,
                      const std::string &exportSolutionFolder,
                      const std::string &exportVtuFolder);
 
@@ -57,7 +59,7 @@ void export_performance(const Program_configuration &config,
                         const Assembler::Performance_Data &performance_data,
                         const std::string &exportFolder);
 
-std::vector<double> create_time_steps(const Program_configuration &config, const std::array<double, 2>& time_domain);
+std::vector<double> create_time_steps(const Program_configuration &config, const std::array<double, 2> &time_domain);
 
 } // namespace program_utilities
 } // namespace Parabolic_PCC_2D

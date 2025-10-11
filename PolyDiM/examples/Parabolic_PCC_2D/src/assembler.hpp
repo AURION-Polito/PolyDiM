@@ -99,12 +99,12 @@ class Assembler final
 
   public:
     Parabolic_PCC_2D_Static_Problem_Data StaticAssemble(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
-                                                         const Gedim::MeshMatricesDAO &mesh,
-                                                         const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-                                                         const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
-                                                         const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-                                                         const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
-                                                         const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test) const;
+                                                        const Gedim::MeshMatricesDAO &mesh,
+                                                        const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                                        const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                                                        const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                                                        const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
+                                                        const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test) const;
 
     Parabolic_PCC_2D_Problem_Data Assemble(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
                                            const Gedim::MeshMatricesDAO &mesh,
@@ -113,7 +113,7 @@ class Assembler final
                                            const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                                            const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                                            const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
-                                           const Assembler::Parabolic_PCC_2D_Static_Problem_Data& static_assembler_data,
+                                           const Assembler::Parabolic_PCC_2D_Static_Problem_Data &static_assembler_data,
                                            const double &time_value) const;
 
     PostProcess_Data PostProcessSolution(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
@@ -123,16 +123,16 @@ class Assembler final
                                          const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                                          const Parabolic_PCC_2D_Problem_Data &assembler_data,
                                          const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test,
-                                         const Gedim::Eigen_SparseArray<>& A,
-                                         const Gedim::Eigen_Array<>& rhs,
+                                         const Gedim::Eigen_SparseArray<> &A,
+                                         const Gedim::Eigen_Array<> &rhs,
                                          const double &time_value) const;
 
     Parabolic_PCC_2D_Initial_Data ComputeInitalCondition(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
-                                const Gedim::IMeshDAO &mesh,
-                                const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-                                const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-                                const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
-                                const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test) const;
+                                                         const Gedim::IMeshDAO &mesh,
+                                                         const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                                         const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                                                         const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
+                                                         const Polydim::examples::Parabolic_PCC_2D::test::I_Test &test) const;
 };
 } // namespace Parabolic_PCC_2D
 } // namespace examples
