@@ -156,6 +156,8 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("ComputeErrors...", true);
     Gedim::Profiler::StartTime("ComputeErrors");
 
+    std::cout << assembler_data.solutionDirichlet << std::endl;
+
     auto post_process_data =
         assembler.PostProcessSolution(config, mesh, meshGeometricData, dofs_data, reference_element_data, assembler_data, *test);
 

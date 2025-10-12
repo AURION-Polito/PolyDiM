@@ -12,14 +12,14 @@ import cProfile
 def main():
 
     parser =argparse.ArgumentParser()
-    parser.add_argument('-order','--method-order',dest='method_order', default=2, type=int, help="Method order")
+    parser.add_argument('-order','--method-order',dest='method_order', default=1, type=int, help="Method order")
     parser.add_argument('-method','--method-type',dest='method_type', default=1, type=int, help="Method type")
     parser.add_argument('-test', '--test-id', dest='test_id', default=1, type=int, help="Test type")
     parser.add_argument('-mesh', '--mesh-type', dest='mesh_type', default=0, type=int, help="Mesh type")
     parser.add_argument('-tol1', '--tolerance-1-d', dest='tolerance1_d', default=1.0e-12, type=float, help="Geometric Tolerance 1D")
     parser.add_argument('-tol2', '--tolerance-2-d', dest='tolerance2_d', default=1.0e-14, type=float, help="Geometric Tolerance 2D")
     parser.add_argument('-tol3', '--tolerance-3-d', dest='tolerance3_d', default=1.0e-15, type=float, help="Geometric Tolerance 3D")
-    parser.add_argument('-volume', '--mesh-max-relative-volume', dest='max_relative_volume', default=0.01, type=float, help="Mesh max relative volume")
+    parser.add_argument('-volume', '--mesh-max-relative-volume', dest='max_relative_volume', default=0.1, type=float, help="Mesh max relative volume")
     parser.add_argument('-export', '--export-path', dest='export_path', default='./Export/Elliptic_PCC_3D', type=str, help="Export Path")
     parser.add_argument('-import', '--import-path', dest='import_path', default='./', type=str, help="Mesh Import Path")
     args = parser.parse_args()
@@ -88,6 +88,8 @@ def main():
 
     print("Solve...")
     assembler.solve(do_fs_data, assembler_data)
+
+    print(assembler_data.solution_dirichlet)
 
     print("Compute Errors...")
     post_process_data = assembler.post_process_solution(geometry_utilities_config,

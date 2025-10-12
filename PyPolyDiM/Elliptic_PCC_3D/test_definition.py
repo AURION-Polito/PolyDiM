@@ -109,7 +109,10 @@ class EllipticPolynomialProblem(ITest):
         return np.ones(points.shape[1])
 
     def source_term(self, points: np.ndarray):
-        return 32.0 * np.ones(points.shape[1])
+
+        return 128.0 * (points[1, :] * (1.0 - points[1, :]) * points[2, :] * (1.0 - points[2, :]) +
+                points[0, :] * (1.0 - points[0, :]) * points[2, :] * (1.0 - points[2, :]) +
+                points[0, :] * (1.0 - points[0, :]) * points[1, :] * (1.0 - points[1, :]))
 
     def strong_boundary_condition(self, marker: int, points: np.ndarray):
 
@@ -122,9 +125,9 @@ class EllipticPolynomialProblem(ITest):
         raise ValueError("not valid marker")
 
     def exact_solution(self, points: np.ndarray):
-        return 16.0 * points[0, :] * (1.0 - points[0, :]) + 1.1
+        return 64.0 * points[2, :] * (1.0 - points[2, :]) * points[1, :] * (1.0 - points[1, :]) * points[0, :] * (1.0 - points[0, :]) + 1.7
 
     def exact_derivative_solution(self, points: np.ndarray):
-        return [16.0 * (1.0 - 2.0 * points[0, :]),
-                np.zeros(points.shape[1]),
-                np.zeros(points.shape[1])]
+        return [64.0 * points[2, :] * (1.0 - points[2, :]) * points[1, :] * (1.0 - points[1, :]) * (1.0 - 2.0 * points[0, :]),
+                64.0 * points[2, :] * (1.0 - points[2, :]) * (1.0 - 2.0 * points[1, :]) * points[0, :] * (1.0 - points[0, :]),
+                64.0 * (1.0 - 2.0 * points[2, :]) * points[1, :] * (1.0 - points[1, :]) * points[0, :] * (1.0 - points[0, :])]

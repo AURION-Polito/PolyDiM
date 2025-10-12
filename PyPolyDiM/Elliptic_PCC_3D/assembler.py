@@ -79,15 +79,15 @@ class Assembler:
                         raise ValueError("Unknown DOF Type")
 
         # Assemble strong boundary condition on Cell1Ds
-        for ed in range(mesh.cell2_d_number_edges(cell3_d_index)):
+        for ed in range(mesh.cell3_d_number_edges(cell3_d_index)):
 
-            cell1_d_index = mesh.cell2_d_edge(cell3_d_index, ed)
+            cell1_d_index = mesh.cell3_d_edge(cell3_d_index, ed)
 
             boundary_info = mesh_do_fs_info.cells_boundary_info[1][cell1_d_index]
-            local_dofs = do_fs_data.cells_do_fs[1][cell1_d_index]
+            local_do_fs = do_fs_data.cells_do_fs[1][cell1_d_index]
 
             if (boundary_info.type != polydim.pde_tools.do_fs.DOFsManager.MeshDOFsInfo.BoundaryInfo.BoundaryTypes.strong
-                    or len(local_dofs) == 0):
+                    or len(local_do_fs) == 0):
                 continue
 
             edge_do_fs_coordinates = polydim.pde_tools.local_space_pcc_3_d.edge_dofs_coordinates(reference_element_data,
@@ -95,11 +95,11 @@ class Assembler:
 
             strong_boundary_values = test.strong_boundary_condition(boundary_info.marker, edge_do_fs_coordinates)
 
-            assert len(local_dofs) == len(strong_boundary_values)
+            assert len(local_do_fs) == len(strong_boundary_values)
 
-            for loc_i in range(len(local_dofs)):
+            for loc_i in range(len(local_do_fs)):
 
-                local_dof_i = local_dofs[loc_i]
+                local_dof_i = local_do_fs[loc_i]
 
                 match local_dof_i.type:
                     case polydim.pde_tools.do_fs.DOFsManager.DOFsData.DOF.Types.strong:
@@ -120,7 +120,7 @@ class Assembler:
                                       face_dofs_coordinates(reference_element_data,
                                                             local_space_data, f, quadrature_point_offset))
 
-
+            quadrature_point_offset += face_do_fs_coordinates.points.shape[1]
             if (boundary_info.type != polydim.pde_tools.do_fs.DOFsManager.MeshDOFsInfo.BoundaryInfo.BoundaryTypes.strong
                     or len(local_do_fs) == 0):
                 continue
