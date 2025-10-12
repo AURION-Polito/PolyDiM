@@ -89,8 +89,6 @@ def main():
     print("Solve...")
     assembler.solve(do_fs_data, assembler_data)
 
-    print(assembler_data.right_hand_side)
-
     print("Compute Errors...")
     post_process_data = assembler.post_process_solution(geometry_utilities_config,
                                                         mesh,
