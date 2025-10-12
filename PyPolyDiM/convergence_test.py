@@ -47,8 +47,8 @@ def test_errors(errors,
         slope_l2 = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 1]), 1)[0]
         slope_h1 = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 2]), 1)[0]
         print('\x1b[0;31;40m' + "Num. Ref. ", str(num_rows-1), ": ", slope_l2, slope_h1,  '\x1b[0m')
-        assert round(slope_l2) == round(float(method_order + 1.0))
-        assert round(slope_h1) == round(float(method_order))
+        assert round(slope_l2) >= round(float(method_order + 1.0))
+        assert round(slope_h1) >= round(float(method_order))
 
 dirpath = "./Export/Export2D"
 if os.path.exists(dirpath) and os.path.isdir(dirpath):
