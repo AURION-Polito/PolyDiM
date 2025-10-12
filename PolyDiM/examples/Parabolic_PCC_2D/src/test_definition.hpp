@@ -98,17 +98,20 @@ struct Patch_Test final : public I_Test
 
     Eigen::VectorXd source_term(const Eigen::MatrixXd &points, const double &time_value) const
     {
-        Eigen::VectorXd source_term = Eigen::VectorXd::Constant(points.cols(), 2.0 * space_order * (space_order - 1));
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+        Eigen::VectorXd source_space_term = Eigen::VectorXd::Constant(points.cols(), 2.0 * space_order * (space_order - 1));
+        const Eigen::ArrayXd space_polynomial = points.row(0).array() + points.row(1).array() + 0.5;
 
-        const int max_order = space_order - 2;
-        for (int i = 0; i < max_order; ++i)
-            source_term.array() *= polynomial;
+        const int max_space_order = space_order - 2;
+        for (int i = 0; i < max_space_order; ++i)
+            source_space_term.array() *= space_polynomial;
 
-        source_term *= -1.0;
-        source_term.array() += 1.0;
+        Eigen::VectorXd source_time_term = Eigen::VectorXd::Constant(points.cols(), time_order);
+        const Eigen::ArrayXd time_polynomial = Eigen::VectorXd::Constant(points.cols(), time_value);
+        const int max_time_order = time_order - 1;
+        for (int i = 0; i < max_time_order; ++i)
+            source_time_term.array() *= time_polynomial;
 
-        return source_term;
+        return source_time_term - source_space_term;
     };
 
     Eigen::VectorXd initial_solution(const Eigen::MatrixXd &points) const
@@ -151,15 +154,17 @@ struct Patch_Test final : public I_Test
 
     Eigen::VectorXd exact_solution(const Eigen::MatrixXd &points, const double &time_value) const
     {
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
-
-        Eigen::VectorXd result = Eigen::VectorXd::Constant(points.cols(), 1.0);
+        const Eigen::ArrayXd space_polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+        Eigen::VectorXd space_exact = Eigen::VectorXd::Constant(points.cols(), 1.0);
         for (int i = 0; i < space_order; ++i)
-            result.array() *= polynomial;
+            space_exact.array() *= space_polynomial;
 
-        result.array() += time_value;
+        const Eigen::ArrayXd time_polynomial = Eigen::VectorXd::Constant(points.cols(), time_value);
+        Eigen::VectorXd time_exact = Eigen::VectorXd::Constant(points.cols(), 1.0);
+        for (int i = 0; i < time_order; ++i)
+            time_exact.array() *= time_polynomial;
 
-        return result;
+        return space_exact + time_exact;
     };
 
     std::array<Eigen::VectorXd, 3> exact_derivative_solution(const Eigen::MatrixXd &points, const double &time_value) const

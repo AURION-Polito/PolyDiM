@@ -489,9 +489,6 @@ Assembler::Parabolic_PCC_2D_Problem_Data Assembler::Assemble(
     result.rightHandSide.Create();
     result.solutionDirichlet.Create();
 
-    if (dofs_data.NumberStrongs > 0)
-        result.rightHandSide.SubtractionMultiplication(static_assembler_data.dirichletMatrixA, result.solutionDirichlet);
-
     return result;
 }
 // ***************************************************************************

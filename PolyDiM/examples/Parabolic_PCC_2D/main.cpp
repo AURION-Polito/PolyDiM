@@ -203,10 +203,11 @@ int main(int argc, char **argv)
         rhs_f_kp1 *= (dt * theta);
         auto rhs_f_k = f_k;
         rhs_f_k *= dt * (1.0 - theta);
+
         auto rhs = rhs_f_kp1 + rhs_f_k;
         rhs.SumMultiplication(K, u_k);
         rhs.SumMultiplication(K_D, u_D_k);
-        rhs.SubtractionMultiplication(K_D, u_D_kp1);
+        rhs.SubtractionMultiplication(Kp1_D, u_D_kp1);
 
         Gedim::Profiler::StopTime("AssembleSystem");
         Gedim::Output::PrintStatusProgram("AssembleSystem");
