@@ -57,7 +57,7 @@ int main(int argc, char **argv)
     Gedim::Profiler::StartTime("SetProblem");
 
     Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::space_order = config.MethodOrder();
-    Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::time_order = 0;//config.Theta() == 0.5 ? 2 : 1;
+    Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::time_order = config.Theta() == 0.5 ? 2 : 1;
 
     const auto test = Polydim::examples::Parabolic_PCC_2D::program_utilities::create_test(config);
 
