@@ -478,9 +478,11 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
 
         const Eigen::VectorXd local_error_H1 =
             (basis_functions_derivative_values[0] * dofs_values - exact_derivative_solution_values[0]).array().square() +
-            (basis_functions_derivative_values[1] * dofs_values - exact_derivative_solution_values[1]).array().square();
+            (basis_functions_derivative_values[1] * dofs_values - exact_derivative_solution_values[1]).array().square() +
+            (basis_functions_derivative_values[2] * dofs_values - exact_derivative_solution_values[2]).array().square();
         const Eigen::VectorXd local_norm_H1 = (basis_functions_derivative_values[0] * dofs_values).array().square() +
-                                              (basis_functions_derivative_values[1] * dofs_values).array().square();
+                                              (basis_functions_derivative_values[1] * dofs_values).array().square() +
+                                              (basis_functions_derivative_values[2] * dofs_values).array().square();
 
         result.cell3Ds_error_H1[c] = cell3D_internal_quadrature.Weights.transpose() * local_error_H1;
         result.cell3Ds_norm_H1[c] = cell3D_internal_quadrature.Weights.transpose() * local_norm_H1;
