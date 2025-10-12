@@ -23,15 +23,15 @@ class Assembler:
     class PostProcessData:
 
         def __init__(self):
-            self.cell0_ds_numeric: np.ndarray
-            self.cell0_ds_exact: np.ndarray
+            self.cell0_ds_numeric: np.ndarray = np.ndarray(0)
+            self.cell0_ds_exact: np.ndarray = np.ndarray(0)
 
-            self.cell2_ds_error_l2: np.ndarray
-            self.cell2_ds_norm_l2: np.ndarray
+            self.cell2_ds_error_l2: np.ndarray = np.ndarray(0)
+            self.cell2_ds_norm_l2: np.ndarray = np.ndarray(0)
             self.error_l2: float = 0.0
             self.norm_l2: float = 0.0
-            self.cell2_ds_error_h1: np.ndarray
-            self.cell2_ds_norm_h1: np.ndarray
+            self.cell2_ds_error_h1: np.ndarray = np.ndarray(0)
+            self.cell2_ds_norm_h1: np.ndarray = np.ndarray(0)
             self.error_h1: float = 0.0
             self.norm_h1: float = 0.0
 

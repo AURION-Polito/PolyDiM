@@ -15,23 +15,23 @@ class Assembler:
             self.dirichlet_matrix_a_data = assembler_utilities.SparseMatrix()
             self.global_matrix_a: coo_array
             self.dirichlet_matrix_a: coo_array
-            self.right_hand_side: np.ndarray
-            self.solution: np.ndarray
-            self.solution_dirichlet: np.ndarray
+            self.right_hand_side: np.ndarray = np.ndarray(0)
+            self.solution: np.ndarray = np.ndarray(0)
+            self.solution_dirichlet: np.ndarray = np.ndarray(0)
 
 
     class PostProcessData:
 
         def __init__(self):
-            self.cell0_ds_numeric: np.ndarray
-            self.cell0_ds_exact: np.ndarray
+            self.cell0_ds_numeric: np.ndarray = np.ndarray(0)
+            self.cell0_ds_exact: np.ndarray = np.ndarray(0)
 
-            self.cell3_ds_error_l2: np.ndarray
-            self.cell3_ds_norm_l2: np.ndarray
+            self.cell3_ds_error_l2: np.ndarray = np.ndarray(0)
+            self.cell3_ds_norm_l2: np.ndarray = np.ndarray(0)
             self.error_l2: float = 0.0
             self.norm_l2: float = 0.0
-            self.cell3_ds_error_h1: np.ndarray
-            self.cell3_ds_norm_h1: np.ndarray
+            self.cell3_ds_error_h1: np.ndarray = np.ndarray(0)
+            self.cell3_ds_norm_h1: np.ndarray = np.ndarray(0)
             self.error_h1: float = 0.0
             self.norm_h1: float = 0.0
 
@@ -90,7 +90,8 @@ class Assembler:
                     or len(local_dofs) == 0):
                 continue
 
-            edge_do_fs_coordinates = polydim.pde_tools.local_space_pcc_3_d.edge_dofs_coordinates(reference_element_data, local_space_data, ed)
+            edge_do_fs_coordinates = polydim.pde_tools.local_space_pcc_3_d.edge_dofs_coordinates(reference_element_data,
+                                                                                                 local_space_data, ed)
 
             strong_boundary_values = test.strong_boundary_condition(boundary_info.marker, edge_do_fs_coordinates)
 
@@ -99,6 +100,41 @@ class Assembler:
             for loc_i in range(len(local_dofs)):
 
                 local_dof_i = local_dofs[loc_i]
+
+                match local_dof_i.type:
+                    case polydim.pde_tools.do_fs.DOFsManager.DOFsData.DOF.Types.strong:
+                        assembler_data.solution_dirichlet[local_dof_i.global_index] = strong_boundary_values[loc_i]
+                        pass
+                    case polydim.pde_tools.do_fs.DOFsManager.DOFsData.DOF.Types.dof:
+                        pass
+                    case _:
+                        raise ValueError("Unknown DOF Type")
+
+        # Assemble strong boundary condition on Cell2Ds
+        quadrature_point_offset = 0
+        for f in range(mesh.cell3_d_number_faces(cell3_d_index)):
+            cell2_d_index = mesh.cell3_d_face(cell3_d_index, f)
+            local_do_fs = do_fs_data.cells_do_fs[2][cell2_d_index]
+            boundary_info = mesh_do_fs_info.cells_boundary_info[2][cell2_d_index]
+            face_do_fs_coordinates = (polydim.pde_tools.local_space_pcc_3_d.
+                                      face_dofs_coordinates(reference_element_data,
+                                                            local_space_data, f, quadrature_point_offset))
+
+
+            if (boundary_info.type != polydim.pde_tools.do_fs.DOFsManager.MeshDOFsInfo.BoundaryInfo.BoundaryTypes.strong
+                    or len(local_do_fs) == 0):
+                continue
+
+            dirichlet_values = test.strong_boundary_condition(boundary_info.marker, face_do_fs_coordinates.points)
+            strong_boundary_values = polydim.pde_tools.local_space_pcc_3_d.face_dofs(reference_element_data,
+                                                                                     local_space_data, f,
+                                                                                     dirichlet_values,
+                                                                                     face_do_fs_coordinates)
+
+            assert len(local_do_fs) == len(strong_boundary_values)
+
+            for loc_i in range(len(local_do_fs)):
+                local_dof_i = local_do_fs[loc_i]
 
                 match local_dof_i.type:
                     case polydim.pde_tools.do_fs.DOFsManager.DOFsData.DOF.Types.strong:
@@ -143,10 +179,16 @@ class Assembler:
                                                                                         c,
                                                                                         reference_element_data)
 
-            basis_functions_values = polydim.pde_tools.local_space_pcc_3_d.basis_functions_values(reference_element_data, local_space_data)
-            basis_functions_derivative_values = polydim.pde_tools.local_space_pcc_3_d.basis_functions_derivative_values(reference_element_data, local_space_data)
+            basis_functions_values = (polydim.pde_tools.local_space_pcc_3_d.
+                                      basis_functions_values(reference_element_data,
+                                                             local_space_data))
+            basis_functions_derivative_values = (polydim.pde_tools.local_space_pcc_3_d.
+                                                 basis_functions_derivative_values(reference_element_data,
+                                                                                   local_space_data))
 
-            cell3_d_internal_quadrature = polydim.pde_tools.local_space_pcc_3_d.internal_quadrature(reference_element_data, local_space_data)
+            cell3_d_internal_quadrature = (polydim.pde_tools.local_space_pcc_3_d.
+                                           internal_quadrature(reference_element_data,
+                                                               local_space_data))
 
             diffusion_term_values = test.diffusion_term(cell3_d_internal_quadrature.points)
             source_term_values = test.source_term(cell3_d_internal_quadrature.points)
@@ -163,7 +205,8 @@ class Assembler:
                                                            weights)
 
             k_max = np.max(abs(diffusion_term_values))
-            local_a_stab = k_max * polydim.pde_tools.local_space_pcc_3_d.stabilization_matrix(reference_element_data, local_space_data)
+            local_a_stab = k_max * polydim.pde_tools.local_space_pcc_3_d.stabilization_matrix(reference_element_data,
+                                                                                              local_space_data)
 
             global_do_fs = do_fs_data.cells_global_do_fs[3][c]
 
@@ -186,10 +229,13 @@ class Assembler:
                                                                        result.right_hand_side)
 
 
-            self.compute_strong_term(c, mesh, mesh_do_fs_info, do_fs_data, reference_element_data, local_space_data, test, result)
+            self.compute_strong_term(c, mesh, mesh_do_fs_info, do_fs_data, reference_element_data, local_space_data,
+                                     test, result)
 
-        result.global_matrix_a = result.global_matrix_a_data.create(do_fs_data.number_do_fs, do_fs_data.number_do_fs)
-        result.dirichlet_matrix_a = result.dirichlet_matrix_a_data.create(do_fs_data.number_do_fs, do_fs_data.number_strongs)
+        result.global_matrix_a = result.global_matrix_a_data.create(do_fs_data.number_do_fs,
+                                                                    do_fs_data.number_do_fs)
+        result.dirichlet_matrix_a = result.dirichlet_matrix_a_data.create(do_fs_data.number_do_fs,
+                                                                          do_fs_data.number_strongs)
 
         return result
 
@@ -261,7 +307,9 @@ class Assembler:
             basis_functions_derivative_values = polydim.pde_tools.local_space_pcc_3_d.basis_functions_derivative_values(
                 reference_element_data, local_space_data)
 
-            cell3_d_internal_quadrature = polydim.pde_tools.local_space_pcc_3_d.internal_quadrature(reference_element_data, local_space_data)
+            cell3_d_internal_quadrature = (polydim.pde_tools.local_space_pcc_3_d.
+                                           internal_quadrature(reference_element_data,
+                                                               local_space_data))
 
 
             exact_solution_values = test.exact_solution(cell3_d_internal_quadrature.points)
@@ -284,9 +332,12 @@ class Assembler:
             result.cell3_ds_error_l2[c] = np.sum(cell3_d_internal_quadrature.weights * local_error_l2)
             result.cell3_ds_norm_l2[c] = np.sum(cell3_d_internal_quadrature.weights * local_norm_l2)
 
-            local_error_h1 = ((basis_functions_derivative_values[0] @ do_fs_values - exact_derivative_solution_values[0])**2
-                              + (basis_functions_derivative_values[1] @ do_fs_values - exact_derivative_solution_values[1])**2
-                              + (basis_functions_derivative_values[2] @ do_fs_values - exact_derivative_solution_values[2])**2)
+            local_error_h1 = ((basis_functions_derivative_values[0] @ do_fs_values -
+                               exact_derivative_solution_values[0])**2
+                              + (basis_functions_derivative_values[1] @ do_fs_values -
+                                 exact_derivative_solution_values[1])**2
+                              + (basis_functions_derivative_values[2] @ do_fs_values -
+                                 exact_derivative_solution_values[2])**2)
 
             local_norm_h1 = ((basis_functions_derivative_values[0] @ do_fs_values)**2 +
                              (basis_functions_derivative_values[1] @ do_fs_values)**2 +

@@ -4,7 +4,7 @@ import os.path
 from pypolydim import polydim, gedim
 from Elliptic_PCC_3D.program_utilities import create_test, create_mesh, export_errors
 from Elliptic_PCC_3D.assembler import Assembler
-from pypolydim.vtk_utilities import VTKUtilities
+from pypolydim.export_vtk_utilities import ExportVTKUtilities
 from pypolydim.assembler_utilities import assembler_utilities
 import cProfile
 
@@ -12,7 +12,7 @@ import cProfile
 def main():
 
     parser =argparse.ArgumentParser()
-    parser.add_argument('-order','--method-order',dest='method_order', default=4, type=int, help="Method order")
+    parser.add_argument('-order','--method-order',dest='method_order', default=2, type=int, help="Method order")
     parser.add_argument('-method','--method-type',dest='method_type', default=1, type=int, help="Method type")
     parser.add_argument('-test', '--test-id', dest='test_id', default=1, type=int, help="Test type")
     parser.add_argument('-mesh', '--mesh-type', dest='mesh_type', default=0, type=int, help="Mesh type")
@@ -49,7 +49,7 @@ def main():
     geometry_utilities_config.tolerance3_d = args.tolerance3_d
     geometry_utilities = gedim.GeometryUtilities(geometry_utilities_config)
     mesh_utilities = gedim.MeshUtilities()
-    vtk_utilities = VTKUtilities()
+    vtk_utilities = ExportVTKUtilities()
 
     mesh_data = gedim.MeshMatrices()
     mesh = gedim.MeshMatricesDAO(mesh_data)
@@ -102,10 +102,13 @@ def main():
 
     print("Export Solution...")
 
-    export_errors(args.test_id, args.method_type, args.method_order, mesh, count_do_fs_data, post_process_data)
+    export_errors(export_file_path, args.test_id, args.mesh_type, args.method_type, args.method_order, mesh, count_do_fs_data, post_process_data)
 
-    vtk_utilities.export_solution(export_file_path + '/solution', mesh, post_process_data.cell0_ds_numeric,
-                                  cell0_d_exact_solution=post_process_data.cell0_ds_exact)
+    vtk_utilities.export_solution_3(export_file_path + '/Solution_' + str(args.test_id) + '_' + str(args.method_type)
+                                    + '_' + str(method_order), mesh, post_process_data.cell0_ds_numeric,
+                                    cell0_d_exact_solution=post_process_data.cell0_ds_exact,
+                                    cell3_ds_error_l2=post_process_data.cell3_ds_error_l2,
+                                    cell3_ds_error_h1=post_process_data.cell3_ds_error_h1)
 
     print('\x1b[6;30;42m' + "Finish" + '\x1b[0m')
 if __name__=='__main__':

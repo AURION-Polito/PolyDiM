@@ -102,11 +102,11 @@ def main():
 
     export_errors(export_file_path, args.test_id, args.mesh_type, args.method_type, args.method_order, mesh, count_do_fs_data, post_process_data)
 
-    vtk_utilities.export_solution(export_file_path + '/Solution_' + str(args.test_id) + '_' + str(args.method_type)
-                                  + '_' + str(method_order), mesh, post_process_data.cell0_ds_numeric,
-                                  cell0_d_exact_solution=post_process_data.cell0_ds_exact,
-                                  cell2_ds_error_l2=post_process_data.cell2_ds_error_l2,
-                                  cell2_ds_error_h1=post_process_data.cell2_ds_error_h1)
+    vtk_utilities.export_solution_2(export_file_path + '/Solution_' + str(args.test_id) + '_' + str(args.method_type)
+                                    + '_' + str(method_order), mesh, post_process_data.cell0_ds_numeric,
+                                    cell0_d_exact_solution=post_process_data.cell0_ds_exact,
+                                    cell2_ds_error_l2=post_process_data.cell2_ds_error_l2,
+                                    cell2_ds_error_h1=post_process_data.cell2_ds_error_h1)
 
     print('\x1b[6;30;42m' + "Finish" + '\x1b[0m')
 if __name__=='__main__':
