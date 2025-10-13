@@ -351,9 +351,9 @@ Assembler::Parabolic_PCC_2D_Static_Problem_Data Assembler::StaticAssemble(
 {
     Parabolic_PCC_2D_Static_Problem_Data result;
 
-    result.globalMatrixA.SetSize(dofs_data.NumberDOFs, dofs_data.NumberDOFs, Gedim::ISparseArray::SparseArrayTypes::None);
+    result.globalMatrixA.SetSize(dofs_data.NumberDOFs, dofs_data.NumberDOFs);
     result.dirichletMatrixA.SetSize(dofs_data.NumberDOFs, dofs_data.NumberStrongs);
-    result.globalMatrixM.SetSize(dofs_data.NumberDOFs, dofs_data.NumberDOFs, Gedim::ISparseArray::SparseArrayTypes::None);
+    result.globalMatrixM.SetSize(dofs_data.NumberDOFs, dofs_data.NumberDOFs);
     result.dirichletMatrixM.SetSize(dofs_data.NumberDOFs, dofs_data.NumberStrongs);
 
     Polydim::PDETools::Equations::EllipticEquation equation;
@@ -457,9 +457,6 @@ Assembler::Parabolic_PCC_2D_Problem_Data Assembler::Assemble(
 
         const auto basis_functions_values =
             Polydim::PDETools::LocalSpace_PCC_2D::BasisFunctionsValues(reference_element_data, local_space_data);
-
-        const auto basis_functions_derivative_values =
-            Polydim::PDETools::LocalSpace_PCC_2D::BasisFunctionsDerivativeValues(reference_element_data, local_space_data);
 
         const auto cell2D_internal_quadrature =
             Polydim::PDETools::LocalSpace_PCC_2D::InternalQuadrature(reference_element_data, local_space_data);

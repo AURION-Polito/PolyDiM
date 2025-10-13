@@ -56,9 +56,6 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("SetProblem...", true);
     Gedim::Profiler::StartTime("SetProblem");
 
-    Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::space_order = config.MethodOrder();
-    Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::time_order = config.Theta() == 0.5 ? 2 : 1;
-
     const auto test = Polydim::examples::Parabolic_PCC_2D::program_utilities::create_test(config);
 
     const auto domain = test->domain();
@@ -122,11 +119,6 @@ int main(int argc, char **argv)
     Gedim::Profiler::StopTime("CreateDiscreteSpace");
     Gedim::Output::PrintStatusProgram("CreateDiscreteSpace");
 
-    Gedim::Output::PrintGenericMessage("AssembleSystem Discrete Type " +
-                                           std::to_string(static_cast<unsigned int>(config.MethodType())) + "...",
-                                       true);
-    Gedim::Profiler::StartTime("AssembleSystem");
-
     Polydim::examples::Parabolic_PCC_2D::Assembler assembler;
 
     const auto static_assembler_data =
@@ -171,26 +163,37 @@ int main(int argc, char **argv)
     Gedim::Profiler::StopTime("ExportSolution");
     Gedim::Output::PrintStatusProgram("ExportSolution");
 
+    Gedim::Output::PrintGenericMessage("Factorize...", true);
+    Gedim::Profiler::StartTime("Factorize");
+
+    const double dt = config.TimeStep();
+    auto Kp1 = static_assembler_data.globalMatrixA;
+    Kp1 *= dt * theta;
+    Kp1 += static_assembler_data.globalMatrixM;
+
+    auto Kp1_D = static_assembler_data.dirichletMatrixA;
+    Kp1_D *= dt * theta;
+    Kp1_D += static_assembler_data.dirichletMatrixM;
+
+    auto K = static_assembler_data.globalMatrixA;
+    K *= -dt * (1.0 - theta);
+    K += static_assembler_data.globalMatrixM;
+
+    auto K_D = static_assembler_data.dirichletMatrixA;
+    K_D *= -dt * (1.0 - theta);
+    K_D += static_assembler_data.dirichletMatrixM;
+
+    Gedim::Eigen_LUSolver solver;
+
+    if (dofs_data.NumberDOFs > 0)
+      solver.Initialize(Kp1);
+
+    Gedim::Profiler::StopTime("Factorize");
+    Gedim::Output::PrintStatusProgram("Factorize");
+
     for (unsigned int t = 1; t < time_steps.size(); t++)
     {
         const double time_value = time_steps.at(t);
-        const double dt = time_steps.at(t) - time_steps.at(t - 1);
-
-        auto Kp1 = static_assembler_data.globalMatrixA;
-        Kp1 *= dt * theta;
-        Kp1 += static_assembler_data.globalMatrixM;
-
-        auto Kp1_D = static_assembler_data.dirichletMatrixA;
-        Kp1_D *= dt * theta;
-        Kp1_D += static_assembler_data.dirichletMatrixM;
-
-        auto K = static_assembler_data.globalMatrixA;
-        K *= -dt * (1.0 - theta);
-        K += static_assembler_data.globalMatrixM;
-
-        auto K_D = static_assembler_data.dirichletMatrixA;
-        K_D *= -dt * (1.0 - theta);
-        K_D += static_assembler_data.dirichletMatrixM;
 
         auto assembler_data_kp1 =
             assembler.Assemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, reference_element_data, *test, static_assembler_data, time_value);
@@ -204,25 +207,13 @@ int main(int argc, char **argv)
         auto rhs_f_k = f_k;
         rhs_f_k *= dt * (1.0 - theta);
 
-        auto rhs = rhs_f_kp1 + rhs_f_k;
+        auto rhs = (rhs_f_kp1 + rhs_f_k);
         rhs.SumMultiplication(K, u_k);
         rhs.SumMultiplication(K_D, u_D_k);
         rhs.SubtractionMultiplication(Kp1_D, u_D_kp1);
 
-        Gedim::Profiler::StopTime("AssembleSystem");
-        Gedim::Output::PrintStatusProgram("AssembleSystem");
-
         if (dofs_data.NumberDOFs > 0)
         {
-            Gedim::Output::PrintGenericMessage("Factorize...", true);
-            Gedim::Profiler::StartTime("Factorize");
-
-            Gedim::Eigen_LUSolver solver;
-            solver.Initialize(Kp1);
-
-            Gedim::Profiler::StopTime("Factorize");
-            Gedim::Output::PrintStatusProgram("Factorize");
-
             Gedim::Output::PrintGenericMessage("Solve...", true);
             Gedim::Profiler::StartTime("Solve");
 
