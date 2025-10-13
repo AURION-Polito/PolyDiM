@@ -127,10 +127,10 @@ if __name__ == "__main__":
     mesh_max_area = 0.0
     method_types = [0, 1, 2, 3]
     method_orders = [1, 2, 3]
-	thetas = [0, 1, 0.5]
-	for theta in thetas:
-		for method_type in method_types:
-		    for method_order in method_orders:
+    thetas = [0, 1, 0.5]
+    for theta in thetas:
+        for method_type in method_types:
+    	    for method_order in method_orders:
 		        export_path = run_program(program_folder,
 		                                  program_path,
 		                                  "Run_MG{0}".format(mesh_generator),
@@ -156,8 +156,8 @@ if __name__ == "__main__":
     method_orders = [1, 2, 3]
     thetas = [0, 1, 0.5]
     for theta in thetas:
-		for method_type in method_types:
-		    for method_order in method_orders:
+    	for method_type in method_types:
+    	    for method_order in method_orders:
 		        export_path = run_program(program_folder,
 		                                  program_path,
 		                                  "Run_MG{0}".format(mesh_generator),
@@ -183,8 +183,8 @@ if __name__ == "__main__":
     method_orders = [1, 2]
     thetas = [0, 1, 0.5]
     for theta in thetas:
-		for method_type in method_types:
-		    for method_order in method_orders:
+    	for method_type in method_types:
+    	    for method_order in method_orders:
 		        num_ref = 0
 		        for mesh_max_area in mesh_max_areas:
 		            export_path = run_program(program_folder,
