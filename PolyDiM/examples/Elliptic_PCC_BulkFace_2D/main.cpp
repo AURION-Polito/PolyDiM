@@ -134,7 +134,15 @@ int main(int argc, char **argv)
 
     const auto reference_element_1D = Polydim::FEM::PCC::create_FEM_PCC_1D_reference_element(
         Polydim::FEM::PCC::FEM_PCC_1D_LocalSpace_Types::FEM_PCC_1D_LocalSpace);
-    const auto reference_element_data_1D = reference_element_1D->Create(config.MethodOrder());
+
+    Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data reference_element_data_1D;
+
+    if (config.MethodType() == Polydim::PDETools::LocalSpace_PCC_2D::MethodTypes::FEM_PCC)
+        reference_element_data_1D =
+            reference_element_1D->Create(config.MethodOrder(), Polydim::FEM::PCC::FEM_PCC_1D_Types::Equispaced);
+    else
+        reference_element_data_1D =
+            reference_element_1D->Create(config.MethodOrder(), Polydim::FEM::PCC::FEM_PCC_1D_Types::GaussLobatto);
 
     Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data_2D(mesh_2D);
     Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data_1D(mesh_1D);

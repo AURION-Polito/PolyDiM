@@ -50,6 +50,10 @@ struct I_Test
                                         const Eigen::MatrixXd &points,
                                         const double &time_value) const = 0;
 
+    virtual Eigen::VectorXd initial_solution(const unsigned int dimension,
+                                             const unsigned int id_domain,
+                                             const Eigen::MatrixXd &points) const = 0;
+
     virtual Eigen::VectorXd exact_solution(const unsigned int dimension,
                                            const unsigned int id_domain,
                                            const Eigen::MatrixXd &points,
@@ -124,12 +128,19 @@ struct Patch_Test final : public I_Test
         return source_term;
     };
 
+    Eigen::VectorXd initial_solution(const unsigned int dimension, const unsigned int id_domain, const Eigen::MatrixXd &points) const
+    {
+        return exact_solution(dimension, id_domain, points, 0.0);
+    };
+
     Eigen::VectorXd exact_solution(const unsigned int dimension,
                                    const unsigned int id_domain,
                                    const Eigen::MatrixXd &points,
                                    const double &time_value) const
     {
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+        const Eigen::ArrayXd polynomial = (points.row(0).array() + points.row(1).array() + 0.5) *
+                                          (points.row(0).array() + points.row(1).array() + 0.5) *
+                                          (points.row(0).array() + points.row(1).array() + 0.5);
 
         return polynomial;
     };
@@ -139,7 +150,8 @@ struct Patch_Test final : public I_Test
                                                              const Eigen::MatrixXd &points,
                                                              const double &time_value) const
     {
-        Eigen::VectorXd derivatives = Eigen::VectorXd::Constant(points.cols(), 1.0);
+        Eigen::VectorXd derivatives = (points.row(0).array() + points.row(1).array() + 0.5) *
+                                      (points.row(0).array() + points.row(1).array() + 0.5) * 3.0;
         return {derivatives, derivatives, Eigen::VectorXd::Zero(points.cols())};
     }
 

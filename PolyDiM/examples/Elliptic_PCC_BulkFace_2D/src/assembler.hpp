@@ -41,6 +41,7 @@ class Assembler final
         Gedim::Eigen_SparseArray<> globalMatrixA;
         Gedim::Eigen_Array<> rightHandSide;
         Gedim::Eigen_Array<> solution;
+        Gedim::Eigen_Array<> initial_solution;
     };
 
     struct Performance_Data_2D final
@@ -142,6 +143,24 @@ class Assembler final
                                    const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data_1D,
                                    const Polydim::examples::Elliptic_PCC_BulkFace_2D::test::I_Test &test,
                                    Assembler::Elliptic_PCC_BF_2D_Problem_Data &assembler_data) const;
+
+    void ComputeInitalCondition_2D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+                                   const Gedim::IMeshDAO &mesh,
+                                   const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                   const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                                   const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
+                                   const test::I_Test &test,
+                                   Gedim::Eigen_Array<> &initial_solution) const;
+
+    void ComputeInitalCondition_1D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+                                   const Gedim::IMeshDAO &mesh,
+                                   const Gedim::MeshUtilities::MeshGeometricData1D &mesh_geometric_data,
+                                   const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                                   const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                                   const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
+                                   const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data,
+                                   const test::I_Test &test,
+                                   Gedim::Eigen_Array<> &initial_condition) const;
 
   public:
     Elliptic_PCC_BF_2D_Problem_Data Solve(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,

@@ -397,6 +397,195 @@ void Assembler::ComputeTransitionMatrices(const Polydim::examples::Elliptic_PCC_
     }
 }
 // ***************************************************************************
+void Assembler::ComputeInitalCondition_2D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+                                          const Gedim::IMeshDAO &mesh,
+                                          const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                          const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                                          const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
+                                          const test::I_Test &test,
+                                          Gedim::Eigen_Array<> &initial_condition) const
+{
+
+    const unsigned int dimension = 2;
+    const unsigned int id_domain = 0;
+
+    // Assemble equation elements
+    for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
+    {
+        // DOFs: vertices
+        const Eigen::MatrixXd coordinates = mesh.Cell2DVerticesCoordinates(c);
+        const Eigen::VectorXd dofs_vertices = test.initial_solution(dimension, id_domain, coordinates);
+
+        // Assemble local numerical solution
+        unsigned int count = 0;
+        for (unsigned int p = 0; p < mesh.Cell2DNumberVertices(c); p++)
+        {
+            const unsigned int cell0D_index = mesh.Cell2DVertex(c, p);
+
+            const auto local_dofs = dofs_data.CellsDOFs.at(0).at(cell0D_index);
+            for (unsigned int loc_i = 0; loc_i < local_dofs.size(); loc_i++)
+            {
+                const auto &local_dof_i = local_dofs.at(loc_i);
+                const int global_i = local_dof_i.Global_Index;
+
+                switch (local_dof_i.Type)
+                {
+                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
+                    initial_condition.SetValue(global_i, dofs_vertices(count++));
+                }
+                break;
+                default:
+                    throw std::runtime_error("Unknown DOF Type");
+                }
+            }
+        }
+
+        // Assemble strong boundary condition on Cell1Ds
+        if (reference_element_data.Order > 1)
+        {
+
+            const auto local_space_data =
+                Polydim::PDETools::LocalSpace_PCC_2D::CreateLocalSpace(config.GeometricTolerance1D(),
+                                                                       config.GeometricTolerance2D(),
+                                                                       mesh_geometric_data,
+                                                                       c,
+                                                                       reference_element_data);
+
+            // Assemble strong boundary condition on Cell1Ds
+            for (unsigned int ed = 0; ed < mesh.Cell2DNumberEdges(c); ++ed)
+            {
+                const unsigned int cell1D_index = mesh.Cell2DEdge(c, ed);
+
+                const auto local_dofs = dofs_data.CellsDOFs.at(1).at(cell1D_index);
+
+                const auto edge_dofs_coordinates =
+                    Polydim::PDETools::LocalSpace_PCC_2D::EdgeDofsCoordinates(reference_element_data, local_space_data, ed);
+
+                const Eigen::VectorXd dofs_edge = test.initial_solution(dimension, id_domain, edge_dofs_coordinates);
+
+                for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
+                {
+                    const auto &local_dof_i = local_dofs.at(loc_i);
+                    const int global_i = local_dof_i.Global_Index;
+
+                    switch (local_dof_i.Type)
+                    {
+                    case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
+                        initial_condition.SetValue(global_i, dofs_edge(loc_i));
+                    }
+                    break;
+                    default:
+                        throw std::runtime_error("Unknown DOF Type");
+                    }
+                }
+            }
+
+            const auto local_dofs = dofs_data.CellsDOFs.at(2).at(c);
+
+            if (local_dofs.size())
+            {
+                const auto internal_dofs_coordinates =
+                    Polydim::PDETools::LocalSpace_PCC_2D::InternalDofsCoordinates(reference_element_data, local_space_data);
+
+                const Eigen::VectorXd initial_values_at_dofs =
+                    test.initial_solution(dimension, id_domain, internal_dofs_coordinates.Points);
+
+                const Eigen::VectorXd dofs_internal =
+                    Polydim::PDETools::LocalSpace_PCC_2D::InternalDofs(reference_element_data,
+                                                                       local_space_data,
+                                                                       initial_values_at_dofs,
+                                                                       internal_dofs_coordinates);
+
+                for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
+                {
+                    const auto &local_dof_i = local_dofs.at(loc_i);
+                    const int global_i = local_dof_i.Global_Index;
+
+                    switch (local_dof_i.Type)
+                    {
+                    case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
+                        initial_condition.SetValue(global_i, dofs_internal(loc_i));
+                    }
+                    break;
+                    default:
+                        throw std::runtime_error("Unknown DOF Type");
+                    }
+                }
+            }
+        }
+    }
+}
+// ***************************************************************************
+void Assembler::ComputeInitalCondition_1D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+                                          const Gedim::IMeshDAO &mesh,
+                                          const Gedim::MeshUtilities::MeshGeometricData1D &mesh_geometric_data,
+                                          const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                                          const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                                          const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
+                                          const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data,
+                                          const test::I_Test &test,
+                                          Gedim::Eigen_Array<> &initial_condition) const
+{
+
+    const unsigned int dimension = 1;
+
+    // Assemble strong boundary condition on Cell0Ds
+    for (unsigned int p = 0; p < mesh.Cell0DTotalNumber(); ++p)
+    {
+        const auto coordinates = mesh.Cell0DCoordinates(p);
+
+        const Eigen::VectorXd dofs_vertices = test.initial_solution(dimension, mesh.Cell0DMarker(p), coordinates);
+
+        const auto local_dofs = dofs_data.CellsDOFs.at(0).at(p);
+
+        for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
+        {
+            const auto &local_dof_i = local_dofs.at(loc_i);
+
+            switch (local_dof_i.Type)
+            {
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
+                initial_condition.SetValue(local_dof_i.Global_Index, dofs_vertices(0));
+            }
+            break;
+            default:
+                throw std::runtime_error("Unknown DOF Type");
+            }
+        }
+    }
+
+    // Assemble strong boundary condition on Cell1Ds
+    if (reference_element_data.Order > 1)
+    {
+        // Assemble equation elements
+        for (unsigned int c = 0; c < mesh.Cell1DTotalNumber(); c++)
+        {
+            const auto local_dofs = dofs_data.CellsDOFs.at(1).at(c);
+
+            // const auto edge_dofs_coordinates;
+
+            Eigen::VectorXd
+                dofs_edge /*= test.initial_solution(dimension, mesh.Cell1DMarker(c), edge_dofs_coordinates)*/;
+
+            for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
+            {
+                const auto &local_dof_i = local_dofs.at(loc_i);
+                const int global_i = local_dof_i.Global_Index;
+
+                switch (local_dof_i.Type)
+                {
+                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
+                    initial_condition.SetValue(global_i, dofs_edge(loc_i));
+                }
+                break;
+                default:
+                    throw std::runtime_error("Unknown DOF Type");
+                }
+            }
+        }
+    }
+}
+// ***************************************************************************
 Assembler::Performance_Data_2D Assembler::ComputePerformance_2D(
     const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
     const Gedim::MeshMatricesDAO &mesh,

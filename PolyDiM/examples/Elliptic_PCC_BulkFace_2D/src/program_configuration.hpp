@@ -26,7 +26,7 @@ namespace Elliptic_PCC_BulkFace_2D
 struct Program_configuration final
 {
 
-    const unsigned int method_order = 1;
+    const unsigned int method_order = 3;
     const double time_theta = 0.0;
 
     Program_configuration()
