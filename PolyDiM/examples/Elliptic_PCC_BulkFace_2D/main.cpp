@@ -9,6 +9,7 @@
 //
 // This file can be used citing references in CITATION.cff file.
 
+#include "Eigen_LUSolver.hpp"
 #include "FEM_PCC_1D_Creator.hpp"
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
 #include "VTKUtilities.hpp"
@@ -103,6 +104,7 @@ int main(int argc, char **argv)
 
     const auto time_steps =
         Polydim::examples::Elliptic_PCC_BulkFace_2D::program_utilities::create_time_steps(config, domain.time_domain);
+    const double delta_time = config.TimeStep();
 
     Gedim::Profiler::StopTime("CreateMesh");
     Gedim::Output::PrintStatusProgram("CreateMesh");
@@ -174,54 +176,117 @@ int main(int argc, char **argv)
     Gedim::Profiler::StopTime("CreateDiscreteSpace");
     Gedim::Output::PrintStatusProgram("CreateDiscreteSpace");
 
+    Gedim::Output::PrintGenericMessage("AssembleSystem Discrete Type " +
+                                           std::to_string(static_cast<unsigned int>(config.MethodType())) + "...",
+                                       true);
+    Gedim::Profiler::StartTime("AssembleSystem");
+
     Polydim::examples::Elliptic_PCC_BulkFace_2D::Assembler assembler;
-    const auto assembler_data = assembler.Solve(config,
-                                                time_steps,
-                                                mesh_2D,
-                                                mesh_geometric_data_2D,
-                                                mesh_1D,
-                                                mesh_geometric_data_1D,
-                                                extract_data,
-                                                mesh_dofs_info,
-                                                dofs_data,
-                                                count_dofs,
-                                                reference_element_data_2D,
-                                                reference_element_data_1D,
-                                                *test);
+    Polydim::examples::Elliptic_PCC_BulkFace_2D::Assembler::Elliptic_PCC_BF_2D_Problem_Data assembler_data;
 
-    Gedim::Output::PrintGenericMessage("ComputeErrors...", true);
-    Gedim::Profiler::StartTime("ComputeErrors");
+    // assembler.ComputeInitialCondition(config,
+    //                                   mesh_2D,
+    //                                   mesh_geometric_data_2D,
+    //                                   mesh_1D,
+    //                                   mesh_geometric_data_1D,
+    //                                   dofs_data,
+    //                                   count_dofs,
+    //                                   reference_element_data_2D,
+    //                                   reference_element_data_1D,
+    //                                   *test,
+    //                                   assembler_data.initial_solution);
 
-    auto post_process_data = assembler.PostProcessSolution(config,
-                                                           mesh_2D,
-                                                           mesh_geometric_data_2D,
-                                                           mesh_1D,
-                                                           mesh_geometric_data_1D,
-                                                           mesh_dofs_info,
-                                                           dofs_data,
-                                                           count_dofs,
-                                                           reference_element_data_2D,
-                                                           reference_element_data_1D,
-                                                           *test,
-                                                           assembler_data);
+    assembler.AssembleMatrix(config,
+                             mesh_2D,
+                             mesh_geometric_data_2D,
+                             mesh_1D,
+                             mesh_geometric_data_1D,
+                             extract_data,
+                             mesh_dofs_info,
+                             dofs_data,
+                             count_dofs,
+                             reference_element_data_2D,
+                             reference_element_data_1D,
+                             *test,
+                             assembler_data.globalMatrixA,
+                             assembler_data.globalMatrixM);
 
-    Gedim::Profiler::StopTime("ComputeErrors");
-    Gedim::Output::PrintStatusProgram("ComputeErrors");
+    Gedim::Profiler::StopTime("AssembleSystem");
+    Gedim::Output::PrintStatusProgram("AssembleSystem");
 
-    Gedim::Output::PrintGenericMessage("ExportSolution...", true);
-    Gedim::Profiler::StartTime("ExportSolution");
+    Gedim::Output::PrintGenericMessage("Factorize...", true);
+    Gedim::Profiler::StartTime("Factorize");
 
-    Polydim::examples::Elliptic_PCC_BulkFace_2D::program_utilities::export_solution(config,
-                                                                                    mesh_2D,
-                                                                                    mesh_1D,
-                                                                                    dofs_data,
-                                                                                    assembler_data,
-                                                                                    post_process_data,
-                                                                                    exportSolutionFolder,
-                                                                                    exportVtuFolder);
+    Gedim::Eigen_LUSolver solver;
+    solver.Initialize(assembler_data.globalMatrixA);
 
-    Gedim::Profiler::StopTime("ExportSolution");
-    Gedim::Output::PrintStatusProgram("ExportSolution");
+    Gedim::Profiler::StopTime("Factorize");
+    Gedim::Output::PrintStatusProgram("Factorize");
+
+    for (unsigned int t = 1; t < time_steps.size(); t++)
+    {
+        const double value_time = time_steps[t];
+
+        assembler.AssembleRhs(config,
+                              value_time,
+                              mesh_2D,
+                              mesh_geometric_data_2D,
+                              mesh_1D,
+                              mesh_geometric_data_1D,
+                              extract_data,
+                              mesh_dofs_info,
+                              dofs_data,
+                              count_dofs,
+                              reference_element_data_2D,
+                              reference_element_data_1D,
+                              *test,
+                              assembler_data.rightHandSide);
+
+        Gedim::Output::PrintGenericMessage("Solve...", true);
+        Gedim::Profiler::StartTime("Solve");
+
+        assembler_data.solution.SetSize(count_dofs.num_total_dofs);
+        solver.Solve(assembler_data.rightHandSide, assembler_data.solution);
+
+        Gedim::Profiler::StopTime("Solve");
+        Gedim::Output::PrintStatusProgram("Solve");
+
+        Gedim::Output::PrintGenericMessage("ComputeErrors...", true);
+        Gedim::Profiler::StartTime("ComputeErrors");
+
+        auto post_process_data = assembler.PostProcessSolution(config,
+                                                               value_time,
+                                                               mesh_2D,
+                                                               mesh_geometric_data_2D,
+                                                               mesh_1D,
+                                                               mesh_geometric_data_1D,
+                                                               mesh_dofs_info,
+                                                               dofs_data,
+                                                               count_dofs,
+                                                               reference_element_data_2D,
+                                                               reference_element_data_1D,
+                                                               *test,
+                                                               assembler_data);
+
+        Gedim::Profiler::StopTime("ComputeErrors");
+        Gedim::Output::PrintStatusProgram("ComputeErrors");
+
+        Gedim::Output::PrintGenericMessage("ExportSolution...", true);
+        Gedim::Profiler::StartTime("ExportSolution");
+
+        Polydim::examples::Elliptic_PCC_BulkFace_2D::program_utilities::export_solution(config,
+                                                                                        value_time,
+                                                                                        mesh_2D,
+                                                                                        mesh_1D,
+                                                                                        dofs_data,
+                                                                                        assembler_data,
+                                                                                        post_process_data,
+                                                                                        exportSolutionFolder,
+                                                                                        exportVtuFolder);
+
+        Gedim::Profiler::StopTime("ExportSolution");
+        Gedim::Output::PrintStatusProgram("ExportSolution");
+    }
 
     Gedim::Output::PrintGenericMessage("ComputeMethodPerformance...", true);
     Gedim::Profiler::StartTime("ComputeMethodPerformance");

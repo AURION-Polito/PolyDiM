@@ -37,6 +37,7 @@ std::vector<double> create_time_steps(const Polydim::examples::Elliptic_PCC_Bulk
                                       const std::array<double, 2> &time_domain);
 
 void export_solution(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+                     const double &value_time,
                      const Gedim::MeshMatricesDAO &mesh_2D,
                      const Gedim::MeshMatricesDAO &mesh_1D,
                      const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
@@ -50,6 +51,7 @@ void export_performance_2D(const Program_configuration &config,
                            const std::string &exportFolder);
 
 void export_solution_1D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+                        const double &value_time,
                         const Gedim::MeshMatricesDAO &mesh,
                         const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                         const Polydim::examples::Elliptic_PCC_BulkFace_2D::Assembler::PostProcess_Data_1D &post_process_data,
@@ -57,6 +59,7 @@ void export_solution_1D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Progr
                         const std::string &exportVtuFolder);
 
 void export_solution_2D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+                        const double &value_time,
                         const Gedim::MeshMatricesDAO &mesh,
                         const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                         const Polydim::examples::Elliptic_PCC_BulkFace_2D::Assembler::PostProcess_Data_2D &post_process_data,

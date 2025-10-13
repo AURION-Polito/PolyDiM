@@ -89,6 +89,7 @@ std::vector<double> create_time_steps(const Polydim::examples::Elliptic_PCC_Bulk
 }
 // ***************************************************************************
 void export_solution(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+                     const double &value_time,
                      const Gedim::MeshMatricesDAO &mesh_2D,
                      const Gedim::MeshMatricesDAO &mesh_1D,
                      const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
@@ -100,18 +101,21 @@ void export_solution(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_
 
     const char separator = ';';
 
-    export_solution_2D(config, mesh_2D, dofs_data[0], post_process_data.post_process_data_2D, exportSolutionFolder, exportVtuFolder);
+    export_solution_2D(config, value_time, mesh_2D, dofs_data[0], post_process_data.post_process_data_2D, exportSolutionFolder, exportVtuFolder);
 
-    export_solution_1D(config, mesh_1D, dofs_data[1], post_process_data.post_process_data_1D, exportSolutionFolder, exportVtuFolder);
+    export_solution_1D(config, value_time, mesh_1D, dofs_data[1], post_process_data.post_process_data_1D, exportSolutionFolder, exportVtuFolder);
 
+    std::cout << "value_time" << separator;
     std::cout << "nnzA" << separator;
     std::cout << "residual" << std::endl;
 
+    std::cout << value_time << separator;
     std::cout << std::scientific << assembler_data.globalMatrixA.NonZeros() << separator;
     std::cout << std::scientific << post_process_data.residual_norm << std::endl;
 }
 // ***************************************************************************
 void export_solution_1D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+                        const double &value_time,
                         const Gedim::MeshMatricesDAO &mesh,
                         const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                         const Polydim::examples::Elliptic_PCC_BulkFace_2D::Assembler::PostProcess_Data_1D &post_process_data,
@@ -217,6 +221,7 @@ void export_solution_1D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Progr
 }
 // ***************************************************************************
 void export_solution_2D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+                        const double &value_time,
                         const Gedim::MeshMatricesDAO &mesh,
                         const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                         const Polydim::examples::Elliptic_PCC_BulkFace_2D::Assembler::PostProcess_Data_2D &post_process_data,
