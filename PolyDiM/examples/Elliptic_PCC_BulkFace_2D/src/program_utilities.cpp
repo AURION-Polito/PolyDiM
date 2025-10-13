@@ -72,6 +72,22 @@ void create_domain_mesh_2D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Pr
     }
 }
 // ***************************************************************************
+std::vector<double> create_time_steps(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+                                      const std::array<double, 2> &time_domain)
+{
+    Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
+    geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance1D();
+    geometryUtilitiesConfig.Tolerance2D = config.GeometricTolerance2D();
+    Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
+
+    Gedim::Output::Assert(geometryUtilities.IsValuePositive(config.TimeStep(), geometryUtilities.Tolerance1D()));
+    std::vector<double> times = geometryUtilities.EquispaceCoordinates(config.TimeStep(), true);
+    for (unsigned int t = 0; t < times.size(); t++)
+        times[t] = (time_domain.at(1) - time_domain.at(0)) * times[t] + time_domain.at(0);
+
+    return times;
+}
+// ***************************************************************************
 void export_solution(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
                      const Gedim::MeshMatricesDAO &mesh_2D,
                      const Gedim::MeshMatricesDAO &mesh_1D,

@@ -9,14 +9,11 @@
 //
 // This file can be used citing references in CITATION.cff file.
 
-#include "Eigen_LUSolver.hpp"
 #include "FEM_PCC_1D_Creator.hpp"
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
 #include "VTKUtilities.hpp"
 #include "program_utilities.hpp"
 #include "test_definition.hpp"
-
-unsigned int Polydim::examples::Elliptic_PCC_BulkFace_2D::test::Patch_Test::order;
 
 int main(int argc, char **argv)
 {
@@ -63,8 +60,6 @@ int main(int argc, char **argv)
 
     Gedim::MeshUtilities meshUtilities;
 
-    Polydim::examples::Elliptic_PCC_BulkFace_2D::test::Patch_Test::order = config.MethodOrder();
-
     const auto test = Polydim::examples::Elliptic_PCC_BulkFace_2D::program_utilities::create_test(config);
 
     const auto domain = test->domain();
@@ -73,7 +68,7 @@ int main(int argc, char **argv)
     // export domain
     {
         Gedim::VTKUtilities vtkUtilities;
-        vtkUtilities.AddPolygon(domain.vertices);
+        vtkUtilities.AddPolygon(domain.spatial_domain.vertices);
         vtkUtilities.Export(exportVtuFolder + "/Domain.vtu");
     }
 
@@ -87,7 +82,7 @@ int main(int argc, char **argv)
     Gedim::MeshMatrices meshData_2D;
     Gedim::MeshMatricesDAO mesh_2D(meshData_2D);
 
-    Polydim::examples::Elliptic_PCC_BulkFace_2D::program_utilities::create_domain_mesh_2D(config, domain, mesh_2D);
+    Polydim::examples::Elliptic_PCC_BulkFace_2D::program_utilities::create_domain_mesh_2D(config, domain.spatial_domain, mesh_2D);
 
     Gedim::MeshMatrices meshData_1D;
     Gedim::MeshMatricesDAO mesh_1D(meshData_1D);
@@ -105,6 +100,9 @@ int main(int argc, char **argv)
 
     Gedim::MeshUtilities::ExtractMeshData extract_data =
         meshUtilities.ExtractMesh1D(cell0DsFilter, cell1DsFilter, mesh_2D, mesh_1D);
+
+    const auto time_steps =
+        Polydim::examples::Elliptic_PCC_BulkFace_2D::program_utilities::create_time_steps(config, domain.time_domain);
 
     Gedim::Profiler::StopTime("CreateMesh");
     Gedim::Output::PrintStatusProgram("CreateMesh");
@@ -170,10 +168,12 @@ int main(int argc, char **argv)
 
     Polydim::examples::Elliptic_PCC_BulkFace_2D::Assembler assembler;
     const auto assembler_data = assembler.Solve(config,
+                                                time_steps,
                                                 mesh_2D,
                                                 mesh_geometric_data_2D,
                                                 mesh_1D,
                                                 mesh_geometric_data_1D,
+                                                extract_data,
                                                 mesh_dofs_info,
                                                 dofs_data,
                                                 count_dofs,

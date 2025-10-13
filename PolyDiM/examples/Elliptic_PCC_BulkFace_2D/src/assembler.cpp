@@ -26,10 +26,12 @@ namespace Elliptic_PCC_BulkFace_2D
 // ***************************************************************************
 Assembler::Elliptic_PCC_BF_2D_Problem_Data Assembler::Solve(
     const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+    const std::vector<double> &time_steps,
     const Gedim::MeshMatricesDAO &mesh_2D,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data_2D,
     const Gedim::MeshMatricesDAO &mesh_1D,
     const Gedim::MeshUtilities::MeshGeometricData1D &mesh_geometric_data_1D,
+    const Gedim::MeshUtilities::ExtractMeshData &extract_data,
     const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
     const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
     const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
@@ -50,6 +52,8 @@ Assembler::Elliptic_PCC_BF_2D_Problem_Data Assembler::Solve(
     Assemble_2D(config, mesh_2D, mesh_geometric_data_2D, mesh_dofs_info[0], dofs_data[0], count_dofs, reference_element_data_2D, test, assembler_data);
 
     Assemble_1D(config, mesh_1D, mesh_geometric_data_1D, mesh_dofs_info[1], dofs_data[1], count_dofs, reference_element_data_1D, test, assembler_data);
+
+    ComputeTransitionMatrices(config, mesh_1D, mesh_geometric_data_1D, extract_data, mesh_dofs_info, dofs_data, count_dofs, reference_element_data_1D, test, assembler_data);
 
     assembler_data.rightHandSide.Create();
     assembler_data.globalMatrixA.Create();
@@ -143,8 +147,6 @@ void Assembler::Assemble_2D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::P
 
     Gedim::Eigen_SparseArray<> dirichletMatrixA;
 
-    Polydim::PDETools::Equations::EllipticEquation equation;
-
     for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); ++c)
     {
         const auto local_space_data = Polydim::PDETools::LocalSpace_PCC_2D::CreateLocalSpace(config.GeometricTolerance1D(),
@@ -166,7 +168,7 @@ void Assembler::Assemble_2D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::P
 
         const auto diffusion_term_values = test.diffusion_term(dimension, id_domain, cell2D_internal_quadrature.Points);
         const auto reaction_term_values = test.reaction_term(dimension, id_domain, cell2D_internal_quadrature.Points);
-        const auto source_term_values = test.source_term(dimension, id_domain, cell2D_internal_quadrature.Points);
+        const auto source_term_values = test.source_term(dimension, id_domain, cell2D_internal_quadrature.Points, 0.0);
 
         const Eigen::MatrixXd local_A = equation.ComputeCellDiffusionMatrix(diffusion_term_values,
                                                                             basis_functions_derivative_values,
@@ -224,40 +226,53 @@ void Assembler::Assemble_1D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::P
     const auto local_space =
         Polydim::FEM::PCC::create_FEM_PCC_1D_local_space(FEM::PCC::FEM_PCC_1D_LocalSpace_Types::FEM_PCC_1D_LocalSpace);
 
-    Polydim::PDETools::Equations::EllipticEquation equation;
+    Eigen::Vector3d reference_origin = Eigen::Vector3d::Zero();
+    Eigen::Vector3d reference_tangent = Eigen::Vector3d::Zero();
+    reference_tangent(0) = 1.0;
+
+    const Polydim::FEM::PCC::FEM_PCC_1D_Segment_Geometry segment = {config.GeometricTolerance1D(), reference_origin, reference_tangent, 1.0};
+
+    // compute vem values
+    const Gedim::Quadrature::QuadratureData reference_quadrature =
+        Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * reference_element_data.Order);
+    const Eigen::VectorXd points_curvilinear_coordinates = reference_quadrature.Points.row(0);
+    const unsigned int num_ref_quadrature_points = reference_quadrature.Points.cols();
+
+    const auto local_space_data = local_space->CreateLocalSpace(reference_element_data, segment);
+
+    const auto basis_functions_values =
+        local_space->ComputeBasisFunctionsValues(reference_element_data, local_space_data, reference_quadrature.Points);
+
+    const auto basis_functions_derivative_values =
+        local_space->ComputeBasisFunctionsDerivativeValues(reference_element_data,
+                                                           local_space_data,
+                                                           reference_quadrature.Points);
 
     for (unsigned int c = 0; c < mesh.Cell1DTotalNumber(); ++c)
     {
-        const Polydim::FEM::PCC::FEM_PCC_1D_Segment_Geometry segment = {config.GeometricTolerance1D(),
-                                                                        mesh_geometric_data.Cell1DsVertices.at(c).col(0),
-                                                                        mesh_geometric_data.Cell1DsTangents.at(c),
-                                                                        mesh_geometric_data.Cell1DsLengths.at(c)};
 
-        const auto local_space_data = local_space->CreateLocalSpace(reference_element_data, segment);
+        // map edge internal quadrature points
+        const Eigen::Vector3d &edgeStart = mesh_geometric_data.Cell1DsVertices.at(c).col(0);
+        const Eigen::Vector3d &edgeTangent = mesh_geometric_data.Cell1DsTangents.at(c);
 
-        const auto basis_functions_values = local_space->ComputeBasisFunctionsValues(reference_element_data, local_space_data);
+        Eigen::MatrixXd quadrature_points_2D(3, num_ref_quadrature_points);
+        for (unsigned int q = 0; q < num_ref_quadrature_points; q++)
+            quadrature_points_2D.col(q) = edgeStart + reference_quadrature.Points(0, q) * edgeTangent;
 
-        const auto basis_functions_derivative_values =
-            local_space->ComputeBasisFunctionsDerivativeValues(reference_element_data, local_space_data);
+        const Eigen::VectorXd quadrature_weights_2D = reference_quadrature.Weights * mesh_geometric_data.Cell1DsLengths.at(c);
 
-        const auto diffusion_term_values =
-            test.diffusion_term(dimension, mesh.Cell1DMarker(c), local_space_data.InternalQuadrature.Points);
-        const auto reaction_term_values =
-            test.reaction_term(dimension, mesh.Cell1DMarker(c), local_space_data.InternalQuadrature.Points);
-        const auto source_term_values =
-            test.source_term(dimension, mesh.Cell1DMarker(c), local_space_data.InternalQuadrature.Points);
+        const auto diffusion_term_values = test.diffusion_term(dimension, mesh.Cell1DMarker(c), quadrature_points_2D);
+        const auto reaction_term_values = test.reaction_term(dimension, mesh.Cell1DMarker(c), quadrature_points_2D);
+        const auto beta_term_values = test.beta(dimension, mesh.Cell1DMarker(c), quadrature_points_2D);
+        const auto source_term_values = test.source_term(dimension, mesh.Cell1DMarker(c), quadrature_points_2D, 0.0);
 
-        const auto local_A = equation.ComputeCellDiffusionMatrix(diffusion_term_values,
-                                                                 basis_functions_derivative_values,
-                                                                 local_space_data.InternalQuadrature.Weights);
+        const auto local_A =
+            equation.ComputeCellDiffusionMatrix(diffusion_term_values, basis_functions_derivative_values, quadrature_weights_2D);
 
-        const auto local_C = equation.ComputeCellReactionMatrix(reaction_term_values,
-                                                                basis_functions_values,
-                                                                local_space_data.InternalQuadrature.Weights);
+        const auto local_C =
+            equation.ComputeCellReactionMatrix(reaction_term_values + beta_term_values, basis_functions_values, quadrature_weights_2D);
 
-        const auto local_rhs = equation.ComputeCellForcingTerm(source_term_values,
-                                                               basis_functions_values,
-                                                               local_space_data.InternalQuadrature.Weights);
+        const auto local_rhs = equation.ComputeCellForcingTerm(source_term_values, basis_functions_values, quadrature_weights_2D);
 
         const auto &global_dofs = dofs_data.CellsGlobalDOFs[1].at(c);
 
@@ -274,6 +289,111 @@ void Assembler::Assemble_1D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::P
                                                                                           assembler_data.globalMatrixA,
                                                                                           dirichletMatrixA,
                                                                                           assembler_data.rightHandSide);
+    }
+}
+// ***************************************************************************
+void Assembler::ComputeTransitionMatrices(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+                                          const Gedim::MeshMatricesDAO &mesh_1D,
+                                          const Gedim::MeshUtilities::MeshGeometricData1D &mesh_geometric_data_1D,
+                                          const Gedim::MeshUtilities::ExtractMeshData &extract_data,
+                                          const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
+                                          const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                                          const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
+                                          const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data_1D,
+                                          const Polydim::examples::Elliptic_PCC_BulkFace_2D::test::I_Test &test,
+                                          Assembler::Elliptic_PCC_BF_2D_Problem_Data &assembler_data) const
+{
+    const unsigned int dimension = 1;
+
+    Gedim::Eigen_SparseArray<> dirichletMatrixA;
+    const auto local_space =
+        Polydim::FEM::PCC::create_FEM_PCC_1D_local_space(FEM::PCC::FEM_PCC_1D_LocalSpace_Types::FEM_PCC_1D_LocalSpace);
+
+    Eigen::Vector3d reference_origin = Eigen::Vector3d::Zero();
+    Eigen::Vector3d reference_tangent = Eigen::Vector3d::Zero();
+    reference_tangent(0) = 1.0;
+
+    const Polydim::FEM::PCC::FEM_PCC_1D_Segment_Geometry segment = {config.GeometricTolerance1D(), reference_origin, reference_tangent, 1.0};
+
+    // compute vem values
+    const Gedim::Quadrature::QuadratureData reference_quadrature =
+        Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * reference_element_data_1D.Order);
+    const Eigen::VectorXd points_curvilinear_coordinates = reference_quadrature.Points.row(0);
+    const unsigned int num_ref_quadrature_points = reference_quadrature.Points.cols();
+
+    const auto local_space_data = local_space->CreateLocalSpace(reference_element_data_1D, segment);
+
+    const auto basis_functions_values =
+        local_space->ComputeBasisFunctionsValues(reference_element_data_1D, local_space_data, reference_quadrature.Points);
+
+    for (unsigned int c = 0; c < mesh_1D.Cell1DTotalNumber(); ++c)
+    {
+
+        // map edge internal quadrature points
+        const Eigen::Vector3d &edgeStart = mesh_geometric_data_1D.Cell1DsVertices.at(c).col(0);
+        const Eigen::Vector3d &edgeTangent = mesh_geometric_data_1D.Cell1DsTangents.at(c);
+
+        Eigen::MatrixXd quadrature_points_2D(3, num_ref_quadrature_points);
+        for (unsigned int q = 0; q < num_ref_quadrature_points; q++)
+            quadrature_points_2D.col(q) = edgeStart + reference_quadrature.Points(0, q) * edgeTangent;
+
+        const Eigen::VectorXd quadrature_weights_2D =
+            reference_quadrature.Weights * mesh_geometric_data_1D.Cell1DsLengths.at(c);
+
+        const auto alpha_term_values = test.alpha(dimension, mesh_1D.Cell1DMarker(c), quadrature_points_2D);
+        const auto beta_term_values = test.beta(dimension, mesh_1D.Cell1DMarker(c), quadrature_points_2D);
+
+        const auto &global_dofs = dofs_data[1].CellsGlobalDOFs[1].at(c);
+
+        assert(local_space_data.NumberOfBasisFunctions == global_dofs.size());
+
+        const auto local_alpha = equation.ComputeCellReactionMatrix(alpha_term_values, basis_functions_values, quadrature_weights_2D);
+        const auto local_beta = equation.ComputeCellReactionMatrix(beta_term_values, basis_functions_values, quadrature_weights_2D);
+
+        const unsigned int cell1D_index = extract_data.NewCell1DToOldCell1D[c];
+
+        // Assemble system
+        for (unsigned int i = 0; i < global_dofs.size(); i++)
+        {
+            const auto global_dof_i = dofs_data[1].CellsGlobalDOFs[1].at(c).at(i);
+            const auto local_dof_i =
+                dofs_data[1].CellsDOFs.at(global_dof_i.Dimension).at(global_dof_i.CellIndex).at(global_dof_i.DOFIndex);
+
+            unsigned int global_index_i = local_dof_i.Global_Index + count_dofs.offsets_DOFs[1];
+
+            for (unsigned int j = 0; j < global_dofs.size(); j++)
+            {
+                const auto &global_dof_j = dofs_data[0].CellsGlobalDOFs[1].at(cell1D_index).at(j);
+                const auto &local_dof_j =
+                    dofs_data[0].CellsDOFs.at(global_dof_j.Dimension).at(global_dof_j.CellIndex).at(global_dof_j.DOFIndex);
+
+                const unsigned int global_index_j = local_dof_j.Global_Index;
+
+                assembler_data.globalMatrixA.Triplet(global_index_j, global_index_i, -local_beta(i, j));
+                assembler_data.globalMatrixA.Triplet(global_index_i, global_index_j, -local_alpha(i, j));
+            }
+        }
+
+        // Assemble system
+        for (unsigned int i = 0; i < global_dofs.size(); i++)
+        {
+            const auto global_dof_i = dofs_data[0].CellsGlobalDOFs[1].at(cell1D_index).at(i);
+            const auto local_dof_i =
+                dofs_data[0].CellsDOFs.at(global_dof_i.Dimension).at(global_dof_i.CellIndex).at(global_dof_i.DOFIndex);
+
+            unsigned int global_index_i = local_dof_i.Global_Index;
+
+            for (unsigned int j = 0; j < global_dofs.size(); j++)
+            {
+                const auto &global_dof_j = dofs_data[0].CellsGlobalDOFs[1].at(cell1D_index).at(j);
+                const auto &local_dof_j =
+                    dofs_data[0].CellsDOFs.at(global_dof_j.Dimension).at(global_dof_j.CellIndex).at(global_dof_j.DOFIndex);
+
+                const unsigned int global_index_j = local_dof_j.Global_Index;
+
+                assembler_data.globalMatrixA.Triplet(global_index_i, global_index_j, local_alpha(i, j));
+            }
+        }
     }
 }
 // ***************************************************************************
@@ -321,7 +441,7 @@ void Assembler::PostProcessSolution_2D(const Polydim::examples::Elliptic_PCC_Bul
 
     for (unsigned int p = 0; p < mesh.Cell0DTotalNumber(); p++)
     {
-        result.cell0Ds_exact[p] = test.exact_solution(dimension, id_domain, mesh.Cell0DCoordinates(p))[0];
+        result.cell0Ds_exact[p] = test.exact_solution(dimension, id_domain, mesh.Cell0DCoordinates(p), 0.0)[0];
 
         const auto local_dofs = dofs_data.CellsDOFs.at(0).at(p);
 
@@ -369,9 +489,9 @@ void Assembler::PostProcessSolution_2D(const Polydim::examples::Elliptic_PCC_Bul
         const auto cell2D_internal_quadrature =
             Polydim::PDETools::LocalSpace_PCC_2D::InternalQuadrature(reference_element_data, local_space_data);
 
-        const auto exact_solution_values = test.exact_solution(dimension, id_domain, cell2D_internal_quadrature.Points);
+        const auto exact_solution_values = test.exact_solution(dimension, id_domain, cell2D_internal_quadrature.Points, 0.0);
         const auto exact_derivative_solution_values =
-            test.exact_derivative_solution(dimension, id_domain, cell2D_internal_quadrature.Points);
+            test.exact_derivative_solution(dimension, id_domain, cell2D_internal_quadrature.Points, 0.0);
 
         const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, dofs_data);
         const Eigen::VectorXd dofs_values =
@@ -425,12 +545,34 @@ void Assembler::PostProcessSolution_1D(const Polydim::examples::Elliptic_PCC_Bul
     const auto local_space =
         Polydim::FEM::PCC::create_FEM_PCC_1D_local_space(FEM::PCC::FEM_PCC_1D_LocalSpace_Types::FEM_PCC_1D_LocalSpace);
 
+    Eigen::Vector3d reference_origin = Eigen::Vector3d::Zero();
+    Eigen::Vector3d reference_tangent = Eigen::Vector3d::Zero();
+    reference_tangent(0) = 1.0;
+
+    const Polydim::FEM::PCC::FEM_PCC_1D_Segment_Geometry segment = {config.GeometricTolerance1D(), reference_origin, reference_tangent, 1.0};
+
+    // compute vem values
+    const auto reference_quadrature =
+        Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * reference_element_data.Order);
+    const Eigen::VectorXd points_curvilinear_coordinates = reference_quadrature.Points.row(0);
+    const unsigned int num_ref_quadrature_points = reference_quadrature.Points.cols();
+
+    const auto local_space_data = local_space->CreateLocalSpace(reference_element_data, segment);
+
+    const auto basis_functions_values =
+        local_space->ComputeBasisFunctionsValues(reference_element_data, local_space_data, reference_quadrature.Points);
+
+    const auto basis_functions_derivative_values =
+        local_space->ComputeBasisFunctionsDerivativeValues(reference_element_data,
+                                                           local_space_data,
+                                                           reference_quadrature.Points);
+
     result.cell0Ds_numeric.setZero(mesh.Cell0DTotalNumber());
     result.cell0Ds_exact.setZero(mesh.Cell0DTotalNumber());
 
     for (unsigned int p = 0; p < mesh.Cell0DTotalNumber(); p++)
     {
-        result.cell0Ds_exact[p] = test.exact_solution(dimension, mesh.Cell0DMarker(p), mesh.Cell0DCoordinates(p))[0];
+        result.cell0Ds_exact[p] = test.exact_solution(dimension, mesh.Cell0DMarker(p), mesh.Cell0DCoordinates(p), 0.0)[0];
 
         const auto local_dofs = dofs_data.CellsDOFs.at(0).at(p);
 
@@ -462,22 +604,23 @@ void Assembler::PostProcessSolution_1D(const Polydim::examples::Elliptic_PCC_Bul
 
     for (unsigned int c = 0; c < mesh.Cell1DTotalNumber(); c++)
     {
-        const Polydim::FEM::PCC::FEM_PCC_1D_Segment_Geometry segment = {config.GeometricTolerance1D(),
-                                                                        mesh_geometric_data.Cell1DsVertices.at(c).col(0),
-                                                                        mesh_geometric_data.Cell1DsTangents.at(c),
-                                                                        mesh_geometric_data.Cell1DsLengths.at(c)};
+        // map edge internal quadrature points
+        const Eigen::Vector3d &edgeStart = mesh_geometric_data.Cell1DsVertices.at(c).col(0);
+        const Eigen::Vector3d &edgeTangent = mesh_geometric_data.Cell1DsTangents.at(c);
 
-        const auto local_space_data = local_space->CreateLocalSpace(reference_element_data, segment);
+        Eigen::MatrixXd quadrature_points_2D(3, num_ref_quadrature_points);
+        for (unsigned int q = 0; q < num_ref_quadrature_points; q++)
+            quadrature_points_2D.col(q) = edgeStart + reference_quadrature.Points(0, q) * edgeTangent;
 
-        const auto basis_functions_values = local_space->ComputeBasisFunctionsValues(reference_element_data, local_space_data);
+        const Eigen::VectorXd quadrature_weights_2D = reference_quadrature.Weights * mesh_geometric_data.Cell1DsLengths.at(c);
 
-        const auto basis_functions_derivative_values =
-            local_space->ComputeBasisFunctionsDerivativeValues(reference_element_data, local_space_data);
-
-        const auto exact_solution_values =
-            test.exact_solution(dimension, mesh.Cell1DMarker(c), local_space_data.InternalQuadrature.Points);
+        const auto exact_solution_values = test.exact_solution(dimension, mesh.Cell1DMarker(c), quadrature_points_2D, 0.0);
         const auto exact_derivative_solution_values =
-            test.exact_derivative_solution(dimension, mesh.Cell1DMarker(c), local_space_data.InternalQuadrature.Points);
+            test.exact_derivative_solution(dimension, mesh.Cell1DMarker(c), quadrature_points_2D, 0.0);
+
+        const auto tangent = mesh_geometric_data.Cell1DsTangents[c];
+        const Eigen::VectorXd tangent_derivatives_values =
+            exact_derivative_solution_values[0] * tangent[0] + exact_derivative_solution_values[1] * tangent[1];
 
         const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<1>(c, dofs_data);
         const Eigen::VectorXd dofs_values =
@@ -493,15 +636,15 @@ void Assembler::PostProcessSolution_1D(const Polydim::examples::Elliptic_PCC_Bul
         const Eigen::VectorXd local_error_L2 = (basis_functions_values * dofs_values - exact_solution_values).array().square();
         const Eigen::VectorXd local_norm_L2 = (basis_functions_values * dofs_values).array().square();
 
-        result.cell1Ds_error_L2[c] = local_space_data.InternalQuadrature.Weights.transpose() * local_error_L2;
-        result.cell1Ds_norm_L2[c] = local_space_data.InternalQuadrature.Weights.transpose() * local_norm_L2;
+        result.cell1Ds_error_L2[c] = quadrature_weights_2D.transpose() * local_error_L2;
+        result.cell1Ds_norm_L2[c] = quadrature_weights_2D.transpose() * local_norm_L2;
 
         const Eigen::VectorXd local_error_H1 =
-            (basis_functions_derivative_values[0] * dofs_values - exact_derivative_solution_values[0]).array().square();
+            (basis_functions_derivative_values[0] * dofs_values - tangent_derivatives_values).array().square();
         const Eigen::VectorXd local_norm_H1 = (basis_functions_derivative_values[0] * dofs_values).array().square();
 
-        result.cell1Ds_error_H1[c] = local_space_data.InternalQuadrature.Weights.transpose() * local_error_H1;
-        result.cell1Ds_norm_H1[c] = local_space_data.InternalQuadrature.Weights.transpose() * local_norm_H1;
+        result.cell1Ds_error_H1[c] = quadrature_weights_2D.transpose() * local_error_H1;
+        result.cell1Ds_norm_H1[c] = quadrature_weights_2D.transpose() * local_norm_H1;
 
         if (mesh_geometric_data.Cell1DsLengths.at(c) > result.mesh_size)
             result.mesh_size = mesh_geometric_data.Cell1DsLengths.at(c);

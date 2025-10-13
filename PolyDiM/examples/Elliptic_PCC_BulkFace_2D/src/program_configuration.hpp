@@ -25,6 +25,10 @@ namespace Elliptic_PCC_BulkFace_2D
 {
 struct Program_configuration final
 {
+
+    const unsigned int method_order = 1;
+    const double time_theta = 0.0;
+
     Program_configuration()
     {
         Gedim::Configurations::AddProperty(
@@ -52,8 +56,10 @@ struct Program_configuration final
                                            static_cast<unsigned int>(Polydim::PDETools::LocalSpace_PCC_2D::MethodTypes::FEM_PCC),
                                            "Method Type, 0 - FEM; 1 - EVem; 2 - EVem_Inertia; 3 - EVem_Ortho "
                                            "(Default: 0)");
-        Gedim::Configurations::AddProperty("MethodOrder", static_cast<unsigned int>(1), "Method order (Default: 1)");
+
         Gedim::Configurations::AddProperty("ComputeMethodPerformance", true, "Compute Method Performance (Default: false)");
+
+        Gedim::Configurations::AddProperty("TimeStep", 0.5, "Max Time (Default: 0.5)");
     }
 
     inline std::string ExportFolder() const
@@ -97,9 +103,20 @@ struct Program_configuration final
     {
         return Gedim::Configurations::GetPropertyValue<bool>("ComputeMethodPerformance");
     }
+
+    inline double TimeStep() const
+    {
+        return Gedim::Configurations::GetPropertyValue<double>("TimeStep");
+    }
+
     inline unsigned int MethodOrder() const
     {
-        return Gedim::Configurations::GetPropertyValue<unsigned int>("MethodOrder");
+        return method_order;
+    }
+
+    inline double Theta() const
+    {
+        return time_theta;
     }
 };
 } // namespace Elliptic_PCC_BulkFace_2D

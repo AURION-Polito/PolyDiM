@@ -46,6 +46,12 @@ class PDE_Domain_2D final
     Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types shape_type;
 };
 
+struct PDE_Time_Domain_2D final
+{
+    std::array<double, 2> time_domain;
+    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D spatial_domain;
+};
+
 class PDE_Domain_3D final
 {
   public:

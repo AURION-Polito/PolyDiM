@@ -16,6 +16,7 @@
 #include "DOFsManager.hpp"
 #include "Eigen_Array.hpp"
 #include "Eigen_SparseArray.hpp"
+#include "EllipticEquation.hpp"
 #include "FEM_PCC_1D_LocalSpace.hpp"
 #include "LocalSpace_PCC_2D.hpp"
 #include "MeshMatricesDAO.hpp"
@@ -31,6 +32,9 @@ namespace Elliptic_PCC_BulkFace_2D
 {
 class Assembler final
 {
+
+    Polydim::PDETools::Equations::EllipticEquation equation;
+
   public:
     struct Elliptic_PCC_BF_2D_Problem_Data final
     {
@@ -128,12 +132,25 @@ class Assembler final
                                 const Polydim::examples::Elliptic_PCC_BulkFace_2D::test::I_Test &test,
                                 Assembler::PostProcess_Data_1D &result) const;
 
+    void ComputeTransitionMatrices(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+                                   const Gedim::MeshMatricesDAO &mesh_1D,
+                                   const Gedim::MeshUtilities::MeshGeometricData1D &mesh_geometric_data_1D,
+                                   const Gedim::MeshUtilities::ExtractMeshData &extract_data,
+                                   const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
+                                   const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                                   const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
+                                   const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data_1D,
+                                   const Polydim::examples::Elliptic_PCC_BulkFace_2D::test::I_Test &test,
+                                   Assembler::Elliptic_PCC_BF_2D_Problem_Data &assembler_data) const;
+
   public:
     Elliptic_PCC_BF_2D_Problem_Data Solve(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+                                          const std::vector<double> &time_steps,
                                           const Gedim::MeshMatricesDAO &mesh_2D,
                                           const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data_2D,
                                           const Gedim::MeshMatricesDAO &mesh_1D,
                                           const Gedim::MeshUtilities::MeshGeometricData1D &mesh_geometric_data_1D,
+                                          const Gedim::MeshUtilities::ExtractMeshData &extract_data,
                                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
                                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
                                           const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,

@@ -67,7 +67,7 @@ class FEM_PCC_1D_LocalSpace final
         Eigen::MatrixXd points(3, x.cols());
 
         for (unsigned int p = 0; p < x.cols(); ++p)
-            points.col(p) << (x.col(p) - mapData.Origin).dot(mapData.Tangent) / mapData.SquaredLength;
+            points(0, p) = (x.col(p) - mapData.Origin).dot(mapData.Tangent) / mapData.SquaredLength;
 
         return points;
     }

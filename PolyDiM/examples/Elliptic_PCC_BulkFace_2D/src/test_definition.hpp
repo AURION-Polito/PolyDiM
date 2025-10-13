@@ -14,7 +14,6 @@
 
 #include "DOFsManager.hpp"
 #include "PDE_Mesh_Utilities.hpp"
-#include <numbers>
 
 namespace Polydim
 {
@@ -28,48 +27,58 @@ enum struct Test_Types
 {
     Patch_Test = 1,
     Elliptic_Problem = 2, /// Experiment 1: M. Frittelli, A. Madzvamuse, I. Sgura, "Bulk-surface virtual element method
-                          /// for systems of PDEs in
+    /// for systems of PDEs in
     /// two-space dimensions", doi: https://doi.org/10.1007/s00211-020-01167-3.
 };
-
+// ***************************************************************************
 struct I_Test
 {
-    virtual Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain() const = 0;
+    virtual Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Time_Domain_2D domain() const = 0;
+
     virtual std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info() const = 0;
+
     virtual Eigen::VectorXd diffusion_term(const unsigned int dimension,
                                            const unsigned int id_domain,
                                            const Eigen::MatrixXd &points) const = 0;
+
     virtual Eigen::VectorXd reaction_term(const unsigned int dimension,
                                           const unsigned int id_domain,
                                           const Eigen::MatrixXd &points) const = 0;
+
     virtual Eigen::VectorXd source_term(const unsigned int dimension,
                                         const unsigned int id_domain,
-                                        const Eigen::MatrixXd &points) const = 0;
+                                        const Eigen::MatrixXd &points,
+                                        const double &time_value) const = 0;
+
     virtual Eigen::VectorXd exact_solution(const unsigned int dimension,
                                            const unsigned int id_domain,
-                                           const Eigen::MatrixXd &points) const = 0;
+                                           const Eigen::MatrixXd &points,
+                                           const double &time_value) const = 0;
+
     virtual std::array<Eigen::VectorXd, 3> exact_derivative_solution(const unsigned int dimension,
                                                                      const unsigned int id_domain,
-                                                                     const Eigen::MatrixXd &points) const = 0;
-    virtual double alpha() const = 0;
-    virtual double beta() const = 0;
+                                                                     const Eigen::MatrixXd &points,
+                                                                     const double &time_value) const = 0;
+    virtual Eigen::VectorXd alpha(const unsigned int dimension, const unsigned int id_domain, const Eigen::MatrixXd &points) const = 0;
+    virtual Eigen::VectorXd beta(const unsigned int dimension, const unsigned int id_domain, const Eigen::MatrixXd &points) const = 0;
 };
 // ***************************************************************************
 struct Patch_Test final : public I_Test
 {
-    static unsigned int order;
 
-    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain() const
+    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Time_Domain_2D domain() const
     {
-        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain;
+        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Time_Domain_2D domain;
 
-        domain.area = 1.0;
+        domain.spatial_domain.area = 1.0;
 
-        domain.vertices = Eigen::MatrixXd::Zero(3, 4);
-        domain.vertices.row(0) << 0.0, 1.0, 1.0, 0.0;
-        domain.vertices.row(1) << 0.0, 0.0, 1.0, 1.0;
+        domain.spatial_domain.vertices = Eigen::MatrixXd::Zero(3, 4);
+        domain.spatial_domain.vertices.row(0) << 0.0, 1.0, 1.0, 0.0;
+        domain.spatial_domain.vertices.row(1) << 0.0, 0.0, 1.0, 1.0;
 
-        domain.shape_type = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types::Parallelogram;
+        domain.spatial_domain.shape_type = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types::Parallelogram;
+
+        domain.time_domain = {0.0, 1.0};
 
         return domain;
     }
@@ -97,53 +106,51 @@ struct Patch_Test final : public I_Test
         return Eigen::VectorXd::Constant(points.cols(), 1.0);
     };
 
-    Eigen::VectorXd source_term(const unsigned int dimension, const unsigned int id_domain, const Eigen::MatrixXd &points) const
+    Eigen::VectorXd source_term(const unsigned int dimension, const unsigned int id_domain, const Eigen::MatrixXd &points, const double &time_value) const
     {
-        Eigen::VectorXd source_term = Eigen::VectorXd::Constant(points.cols(), 2.0 * order * (order - 1));
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+        Eigen::VectorXd source_term = Eigen::VectorXd::Constant(points.cols(), 0.0);
 
-        const int max_order = order - 2;
-        for (int i = 0; i < max_order; ++i)
-            source_term.array() *= polynomial;
-
-        source_term = /*-source_term +*/ exact_solution(dimension, id_domain, points);
-
+        switch (dimension)
+        {
+        case 2:
+            source_term = /*-source_term +*/ exact_solution(dimension, id_domain, points, time_value);
+            break;
+        case 1:
+            source_term = /*-source_term +*/ exact_solution(dimension, id_domain, points, time_value);
+            break;
+        default:
+            throw std::runtime_error("not valid dimension");
+        }
         return source_term;
     };
 
-    Eigen::VectorXd exact_solution(const unsigned int dimension, const unsigned int id_domain, const Eigen::MatrixXd &points) const
+    Eigen::VectorXd exact_solution(const unsigned int dimension,
+                                   const unsigned int id_domain,
+                                   const Eigen::MatrixXd &points,
+                                   const double &time_value) const
     {
         const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
 
-        Eigen::VectorXd result = Eigen::VectorXd::Constant(points.cols(), 1.0);
-        for (int i = 0; i < order; ++i)
-            result.array() *= polynomial;
-
-        return result;
+        return polynomial;
     };
 
     std::array<Eigen::VectorXd, 3> exact_derivative_solution(const unsigned int dimension,
                                                              const unsigned int id_domain,
-                                                             const Eigen::MatrixXd &points) const
+                                                             const Eigen::MatrixXd &points,
+                                                             const double &time_value) const
     {
-        Eigen::VectorXd derivatives = Eigen::VectorXd::Constant(points.cols(), order);
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
-
-        const int max_order = order - 1;
-        for (int i = 0; i < max_order; ++i)
-            derivatives.array() *= polynomial;
-
+        Eigen::VectorXd derivatives = Eigen::VectorXd::Constant(points.cols(), 1.0);
         return {derivatives, derivatives, Eigen::VectorXd::Zero(points.cols())};
     }
 
-    double alpha() const
+    Eigen::VectorXd alpha(const unsigned int dimension, const unsigned int id_domain, const Eigen::MatrixXd &points) const
     {
-        return 1.0;
+        return Eigen::VectorXd::Constant(points.cols(), 1.0);
     }
 
-    double beta() const
+    Eigen::VectorXd beta(const unsigned int dimension, const unsigned int id_domain, const Eigen::MatrixXd &points) const
     {
-        return 1.0;
+        return Eigen::VectorXd::Constant(points.cols(), 1.0);
     }
 };
 // ***************************************************************************

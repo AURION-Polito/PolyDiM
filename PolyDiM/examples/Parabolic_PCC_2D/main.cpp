@@ -186,7 +186,7 @@ int main(int argc, char **argv)
     Gedim::Eigen_LUSolver solver;
 
     if (dofs_data.NumberDOFs > 0)
-      solver.Initialize(Kp1);
+        solver.Initialize(Kp1);
 
     Gedim::Profiler::StopTime("Factorize");
     Gedim::Output::PrintStatusProgram("Factorize");

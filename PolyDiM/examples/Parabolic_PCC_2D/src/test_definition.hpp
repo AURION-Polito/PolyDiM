@@ -29,18 +29,13 @@ enum struct Test_Types
     Patch_Test = 1,
     Space_Test = 2,
     Time_Test = 3,
-    Parabolic_Problem = 4 /// Test 1: G. Vacca, L. Beirão da Veiga, "Virtual element methods for parabolic problems on polygonal meshes", doi: https://doi.org/10.1002/num.21982.
-};
-
-struct PDE_Time_Domain_2D
-{
-    std::array<double, 2> time_domain;
-    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D spatial_domain;
+    Parabolic_Problem = 4 /// Test 1: G. Vacca, L. Beirão da Veiga, "Virtual element methods for parabolic problems on
+                          /// polygonal meshes", doi: https://doi.org/10.1002/num.21982.
 };
 
 struct I_Test
 {
-    virtual PDE_Time_Domain_2D domain() const = 0;
+    virtual Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Time_Domain_2D domain() const = 0;
     virtual std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info() const = 0;
     virtual Eigen::VectorXd diffusion_term(const Eigen::MatrixXd &points) const = 0;
     virtual Eigen::VectorXd source_term(const Eigen::MatrixXd &points, const double &time_value) const = 0;
@@ -61,9 +56,9 @@ struct Patch_Test final : public I_Test
     static unsigned int space_order;
     static unsigned int time_order;
 
-    PDE_Time_Domain_2D domain() const
+    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Time_Domain_2D domain() const
     {
-        PDE_Time_Domain_2D domain;
+        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Time_Domain_2D domain;
 
         domain.spatial_domain.area = 1.0;
 
@@ -182,9 +177,9 @@ struct Patch_Test final : public I_Test
 // ***************************************************************************
 struct Parabolic_Problem final : public I_Test
 {
-    PDE_Time_Domain_2D domain() const
+    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Time_Domain_2D domain() const
     {
-        PDE_Time_Domain_2D domain;
+        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Time_Domain_2D domain;
 
         domain.spatial_domain.area = 1.0;
 

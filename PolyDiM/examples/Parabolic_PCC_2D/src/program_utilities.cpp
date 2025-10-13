@@ -27,24 +27,21 @@ std::unique_ptr<Polydim::examples::Parabolic_PCC_2D::test::I_Test> create_test(c
 {
     switch (config.TestType())
     {
-    case Polydim::examples::Parabolic_PCC_2D::test::Test_Types::Patch_Test:
-      {
+    case Polydim::examples::Parabolic_PCC_2D::test::Test_Types::Patch_Test: {
         Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::space_order = config.MethodOrder();
         Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::time_order = config.Theta() == 0.5 ? 2 : 1;
         return std::make_unique<Polydim::examples::Parabolic_PCC_2D::test::Patch_Test>();
-      }
-    case Polydim::examples::Parabolic_PCC_2D::test::Test_Types::Space_Test:
-      {
+    }
+    case Polydim::examples::Parabolic_PCC_2D::test::Test_Types::Space_Test: {
         Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::space_order = config.MethodOrder() + 1;
-        Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::time_order = 0;//config.Theta() == 0.5 ? 2 : 1;
+        Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::time_order = 0; // config.Theta() == 0.5 ? 2 : 1;
         return std::make_unique<Polydim::examples::Parabolic_PCC_2D::test::Patch_Test>();
-      }
-      case Polydim::examples::Parabolic_PCC_2D::test::Test_Types::Time_Test:
-        {
+    }
+    case Polydim::examples::Parabolic_PCC_2D::test::Test_Types::Time_Test: {
         Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::space_order = config.MethodOrder();
         Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::time_order = config.Theta() == 0.5 ? 2 + 1 : 1 + 1;
         return std::make_unique<Polydim::examples::Parabolic_PCC_2D::test::Patch_Test>();
-        }
+    }
     case Polydim::examples::Parabolic_PCC_2D::test::Test_Types::Parabolic_Problem:
         return std::make_unique<Polydim::examples::Parabolic_PCC_2D::test::Parabolic_Problem>();
     default:
@@ -157,11 +154,9 @@ void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configur
 
     {
         const char separator = ';';
-        const std::string errorFileName = exportSolutionFolder + "/Errors" +
-                                          "_" + std::to_string(TEST_ID) +
-                                          "_" + std::to_string(Method_ID) +
-                                          "_" + std::to_string(space_order) +
-                                          "_" + std::to_string(time_order) + ".csv";
+        const std::string errorFileName = exportSolutionFolder + "/Errors" + "_" + std::to_string(TEST_ID) + "_" +
+                                          std::to_string(Method_ID) + "_" + std::to_string(space_order) + "_" +
+                                          std::to_string(time_order) + ".csv";
         const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
 
         std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);
@@ -228,12 +223,9 @@ void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configur
                                    static_cast<unsigned int>(post_process_data.cell2Ds_error_H1.size()),
                                    post_process_data.cell2Ds_error_H1.data()}});
 
-            exporter.Export(exportVtuFolder + "/Solution" +
-                            "_" + std::to_string(TEST_ID) +
-                            "_" + std::to_string(Method_ID) +
-                            "_" + std::to_string(space_order) +
-                            "_" + std::to_string(time_order) +
-                            "_" + std::to_string(time_index) + ".vtu");
+            exporter.Export(exportVtuFolder + "/Solution" + "_" + std::to_string(TEST_ID) + "_" +
+                            std::to_string(Method_ID) + "_" + std::to_string(space_order) + "_" +
+                            std::to_string(time_order) + "_" + std::to_string(time_index) + ".vtu");
         }
     }
 }

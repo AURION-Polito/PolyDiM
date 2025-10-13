@@ -33,6 +33,9 @@ void create_domain_mesh_2D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Pr
                            const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D &domain,
                            Gedim::MeshMatricesDAO &mesh);
 
+std::vector<double> create_time_steps(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+                                      const std::array<double, 2> &time_domain);
+
 void export_solution(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
                      const Gedim::MeshMatricesDAO &mesh_2D,
                      const Gedim::MeshMatricesDAO &mesh_1D,
