@@ -117,10 +117,10 @@ struct Patch_Test final : public I_Test
         switch (dimension)
         {
         case 2:
-            source_term = /*-source_term +*/ exact_solution(dimension, id_domain, points, time_value);
+            source_term = /*-source_term +*/ exact_solution(dimension, id_domain, points, time_value).array() + 1.0;
             break;
         case 1:
-            source_term = /*-source_term +*/ exact_solution(dimension, id_domain, points, time_value);
+            source_term = /*-source_term +*/ exact_solution(dimension, id_domain, points, time_value).array() + 1.0;
             break;
         default:
             throw std::runtime_error("not valid dimension");
@@ -139,8 +139,11 @@ struct Patch_Test final : public I_Test
                                    const double &time_value) const
     {
         const Eigen::ArrayXd polynomial = (points.row(0).array() + points.row(1).array() + 0.5) *
-                                          (points.row(0).array() + points.row(1).array() + 0.5) *
-                                          (points.row(0).array() + points.row(1).array() + 0.5);
+                                              (points.row(0).array() + points.row(1).array() + 0.5) *
+                                              (points.row(0).array() + points.row(1).array() + 0.5) +
+                                          time_value;
+
+        // const Eigen::ArrayXd polynomial = (points.row(0).array() + points.row(1).array() + 0.5) + time_value;
 
         return polynomial;
     };
@@ -152,6 +155,9 @@ struct Patch_Test final : public I_Test
     {
         Eigen::VectorXd derivatives = (points.row(0).array() + points.row(1).array() + 0.5) *
                                       (points.row(0).array() + points.row(1).array() + 0.5) * 3.0;
+
+        // Eigen::VectorXd derivatives = Eigen::VectorXd::Constant(points.cols(), 1.0);
+
         return {derivatives, derivatives, Eigen::VectorXd::Zero(points.cols())};
     }
 

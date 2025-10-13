@@ -184,17 +184,17 @@ int main(int argc, char **argv)
     Polydim::examples::Elliptic_PCC_BulkFace_2D::Assembler assembler;
     Polydim::examples::Elliptic_PCC_BulkFace_2D::Assembler::Elliptic_PCC_BF_2D_Problem_Data assembler_data;
 
-    // assembler.ComputeInitialCondition(config,
-    //                                   mesh_2D,
-    //                                   mesh_geometric_data_2D,
-    //                                   mesh_1D,
-    //                                   mesh_geometric_data_1D,
-    //                                   dofs_data,
-    //                                   count_dofs,
-    //                                   reference_element_data_2D,
-    //                                   reference_element_data_1D,
-    //                                   *test,
-    //                                   assembler_data.initial_solution);
+    assembler.ComputeInitialCondition(config,
+                                      mesh_2D,
+                                      mesh_geometric_data_2D,
+                                      mesh_1D,
+                                      mesh_geometric_data_1D,
+                                      dofs_data,
+                                      count_dofs,
+                                      reference_element_data_2D,
+                                      reference_element_data_1D,
+                                      *test,
+                                      assembler_data.initial_solution);
 
     assembler.AssembleMatrix(config,
                              mesh_2D,
@@ -210,6 +210,9 @@ int main(int argc, char **argv)
                              *test,
                              assembler_data.globalMatrixA,
                              assembler_data.globalMatrixM);
+
+    assembler_data.globalMatrixA *= delta_time;
+    assembler_data.globalMatrixA += assembler_data.globalMatrixM;
 
     Gedim::Profiler::StopTime("AssembleSystem");
     Gedim::Output::PrintStatusProgram("AssembleSystem");
@@ -241,6 +244,9 @@ int main(int argc, char **argv)
                               reference_element_data_1D,
                               *test,
                               assembler_data.rightHandSide);
+
+        assembler_data.rightHandSide *= delta_time;
+        assembler_data.rightHandSide.SumMultiplication(assembler_data.globalMatrixM, assembler_data.initial_solution);
 
         Gedim::Output::PrintGenericMessage("Solve...", true);
         Gedim::Profiler::StartTime("Solve");
@@ -286,6 +292,8 @@ int main(int argc, char **argv)
 
         Gedim::Profiler::StopTime("ExportSolution");
         Gedim::Output::PrintStatusProgram("ExportSolution");
+
+        assembler_data.initial_solution.Copy(assembler_data.solution);
     }
 
     Gedim::Output::PrintGenericMessage("ComputeMethodPerformance...", true);

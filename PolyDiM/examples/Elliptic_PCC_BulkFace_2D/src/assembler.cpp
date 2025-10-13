@@ -193,6 +193,11 @@ void Assembler::AssembleMatrix_2D(const Polydim::examples::Elliptic_PCC_BulkFace
         Eigen::MatrixXd local_C =
             equation.ComputeCellReactionMatrix(reaction_term_values, basis_functions_values, cell2D_internal_quadrature.Weights);
 
+        Eigen::MatrixXd local_M =
+            equation.ComputeCellReactionMatrix(Eigen::VectorXd::Ones(cell2D_internal_quadrature.Weights.size()),
+                                               basis_functions_values,
+                                               cell2D_internal_quadrature.Weights);
+
         const double k_max = diffusion_term_values.cwiseAbs().maxCoeff();
         const double g_max = reaction_term_values.cwiseAbs().maxCoeff();
 
@@ -200,9 +205,9 @@ void Assembler::AssembleMatrix_2D(const Polydim::examples::Elliptic_PCC_BulkFace
             k_max * Polydim::PDETools::LocalSpace_PCC_2D::StabilizationMatrix(reference_element_data, local_space_data);
 
         const Eigen::MatrixXd local_C_stab =
-            g_max * Polydim::PDETools::LocalSpace_PCC_2D::StabilizationMatrix(reference_element_data,
-                                                                              local_space_data,
-                                                                              Polydim::VEM::PCC::ProjectionTypes::Pi0k);
+            Polydim::PDETools::LocalSpace_PCC_2D::StabilizationMatrix(reference_element_data,
+                                                                      local_space_data,
+                                                                      Polydim::VEM::PCC::ProjectionTypes::Pi0k);
 
         const auto &global_dofs = dofs_data.CellsGlobalDOFs[2].at(c);
 
@@ -215,9 +220,16 @@ void Assembler::AssembleMatrix_2D(const Polydim::examples::Elliptic_PCC_BulkFace
             c,
             local_matrix_to_global_matrix_dofs_data,
             local_matrix_to_global_matrix_dofs_data,
-            local_A + local_A_stab + local_C + local_C_stab,
+            local_A + local_A_stab + local_C + g_max * local_C_stab,
             globalMatrixA,
             dirichletMatrixA);
+
+        Polydim::PDETools::Assembler_Utilities::assemble_local_matrix_to_global_matrix<2>(c,
+                                                                                          local_matrix_to_global_matrix_dofs_data,
+                                                                                          local_matrix_to_global_matrix_dofs_data,
+                                                                                          local_M + local_C_stab,
+                                                                                          globalMatrixM,
+                                                                                          dirichletMatrixA);
     }
 }
 // ***************************************************************************
@@ -334,6 +346,10 @@ void Assembler::AssembleMatrix_1D(const Polydim::examples::Elliptic_PCC_BulkFace
         const auto local_C =
             equation.ComputeCellReactionMatrix(reaction_term_values + beta_term_values, basis_functions_values, quadrature_weights_2D);
 
+        const auto local_M = equation.ComputeCellReactionMatrix(Eigen::VectorXd::Ones(num_ref_quadrature_points),
+                                                                basis_functions_values,
+                                                                quadrature_weights_2D);
+
         const auto &global_dofs = dofs_data.CellsGlobalDOFs[1].at(c);
 
         assert(local_space_data.NumberOfBasisFunctions == global_dofs.size());
@@ -346,6 +362,13 @@ void Assembler::AssembleMatrix_1D(const Polydim::examples::Elliptic_PCC_BulkFace
                                                                                           local_matrix_to_global_matrix_dofs_data,
                                                                                           local_A + local_C,
                                                                                           globalMatrixA,
+                                                                                          dirichletMatrixA);
+
+        Polydim::PDETools::Assembler_Utilities::assemble_local_matrix_to_global_matrix<1>(c,
+                                                                                          local_matrix_to_global_matrix_dofs_data,
+                                                                                          local_matrix_to_global_matrix_dofs_data,
+                                                                                          local_M,
+                                                                                          globalMatrixM,
                                                                                           dirichletMatrixA);
     }
 }
@@ -673,7 +696,7 @@ void Assembler::ComputeInitialCondition_1D(const Polydim::examples::Elliptic_PCC
             switch (local_dof_i.Type)
             {
             case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
-                initial_condition.SetValue(local_dof_i.Global_Index + count_dofs.offsets_DOFs[0], dofs_vertices(0));
+                initial_condition.SetValue(local_dof_i.Global_Index + count_dofs.offsets_DOFs[1], dofs_vertices(0));
             }
             break;
             default:
@@ -685,20 +708,30 @@ void Assembler::ComputeInitialCondition_1D(const Polydim::examples::Elliptic_PCC
     // Assemble strong boundary condition on Cell1Ds
     if (reference_element_data.Order > 1)
     {
+
+        const auto local_space =
+            Polydim::FEM::PCC::create_FEM_PCC_1D_local_space(FEM::PCC::FEM_PCC_1D_LocalSpace_Types::FEM_PCC_1D_LocalSpace);
+
         // Assemble equation elements
         for (unsigned int c = 0; c < mesh.Cell1DTotalNumber(); c++)
         {
             const auto local_dofs = dofs_data.CellsDOFs.at(1).at(c);
 
-            // const auto edge_dofs_coordinates;
+            const Polydim::FEM::PCC::FEM_PCC_1D_Segment_Geometry segment = {config.GeometricTolerance1D(),
+                                                                            mesh_geometric_data.Cell1DsVertices.at(c).col(0),
+                                                                            mesh_geometric_data.Cell1DsTangents.at(c),
+                                                                            1.0};
 
-            Eigen::VectorXd
-                dofs_edge /*= test.initial_solution(dimension, mesh.Cell1DMarker(c), edge_dofs_coordinates)*/;
+            const auto local_space_data = local_space->CreateLocalSpace(reference_element_data, segment);
+
+            const auto edge_dofs_coordinates = local_space->InternalDOFsCoordinates(reference_element_data, local_space_data);
+
+            const Eigen::VectorXd dofs_edge = test.initial_solution(dimension, mesh.Cell1DMarker(c), edge_dofs_coordinates);
 
             for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
             {
                 const auto &local_dof_i = local_dofs.at(loc_i);
-                const int global_i = local_dof_i.Global_Index + count_dofs.offsets_DOFs[0];
+                const int global_i = local_dof_i.Global_Index + count_dofs.offsets_DOFs[1];
 
                 switch (local_dof_i.Type)
                 {
@@ -870,13 +903,13 @@ void Assembler::PostProcessSolution_1D(const Polydim::examples::Elliptic_PCC_Bul
 
     const Polydim::FEM::PCC::FEM_PCC_1D_Segment_Geometry segment = {config.GeometricTolerance1D(), reference_origin, reference_tangent, 1.0};
 
+    const auto local_space_data = local_space->CreateLocalSpace(reference_element_data, segment);
+
     // compute vem values
     const auto reference_quadrature =
         Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * reference_element_data.Order);
     const Eigen::VectorXd points_curvilinear_coordinates = reference_quadrature.Points.row(0);
     const unsigned int num_ref_quadrature_points = reference_quadrature.Points.cols();
-
-    const auto local_space_data = local_space->CreateLocalSpace(reference_element_data, segment);
 
     const auto basis_functions_values =
         local_space->ComputeBasisFunctionsValues(reference_element_data, local_space_data, reference_quadrature.Points);

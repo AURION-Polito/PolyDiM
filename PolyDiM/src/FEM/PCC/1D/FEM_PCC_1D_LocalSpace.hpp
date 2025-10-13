@@ -126,6 +126,22 @@ class FEM_PCC_1D_LocalSpace final
 
         return MapDerivativeValues(local_space, reference_element.EvaluateBasisFunctionDerivatives(referencePoints, reference_element_data));
     }
+
+    inline Eigen::MatrixXd InternalDOFsCoordinates(const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data,
+                                                   const Polydim::FEM::PCC::FEM_PCC_1D_LocalSpace_Data &local_space) const
+    {
+        const auto &dof_coordinates = local_space.Dofs;
+
+        const unsigned int starting_index = local_space.Dof1DsIndex.at(0);
+        const unsigned int num_internal_dofs = reference_element_data.NumDofs1D;
+
+        if (num_internal_dofs == 0)
+            return Eigen::MatrixXd(0, 0);
+
+        const Eigen::MatrixXd edge_dofs_coordinates = dof_coordinates.block(0, starting_index, 3, num_internal_dofs);
+
+        return edge_dofs_coordinates;
+    }
 };
 } // namespace PCC
 } // namespace FEM
