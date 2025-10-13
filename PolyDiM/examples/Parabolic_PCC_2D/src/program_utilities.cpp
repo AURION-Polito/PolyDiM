@@ -99,13 +99,16 @@ void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configur
 {
     const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
     const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
+    const unsigned int space_order = config.MethodOrder();
+    const unsigned int time_order = config.Theta() == 0.5 ? 2 : 1;
 
     {
         const char separator = ';';
 
         std::cout << "ProgramType" << separator;
         std::cout << "MethodType" << separator;
-        std::cout << "MethodOrder" << separator;
+        std::cout << "space_method_order" << separator;
+        std::cout << "time_method_order" << separator;
         std::cout << "Cell2Ds" << separator;
         std::cout << "Dofs" << separator;
         std::cout << "Strongs" << separator;
@@ -122,7 +125,8 @@ void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configur
         std::cout.precision(2);
         std::cout << std::scientific << TEST_ID << separator;
         std::cout << std::scientific << Method_ID << separator;
-        std::cout << std::scientific << config.MethodOrder() << separator;
+        std::cout << std::scientific << space_order << separator;
+        std::cout << std::scientific << time_order << separator;
         std::cout << std::scientific << mesh.Cell2DTotalNumber() << separator;
         std::cout << std::scientific << dofs_data.NumberDOFs << separator;
         std::cout << std::scientific << dofs_data.NumberStrongs << separator;
@@ -139,8 +143,11 @@ void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configur
 
     {
         const char separator = ';';
-        const std::string errorFileName = exportSolutionFolder + "/Errors_" + std::to_string(TEST_ID) + "_" +
-                                          std::to_string(Method_ID) + +"_" + std::to_string(config.MethodOrder()) + ".csv";
+        const std::string errorFileName = exportSolutionFolder + "/Errors" +
+                                          "_" + std::to_string(TEST_ID) +
+                                          "_" + std::to_string(Method_ID) +
+                                          "_" + std::to_string(space_order) +
+                                          "_" + std::to_string(time_order) + ".csv";
         const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
 
         std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);
@@ -148,7 +155,8 @@ void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configur
         {
             errorFile << "ProgramType" << separator;
             errorFile << "MethodType" << separator;
-            errorFile << "MethodOrder" << separator;
+            errorFile << "space_method_order" << separator;
+            errorFile << "time_method_order" << separator;
             errorFile << "Cell2Ds" << separator;
             errorFile << "Dofs" << separator;
             errorFile << "Strongs" << separator;
@@ -166,7 +174,8 @@ void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configur
         errorFile.precision(16);
         errorFile << std::scientific << TEST_ID << separator;
         errorFile << std::scientific << Method_ID << separator;
-        errorFile << std::scientific << config.MethodOrder() << separator;
+        errorFile << std::scientific << space_order << separator;
+        errorFile << std::scientific << time_order << separator;
         errorFile << std::scientific << mesh.Cell2DTotalNumber() << separator;
         errorFile << std::scientific << dofs_data.NumberDOFs << separator;
         errorFile << std::scientific << dofs_data.NumberStrongs << separator;
@@ -205,8 +214,12 @@ void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configur
                                    static_cast<unsigned int>(post_process_data.cell2Ds_error_H1.size()),
                                    post_process_data.cell2Ds_error_H1.data()}});
 
-            exporter.Export(exportVtuFolder + "/Solution" + "_" + std::to_string(TEST_ID) + "_" + std::to_string(Method_ID) +
-                            +"_" + std::to_string(config.MethodOrder()) + +"_" + std::to_string(time_index) + ".vtu");
+            exporter.Export(exportVtuFolder + "/Solution" +
+                            "_" + std::to_string(TEST_ID) +
+                            "_" + std::to_string(Method_ID) +
+                            "_" + std::to_string(space_order) +
+                            "_" + std::to_string(time_order) +
+                            "_" + std::to_string(time_index) + ".vtu");
         }
     }
 }
