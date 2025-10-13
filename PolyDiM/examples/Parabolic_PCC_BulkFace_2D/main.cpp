@@ -18,7 +18,7 @@
 
 int main(int argc, char **argv)
 {
-    Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration config;
+    Polydim::examples::Parabolic_PCC_BulkFace_2D::Program_configuration config;
 
     if (!Gedim::Output::FileExists("./Parameters.ini"))
         Gedim::Configurations::ExportToIni("./Parameters.ini", false);
@@ -61,7 +61,7 @@ int main(int argc, char **argv)
 
     Gedim::MeshUtilities meshUtilities;
 
-    const auto test = Polydim::examples::Elliptic_PCC_BulkFace_2D::program_utilities::create_test(config);
+    const auto test = Polydim::examples::Parabolic_PCC_BulkFace_2D::program_utilities::create_test(config);
 
     const auto domain = test->domain();
     const auto boundary_info = test->boundary_info();
@@ -83,7 +83,7 @@ int main(int argc, char **argv)
     Gedim::MeshMatrices meshData_2D;
     Gedim::MeshMatricesDAO mesh_2D(meshData_2D);
 
-    Polydim::examples::Elliptic_PCC_BulkFace_2D::program_utilities::create_domain_mesh_2D(config, domain.spatial_domain, mesh_2D);
+    Polydim::examples::Parabolic_PCC_BulkFace_2D::program_utilities::create_domain_mesh_2D(config, domain.spatial_domain, mesh_2D);
 
     Gedim::MeshMatrices meshData_1D;
     Gedim::MeshMatricesDAO mesh_1D(meshData_1D);
@@ -103,7 +103,7 @@ int main(int argc, char **argv)
         meshUtilities.ExtractMesh1D(cell0DsFilter, cell1DsFilter, mesh_2D, mesh_1D);
 
     const auto time_steps =
-        Polydim::examples::Elliptic_PCC_BulkFace_2D::program_utilities::create_time_steps(config, domain.time_domain);
+        Polydim::examples::Parabolic_PCC_BulkFace_2D::program_utilities::create_time_steps(config, domain.time_domain);
     const double delta_time = config.TimeStep();
 
     Gedim::Profiler::StopTime("CreateMesh");
@@ -181,8 +181,8 @@ int main(int argc, char **argv)
                                        true);
     Gedim::Profiler::StartTime("AssembleSystem");
 
-    Polydim::examples::Elliptic_PCC_BulkFace_2D::Assembler assembler;
-    Polydim::examples::Elliptic_PCC_BulkFace_2D::Assembler::Elliptic_PCC_BF_2D_Problem_Data assembler_data;
+    Polydim::examples::Parabolic_PCC_BulkFace_2D::Assembler assembler;
+    Polydim::examples::Parabolic_PCC_BulkFace_2D::Assembler::Elliptic_PCC_BF_2D_Problem_Data assembler_data;
 
     assembler.ComputeInitialCondition(config,
                                       mesh_2D,
@@ -280,15 +280,15 @@ int main(int argc, char **argv)
         Gedim::Output::PrintGenericMessage("ExportSolution...", true);
         Gedim::Profiler::StartTime("ExportSolution");
 
-        Polydim::examples::Elliptic_PCC_BulkFace_2D::program_utilities::export_solution(config,
-                                                                                        value_time,
-                                                                                        mesh_2D,
-                                                                                        mesh_1D,
-                                                                                        dofs_data,
-                                                                                        assembler_data,
-                                                                                        post_process_data,
-                                                                                        exportSolutionFolder,
-                                                                                        exportVtuFolder);
+        Polydim::examples::Parabolic_PCC_BulkFace_2D::program_utilities::export_solution(config,
+                                                                                         value_time,
+                                                                                         mesh_2D,
+                                                                                         mesh_1D,
+                                                                                         dofs_data,
+                                                                                         assembler_data,
+                                                                                         post_process_data,
+                                                                                         exportSolutionFolder,
+                                                                                         exportVtuFolder);
 
         Gedim::Profiler::StopTime("ExportSolution");
         Gedim::Output::PrintStatusProgram("ExportSolution");
@@ -303,7 +303,7 @@ int main(int argc, char **argv)
     {
         const auto performance = assembler.ComputePerformance_2D(config, mesh_2D, mesh_geometric_data_2D, reference_element_data_2D);
 
-        Polydim::examples::Elliptic_PCC_BulkFace_2D::program_utilities::export_performance_2D(config, performance, exportSolutionFolder);
+        Polydim::examples::Parabolic_PCC_BulkFace_2D::program_utilities::export_performance_2D(config, performance, exportSolutionFolder);
     }
 
     Gedim::Profiler::StopTime("ComputeMethodPerformance");

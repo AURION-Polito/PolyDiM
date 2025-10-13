@@ -21,7 +21,7 @@ namespace Polydim
 {
 namespace examples
 {
-namespace Elliptic_PCC_BulkFace_2D
+namespace Parabolic_PCC_BulkFace_2D
 {
 struct Program_configuration final
 {
@@ -33,7 +33,7 @@ struct Program_configuration final
     {
         Gedim::Configurations::AddProperty(
             "TestType",
-            static_cast<unsigned int>(Polydim::examples::Elliptic_PCC_BulkFace_2D::test::Test_Types::Patch_Test),
+            static_cast<unsigned int>(Polydim::examples::Parabolic_PCC_BulkFace_2D::test::Test_Types::Patch_Test),
             "Test Type 1 - Patch_Test; 2 - Elliptic_Problem; (Default: 1)");
         // Export parameters
         Gedim::Configurations::AddProperty("ExportFolder", "./Run", "Folder where to export data (Default: ./Export)");
@@ -67,9 +67,9 @@ struct Program_configuration final
         return Gedim::Configurations::GetPropertyValue<std::string>("ExportFolder");
     }
 
-    inline Polydim::examples::Elliptic_PCC_BulkFace_2D::test::Test_Types TestType() const
+    inline Polydim::examples::Parabolic_PCC_BulkFace_2D::test::Test_Types TestType() const
     {
-        return static_cast<Polydim::examples::Elliptic_PCC_BulkFace_2D::test::Test_Types>(
+        return static_cast<Polydim::examples::Parabolic_PCC_BulkFace_2D::test::Test_Types>(
             Gedim::Configurations::GetPropertyValue<unsigned int>("TestType"));
     }
     inline Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D MeshGenerator() const
@@ -119,7 +119,7 @@ struct Program_configuration final
         return time_theta;
     }
 };
-} // namespace Elliptic_PCC_BulkFace_2D
+} // namespace Parabolic_PCC_BulkFace_2D
 } // namespace examples
 } // namespace Polydim
 

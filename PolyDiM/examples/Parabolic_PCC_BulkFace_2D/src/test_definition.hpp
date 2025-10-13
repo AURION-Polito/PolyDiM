@@ -19,7 +19,7 @@ namespace Polydim
 {
 namespace examples
 {
-namespace Elliptic_PCC_BulkFace_2D
+namespace Parabolic_PCC_BulkFace_2D
 {
 namespace test
 {
@@ -256,7 +256,7 @@ struct Patch_Test final : public I_Test
 // };
 // ***************************************************************************
 } // namespace test
-} // namespace Elliptic_PCC_BulkFace_2D
+} // namespace Parabolic_PCC_BulkFace_2D
 } // namespace examples
 } // namespace Polydim
 

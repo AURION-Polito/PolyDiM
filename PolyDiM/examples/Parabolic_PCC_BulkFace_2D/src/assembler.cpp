@@ -20,10 +20,10 @@ namespace Polydim
 {
 namespace examples
 {
-namespace Elliptic_PCC_BulkFace_2D
+namespace Parabolic_PCC_BulkFace_2D
 {
 // ***************************************************************************
-void Assembler::ComputeInitialCondition(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+void Assembler::ComputeInitialCondition(const Polydim::examples::Parabolic_PCC_BulkFace_2D::Program_configuration &config,
                                         const Gedim::MeshMatricesDAO &mesh_2D,
                                         const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data_2D,
                                         const Gedim::MeshMatricesDAO &mesh_1D,
@@ -32,7 +32,7 @@ void Assembler::ComputeInitialCondition(const Polydim::examples::Elliptic_PCC_Bu
                                         const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                                         const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data_2D,
                                         const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data_1D,
-                                        const Polydim::examples::Elliptic_PCC_BulkFace_2D::test::I_Test &test,
+                                        const Polydim::examples::Parabolic_PCC_BulkFace_2D::test::I_Test &test,
                                         Gedim::Eigen_Array<> &initial_condition) const
 {
     initial_condition.SetSize(count_dofs.num_total_dofs);
@@ -44,7 +44,7 @@ void Assembler::ComputeInitialCondition(const Polydim::examples::Elliptic_PCC_Bu
     initial_condition.Create();
 }
 // ***************************************************************************
-void Assembler::AssembleMatrix(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+void Assembler::AssembleMatrix(const Polydim::examples::Parabolic_PCC_BulkFace_2D::Program_configuration &config,
                                const Gedim::MeshMatricesDAO &mesh_2D,
                                const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data_2D,
                                const Gedim::MeshMatricesDAO &mesh_1D,
@@ -55,7 +55,7 @@ void Assembler::AssembleMatrix(const Polydim::examples::Elliptic_PCC_BulkFace_2D
                                const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                                const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data_2D,
                                const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data_1D,
-                               const Polydim::examples::Elliptic_PCC_BulkFace_2D::test::I_Test &test,
+                               const Polydim::examples::Parabolic_PCC_BulkFace_2D::test::I_Test &test,
                                Gedim::Eigen_SparseArray<> &globalMatrixA,
                                Gedim::Eigen_SparseArray<> &globalMatrixM) const
 {
@@ -72,7 +72,7 @@ void Assembler::AssembleMatrix(const Polydim::examples::Elliptic_PCC_BulkFace_2D
     globalMatrixM.Create();
 }
 // ***************************************************************************
-void Assembler::AssembleRhs(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+void Assembler::AssembleRhs(const Polydim::examples::Parabolic_PCC_BulkFace_2D::Program_configuration &config,
                             const double &value_time,
                             const Gedim::MeshMatricesDAO &mesh_2D,
                             const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data_2D,
@@ -84,7 +84,7 @@ void Assembler::AssembleRhs(const Polydim::examples::Elliptic_PCC_BulkFace_2D::P
                             const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                             const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data_2D,
                             const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data_1D,
-                            const Polydim::examples::Elliptic_PCC_BulkFace_2D::test::I_Test &test,
+                            const Polydim::examples::Parabolic_PCC_BulkFace_2D::test::I_Test &test,
                             Gedim::Eigen_Array<> &rightHandSide) const
 {
     rightHandSide.SetSize(count_dofs.num_total_dofs);
@@ -97,7 +97,7 @@ void Assembler::AssembleRhs(const Polydim::examples::Elliptic_PCC_BulkFace_2D::P
 }
 // ***************************************************************************
 Assembler::PostProcess_Data Assembler::PostProcessSolution(
-    const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+    const Polydim::examples::Parabolic_PCC_BulkFace_2D::Program_configuration &config,
     const double &value_time,
     const Gedim::MeshMatricesDAO &mesh_2D,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data_2D,
@@ -108,7 +108,7 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
     const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data_2D,
     const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data_1D,
-    const Polydim::examples::Elliptic_PCC_BulkFace_2D::test::I_Test &test,
+    const Polydim::examples::Parabolic_PCC_BulkFace_2D::test::I_Test &test,
     const Elliptic_PCC_BF_2D_Problem_Data &assembler_data) const
 {
     PostProcess_Data post_process_data;
@@ -147,14 +147,14 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
     return post_process_data;
 }
 // ***************************************************************************
-void Assembler::AssembleMatrix_2D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+void Assembler::AssembleMatrix_2D(const Polydim::examples::Parabolic_PCC_BulkFace_2D::Program_configuration &config,
                                   const Gedim::MeshMatricesDAO &mesh,
                                   const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                   const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
                                   const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                                   const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                                   const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
-                                  const Polydim::examples::Elliptic_PCC_BulkFace_2D::test::I_Test &test,
+                                  const Polydim::examples::Parabolic_PCC_BulkFace_2D::test::I_Test &test,
                                   Gedim::Eigen_SparseArray<> &globalMatrixA,
                                   Gedim::Eigen_SparseArray<> &globalMatrixM) const
 {
@@ -233,7 +233,7 @@ void Assembler::AssembleMatrix_2D(const Polydim::examples::Elliptic_PCC_BulkFace
     }
 }
 // ***************************************************************************
-void Assembler::AssembleRhs_2D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+void Assembler::AssembleRhs_2D(const Polydim::examples::Parabolic_PCC_BulkFace_2D::Program_configuration &config,
                                const double &value_time,
                                const Gedim::MeshMatricesDAO &mesh,
                                const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
@@ -241,7 +241,7 @@ void Assembler::AssembleRhs_2D(const Polydim::examples::Elliptic_PCC_BulkFace_2D
                                const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                                const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                                const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
-                               const Polydim::examples::Elliptic_PCC_BulkFace_2D::test::I_Test &test,
+                               const Polydim::examples::Parabolic_PCC_BulkFace_2D::test::I_Test &test,
                                Gedim::Eigen_Array<> &rightHandSide) const
 {
 
@@ -284,14 +284,14 @@ void Assembler::AssembleRhs_2D(const Polydim::examples::Elliptic_PCC_BulkFace_2D
     }
 }
 // ***************************************************************************
-void Assembler::AssembleMatrix_1D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+void Assembler::AssembleMatrix_1D(const Polydim::examples::Parabolic_PCC_BulkFace_2D::Program_configuration &config,
                                   const Gedim::MeshMatricesDAO &mesh,
                                   const Gedim::MeshUtilities::MeshGeometricData1D &mesh_geometric_data,
                                   const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
                                   const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                                   const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                                   const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data,
-                                  const Polydim::examples::Elliptic_PCC_BulkFace_2D::test::I_Test &test,
+                                  const Polydim::examples::Parabolic_PCC_BulkFace_2D::test::I_Test &test,
                                   Gedim::Eigen_SparseArray<> &globalMatrixA,
                                   Gedim::Eigen_SparseArray<> &globalMatrixM) const
 {
@@ -373,7 +373,7 @@ void Assembler::AssembleMatrix_1D(const Polydim::examples::Elliptic_PCC_BulkFace
     }
 }
 // ***************************************************************************
-void Assembler::AssembleRhs_1D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+void Assembler::AssembleRhs_1D(const Polydim::examples::Parabolic_PCC_BulkFace_2D::Program_configuration &config,
                                const double &value_time,
                                const Gedim::MeshMatricesDAO &mesh,
                                const Gedim::MeshUtilities::MeshGeometricData1D &mesh_geometric_data,
@@ -381,7 +381,7 @@ void Assembler::AssembleRhs_1D(const Polydim::examples::Elliptic_PCC_BulkFace_2D
                                const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                                const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                                const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data,
-                               const Polydim::examples::Elliptic_PCC_BulkFace_2D::test::I_Test &test,
+                               const Polydim::examples::Parabolic_PCC_BulkFace_2D::test::I_Test &test,
                                Gedim::Eigen_Array<> &rightHandSide) const
 {
     const unsigned int dimension = 1;
@@ -443,7 +443,7 @@ void Assembler::AssembleRhs_1D(const Polydim::examples::Elliptic_PCC_BulkFace_2D
     }
 }
 // ***************************************************************************
-void Assembler::ComputeTransitionMatrices(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+void Assembler::ComputeTransitionMatrices(const Polydim::examples::Parabolic_PCC_BulkFace_2D::Program_configuration &config,
                                           const Gedim::MeshMatricesDAO &mesh_1D,
                                           const Gedim::MeshUtilities::MeshGeometricData1D &mesh_geometric_data_1D,
                                           const Gedim::MeshUtilities::ExtractMeshData &extract_data,
@@ -451,7 +451,7 @@ void Assembler::ComputeTransitionMatrices(const Polydim::examples::Elliptic_PCC_
                                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
                                           const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                                           const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data_1D,
-                                          const Polydim::examples::Elliptic_PCC_BulkFace_2D::test::I_Test &test,
+                                          const Polydim::examples::Parabolic_PCC_BulkFace_2D::test::I_Test &test,
                                           Gedim::Eigen_SparseArray<> &globalMatrixA) const
 {
     const unsigned int dimension = 1;
@@ -548,7 +548,7 @@ void Assembler::ComputeTransitionMatrices(const Polydim::examples::Elliptic_PCC_
     }
 }
 // ***************************************************************************
-void Assembler::ComputeInitialCondition_2D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+void Assembler::ComputeInitialCondition_2D(const Polydim::examples::Parabolic_PCC_BulkFace_2D::Program_configuration &config,
                                            const Gedim::IMeshDAO &mesh,
                                            const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                            const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
@@ -668,7 +668,7 @@ void Assembler::ComputeInitialCondition_2D(const Polydim::examples::Elliptic_PCC
     }
 }
 // ***************************************************************************
-void Assembler::ComputeInitialCondition_1D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+void Assembler::ComputeInitialCondition_1D(const Polydim::examples::Parabolic_PCC_BulkFace_2D::Program_configuration &config,
                                            const Gedim::IMeshDAO &mesh,
                                            const Gedim::MeshUtilities::MeshGeometricData1D &mesh_geometric_data,
                                            const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
@@ -748,7 +748,7 @@ void Assembler::ComputeInitialCondition_1D(const Polydim::examples::Elliptic_PCC
 }
 // ***************************************************************************
 Assembler::Performance_Data_2D Assembler::ComputePerformance_2D(
-    const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+    const Polydim::examples::Parabolic_PCC_BulkFace_2D::Program_configuration &config,
     const Gedim::MeshMatricesDAO &mesh,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data) const
@@ -772,7 +772,7 @@ Assembler::Performance_Data_2D Assembler::ComputePerformance_2D(
     return result;
 }
 // ***************************************************************************
-void Assembler::PostProcessSolution_2D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+void Assembler::PostProcessSolution_2D(const Polydim::examples::Parabolic_PCC_BulkFace_2D::Program_configuration &config,
                                        const double &value_time,
                                        const Gedim::MeshMatricesDAO &mesh,
                                        const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
@@ -780,7 +780,7 @@ void Assembler::PostProcessSolution_2D(const Polydim::examples::Elliptic_PCC_Bul
                                        const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                                        const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                                        const Elliptic_PCC_BF_2D_Problem_Data &assembler_data,
-                                       const Polydim::examples::Elliptic_PCC_BulkFace_2D::test::I_Test &test,
+                                       const Polydim::examples::Parabolic_PCC_BulkFace_2D::test::I_Test &test,
                                        Assembler::PostProcess_Data_2D &result) const
 {
 
@@ -881,7 +881,7 @@ void Assembler::PostProcessSolution_2D(const Polydim::examples::Elliptic_PCC_Bul
     result.norm_H1 = std::sqrt(result.cell2Ds_norm_H1.sum());
 }
 // ***************************************************************************
-void Assembler::PostProcessSolution_1D(const Polydim::examples::Elliptic_PCC_BulkFace_2D::Program_configuration &config,
+void Assembler::PostProcessSolution_1D(const Polydim::examples::Parabolic_PCC_BulkFace_2D::Program_configuration &config,
                                        const double &value_time,
                                        const Gedim::MeshMatricesDAO &mesh,
                                        const Gedim::MeshUtilities::MeshGeometricData1D &mesh_geometric_data,
@@ -889,7 +889,7 @@ void Assembler::PostProcessSolution_1D(const Polydim::examples::Elliptic_PCC_Bul
                                        const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                                        const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data,
                                        const Elliptic_PCC_BF_2D_Problem_Data &assembler_data,
-                                       const Polydim::examples::Elliptic_PCC_BulkFace_2D::test::I_Test &test,
+                                       const Polydim::examples::Parabolic_PCC_BulkFace_2D::test::I_Test &test,
                                        Assembler::PostProcess_Data_1D &result) const
 {
     const unsigned int dimension = 1;
@@ -1007,6 +1007,6 @@ void Assembler::PostProcessSolution_1D(const Polydim::examples::Elliptic_PCC_Bul
     result.error_H1 = std::sqrt(result.cell1Ds_error_H1.sum());
     result.norm_H1 = std::sqrt(result.cell1Ds_norm_H1.sum());
 }
-} // namespace Elliptic_PCC_BulkFace_2D
+} // namespace Parabolic_PCC_BulkFace_2D
 } // namespace examples
 } // namespace Polydim
