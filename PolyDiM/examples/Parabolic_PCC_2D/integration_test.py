@@ -198,7 +198,7 @@ if __name__ == "__main__":
     method_types = [0, 1, 3]
     mesh_max_areas = [1./16., 1./64., 1./(16.*16), 1./(32.*32)]
     method_orders = [1, 2]
-    time_steps = [1./5., 1./10., 1./20.]
+    time_steps = [1./40.]
     thetas = [1, 0.5]
     for theta in thetas:
         for time_step in time_steps:
