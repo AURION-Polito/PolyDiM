@@ -210,7 +210,8 @@ class VEM_PCC_2D_Inertia_LocalSpace final : public I_VEM_PCC_2D_LocalSpace
 
     inline Eigen::MatrixXd ComputeScaledPolynomialsValues(const Polydim::VEM::PCC::VEM_PCC_2D_LocalSpace_Data &localSpace) const
     {
-        return (1.0 / localSpace.inertia_polygon.Measure) * localSpace.VanderInternal.leftCols(localSpace.Nkm2);
+        return (1.0 / (localSpace.inertia_polygon.Measure * localSpace.inertia_data.absDetFmatrix)) *
+               localSpace.VanderInternal.leftCols(localSpace.Nkm2);
     }
 
     inline Eigen::MatrixXd ComputePolynomialsValues(const Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data &reference_element_data,
