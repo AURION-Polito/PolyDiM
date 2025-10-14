@@ -14,10 +14,10 @@ authors:
     given-names: Fabio
     orcid: https://orcid.org/0000-0001-7123-9199
 title: "POLYDIM: POLYtopal DIscretization Methods library"
-version: v1.0.0
+version: v2.0.0
 doi: https://doi.org/10.5281/zenodo.15482177
 url: https://github.com/AURION-Polito/PolyDiM
-date-released: 2025-05-21
+date-released: 2025-10-15
 preferred-citation:
   type: article
   authors:
@@ -35,6 +35,6 @@ preferred-citation:
     orcid: https://orcid.org/0000-0001-7123-9199
   url: "https://arxiv.org/abs/2505.14063"
   journal: "arXiv"
-  month: 5
+  month: 10
   title: "POLYDIM: A C++ library for POLYtopal DIscretization Methods"
   year: 2025
