@@ -238,12 +238,17 @@ void export_dofs(const Polydim::examples::Parabolic_PCC_2D::Program_configuratio
                  const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                  const Polydim::examples::Parabolic_PCC_2D::Assembler::Parabolic_PCC_2D_Problem_Data &assembler_data,
                  const Polydim::examples::Parabolic_PCC_2D::Assembler::PostProcess_Data &post_process_data,
+                 const unsigned int time_index,
+                 const double &time_value,
                  const std::string &exportVtuFolder)
 {
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
     geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance1D();
     geometryUtilitiesConfig.Tolerance2D = config.GeometricTolerance2D();
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
+
+    const unsigned int space_order = config.MethodOrder();
+    const unsigned int time_order = config.Theta() == 0.5 ? 2 : 1;
 
     std::list<Eigen::Vector3d> dofs_coordinate;
     std::list<double> solution_values;
@@ -444,8 +449,12 @@ void export_dofs(const Polydim::examples::Parabolic_PCC_2D::Program_configuratio
 
         const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
         const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
-        exporter.Export(exportVtuFolder + "/dofs_" + std::to_string(TEST_ID) + "_" + std::to_string(Method_ID) + +"_" +
-                        std::to_string(config.MethodOrder()) + ".vtu");
+        exporter.Export(exportVtuFolder + "/dofs" +
+                        "_" + std::to_string(TEST_ID) +
+                        "_" + std::to_string(Method_ID) +
+                        "_" + std::to_string(space_order) +
+                        "_" + std::to_string(time_order) +
+                        "_" + std::to_string(time_index)+ ".vtu");
     }
 }
 // ***************************************************************************

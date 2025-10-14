@@ -160,6 +160,18 @@ int main(int argc, char **argv)
                                                                             exportSolutionFolder,
                                                                             exportVtuFolder);
 
+    Polydim::examples::Parabolic_PCC_2D::program_utilities::export_dofs(config,
+                                                                        mesh,
+                                                                        meshGeometricData,
+                                                                        meshDOFsInfo,
+                                                                        dofs_data,
+                                                                        reference_element_data,
+                                                                        initial_assembler_data,
+                                                                        initial_post_process_data,
+                                                                        0,
+                                                                        time_steps.at(0),
+                                                                        exportVtuFolder);
+
     Gedim::Profiler::StopTime("ExportSolution");
     Gedim::Output::PrintStatusProgram("ExportSolution");
 
@@ -253,6 +265,8 @@ int main(int argc, char **argv)
                                                                             reference_element_data,
                                                                             assembler_data_kp1,
                                                                             post_process_data,
+                                                                            t,
+                                                                            time_value,
                                                                             exportVtuFolder);
 
         Gedim::Profiler::StopTime("ExportSolution");
