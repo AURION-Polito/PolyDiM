@@ -449,12 +449,8 @@ void export_dofs(const Polydim::examples::Parabolic_PCC_2D::Program_configuratio
 
         const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
         const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
-        exporter.Export(exportVtuFolder + "/dofs" +
-                        "_" + std::to_string(TEST_ID) +
-                        "_" + std::to_string(Method_ID) +
-                        "_" + std::to_string(space_order) +
-                        "_" + std::to_string(time_order) +
-                        "_" + std::to_string(time_index)+ ".vtu");
+        exporter.Export(exportVtuFolder + "/dofs" + "_" + std::to_string(TEST_ID) + "_" + std::to_string(Method_ID) + "_" +
+                        std::to_string(space_order) + "_" + std::to_string(time_order) + "_" + std::to_string(time_index) + ".vtu");
     }
 }
 // ***************************************************************************

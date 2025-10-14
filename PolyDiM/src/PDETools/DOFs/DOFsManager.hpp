@@ -436,7 +436,7 @@ class DOFsManager
 #if PYBIND == 1
         Create_Constant_DOFsInfo_0D(mesh, boundary_info, meshDOFsInfo);
 #else
-        Create_Constant_DOFsInfo_0D<0>(mesh, boundary_info, meshDOFsInfo);
+        Create_Constant_DOFsInfo_0D(mesh, boundary_info, meshDOFsInfo);
 #endif
 
         return meshDOFsInfo;
@@ -451,8 +451,8 @@ class DOFsManager
         Create_Constant_DOFsInfo_0D(mesh, boundary_info, meshDOFsInfo);
         Create_Constant_DOFsInfo_1D(mesh, boundary_info, meshDOFsInfo);
 #else
-        Create_Constant_DOFsInfo_0D<1>(mesh, boundary_info, meshDOFsInfo);
-        Create_Constant_DOFsInfo_1D<1>(mesh, boundary_info, meshDOFsInfo);
+        Create_Constant_DOFsInfo_0D(mesh, boundary_info, meshDOFsInfo);
+        Create_Constant_DOFsInfo_1D(mesh, boundary_info, meshDOFsInfo);
 #endif
 
         return meshDOFsInfo;
@@ -467,9 +467,9 @@ class DOFsManager
         Create_Constant_DOFsInfo_1D(mesh, boundary_info, meshDOFsInfo);
         Create_Constant_DOFsInfo_2D(mesh, boundary_info, meshDOFsInfo);
 #else
-        Create_Constant_DOFsInfo_0D<2>(mesh, boundary_info, meshDOFsInfo);
-        Create_Constant_DOFsInfo_1D<2>(mesh, boundary_info, meshDOFsInfo);
-        Create_Constant_DOFsInfo_2D<2>(mesh, boundary_info, meshDOFsInfo);
+        Create_Constant_DOFsInfo_0D(mesh, boundary_info, meshDOFsInfo);
+        Create_Constant_DOFsInfo_1D(mesh, boundary_info, meshDOFsInfo);
+        Create_Constant_DOFsInfo_2D(mesh, boundary_info, meshDOFsInfo);
 #endif
         return meshDOFsInfo;
     }
@@ -484,10 +484,10 @@ class DOFsManager
         Create_Constant_DOFsInfo_2D(mesh, boundary_info, meshDOFsInfo);
         Create_Constant_DOFsInfo_3D(mesh, boundary_info, meshDOFsInfo);
 #else
-        Create_Constant_DOFsInfo_0D<3>(mesh, boundary_info, meshDOFsInfo);
-        Create_Constant_DOFsInfo_1D<3>(mesh, boundary_info, meshDOFsInfo);
-        Create_Constant_DOFsInfo_2D<3>(mesh, boundary_info, meshDOFsInfo);
-        Create_Constant_DOFsInfo_3D<3>(mesh, boundary_info, meshDOFsInfo);
+        Create_Constant_DOFsInfo_0D(mesh, boundary_info, meshDOFsInfo);
+        Create_Constant_DOFsInfo_1D(mesh, boundary_info, meshDOFsInfo);
+        Create_Constant_DOFsInfo_2D(mesh, boundary_info, meshDOFsInfo);
+        Create_Constant_DOFsInfo_3D(mesh, boundary_info, meshDOFsInfo);
 #endif
 
         return meshDOFsInfo;

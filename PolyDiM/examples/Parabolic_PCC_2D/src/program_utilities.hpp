@@ -52,7 +52,9 @@ void export_dofs(const Polydim::examples::Parabolic_PCC_2D::Program_configuratio
                  const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                  const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                  const Polydim::examples::Parabolic_PCC_2D::Assembler::Parabolic_PCC_2D_Problem_Data &assembler_data,
-                 const Polydim::examples::Parabolic_PCC_2D::Assembler::PostProcess_Data &post_process_data, const unsigned int time_index, const double& time_value,
+                 const Polydim::examples::Parabolic_PCC_2D::Assembler::PostProcess_Data &post_process_data,
+                 const unsigned int time_index,
+                 const double &time_value,
                  const std::string &exportVtuFolder);
 
 void export_performance(const Program_configuration &config,
