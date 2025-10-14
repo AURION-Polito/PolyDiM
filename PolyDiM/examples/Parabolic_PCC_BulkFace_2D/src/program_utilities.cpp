@@ -27,10 +27,10 @@ std::unique_ptr<Polydim::examples::Parabolic_PCC_BulkFace_2D::test::I_Test> crea
 {
     switch (config.TestType())
     {
-    case Polydim::examples::Parabolic_PCC_BulkFace_2D::test::Test_Types::Patch_Test:
-        return std::make_unique<Polydim::examples::Parabolic_PCC_BulkFace_2D::test::Patch_Test>();
-    // case Polydim::examples::Elliptic_PCC_BulkFace_2D::test::Test_Types::Elliptic_Problem:
-    //     return std::make_unique<Polydim::examples::Elliptic_PCC_BulkFace_2D::test::Elliptic_Problem>();
+    case Polydim::examples::Parabolic_PCC_BulkFace_2D::test::Test_Types::Elliptic_Problem:
+        return std::make_unique<Polydim::examples::Parabolic_PCC_BulkFace_2D::test::Elliptic_Problem>();
+    case Polydim::examples::Parabolic_PCC_BulkFace_2D::test::Test_Types::Parabolic_Problem:
+        return std::make_unique<Polydim::examples::Parabolic_PCC_BulkFace_2D::test::Parabolic_Problem>();
     default:
         throw std::runtime_error("Test type " + std::to_string((unsigned int)config.TestType()) + " not supported");
     }
@@ -93,6 +93,7 @@ void export_solution(const Polydim::examples::Parabolic_PCC_BulkFace_2D::Program
                      const Gedim::MeshMatricesDAO &mesh_2D,
                      const Gedim::MeshMatricesDAO &mesh_1D,
                      const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                     const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                      const Polydim::examples::Parabolic_PCC_BulkFace_2D::Assembler::Elliptic_PCC_BF_2D_Problem_Data &assembler_data,
                      const Polydim::examples::Parabolic_PCC_BulkFace_2D::Assembler::PostProcess_Data &post_process_data,
                      const std::string &exportSolutionFolder,
@@ -105,13 +106,82 @@ void export_solution(const Polydim::examples::Parabolic_PCC_BulkFace_2D::Program
 
     export_solution_1D(config, value_time, mesh_1D, dofs_data[1], post_process_data.post_process_data_1D, exportSolutionFolder, exportVtuFolder);
 
-    std::cout << "value_time" << separator;
-    std::cout << "nnzA" << separator;
-    std::cout << "residual" << std::endl;
+    {
 
-    std::cout << value_time << separator;
-    std::cout << std::scientific << assembler_data.globalMatrixA.NonZeros() << separator;
-    std::cout << std::scientific << post_process_data.residual_norm << std::endl;
+        const unsigned int METHOD_ID = static_cast<unsigned int>(config.MethodType());
+        const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
+
+        std::cout << "ProgramType" << separator;
+        std::cout << "MethodType" << separator;
+        std::cout << "MethodOrder" << separator;
+        std::cout << "Dofs" << separator;
+        std::cout << "Strongs" << separator;
+        std::cout << "h" << separator;
+        std::cout << "deltaT" << separator;
+        std::cout << "errorL2" << separator;
+        std::cout << "errorH1" << separator;
+        std::cout << "normL2" << separator;
+        std::cout << "normH1" << std::endl;
+
+        std::cout.precision(2);
+        std::cout << std::scientific << TEST_ID << separator;
+        std::cout << std::scientific << METHOD_ID << separator;
+        std::cout << std::scientific << config.MethodOrder() << separator;
+        std::cout << std::scientific << count_dofs.num_total_dofs << separator;
+        std::cout << std::scientific << count_dofs.num_total_strong << separator;
+        std::cout << std::scientific << post_process_data.mesh_size << separator;
+        std::cout << std::scientific << post_process_data.delta_time << separator;
+        std::cout << std::scientific << post_process_data.error_L2 << separator;
+        std::cout << std::scientific << post_process_data.error_H1 << separator;
+        std::cout << std::scientific << post_process_data.norm_L2 << separator;
+        std::cout << std::scientific << post_process_data.norm_H1 << separator;
+        std::cout << std::scientific << assembler_data.globalMatrixA.NonZeros() << separator;
+        std::cout << std::scientific << post_process_data.residual_norm << std::endl;
+    }
+
+    {
+
+        const unsigned int METHOD_ID = static_cast<unsigned int>(config.MethodType());
+        const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
+
+        const char separator = ';';
+        const std::string errorFileName = exportSolutionFolder + "/Errors_" + std::to_string(TEST_ID) + "_" +
+                                          std::to_string(METHOD_ID) + +"_" + std::to_string(config.MethodOrder()) + ".csv";
+        const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
+
+        std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);
+        if (!errorFileExists)
+        {
+            errorFile << "ProgramType" << separator;
+            errorFile << "MethodType" << separator;
+            errorFile << "MethodOrder" << separator;
+            errorFile << "Dofs" << separator;
+            errorFile << "Strongs" << separator;
+            errorFile << "h" << separator;
+            errorFile << "deltaT" << separator;
+            errorFile << "errorL2" << separator;
+            errorFile << "errorH1" << separator;
+            errorFile << "normL2" << separator;
+            errorFile << "normH1" << std::endl;
+        }
+
+        errorFile.precision(16);
+        errorFile << std::scientific << TEST_ID << separator;
+        errorFile << std::scientific << METHOD_ID << separator;
+        errorFile << std::scientific << config.MethodOrder() << separator;
+        errorFile << std::scientific << count_dofs.num_total_dofs << separator;
+        errorFile << std::scientific << count_dofs.num_total_strong << separator;
+        errorFile << std::scientific << post_process_data.mesh_size << separator;
+        errorFile << std::scientific << post_process_data.delta_time << separator;
+        errorFile << std::scientific << post_process_data.error_L2 << separator;
+        errorFile << std::scientific << post_process_data.error_H1 << separator;
+        errorFile << std::scientific << post_process_data.norm_L2 << separator;
+        errorFile << std::scientific << post_process_data.norm_H1 << separator;
+        errorFile << std::scientific << assembler_data.globalMatrixA.NonZeros() << separator;
+        errorFile << std::scientific << post_process_data.residual_norm << std::endl;
+
+        errorFile.close();
+    }
 }
 // ***************************************************************************
 void export_solution_1D(const Polydim::examples::Parabolic_PCC_BulkFace_2D::Program_configuration &config,
@@ -157,7 +227,8 @@ void export_solution_1D(const Polydim::examples::Parabolic_PCC_BulkFace_2D::Prog
     {
         const char separator = ';';
         const std::string errorFileName = exportSolutionFolder + "/Errors_1D_" + std::to_string(TEST_ID) + "_" +
-                                          std::to_string(METHOD_ID) + +"_" + std::to_string(config.MethodOrder()) + ".csv";
+                                          std::to_string(METHOD_ID) + +"_" + std::to_string(config.MethodOrder()) +
+                                          "_" + std::to_string(value_time) + ".csv";
         const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
 
         std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);
@@ -214,8 +285,8 @@ void export_solution_1D(const Polydim::examples::Parabolic_PCC_BulkFace_2D::Prog
                                    static_cast<unsigned int>(post_process_data.cell1Ds_error_H1.size()),
                                    post_process_data.cell1Ds_error_H1.data()}});
 
-            exporter.Export(exportVtuFolder + "/Solution_1D_" + std::to_string(TEST_ID) + "_" +
-                            std::to_string(TEST_ID) + +"_" + std::to_string(config.MethodOrder()) + ".vtu");
+            exporter.Export(exportVtuFolder + "/Solution_1D_" + std::to_string(TEST_ID) + "_" + std::to_string(TEST_ID) +
+                            +"_" + std::to_string(config.MethodOrder()) + "_" + std::to_string(value_time) + ".vtu");
         }
     }
 }
@@ -263,7 +334,8 @@ void export_solution_2D(const Polydim::examples::Parabolic_PCC_BulkFace_2D::Prog
     {
         const char separator = ';';
         const std::string errorFileName = exportSolutionFolder + "/Errors_2D_" + std::to_string(TEST_ID) + "_" +
-                                          std::to_string(Method_ID) + +"_" + std::to_string(config.MethodOrder()) + ".csv";
+                                          std::to_string(Method_ID) + +"_" + std::to_string(config.MethodOrder()) +
+                                          "_" + std::to_string(value_time) + ".csv";
         const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
 
         std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);
@@ -320,8 +392,8 @@ void export_solution_2D(const Polydim::examples::Parabolic_PCC_BulkFace_2D::Prog
                                    static_cast<unsigned int>(post_process_data.cell2Ds_error_H1.size()),
                                    post_process_data.cell2Ds_error_H1.data()}});
 
-            exporter.Export(exportVtuFolder + "/Solution_2D_" + std::to_string(TEST_ID) + "_" +
-                            std::to_string(Method_ID) + +"_" + std::to_string(config.MethodOrder()) + ".vtu");
+            exporter.Export(exportVtuFolder + "/Solution_2D_" + std::to_string(TEST_ID) + "_" + std::to_string(Method_ID) +
+                            +"_" + std::to_string(config.MethodOrder()) + "_" + std::to_string(value_time) + ".vtu");
         }
     }
 }

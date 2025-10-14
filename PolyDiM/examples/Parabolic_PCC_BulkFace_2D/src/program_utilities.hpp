@@ -41,6 +41,7 @@ void export_solution(const Polydim::examples::Parabolic_PCC_BulkFace_2D::Program
                      const Gedim::MeshMatricesDAO &mesh_2D,
                      const Gedim::MeshMatricesDAO &mesh_1D,
                      const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                     const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                      const Polydim::examples::Parabolic_PCC_BulkFace_2D::Assembler::Elliptic_PCC_BF_2D_Problem_Data &assembler_data,
                      const Polydim::examples::Parabolic_PCC_BulkFace_2D::Assembler::PostProcess_Data &post_process_data,
                      const std::string &exportSolutionFolder,

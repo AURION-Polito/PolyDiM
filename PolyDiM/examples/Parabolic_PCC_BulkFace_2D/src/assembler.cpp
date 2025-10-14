@@ -88,6 +88,7 @@ void Assembler::AssembleRhs(const Polydim::examples::Parabolic_PCC_BulkFace_2D::
                             Gedim::Eigen_Array<> &rightHandSide) const
 {
     rightHandSide.SetSize(count_dofs.num_total_dofs);
+    rightHandSide.Zeros();
 
     AssembleRhs_2D(config, value_time, mesh_2D, mesh_geometric_data_2D, mesh_dofs_info[0], dofs_data[0], count_dofs, reference_element_data_2D, test, rightHandSide);
 
@@ -98,6 +99,7 @@ void Assembler::AssembleRhs(const Polydim::examples::Parabolic_PCC_BulkFace_2D::
 // ***************************************************************************
 Assembler::PostProcess_Data Assembler::PostProcessSolution(
     const Polydim::examples::Parabolic_PCC_BulkFace_2D::Program_configuration &config,
+    const double &delta_time,
     const double &value_time,
     const Gedim::MeshMatricesDAO &mesh_2D,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data_2D,
@@ -143,6 +145,33 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
                            assembler_data,
                            test,
                            post_process_data.post_process_data_1D);
+
+    const double error_L2 =
+        sqrt(post_process_data.post_process_data_1D.error_L2 * post_process_data.post_process_data_1D.error_L2 +
+             post_process_data.post_process_data_2D.error_L2 * post_process_data.post_process_data_2D.error_L2);
+
+    const double error_H1 =
+        sqrt(post_process_data.post_process_data_1D.error_H1 * post_process_data.post_process_data_1D.error_H1 +
+             post_process_data.post_process_data_2D.error_H1 * post_process_data.post_process_data_2D.error_H1);
+
+    if (error_H1 > post_process_data.error_H1)
+    {
+        post_process_data.error_H1 = error_H1;
+
+        post_process_data.norm_H1 =
+            sqrt(post_process_data.post_process_data_1D.norm_H1 * post_process_data.post_process_data_1D.norm_H1 +
+                 post_process_data.post_process_data_2D.norm_H1 * post_process_data.post_process_data_2D.norm_H1);
+    }
+    if (error_L2 > post_process_data.error_L2)
+    {
+        post_process_data.error_L2 = error_L2;
+
+        post_process_data.norm_L2 =
+            sqrt(post_process_data.post_process_data_1D.norm_L2 * post_process_data.post_process_data_1D.norm_L2 +
+                 post_process_data.post_process_data_2D.norm_L2 * post_process_data.post_process_data_2D.norm_L2);
+    }
+
+    post_process_data.mesh_size = post_process_data.post_process_data_2D.mesh_size;
 
     return post_process_data;
 }
@@ -281,6 +310,107 @@ void Assembler::AssembleRhs_2D(const Polydim::examples::Parabolic_PCC_BulkFace_2
                                                                                           local_matrix_to_global_matrix_dofs_data,
                                                                                           local_rhs,
                                                                                           rightHandSide);
+
+        ComputeWeakTerm_2D(c, mesh, mesh_geometric_data, mesh_dofs_info, dofs_data, reference_element_data, local_space_data, test, value_time, rightHandSide);
+    }
+}
+// ***************************************************************************
+void Assembler::ComputeWeakTerm_2D(const unsigned int cell2DIndex,
+                                   const Gedim::MeshMatricesDAO &mesh,
+                                   const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                   const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                                   const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                                   const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
+                                   const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data,
+                                   const Polydim::examples::Parabolic_PCC_BulkFace_2D::test::I_Test &test,
+                                   const double &time_value,
+                                   Gedim::Eigen_Array<> &rightHandSide) const
+{
+    const unsigned numVertices = mesh_geometric_data.Cell2DsVertices.at(cell2DIndex).cols();
+
+    for (unsigned int ed = 0; ed < numVertices; ed++)
+    {
+        const unsigned int cell1D_index = mesh.Cell2DEdge(cell2DIndex, ed);
+
+        const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(1).at(cell1D_index);
+
+        if (boundary_info.Type != Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak)
+            continue;
+
+        // compute vem values
+        const auto weakReferenceSegment =
+            Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * reference_element_data.Order);
+
+        const Eigen::VectorXd pointsCurvilinearCoordinates = weakReferenceSegment.Points.row(0);
+
+        // map edge internal quadrature points
+        const Eigen::Vector3d &edgeStart = mesh_geometric_data.Cell2DsEdgeDirections.at(cell2DIndex)[ed]
+                                               ? mesh_geometric_data.Cell2DsVertices.at(cell2DIndex).col(ed)
+                                               : mesh_geometric_data.Cell2DsVertices.at(cell2DIndex).col((ed + 1) % numVertices);
+
+        const Eigen::Vector3d &edgeTangent = mesh_geometric_data.Cell2DsEdgeTangents.at(cell2DIndex).col(ed);
+        const double direction = mesh_geometric_data.Cell2DsEdgeDirections.at(cell2DIndex)[ed] ? 1.0 : -1.0;
+
+        const unsigned int numEdgeWeakQuadraturePoints = weakReferenceSegment.Points.cols();
+        Eigen::MatrixXd weakQuadraturePoints(3, numEdgeWeakQuadraturePoints);
+        for (unsigned int q = 0; q < numEdgeWeakQuadraturePoints; q++)
+            weakQuadraturePoints.col(q) = edgeStart + direction * weakReferenceSegment.Points(0, q) * edgeTangent;
+
+        const double absMapDeterminant = std::abs(mesh_geometric_data.Cell2DsEdgeLengths.at(cell2DIndex)[ed]);
+        const Eigen::MatrixXd weakQuadratureWeights = weakReferenceSegment.Weights * absMapDeterminant;
+
+        const Eigen::VectorXd neumannValues =
+            test.weak_boundary_condition(2, 0, boundary_info.Marker, weakQuadraturePoints, time_value);
+        const auto weak_basis_function_values =
+            Polydim::PDETools::LocalSpace_PCC_2D::BasisFunctionsValuesOnEdge(ed, reference_element_data, local_space_data, pointsCurvilinearCoordinates);
+
+        // compute values of Neumann condition
+        const Eigen::VectorXd neumannContributions =
+            weak_basis_function_values.transpose() * weakQuadratureWeights.asDiagonal() * neumannValues;
+
+        for (unsigned int p = 0; p < 2; ++p)
+        {
+            const unsigned int cell0D_index = mesh.Cell1DVertex(cell1D_index, p);
+
+            const auto local_dofs = dofs_data.CellsDOFs.at(0).at(cell0D_index);
+
+            for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
+            {
+                const auto &local_dof_i = local_dofs.at(loc_i);
+
+                switch (local_dof_i.Type)
+                {
+                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                    continue;
+                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
+                    rightHandSide.AddValue(local_dof_i.Global_Index, neumannContributions[p]);
+                }
+                break;
+                default:
+                    throw std::runtime_error("Unknown DOF Type");
+                }
+            }
+        }
+
+        const auto local_dofs = dofs_data.CellsDOFs.at(1).at(cell1D_index);
+        for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
+        {
+            const auto &local_dof_i = local_dofs.at(loc_i);
+
+            const unsigned int localIndex = loc_i;
+
+            switch (local_dof_i.Type)
+            {
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                continue;
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
+                rightHandSide.AddValue(local_dof_i.Global_Index, neumannContributions[localIndex + 2]);
+            }
+            break;
+            default:
+                throw std::runtime_error("Unknown DOF Type");
+            }
+        }
     }
 }
 // ***************************************************************************
@@ -298,34 +428,17 @@ void Assembler::AssembleMatrix_1D(const Polydim::examples::Parabolic_PCC_BulkFac
     const unsigned int dimension = 1;
 
     Gedim::Eigen_SparseArray<> dirichletMatrixA;
+
     const auto local_space =
         Polydim::FEM::PCC::create_FEM_PCC_1D_local_space(FEM::PCC::FEM_PCC_1D_LocalSpace_Types::FEM_PCC_1D_LocalSpace);
 
-    Eigen::Vector3d reference_origin = Eigen::Vector3d::Zero();
-    Eigen::Vector3d reference_tangent = Eigen::Vector3d::Zero();
-    reference_tangent(0) = 1.0;
-
-    const Polydim::FEM::PCC::FEM_PCC_1D_Segment_Geometry segment = {config.GeometricTolerance1D(), reference_origin, reference_tangent, 1.0};
-
-    // compute vem values
-    const Gedim::Quadrature::QuadratureData reference_quadrature =
+    const auto reference_quadrature =
         Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * reference_element_data.Order);
     const Eigen::VectorXd points_curvilinear_coordinates = reference_quadrature.Points.row(0);
     const unsigned int num_ref_quadrature_points = reference_quadrature.Points.cols();
 
-    const auto local_space_data = local_space->CreateLocalSpace(reference_element_data, segment);
-
-    const auto basis_functions_values =
-        local_space->ComputeBasisFunctionsValues(reference_element_data, local_space_data, reference_quadrature.Points);
-
-    const auto basis_functions_derivative_values =
-        local_space->ComputeBasisFunctionsDerivativeValues(reference_element_data,
-                                                           local_space_data,
-                                                           reference_quadrature.Points);
-
     for (unsigned int c = 0; c < mesh.Cell1DTotalNumber(); ++c)
     {
-
         // map edge internal quadrature points
         const Eigen::Vector3d &edgeStart = mesh_geometric_data.Cell1DsVertices.at(c).col(0);
         const Eigen::Vector3d &edgeTangent = mesh_geometric_data.Cell1DsTangents.at(c);
@@ -335,6 +448,19 @@ void Assembler::AssembleMatrix_1D(const Polydim::examples::Parabolic_PCC_BulkFac
             quadrature_points_2D.col(q) = edgeStart + reference_quadrature.Points(0, q) * edgeTangent;
 
         const Eigen::VectorXd quadrature_weights_2D = reference_quadrature.Weights * mesh_geometric_data.Cell1DsLengths.at(c);
+
+        const Polydim::FEM::PCC::FEM_PCC_1D_Segment_Geometry segment = {config.GeometricTolerance1D(),
+                                                                        mesh_geometric_data.Cell1DsVertices.at(c).col(0),
+                                                                        mesh_geometric_data.Cell1DsTangents.at(c),
+                                                                        mesh_geometric_data.Cell1DsLengths.at(c)};
+
+        const auto local_space_data = local_space->CreateLocalSpace(reference_element_data, segment);
+
+        const auto basis_functions_values =
+            local_space->ComputeBasisFunctionsValues(reference_element_data, local_space_data, quadrature_points_2D);
+
+        const auto basis_functions_derivative_values =
+            local_space->ComputeBasisFunctionsDerivativeValues(reference_element_data, local_space_data, quadrature_points_2D);
 
         const auto diffusion_term_values = test.diffusion_term(dimension, mesh.Cell1DMarker(c), quadrature_points_2D);
         const auto reaction_term_values = test.reaction_term(dimension, mesh.Cell1DMarker(c), quadrature_points_2D);
@@ -387,30 +513,14 @@ void Assembler::AssembleRhs_1D(const Polydim::examples::Parabolic_PCC_BulkFace_2
     const unsigned int dimension = 1;
 
     Gedim::Eigen_SparseArray<> dirichletMatrixA;
+
     const auto local_space =
         Polydim::FEM::PCC::create_FEM_PCC_1D_local_space(FEM::PCC::FEM_PCC_1D_LocalSpace_Types::FEM_PCC_1D_LocalSpace);
 
-    Eigen::Vector3d reference_origin = Eigen::Vector3d::Zero();
-    Eigen::Vector3d reference_tangent = Eigen::Vector3d::Zero();
-    reference_tangent(0) = 1.0;
-
-    const Polydim::FEM::PCC::FEM_PCC_1D_Segment_Geometry segment = {config.GeometricTolerance1D(), reference_origin, reference_tangent, 1.0};
-
-    // compute vem values
-    const Gedim::Quadrature::QuadratureData reference_quadrature =
+    const auto reference_quadrature =
         Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * reference_element_data.Order);
     const Eigen::VectorXd points_curvilinear_coordinates = reference_quadrature.Points.row(0);
     const unsigned int num_ref_quadrature_points = reference_quadrature.Points.cols();
-
-    const auto local_space_data = local_space->CreateLocalSpace(reference_element_data, segment);
-
-    const auto basis_functions_values =
-        local_space->ComputeBasisFunctionsValues(reference_element_data, local_space_data, reference_quadrature.Points);
-
-    const auto basis_functions_derivative_values =
-        local_space->ComputeBasisFunctionsDerivativeValues(reference_element_data,
-                                                           local_space_data,
-                                                           reference_quadrature.Points);
 
     for (unsigned int c = 0; c < mesh.Cell1DTotalNumber(); ++c)
     {
@@ -424,6 +534,16 @@ void Assembler::AssembleRhs_1D(const Polydim::examples::Parabolic_PCC_BulkFace_2
             quadrature_points_2D.col(q) = edgeStart + reference_quadrature.Points(0, q) * edgeTangent;
 
         const Eigen::VectorXd quadrature_weights_2D = reference_quadrature.Weights * mesh_geometric_data.Cell1DsLengths.at(c);
+
+        const Polydim::FEM::PCC::FEM_PCC_1D_Segment_Geometry segment = {config.GeometricTolerance1D(),
+                                                                        mesh_geometric_data.Cell1DsVertices.at(c).col(0),
+                                                                        mesh_geometric_data.Cell1DsTangents.at(c),
+                                                                        mesh_geometric_data.Cell1DsLengths.at(c)};
+
+        const auto local_space_data = local_space->CreateLocalSpace(reference_element_data, segment);
+
+        const auto basis_functions_values =
+            local_space->ComputeBasisFunctionsValues(reference_element_data, local_space_data, quadrature_points_2D);
 
         const auto source_term_values = test.source_term(dimension, mesh.Cell1DMarker(c), quadrature_points_2D, value_time);
 
@@ -440,6 +560,55 @@ void Assembler::AssembleRhs_1D(const Polydim::examples::Parabolic_PCC_BulkFace_2
                                                                                           local_matrix_to_global_matrix_dofs_data,
                                                                                           local_rhs,
                                                                                           rightHandSide);
+        ComputeWeakTerm_1D(c, mesh, mesh_geometric_data, mesh_dofs_info, dofs_data, count_dofs, reference_element_data, test, value_time, rightHandSide);
+    }
+}
+//***************************************************************************
+void Assembler::ComputeWeakTerm_1D(const unsigned int cell1DIndex,
+                                   const Gedim::MeshMatricesDAO &mesh,
+                                   const Gedim::MeshUtilities::MeshGeometricData1D &mesh_geometric_data,
+                                   const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                                   const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                                   const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
+                                   const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data,
+                                   const Polydim::examples::Parabolic_PCC_BulkFace_2D::test::I_Test &test,
+                                   const double &time_value,
+                                   Gedim::Eigen_Array<> &rightHandSide) const
+{
+    for (unsigned int p = 0; p < 2; ++p)
+    {
+        const unsigned int cell0D_index = mesh.Cell1DVertex(cell1DIndex, p);
+        const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(0).at(cell0D_index);
+
+        if (boundary_info.Type != Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak)
+            continue;
+
+        const auto coordinates = mesh.Cell0DCoordinates(cell0D_index);
+        const double direction = p == 0 ? -1.0 : 1.0;
+
+        const Eigen::VectorXd weak_boundary_values =
+            direction * test.weak_boundary_condition(1, mesh.Cell1DMarker(cell1DIndex), boundary_info.Marker, coordinates, time_value);
+
+        const auto local_dofs = dofs_data.CellsDOFs.at(0).at(cell0D_index);
+
+        assert(local_dofs.size() == weak_boundary_values.size());
+
+        for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
+        {
+            const auto &local_dof_i = local_dofs.at(loc_i);
+
+            switch (local_dof_i.Type)
+            {
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                continue;
+                break;
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
+                rightHandSide.AddValue(local_dof_i.Global_Index + count_dofs.offsets_DOFs[1], weak_boundary_values[loc_i]);
+                break;
+            default:
+                throw std::runtime_error("Unknown DOF Type");
+            }
+        }
     }
 }
 // ***************************************************************************
@@ -491,15 +660,22 @@ void Assembler::ComputeTransitionMatrices(const Polydim::examples::Parabolic_PCC
         const Eigen::VectorXd quadrature_weights_2D =
             reference_quadrature.Weights * mesh_geometric_data_1D.Cell1DsLengths.at(c);
 
-        const auto alpha_term_values = test.alpha(dimension, mesh_1D.Cell1DMarker(c), quadrature_points_2D);
-        const auto beta_term_values = test.beta(dimension, mesh_1D.Cell1DMarker(c), quadrature_points_2D);
+        const auto alpha_term_values_1 = test.alpha(1, mesh_1D.Cell1DMarker(c), quadrature_points_2D);
+
+        const auto alpha_term_values_2 = test.alpha(2, 0, quadrature_points_2D);
+        const auto beta_term_values_2 = test.beta(2, 0, quadrature_points_2D);
 
         const auto &global_dofs = dofs_data[1].CellsGlobalDOFs[1].at(c);
 
         assert(local_space_data.NumberOfBasisFunctions == global_dofs.size());
 
-        const auto local_alpha = equation.ComputeCellReactionMatrix(alpha_term_values, basis_functions_values, quadrature_weights_2D);
-        const auto local_beta = equation.ComputeCellReactionMatrix(beta_term_values, basis_functions_values, quadrature_weights_2D);
+        const auto local_alpha_1 =
+            equation.ComputeCellReactionMatrix(alpha_term_values_1, basis_functions_values, quadrature_weights_2D);
+
+        const auto local_alpha_2 =
+            equation.ComputeCellReactionMatrix(alpha_term_values_2, basis_functions_values, quadrature_weights_2D);
+        const auto local_beta_2 =
+            equation.ComputeCellReactionMatrix(beta_term_values_2, basis_functions_values, quadrature_weights_2D);
 
         const unsigned int cell1D_index = extract_data.NewCell1DToOldCell1D[c];
 
@@ -520,8 +696,8 @@ void Assembler::ComputeTransitionMatrices(const Polydim::examples::Parabolic_PCC
 
                 const unsigned int global_index_j = local_dof_j.Global_Index;
 
-                globalMatrixA.Triplet(global_index_j, global_index_i, -local_beta(i, j));
-                globalMatrixA.Triplet(global_index_i, global_index_j, -local_alpha(i, j));
+                globalMatrixA.Triplet(global_index_j, global_index_i, -local_beta_2(i, j));
+                globalMatrixA.Triplet(global_index_i, global_index_j, -local_alpha_1(i, j));
             }
         }
 
@@ -542,7 +718,7 @@ void Assembler::ComputeTransitionMatrices(const Polydim::examples::Parabolic_PCC
 
                 const unsigned int global_index_j = local_dof_j.Global_Index;
 
-                globalMatrixA.Triplet(global_index_i, global_index_j, local_alpha(i, j));
+                globalMatrixA.Triplet(global_index_i, global_index_j, local_alpha_2(i, j));
             }
         }
     }
@@ -897,27 +1073,10 @@ void Assembler::PostProcessSolution_1D(const Polydim::examples::Parabolic_PCC_Bu
     const auto local_space =
         Polydim::FEM::PCC::create_FEM_PCC_1D_local_space(FEM::PCC::FEM_PCC_1D_LocalSpace_Types::FEM_PCC_1D_LocalSpace);
 
-    Eigen::Vector3d reference_origin = Eigen::Vector3d::Zero();
-    Eigen::Vector3d reference_tangent = Eigen::Vector3d::Zero();
-    reference_tangent(0) = 1.0;
-
-    const Polydim::FEM::PCC::FEM_PCC_1D_Segment_Geometry segment = {config.GeometricTolerance1D(), reference_origin, reference_tangent, 1.0};
-
-    const auto local_space_data = local_space->CreateLocalSpace(reference_element_data, segment);
-
-    // compute vem values
     const auto reference_quadrature =
         Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * reference_element_data.Order);
     const Eigen::VectorXd points_curvilinear_coordinates = reference_quadrature.Points.row(0);
     const unsigned int num_ref_quadrature_points = reference_quadrature.Points.cols();
-
-    const auto basis_functions_values =
-        local_space->ComputeBasisFunctionsValues(reference_element_data, local_space_data, reference_quadrature.Points);
-
-    const auto basis_functions_derivative_values =
-        local_space->ComputeBasisFunctionsDerivativeValues(reference_element_data,
-                                                           local_space_data,
-                                                           reference_quadrature.Points);
 
     result.cell0Ds_numeric.setZero(mesh.Cell0DTotalNumber());
     result.cell0Ds_exact.setZero(mesh.Cell0DTotalNumber());
@@ -966,11 +1125,24 @@ void Assembler::PostProcessSolution_1D(const Polydim::examples::Parabolic_PCC_Bu
 
         const Eigen::VectorXd quadrature_weights_2D = reference_quadrature.Weights * mesh_geometric_data.Cell1DsLengths.at(c);
 
+        const Polydim::FEM::PCC::FEM_PCC_1D_Segment_Geometry segment = {config.GeometricTolerance1D(),
+                                                                        mesh_geometric_data.Cell1DsVertices.at(c).col(0),
+                                                                        mesh_geometric_data.Cell1DsTangents.at(c),
+                                                                        mesh_geometric_data.Cell1DsLengths.at(c)};
+
+        const auto local_space_data = local_space->CreateLocalSpace(reference_element_data, segment);
+
+        const auto basis_functions_values =
+            local_space->ComputeBasisFunctionsValues(reference_element_data, local_space_data, quadrature_points_2D);
+
+        const auto basis_functions_derivative_values =
+            local_space->ComputeBasisFunctionsDerivativeValues(reference_element_data, local_space_data, quadrature_points_2D);
+
         const auto exact_solution_values = test.exact_solution(dimension, mesh.Cell1DMarker(c), quadrature_points_2D, value_time);
         const auto exact_derivative_solution_values =
             test.exact_derivative_solution(dimension, mesh.Cell1DMarker(c), quadrature_points_2D, value_time);
 
-        const auto tangent = mesh_geometric_data.Cell1DsTangents[c];
+        const auto tangent = mesh_geometric_data.Cell1DsTangents[c] / mesh_geometric_data.Cell1DsLengths[c];
         const Eigen::VectorXd tangent_derivatives_values =
             exact_derivative_solution_values[0] * tangent[0] + exact_derivative_solution_values[1] * tangent[1];
 

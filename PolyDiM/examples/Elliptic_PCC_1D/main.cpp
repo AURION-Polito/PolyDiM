@@ -17,6 +17,7 @@
 #include "test_definition.hpp"
 
 unsigned int Polydim::examples::Elliptic_PCC_1D::test::Patch_Test::order;
+unsigned int Polydim::examples::Elliptic_PCC_1D::test::Rotated_Patch_Test::order;
 
 int main(int argc, char **argv)
 {
@@ -55,8 +56,6 @@ int main(int argc, char **argv)
     /// Set problem
     Gedim::Output::PrintGenericMessage("SetProblem...", true);
     Gedim::Profiler::StartTime("SetProblem");
-
-    Polydim::examples::Elliptic_PCC_1D::test::Patch_Test::order = config.MethodOrder();
 
     const auto test = Polydim::examples::Elliptic_PCC_1D::program_utilities::create_test(config);
 
@@ -155,6 +154,8 @@ int main(int argc, char **argv)
         Gedim::Profiler::StopTime("Solve");
         Gedim::Output::PrintStatusProgram("Solve");
     }
+
+    std::cout << assembler_data.solution << std::endl;
 
     Gedim::Output::PrintGenericMessage("ComputeErrors...", true);
     Gedim::Profiler::StartTime("ComputeErrors");

@@ -143,11 +143,16 @@ Assembler::Elliptic_PCC_1D_Problem_Data Assembler::Assemble(const Polydim::examp
             local_space.ComputeBasisFunctionsDerivativeValues(reference_element_data, local_space_data);
 
         const auto diffusion_term_values = test.diffusion_term(local_space_data.InternalQuadrature.Points);
+        const auto reaction_term_values = test.reaction_term(local_space_data.InternalQuadrature.Points);
         const auto source_term_values = test.source_term(local_space_data.InternalQuadrature.Points);
 
         const auto local_A = equation.ComputeCellDiffusionMatrix(diffusion_term_values,
                                                                  basis_functions_derivative_values,
                                                                  local_space_data.InternalQuadrature.Weights);
+
+        const auto local_M = equation.ComputeCellReactionMatrix(reaction_term_values,
+                                                                basis_functions_values,
+                                                                local_space_data.InternalQuadrature.Weights);
 
         const auto local_rhs = equation.ComputeCellForcingTerm(source_term_values,
                                                                basis_functions_values,
@@ -163,7 +168,7 @@ Assembler::Elliptic_PCC_1D_Problem_Data Assembler::Assemble(const Polydim::examp
         Polydim::PDETools::Assembler_Utilities::assemble_local_matrix_to_global_matrix<1>(c,
                                                                                           local_matrix_to_global_matrix_dofs_data,
                                                                                           local_matrix_to_global_matrix_dofs_data,
-                                                                                          local_A,
+                                                                                          local_A + local_M,
                                                                                           local_rhs,
                                                                                           result.globalMatrixA,
                                                                                           result.dirichletMatrixA,
@@ -261,6 +266,10 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
         const auto exact_solution_values = test.exact_solution(local_space_data.InternalQuadrature.Points);
         const auto exact_derivative_solution_values = test.exact_derivative_solution(local_space_data.InternalQuadrature.Points);
 
+        const auto tangent = mesh_geometric_data.Cell1DsTangents[c] / mesh_geometric_data.Cell1DsLengths[c];
+        const Eigen::VectorXd tangent_derivatives_values =
+            exact_derivative_solution_values[0] * tangent[0] + exact_derivative_solution_values[1] * tangent[1];
+
         const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<1>(c, dofs_data);
         const Eigen::VectorXd dofs_values =
             PDETools::Assembler_Utilities::global_solution_to_local_solution<1>(c,
@@ -279,7 +288,7 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
         result.cell1Ds_norm_L2[c] = local_space_data.InternalQuadrature.Weights.transpose() * local_norm_L2;
 
         const Eigen::VectorXd local_error_H1 =
-            (basis_functions_derivative_values[0] * dofs_values - exact_derivative_solution_values[0]).array().square();
+            (basis_functions_derivative_values[0] * dofs_values - tangent_derivatives_values).array().square();
         const Eigen::VectorXd local_norm_H1 = (basis_functions_derivative_values[0] * dofs_values).array().square();
 
         result.cell1Ds_error_H1[c] = local_space_data.InternalQuadrature.Weights.transpose() * local_error_H1;

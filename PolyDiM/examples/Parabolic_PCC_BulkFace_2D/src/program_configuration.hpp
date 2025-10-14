@@ -25,16 +25,14 @@ namespace Parabolic_PCC_BulkFace_2D
 {
 struct Program_configuration final
 {
-
-    const unsigned int method_order = 3;
     const double time_theta = 0.0;
 
     Program_configuration()
     {
         Gedim::Configurations::AddProperty(
             "TestType",
-            static_cast<unsigned int>(Polydim::examples::Parabolic_PCC_BulkFace_2D::test::Test_Types::Patch_Test),
-            "Test Type 1 - Patch_Test; 2 - Elliptic_Problem; (Default: 1)");
+            static_cast<unsigned int>(Polydim::examples::Parabolic_PCC_BulkFace_2D::test::Test_Types::Elliptic_Problem),
+            "Test Type 1 - Elliptic_Problem; 2 - Parabolic_Problem; (Default: 1)");
         // Export parameters
         Gedim::Configurations::AddProperty("ExportFolder", "./Run", "Folder where to export data (Default: ./Export)");
         // Mesh parameters
@@ -60,6 +58,7 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty("ComputeMethodPerformance", true, "Compute Method Performance (Default: false)");
 
         Gedim::Configurations::AddProperty("TimeStep", 0.5, "Max Time (Default: 0.5)");
+        Gedim::Configurations::AddProperty("MethodOrder", static_cast<unsigned int>(1), "Method order (Default: 1)");
     }
 
     inline std::string ExportFolder() const
@@ -111,7 +110,7 @@ struct Program_configuration final
 
     inline unsigned int MethodOrder() const
     {
-        return method_order;
+        return Gedim::Configurations::GetPropertyValue<unsigned int>("MethodOrder");
     }
 
     inline double Theta() const

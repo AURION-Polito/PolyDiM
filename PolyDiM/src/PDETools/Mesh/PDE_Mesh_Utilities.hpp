@@ -116,11 +116,12 @@ inline void create_mesh_1D(const Gedim::GeometryUtilities &geometry_utilities,
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_1D::Equispaced: {
         const Eigen::Vector3d segment_origin = pde_domain.vertices.col(0);
         const Eigen::Vector3d segment_tangent = pde_domain.vertices.col(1) - segment_origin;
+        const unsigned int num_points = round(1.0 / max_relative_length) + 1;
 
         mesh_utilities.FillMesh1D(geometry_utilities,
                                   segment_origin,
                                   segment_tangent,
-                                  geometry_utilities.EquispaceCoordinates(max_relative_length, true),
+                                  geometry_utilities.EquispaceCoordinates(num_points, 0.0, 1.0, true),
                                   mesh);
     }
     break;

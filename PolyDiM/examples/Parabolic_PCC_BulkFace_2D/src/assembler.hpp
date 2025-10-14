@@ -90,6 +90,15 @@ class Assembler final
         PostProcess_Data_2D post_process_data_2D;
         PostProcess_Data_1D post_process_data_1D;
         double residual_norm;
+
+        double error_L2 = 0.0;
+        double norm_L2 = 0.0;
+
+        double error_H1 = 0.0;
+        double norm_H1 = 0.0;
+
+        double mesh_size;
+        double delta_time;
     };
 
   private:
@@ -188,6 +197,28 @@ class Assembler final
                         const Polydim::examples::Parabolic_PCC_BulkFace_2D::test::I_Test &test,
                         Gedim::Eigen_Array<> &rightHandSide) const;
 
+    void ComputeWeakTerm_2D(const unsigned int cell2DIndex,
+                            const Gedim::MeshMatricesDAO &mesh,
+                            const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                            const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                            const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                            const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
+                            const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data,
+                            const Polydim::examples::Parabolic_PCC_BulkFace_2D::test::I_Test &test,
+                            const double &time_value,
+                            Gedim::Eigen_Array<> &rightHandSide) const;
+
+    void ComputeWeakTerm_1D(const unsigned int cell1DIndex,
+                            const Gedim::MeshMatricesDAO &mesh,
+                            const Gedim::MeshUtilities::MeshGeometricData1D &mesh_geometric_data,
+                            const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                            const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                            const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
+                            const Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data &reference_element_data,
+                            const Polydim::examples::Parabolic_PCC_BulkFace_2D::test::I_Test &test,
+                            const double &time_value,
+                            Gedim::Eigen_Array<> &rightHandSide) const;
+
   public:
     Performance_Data_2D ComputePerformance_2D(const Polydim::examples::Parabolic_PCC_BulkFace_2D::Program_configuration &config,
                                               const Gedim::MeshMatricesDAO &mesh,
@@ -196,6 +227,7 @@ class Assembler final
 
     Assembler::PostProcess_Data PostProcessSolution(
         const Polydim::examples::Parabolic_PCC_BulkFace_2D::Program_configuration &config,
+        const double &delta_time,
         const double &value_time,
         const Gedim::MeshMatricesDAO &mesh_2D,
         const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data_2D,
