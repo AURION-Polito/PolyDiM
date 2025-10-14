@@ -121,7 +121,9 @@ void export_solution(const Polydim::examples::Parabolic_PCC_BulkFace_2D::Program
         std::cout << "errorL2" << separator;
         std::cout << "errorH1" << separator;
         std::cout << "normL2" << separator;
-        std::cout << "normH1" << std::endl;
+        std::cout << "normH1" << separator;
+        std::cout << "nnz" << separator;
+        std::cout << "residual" << std::endl;
 
         std::cout.precision(2);
         std::cout << std::scientific << TEST_ID << separator;
@@ -162,7 +164,9 @@ void export_solution(const Polydim::examples::Parabolic_PCC_BulkFace_2D::Program
             errorFile << "errorL2" << separator;
             errorFile << "errorH1" << separator;
             errorFile << "normL2" << separator;
-            errorFile << "normH1" << std::endl;
+            errorFile << "normH1" << separator;
+            errorFile << "nnz" << separator;
+            errorFile << "residual" << std::endl;
         }
 
         errorFile.precision(16);

@@ -172,6 +172,7 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(
     }
 
     post_process_data.mesh_size = post_process_data.post_process_data_2D.mesh_size;
+    post_process_data.delta_time = delta_time;
 
     return post_process_data;
 }

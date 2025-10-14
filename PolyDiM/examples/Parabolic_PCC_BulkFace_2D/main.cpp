@@ -200,7 +200,7 @@ int main(int argc, char **argv)
     Polydim::examples::Parabolic_PCC_BulkFace_2D::Assembler::PostProcess_Data post_process_data;
     double value_time = 0.0;
     double delta_time = 0.0;
-    if (domain.time_domain.size() == 0)
+    if (abs(domain.time_domain[0] - domain.time_domain[1]) < 1.0e-12)
     {
 
         Gedim::Output::PrintGenericMessage("Factorize...", true);
