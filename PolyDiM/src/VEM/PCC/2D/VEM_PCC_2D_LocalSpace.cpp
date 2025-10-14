@@ -284,6 +284,7 @@ void VEM_PCC_2D_LocalSpace::InitializeProjectorsComputation(const VEM_PCC_2D_Ref
     localSpace.NumProjectorBasisFunctions = reference_element_data.Monomials.NumMonomials;
 
     localSpace.Nkm1 = localSpace.NumProjectorBasisFunctions - reference_element_data.Order - 1;
+    localSpace.Nkm2 = (reference_element_data.Order - 1) * reference_element_data.Order / 2;
 
     // Compute Vandermonde matrices.
     localSpace.Diameter = polygonDiameter;
