@@ -124,12 +124,31 @@ def test_space_errors(errors,
         assert round(slope_L2) == round(float(method_order + 1.0))
         assert round(slope_H1) == round(float(method_order))
 
+def test_time_errors(errors,
+                     method_order,
+                     max_time,
+                     tol):
+    errors = np.array(errors[1:])
+    T_rows = np.where((errors[:,2]==max_time))[0]
+    num_rows = T_rows.size
+
+    if num_rows == 1:
+        row_number = T_rows[0]
+        print("Num. Ref. 1: ", abs(errors[row_number, 3]) / abs(errors[row_number, 5]), abs(errors[row_number, 4]) / abs(errors[row_number, 6]))
+        assert abs(errors[row_number, 3]) < tol * abs(errors[row_number, 5])
+        assert abs(errors[row_number, 4]) < tol * abs(errors[row_number, 6])
+    else:
+        slope_L2 = np.polyfit(np.log(1.0/errors[T_rows, 1]), np.log(errors[T_rows, 3]), 1)[0]
+        slope_H1 = np.polyfit(np.log(1.0/errors[T_rows, 1]), np.log(errors[T_rows, 4]), 1)[0]
+        print("Num. Ref. ", str(num_rows-1), ": ", slope_L2, slope_H1)
+        assert round(slope_L2) == round(float(method_order))
+        assert round(slope_H1) == round(float(method_order))
 
 if __name__ == "__main__":
     program_folder = os.path.dirname(os.path.realpath(__file__))
     program_path = os.path.join(".", program_folder, "Parabolic_PCC_2D")
 
-    remove_folder = False
+    remove_folder = True
 
     export_folder = "integration_tests"
     os.system("rm -rf " + os.path.join(program_folder, export_folder))
@@ -192,6 +211,38 @@ if __name__ == "__main__":
 
                 if remove_folder:
                     os.system("rm -rf " + os.path.join(program_folder, export_path))
+    
+    test_type = 3
+    mesh_generator = 0
+    mesh_max_area = 0.1
+    method_types = [0]
+    method_orders = [1, 2, 3]
+    time_steps = [1./5., 1./10., 1./20]
+    thetas = [1, 0.5]
+    for theta in thetas:
+        for method_type in method_types:
+            for method_order in method_orders:
+                for time_step in time_steps:
+                    export_path = run_program(program_folder,
+                                              program_path,
+                                              "Run_MG{0}".format(mesh_generator),
+                                              method_type,
+                                              method_order,
+                                              test_type,
+                                              mesh_generator,
+                                              0,
+                                              mesh_max_area=mesh_max_area,
+                                              time_step=time_step,
+                                              theta=theta)
+                    
+                errors = import_errors(export_path, method_type, method_order, time_order(theta), test_type)
+                test_time_errors(errors,
+                                 time_order(theta),
+                                 1.0,
+                                 tol)
+
+                if remove_folder:
+                    os.system("rm -rf " + os.path.join(program_folder, export_path))
 
     test_type = 4
     mesh_generator = 5
@@ -207,16 +258,16 @@ if __name__ == "__main__":
                     num_ref = 0
                     for mesh_max_area in mesh_max_areas:
                         export_path = run_program(program_folder,
-                                                program_path,
-                                                "Run_MG{0}".format(mesh_generator),
-                                                method_type,
-                                                method_order,
-                                                test_type,
-                                                mesh_generator,
-                                                num_ref,
-                                                mesh_max_area=mesh_max_area,
-                                                time_step=time_step,
-                                                theta=theta)
+                                                  program_path,
+                                                  "Run_MG{0}".format(mesh_generator),
+                                                  method_type,
+                                                  method_order,
+                                                  test_type,
+                                                  mesh_generator,
+                                                  num_ref,
+                                                  mesh_max_area=mesh_max_area,
+                                                  time_step=time_step,
+                                                  theta=theta)
                         num_ref += 1
 
                     errors = import_errors(export_path, method_type, method_order, time_order(theta), test_type)
