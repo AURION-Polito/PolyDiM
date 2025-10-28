@@ -51,6 +51,8 @@ struct FEM_Triangle_PCC_2D_LocalSpace_Data final
     Eigen::Matrix3d B_lap;
     unsigned int Order;
     unsigned int NumberOfBasisFunctions;
+    unsigned int NumBoundaryBasisFunctions;
+    unsigned int NumInternalBasisFunctions;
     Eigen::MatrixXd Dofs;
     std::vector<unsigned int> DofsMeshOrder;
     std::array<unsigned int, 4> Dof0DsIndex;

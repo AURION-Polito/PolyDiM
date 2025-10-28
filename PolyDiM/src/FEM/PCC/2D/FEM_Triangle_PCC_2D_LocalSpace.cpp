@@ -35,6 +35,8 @@ FEM_Triangle_PCC_2D_LocalSpace_Data FEM_Triangle_PCC_2D_LocalSpace::CreateLocalS
 
     localSpace.Order = reference_element_data.Order;
     localSpace.NumberOfBasisFunctions = reference_element_data.NumBasisFunctions;
+    localSpace.NumInternalBasisFunctions = reference_element_data.NumDofs2D;
+    localSpace.NumBoundaryBasisFunctions = reference_element_data.Order * 3;
 
     localSpace.DofsMeshOrder.resize(localSpace.NumberOfBasisFunctions, 0);
     unsigned int dofCounter = 0;
