@@ -135,9 +135,10 @@ LocalSpace_Data CreateLocalSpace(const double &geometric_tolerance_1D,
                                          {}};
 
         const unsigned int numFaces = mesh_geometric_data.Cell3DsFaces.at(cell3D_index).size();
+        local_space_data.VEM_Geometry.Faces_2D_Geometry.resize(numFaces);
         for (unsigned int f = 0; f < numFaces; f++)
         {
-            local_space_data.VEM_Geometry.Faces_2D_Geometry.push_back(
+            local_space_data.VEM_Geometry.Faces_2D_Geometry[f] =
                 {geometric_tolerance_1D,
                  geometric_tolerance_2D,
                  mesh_geometric_data.Cell3DsFaces2DVertices.at(cell3D_index)[f],
@@ -148,7 +149,7 @@ LocalSpace_Data CreateLocalSpace(const double &geometric_tolerance_1D,
                  mesh_geometric_data.Cell3DsFacesEdgeLengths.at(cell3D_index)[f],
                  mesh_geometric_data.Cell3DsFacesEdgeDirections.at(cell3D_index)[f],
                  mesh_geometric_data.Cell3DsFacesEdge2DTangents.at(cell3D_index)[f],
-                 mesh_geometric_data.Cell3DsFacesEdge2DNormals.at(cell3D_index)[f]});
+                 mesh_geometric_data.Cell3DsFacesEdge2DNormals.at(cell3D_index)[f]};
         }
 
         local_space_data.VEM_LocalSpace_Data =
