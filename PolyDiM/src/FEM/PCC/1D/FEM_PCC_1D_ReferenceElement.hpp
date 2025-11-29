@@ -13,11 +13,11 @@
 #define __FEM_PCC_1D_ReferenceElement_HPP
 
 #include "Eigen/Eigen"
+#include "IOUtilities.hpp"
 #include "QuadratureData.hpp"
 #include "Quadrature_Gauss1D.hpp"
 #include "Quadrature_GaussLobatto1D.hpp"
 #include "lagrange_1D.hpp"
-#include "IOUtilities.hpp"
 
 namespace Polydim
 {
