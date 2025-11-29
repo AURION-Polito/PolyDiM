@@ -78,7 +78,7 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
             reference_element_data.Faces_by_edge_vertex.at({face_reference_edge_index, face_vertex_index});
         const auto &ref_face_by_ee =
             reference_element_data.Faces_by_edges.at({face_reference_edge_index, face_reference_edge_next_index});
-        assert(ref_face_by_ee.first.at(0) == ref_face_by_ev);
+        Gedim::Output::Assert(ref_face_by_ee.first.at(0) == ref_face_by_ev);
 
         localSpace.polyhedron_to_reference_face_index[f] = ref_face_by_ev;
         localSpace.polyhedron_to_reference_face_direction[f] = ref_face_by_ee.second;
@@ -164,7 +164,7 @@ FEM_Tetrahedron_PCC_3D_LocalSpace_Data FEM_Tetrahedron_PCC_3D_LocalSpace::Create
                 const auto find_point_index =
                     geometry_utilities.FindPointInPoints(face_internal_dofs_3D_from_reference_3D,
                                                          face_internal_dofs_3D_from_reference_2D.col(shift));
-                assert(find_point_index.size() == 1);
+                Gedim::Output::Assert(find_point_index.size() == 1);
 
                 const unsigned int find_shift = find_point_index[0];
                 localSpace.DofsMeshOrder[face_dof_counter + find_shift] = d;
