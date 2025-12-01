@@ -86,6 +86,17 @@ void DOFsManager::CreateCellDOFs(const MeshDOFsInfo &meshDOFsInfo, DOFsData &dof
             dofs.NumberBoundaryDOFs += numCellDofs;
         }
         break;
+        case BoundaryTypes::Robin: {
+            for (unsigned int d = 0; d < numCellDofs; d++)
+            {
+                auto &dof = cellsDOFs.at(c).at(d);
+                dof.Type = DOFsData::DOF::Types::Robin;
+                dof.Global_Index = dofs.NumberRobin + d;
+            }
+
+            dofs.NumberRobin += numCellDofs;
+        }
+        break;
         default:
             throw std::runtime_error("Unknown BoundaryTypes");
             break;
@@ -103,6 +114,8 @@ DOFsManager::CellsDOFsIndicesData DOFsManager::ComputeCellsDOFsIndices(const DOF
     result.Cells_DOFs_GlobalIndex.resize(num_cells);
     result.Cells_Strongs_LocalIndex.resize(num_cells);
     result.Cells_Strongs_GlobalIndex.resize(num_cells);
+    result.Cells_Robin_LocalIndex.resize(num_cells);
+    result.Cells_Robin_GlobalIndex.resize(num_cells);
 
     for (unsigned int c = 0; c < num_cells; ++c)
     {
@@ -112,6 +125,8 @@ DOFsManager::CellsDOFsIndicesData DOFsManager::ComputeCellsDOFsIndices(const DOF
         std::list<unsigned int> dofs_global_index;
         std::list<unsigned int> strongs_local_index;
         std::list<unsigned int> strongs_global_index;
+        std::list<unsigned int> robin_local_index;
+        std::list<unsigned int> robin_global_index;
 
         for (unsigned int g_d = 0; g_d < global_dofs.size(); ++g_d)
         {
@@ -130,6 +145,11 @@ DOFsManager::CellsDOFsIndicesData DOFsManager::ComputeCellsDOFsIndices(const DOF
                 dofs_global_index.push_back(local_dof.Global_Index);
             }
             break;
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Robin: {
+                robin_local_index.push_back(g_d);
+                robin_global_index.push_back(local_dof.Global_Index);
+            }
+            break;
             default:
                 throw std::runtime_error("Unknown DOF Type");
             }
@@ -137,6 +157,8 @@ DOFsManager::CellsDOFsIndicesData DOFsManager::ComputeCellsDOFsIndices(const DOF
 
         result.Cells_DOFs_LocalIndex[c] = std::vector<unsigned int>(dofs_local_index.begin(), dofs_local_index.end());
         result.Cells_DOFs_GlobalIndex[c] = std::vector<unsigned int>(dofs_global_index.begin(), dofs_global_index.end());
+        result.Cells_Robin_LocalIndex[c] = std::vector<unsigned int>(robin_local_index.begin(), robin_local_index.end());
+        result.Cells_Robin_GlobalIndex[c] = std::vector<unsigned int>(robin_global_index.begin(), robin_global_index.end());
         result.Cells_Strongs_LocalIndex[c] = std::vector<unsigned int>(strongs_local_index.begin(), strongs_local_index.end());
         result.Cells_Strongs_GlobalIndex[c] =
             std::vector<unsigned int>(strongs_global_index.begin(), strongs_global_index.end());

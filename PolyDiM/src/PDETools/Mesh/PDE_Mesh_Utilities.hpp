@@ -38,11 +38,19 @@ class PDE_Domain_2D final
     enum class Domain_Shape_Types
     {
         Parallelogram = 0,
-        Polygon = 1
+        Polygon = 1,
+        Ellipse = 2,
     };
 
     Eigen::MatrixXd vertices;
     double area;
+
+    // Ellipse type
+    double radius_1;
+    double radius_2;
+    Eigen::Vector3d center;
+    Eigen::Vector3d rotation_angle;
+
     Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types shape_type;
 };
 

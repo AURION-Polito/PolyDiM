@@ -72,6 +72,7 @@ class DOFsManager
                 Unknwon = 0,
                 Strong = 1,
                 Weak = 2,
+                Robin = 4,
                 None = 3
             };
 
@@ -99,7 +100,8 @@ class DOFsManager
             {
                 Unknwon = 0,
                 Strong = 1,
-                DOF = 2
+                DOF = 2,
+                Robin = 3,
             };
 
             Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types Type;
@@ -117,6 +119,7 @@ class DOFsManager
         unsigned int NumberInternalDOFs;
         unsigned int NumberBoundaryDOFs;
         unsigned int NumberStrongs;
+        unsigned int NumberRobin;
         std::array<std::vector<std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF>>, DOFSMANAGER_MAX_DIMENSION + 1> CellsDOFs;
         std::array<std::vector<std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData::GlobalCell_DOF>>, DOFSMANAGER_MAX_DIMENSION + 1> CellsGlobalDOFs;
     };
@@ -125,8 +128,10 @@ class DOFsManager
     {
         std::vector<std::vector<unsigned int>> Cells_DOFs_LocalIndex;
         std::vector<std::vector<unsigned int>> Cells_Strongs_LocalIndex;
+        std::vector<std::vector<unsigned int>> Cells_Robin_LocalIndex;
         std::vector<std::vector<unsigned int>> Cells_DOFs_GlobalIndex;
         std::vector<std::vector<unsigned int>> Cells_Strongs_GlobalIndex;
+        std::vector<std::vector<unsigned int>> Cells_Robin_GlobalIndex;
     };
 
   private:
@@ -501,6 +506,7 @@ class DOFsManager
         result.NumberStrongs = 0;
         result.NumberBoundaryDOFs = 0;
         result.NumberInternalDOFs = 0;
+        result.NumberRobin = 0;
 
 #if PYBIND == 1
         CreateCell0DDOFs(meshDOFsInfo, result);
@@ -520,6 +526,7 @@ class DOFsManager
         result.NumberStrongs = 0;
         result.NumberBoundaryDOFs = 0;
         result.NumberInternalDOFs = 0;
+        result.NumberRobin = 0;
 
 #if PYBIND == 1
         CreateCell0DDOFs(meshDOFsInfo, result);
@@ -541,6 +548,7 @@ class DOFsManager
         result.NumberStrongs = 0;
         result.NumberBoundaryDOFs = 0;
         result.NumberInternalDOFs = 0;
+        result.NumberRobin = 0;
 
 #if PYBIND == 1
         CreateCell0DDOFs(meshDOFsInfo, result);
@@ -564,6 +572,8 @@ class DOFsManager
         result.NumberStrongs = 0;
         result.NumberBoundaryDOFs = 0;
         result.NumberInternalDOFs = 0;
+        result.NumberRobin = 0;
+
 #if PYBIND == 1
         CreateCell0DDOFs(meshDOFsInfo, result);
         CreateCell1DDOFs(meshDOFsInfo, mesh, result);
