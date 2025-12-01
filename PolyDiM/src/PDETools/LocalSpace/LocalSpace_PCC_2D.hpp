@@ -94,6 +94,11 @@ Eigen::MatrixXd BasisFunctionsValues(const Polydim::PDETools::LocalSpace_PCC_2D:
                                      const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data,
                                      const Polydim::VEM::PCC::ProjectionTypes &projectionType = Polydim::VEM::PCC::ProjectionTypes::Pi0km1);
 
+Eigen::MatrixXd BasisFunctionsValues(const ReferenceElement_Data &reference_element_data,
+                                     const LocalSpace_Data &local_space_data,
+                                     const Eigen::MatrixXd &points,
+                                     const Polydim::VEM::PCC::ProjectionTypes &projectionType = Polydim::VEM::PCC::ProjectionTypes::Pi0km1);
+
 Eigen::MatrixXd BasisFunctionsValuesOnEdge(const unsigned int &edge_local_index,
                                            const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                                            const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data,
