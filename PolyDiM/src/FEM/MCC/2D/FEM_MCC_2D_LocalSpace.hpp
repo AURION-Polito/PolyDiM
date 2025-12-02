@@ -23,7 +23,7 @@ namespace FEM
 namespace MCC
 {
 
-class FEM_RT_MCC_2D_LocalSpace final
+class FEM_MCC_2D_LocalSpace final
 {
   private:
     Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_LocalSpace rt_triangle_local_space;

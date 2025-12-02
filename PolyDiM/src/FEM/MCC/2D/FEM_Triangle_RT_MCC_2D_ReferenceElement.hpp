@@ -111,97 +111,112 @@ class FEM_Triangle_RT_MCC_2D_ReferenceElement final
                                 reference_element_data.monomials_1D_center,
                                 reference_element_data.monomials_1D_scale);
 
-        // 1 lato
+        // 1 edge
         Gmatrix.block(0, reference_element_data.Nk, reference_element_data.Order + 1, reference_element_data.Nk) =
-            VanderBoundary2D.topRows(reference_element_data.Order + 1).transpose() *
+            VanderBoundary1D.transpose() *
             reference_element_data.BoundaryQuadrature.WeightsTimesNormal[1].segment(0, reference_element_data.Order + 1).asDiagonal() *
-            VanderBoundary1D;
+            VanderBoundary2D.topRows(reference_element_data.Order + 1);
 
         Gmatrix.block(0, 2 * reference_element_data.Nk, reference_element_data.Order + 1, reference_element_data.Order + 1) =
-            VanderBoundary2D.topRightCorner(reference_element_data.Order + 1, reference_element_data.Order + 1).transpose() *
-            (reference_element_data.BoundaryQuadrature.WeightsTimesNormal[1].segment(0, reference_element_data.Order + 1) *
-             xy_boundary.row(1).segment(0, reference_element_data.Order + 1))
+            VanderBoundary1D.transpose() *
+            (reference_element_data.BoundaryQuadrature.WeightsTimesNormal[1]
+                 .segment(0, reference_element_data.Order + 1)
+                 .array() *
+             xy_boundary.row(1).segment(0, reference_element_data.Order + 1).transpose().array())
+                .matrix()
                 .asDiagonal() *
-            VanderBoundary1D;
+            VanderBoundary2D.topRightCorner(reference_element_data.Order + 1, reference_element_data.Order + 1);
 
-        // 2 lato - obliquo
+        // 2 edge - obliquo
 
         Gmatrix.block(1 * (reference_element_data.Order + 1),
                       0,
                       reference_element_data.Order + 1,
                       reference_element_data.Nk) =
-            VanderBoundary2D.middleRows(reference_element_data.Order + 1, reference_element_data.Order + 1).transpose() *
+            VanderBoundary1D.transpose() *
             reference_element_data.BoundaryQuadrature.WeightsTimesNormal[0]
                 .segment(1 * (reference_element_data.Order + 1), reference_element_data.Order + 1)
                 .asDiagonal() *
-            VanderBoundary1D;
+            VanderBoundary2D.middleRows(reference_element_data.Order + 1, reference_element_data.Order + 1);
 
         Gmatrix.block(1 * (reference_element_data.Order + 1),
                       reference_element_data.Nk,
                       reference_element_data.Order + 1,
                       reference_element_data.Nk) =
-            VanderBoundary2D.middleRows(reference_element_data.Order + 1, reference_element_data.Order + 1).transpose() *
+            VanderBoundary1D.transpose() *
             reference_element_data.BoundaryQuadrature.WeightsTimesNormal[1]
                 .segment(1 * (reference_element_data.Order + 1), reference_element_data.Order + 1)
                 .asDiagonal() *
-            VanderBoundary1D;
+            VanderBoundary2D.middleRows(reference_element_data.Order + 1, reference_element_data.Order + 1);
 
         Gmatrix.block(1 * (reference_element_data.Order + 1),
                       2 * reference_element_data.Nk,
                       reference_element_data.Order + 1,
                       reference_element_data.Order + 1) =
-            VanderBoundary2D
-                .block(reference_element_data.Order + 1,
-                       reference_element_data.Nk - reference_element_data.Order + 1,
-                       reference_element_data.Order + 1,
-                       reference_element_data.Order + 1)
-                .transpose() *
-            (reference_element_data.BoundaryQuadrature.WeightsTimesNormal[0].segment(1 * (reference_element_data.Order + 1),
-                                                                                     reference_element_data.Order + 1) *
-                 xy_boundary.row(0).segment(1 * (reference_element_data.Order + 1), reference_element_data.Order + 1) +
-             reference_element_data.BoundaryQuadrature.WeightsTimesNormal[1].segment(1 * (reference_element_data.Order + 1),
-                                                                                     reference_element_data.Order + 1) *
-                 xy_boundary.row(1).segment(1 * (reference_element_data.Order + 1), reference_element_data.Order + 1))
+            VanderBoundary1D.transpose() *
+            (reference_element_data.BoundaryQuadrature.WeightsTimesNormal[0]
+                     .segment(1 * (reference_element_data.Order + 1), reference_element_data.Order + 1)
+                     .array() *
+                 xy_boundary.row(0)
+                     .segment(1 * (reference_element_data.Order + 1), reference_element_data.Order + 1)
+                     .transpose()
+                     .array() +
+             reference_element_data.BoundaryQuadrature.WeightsTimesNormal[1]
+                     .segment(1 * (reference_element_data.Order + 1), reference_element_data.Order + 1)
+                     .array() *
+                 xy_boundary.row(1)
+                     .segment(1 * (reference_element_data.Order + 1), reference_element_data.Order + 1)
+                     .transpose()
+                     .array())
+                .matrix()
                 .asDiagonal() *
-            VanderBoundary1D;
+            VanderBoundary2D.block(reference_element_data.Order + 1,
+                                   reference_element_data.Nk - (reference_element_data.Order + 1),
+                                   reference_element_data.Order + 1,
+                                   reference_element_data.Order + 1);
 
-        // 3  lato
+        // 3  edge
         Gmatrix.block(2 * (reference_element_data.reference_element_data_velocity.NumDofs1D),
                       0,
                       reference_element_data.reference_element_data_velocity.NumDofs1D,
                       reference_element_data.Nk) =
-            VanderBoundary2D.bottomRows(reference_element_data.Order + 1).transpose() *
+            VanderBoundary1D.transpose() *
             reference_element_data.BoundaryQuadrature.WeightsTimesNormal[0]
                 .segment(2 * (reference_element_data.Order + 1), reference_element_data.Order + 1)
                 .asDiagonal() *
-            VanderBoundary1D;
+            VanderBoundary2D.bottomRows(reference_element_data.Order + 1);
 
         Gmatrix.block(2 * (reference_element_data.reference_element_data_velocity.NumDofs1D),
                       2 * reference_element_data.Nk,
                       reference_element_data.reference_element_data_velocity.NumDofs1D,
                       reference_element_data.Order + 1) =
-            VanderBoundary2D.bottomRightCorner(reference_element_data.Order + 1, reference_element_data.Order + 1).transpose() *
-            (reference_element_data.BoundaryQuadrature.WeightsTimesNormal[0].segment(2 * (reference_element_data.Order + 1),
-                                                                                     reference_element_data.Order + 1) *
-             xy_boundary.row(0).segment(2 * (reference_element_data.Order + 1), reference_element_data.Order + 1))
+            VanderBoundary1D.transpose() *
+            (reference_element_data.BoundaryQuadrature.WeightsTimesNormal[0]
+                 .segment(2 * (reference_element_data.Order + 1), reference_element_data.Order + 1)
+                 .array() *
+             xy_boundary.row(0)
+                 .segment(2 * (reference_element_data.Order + 1), reference_element_data.Order + 1)
+                 .transpose()
+                 .array())
+                .matrix()
                 .asDiagonal() *
-            VanderBoundary1D;
+            VanderBoundary2D.bottomRightCorner(reference_element_data.Order + 1, reference_element_data.Order + 1);
 
-        // dof interni
+        // internal dofs
         if (reference_element_data.Order > 0)
         {
             const unsigned int Nkm1 = (reference_element_data.Order) * (reference_element_data.Order + 1) / 2;
             Gmatrix.block(3 * (reference_element_data.reference_element_data_velocity.NumDofs1D),
                           0,
-                          reference_element_data.reference_element_data_velocity.NumDofs2D,
+                          Nkm1,
                           reference_element_data.Nk) =
                 reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues.leftCols(Nkm1).transpose() *
                 reference_element_data.Quadrature.ReferenceTriangleQuadrature.Weights.asDiagonal() *
                 reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues;
 
-            Gmatrix.block(3 * (reference_element_data.reference_element_data_velocity.NumDofs1D),
+            Gmatrix.block(3 * (reference_element_data.reference_element_data_velocity.NumDofs1D) + Nkm1,
                           reference_element_data.Nk,
-                          reference_element_data.reference_element_data_velocity.NumDofs2D,
+                          Nkm1,
                           reference_element_data.Nk) =
                 reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues.leftCols(Nkm1).transpose() *
                 reference_element_data.Quadrature.ReferenceTriangleQuadrature.Weights.asDiagonal() *
@@ -209,12 +224,22 @@ class FEM_Triangle_RT_MCC_2D_ReferenceElement final
 
             Gmatrix.block(3 * (reference_element_data.reference_element_data_velocity.NumDofs1D),
                           2 * reference_element_data.Nk,
-                          reference_element_data.reference_element_data_velocity.NumDofs2D,
+                          Nkm1,
                           reference_element_data.Order + 1) =
                 reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues.leftCols(Nkm1).transpose() *
-                (reference_element_data.Quadrature.ReferenceTriangleQuadrature.Weights *
-                 (reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues.col(1) +
-                  reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues.col(2)))
+                reference_element_data.Quadrature.ReferenceTriangleQuadrature.Weights
+                    .cwiseProduct(reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues.col(1))
+                    .asDiagonal() *
+                reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues.rightCols(
+                    reference_element_data.Order + 1);
+
+            Gmatrix.block(3 * (reference_element_data.reference_element_data_velocity.NumDofs1D) + Nkm1,
+                          2 * reference_element_data.Nk,
+                          Nkm1,
+                          reference_element_data.Order + 1) =
+                reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues.leftCols(Nkm1).transpose() *
+                reference_element_data.Quadrature.ReferenceTriangleQuadrature.Weights
+                    .cwiseProduct(reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues.col(2))
                     .asDiagonal() *
                 reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues.rightCols(
                     reference_element_data.Order + 1);
@@ -232,9 +257,9 @@ class FEM_Triangle_RT_MCC_2D_ReferenceElement final
             reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues *
                 reference_element_data.reference_element_data_velocity.MonomialsCoefficients.topRows(
                     reference_element_data.Nk) +
-            (reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues.rightCols(
-                 reference_element_data.Order + 1) *
-             xy_internal.row(0).asDiagonal()) *
+            xy_internal.row(0).asDiagonal() *
+                reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues.rightCols(
+                    reference_element_data.Order + 1) *
                 reference_element_data.reference_element_data_velocity.MonomialsCoefficients.bottomRows(
                     reference_element_data.Order + 1);
 
@@ -243,9 +268,9 @@ class FEM_Triangle_RT_MCC_2D_ReferenceElement final
                 reference_element_data.reference_element_data_velocity.MonomialsCoefficients.middleRows(
                     reference_element_data.Nk,
                     reference_element_data.Nk) +
-            (reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues.rightCols(
-                 reference_element_data.Order + 1) *
-             xy_internal.row(1).asDiagonal()) *
+            xy_internal.row(1).asDiagonal() *
+                reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues.rightCols(
+                    reference_element_data.Order + 1) *
                 reference_element_data.reference_element_data_velocity.MonomialsCoefficients.bottomRows(
                     reference_element_data.Order + 1);
     }
@@ -319,14 +344,14 @@ class FEM_Triangle_RT_MCC_2D_ReferenceElement final
 
         BasisFunctionValues[0] = Vander * reference_element_data.reference_element_data_velocity.MonomialsCoefficients.topRows(
                                               reference_element_data.Nk) +
-                                 (Vander.rightCols(reference_element_data.Order + 1) * xy_internal.row(0).asDiagonal()) *
+                                 xy_internal.row(0).asDiagonal() * Vander.rightCols(reference_element_data.Order + 1) *
                                      reference_element_data.reference_element_data_velocity.MonomialsCoefficients.bottomRows(
                                          reference_element_data.Order + 1);
 
         BasisFunctionValues[1] = Vander * reference_element_data.reference_element_data_velocity.MonomialsCoefficients.middleRows(
                                               reference_element_data.Nk,
                                               reference_element_data.Nk) +
-                                 (Vander.rightCols(reference_element_data.Order + 1) * xy_internal.row(1).asDiagonal()) *
+                                 xy_internal.row(1).asDiagonal() * Vander.rightCols(reference_element_data.Order + 1) *
                                      reference_element_data.reference_element_data_velocity.MonomialsCoefficients.bottomRows(
                                          reference_element_data.Order + 1);
 

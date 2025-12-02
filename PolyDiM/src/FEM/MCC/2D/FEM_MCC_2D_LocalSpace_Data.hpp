@@ -37,9 +37,10 @@ struct FEM_MCC_2D_Polygon_Geometry final
     double Tolerance2D;
 
     Eigen::MatrixXd Vertices;
+    Eigen::VectorXd EdgesLength;
     std::vector<bool> EdgesDirection;
     Eigen::MatrixXd EdgesTangent;
-    Eigen::VectorXd EdgesLength;
+    Eigen::MatrixXd EdgesNormal;
 };
 
 struct FEM_Triangle_RT_MCC_2D_LocalSpace_Data final

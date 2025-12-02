@@ -20,9 +20,9 @@ namespace FEM
 namespace MCC
 {
 // ***************************************************************************
-FEM_MCC_2D_LocalSpace_Data FEM_RT_MCC_2D_LocalSpace::CreateLocalSpace(const FEM_MCC_2D_ReferenceElement_Data &reference_element_data,
-                                                                      const FEM_MCC_2D_Polygon_Geometry &polygon,
-                                                                      const Polydim::FEM::MCC::FEM_MCC_Types &fem_main_type) const
+FEM_MCC_2D_LocalSpace_Data FEM_MCC_2D_LocalSpace::CreateLocalSpace(const FEM_MCC_2D_ReferenceElement_Data &reference_element_data,
+                                                                   const FEM_MCC_2D_Polygon_Geometry &polygon,
+                                                                   const Polydim::FEM::MCC::FEM_MCC_Types &fem_main_type) const
 {
     FEM_MCC_2D_LocalSpace_Data localSpace;
 
