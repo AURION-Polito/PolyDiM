@@ -253,7 +253,7 @@ void VEM_PCC_2D_LocalSpace::ComputeL2ProjectorsKL(VEM_PCC_2D_LocalSpace_Data &lo
         double test_error = (localSpace.H_klm1_matrix.topLeftCorner(localSpace.Nklm1, localSpace.NumProjectorBasisFunctions) -
                              Cmatrix * localSpace.Dmatrix)
                                 .norm();
-        assert(test_error < 1.0e-12);
+        Gedim::Output::Assert(test_error < 1.0e-12);
     }
 }
 //****************************************************************************
