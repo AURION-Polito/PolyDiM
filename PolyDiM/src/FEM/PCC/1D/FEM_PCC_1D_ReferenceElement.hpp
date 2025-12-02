@@ -13,6 +13,7 @@
 #define __FEM_PCC_1D_ReferenceElement_HPP
 
 #include "Eigen/Eigen"
+#include "IOUtilities.hpp"
 #include "QuadratureData.hpp"
 #include "Quadrature_Gauss1D.hpp"
 #include "Quadrature_GaussLobatto1D.hpp"
@@ -102,7 +103,7 @@ class FEM_PCC_1D_ReferenceElement final
             throw std::runtime_error("not valid fem 1D type");
         }
 
-        assert(dofPositions.row(0).size() == result.NumBasisFunctions);
+        Gedim::Output::Assert(dofPositions.row(0).size() == result.NumBasisFunctions);
 
         for (unsigned int i = 0; i < result.NumBasisFunctions; i++)
         {
