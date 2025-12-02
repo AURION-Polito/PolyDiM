@@ -146,6 +146,9 @@ int main(int argc, char **argv)
     auto assembler_data =
         assembler.Assemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, count_dofs, reference_element_data, *test);
 
+    std::cout << assembler_data.solutionNeumann << std::endl;
+    std::cout << assembler_data.rightHandSide << std::endl;
+
     Gedim::Profiler::StopTime("AssembleSystem");
     Gedim::Output::PrintStatusProgram("AssembleSystem");
 
