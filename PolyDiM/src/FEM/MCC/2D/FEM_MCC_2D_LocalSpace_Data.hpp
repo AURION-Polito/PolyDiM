@@ -46,16 +46,11 @@ struct FEM_MCC_2D_Polygon_Geometry final
 struct FEM_Triangle_RT_MCC_2D_LocalSpace_Data final
 {
     Gedim::MapTriangle::MapTriangleData MapData;
-    Eigen::Matrix3d B_lap;
+
     unsigned int Order;
-    unsigned int NumberOfBasisFunctions;
-    unsigned int NumBoundaryBasisFunctions;
-    unsigned int NumInternalBasisFunctions;
-    Eigen::MatrixXd Dofs;
-    std::vector<unsigned int> DofsMeshOrder;
-    std::array<unsigned int, 4> Dof0DsIndex;
-    std::array<unsigned int, 4> Dof1DsIndex;
-    std::array<unsigned int, 2> Dof2DsIndex;
+    unsigned int NumVelocityBasisFunctions;
+    unsigned int NumPressureBasisFunctions;
+
     Gedim::Quadrature::QuadratureData InternalQuadrature;
     std::vector<Gedim::Quadrature::QuadratureData> BoundaryQuadrature;
 };
@@ -68,7 +63,8 @@ struct FEM_MCC_2D_LocalSpace_Data final
 
     Gedim::Quadrature::QuadratureData InternalQuadrature;
     std::vector<Gedim::Quadrature::QuadratureData> BoundaryQuadrature;
-    unsigned int NumberOfBasisFunctions;
+    unsigned int NumVelocityBasisFunctions;
+    unsigned int NumPressureBasisFunctions;
 };
 
 } // namespace MCC

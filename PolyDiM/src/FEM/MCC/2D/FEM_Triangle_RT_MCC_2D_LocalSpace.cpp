@@ -32,23 +32,23 @@ FEM_Triangle_RT_MCC_2D_LocalSpace_Data FEM_Triangle_RT_MCC_2D_LocalSpace::Create
 
     Gedim::MapTriangle mapTriangle;
     localSpace.MapData = mapTriangle.Compute(polygon.Vertices);
-    localSpace.B_lap = localSpace.MapData.BInv * localSpace.MapData.BInv.transpose();
 
     localSpace.Order = reference_element_data.Order;
-
+    localSpace.NumVelocityBasisFunctions = reference_element_data.reference_element_data_velocity.NumBasisFunctions;
+    localSpace.NumPressureBasisFunctions = reference_element_data.reference_element_data_pressure.NumBasisFunctions;
     return localSpace;
 }
 // ***************************************************************************
 Gedim::Quadrature::QuadratureData FEM_Triangle_RT_MCC_2D_LocalSpace::InternalQuadrature(
     const Gedim::Quadrature::QuadratureData &reference_quadrature,
-    const Gedim::MapTriangle::MapTriangleData &mapData) const
+    const FEM_Triangle_RT_MCC_2D_LocalSpace_Data &localSpace) const
 {
     Gedim::Quadrature::QuadratureData quadrature;
 
     Gedim::MapTriangle mapTriangle;
-    quadrature.Points = Gedim::MapTriangle::F(mapData, reference_quadrature.Points);
+    quadrature.Points = Gedim::MapTriangle::F(localSpace.MapData, reference_quadrature.Points);
     quadrature.Weights = reference_quadrature.Weights.array() *
-                         Gedim::MapTriangle::DetJ(mapData, reference_quadrature.Points).array().abs();
+                         Gedim::MapTriangle::DetJ(localSpace.MapData, reference_quadrature.Points).array().abs();
 
     return quadrature;
 }
@@ -81,7 +81,31 @@ std::vector<Gedim::Quadrature::QuadratureData> FEM_Triangle_RT_MCC_2D_LocalSpace
     return edges_quadrature;
 }
 // ***************************************************************************
-} // namespace MCC
+std::vector<Eigen::MatrixXd> FEM_Triangle_RT_MCC_2D_LocalSpace::MapVelocityValues(
+    const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_LocalSpace_Data &local_space,
+    const std::vector<Eigen::MatrixXd> &referenceValues) const
+{
+    std::vector<Eigen::MatrixXd> velocity_values(2, Eigen::MatrixXd::Zero(referenceValues[0].rows(), referenceValues[0].cols()));
+    velocity_values[0] = (1.0 / local_space.MapData.DetB) * (local_space.MapData.B(0, 0) * velocity_values[0] +
+                                                             local_space.MapData.B(0, 1) * velocity_values[1]);
+    velocity_values[1] = (1.0 / local_space.MapData.DetB) * (local_space.MapData.B(1, 0) * velocity_values[0] +
+                                                             local_space.MapData.B(1, 1) * velocity_values[1]);
 
+    return velocity_values;
+}
+// ***************************************************************************
+Eigen::MatrixXd FEM_Triangle_RT_MCC_2D_LocalSpace::MapPressureValues(const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_LocalSpace_Data &local_space,
+                                                                     const Eigen::MatrixXd &referenceValues) const
+{
+    return referenceValues;
+}
+// ***************************************************************************
+Eigen::MatrixXd FEM_Triangle_RT_MCC_2D_LocalSpace::MapVelocityDivergenceValues(const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_LocalSpace_Data &local_space,
+                                                                               const Eigen::MatrixXd &referenceDerivateValues) const
+{
+    return (1.0 / local_space.MapData.DetB) * referenceDerivateValues;
+}
+// ***************************************************************************
+} // namespace MCC
 } // namespace FEM
 } // namespace Polydim

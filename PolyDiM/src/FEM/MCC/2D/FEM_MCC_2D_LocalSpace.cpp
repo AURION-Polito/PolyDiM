@@ -38,7 +38,8 @@ FEM_MCC_2D_LocalSpace_Data FEM_MCC_2D_LocalSpace::CreateLocalSpace(const FEM_MCC
 
             localSpace.InternalQuadrature = localSpace.rt_triangle_local_space_data.InternalQuadrature;
             localSpace.BoundaryQuadrature = localSpace.rt_triangle_local_space_data.BoundaryQuadrature;
-            localSpace.NumberOfBasisFunctions = localSpace.rt_triangle_local_space_data.NumberOfBasisFunctions;
+            localSpace.NumVelocityBasisFunctions = localSpace.rt_triangle_local_space_data.NumVelocityBasisFunctions;
+            localSpace.NumPressureBasisFunctions = localSpace.rt_triangle_local_space_data.NumPressureBasisFunctions;
         }
         break;
         default:
