@@ -232,10 +232,9 @@ class FEM_Triangle_RT_MCC_2D_ReferenceElement final
             reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues *
                 reference_element_data.reference_element_data_velocity.MonomialsCoefficients.topRows(
                     reference_element_data.Nk) +
-            (reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues
-                 .rightCols(reference_element_data.Order + 1)
-                 .colwise() *
-             xy_internal.row(0).transpose()) *
+            (reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues.rightCols(
+                 reference_element_data.Order + 1) *
+             xy_internal.row(0).asDiagonal()) *
                 reference_element_data.reference_element_data_velocity.MonomialsCoefficients.bottomRows(
                     reference_element_data.Order + 1);
 
@@ -244,10 +243,9 @@ class FEM_Triangle_RT_MCC_2D_ReferenceElement final
                 reference_element_data.reference_element_data_velocity.MonomialsCoefficients.middleRows(
                     reference_element_data.Nk,
                     reference_element_data.Nk) +
-            (reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues
-                 .rightCols(reference_element_data.Order + 1)
-                 .colwise() *
-             xy_internal.row(1).transpose()) *
+            (reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues.rightCols(
+                 reference_element_data.Order + 1) *
+             xy_internal.row(1).asDiagonal()) *
                 reference_element_data.reference_element_data_velocity.MonomialsCoefficients.bottomRows(
                     reference_element_data.Order + 1);
     }
@@ -319,20 +317,18 @@ class FEM_Triangle_RT_MCC_2D_ReferenceElement final
                                                 reference_element_data.monomials_2D_center,
                                                 reference_element_data.monomials_2D_scale);
 
-        BasisFunctionValues[0] =
-            Vander * reference_element_data.reference_element_data_velocity.MonomialsCoefficients.topRows(
-                         reference_element_data.Nk) +
-            (Vander.rightCols(reference_element_data.Order + 1).colwise() * xy_internal.row(0).transpose()) *
-                reference_element_data.reference_element_data_velocity.MonomialsCoefficients.bottomRows(
-                    reference_element_data.Order + 1);
+        BasisFunctionValues[0] = Vander * reference_element_data.reference_element_data_velocity.MonomialsCoefficients.topRows(
+                                              reference_element_data.Nk) +
+                                 (Vander.rightCols(reference_element_data.Order + 1) * xy_internal.row(0).asDiagonal()) *
+                                     reference_element_data.reference_element_data_velocity.MonomialsCoefficients.bottomRows(
+                                         reference_element_data.Order + 1);
 
-        BasisFunctionValues[1] =
-            Vander * reference_element_data.reference_element_data_velocity.MonomialsCoefficients.middleRows(
-                         reference_element_data.Nk,
-                         reference_element_data.Nk) +
-            (Vander.rightCols(reference_element_data.Order + 1).colwise() * xy_internal.row(1).transpose()) *
-                reference_element_data.reference_element_data_velocity.MonomialsCoefficients.bottomRows(
-                    reference_element_data.Order + 1);
+        BasisFunctionValues[1] = Vander * reference_element_data.reference_element_data_velocity.MonomialsCoefficients.middleRows(
+                                              reference_element_data.Nk,
+                                              reference_element_data.Nk) +
+                                 (Vander.rightCols(reference_element_data.Order + 1) * xy_internal.row(1).asDiagonal()) *
+                                     reference_element_data.reference_element_data_velocity.MonomialsCoefficients.bottomRows(
+                                         reference_element_data.Order + 1);
 
         return BasisFunctionValues;
     }
@@ -349,6 +345,9 @@ class FEM_Triangle_RT_MCC_2D_ReferenceElement final
     Eigen::MatrixXd EvaluateVelociytBasisFunctionsDivergence(const Eigen::MatrixXd &points,
                                                              const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_ReferenceElement_Data &reference_element_data) const
     {
+        Eigen::MatrixXd divergence_values;
+
+        return divergence_values;
     }
 };
 } // namespace MCC

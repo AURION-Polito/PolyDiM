@@ -31,7 +31,8 @@ enum class MethodTypes
     VEM_MCC_Partial = 2,
     VEM_MCC_Ortho = 3,
     VEM_MCC_EdgeOrtho = 4,
-    VEM_MCC_Ortho_EdgeOrtho = 5
+    VEM_MCC_Ortho_EdgeOrtho = 5,
+    FEM_RT_MCC = 6
 };
 
 class ReferenceElement_Data final
