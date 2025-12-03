@@ -40,6 +40,17 @@ FEM_Triangle_RT_MCC_2D_LocalSpace_Data FEM_Triangle_RT_MCC_2D_LocalSpace::Create
     localSpace.InternalQuadrature = InternalQuadrature(reference_element_data.Quadrature.ReferenceTriangleQuadrature, localSpace);
     localSpace.BoundaryQuadrature = BoundaryQuadrature(reference_element_data.Quadrature.ReferenceSegmentQuadrature, polygon);
 
+    localSpace.CompatibilityMatrix =
+        Eigen::MatrixXd::Identity(localSpace.NumVelocityBasisFunctions, localSpace.NumVelocityBasisFunctions);
+    for (unsigned int e = 0; e < polygon.Vertices.cols(); e++)
+    {
+        const double direction = polygon.EdgesDirection[e] ? 1.0 : -1.0;
+        localSpace.CompatibilityMatrix.block(e * reference_element_data.reference_element_data_velocity.NumDofs1D,
+                                             e * reference_element_data.reference_element_data_velocity.NumDofs1D,
+                                             reference_element_data.reference_element_data_velocity.NumDofs1D,
+                                             reference_element_data.reference_element_data_velocity.NumDofs1D) *= direction;
+    }
+
     return localSpace;
 }
 // ***************************************************************************
@@ -95,6 +106,9 @@ std::vector<Eigen::MatrixXd> FEM_Triangle_RT_MCC_2D_LocalSpace::MapVelocityValue
     velocity_values[1] = (1.0 / local_space.MapData.DetB) * (local_space.MapData.B(1, 0) * referenceValues[0] +
                                                              local_space.MapData.B(1, 1) * referenceValues[1]);
 
+    velocity_values[0] *= local_space.CompatibilityMatrix;
+    velocity_values[1] *= local_space.CompatibilityMatrix;
+
     return velocity_values;
 }
 // ***************************************************************************
@@ -120,7 +134,9 @@ Eigen::MatrixXd FEM_Triangle_RT_MCC_2D_LocalSpace::MapPressureValues(const Polyd
 Eigen::MatrixXd FEM_Triangle_RT_MCC_2D_LocalSpace::MapVelocityDivergenceValues(const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_LocalSpace_Data &local_space,
                                                                                const Eigen::MatrixXd &referenceDerivateValues) const
 {
-    return (1.0 / local_space.MapData.DetB) * referenceDerivateValues;
+
+    Eigen::MatrixXd divergence_values = (1.0 / local_space.MapData.DetB) * referenceDerivateValues * local_space.CompatibilityMatrix;
+    return divergence_values;
 }
 // ***************************************************************************
 } // namespace MCC

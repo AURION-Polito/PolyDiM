@@ -129,7 +129,7 @@ LocalSpace_Data CreateLocalSpace(const double &geometric_tolerance_1D,
     }
     break;
     case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::FEM_RT_MCC: {
-        local_space_data.FEM_Geoemtry = {geometric_tolerance_1D,
+        local_space_data.FEM_Geometry = {geometric_tolerance_1D,
                                          geometric_tolerance_2D,
                                          mesh_geometric_data.Cell2DsVertices.at(cell2D_index),
                                          mesh_geometric_data.Cell2DsEdgeLengths.at(cell2D_index),
@@ -139,7 +139,7 @@ LocalSpace_Data CreateLocalSpace(const double &geometric_tolerance_1D,
 
         local_space_data.FEM_LocalSpace_Data =
             reference_element_data.FEM_LocalSpace.CreateLocalSpace(reference_element_data.FEM_ReferenceElement_Data,
-                                                                   local_space_data.FEM_Geoemtry);
+                                                                   local_space_data.FEM_Geometry);
     }
     break;
     default:
@@ -455,7 +455,11 @@ Eigen::VectorXd EdgeDofs(const ReferenceElement_Data &reference_element_data,
         return direction * VanderBoundary1D.transpose() * edge_dofs_coordinates.Weights.asDiagonal() * strong_values;
     }
     case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::FEM_RT_MCC: {
-        return reference_element_data.FEM_ReferenceElement_Data.rt_triangle_reference_element_data.VanderBoundary1D.transpose() *
+
+        const double direction = local_space_data.FEM_Geometry.EdgesDirection[edge_local_index] ? 1.0 : -1.0;
+
+        return direction *
+               reference_element_data.FEM_ReferenceElement_Data.rt_triangle_reference_element_data.VanderBoundary1D.transpose() *
                (edge_dofs_coordinates.Weights).asDiagonal() * strong_values;
     }
     break;
@@ -537,7 +541,7 @@ Performance_Data ComputePerformance(const ReferenceElement_Data &reference_eleme
             local_space_data.FEM_LocalSpace_Data.InternalQuadrature.Weights.size();
         performance.Performance_Data.NumBoundaryQuadraturePoints =
             local_space_data.FEM_LocalSpace_Data.BoundaryQuadrature.at(0).Weights.size() *
-            local_space_data.FEM_Geoemtry.Vertices.cols();
+            local_space_data.FEM_Geometry.Vertices.cols();
     }
     break;
     default:
