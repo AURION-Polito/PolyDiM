@@ -126,7 +126,7 @@ TEST(Test_FEM_Triangle_RT_MCC_2D, Test_FEM_Triangle_RT_MCC_2D_Local_Space)
     Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
 
     const auto poligon_vertices = geometry_utilities.CreateTriangle(Eigen::Vector3d(0.0, 0.0, 0.0),
-                                                                    Eigen::Vector3d(1.0, 0.0, 0.0),
+                                                                    Eigen::Vector3d(1.5, 0.0, 0.0),
                                                                     Eigen::Vector3d(0.0, 2.0, 0.0));
     const std::vector<bool> polygon_edges_direction(3, true);
     const auto polygon_edges_tangent = geometry_utilities.PolygonEdgeTangents(poligon_vertices);
@@ -155,9 +155,8 @@ TEST(Test_FEM_Triangle_RT_MCC_2D, Test_FEM_Triangle_RT_MCC_2D_Local_Space)
 
     for (unsigned int o = 0; o < 5; o++)
     {
-        const auto reference_element_data = reference_element.Create(o);
-        const auto local_space_data =
-            local_space.CreateLocalSpace(reference_element_data, polygon_geometry, Polydim::FEM::MCC::FEM_MCC_Types::RT);
+        const auto reference_element_data = reference_element.Create(o, Polydim::FEM::MCC::FEM_MCC_Types::RT);
+        const auto local_space_data = local_space.CreateLocalSpace(reference_element_data, polygon_geometry);
 
         const Eigen::MatrixXd pressureBasisValues =
             local_space.ComputePressureBasisFunctionsValues(reference_element_data, local_space_data, quadrature_data.Points);
@@ -210,25 +209,32 @@ TEST(Test_FEM_Triangle_RT_MCC_2D, Test_FEM_Triangle_RT_MCC_2D_Local_Space)
 
         if (reference_element_data.Order > 0)
         {
-            // Dmatrix.block(3 * (reference_element_data.Order + 1), 0,
-            //               reference_element_data.rt_triangle_reference_element_data.Nkm1,
-            //               reference_element_data.rt_triangle_reference_element_data.Nk) =
-            //     reference_element_data.rt_triangle_reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues
-            //         .leftCols(reference_element_data.rt_triangle_reference_element_data.Nkm1)
-            //         .transpose() *
-            //     reference_element_data.rt_triangle_reference_element_data.Quadrature.ReferenceTriangleQuadrature.Weights.asDiagonal()
-            //     * ;
+            Dmatrix.block(3 * (reference_element_data.Order + 1),
+                          0,
+                          reference_element_data.rt_triangle_reference_element_data.Nkm1,
+                          reference_element_data.rt_triangle_reference_element_data.Nk) =
+                reference_element_data.rt_triangle_reference_element_data.reference_element_data_pressure
+                    .ReferenceBasisFunctionValues
+                    .leftCols(reference_element_data.rt_triangle_reference_element_data.Nkm1)
+                    .transpose() *
+                reference_element_data.rt_triangle_reference_element_data.Quadrature.ReferenceTriangleQuadrature.Weights.asDiagonal() *
+                local_space.MapInvVelocityValues(
+                    local_space_data,
+                    {vander_internal, Eigen::MatrixXd::Zero(vander_internal.rows(), vander_internal.cols())})[0];
 
-            // Dmatrix.block(3 * (reference_element_data.Order + 1) +
-            // reference_element_data.rt_triangle_reference_element_data.Nkm1,
-            //               reference_element_data.rt_triangle_reference_element_data.Nk,
-            //               reference_element_data.rt_triangle_reference_element_data.Nkm1,
-            //               reference_element_data.rt_triangle_reference_element_data.Nk) =
-            //     reference_element_data.rt_triangle_reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues
-            //         .leftCols(reference_element_data.rt_triangle_reference_element_data.Nkm1)
-            //         .transpose() *
-            //     reference_element_data.rt_triangle_reference_element_data.Quadrature.ReferenceTriangleQuadrature.Weights.asDiagonal()
-            //     * ;
+            Dmatrix.block(3 * (reference_element_data.Order + 1) +
+                              reference_element_data.rt_triangle_reference_element_data.Nkm1,
+                          reference_element_data.rt_triangle_reference_element_data.Nk,
+                          reference_element_data.rt_triangle_reference_element_data.Nkm1,
+                          reference_element_data.rt_triangle_reference_element_data.Nk) =
+                reference_element_data.rt_triangle_reference_element_data.reference_element_data_pressure
+                    .ReferenceBasisFunctionValues
+                    .leftCols(reference_element_data.rt_triangle_reference_element_data.Nkm1)
+                    .transpose() *
+                reference_element_data.rt_triangle_reference_element_data.Quadrature.ReferenceTriangleQuadrature.Weights.asDiagonal() *
+                local_space.MapInvVelocityValues(
+                    local_space_data,
+                    {Eigen::MatrixXd::Zero(vander_internal.rows(), vander_internal.cols()), vander_internal})[1];
         }
 
         Eigen::MatrixXd monomials_values = monomials_2D.Vander(reference_element_data.rt_triangle_reference_element_data.monomials_2D_data,
@@ -246,8 +252,8 @@ TEST(Test_FEM_Triangle_RT_MCC_2D, Test_FEM_Triangle_RT_MCC_2D_Local_Space)
         const double max_error_x = ConsistencyErrorX.cwiseAbs().maxCoeff();
         const double max_error_y = ConsistencyErrorY.cwiseAbs().maxCoeff();
 
-        // ASSERT_TRUE(max_error_x < 1.0e-10);
-        // ASSERT_TRUE(max_error_y < 1.0e-10);
+        ASSERT_TRUE(max_error_x < 1.0e-10);
+        ASSERT_TRUE(max_error_y < 1.0e-10);
     }
 }
 

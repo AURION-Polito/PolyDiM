@@ -12,6 +12,7 @@
 #ifndef __LocalSpace_MCC_2D_H
 #define __LocalSpace_MCC_2D_H
 
+#include "FEM_MCC_2D_LocalSpace.hpp"
 #include "I_VEM_MCC_2D_ReferenceElement.hpp"
 #include "MeshUtilities.hpp"
 #include "QuadratureData.hpp"
@@ -48,6 +49,11 @@ class ReferenceElement_Data final
     Polydim::VEM::MCC::VEM_MCC_2D_LocalSpace_Types VEM_Type;
     std::unique_ptr<VEM::MCC::I_VEM_MCC_2D_Velocity_LocalSpace> VEM_LocalSpace_Velocity;
     std::unique_ptr<VEM::MCC::I_VEM_MCC_2D_Pressure_LocalSpace> VEM_LocalSpace_Pressure;
+
+    Polydim::FEM::MCC::FEM_MCC_Types FEM_Type;
+    Polydim::FEM::MCC::FEM_MCC_2D_LocalSpace FEM_LocalSpace;
+    Polydim::FEM::MCC::FEM_MCC_2D_ReferenceElement FEM_ReferenceElement;
+    Polydim::FEM::MCC::FEM_MCC_2D_ReferenceElement_Data FEM_ReferenceElement_Data;
 };
 
 class LocalSpace_Data final
@@ -56,6 +62,9 @@ class LocalSpace_Data final
     Polydim::VEM::MCC::VEM_MCC_2D_Polygon_Geometry VEM_Geometry;
     Polydim::VEM::MCC::VEM_MCC_2D_Velocity_LocalSpace_Data VEM_LocalSpace_Data_Velocity;
     Polydim::VEM::MCC::VEM_MCC_2D_Pressure_LocalSpace_Data VEM_LocalSpace_Data_Pressure;
+
+    Polydim::FEM::MCC::FEM_MCC_2D_Polygon_Geometry FEM_Geoemtry;
+    Polydim::FEM::MCC::FEM_MCC_2D_LocalSpace_Data FEM_LocalSpace_Data;
 };
 
 class Performance_Data final
@@ -66,10 +75,10 @@ class Performance_Data final
       public:
         unsigned int NumBoundaryQuadraturePoints = 0;
         unsigned int NumInternalQuadraturePoints = 0;
-        Polydim::VEM::MCC::VEM_MCC_PerformanceAnalysis_Data Analysis;
+        Polydim::VEM::MCC::VEM_MCC_PerformanceAnalysis_Data VEM_Analysis;
     };
 
-    Polydim::PDETools::LocalSpace_MCC_2D::Performance_Data::Cell2D_Performance VEM_Performance_Data;
+    Polydim::PDETools::LocalSpace_MCC_2D::Performance_Data::Cell2D_Performance Performance_Data;
 };
 
 Polydim::PDETools::LocalSpace_MCC_2D::ReferenceElement_Data CreateReferenceElement(const Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes &method_type,

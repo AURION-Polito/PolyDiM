@@ -26,11 +26,6 @@ enum class FEM_MCC_2D_Types
     RT_Triangle = 0
 };
 
-enum class FEM_MCC_Types
-{
-    RT = 0
-};
-
 struct FEM_MCC_2D_Polygon_Geometry final
 {
     double Tolerance1D;
@@ -59,7 +54,6 @@ struct FEM_MCC_2D_LocalSpace_Data final
 {
     Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_LocalSpace_Data rt_triangle_local_space_data;
     Polydim::FEM::MCC::FEM_MCC_2D_Types fem_type;
-    Polydim::FEM::MCC::FEM_MCC_Types fem_main_type;
 
     Gedim::Quadrature::QuadratureData InternalQuadrature;
     std::vector<Gedim::Quadrature::QuadratureData> BoundaryQuadrature;

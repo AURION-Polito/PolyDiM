@@ -52,7 +52,7 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty("MethodType",
                                            static_cast<unsigned int>(Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::VEM_MCC),
                                            "Method Type, 1 - Vem; 2 - Vem_Partial; 3 - Vem_Ortho; 4 - "
-                                           "Vem_EdgeOrtho; 5 - Vem_Ortho_EdgeOrtho (Default: "
+                                           "Vem_EdgeOrtho; 5 - Vem_Ortho_EdgeOrtho; 6 - FEM_RT (Default: "
                                            "1)");
         Gedim::Configurations::AddProperty("MethodOrder", static_cast<unsigned int>(0), "Method order (Default: 0)");
         Gedim::Configurations::AddProperty("ComputeMethodPerformance", true, "Compute Method Performance (Default: true)");

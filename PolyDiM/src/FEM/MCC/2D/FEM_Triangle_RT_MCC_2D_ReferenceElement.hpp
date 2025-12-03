@@ -73,8 +73,7 @@ struct FEM_Triangle_RT_MCC_2D_ReferenceElement_Data final
     Eigen::Matrix3d TriangleVertices = (Eigen::Matrix3d() << 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0).finished();
     Eigen::Vector3d EdgeLengths = (Eigen::Vector3d() << 1.0, sqrt(2.0), 1.0).finished();
     std::vector<bool> EdgeDirections = {true, true, true};
-    Eigen::Matrix3d EdgeTangents =
-        (Eigen::Matrix3d() << 1.0, -1.0 / sqrt(2.0), 0.0, 0.0, 1.0 / sqrt(2.0), 1.0, 0.0, 0.0, 0.0).finished();
+    Eigen::Matrix3d EdgeTangents = (Eigen::Matrix3d() << 1.0, -1.0, 0.0, 0.0, 1.0, -1.0, 0.0, 0.0, 0.0).finished();
     Eigen::Matrix3d EdgeNormals =
         (Eigen::Matrix3d() << 0.0, 1.0 / sqrt(2.0), -1.0, -1.0, 1.0 / sqrt(2.0), 0.0, 0.0, 0.0, 0.0).finished();
 
@@ -286,6 +285,10 @@ class FEM_Triangle_RT_MCC_2D_ReferenceElement final
                     reference_element_data.Order + 1) *
                 reference_element_data.reference_element_data_velocity.MonomialsCoefficients.bottomRows(
                     reference_element_data.Order + 1);
+
+        reference_element_data.reference_element_data_velocity.ReferenceBasisFunctionDivergenceValues =
+            EvaluateVelociytBasisFunctionsDivergence(reference_element_data.Quadrature.ReferenceTriangleQuadrature.Points,
+                                                     reference_element_data);
     }
 
   public:

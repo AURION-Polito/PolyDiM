@@ -46,6 +46,11 @@ class FEM_Triangle_RT_MCC_2D_LocalSpace final
     std::vector<Gedim::Quadrature::QuadratureData> BoundaryQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,
                                                                       const Polydim::FEM::MCC::FEM_MCC_2D_Polygon_Geometry &polygon) const;
 
+    // Inverse map: from physical to reference
+    std::vector<Eigen::MatrixXd> MapInvVelocityValues(const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_LocalSpace_Data &local_space,
+                                                      const std::vector<Eigen::MatrixXd> &values) const;
+
+    // Basis functions
     Eigen::MatrixXd ComputePressureBasisFunctionsValues(const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_ReferenceElement_Data &reference_element_data,
                                                         const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_LocalSpace_Data &local_space) const
     {
@@ -104,12 +109,6 @@ class FEM_Triangle_RT_MCC_2D_LocalSpace final
         return MapVelocityDivergenceValues(
             local_space,
             reference_element.EvaluateVelociytBasisFunctionsDivergence(referencePoints, reference_element_data));
-    }
-
-    Eigen::MatrixXd EdgeDOFsCoordinates(const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_ReferenceElement_Data &reference_element_data,
-                                        const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_LocalSpace_Data &local_space,
-                                        const unsigned int edge_local_index) const
-    {
     }
 };
 } // namespace MCC

@@ -197,58 +197,102 @@ int main(int argc, char **argv)
     Gedim::Profiler::StopTime("ExportSolution");
     Gedim::Output::PrintStatusProgram("ExportSolution");
 
-    Gedim::Output::PrintGenericMessage("ComputeVEMPerformance...", true);
-    Gedim::Profiler::StartTime("ComputeVEMPerformance");
+    Gedim::Output::PrintGenericMessage("ComputeMethodPerformance...", true);
+    Gedim::Profiler::StartTime("ComputeMethodPerformance");
 
     if (config.ComputeMethodPerformance())
     {
-        const auto vemPerformance = assembler.ComputePerformance(config, mesh, meshGeometricData, reference_element_data);
+        switch (config.MethodType())
         {
-            const char separator = ',';
-            /// Export Cell2Ds VEM performance
-            std::ofstream exporter;
-
-            exporter.open(exportSolutionFolder + "/Cell2Ds_VEMPerformance.csv");
-            exporter.precision(16);
-
-            if (exporter.fail())
-                throw std::runtime_error("Error on mesh cell2Ds file");
-
-            exporter << "Cell2D_Index" << separator;
-            exporter << "NumQuadPoints_Boundary" << separator;
-            exporter << "NumQuadPoints_Internal" << separator;
-            exporter << "Vmatrix_Cond" << separator;
-            exporter << "Hmatrix_Cond" << separator;
-            exporter << "Pi0k_Cond" << separator;
-            exporter << "Gmatrix_Cond" << separator;
-            exporter << "Pi0k_Error" << separator;
-            exporter << "GBD_Error" << separator;
-            exporter << "Stab_Error" << std::endl;
-
-            for (unsigned int v = 0; v < vemPerformance.Cell2DsPerformance.size(); v++)
+        case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::FEM_RT_MCC: {
+            const auto vemPerformance = assembler.ComputePerformance(config, mesh, meshGeometricData, reference_element_data);
             {
-                const auto &cell2DPerformance = vemPerformance.Cell2DsPerformance[v].VEM_Performance_Data.Analysis;
+                const char separator = ',';
+                /// Export Cell2Ds VEM performance
+                std::ofstream exporter;
 
-                exporter << std::scientific << v << separator;
-                exporter << std::scientific << vemPerformance.Cell2DsPerformance[v].VEM_Performance_Data.NumBoundaryQuadraturePoints
-                         << separator;
-                exporter << std::scientific << vemPerformance.Cell2DsPerformance[v].VEM_Performance_Data.NumInternalQuadraturePoints
-                         << separator;
-                exporter << std::scientific << cell2DPerformance.VmatrixConditioning << separator;
-                exporter << std::scientific << cell2DPerformance.HmatrixConditioning << separator;
-                exporter << std::scientific << cell2DPerformance.Pi0kConditioning << separator;
-                exporter << std::scientific << cell2DPerformance.GmatrixConditioning << separator;
-                exporter << std::scientific << cell2DPerformance.ErrorPi0k << separator;
-                exporter << std::scientific << cell2DPerformance.ErrorGBD << separator;
-                exporter << std::scientific << cell2DPerformance.ErrorStabilization << std::endl;
+                exporter.open(exportSolutionFolder + "/Cell2Ds_FEMPerformance.csv");
+                exporter.precision(16);
+
+                if (exporter.fail())
+                    throw std::runtime_error("Error on mesh cell2Ds file");
+
+                exporter << "Cell2D_Index" << separator;
+                exporter << "NumQuadPoints_Boundary" << separator;
+                exporter << "NumQuadPoints_Internal" << std::endl;
+
+                for (unsigned int v = 0; v < vemPerformance.Cell2DsPerformance.size(); v++)
+                {
+                    const auto &cell2DPerformance = vemPerformance.Cell2DsPerformance[v].Performance_Data.VEM_Analysis;
+
+                    exporter << std::scientific << v << separator;
+                    exporter << std::scientific << vemPerformance.Cell2DsPerformance[v].Performance_Data.NumBoundaryQuadraturePoints
+                             << separator;
+                    exporter << std::scientific << vemPerformance.Cell2DsPerformance[v].Performance_Data.NumInternalQuadraturePoints
+                             << std::endl;
+                }
+
+                exporter.close();
             }
+        }
+        break;
+        case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::VEM_MCC:
+        case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::VEM_MCC_Partial:
+        case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::VEM_MCC_Ortho:
+        case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::VEM_MCC_EdgeOrtho:
+        case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
+            const auto vemPerformance = assembler.ComputePerformance(config, mesh, meshGeometricData, reference_element_data);
+            {
+                const char separator = ',';
+                /// Export Cell2Ds VEM performance
+                std::ofstream exporter;
 
-            exporter.close();
+                exporter.open(exportSolutionFolder + "/Cell2Ds_VEMPerformance.csv");
+                exporter.precision(16);
+
+                if (exporter.fail())
+                    throw std::runtime_error("Error on mesh cell2Ds file");
+
+                exporter << "Cell2D_Index" << separator;
+                exporter << "NumQuadPoints_Boundary" << separator;
+                exporter << "NumQuadPoints_Internal" << separator;
+                exporter << "Vmatrix_Cond" << separator;
+                exporter << "Hmatrix_Cond" << separator;
+                exporter << "Pi0k_Cond" << separator;
+                exporter << "Gmatrix_Cond" << separator;
+                exporter << "Pi0k_Error" << separator;
+                exporter << "GBD_Error" << separator;
+                exporter << "Stab_Error" << std::endl;
+
+                for (unsigned int v = 0; v < vemPerformance.Cell2DsPerformance.size(); v++)
+                {
+                    const auto &cell2DPerformance = vemPerformance.Cell2DsPerformance[v].Performance_Data.VEM_Analysis;
+
+                    exporter << std::scientific << v << separator;
+                    exporter << std::scientific << vemPerformance.Cell2DsPerformance[v].Performance_Data.NumBoundaryQuadraturePoints
+                             << separator;
+                    exporter << std::scientific << vemPerformance.Cell2DsPerformance[v].Performance_Data.NumInternalQuadraturePoints
+                             << separator;
+                    exporter << std::scientific << cell2DPerformance.VmatrixConditioning << separator;
+                    exporter << std::scientific << cell2DPerformance.HmatrixConditioning << separator;
+                    exporter << std::scientific << cell2DPerformance.Pi0kConditioning << separator;
+                    exporter << std::scientific << cell2DPerformance.GmatrixConditioning << separator;
+                    exporter << std::scientific << cell2DPerformance.ErrorPi0k << separator;
+                    exporter << std::scientific << cell2DPerformance.ErrorGBD << separator;
+                    exporter << std::scientific << cell2DPerformance.ErrorStabilization << std::endl;
+                }
+
+                exporter.close();
+            }
+        }
+        break;
+        default:
+            throw std::runtime_error("not valid method");
         }
     }
 
-    Gedim::Profiler::StopTime("ComputeVEMPerformance");
-    Gedim::Output::PrintStatusProgram("ComputeVEMPerformance");
+    Gedim::Profiler::StopTime("ComputeMethodPerformance");
+    Gedim::Output::PrintStatusProgram("ComputeMethodPerformance");
 
     return 0;
 }

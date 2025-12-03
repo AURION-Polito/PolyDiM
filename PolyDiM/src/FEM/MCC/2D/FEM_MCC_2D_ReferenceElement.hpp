@@ -22,12 +22,20 @@ namespace FEM
 namespace MCC
 {
 
+enum class FEM_MCC_Types
+{
+    RT = 0
+};
+
 struct FEM_MCC_2D_ReferenceElement_Data final
 {
     unsigned int Dimension;
     unsigned int Order;
     unsigned int NumDofs0D;
     unsigned int NumDofs1D;
+
+    Polydim::FEM::MCC::FEM_MCC_Types fem_main_type;
+
     Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_ReferenceElement_Data rt_triangle_reference_element_data;
 };
 
@@ -39,10 +47,11 @@ struct FEM_MCC_2D_ReferenceElement final
     }
     ~FEM_MCC_2D_ReferenceElement(){};
 
-    FEM_MCC_2D_ReferenceElement_Data Create(const unsigned int order) const
+    FEM_MCC_2D_ReferenceElement_Data Create(const unsigned int order, const Polydim::FEM::MCC::FEM_MCC_Types &fem_main_type) const
     {
 
         Polydim::FEM::MCC::FEM_MCC_2D_ReferenceElement_Data result;
+        result.fem_main_type = fem_main_type;
 
         result.Dimension = 2;
         result.Order = order;

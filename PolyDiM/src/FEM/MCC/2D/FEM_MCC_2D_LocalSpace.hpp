@@ -30,8 +30,7 @@ class FEM_MCC_2D_LocalSpace final
 
   public:
     Polydim::FEM::MCC::FEM_MCC_2D_LocalSpace_Data CreateLocalSpace(const Polydim::FEM::MCC::FEM_MCC_2D_ReferenceElement_Data &reference_element_data,
-                                                                   const Polydim::FEM::MCC::FEM_MCC_2D_Polygon_Geometry &polygon,
-                                                                   const Polydim::FEM::MCC::FEM_MCC_Types &fem_main_type) const;
+                                                                   const Polydim::FEM::MCC::FEM_MCC_2D_Polygon_Geometry &polygon) const;
 
     std::vector<Eigen::MatrixXd> ComputeVelocityBasisFunctionsValues(const Polydim::FEM::MCC::FEM_MCC_2D_ReferenceElement_Data &reference_element_data,
                                                                      const Polydim::FEM::MCC::FEM_MCC_2D_LocalSpace_Data &local_space) const
@@ -130,23 +129,7 @@ class FEM_MCC_2D_LocalSpace final
         }
     }
 
-    Eigen::MatrixXd EdgeDOFsCoordinates(const Polydim::FEM::MCC::FEM_MCC_2D_ReferenceElement_Data &reference_element_data,
-                                        const Polydim::FEM::MCC::FEM_MCC_2D_LocalSpace_Data &local_space,
-                                        const unsigned int edge_local_index) const
-    {
-        switch (local_space.fem_type)
-        {
-        case Polydim::FEM::MCC::FEM_MCC_2D_Types::RT_Triangle: {
-            return rt_triangle_local_space.EdgeDOFsCoordinates(reference_element_data.rt_triangle_reference_element_data,
-                                                               local_space.rt_triangle_local_space_data,
-                                                               edge_local_index);
-        }
-        default:
-            throw std::runtime_error("not valid fem type");
-        }
-    }
-
-    // from reference to physical element
+    // from physical to reference element
     std::vector<Eigen::MatrixXd> MapVelocityValues(const Polydim::FEM::MCC::FEM_MCC_2D_LocalSpace_Data &local_space,
                                                    const std::vector<Eigen::MatrixXd> &referenceValues) const
     {
@@ -154,6 +137,20 @@ class FEM_MCC_2D_LocalSpace final
         {
         case Polydim::FEM::MCC::FEM_MCC_2D_Types::RT_Triangle: {
             return rt_triangle_local_space.MapVelocityValues(local_space.rt_triangle_local_space_data, referenceValues);
+        }
+        default:
+            throw std::runtime_error("not valid fem type");
+        }
+    }
+
+    // from reference to physical element
+    std::vector<Eigen::MatrixXd> MapInvVelocityValues(const Polydim::FEM::MCC::FEM_MCC_2D_LocalSpace_Data &local_space,
+                                                      const std::vector<Eigen::MatrixXd> &values) const
+    {
+        switch (local_space.fem_type)
+        {
+        case Polydim::FEM::MCC::FEM_MCC_2D_Types::RT_Triangle: {
+            return rt_triangle_local_space.MapInvVelocityValues(local_space.rt_triangle_local_space_data, values);
         }
         default:
             throw std::runtime_error("not valid fem type");
