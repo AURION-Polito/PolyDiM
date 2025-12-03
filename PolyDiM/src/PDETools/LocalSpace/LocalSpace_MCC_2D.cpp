@@ -393,6 +393,10 @@ Gedim::Quadrature::QuadratureData EdgeDofsCoordinates(const ReferenceElement_Dat
             num_quadrature_points);
         return quadrature;
     }
+    case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::FEM_RT_MCC: {
+        return local_space_data.FEM_LocalSpace_Data.BoundaryQuadrature.at(edge_local_index);
+    }
+    break;
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
     }
@@ -450,6 +454,11 @@ Eigen::VectorXd EdgeDofs(const ReferenceElement_Data &reference_element_data,
 
         return direction * VanderBoundary1D.transpose() * edge_dofs_coordinates.Weights.asDiagonal() * strong_values;
     }
+    case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::FEM_RT_MCC: {
+        return reference_element_data.FEM_ReferenceElement_Data.rt_triangle_reference_element_data.VanderBoundary1D.transpose() *
+               (edge_dofs_coordinates.Weights).asDiagonal() * strong_values;
+    }
+    break;
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
     }

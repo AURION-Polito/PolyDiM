@@ -77,9 +77,9 @@ struct Patch_Test final : public I_Test
                 {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
                 {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
                 {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
-                {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
-                {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}}};
+                {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 2}},
+                {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
+                {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 4}}};
     }
 
     std::array<Eigen::VectorXd, 3> advection_term(const Eigen::MatrixXd &points) const
@@ -182,6 +182,12 @@ struct Patch_Test final : public I_Test
         {
         case 1:
             return 2.0 * derivatives + solution;
+        case 2:
+            return -1.0 * derivatives + solution;
+        case 3:
+            return -2.0 * derivatives - solution;
+        case 4:
+            return 1.0 * derivatives - solution;
         default:
             throw std::runtime_error("Unknown marker");
         }

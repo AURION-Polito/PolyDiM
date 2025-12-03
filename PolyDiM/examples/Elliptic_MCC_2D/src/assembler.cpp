@@ -333,12 +333,10 @@ Assembler::PostProcess_Data Assembler::PostProcessSolution(const Polydim::exampl
         const auto exact_velocity_values = test.exact_velocity(cell2D_internal_quadrature.Points);
 
         // Interpolate Exact Solution
-        const VectorXd rightHandSide =
-            pressure_basis_functions_values.transpose() *
-            local_space_data.VEM_LocalSpace_Data_Pressure.InternalQuadrature.Weights.asDiagonal() * exact_pressure_values;
+        const VectorXd rightHandSide = pressure_basis_functions_values.transpose() *
+                                       cell2D_internal_quadrature.Weights.asDiagonal() * exact_pressure_values;
         const MatrixXd Hmatrix = pressure_basis_functions_values.transpose() *
-                                 local_space_data.VEM_LocalSpace_Data_Pressure.InternalQuadrature.Weights.asDiagonal() *
-                                 pressure_basis_functions_values;
+                                 cell2D_internal_quadrature.Weights.asDiagonal() * pressure_basis_functions_values;
         const VectorXd coeffPolynomial = Hmatrix.llt().solve(rightHandSide);
 
         result.cell2Ds_numeric_pressure[c] =
