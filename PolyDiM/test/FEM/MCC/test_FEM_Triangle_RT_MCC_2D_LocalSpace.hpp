@@ -19,6 +19,7 @@
 #include "Assembler_Utilities.hpp"
 #include "DOFsManager.hpp"
 #include "Eigen_Array.hpp"
+#include "EllipticEquation.hpp"
 #include "FEM_MCC_2D_LocalSpace.hpp"
 #include "FEM_Triangle_RT_MCC_2D_LocalSpace.hpp"
 #include "FEM_Triangle_RT_MCC_2D_ReferenceElement.hpp"
@@ -430,6 +431,48 @@ TEST(Test_FEM_Triangle_RT_MCC_2D, Test_FEM_Triangle_RT_MCC_2D_Local_Space)
     }
 }
 
+
+std::array<Eigen::VectorXd, 9> inverse_diffusion_term(const Eigen::MatrixXd &points)
+{
+    return {Eigen::VectorXd::Constant(points.cols(), 1.0),
+            Eigen::VectorXd::Constant(points.cols(), 0.0),
+            Eigen::VectorXd::Zero(points.cols()),
+            Eigen::VectorXd::Constant(points.cols(), 0.0),
+            Eigen::VectorXd::Constant(points.cols(), 1.0),
+            Eigen::VectorXd::Zero(points.cols()),
+            Eigen::VectorXd::Zero(points.cols()),
+            Eigen::VectorXd::Zero(points.cols()),
+            Eigen::VectorXd::Constant(points.cols(), 0.0)};
+
+};
+
+Eigen::VectorXd source_term(const Eigen::MatrixXd &points)
+{
+    unsigned int order = 1;
+    Eigen::ArrayXd second_derivatives = Eigen::ArrayXd::Constant(points.cols(), 0.0);
+    Eigen::ArrayXd solution = Eigen::ArrayXd::Constant(points.cols(), 1.0);
+    const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+
+    if (order > 1)
+    {
+        second_derivatives = Eigen::ArrayXd::Constant(points.cols(), 1.0);
+        for (int i = 0; i < order - 2; i++)
+            second_derivatives = second_derivatives * polynomial;
+
+        solution = second_derivatives * polynomial * polynomial;
+        second_derivatives *= order * (order - 1);
+    }
+    else if (order == 1)
+        solution = polynomial;
+
+    return -2.0 * second_derivatives + solution;
+};
+
+Eigen::VectorXd reaction_term(const Eigen::MatrixXd &points)
+{
+    return Eigen::VectorXd::Ones(points.cols());
+}
+
 TEST(Test_FEM_Triangle_RT_MCC_2D, Test_FEM_Triangle_RT_MCC_2D_Local_Space_Patch)
 {
     Gedim::GeometryUtilitiesConfig geometry_utilities_config;
@@ -649,6 +692,9 @@ TEST(Test_FEM_Triangle_RT_MCC_2D, Test_FEM_Triangle_RT_MCC_2D_Local_Space_Patch)
 
     std::cout << global_neumann_solution << std::endl;
 
+
+    Polydim::PDETools::Equations::EllipticEquation equation;
+
     for(unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
     {
         const auto local_space_data = Polydim::PDETools::LocalSpace_MCC_2D::CreateLocalSpace(geometry_utilities.Tolerance1D(),
@@ -658,25 +704,35 @@ TEST(Test_FEM_Triangle_RT_MCC_2D, Test_FEM_Triangle_RT_MCC_2D_Local_Space_Patch)
                                                                                              reference_element_data);
 
 
-        const Eigen::MatrixXd pressureBasisValues =
-            Polydim::PDETools::LocalSpace_MCC_2D::PressureBasisFunctionsValues(reference_element_data, local_space_data);
-        const std::vector<Eigen::MatrixXd> velocityBasisValues =
+        const auto velocity_basis_functions_values =
             Polydim::PDETools::LocalSpace_MCC_2D::VelocityBasisFunctionsValues(reference_element_data, local_space_data);
-        const Eigen::MatrixXd diverVelocityBasisFunctions =
+        const auto velocity_basis_functions_divergence_values =
             Polydim::PDETools::LocalSpace_MCC_2D::VelocityBasisFunctionsDivergenceValues(reference_element_data, local_space_data);
+        const auto pressure_basis_functions_values =
+            Polydim::PDETools::LocalSpace_MCC_2D::PressureBasisFunctionsValues(reference_element_data, local_space_data);
 
         const auto cell2D_internal_quadrature =
             Polydim::PDETools::LocalSpace_MCC_2D::InternalQuadrature(reference_element_data, local_space_data);
 
+
         const Eigen::VectorXd &weights = cell2D_internal_quadrature.Weights;
-        Eigen::MatrixXd monomials_values =
-            monomials_2D.Vander(reference_element_data.FEM_ReferenceElement_Data.rt_triangle_reference_element_data.monomials_2D_data, cell2D_internal_quadrature.Points, Eigen::Vector3d::Zero(), 1.0);
 
 
-        const auto monomials_values_der =
-            monomials_2D.VanderDerivatives(reference_element_data.FEM_ReferenceElement_Data.rt_triangle_reference_element_data.monomials_2D_data, monomials_values, 1.0);
+        const auto diffusion_term_values = inverse_diffusion_term(cell2D_internal_quadrature.Points);
+        const Eigen::VectorXd source_term_values = source_term(cell2D_internal_quadrature.Points);
+        const auto reaction_term_values = reaction_term(cell2D_internal_quadrature.Points);
 
-        Eigen::VectorXd source_term = monomials_values.col(1) + monomials_values.col(2) + 0.5 * monomials_values.col(0);
+        auto local_A = equation.ComputeCellDiffusionMatrix(diffusion_term_values,
+                                                           velocity_basis_functions_values,
+                                                           cell2D_internal_quadrature.Weights);
+
+        const auto local_M = equation.ComputeCellReactionMatrix(reaction_term_values,
+                                                                pressure_basis_functions_values,
+                                                                cell2D_internal_quadrature.Weights);
+
+        const Eigen::MatrixXd local_B = pressure_basis_functions_values.transpose() *
+                                        cell2D_internal_quadrature.Weights.asDiagonal() * velocity_basis_functions_divergence_values;
+
 
         const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, dofs_data);
         const unsigned int num_local_dofs_pressure = dofs_data[1].CellsGlobalDOFs[2].at(c).size();
@@ -696,8 +752,6 @@ TEST(Test_FEM_Triangle_RT_MCC_2D, Test_FEM_Triangle_RT_MCC_2D_Local_Space_Patch)
         const Eigen::VectorXd Dmatrix_pressure =
             dofs_values.segment(local_count_dofs.num_total_dofs - num_local_dofs_pressure, num_local_dofs_pressure);
 
-        const auto global_A = velocityBasisValues[0].transpose() * weights.asDiagonal() * velocityBasisValues[0] +
-                              velocityBasisValues[1].transpose() * weights.asDiagonal() * velocityBasisValues[1];
 
         Eigen::MatrixXd global_matrix = Eigen::MatrixXd::Zero(5, 5);
         Eigen::MatrixXd neumann_matrix = Eigen::MatrixXd::Zero(5, 6);
@@ -708,16 +762,16 @@ TEST(Test_FEM_Triangle_RT_MCC_2D, Test_FEM_Triangle_RT_MCC_2D_Local_Space_Patch)
         local_neuman_solution = Dmatrix.topRows(6);
         local_solution << Dmatrix.bottomRows(2), Dmatrix_pressure;
 
-        global_rhs.bottomRows(3) = pressureBasisValues.transpose() * weights.asDiagonal()  * source_term;
+        global_rhs.bottomRows(3) = pressure_basis_functions_values.transpose() * weights.asDiagonal() * source_term_values;
 
 
-        neumann_matrix.block(0, 0, 2, 6) = global_A.block(6, 0, 2, 6);
-        neumann_matrix.block(2, 0, 3, 6) = pressureBasisValues.transpose() * weights.asDiagonal() * diverVelocityBasisFunctions.leftCols(6);
+        neumann_matrix.block(0, 0, 2, 6) = local_A.block(6, 0, 2, 6);
+        neumann_matrix.block(2, 0, 3, 6) = pressure_basis_functions_values.transpose() * weights.asDiagonal() * velocity_basis_functions_divergence_values.leftCols(6);
 
-        global_matrix.block(0, 0, 2, 2) = global_A.block(6, 6, 2, 2);
-        global_matrix.block(0, 2, 2, 3) = - diverVelocityBasisFunctions.rightCols(2).transpose() * weights.asDiagonal()  * pressureBasisValues;
-        global_matrix.block(2, 0, 3, 2) = pressureBasisValues.transpose() * weights.asDiagonal() * diverVelocityBasisFunctions.rightCols(2);
-        global_matrix.block(2, 2, 3, 3) = pressureBasisValues.transpose() * weights.asDiagonal()  * pressureBasisValues;
+        global_matrix.block(0, 0, 2, 2) = local_A.block(6, 6, 2, 2);
+        global_matrix.block(0, 2, 2, 3) = - velocity_basis_functions_divergence_values.rightCols(2).transpose() * weights.asDiagonal()  * pressure_basis_functions_values;
+        global_matrix.block(2, 0, 3, 2) = pressure_basis_functions_values.transpose() * weights.asDiagonal() * velocity_basis_functions_divergence_values.rightCols(2);
+        global_matrix.block(2, 2, 3, 3) = local_M;
 
         const double max_error = (global_matrix * local_solution - (global_rhs - neumann_matrix * local_neuman_solution)).cwiseAbs().maxCoeff();
 
