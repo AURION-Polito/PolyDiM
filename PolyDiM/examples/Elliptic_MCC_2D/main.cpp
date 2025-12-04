@@ -146,6 +146,15 @@ int main(int argc, char **argv)
     auto assembler_data =
         assembler.Assemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, count_dofs, reference_element_data, *test);
 
+    std::cout << "assembler_data.solutionNeumann" << std::endl;
+    std::cout << assembler_data.solutionNeumann << std::endl;
+
+    // std::cout << "assembler_data.neumannMatrixA" << std::endl;
+    // std::cout << assembler_data.neumannMatrixA << std::endl;
+
+    // std::cout << "assembler_data.globalMatrixA" << std::endl;
+    // std::cout << assembler_data.globalMatrixA << std::endl;
+
     Gedim::Profiler::StopTime("AssembleSystem");
     Gedim::Output::PrintStatusProgram("AssembleSystem");
 
@@ -175,6 +184,9 @@ int main(int argc, char **argv)
     auto post_process_data =
         assembler.PostProcessSolution(config, mesh, meshGeometricData, dofs_data, count_dofs, reference_element_data, assembler_data, *test);
 
+    std::cout << "assembler_data.solution" << std::endl;
+    std::cout << assembler_data.solution << std::endl;
+
     Gedim::Profiler::StopTime("ComputeErrors");
     Gedim::Output::PrintStatusProgram("ComputeErrors");
 
@@ -200,7 +212,7 @@ int main(int argc, char **argv)
     if (config.ComputeMethodPerformance())
     {
         const auto performance_data = assembler.ComputePerformance(config, mesh, meshGeometricData, reference_element_data);
-        Polydim::examples::Elliptic_MCC_2D::program_utilities::export_performance(config, performance_data, exportFolder);
+        Polydim::examples::Elliptic_MCC_2D::program_utilities::export_performance(config, performance_data, exportCsvFolder);
     }
 
     Gedim::Profiler::StopTime("ComputeMethodPerformance");

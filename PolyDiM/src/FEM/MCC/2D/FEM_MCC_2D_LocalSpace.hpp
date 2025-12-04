@@ -157,6 +157,19 @@ class FEM_MCC_2D_LocalSpace final
         }
     }
 
+    std::vector<Eigen::VectorXd> MapInvVelocityValuesVect(const Polydim::FEM::MCC::FEM_MCC_2D_LocalSpace_Data &local_space,
+                                                      const std::vector<Eigen::VectorXd> &values) const
+    {
+        switch (local_space.fem_type)
+        {
+        case Polydim::FEM::MCC::FEM_MCC_2D_Types::RT_Triangle: {
+            return rt_triangle_local_space.MapInvVelocityValuesVect(local_space.rt_triangle_local_space_data, values);
+        }
+        default:
+            throw std::runtime_error("not valid fem type");
+        }
+    }
+
     Eigen::MatrixXd MapPressureValues(const Polydim::FEM::MCC::FEM_MCC_2D_LocalSpace_Data &local_space,
                                       const Eigen::MatrixXd &referenceValues) const
     {

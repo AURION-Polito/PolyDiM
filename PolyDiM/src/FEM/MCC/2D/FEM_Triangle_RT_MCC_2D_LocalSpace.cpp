@@ -125,6 +125,19 @@ std::vector<Eigen::MatrixXd> FEM_Triangle_RT_MCC_2D_LocalSpace::MapInvVelocityVa
     return ref_velocity_values;
 }
 // ***************************************************************************
+std::vector<Eigen::VectorXd> FEM_Triangle_RT_MCC_2D_LocalSpace::MapInvVelocityValuesVect(
+    const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_LocalSpace_Data &local_space,
+    const std::vector<Eigen::VectorXd> &values) const
+{
+    std::vector<Eigen::VectorXd> ref_velocity_values(2, Eigen::VectorXd::Zero(values[0].size()));
+    ref_velocity_values[0] = local_space.MapData.DetB *
+                             (local_space.MapData.BInv(0, 0) * values[0] + local_space.MapData.BInv(0, 1) * values[1]);
+    ref_velocity_values[1] = local_space.MapData.DetB *
+                             (local_space.MapData.BInv(1, 0) * values[0] + local_space.MapData.BInv(1, 1) * values[1]);
+
+    return ref_velocity_values;
+}
+// ***************************************************************************
 Eigen::MatrixXd FEM_Triangle_RT_MCC_2D_LocalSpace::MapPressureValues(const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_LocalSpace_Data &local_space,
                                                                      const Eigen::MatrixXd &referenceValues) const
 {

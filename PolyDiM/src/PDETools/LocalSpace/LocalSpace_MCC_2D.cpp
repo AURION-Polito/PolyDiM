@@ -460,7 +460,7 @@ Eigen::VectorXd EdgeDofs(const ReferenceElement_Data &reference_element_data,
 
         return direction *
                reference_element_data.FEM_ReferenceElement_Data.rt_triangle_reference_element_data.VanderBoundary1D.transpose() *
-               (edge_dofs_coordinates.Weights).asDiagonal() * strong_values;
+               edge_dofs_coordinates.Weights.asDiagonal() * strong_values;
     }
     break;
     default:

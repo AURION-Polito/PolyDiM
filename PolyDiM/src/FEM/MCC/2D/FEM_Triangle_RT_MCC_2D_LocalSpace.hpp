@@ -108,8 +108,9 @@ class FEM_Triangle_RT_MCC_2D_LocalSpace final
 
         return MapVelocityDivergenceValues(
             local_space,
-            reference_element.EvaluateVelociytBasisFunctionsDivergence(referencePoints, reference_element_data));
+            reference_element.EvaluateVelocityBasisFunctionsDivergence(referencePoints, reference_element_data));
     }
+    std::vector<Eigen::VectorXd> MapInvVelocityValuesVect(const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_LocalSpace_Data &local_space, const std::vector<Eigen::VectorXd> &values) const;
 };
 } // namespace MCC
 } // namespace FEM

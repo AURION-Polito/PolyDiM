@@ -259,39 +259,16 @@ class FEM_Triangle_RT_MCC_2D_ReferenceElement final
 
         reference_element_data.reference_element_data_velocity.MonomialsCoefficients = Gmatrix.partialPivLu().solve(Bmatrix);
 
-        const Eigen::MatrixXd xy_internal = (1.0 / reference_element_data.monomials_2D_scale) *
-                                            (reference_element_data.Quadrature.ReferenceTriangleQuadrature.Points.colwise() -
-                                             reference_element_data.monomials_2D_center);
-
-        reference_element_data.reference_element_data_velocity.ReferenceBasisFunctionValues.resize(2);
-
-        reference_element_data.reference_element_data_velocity.ReferenceBasisFunctionValues[0] =
-            reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues *
-                reference_element_data.reference_element_data_velocity.MonomialsCoefficients.topRows(
-                    reference_element_data.Nk) +
-            xy_internal.row(0).asDiagonal() *
-                reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues.rightCols(
-                    reference_element_data.Order + 1) *
-                reference_element_data.reference_element_data_velocity.MonomialsCoefficients.bottomRows(
-                    reference_element_data.Order + 1);
-
-        reference_element_data.reference_element_data_velocity.ReferenceBasisFunctionValues[1] =
-            reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues *
-                reference_element_data.reference_element_data_velocity.MonomialsCoefficients.middleRows(
-                    reference_element_data.Nk,
-                    reference_element_data.Nk) +
-            xy_internal.row(1).asDiagonal() *
-                reference_element_data.reference_element_data_pressure.ReferenceBasisFunctionValues.rightCols(
-                    reference_element_data.Order + 1) *
-                reference_element_data.reference_element_data_velocity.MonomialsCoefficients.bottomRows(
-                    reference_element_data.Order + 1);
+        reference_element_data.reference_element_data_velocity.ReferenceBasisFunctionValues
+            = EvaluateVelocityBasisFunctions(reference_element_data.Quadrature.ReferenceTriangleQuadrature.Points,
+                                             reference_element_data);
 
         reference_element_data.reference_element_data_velocity.ReferenceBasisFunctionDivergenceValues =
-            EvaluateVelociytBasisFunctionsDivergence(reference_element_data.Quadrature.ReferenceTriangleQuadrature.Points,
+            EvaluateVelocityBasisFunctionsDivergence(reference_element_data.Quadrature.ReferenceTriangleQuadrature.Points,
                                                      reference_element_data);
     }
 
-  public:
+public:
     FEM_Triangle_RT_MCC_2D_ReferenceElement_Data Create(const unsigned int order) const
     {
         Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_ReferenceElement_Data result;
@@ -359,14 +336,14 @@ class FEM_Triangle_RT_MCC_2D_ReferenceElement final
                                                 reference_element_data.monomials_2D_scale);
 
         BasisFunctionValues[0] = Vander * reference_element_data.reference_element_data_velocity.MonomialsCoefficients.topRows(
-                                              reference_element_data.Nk) +
+                                     reference_element_data.Nk) +
                                  xy_internal.row(0).asDiagonal() * Vander.rightCols(reference_element_data.Order + 1) *
                                      reference_element_data.reference_element_data_velocity.MonomialsCoefficients.bottomRows(
                                          reference_element_data.Order + 1);
 
         BasisFunctionValues[1] = Vander * reference_element_data.reference_element_data_velocity.MonomialsCoefficients.middleRows(
-                                              reference_element_data.Nk,
-                                              reference_element_data.Nk) +
+                                     reference_element_data.Nk,
+                                     reference_element_data.Nk) +
                                  xy_internal.row(1).asDiagonal() * Vander.rightCols(reference_element_data.Order + 1) *
                                      reference_element_data.reference_element_data_velocity.MonomialsCoefficients.bottomRows(
                                          reference_element_data.Order + 1);
@@ -383,7 +360,7 @@ class FEM_Triangle_RT_MCC_2D_ReferenceElement final
                                    reference_element_data.monomials_2D_scale);
     }
     // ***************************************************************************
-    Eigen::MatrixXd EvaluateVelociytBasisFunctionsDivergence(const Eigen::MatrixXd &points,
+    Eigen::MatrixXd EvaluateVelocityBasisFunctionsDivergence(const Eigen::MatrixXd &points,
                                                              const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_ReferenceElement_Data &reference_element_data) const
     {
 
@@ -400,17 +377,17 @@ class FEM_Triangle_RT_MCC_2D_ReferenceElement final
 
         Eigen::MatrixXd divergence_values =
             VanderDerivatives[0] * reference_element_data.reference_element_data_velocity.MonomialsCoefficients.topRows(
-                                       reference_element_data.Nk) +
+                reference_element_data.Nk) +
             VanderDerivatives[1] * reference_element_data.reference_element_data_velocity.MonomialsCoefficients.middleRows(
-                                       reference_element_data.Nk,
-                                       reference_element_data.Nk) +
-            2.0 * (1.0 / reference_element_data.monomials_2D_scale) * Vander.leftCols(reference_element_data.Order + 1) *
+                reference_element_data.Nk,
+                reference_element_data.Nk) +
+            2.0 * (1.0 / reference_element_data.monomials_2D_scale) * Vander.rightCols(reference_element_data.Order + 1) *
                 reference_element_data.reference_element_data_velocity.MonomialsCoefficients.bottomRows(
                     reference_element_data.Order + 1) +
-            xy_internal.row(0).asDiagonal() * VanderDerivatives[0].leftCols(reference_element_data.Order + 1) *
+            xy_internal.row(0).asDiagonal() * VanderDerivatives[0].rightCols(reference_element_data.Order + 1) *
                 reference_element_data.reference_element_data_velocity.MonomialsCoefficients.bottomRows(
                     reference_element_data.Order + 1) +
-            xy_internal.row(1).asDiagonal() * VanderDerivatives[1].leftCols(reference_element_data.Order + 1) *
+            xy_internal.row(1).asDiagonal() * VanderDerivatives[1].rightCols(reference_element_data.Order + 1) *
                 reference_element_data.reference_element_data_velocity.MonomialsCoefficients.bottomRows(
                     reference_element_data.Order + 1);
 
