@@ -146,7 +146,6 @@ int main(int argc, char **argv)
     auto assembler_data =
         assembler.Assemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, count_dofs, reference_element_data, *test);
 
-
     Gedim::Profiler::StopTime("AssembleSystem");
     Gedim::Output::PrintStatusProgram("AssembleSystem");
 

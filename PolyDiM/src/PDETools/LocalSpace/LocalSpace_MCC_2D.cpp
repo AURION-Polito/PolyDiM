@@ -288,6 +288,20 @@ Eigen::MatrixXd VelocityBasisFunctionsValuesOnEdges(const unsigned int &edge_loc
 
         return (1.0 / local_space_data.VEM_Geometry.EdgesLength(edge_local_index)) * direction * VanderBoundary1D;
     }
+    case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::FEM_RT_MCC: {
+        const std::vector<Eigen::MatrixXd> velocityBasisValues_edge = Polydim::PDETools::LocalSpace_MCC_2D::VelocityBasisFunctionsValues(
+            reference_element_data,
+            local_space_data,
+            local_space_data.FEM_LocalSpace_Data.BoundaryQuadrature[edge_local_index].Points);
+
+        return (velocityBasisValues_edge[0] * local_space_data.FEM_Geometry.EdgesNormal(0, edge_local_index) +
+                velocityBasisValues_edge[1] * local_space_data.FEM_Geometry.EdgesNormal(1, edge_local_index))
+            .middleCols(edge_local_index * reference_element_data.FEM_ReferenceElement_Data
+                                               .rt_triangle_reference_element_data.reference_element_data_velocity.NumDofs1D,
+                        reference_element_data.FEM_ReferenceElement_Data.rt_triangle_reference_element_data
+                            .reference_element_data_velocity.NumDofs1D);
+    }
+    break;
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
     }

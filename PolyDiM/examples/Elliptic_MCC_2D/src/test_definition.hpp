@@ -78,51 +78,32 @@ struct Patch_Test final : public I_Test
                 {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
                 {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
                 {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 2}},
-                {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
-                {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 4}}};
+                {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
+                {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
+                {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}}};
     }
 
     std::array<Eigen::VectorXd, 3> advection_term(const Eigen::MatrixXd &points) const
     {
-        return {Eigen::VectorXd::Constant(points.cols(), 0.0),
-                Eigen::VectorXd::Constant(points.cols(), 0.0),
+        return {Eigen::VectorXd::Constant(points.cols(), 1.0),
+                Eigen::VectorXd::Constant(points.cols(), -1.0),
                 Eigen::VectorXd::Zero(points.cols())};
-
-        // return {Eigen::VectorXd::Constant(points.cols(), 1.0),
-        //         Eigen::VectorXd::Constant(points.cols(), -1.0),
-        //         Eigen::VectorXd::Zero(points.cols())};
     }
 
     std::array<Eigen::VectorXd, 3> mixed_advection_term(const Eigen::MatrixXd &points) const
     {
-        return {Eigen::VectorXd::Constant(points.cols(), 0.0),
-                Eigen::VectorXd::Constant(points.cols(), 0.0),
+        return {Eigen::VectorXd::Constant(points.cols(), 0.4),
+                Eigen::VectorXd::Constant(points.cols(), -0.2),
                 Eigen::VectorXd::Zero(points.cols())};
-
-        // return {Eigen::VectorXd::Constant(points.cols(), 0.4),
-        //         Eigen::VectorXd::Constant(points.cols(), -0.2),
-        //         Eigen::VectorXd::Zero(points.cols())};
     }
 
     Eigen::VectorXd reaction_term(const Eigen::MatrixXd &points) const
     {
-        return Eigen::VectorXd::Ones(points.cols());
         return points.row(1).array() * points.row(0).array();
     }
 
     std::array<Eigen::VectorXd, 9> diffusion_term(const Eigen::MatrixXd &points) const
     {
-        return {Eigen::VectorXd::Constant(points.cols(), 1.0),
-                Eigen::VectorXd::Constant(points.cols(), 0.0),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Constant(points.cols(), 0.0),
-                Eigen::VectorXd::Constant(points.cols(), 1.0),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Constant(points.cols(), 0.0)};
-
         return {Eigen::VectorXd::Constant(points.cols(), 2.0),
                 Eigen::VectorXd::Constant(points.cols(), -1.0),
                 Eigen::VectorXd::Zero(points.cols()),
@@ -136,16 +117,6 @@ struct Patch_Test final : public I_Test
 
     std::array<Eigen::VectorXd, 9> inverse_diffusion_term(const Eigen::MatrixXd &points) const
     {
-        return {Eigen::VectorXd::Constant(points.cols(), 1.0),
-                Eigen::VectorXd::Constant(points.cols(), 0.0),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Constant(points.cols(), 0.0),
-                Eigen::VectorXd::Constant(points.cols(), 1.0),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Zero(points.cols()),
-                Eigen::VectorXd::Constant(points.cols(), 0.0)};
-
         return {Eigen::VectorXd::Constant(points.cols(), 0.6),
                 Eigen::VectorXd::Constant(points.cols(), 0.2),
                 Eigen::VectorXd::Zero(points.cols()),
@@ -175,7 +146,6 @@ struct Patch_Test final : public I_Test
         else if (order == 1)
             solution = polynomial;
 
-        return -2.0 * second_derivatives + solution;
         return -3.0 * second_derivatives + points.row(1).array().transpose() * points.row(0).array().transpose() * solution;
     };
 
@@ -207,20 +177,6 @@ struct Patch_Test final : public I_Test
 
             solution = derivatives * polynomial;
             derivatives *= order;
-        }
-
-        switch (marker)
-        {
-        case 1:
-            return derivatives;
-        case 2:
-            return -1.0 * derivatives;
-        case 3:
-            return -1.0 * derivatives;
-        case 4:
-            return 1.0 * derivatives;
-        default:
-            throw std::runtime_error("Unknown marker");
         }
 
         switch (marker)
@@ -264,7 +220,6 @@ struct Patch_Test final : public I_Test
             solution = derivatives * polynomial;
             derivatives *= order;
         }
-        return {-derivatives, -derivatives, Eigen::VectorXd::Zero(points.cols())};
 
         return {-derivatives + solution, -2.0 * derivatives - solution, Eigen::VectorXd::Zero(points.cols())};
     }
