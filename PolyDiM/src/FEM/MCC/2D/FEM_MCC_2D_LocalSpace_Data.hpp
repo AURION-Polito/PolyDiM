@@ -45,8 +45,7 @@ struct FEM_Triangle_RT_MCC_2D_LocalSpace_Data final
     unsigned int Order;
     unsigned int NumVelocityBasisFunctions;
     unsigned int NumPressureBasisFunctions;
-
-    Eigen::MatrixXd CompatibilityMatrix; // to ensure global comabitibility for edge degrees of freedom
+    std::array<bool, 3> EdgesDirection;
 
     Gedim::Quadrature::QuadratureData InternalQuadrature;
     std::vector<Gedim::Quadrature::QuadratureData> BoundaryQuadrature;

@@ -29,6 +29,7 @@ FEM_Triangle_RT_MCC_2D_LocalSpace_Data FEM_Triangle_RT_MCC_2D_LocalSpace::Create
         throw std::runtime_error("The element must be a triangle");
 
     FEM_Triangle_RT_MCC_2D_LocalSpace_Data localSpace;
+    FEM_Triangle_RT_MCC_2D_ReferenceElement reference_element;
 
     Gedim::MapTriangle mapTriangle;
     localSpace.MapData = mapTriangle.Compute(polygon.Vertices);
@@ -39,17 +40,35 @@ FEM_Triangle_RT_MCC_2D_LocalSpace_Data FEM_Triangle_RT_MCC_2D_LocalSpace::Create
 
     localSpace.InternalQuadrature = InternalQuadrature(reference_element_data.Quadrature.ReferenceTriangleQuadrature, localSpace);
     localSpace.BoundaryQuadrature = BoundaryQuadrature(reference_element_data.Quadrature.ReferenceSegmentQuadrature, polygon);
+    for(unsigned int e = 0; e < 3; e++)
+        localSpace.EdgesDirection[e] = polygon.EdgesDirection[e];
 
-    localSpace.CompatibilityMatrix =
-        Eigen::MatrixXd::Identity(localSpace.NumVelocityBasisFunctions, localSpace.NumVelocityBasisFunctions);
-    for (unsigned int e = 0; e < polygon.Vertices.cols(); e++)
-    {
-        const double direction = polygon.EdgesDirection[e] ? 1.0 : -1.0;
-        localSpace.CompatibilityMatrix.block(e * reference_element_data.reference_element_data_velocity.NumDofs1D,
-                                             e * reference_element_data.reference_element_data_velocity.NumDofs1D,
-                                             reference_element_data.reference_element_data_velocity.NumDofs1D,
-                                             reference_element_data.reference_element_data_velocity.NumDofs1D) *= direction;
-    }
+    // std::cout << "local Space" << std::endl;
+
+    // for(unsigned int d = 0; d < 3; d++)
+    // {
+    //     const auto vel_values =
+    //         ComputeVelocityBasisFunctionsValues(reference_element_data,
+    //                                             localSpace,
+    //                                             localSpace.BoundaryQuadrature[d].Points);
+
+    //     std::cout << "d : " << d << " " << localSpace.EdgesDirection[d] <<  std::endl;
+    //     std::cout << (vel_values[0] * polygon.EdgesNormal(0, d) + vel_values[1] * polygon.EdgesNormal(1, d)).transpose()
+    //                      * localSpace.BoundaryQuadrature[d].Weights.asDiagonal()
+    //                      *  reference_element_data.VanderBoundary1D << std::endl;
+
+    //     const auto ref_vel_values =
+    //         reference_element.EvaluateVelocityBasisFunctions(reference_element_data.BoundaryQuadrature.Quadrature.Points.middleCols(d * reference_element_data.reference_element_data_velocity.NumDofs1D,
+    //                                                                                                                                 reference_element_data.reference_element_data_velocity.NumDofs1D),
+    //                                                          reference_element_data.reference_element_data_velocity.basis_functions.at(localSpace.EdgesDirection).MonomialsCoefficients ,
+    //                                                          reference_element_data);
+
+    //     std::cout << "d ref : " << d << std::endl;
+    //     std::cout << (ref_vel_values[0] * reference_element_data.EdgeNormals(0, d) + ref_vel_values[1] * reference_element_data.EdgeNormals(1, d)).transpose()
+    //                      * reference_element_data.BoundaryQuadrature.Quadrature.Weights.segment(d * reference_element_data.reference_element_data_velocity.NumDofs1D,
+    //                                                                                             reference_element_data.reference_element_data_velocity.NumDofs1D).asDiagonal()
+    //                      *  reference_element_data.VanderBoundary1D << std::endl;
+    // }
 
     return localSpace;
 }
@@ -80,10 +99,13 @@ std::vector<Gedim::Quadrature::QuadratureData> FEM_Triangle_RT_MCC_2D_LocalSpace
         auto &edge_quadrature = edges_quadrature.at(e);
         const bool edge_direction = polygon.EdgesDirection.at(e);
         const double edge_length = polygon.EdgesLength[e];
-        const Eigen::Vector3d edge_origin = edge_direction ? polygon.Vertices.col(e) : polygon.Vertices.col((e + 1) % num_edges);
+        // const Eigen::Vector3d edge_origin = edge_direction ? polygon.Vertices.col(e) : polygon.Vertices.col((e + 1) % num_edges);
 
-        const Eigen::Vector3d edge_tangent = edge_direction ? +1.0 * polygon.EdgesTangent.col(e)
-                                                            : -1.0 * polygon.EdgesTangent.col(e);
+        // const Eigen::Vector3d edge_tangent = edge_direction ? +1.0 * polygon.EdgesTangent.col(e)
+        //                                                     : -1.0 * polygon.EdgesTangent.col(e);
+
+        const Eigen::Vector3d edge_origin = polygon.Vertices.col(e);
+        const Eigen::Vector3d edge_tangent = polygon.EdgesTangent.col(e);
 
         const unsigned int num_quadrature_points = reference_quadrature.Points.cols();
         edge_quadrature.Points.resize(3, num_quadrature_points);
@@ -106,36 +128,7 @@ std::vector<Eigen::MatrixXd> FEM_Triangle_RT_MCC_2D_LocalSpace::MapVelocityValue
     velocity_values[1] = (1.0 / local_space.MapData.DetB) * (local_space.MapData.B(1, 0) * referenceValues[0] +
                                                              local_space.MapData.B(1, 1) * referenceValues[1]);
 
-    velocity_values[0] *= local_space.CompatibilityMatrix;
-    velocity_values[1] *= local_space.CompatibilityMatrix;
-
     return velocity_values;
-}
-// ***************************************************************************
-std::vector<Eigen::MatrixXd> FEM_Triangle_RT_MCC_2D_LocalSpace::MapInvVelocityValues(
-    const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_LocalSpace_Data &local_space,
-    const std::vector<Eigen::MatrixXd> &values) const
-{
-    std::vector<Eigen::MatrixXd> ref_velocity_values(2, Eigen::MatrixXd::Zero(values[0].rows(), values[0].cols()));
-    ref_velocity_values[0] = local_space.MapData.DetB *
-                             (local_space.MapData.BInv(0, 0) * values[0] + local_space.MapData.BInv(0, 1) * values[1]);
-    ref_velocity_values[1] = local_space.MapData.DetB *
-                             (local_space.MapData.BInv(1, 0) * values[0] + local_space.MapData.BInv(1, 1) * values[1]);
-
-    return ref_velocity_values;
-}
-// ***************************************************************************
-std::vector<Eigen::VectorXd> FEM_Triangle_RT_MCC_2D_LocalSpace::MapInvVelocityValuesVect(
-    const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_LocalSpace_Data &local_space,
-    const std::vector<Eigen::VectorXd> &values) const
-{
-    std::vector<Eigen::VectorXd> ref_velocity_values(2, Eigen::VectorXd::Zero(values[0].size()));
-    ref_velocity_values[0] = local_space.MapData.DetB *
-                             (local_space.MapData.BInv(0, 0) * values[0] + local_space.MapData.BInv(0, 1) * values[1]);
-    ref_velocity_values[1] = local_space.MapData.DetB *
-                             (local_space.MapData.BInv(1, 0) * values[0] + local_space.MapData.BInv(1, 1) * values[1]);
-
-    return ref_velocity_values;
 }
 // ***************************************************************************
 Eigen::MatrixXd FEM_Triangle_RT_MCC_2D_LocalSpace::MapPressureValues(const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_LocalSpace_Data &local_space,
@@ -148,7 +141,7 @@ Eigen::MatrixXd FEM_Triangle_RT_MCC_2D_LocalSpace::MapVelocityDivergenceValues(c
                                                                                const Eigen::MatrixXd &referenceDerivateValues) const
 {
 
-    Eigen::MatrixXd divergence_values = (1.0 / local_space.MapData.DetB) * referenceDerivateValues * local_space.CompatibilityMatrix;
+    Eigen::MatrixXd divergence_values = (1.0 / local_space.MapData.DetB) * referenceDerivateValues;
     return divergence_values;
 }
 // ***************************************************************************

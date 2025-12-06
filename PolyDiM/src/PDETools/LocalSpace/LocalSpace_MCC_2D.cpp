@@ -172,6 +172,28 @@ std::vector<Eigen::MatrixXd> VelocityBasisFunctionsValues(const ReferenceElement
     }
 }
 //***************************************************************************
+std::vector<Eigen::MatrixXd> VelocityBasisFunctionsValues(const ReferenceElement_Data &reference_element_data,
+                                                          const LocalSpace_Data &local_space_data,
+                                                          const Eigen::MatrixXd &points,
+                                                          const Polydim::VEM::MCC::ProjectionTypes &projectionType)
+{
+    switch (reference_element_data.Method_Type)
+    {
+    case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::FEM_RT_MCC: {
+        return reference_element_data.FEM_LocalSpace.ComputeVelocityBasisFunctionsValues(reference_element_data.FEM_ReferenceElement_Data,
+                                                                                         local_space_data.FEM_LocalSpace_Data,
+                                                                                         points);
+    }
+    case MethodTypes::VEM_MCC:
+    case MethodTypes::VEM_MCC_Partial:
+    case MethodTypes::VEM_MCC_Ortho:
+    case MethodTypes::VEM_MCC_EdgeOrtho:
+    case MethodTypes::VEM_MCC_Ortho_EdgeOrtho:
+    default:
+        throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
+    }
+}
+//***************************************************************************
 Eigen::MatrixXd PressureBasisFunctionsValues(const ReferenceElement_Data &reference_element_data, const LocalSpace_Data &local_space_data)
 {
     switch (reference_element_data.Method_Type)

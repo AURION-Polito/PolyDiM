@@ -123,6 +123,11 @@ Eigen::MatrixXd VelocityBasisFunctionsValuesOnEdges(const unsigned int &edge_loc
                                                     const Polydim::PDETools::LocalSpace_MCC_2D::LocalSpace_Data &local_space_data,
                                                     const Eigen::MatrixXd &edge_quadrature_points);
 
+std::vector<Eigen::MatrixXd> VelocityBasisFunctionsValues(const ReferenceElement_Data &reference_element_data,
+                                                          const LocalSpace_Data &local_space_data,
+                                                          const Eigen::MatrixXd &points,
+                                                          const Polydim::VEM::MCC::ProjectionTypes &projectionType = Polydim::VEM::MCC::ProjectionTypes::Pi0k);
+
 Gedim::Quadrature::QuadratureData EdgeQuadrature(const Polydim::PDETools::LocalSpace_MCC_2D::ReferenceElement_Data &reference_element_data,
                                                  const Polydim::PDETools::LocalSpace_MCC_2D::LocalSpace_Data &local_space_data,
                                                  const unsigned int edge_local_index);
