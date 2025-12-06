@@ -37,11 +37,10 @@ FEM_Triangle_RT_MCC_2D_LocalSpace_Data FEM_Triangle_RT_MCC_2D_LocalSpace::Create
     localSpace.NumVelocityBasisFunctions = reference_element_data.reference_element_data_velocity.NumBasisFunctions;
     localSpace.NumPressureBasisFunctions = reference_element_data.reference_element_data_pressure.NumBasisFunctions;
 
+    localSpace.InternalQuadrature = InternalQuadrature(reference_element_data.Quadrature.ReferenceTriangleQuadrature, localSpace);
+    localSpace.BoundaryQuadrature = BoundaryQuadrature(reference_element_data.Quadrature.ReferenceSegmentQuadrature, polygon);
     for(unsigned int e = 0; e < 3; e++)
         localSpace.EdgesDirection[e] = polygon.EdgesDirection[e];
-
-    localSpace.InternalQuadrature = InternalQuadrature(reference_element_data.Quadrature.ReferenceTriangleQuadrature, localSpace);
-    localSpace.BoundaryQuadrature = BoundaryQuadrature(reference_element_data, localSpace, reference_element_data.Quadrature.ReferenceSegmentQuadrature, polygon);
 
     return localSpace;
 }
@@ -61,15 +60,11 @@ Gedim::Quadrature::QuadratureData FEM_Triangle_RT_MCC_2D_LocalSpace::InternalQua
 }
 // ***************************************************************************
 std::vector<Gedim::Quadrature::QuadratureData> FEM_Triangle_RT_MCC_2D_LocalSpace::BoundaryQuadrature(
-    const FEM_Triangle_RT_MCC_2D_ReferenceElement_Data &reference_element_data,
-    const FEM_Triangle_RT_MCC_2D_LocalSpace_Data &localSpace,
     const Gedim::Quadrature::QuadratureData &reference_quadrature,
     const FEM_MCC_2D_Polygon_Geometry &polygon) const
 {
     const unsigned int num_edges = polygon.EdgesDirection.size();
     std::vector<Gedim::Quadrature::QuadratureData> edges_quadrature(num_edges);
-
-    Gedim::MapTriangle mapTriangle;
 
     for (unsigned int e = 0; e < num_edges; ++e)
     {
@@ -81,19 +76,13 @@ std::vector<Gedim::Quadrature::QuadratureData> FEM_Triangle_RT_MCC_2D_LocalSpace
         // const Eigen::Vector3d edge_tangent = edge_direction ? +1.0 * polygon.EdgesTangent.col(e)
         //                                                     : -1.0 * polygon.EdgesTangent.col(e);
 
-        // const Eigen::Vector3d edge_origin = polygon.Vertices.col(e);
-        // const Eigen::Vector3d edge_tangent = polygon.EdgesTangent.col(e);
+        const Eigen::Vector3d edge_origin = polygon.Vertices.col(e);
+        const Eigen::Vector3d edge_tangent = polygon.EdgesTangent.col(e);
 
-        // const unsigned int num_quadrature_points = reference_quadrature.Points.cols();
-        // edge_quadrature.Points.resize(3, num_quadrature_points);
-        // for (unsigned int q = 0; q < num_quadrature_points; q++)
-        //     edge_quadrature.Points.col(q) = edge_origin + reference_quadrature.Points(0, q) * edge_tangent;
-
-        edge_quadrature.Points =
-            Gedim::MapTriangle::F(localSpace.MapData,
-                                  reference_element_data.BoundaryQuadrature.at(localSpace.EdgesDirection).
-                                  Quadrature.Points.middleCols(e * reference_element_data.reference_element_data_velocity.NumDofs1D,
-                                                               reference_element_data.reference_element_data_velocity.NumDofs1D));
+        const unsigned int num_quadrature_points = reference_quadrature.Points.cols();
+        edge_quadrature.Points.resize(3, num_quadrature_points);
+        for (unsigned int q = 0; q < num_quadrature_points; q++)
+            edge_quadrature.Points.col(q) = edge_origin + reference_quadrature.Points(0, q) * edge_tangent;
 
         edge_quadrature.Weights = reference_quadrature.Weights * std::abs(edge_length);
     }

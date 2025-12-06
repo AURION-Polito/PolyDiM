@@ -287,14 +287,11 @@ class FEM_Triangle_RT_MCC_2D_ReferenceElement final
 
         for(unsigned int e = 0; e < edge_directions.size(); e++)
         {
-            std::vector<bool> edge_dir(3);
-            for(unsigned int d = 0; d < 3; d++)
-                edge_dir[d] = edge_directions[e][d];
 
             reference_element_data.BoundaryQuadrature.insert({edge_directions[e], quadrature.PolygonEdgesQuadrature(reference_element_data.Quadrature.ReferenceSegmentQuadrature,
                                                                                                                     reference_element_data.TriangleVertices,
                                                                                                                     reference_element_data.EdgeLengths,
-                                                                                                                    edge_dir,
+                                                                                                                    {true, true, true},
                                                                                                                     reference_element_data.EdgeTangents,
                                                                                                                     reference_element_data.EdgeNormals)});
 

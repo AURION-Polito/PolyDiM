@@ -146,14 +146,6 @@ int main(int argc, char **argv)
     auto assembler_data =
         assembler.Assemble(config, mesh, meshGeometricData, meshDOFsInfo, dofs_data, count_dofs, reference_element_data, *test);
 
-    std::cout << "assembler_data.solutionNeumann" << std::endl;
-    std::cout << assembler_data.solutionNeumann << std::endl;
-
-    // std::cout << "assembler_data.neumannMatrixA" << std::endl;
-    // std::cout << assembler_data.neumannMatrixA << std::endl;
-
-    // std::cout << "assembler_data.globalMatrixA" << std::endl;
-    // std::cout << assembler_data.globalMatrixA << std::endl;
 
     Gedim::Profiler::StopTime("AssembleSystem");
     Gedim::Output::PrintStatusProgram("AssembleSystem");
@@ -183,9 +175,6 @@ int main(int argc, char **argv)
 
     auto post_process_data =
         assembler.PostProcessSolution(config, mesh, meshGeometricData, dofs_data, count_dofs, reference_element_data, assembler_data, *test);
-
-    std::cout << "assembler_data.solution" << std::endl;
-    std::cout << assembler_data.solution << std::endl;
 
     Gedim::Profiler::StopTime("ComputeErrors");
     Gedim::Output::PrintStatusProgram("ComputeErrors");

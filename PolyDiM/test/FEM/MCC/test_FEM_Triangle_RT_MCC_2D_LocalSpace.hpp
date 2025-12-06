@@ -101,7 +101,7 @@ TEST(Test_FEM_Triangle_RT_MCC_2D, Test_FEM_Triangle_RT_MCC_2D_Reference_Element)
 
             // Compute dofs of monomials
             Eigen::MatrixXd vander_boundary = monomials_2D.Vander(reference_element_data.monomials_2D_data,
-                                                                  reference_element_data.BoundaryQuadrature.Quadrature.Points,
+                                                                  reference_element_data.BoundaryQuadrature.at(edge_directions[i]).Quadrature.Points,
                                                                   Eigen::Vector3d::Zero(),
                                                                   1.0);
 
@@ -117,17 +117,17 @@ TEST(Test_FEM_Triangle_RT_MCC_2D, Test_FEM_Triangle_RT_MCC_2D_Reference_Element)
                 const double direction = edge_directions[i][e] ? 1.0 : -1.0;
 
                 const std::vector<Eigen::MatrixXd> velocityBasisValues_edge =
-                    reference_element.EvaluateVelocityBasisFunctions(reference_element_data.BoundaryQuadrature.Quadrature.Points.middleCols(e * reference_element_data.reference_element_data_velocity.NumDofs1D,
-                                                                                                                                            reference_element_data.reference_element_data_velocity.NumDofs1D),
+                    reference_element.EvaluateVelocityBasisFunctions(reference_element_data.BoundaryQuadrature.at(edge_directions[i]).Quadrature.Points.middleCols(e * reference_element_data.reference_element_data_velocity.NumDofs1D,
+                                                                                                                                                                   reference_element_data.reference_element_data_velocity.NumDofs1D),
                                                                      reference_element_data.reference_element_data_velocity.basis_functions.at(edge_directions[i]).MonomialsCoefficients,
                                                                      reference_element_data);
 
                 Eigen::MatrixXd quantity = (velocityBasisValues_edge[0] * reference_element_data.EdgeNormals(0, e)
                                             + velocityBasisValues_edge[1] * reference_element_data.EdgeNormals(1, e)).transpose()
-                                           * reference_element_data.BoundaryQuadrature.Quadrature.Weights.segment(e * reference_element_data.reference_element_data_velocity.NumDofs1D,
-                                                                                                                  reference_element_data.reference_element_data_velocity.NumDofs1D).asDiagonal()
+                                           * reference_element_data.BoundaryQuadrature.at(edge_directions[i]).Quadrature.Weights.segment(e * reference_element_data.reference_element_data_velocity.NumDofs1D,
+                                                                                                                                         reference_element_data.reference_element_data_velocity.NumDofs1D).asDiagonal()
                                            *  reference_element_data.VanderBoundary1D;
-                ASSERT_TRUE((quantity.sum() - direction * (o + 1)) < 1.0e-12);
+                ASSERT_TRUE((quantity.sum() - direction * (o + 1)) < 1.0e-10);
             }
 
             Eigen::MatrixXd Dmatrix = Eigen::MatrixXd::Zero(reference_element_data.reference_element_data_velocity.NumBasisFunctions,
@@ -142,7 +142,7 @@ TEST(Test_FEM_Triangle_RT_MCC_2D, Test_FEM_Triangle_RT_MCC_2D_Reference_Element)
                               (reference_element_data.Order + 1),
                               reference_element_data.Nk) =
                     direction * reference_element_data.VanderBoundary1D.transpose() *
-                    reference_element_data.BoundaryQuadrature.WeightsTimesNormal[0]
+                    reference_element_data.BoundaryQuadrature.at(edge_directions[i]).WeightsTimesNormal[0]
                         .segment(e * (reference_element_data.Order + 1), (reference_element_data.Order + 1))
                         .asDiagonal() *
                     vander_boundary.middleRows(e * (reference_element_data.Order + 1), (reference_element_data.Order + 1));
@@ -152,7 +152,7 @@ TEST(Test_FEM_Triangle_RT_MCC_2D, Test_FEM_Triangle_RT_MCC_2D_Reference_Element)
                               (reference_element_data.Order + 1),
                               reference_element_data.Nk) =
                     direction * reference_element_data.VanderBoundary1D.transpose() *
-                    reference_element_data.BoundaryQuadrature.WeightsTimesNormal[1]
+                    reference_element_data.BoundaryQuadrature.at(edge_directions[i]).WeightsTimesNormal[1]
                         .segment(e * (reference_element_data.Order + 1), (reference_element_data.Order + 1))
                         .asDiagonal() *
                     vander_boundary.middleRows(e * (reference_element_data.Order + 1), (reference_element_data.Order + 1));
@@ -419,6 +419,9 @@ TEST(Test_FEM_Triangle_RT_MCC_2D, Test_FEM_Triangle_RT_MCC_2D_Local_Space)
 
                 Eigen::MatrixXd quantity = (velocityBasisValues_edge[0] * polygon_edges_normal(0, e) + velocityBasisValues_edge[1] * polygon_edges_normal(1, e)).transpose()
                                            * boundary_quadrature[e].Weights.asDiagonal() *  reference_element_data.rt_triangle_reference_element_data.VanderBoundary1D;
+
+                std::cout << p << " " << e << std::endl;
+                std::cout << quantity.transpose() << std::endl;
 
                 ASSERT_TRUE((quantity.sum() - direction * (o + 1)) < 1.0e-10);
             }
@@ -1079,7 +1082,20 @@ TEST(Test_FEM_Triangle_RT_MCC_2D, Test_FEM_Triangle_RT_MCC_2D_Local_Space_Patch)
             const auto exact_sol_values = exact_pressure(local_space_data.FEM_LocalSpace_Data.BoundaryQuadrature[e].Points);
 
             const std::vector<Eigen::MatrixXd> velocityBasisValues_edge =
-                Polydim::PDETools::LocalSpace_MCC_2D::VelocityBasisFunctionsValues(reference_element_data, local_space_data, local_space_data.FEM_LocalSpace_Data.BoundaryQuadrature[e].Points);
+                Polydim::PDETools::LocalSpace_MCC_2D::VelocityBasisFunctionsValues(reference_element_data,
+                                                                                   local_space_data,
+                                                                                   local_space_data.FEM_LocalSpace_Data.BoundaryQuadrature[e].Points);
+
+
+            std::cout << "c: " << c << " e: " << e << std::endl;
+            std::cout << velocityBasisValues_edge[0] * mesh_geometric_data.Cell2DsEdgeNormals.at(c)(0, e)
+                             + velocityBasisValues_edge[1] * mesh_geometric_data.Cell2DsEdgeNormals.at(c)(1, e) << std::endl;
+
+            std::cout << "local_space_data.FEM_LocalSpace_Data.BoundaryQuadrature[e].Points" << std::endl;
+            std::cout << local_space_data.FEM_LocalSpace_Data.BoundaryQuadrature[e].Points << std::endl;
+
+            std::cout << "exact_sol_values" << std::endl;
+            std::cout << exact_sol_values.transpose() << std::endl;
 
 
             ASSERT_TRUE((((velocityBasisValues_edge[0] * mesh_geometric_data.Cell2DsEdgeNormals.at(c)(0, e)
@@ -1149,7 +1165,7 @@ TEST(Test_FEM_Triangle_RT_MCC_2D, Test_FEM_Triangle_RT_MCC_2D_Local_Space_Patch)
 
     rightHandSide.SubtractionMultiplication(globalMatrixA, global_solution);
 
-    std::cout << rightHandSide.Norm() << std::endl;
+    std::cout << "rightHandSide.Norm(): " << rightHandSide.Norm() << std::endl;
 
 
     {

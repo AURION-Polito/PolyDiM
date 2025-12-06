@@ -39,7 +39,9 @@ class FEM_Triangle_RT_MCC_2D_LocalSpace final
     Gedim::Quadrature::QuadratureData InternalQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,
                                                          const FEM_Triangle_RT_MCC_2D_LocalSpace_Data &localSpace) const;
 
-    std::vector<Gedim::Quadrature::QuadratureData> BoundaryQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,
+    std::vector<Gedim::Quadrature::QuadratureData> BoundaryQuadrature(const FEM_Triangle_RT_MCC_2D_ReferenceElement_Data &reference_element_data,
+                                                                      const FEM_Triangle_RT_MCC_2D_LocalSpace_Data &localSpace,
+                                                                      const Gedim::Quadrature::QuadratureData &reference_quadrature,
                                                                       const Polydim::FEM::MCC::FEM_MCC_2D_Polygon_Geometry &polygon) const;
 
 
@@ -93,7 +95,11 @@ public:
 
         Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_ReferenceElement reference_element;
 
-        return MapVelocityValues(local_space, reference_element.EvaluateVelocityBasisFunctions(referencePoints, reference_element_data.reference_element_data_velocity.basis_functions.at(local_space.EdgesDirection).MonomialsCoefficients, reference_element_data));
+        return MapVelocityValues(local_space,
+                                 reference_element.EvaluateVelocityBasisFunctions(referencePoints,
+                                                                                  reference_element_data.reference_element_data_velocity.
+                                                                                  basis_functions.at(local_space.EdgesDirection).MonomialsCoefficients,
+                                                                                  reference_element_data));
     }
 
     Eigen::MatrixXd ComputeVelocityBasisFunctionsDivergenceValues(
