@@ -40,7 +40,7 @@ FEM_Triangle_RT_MCC_2D_LocalSpace_Data FEM_Triangle_RT_MCC_2D_LocalSpace::Create
 
     localSpace.InternalQuadrature = InternalQuadrature(reference_element_data.Quadrature.ReferenceTriangleQuadrature, localSpace);
     localSpace.BoundaryQuadrature = BoundaryQuadrature(reference_element_data.Quadrature.ReferenceSegmentQuadrature, polygon);
-    for(unsigned int e = 0; e < 3; e++)
+    for (unsigned int e = 0; e < 3; e++)
         localSpace.EdgesDirection[e] = polygon.EdgesDirection[e];
 
     // std::cout << "local Space" << std::endl;
@@ -53,19 +53,23 @@ FEM_Triangle_RT_MCC_2D_LocalSpace_Data FEM_Triangle_RT_MCC_2D_LocalSpace::Create
     //                                             localSpace.BoundaryQuadrature[d].Points);
 
     //     std::cout << "d : " << d << " " << localSpace.EdgesDirection[d] <<  std::endl;
-    //     std::cout << (vel_values[0] * polygon.EdgesNormal(0, d) + vel_values[1] * polygon.EdgesNormal(1, d)).transpose()
+    //     std::cout << (vel_values[0] * polygon.EdgesNormal(0, d) + vel_values[1] * polygon.EdgesNormal(1,
+    //     d)).transpose()
     //                      * localSpace.BoundaryQuadrature[d].Weights.asDiagonal()
     //                      *  reference_element_data.VanderBoundary1D << std::endl;
 
     //     const auto ref_vel_values =
-    //         reference_element.EvaluateVelocityBasisFunctions(reference_element_data.BoundaryQuadrature.Quadrature.Points.middleCols(d * reference_element_data.reference_element_data_velocity.NumDofs1D,
+    //         reference_element.EvaluateVelocityBasisFunctions(reference_element_data.BoundaryQuadrature.Quadrature.Points.middleCols(d
+    //         * reference_element_data.reference_element_data_velocity.NumDofs1D,
     //                                                                                                                                 reference_element_data.reference_element_data_velocity.NumDofs1D),
-    //                                                          reference_element_data.reference_element_data_velocity.basis_functions.at(localSpace.EdgesDirection).MonomialsCoefficients ,
-    //                                                          reference_element_data);
+    //                                                          reference_element_data.reference_element_data_velocity.basis_functions.at(localSpace.EdgesDirection).MonomialsCoefficients
+    //                                                          , reference_element_data);
 
     //     std::cout << "d ref : " << d << std::endl;
-    //     std::cout << (ref_vel_values[0] * reference_element_data.EdgeNormals(0, d) + ref_vel_values[1] * reference_element_data.EdgeNormals(1, d)).transpose()
-    //                      * reference_element_data.BoundaryQuadrature.Quadrature.Weights.segment(d * reference_element_data.reference_element_data_velocity.NumDofs1D,
+    //     std::cout << (ref_vel_values[0] * reference_element_data.EdgeNormals(0, d) + ref_vel_values[1] *
+    //     reference_element_data.EdgeNormals(1, d)).transpose()
+    //                      * reference_element_data.BoundaryQuadrature.Quadrature.Weights.segment(d *
+    //                      reference_element_data.reference_element_data_velocity.NumDofs1D,
     //                                                                                             reference_element_data.reference_element_data_velocity.NumDofs1D).asDiagonal()
     //                      *  reference_element_data.VanderBoundary1D << std::endl;
     // }
@@ -99,7 +103,8 @@ std::vector<Gedim::Quadrature::QuadratureData> FEM_Triangle_RT_MCC_2D_LocalSpace
         auto &edge_quadrature = edges_quadrature.at(e);
         const bool edge_direction = polygon.EdgesDirection.at(e);
         const double edge_length = polygon.EdgesLength[e];
-        // const Eigen::Vector3d edge_origin = edge_direction ? polygon.Vertices.col(e) : polygon.Vertices.col((e + 1) % num_edges);
+        // const Eigen::Vector3d edge_origin = edge_direction ? polygon.Vertices.col(e) : polygon.Vertices.col((e + 1) %
+        // num_edges);
 
         // const Eigen::Vector3d edge_tangent = edge_direction ? +1.0 * polygon.EdgesTangent.col(e)
         //                                                     : -1.0 * polygon.EdgesTangent.col(e);

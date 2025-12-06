@@ -128,7 +128,6 @@ class FEM_MCC_2D_LocalSpace final
             throw std::runtime_error("not valid fem type");
         }
     }
-
 };
 } // namespace MCC
 } // namespace FEM

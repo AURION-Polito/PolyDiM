@@ -42,8 +42,7 @@ class FEM_Triangle_RT_MCC_2D_LocalSpace final
     std::vector<Gedim::Quadrature::QuadratureData> BoundaryQuadrature(const Gedim::Quadrature::QuadratureData &reference_quadrature,
                                                                       const Polydim::FEM::MCC::FEM_MCC_2D_Polygon_Geometry &polygon) const;
 
-
-public:
+  public:
     Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_LocalSpace_Data CreateLocalSpace(
         const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_ReferenceElement_Data &reference_element_data,
         const Polydim::FEM::MCC::FEM_MCC_2D_Polygon_Geometry &polygon) const;
@@ -59,16 +58,18 @@ public:
         const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_ReferenceElement_Data &reference_element_data,
         const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_LocalSpace_Data &local_space) const
     {
-        return MapVelocityValues(local_space,
-                                 reference_element_data.reference_element_data_velocity.basis_functions.at(local_space.EdgesDirection).ReferenceBasisFunctionValues);
+        return MapVelocityValues(
+            local_space,
+            reference_element_data.reference_element_data_velocity.basis_functions.at(local_space.EdgesDirection).ReferenceBasisFunctionValues);
     }
 
     Eigen::MatrixXd ComputeVelocityBasisFunctionsDivergenceValues(
         const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_ReferenceElement_Data &reference_element_data,
         const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_LocalSpace_Data &local_space) const
     {
-        return MapVelocityDivergenceValues(local_space,
-                                           reference_element_data.reference_element_data_velocity.basis_functions.at(local_space.EdgesDirection).ReferenceBasisFunctionDivergenceValues);
+        return MapVelocityDivergenceValues(
+            local_space,
+            reference_element_data.reference_element_data_velocity.basis_functions.at(local_space.EdgesDirection).ReferenceBasisFunctionDivergenceValues);
     }
 
     Eigen::MatrixXd ComputePressureBasisFunctionsValues(const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_ReferenceElement_Data &reference_element_data,
@@ -93,7 +94,12 @@ public:
 
         Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_ReferenceElement reference_element;
 
-        return MapVelocityValues(local_space, reference_element.EvaluateVelocityBasisFunctions(referencePoints, reference_element_data.reference_element_data_velocity.basis_functions.at(local_space.EdgesDirection).MonomialsCoefficients, reference_element_data));
+        return MapVelocityValues(
+            local_space,
+            reference_element.EvaluateVelocityBasisFunctions(
+                referencePoints,
+                reference_element_data.reference_element_data_velocity.basis_functions.at(local_space.EdgesDirection).MonomialsCoefficients,
+                reference_element_data));
     }
 
     Eigen::MatrixXd ComputeVelocityBasisFunctionsDivergenceValues(
@@ -108,7 +114,10 @@ public:
 
         return MapVelocityDivergenceValues(
             local_space,
-            reference_element.EvaluateVelocityBasisFunctionsDivergence(referencePoints, reference_element_data.reference_element_data_velocity.basis_functions.at(local_space.EdgesDirection).MonomialsCoefficients, reference_element_data));
+            reference_element.EvaluateVelocityBasisFunctionsDivergence(
+                referencePoints,
+                reference_element_data.reference_element_data_velocity.basis_functions.at(local_space.EdgesDirection).MonomialsCoefficients,
+                reference_element_data));
     }
 };
 } // namespace MCC
