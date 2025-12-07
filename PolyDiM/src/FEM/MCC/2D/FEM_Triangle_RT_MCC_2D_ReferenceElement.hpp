@@ -82,8 +82,8 @@ struct FEM_Triangle_RT_MCC_2D_ReferenceElement_Data final
     Eigen::Matrix3d EdgeNormals =
         (Eigen::Matrix3d() << 0.0, 1.0 / sqrt(2.0), -1.0, -1.0, 1.0 / sqrt(2.0), 0.0, 0.0, 0.0, 0.0).finished();
 
-    FEM_Triangle_RT_MCC_2D_Velocity_ReferenceElement_Data reference_element_data_velocity;
-    FEM_Triangle_RT_MCC_2D_Pressure_ReferenceElement_Data reference_element_data_pressure;
+    Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_Velocity_ReferenceElement_Data reference_element_data_velocity;
+    Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_Pressure_ReferenceElement_Data reference_element_data_pressure;
 };
 
 class FEM_Triangle_RT_MCC_2D_ReferenceElement final
