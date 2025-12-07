@@ -67,6 +67,20 @@ ReferenceElement_Data CreateReferenceElement(const MethodTypes &method_type, con
             Polydim::VEM::MCC::create_VEM_MCC_2D_pressure_local_space(reference_element_data.VEM_Type);
     }
     break;
+    case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::FEM_RT_MCC: {
+        switch (reference_element_data.Method_Type)
+        {
+        case MethodTypes::FEM_RT_MCC:
+            reference_element_data.FEM_Type = FEM::MCC::FEM_MCC_Types::RT;
+            break;
+        default:
+            throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
+        }
+
+        reference_element_data.FEM_ReferenceElement_Data =
+            reference_element_data.FEM_ReferenceElement.Create(method_order, reference_element_data.FEM_Type);
+    }
+    break;
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
     }
@@ -114,6 +128,20 @@ LocalSpace_Data CreateLocalSpace(const double &geometric_tolerance_1D,
             local_space_data.VEM_LocalSpace_Data_Velocity.Nk);
     }
     break;
+    case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::FEM_RT_MCC: {
+        local_space_data.FEM_Geometry = {geometric_tolerance_1D,
+                                         geometric_tolerance_2D,
+                                         mesh_geometric_data.Cell2DsVertices.at(cell2D_index),
+                                         mesh_geometric_data.Cell2DsEdgeLengths.at(cell2D_index),
+                                         mesh_geometric_data.Cell2DsEdgeDirections.at(cell2D_index),
+                                         mesh_geometric_data.Cell2DsEdgeTangents.at(cell2D_index),
+                                         mesh_geometric_data.Cell2DsEdgeNormals.at(cell2D_index)};
+
+        local_space_data.FEM_LocalSpace_Data =
+            reference_element_data.FEM_LocalSpace.CreateLocalSpace(reference_element_data.FEM_ReferenceElement_Data,
+                                                                   local_space_data.FEM_Geometry);
+    }
+    break;
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
     }
@@ -135,6 +163,32 @@ std::vector<Eigen::MatrixXd> VelocityBasisFunctionsValues(const ReferenceElement
         return reference_element_data.VEM_LocalSpace_Velocity->ComputeBasisFunctionsValues(local_space_data.VEM_LocalSpace_Data_Velocity,
                                                                                            projectionType);
     }
+    case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::FEM_RT_MCC: {
+        return reference_element_data.FEM_LocalSpace.ComputeVelocityBasisFunctionsValues(reference_element_data.FEM_ReferenceElement_Data,
+                                                                                         local_space_data.FEM_LocalSpace_Data);
+    }
+    default:
+        throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
+    }
+}
+//***************************************************************************
+std::vector<Eigen::MatrixXd> VelocityBasisFunctionsValues(const ReferenceElement_Data &reference_element_data,
+                                                          const LocalSpace_Data &local_space_data,
+                                                          const Eigen::MatrixXd &points,
+                                                          const Polydim::VEM::MCC::ProjectionTypes &projectionType)
+{
+    switch (reference_element_data.Method_Type)
+    {
+    case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::FEM_RT_MCC: {
+        return reference_element_data.FEM_LocalSpace.ComputeVelocityBasisFunctionsValues(reference_element_data.FEM_ReferenceElement_Data,
+                                                                                         local_space_data.FEM_LocalSpace_Data,
+                                                                                         points);
+    }
+    case MethodTypes::VEM_MCC:
+    case MethodTypes::VEM_MCC_Partial:
+    case MethodTypes::VEM_MCC_Ortho:
+    case MethodTypes::VEM_MCC_EdgeOrtho:
+    case MethodTypes::VEM_MCC_Ortho_EdgeOrtho:
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
     }
@@ -150,6 +204,10 @@ Eigen::MatrixXd PressureBasisFunctionsValues(const ReferenceElement_Data &refere
     case MethodTypes::VEM_MCC_EdgeOrtho:
     case MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
         return reference_element_data.VEM_LocalSpace_Pressure->ComputeBasisFunctionsValues(local_space_data.VEM_LocalSpace_Data_Pressure);
+    }
+    case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::FEM_RT_MCC: {
+        return reference_element_data.FEM_LocalSpace.ComputePressureBasisFunctionsValues(reference_element_data.FEM_ReferenceElement_Data,
+                                                                                         local_space_data.FEM_LocalSpace_Data);
     }
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
@@ -168,6 +226,11 @@ Eigen::MatrixXd VelocityBasisFunctionsDivergenceValues(const ReferenceElement_Da
     case MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
         return reference_element_data.VEM_LocalSpace_Velocity->ComputeBasisFunctionsDivergenceValues(
             local_space_data.VEM_LocalSpace_Data_Velocity);
+    }
+    case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::FEM_RT_MCC: {
+        return reference_element_data.FEM_LocalSpace.ComputeVelocityBasisFunctionsDivergenceValues(
+            reference_element_data.FEM_ReferenceElement_Data,
+            local_space_data.FEM_LocalSpace_Data);
     }
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
@@ -225,6 +288,20 @@ Eigen::MatrixXd VelocityBasisFunctionsValuesOnEdges(const unsigned int &edge_loc
 
         return (1.0 / local_space_data.VEM_Geometry.EdgesLength(edge_local_index)) * direction * VanderBoundary1D;
     }
+    case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::FEM_RT_MCC: {
+        const std::vector<Eigen::MatrixXd> velocityBasisValues_edge = Polydim::PDETools::LocalSpace_MCC_2D::VelocityBasisFunctionsValues(
+            reference_element_data,
+            local_space_data,
+            local_space_data.FEM_LocalSpace_Data.BoundaryQuadrature[edge_local_index].Points);
+
+        return (velocityBasisValues_edge[0] * local_space_data.FEM_Geometry.EdgesNormal(0, edge_local_index) +
+                velocityBasisValues_edge[1] * local_space_data.FEM_Geometry.EdgesNormal(1, edge_local_index))
+            .middleCols(edge_local_index * reference_element_data.FEM_ReferenceElement_Data
+                                               .rt_triangle_reference_element_data.reference_element_data_velocity.NumDofs1D,
+                        reference_element_data.FEM_ReferenceElement_Data.rt_triangle_reference_element_data
+                            .reference_element_data_velocity.NumDofs1D);
+    }
+    break;
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
     }
@@ -252,6 +329,9 @@ Gedim::Quadrature::QuadratureData EdgeQuadrature(const ReferenceElement_Data &re
             num_quadrature_points);
         return quadrature;
     }
+    case MethodTypes::FEM_RT_MCC: {
+        return local_space_data.FEM_LocalSpace_Data.BoundaryQuadrature.at(edge_local_index);
+    }
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
     }
@@ -269,6 +349,9 @@ Gedim::Quadrature::QuadratureData InternalQuadrature(const ReferenceElement_Data
     case MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
         return local_space_data.VEM_LocalSpace_Data_Velocity.InternalQuadrature;
     }
+    case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::FEM_RT_MCC: {
+        return local_space_data.FEM_LocalSpace_Data.InternalQuadrature;
+    }
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
     }
@@ -284,6 +367,9 @@ unsigned int VelocitySize(const ReferenceElement_Data &reference_element_data, c
     case MethodTypes::VEM_MCC_EdgeOrtho:
     case MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
         return local_space_data.VEM_LocalSpace_Data_Velocity.NumBasisFunctions;
+    }
+    case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::FEM_RT_MCC: {
+        return local_space_data.FEM_LocalSpace_Data.NumVelocityBasisFunctions;
     }
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
@@ -303,6 +389,10 @@ Eigen::MatrixXd StabilizationMatrix(const ReferenceElement_Data &reference_eleme
     case MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
         return reference_element_data.VEM_LocalSpace_Velocity->ComputeDofiDofiStabilizationMatrix(local_space_data.VEM_LocalSpace_Data_Velocity,
                                                                                                   projectionType);
+    }
+    case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::FEM_RT_MCC: {
+        return Eigen::MatrixXd::Zero(local_space_data.FEM_LocalSpace_Data.NumVelocityBasisFunctions,
+                                     local_space_data.FEM_LocalSpace_Data.NumVelocityBasisFunctions);
     }
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
@@ -339,6 +429,10 @@ Gedim::Quadrature::QuadratureData EdgeDofsCoordinates(const ReferenceElement_Dat
             num_quadrature_points);
         return quadrature;
     }
+    case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::FEM_RT_MCC: {
+        return local_space_data.FEM_LocalSpace_Data.BoundaryQuadrature.at(edge_local_index);
+    }
+    break;
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
     }
@@ -396,6 +490,15 @@ Eigen::VectorXd EdgeDofs(const ReferenceElement_Data &reference_element_data,
 
         return direction * VanderBoundary1D.transpose() * edge_dofs_coordinates.Weights.asDiagonal() * strong_values;
     }
+    case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::FEM_RT_MCC: {
+
+        const double direction = local_space_data.FEM_Geometry.EdgesDirection[edge_local_index] ? 1.0 : -1.0;
+
+        return direction *
+               reference_element_data.FEM_ReferenceElement_Data.rt_triangle_reference_element_data.VanderBoundary1D.transpose() *
+               edge_dofs_coordinates.Weights.asDiagonal() * strong_values;
+    }
+    break;
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
     }
@@ -421,6 +524,24 @@ std::array<std::array<unsigned int, 4>, 2> ReferenceElementNumDOFs(const Referen
                      0};
         return result;
     }
+    case MethodTypes::FEM_RT_MCC: {
+        std::array<std::array<unsigned int, 4>, 2> result;
+        result[0] = {reference_element_data.FEM_ReferenceElement_Data.rt_triangle_reference_element_data
+                         .reference_element_data_velocity.NumDofs0D,
+                     reference_element_data.FEM_ReferenceElement_Data.rt_triangle_reference_element_data
+                         .reference_element_data_velocity.NumDofs1D,
+                     reference_element_data.FEM_ReferenceElement_Data.rt_triangle_reference_element_data
+                         .reference_element_data_velocity.NumDofs2D,
+                     0};
+        result[1] = {reference_element_data.FEM_ReferenceElement_Data.rt_triangle_reference_element_data
+                         .reference_element_data_pressure.NumDofs0D,
+                     reference_element_data.FEM_ReferenceElement_Data.rt_triangle_reference_element_data
+                         .reference_element_data_pressure.NumDofs1D,
+                     reference_element_data.FEM_ReferenceElement_Data.rt_triangle_reference_element_data
+                         .reference_element_data_pressure.NumDofs2D,
+                     0};
+        return result;
+    }
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
     }
@@ -439,16 +560,24 @@ Performance_Data ComputePerformance(const ReferenceElement_Data &reference_eleme
     case MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
         Polydim::VEM::MCC::VEM_MCC_PerformanceAnalysis performanceAnalysis;
 
-        performance.VEM_Performance_Data.Analysis =
+        performance.Performance_Data.VEM_Analysis =
             performanceAnalysis.Compute(Polydim::Utilities::Monomials_2D(),
                                         reference_element_data.VEM_ReferenceElement_Data_Velocity.MonomialsKp1,
                                         *reference_element_data.VEM_LocalSpace_Velocity,
                                         local_space_data.VEM_LocalSpace_Data_Velocity);
 
-        performance.VEM_Performance_Data.NumInternalQuadraturePoints =
+        performance.Performance_Data.NumInternalQuadraturePoints =
             local_space_data.VEM_LocalSpace_Data_Velocity.InternalQuadrature.Weights.size();
-        performance.VEM_Performance_Data.NumBoundaryQuadraturePoints =
+        performance.Performance_Data.NumBoundaryQuadraturePoints =
             local_space_data.VEM_LocalSpace_Data_Velocity.BoundaryQuadrature.Quadrature.Weights.size();
+    }
+    break;
+    case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::FEM_RT_MCC: {
+        performance.Performance_Data.NumInternalQuadraturePoints =
+            local_space_data.FEM_LocalSpace_Data.InternalQuadrature.Weights.size();
+        performance.Performance_Data.NumBoundaryQuadraturePoints =
+            local_space_data.FEM_LocalSpace_Data.BoundaryQuadrature.at(0).Weights.size() *
+            local_space_data.FEM_Geometry.Vertices.cols();
     }
     break;
     default:

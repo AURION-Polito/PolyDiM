@@ -30,8 +30,8 @@ enum struct Test_Types
 {
     Patch_Test = 1,
     Poisson_Problem = 2 /// Test 1 in S. Berrone, S. Scialò, G. Teora. "The mixed virtual element discretization for
-                        /// highly-anisotropic problems: the role of the boundary degrees of freedom". Mathematics in
-                        /// Engineering, 2023, 5(6): 1-32. doi: 10.3934/mine.2023099
+    /// highly-anisotropic problems: the role of the boundary degrees of freedom". Mathematics in
+    /// Engineering, 2023, 5(6): 1-32. doi: 10.3934/mine.2023099
 };
 // ***************************************************************************
 struct I_Test
@@ -71,6 +71,7 @@ struct Patch_Test final : public I_Test
 
     std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info() const
     {
+
         return {{0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
                 {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
                 {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
@@ -98,7 +99,7 @@ struct Patch_Test final : public I_Test
 
     Eigen::VectorXd reaction_term(const Eigen::MatrixXd &points) const
     {
-        return points.row(0).array() * points.row(1).array();
+        return points.row(1).array() * points.row(0).array();
     }
 
     std::array<Eigen::VectorXd, 9> diffusion_term(const Eigen::MatrixXd &points) const
@@ -182,6 +183,12 @@ struct Patch_Test final : public I_Test
         {
         case 1:
             return 2.0 * derivatives + solution;
+        case 2:
+            return -1.0 * derivatives + solution;
+        case 3:
+            return -2.0 * derivatives - solution;
+        case 4:
+            return 1.0 * derivatives - solution;
         default:
             throw std::runtime_error("Unknown marker");
         }

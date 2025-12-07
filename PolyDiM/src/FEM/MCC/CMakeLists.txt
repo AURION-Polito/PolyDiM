@@ -1,5 +1,4 @@
-add_subdirectory(PCC)
-add_subdirectory(MCC)
+add_subdirectory(2D)
 
 list(APPEND polydim_src_includes ${CMAKE_CURRENT_SOURCE_DIR})
 

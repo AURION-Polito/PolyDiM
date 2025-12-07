@@ -384,6 +384,86 @@ void export_velocity_dofs(const Polydim::examples::Elliptic_MCC_2D::Program_conf
     }
 }
 // ***************************************************************************
+void export_performance(const Polydim::examples::Elliptic_MCC_2D::Program_configuration &config,
+                        const Assembler::Performance_Data &performance_data,
+                        const std::string &exportFolder)
+{
+    {
+        const char separator = ',';
+        std::ofstream exporter;
+        const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
+        const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
+        exporter.open(exportFolder + "/Cell2Ds_MethodPerformance_" + std::to_string(TEST_ID) + "_" +
+                      std::to_string(Method_ID) + +"_" + std::to_string(config.MethodOrder()) + ".csv");
+        exporter.precision(16);
+
+        if (exporter.fail())
+            throw std::runtime_error("Error on mesh cell2Ds file");
+
+        switch (config.MethodType())
+        {
+        case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::FEM_RT_MCC: {
+
+            exporter << "Cell2D_Index" << separator;
+            exporter << "NumQuadPoints_Boundary" << separator;
+            exporter << "NumQuadPoints_Internal" << std::endl;
+
+            for (unsigned int v = 0; v < performance_data.Cell2DsPerformance.size(); v++)
+            {
+                const auto &cell2DPerformance = performance_data.Cell2DsPerformance[v].Performance_Data.VEM_Analysis;
+
+                exporter << std::scientific << v << separator;
+                exporter << std::scientific
+                         << performance_data.Cell2DsPerformance[v].Performance_Data.NumBoundaryQuadraturePoints << separator;
+                exporter << std::scientific
+                         << performance_data.Cell2DsPerformance[v].Performance_Data.NumInternalQuadraturePoints << std::endl;
+            }
+        }
+        break;
+        case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::VEM_MCC:
+        case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::VEM_MCC_Partial:
+        case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::VEM_MCC_Ortho:
+        case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::VEM_MCC_EdgeOrtho:
+        case Polydim::PDETools::LocalSpace_MCC_2D::MethodTypes::VEM_MCC_Ortho_EdgeOrtho: {
+
+            exporter << "Cell2D_Index" << separator;
+            exporter << "NumQuadPoints_Boundary" << separator;
+            exporter << "NumQuadPoints_Internal" << separator;
+            exporter << "Vmatrix_Cond" << separator;
+            exporter << "Hmatrix_Cond" << separator;
+            exporter << "Pi0k_Cond" << separator;
+            exporter << "Gmatrix_Cond" << separator;
+            exporter << "Pi0k_Error" << separator;
+            exporter << "GBD_Error" << separator;
+            exporter << "Stab_Error" << std::endl;
+
+            for (unsigned int v = 0; v < performance_data.Cell2DsPerformance.size(); v++)
+            {
+                const auto &cell2DPerformance = performance_data.Cell2DsPerformance[v].Performance_Data.VEM_Analysis;
+
+                exporter << std::scientific << v << separator;
+                exporter << std::scientific
+                         << performance_data.Cell2DsPerformance[v].Performance_Data.NumBoundaryQuadraturePoints << separator;
+                exporter << std::scientific
+                         << performance_data.Cell2DsPerformance[v].Performance_Data.NumInternalQuadraturePoints << separator;
+                exporter << std::scientific << cell2DPerformance.VmatrixConditioning << separator;
+                exporter << std::scientific << cell2DPerformance.HmatrixConditioning << separator;
+                exporter << std::scientific << cell2DPerformance.Pi0kConditioning << separator;
+                exporter << std::scientific << cell2DPerformance.GmatrixConditioning << separator;
+                exporter << std::scientific << cell2DPerformance.ErrorPi0k << separator;
+                exporter << std::scientific << cell2DPerformance.ErrorGBD << separator;
+                exporter << std::scientific << cell2DPerformance.ErrorStabilization << std::endl;
+            }
+        }
+        break;
+        default:
+            throw std::runtime_error("not valid method");
+        }
+
+        exporter.close();
+    }
+}
+// ***************************************************************************
 } // namespace program_utilities
 } // namespace Elliptic_MCC_2D
 } // namespace examples

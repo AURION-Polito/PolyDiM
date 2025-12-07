@@ -106,8 +106,8 @@ int main(int argc, char **argv)
 
     /// Initialize Discrete Space
 
-    Gedim::Output::PrintGenericMessage("CreateVEMSpace of order " + std::to_string(config.MethodOrder()) + " and DOFs...", true);
-    Gedim::Profiler::StartTime("CreateVEMSpace");
+    Gedim::Output::PrintGenericMessage("Create Space of order " + std::to_string(config.MethodOrder()) + " and DOFs...", true);
+    Gedim::Profiler::StartTime("CreateSpace");
 
     const auto reference_element_data =
         Polydim::PDETools::LocalSpace_MCC_2D::CreateReferenceElement(config.MethodType(), config.MethodOrder());
@@ -130,14 +130,14 @@ int main(int argc, char **argv)
 
     const auto count_dofs = Polydim::PDETools::Assembler_Utilities::count_dofs(dofs_data);
 
-    Gedim::Output::PrintGenericMessage("VEM Space with " + std::to_string(count_dofs.num_total_dofs) + " DOFs and " +
+    Gedim::Output::PrintGenericMessage("Space with " + std::to_string(count_dofs.num_total_dofs) + " DOFs and " +
                                            std::to_string(count_dofs.num_total_strong) + " STRONGs",
                                        true);
 
-    Gedim::Profiler::StopTime("CreateVEMSpace");
-    Gedim::Output::PrintStatusProgram("CreateVEMSpace");
+    Gedim::Profiler::StopTime("CreateSpace");
+    Gedim::Output::PrintStatusProgram("CreateSpace");
 
-    Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " +
+    Gedim::Output::PrintGenericMessage("Assemble System Method Type " +
                                            std::to_string(static_cast<unsigned int>(config.MethodType())) + "...",
                                        true);
     Gedim::Profiler::StartTime("AssembleSystem");
@@ -194,58 +194,17 @@ int main(int argc, char **argv)
     Gedim::Profiler::StopTime("ExportSolution");
     Gedim::Output::PrintStatusProgram("ExportSolution");
 
-    Gedim::Output::PrintGenericMessage("ComputeVEMPerformance...", true);
-    Gedim::Profiler::StartTime("ComputeVEMPerformance");
+    Gedim::Output::PrintGenericMessage("ComputeMethodPerformance...", true);
+    Gedim::Profiler::StartTime("ComputeMethodPerformance");
 
     if (config.ComputeMethodPerformance())
     {
-        const auto vemPerformance = assembler.ComputePerformance(config, mesh, meshGeometricData, reference_element_data);
-        {
-            const char separator = ',';
-            /// Export Cell2Ds VEM performance
-            std::ofstream exporter;
-
-            exporter.open(exportSolutionFolder + "/Cell2Ds_VEMPerformance.csv");
-            exporter.precision(16);
-
-            if (exporter.fail())
-                throw std::runtime_error("Error on mesh cell2Ds file");
-
-            exporter << "Cell2D_Index" << separator;
-            exporter << "NumQuadPoints_Boundary" << separator;
-            exporter << "NumQuadPoints_Internal" << separator;
-            exporter << "Vmatrix_Cond" << separator;
-            exporter << "Hmatrix_Cond" << separator;
-            exporter << "Pi0k_Cond" << separator;
-            exporter << "Gmatrix_Cond" << separator;
-            exporter << "Pi0k_Error" << separator;
-            exporter << "GBD_Error" << separator;
-            exporter << "Stab_Error" << std::endl;
-
-            for (unsigned int v = 0; v < vemPerformance.Cell2DsPerformance.size(); v++)
-            {
-                const auto &cell2DPerformance = vemPerformance.Cell2DsPerformance[v].VEM_Performance_Data.Analysis;
-
-                exporter << std::scientific << v << separator;
-                exporter << std::scientific << vemPerformance.Cell2DsPerformance[v].VEM_Performance_Data.NumBoundaryQuadraturePoints
-                         << separator;
-                exporter << std::scientific << vemPerformance.Cell2DsPerformance[v].VEM_Performance_Data.NumInternalQuadraturePoints
-                         << separator;
-                exporter << std::scientific << cell2DPerformance.VmatrixConditioning << separator;
-                exporter << std::scientific << cell2DPerformance.HmatrixConditioning << separator;
-                exporter << std::scientific << cell2DPerformance.Pi0kConditioning << separator;
-                exporter << std::scientific << cell2DPerformance.GmatrixConditioning << separator;
-                exporter << std::scientific << cell2DPerformance.ErrorPi0k << separator;
-                exporter << std::scientific << cell2DPerformance.ErrorGBD << separator;
-                exporter << std::scientific << cell2DPerformance.ErrorStabilization << std::endl;
-            }
-
-            exporter.close();
-        }
+        const auto performance_data = assembler.ComputePerformance(config, mesh, meshGeometricData, reference_element_data);
+        Polydim::examples::Elliptic_MCC_2D::program_utilities::export_performance(config, performance_data, exportCsvFolder);
     }
 
-    Gedim::Profiler::StopTime("ComputeVEMPerformance");
-    Gedim::Output::PrintStatusProgram("ComputeVEMPerformance");
+    Gedim::Profiler::StopTime("ComputeMethodPerformance");
+    Gedim::Output::PrintStatusProgram("ComputeMethodPerformance");
 
     return 0;
 }
