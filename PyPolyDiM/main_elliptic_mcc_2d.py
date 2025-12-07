@@ -14,7 +14,7 @@ def main():
 
     parser =argparse.ArgumentParser()
     parser.add_argument('-order','--method-order',dest='method_order', default=0, type=int, help="Method order: 0, 1, 2, ...")
-    parser.add_argument('-method','--method-type',dest='method_type', default=1, type=int, help="Method type: 1 - VEM, 3 - VEM Ortho")
+    parser.add_argument('-method','--method-type',dest='method_type', default=6, type=int, help="Method type: 1 - VEM, 3 - VEM Ortho, 6 - FEM_RT")
     parser.add_argument('-test', '--test-id', dest='test_id', default=1, type=int, help="Test type: 1 - Elliptic")
     parser.add_argument('-mesh', '--mesh-type', dest='mesh_type', default=0, type=int,
                         help="Mesh type: 0 - Triangular; 1 - Minimal; 2 - Polygonal; 3 - OFF Importer; 4 - CsvImporter (; separator); 5 - Squared ")

@@ -107,8 +107,8 @@ dirpath_mcc_2d = "./Export/Export_MCC_2D"
 if os.path.exists(dirpath_mcc_2d) and os.path.isdir(dirpath_mcc_2d):
     shutil.rmtree(dirpath_mcc_2d)
 
-execute_test_pcc = False
-execute_test_pcc_3d = False
+execute_test_pcc = True
+execute_test_pcc_3d = True
 execute_test_mcc = True
 
 # Test PCC 2D
@@ -177,7 +177,7 @@ if execute_test_mcc:
     tol = 1.0e-12
     test_type = 1
     method_orders = [0, 1, 2]
-    method_types = [1, 3]
+    method_types = [1, 3, 6]
     mesh_types = [0]
     for mesh_type in mesh_types:
         for method_type in method_types:
