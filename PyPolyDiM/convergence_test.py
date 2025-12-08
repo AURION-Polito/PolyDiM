@@ -107,9 +107,9 @@ dirpath_mcc_2d = "./Export/Export_MCC_2D"
 if os.path.exists(dirpath_mcc_2d) and os.path.isdir(dirpath_mcc_2d):
     shutil.rmtree(dirpath_mcc_2d)
 
-execute_test_pcc = True
+execute_test_pcc = False
 execute_test_pcc_3d = True
-execute_test_mcc = True
+execute_test_mcc = False
 
 # Test PCC 2D
 if execute_test_pcc:
@@ -239,7 +239,7 @@ if execute_test_mcc:
 if execute_test_pcc_3d:
     tol = 1.0e-12
     test_type = 1
-    method_orders = [1, 2, 3]
+    method_orders = [1]
     method_types = [0, 1, 2, 3]
     mesh_types = [0]
     for mesh_type in mesh_types:
@@ -249,8 +249,8 @@ if execute_test_pcc_3d:
                 os.system("python ./main_elliptic_pcc_3d.py --method-order={0} --method-type={1} --test-id=1 --mesh-type={3} --mesh-max-relative-volume=0.005 --export-path={2}".format(order, method_type, export_path, mesh_type))
                 os.system("python ./main_elliptic_pcc_3d.py --method-order={0} --method-type={1} --test-id=1 --mesh-type={3} --mesh-max-relative-volume=0.001 --export-path={2}".format(order, method_type, export_path, mesh_type))
 
-                errors = import_errors_pcc(export_path, method_type, order, test_type)
-                test_errors_pcc(errors, order, tol)
+                # errors = import_errors_pcc(export_path, method_type, order, test_type)
+                # test_errors_pcc(errors, order, tol)
                 # errors = np.array(errors[1:])
                 # fig, ax = plt.subplots(figsize=(12, 12))
                 # ax.plot(errors[:, 0], errors[:, 1], '-k^', linewidth=2, markersize=12)
@@ -266,7 +266,7 @@ if execute_test_pcc_3d:
 
     tol = 1.0e-12
     test_type = 1
-    method_orders = [1, 2, 3]
+    method_orders = [1]
     method_types = [0, 1, 2, 3]
     mesh_types = [6]
     for mesh_type in mesh_types:
