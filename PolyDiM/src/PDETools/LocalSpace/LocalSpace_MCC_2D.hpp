@@ -133,6 +133,8 @@ Gedim::Quadrature::QuadratureData EdgeQuadrature(const Polydim::PDETools::LocalS
                                                  const Polydim::PDETools::LocalSpace_MCC_2D::LocalSpace_Data &local_space_data,
                                                  const unsigned int edge_local_index);
 
+Gedim::Quadrature::QuadratureData EdgeReferenceQuadrature(const ReferenceElement_Data &reference_element_data);
+
 Gedim::Quadrature::QuadratureData InternalQuadrature(const Polydim::PDETools::LocalSpace_MCC_2D::ReferenceElement_Data &reference_element_data,
                                                      const Polydim::PDETools::LocalSpace_MCC_2D::LocalSpace_Data &local_space_data);
 
