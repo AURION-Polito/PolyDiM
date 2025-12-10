@@ -189,6 +189,10 @@ std::vector<Eigen::MatrixXd> VelocityBasisFunctionsValues(const ReferenceElement
     case MethodTypes::VEM_MCC_Ortho:
     case MethodTypes::VEM_MCC_EdgeOrtho:
     case MethodTypes::VEM_MCC_Ortho_EdgeOrtho:
+        return reference_element_data.VEM_LocalSpace_Velocity->ComputeBasisFunctionsValues(reference_element_data.VEM_ReferenceElement_Data_Velocity,
+                                                                                           local_space_data.VEM_LocalSpace_Data_Velocity,
+                                                                                           projectionType,
+                                                                                           points);
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
     }

@@ -28,7 +28,7 @@ namespace MCC
 /// secondMixed \cite DaVeiga2016 \cite Teora2023 \cite Teora2024_mixed.
 class I_VEM_MCC_2D_Velocity_LocalSpace
 {
-  public:
+public:
     /// \brief Class destructor.
     virtual ~I_VEM_MCC_2D_Velocity_LocalSpace()
     {
@@ -55,6 +55,11 @@ class I_VEM_MCC_2D_Velocity_LocalSpace
     /// each column.
     virtual std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace,
                                                                      const ProjectionTypes &projectionType) const = 0;
+
+    virtual std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+                                                                     const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace,
+                                                                     const Polydim::VEM::MCC::ProjectionTypes &projectionType,
+                                                                     const Eigen::MatrixXd &points) const = 0;
 
     /// \brief Compute values of the divergence of basis functions at default quadrature points.
     /// \param localSpace Data of the local space.

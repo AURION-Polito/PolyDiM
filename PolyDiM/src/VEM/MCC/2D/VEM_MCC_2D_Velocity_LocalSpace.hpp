@@ -31,7 +31,7 @@ namespace MCC
 /// secondMixed \cite DaVeiga2016.
 class VEM_MCC_2D_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_LocalSpace
 {
-  private:
+private:
     Polydim::VEM::MCC::VEM_MCC_Utilities utilities;
     Polydim::Utilities::Monomials_2D monomials;
 
@@ -76,7 +76,7 @@ class VEM_MCC_2D_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_LocalS
                                                                   localSpace.Gmatrix);
     };
 
-  public:
+public:
     Polydim::VEM::MCC::VEM_MCC_2D_Velocity_LocalSpace_Data CreateLocalSpace(
         const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
         const Polydim::VEM::MCC::VEM_MCC_2D_Polygon_Geometry &polygon) const;
@@ -105,6 +105,51 @@ class VEM_MCC_2D_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_LocalS
         }
     }
 
+    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
+                                                                    const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace,
+                                                                    const Polydim::VEM::MCC::ProjectionTypes &projectionType,
+                                                                    const Eigen::MatrixXd &points) const
+    {
+        switch(projectionType)
+        {
+
+        case ProjectionTypes::Pi0k:
+        {
+            const unsigned int numQuadrature = points.cols();
+
+            const Eigen::MatrixXd VanderInternalKp1 = monomials.Vander(reference_element_data.MonomialsKp1,
+                                                                       points,
+                                                                       localSpace.Centroid,
+                                                                       localSpace.Diameter);
+            const Eigen::MatrixXd VanderInternal = VanderInternalKp1.leftCols(localSpace.Nk);
+            Eigen::MatrixXd VanderInternal2k(localSpace.Dimension * localSpace.Nk, localSpace.Dimension * points.cols());
+            VanderInternal2k << VanderInternal.transpose(),
+                Eigen::MatrixXd::Zero(VanderInternal.cols(), VanderInternal.rows()),
+                Eigen::MatrixXd::Zero(VanderInternal.cols(), VanderInternal.rows()),
+                localSpace.VanderInternal.transpose();
+
+            const Eigen::MatrixXd GkNablaVanderInternal = localSpace.TkNabla * VanderInternal2k;
+            const Eigen::MatrixXd GkBigOPlusVanderInternal = localSpace.TkBigOPlus * VanderInternal2k;
+
+            Eigen::MatrixXd GkVanderInternal = Eigen::MatrixXd::Zero(localSpace.Dimension * localSpace.Nk,
+                                                                     localSpace.Dimension * numQuadrature);
+
+            GkVanderInternal << GkNablaVanderInternal, GkBigOPlusVanderInternal;
+
+            const Eigen::MatrixXd temp = GkVanderInternal.transpose() * localSpace.Pi0k;
+            std::vector<Eigen::MatrixXd> result(localSpace.Dimension, Eigen::MatrixXd::Zero(localSpace.Dimension, localSpace.Pi0k.cols()));
+
+            for (unsigned int d = 0; d < localSpace.Dimension; d++)
+                result[d] = temp.middleRows(numQuadrature * d, numQuadrature);
+
+            return result;
+        }
+        default:
+            throw std::runtime_error("not valid projector type");
+        }
+
+    }
+
     inline Eigen::MatrixXd ComputeBasisFunctionsDivergenceValues(const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const
     {
         return localSpace.VanderInternal * localSpace.Vmatrix;
@@ -120,7 +165,7 @@ class VEM_MCC_2D_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_LocalS
                                                     const Eigen::MatrixXd &points) const
     {
         return monomials.Vander(reference_element_data.MonomialsKp1, points, localSpace.Centroid, localSpace.Diameter)
-            .leftCols(localSpace.Nk);
+        .leftCols(localSpace.Nk);
     }
 };
 } // namespace MCC

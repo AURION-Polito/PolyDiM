@@ -106,6 +106,14 @@ class VEM_MCC_2D_Ortho_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_
         }
     }
 
+    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_ReferenceElement_Data &,
+                                                                    const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_LocalSpace_Data &,
+                                                                    const Polydim::VEM::MCC::ProjectionTypes &,
+                                                                    const Eigen::MatrixXd &) const
+    {
+        throw std::runtime_error("not implemented method");
+    }
+
     inline Eigen::MatrixXd ComputeBasisFunctionsDivergenceValues(const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace) const
     {
         return localSpace.VanderInternal * localSpace.Vmatrix;
