@@ -126,7 +126,7 @@ public:
             VanderInternal2k << VanderInternal.transpose(),
                 Eigen::MatrixXd::Zero(VanderInternal.cols(), VanderInternal.rows()),
                 Eigen::MatrixXd::Zero(VanderInternal.cols(), VanderInternal.rows()),
-                localSpace.VanderInternal.transpose();
+                VanderInternal.transpose();
 
             const Eigen::MatrixXd GkNablaVanderInternal = localSpace.TkNabla * VanderInternal2k;
             const Eigen::MatrixXd GkBigOPlusVanderInternal = localSpace.TkBigOPlus * VanderInternal2k;
