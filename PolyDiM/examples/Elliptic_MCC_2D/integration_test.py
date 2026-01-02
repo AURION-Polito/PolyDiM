@@ -86,7 +86,7 @@ def import_errors(export_path, vem_type, vem_order, test_type):
     return errors
 
 
-def test_errors(errors,
+def check_errors(errors,
                 vem_order,
                 vem_type,
                 tol):
@@ -117,8 +117,7 @@ if __name__ == "__main__":
 
     remove_folder = False
 
-    vem_types = [1, 2, 3, 4, 5]
-    vem_orders = [0, 1, 2, 3]
+
     export_folder = "integration_tests"
     os.system("rm -rf " + os.path.join(program_folder, export_folder))
     tol = 1.0e-12
@@ -126,8 +125,10 @@ if __name__ == "__main__":
     print("RUN TESTS...")
 
     test_type = 1
-    mesh_generator = 1
-    mesh_max_area = 0.0
+    mesh_generator = 0
+    mesh_max_area = 0.25
+    vem_types = [6]
+    vem_orders = [0, 1, 2, 3]
     for vem_type in vem_types:
         for vem_order in vem_orders:
             export_path = run_program(program_folder,
@@ -140,7 +141,31 @@ if __name__ == "__main__":
                                       0,
                                       mesh_max_area=mesh_max_area)
             errors = import_errors(export_path, vem_type, vem_order, test_type)
-            test_errors(errors,
+            check_errors(errors,
+                        vem_order,
+                        vem_type,
+                        tol)
+            if remove_folder:
+                os.system("rm -rf " + os.path.join(program_folder, export_path))
+
+    test_type = 1
+    mesh_generator = 1
+    mesh_max_area = 0.0
+    vem_types = [1, 2, 3, 4, 5]
+    vem_orders = [0, 1, 2, 3]
+    for vem_type in vem_types:
+        for vem_order in vem_orders:
+            export_path = run_program(program_folder,
+                                      program_path,
+                                      "Run_MG{0}".format(mesh_generator),
+                                      vem_type,
+                                      vem_order,
+                                      test_type,
+                                      mesh_generator,
+                                      0,
+                                      mesh_max_area=mesh_max_area)
+            errors = import_errors(export_path, vem_type, vem_order, test_type)
+            check_errors(errors,
                         vem_order,
                         vem_type,
                         tol)
@@ -148,6 +173,7 @@ if __name__ == "__main__":
                 os.system("rm -rf " + os.path.join(program_folder, export_path))
 
     test_type = 2
+    vem_types = [1, 2, 3, 4, 5, 6]
     mesh_generator = 0
     vem_orders = [0, 1, 2]
     mesh_max_areas = [0.01, 0.001]
@@ -166,7 +192,7 @@ if __name__ == "__main__":
                                           mesh_max_area=mesh_max_area)
                 num_ref += 1
             errors = import_errors(export_path, vem_type, vem_order, test_type)
-            test_errors(errors,
+            check_errors(errors,
                         vem_order,
                         vem_type,
                         tol)
@@ -192,7 +218,7 @@ if __name__ == "__main__":
                                           mesh_max_area=mesh_max_area)
                 num_ref = 0
             errors = import_errors(export_path, vem_type, vem_order, test_type)
-            test_errors(errors,
+            check_errors(errors,
                         vem_order,
                         vem_type,
                         tol)

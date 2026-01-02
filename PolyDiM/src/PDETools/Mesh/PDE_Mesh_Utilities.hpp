@@ -217,8 +217,8 @@ inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
                                                             domain_height_tangent,
                                                             num_cells_base,
                                                             num_cells_height,
-                                                            0.2,
-                                                            0.2,
+                                                            0.4,
+                                                            0.4,
                                                             mesh);
     }
     break;
