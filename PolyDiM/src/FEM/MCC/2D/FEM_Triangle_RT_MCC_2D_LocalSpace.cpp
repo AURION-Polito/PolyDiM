@@ -10,6 +10,7 @@
 // This file can be used citing references in CITATION.cff file.
 
 #include "FEM_Triangle_RT_MCC_2D_LocalSpace.hpp"
+#include "CommonUtilities.hpp"
 
 using namespace Eigen;
 
@@ -105,6 +106,8 @@ std::vector<Eigen::MatrixXd> FEM_Triangle_RT_MCC_2D_LocalSpace::MapVelocityValue
 Eigen::MatrixXd FEM_Triangle_RT_MCC_2D_LocalSpace::MapPressureValues(const Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_LocalSpace_Data &local_space,
                                                                      const Eigen::MatrixXd &referenceValues) const
 {
+  Gedim::Utilities::Unused(local_space);
+
     return referenceValues;
 }
 // ***************************************************************************

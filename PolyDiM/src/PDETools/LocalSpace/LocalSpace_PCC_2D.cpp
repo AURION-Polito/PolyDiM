@@ -11,6 +11,7 @@
 
 #include "LocalSpace_PCC_2D.hpp"
 #include <memory>
+#include "CommonUtilities.hpp"
 
 namespace Polydim
 {
@@ -184,6 +185,8 @@ Eigen::MatrixXd BasisFunctionsValuesOnEdge(const unsigned int &edge_local_index,
                                            const LocalSpace_Data &local_space_data,
                                            const Eigen::MatrixXd &pointsCurvilinearCoordinates)
 {
+  Gedim::Utilities::Unused(edge_local_index);
+
     switch (reference_element_data.Method_Type)
     {
     case MethodTypes::FEM_PCC: {
