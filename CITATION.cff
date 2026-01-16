@@ -33,8 +33,11 @@ preferred-citation:
   - family-names: Vicini
     given-names: Fabio
     orcid: https://orcid.org/0000-0001-7123-9199
-  url: "https://arxiv.org/abs/2505.14063"
-  journal: "arXiv"
-  month: 10
+  url: "https://www.sciencedirect.com/science/article/pii/S0010465525004382"
+  doi: "https://doi.org/10.1016/j.cpc.2025.109937"
+  journal: "Computer Physics Communications"
   title: "POLYDIM: A C++ library for POLYtopal DIscretization Methods"
-  year: 2025
+  year: 2026
+  volume: 320
+  pages: 109937
+  issn: 0010-4655
