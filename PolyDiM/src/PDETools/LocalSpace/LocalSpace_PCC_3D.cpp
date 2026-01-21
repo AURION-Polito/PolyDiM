@@ -10,8 +10,8 @@
 // This file can be used citing references in CITATION.cff file.
 
 #include "LocalSpace_PCC_3D.hpp"
-#include <memory>
 #include "CommonUtilities.hpp"
+#include <memory>
 
 namespace Polydim
 {
@@ -298,7 +298,7 @@ Eigen::MatrixXd BasisFunctionsValuesOnFace(const unsigned int &face_local_index,
                                            const LocalSpace_Data &local_space_data,
                                            const Eigen::MatrixXd &quadrature_points)
 {
-  Gedim::Utilities::Unused(quadrature_points);
+    Gedim::Utilities::Unused(quadrature_points);
 
     // basis function of face including vertices, edges and face evaluated in quadrature_points
     switch (reference_element_data.Method_Type)

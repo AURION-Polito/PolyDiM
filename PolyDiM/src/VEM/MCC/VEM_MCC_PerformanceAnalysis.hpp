@@ -43,8 +43,8 @@ struct VEM_MCC_PerformanceAnalysis final
                                              const VEM_LocalSpace_Type &vem_local_space,
                                              const VEM_LocalSpaceData_Type &vem_local_space_data) const
     {
-      Gedim::Utilities::Unused(vem_monomials);
-      Gedim::Utilities::Unused(vem_monomials_data);
+        Gedim::Utilities::Unused(vem_monomials);
+        Gedim::Utilities::Unused(vem_monomials_data);
 
         VEM_MCC_PerformanceAnalysis_Data result;
 
