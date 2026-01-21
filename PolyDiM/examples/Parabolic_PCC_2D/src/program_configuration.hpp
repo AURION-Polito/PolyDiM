@@ -55,6 +55,7 @@ struct Program_configuration final
                                            "(Default: "
                                            "0)");
         Gedim::Configurations::AddProperty("MethodOrder", static_cast<unsigned int>(1), "Method order (Default: 1)");
+
         Gedim::Configurations::AddProperty("TimeStep", 0.5, "Max Time (Default: 0.5)");
         Gedim::Configurations::AddProperty("Theta", 0.0, "Theta parameter for theta-method [0, 1] (Default: 0.0)");
     }
