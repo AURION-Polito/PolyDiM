@@ -109,6 +109,12 @@ std::vector<Eigen::MatrixXd> BasisFunctionsDerivativeValues(
     const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data,
     const Polydim::VEM::PCC::ProjectionTypes &projectionType = Polydim::VEM::PCC::ProjectionTypes::Pi0km1Der);
 
+std::vector<Eigen::MatrixXd> BasisFunctionsDerivativeValues(
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data,
+    const Eigen::MatrixXd &points,
+    const Polydim::VEM::PCC::ProjectionTypes &projectionType = Polydim::VEM::PCC::ProjectionTypes::Pi0km1Der);
+
 Eigen::MatrixXd BasisFunctionsLaplacianValues(
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
     const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data,
