@@ -83,6 +83,10 @@ FEM_Triangle_PCC_2D_LocalSpace_Data FEM_Triangle_PCC_2D_LocalSpace::CreateLocalS
         dofCounter++;
     }
 
+    localSpace.dofs_permutation.resize(localSpace.NumberOfBasisFunctions);
+    for (unsigned int d = 0; d < localSpace.NumberOfBasisFunctions; ++d)
+        localSpace.dofs_permutation.indices()[localSpace.DofsMeshOrder.at(d)] = d;
+
     // reorder basis function values with mesh order
     localSpace.Dofs = MapValues(localSpace, Gedim::MapTriangle::F(localSpace.MapData, reference_element_data.DofPositions));
 
@@ -93,46 +97,20 @@ FEM_Triangle_PCC_2D_LocalSpace_Data FEM_Triangle_PCC_2D_LocalSpace::CreateLocalS
     return localSpace;
 }
 // ***************************************************************************
-MatrixXd FEM_Triangle_PCC_2D_LocalSpace::MapValues(const FEM_Triangle_PCC_2D_LocalSpace_Data &local_space,
-                                                   const Eigen::MatrixXd &referenceValues) const
-{
-    Eigen::MatrixXd basisFunctionValuesOrdered(referenceValues.rows(), local_space.NumberOfBasisFunctions);
-
-    for (unsigned int d = 0; d < local_space.NumberOfBasisFunctions; d++)
-        basisFunctionValuesOrdered.col(local_space.DofsMeshOrder.at(d)) << referenceValues.col(d);
-
-    return basisFunctionValuesOrdered;
-}
-// ***************************************************************************
 std::vector<MatrixXd> FEM_Triangle_PCC_2D_LocalSpace::MapDerivativeValues(const FEM_Triangle_PCC_2D_LocalSpace_Data &local_space,
                                                                           const std::vector<Eigen::MatrixXd> &referenceDerivateValues) const
 {
-    std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValues(
-        2,
-        Eigen::MatrixXd::Zero(referenceDerivateValues.at(0).rows(), local_space.NumberOfBasisFunctions));
+    std::vector<Eigen::MatrixXd> basis_functions_reordered(2);
+    basis_functions_reordered.at(0).noalias() = local_space.MapData.BInv(0, 0) * referenceDerivateValues.at(0);
+    basis_functions_reordered.at(0).noalias() += local_space.MapData.BInv(1, 0) * referenceDerivateValues.at(1);
 
-    for (unsigned int i = 0; i < 2; i++)
-    {
-        basisFunctionsDerivativeValues[i] = local_space.MapData.BInv(i, i) * referenceDerivateValues[i];
-        for (unsigned int j = 0; j < i; j++)
-        {
-            basisFunctionsDerivativeValues[i] += local_space.MapData.BInv(j, i) * referenceDerivateValues[j];
-            basisFunctionsDerivativeValues[j] += local_space.MapData.BInv(i, j) * referenceDerivateValues[i];
-        }
-    }
+    basis_functions_reordered.at(1).noalias() = local_space.MapData.BInv(0, 1) * referenceDerivateValues.at(0);
+    basis_functions_reordered.at(1).noalias() += local_space.MapData.BInv(1, 1) * referenceDerivateValues.at(1);
 
-    std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValuesOrdered(
-        2,
-        Eigen::MatrixXd(referenceDerivateValues.at(0).rows(), local_space.NumberOfBasisFunctions));
+    basis_functions_reordered.at(0) *= local_space.dofs_permutation;
+    basis_functions_reordered.at(1) *= local_space.dofs_permutation;
 
-    for (unsigned int d = 0; d < local_space.NumberOfBasisFunctions; d++)
-    {
-        const unsigned int &dofOrder = local_space.DofsMeshOrder.at(d);
-        basisFunctionsDerivativeValuesOrdered.at(0).col(dofOrder) << basisFunctionsDerivativeValues.at(0).col(d);
-        basisFunctionsDerivativeValuesOrdered.at(1).col(dofOrder) << basisFunctionsDerivativeValues.at(1).col(d);
-    }
-
-    return basisFunctionsDerivativeValuesOrdered;
+    return basis_functions_reordered;
 }
 // ***************************************************************************
 Eigen::MatrixXd FEM_Triangle_PCC_2D_LocalSpace::MapLaplacianValues(const FEM_Triangle_PCC_2D_LocalSpace_Data &local_space,

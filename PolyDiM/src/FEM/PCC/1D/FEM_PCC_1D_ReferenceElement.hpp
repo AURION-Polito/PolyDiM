@@ -64,7 +64,7 @@ class FEM_PCC_1D_ReferenceElement final
 
         unsigned int computed_quadrature_order = quadrature_order;
         if (computed_quadrature_order == 0)
-          computed_quadrature_order = 2 * order;
+            computed_quadrature_order = 2 * order;
 
         if (order == 0)
         {
@@ -73,7 +73,8 @@ class FEM_PCC_1D_ReferenceElement final
             result.NumBasisFunctions = 1;
             result.DofPositions = (Eigen::MatrixXd(3, 1) << 0.5, 0.0, 0.0).finished();
 
-            result.ReferenceSegmentQuadrature = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(computed_quadrature_order);
+            result.ReferenceSegmentQuadrature =
+                Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(computed_quadrature_order);
 
             result.Interpolation_coefficients = Eigen::VectorXd::Zero(1);
 
