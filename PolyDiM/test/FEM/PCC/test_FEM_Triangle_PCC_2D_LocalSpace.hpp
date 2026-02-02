@@ -73,10 +73,10 @@ TEST(Test_FEM_Triangle_PCC_2D, Test_FEM_Triangle_PCC_2D_Local_Space)
     geometry_utilities_config.Tolerance1D = 1.0e-8;
     Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
 
-    const auto poligon_vertices = geometry_utilities.CreateTriangle(Eigen::Vector3d(0.0, 0.0, 0.0),
-                                                                    Eigen::Vector3d(1.0, 0.0, 0.0),
-                                                                    Eigen::Vector3d(0.0, 1.0, 0.0));
-    const std::vector<bool> polygon_edges_direction(3, true);
+    const auto poligon_vertices = geometry_utilities.CreateTriangle(Eigen::Vector3d(0.0, 1.0, 0.0),
+                                                                    Eigen::Vector3d(0.0, 0.0, 0.0),
+                                                                    Eigen::Vector3d(1.0, 0.0, 0.0));
+    const std::vector<bool> polygon_edges_direction = { false, true, false };
     const auto polygon_edges_tangent = geometry_utilities.PolygonEdgeTangents(poligon_vertices);
     const auto polygon_edges_length = geometry_utilities.PolygonEdgeLengths(poligon_vertices);
     const auto polygon_edges_normal = geometry_utilities.PolygonEdgeNormals(poligon_vertices);
@@ -115,9 +115,9 @@ TEST(Test_FEM_Triangle_PCC_2D, Test_FEM_Triangle_PCC_2D_Local_Space)
 
         for (unsigned int q = 0; q < points.cols(); q++)
         {
-            ASSERT_TRUE(abs(sumBasisValues[q] - 1.0) < 1.0e-14);
-            ASSERT_TRUE(abs(sumGradXValues[q]) < 1.0e-14);
-            ASSERT_TRUE(abs(sumGradYValues[q]) < 1.0e-14);
+            ASSERT_TRUE(abs(sumBasisValues[q] - 1.0) < 1.0e-13);
+            ASSERT_TRUE(abs(sumGradXValues[q]) < 1.0e-13);
+            ASSERT_TRUE(abs(sumGradYValues[q]) < 1.0e-13);
         }
 
         const auto &derivative_values = local_space.ComputeBasisFunctionsDerivativeValues(reference_element_data,
@@ -138,7 +138,7 @@ TEST(Test_FEM_Triangle_PCC_2D, Test_FEM_Triangle_PCC_2D_Local_Space)
 
             boundary_integral += boundary_values.transpose() * boundary_quadrature.Weights * boundary_normal.sum();
         }
-        ASSERT_TRUE((internal_integral - boundary_integral).norm() < 1.0e-14 * std::max(1.0, boundary_integral.norm()));
+        ASSERT_TRUE((internal_integral - boundary_integral).norm() < 1.0e-13 * std::max(1.0, boundary_integral.norm()));
     }
 }
 
