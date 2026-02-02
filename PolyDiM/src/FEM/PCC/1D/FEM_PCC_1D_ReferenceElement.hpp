@@ -54,12 +54,17 @@ class FEM_PCC_1D_ReferenceElement final
   public:
     Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data Create(
         const unsigned int order,
-        const Polydim::FEM::PCC::FEM_PCC_1D_Types type = Polydim::FEM::PCC::FEM_PCC_1D_Types::Equispaced) const
+        const Polydim::FEM::PCC::FEM_PCC_1D_Types type = Polydim::FEM::PCC::FEM_PCC_1D_Types::Equispaced,
+        const unsigned int quadrature_order = 0) const
     {
         Polydim::FEM::PCC::FEM_PCC_1D_ReferenceElement_Data result;
 
         result.Dimension = 1;
         result.Order = order;
+
+        unsigned int computed_quadrature_order = quadrature_order;
+        if (computed_quadrature_order == 0)
+          computed_quadrature_order = 2 * order;
 
         if (order == 0)
         {
@@ -68,7 +73,7 @@ class FEM_PCC_1D_ReferenceElement final
             result.NumBasisFunctions = 1;
             result.DofPositions = (Eigen::MatrixXd(3, 1) << 0.5, 0.0, 0.0).finished();
 
-            result.ReferenceSegmentQuadrature = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * order);
+            result.ReferenceSegmentQuadrature = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(computed_quadrature_order);
 
             result.Interpolation_coefficients = Eigen::VectorXd::Zero(1);
 
@@ -145,7 +150,7 @@ class FEM_PCC_1D_ReferenceElement final
         result.Interpolation_coefficients =
             Polydim::Interpolation::Lagrange::Lagrange_1D_coefficients(result.DofPositions.row(0).transpose());
 
-        result.ReferenceSegmentQuadrature = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * order);
+        result.ReferenceSegmentQuadrature = Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(computed_quadrature_order);
 
         result.ReferenceBasisFunctionValues = EvaluateBasisFunctions(result.ReferenceSegmentQuadrature.Points, result);
         result.ReferenceBasisFunctionDerivativeValues =
