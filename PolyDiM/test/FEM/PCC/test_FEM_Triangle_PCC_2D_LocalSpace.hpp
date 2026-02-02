@@ -76,7 +76,7 @@ TEST(Test_FEM_Triangle_PCC_2D, Test_FEM_Triangle_PCC_2D_Local_Space)
     const auto poligon_vertices = geometry_utilities.CreateTriangle(Eigen::Vector3d(0.0, 1.0, 0.0),
                                                                     Eigen::Vector3d(0.0, 0.0, 0.0),
                                                                     Eigen::Vector3d(1.0, 0.0, 0.0));
-    const std::vector<bool> polygon_edges_direction = { false, true, false };
+    const std::vector<bool> polygon_edges_direction = {false, true, false};
     const auto polygon_edges_tangent = geometry_utilities.PolygonEdgeTangents(poligon_vertices);
     const auto polygon_edges_length = geometry_utilities.PolygonEdgeLengths(poligon_vertices);
     const auto polygon_edges_normal = geometry_utilities.PolygonEdgeNormals(poligon_vertices);

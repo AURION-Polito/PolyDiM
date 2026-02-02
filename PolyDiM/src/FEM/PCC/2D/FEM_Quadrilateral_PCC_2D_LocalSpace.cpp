@@ -140,8 +140,7 @@ std::vector<MatrixXd> FEM_Quadrilateral_PCC_2D_LocalSpace::MapDerivativeValues(c
 {
     switch (local_space.quadrilateral_type)
     {
-    case Polydim::FEM::PCC::QuadrilateralType::Parallelogram:
-    {
+    case Polydim::FEM::PCC::QuadrilateralType::Parallelogram: {
         std::vector<Eigen::MatrixXd> basis_functions_reordered(2);
         basis_functions_reordered.at(0).noalias() = local_space.MapData.BInv(0, 0) * referenceDerivateValues.at(0);
         basis_functions_reordered.at(0).noalias() += local_space.MapData.BInv(1, 0) * referenceDerivateValues.at(1);
@@ -154,8 +153,7 @@ std::vector<MatrixXd> FEM_Quadrilateral_PCC_2D_LocalSpace::MapDerivativeValues(c
 
         return basis_functions_reordered;
     }
-    case Polydim::FEM::PCC::QuadrilateralType::Generic:
-      {
+    case Polydim::FEM::PCC::QuadrilateralType::Generic: {
         std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValues(
             2,
             Eigen::MatrixXd::Zero(referenceDerivateValues.at(0).rows(), local_space.NumberOfBasisFunctions));
@@ -176,7 +174,6 @@ std::vector<MatrixXd> FEM_Quadrilateral_PCC_2D_LocalSpace::MapDerivativeValues(c
             }
         }
 
-
         std::vector<Eigen::MatrixXd> basisFunctionsDerivativeValuesOrdered(
             2,
             Eigen::MatrixXd(referenceDerivateValues.at(0).rows(), local_space.NumberOfBasisFunctions));
@@ -188,7 +185,7 @@ std::vector<MatrixXd> FEM_Quadrilateral_PCC_2D_LocalSpace::MapDerivativeValues(c
             basisFunctionsDerivativeValuesOrdered.at(1).col(dofOrder) << basisFunctionsDerivativeValues.at(1).col(d);
         }
         return basisFunctionsDerivativeValuesOrdered;
-      }
+    }
     default:
         throw std::runtime_error("not valid quadrilateral");
     }
