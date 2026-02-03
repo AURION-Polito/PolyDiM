@@ -11,6 +11,8 @@
 
 #include "LocalSpace_PCC_2D.hpp"
 #include "CommonUtilities.hpp"
+#include "VTKUtilities.hpp"
+#include "ZFEM_PCC_2D_Creator.hpp"
 #include <memory>
 
 namespace Polydim
@@ -58,11 +60,42 @@ ReferenceElement_Data CreateReferenceElement(const MethodTypes &method_type, con
         reference_element_data.VEM_LocalSpace = Polydim::VEM::PCC::create_VEM_PCC_2D_local_space(reference_element_data.VEM_Type);
     }
     break;
+    case MethodTypes::ZFEM_PCC: {
+        reference_element_data.ZFEM_ReferenceElement = Polydim::ZFEM::PCC::create_ZFEM_PCC_2D_reference_element(
+            ZFEM::PCC::ZFEM_PCC_2D_LocalSpace_Types::ZFEM_PCC_2D_LocalSpace);
+        reference_element_data.ZFEM_ReferenceElement_Data = reference_element_data.ZFEM_ReferenceElement->Create(method_order);
+        reference_element_data.ZFEM_LocalSpace =
+            Polydim::ZFEM::PCC::create_ZFEM_PCC_2D_local_space(ZFEM::PCC::ZFEM_PCC_2D_LocalSpace_Types::ZFEM_PCC_2D_LocalSpace);
+    }
+    break;
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
     }
 
     return reference_element_data;
+}
+//***************************************************************************
+Gedim::MeshUtilities::MeshGeometricData2DConfig MeshGeometricDataConfigiguration(const ReferenceElement_Data &reference_element_data)
+{
+    switch (reference_element_data.Method_Type)
+    {
+    case MethodTypes::FEM_PCC: {
+        return reference_element_data.FEM_ReferenceElement_Data.mesh_geometric_data_config;
+    }
+    break;
+    case MethodTypes::VEM_PCC:
+    case MethodTypes::VEM_PCC_Inertia:
+    case MethodTypes::VEM_PCC_Ortho: {
+        return reference_element_data.VEM_ReferenceElement_Data.mesh_geometric_data_config;
+    }
+    break;
+    case MethodTypes::ZFEM_PCC: {
+        return reference_element_data.ZFEM_ReferenceElement_Data.mesh_geometric_data_config;
+    }
+    break;
+    default:
+        throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
+    }
 }
 //***************************************************************************
 LocalSpace_Data CreateLocalSpace(const double &geometric_tolerance_1D,
@@ -107,6 +140,25 @@ LocalSpace_Data CreateLocalSpace(const double &geometric_tolerance_1D,
                                                                     local_space_data.VEM_Geometry);
     }
     break;
+    case MethodTypes::ZFEM_PCC: {
+        local_space_data.ZFEM_Geometry = {geometric_tolerance_1D,
+                                          geometric_tolerance_2D,
+                                          mesh_geometric_data.Cell2DsVertices.at(cell2D_index),
+                                          mesh_geometric_data.Cell2DsAreas.at(cell2D_index),
+                                          mesh_geometric_data.Cell2DsDiameters.at(cell2D_index),
+                                          mesh_geometric_data.Cell2DsEdgeLengths.at(cell2D_index),
+                                          mesh_geometric_data.Cell2DsEdgeDirections.at(cell2D_index),
+                                          mesh_geometric_data.Cell2DsEdgeTangents.at(cell2D_index),
+                                          mesh_geometric_data.Cell2DsEdgeNormals.at(cell2D_index),
+                                          mesh_geometric_data.Cell2DsChebyshevCenter.at(cell2D_index),
+                                          mesh_geometric_data.Cell2DsInRadius.at(cell2D_index),
+                                          mesh_geometric_data.Cell2DsTriangulationsByChebyshevCenter.at(cell2D_index)};
+
+        local_space_data.ZFEM_LocalSpace_Data =
+            reference_element_data.ZFEM_LocalSpace->CreateLocalSpace(reference_element_data.ZFEM_ReferenceElement_Data,
+                                                                     local_space_data.ZFEM_Geometry);
+    }
+    break;
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
     }
@@ -128,6 +180,9 @@ Eigen::MatrixXd BasisFunctionsValues(const ReferenceElement_Data &reference_elem
     case MethodTypes::VEM_PCC_Inertia:
     case MethodTypes::VEM_PCC_Ortho: {
         return reference_element_data.VEM_LocalSpace->ComputeBasisFunctionsValues(local_space_data.VEM_LocalSpace_Data, projectionType);
+    }
+    case MethodTypes::ZFEM_PCC: {
+        return reference_element_data.ZFEM_LocalSpace->ComputeBasisFunctionsValues(local_space_data.ZFEM_LocalSpace_Data);
     }
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
@@ -200,6 +255,11 @@ Eigen::MatrixXd BasisFunctionsValuesOnEdge(const unsigned int &edge_local_index,
         return reference_element_data.VEM_LocalSpace->ComputeValuesOnEdge(reference_element_data.VEM_ReferenceElement_Data,
                                                                           pointsCurvilinearCoordinates);
     }
+    case MethodTypes::ZFEM_PCC: {
+        return reference_element_data.ZFEM_LocalSpace->ComputeValuesOnEdge(reference_element_data.ZFEM_ReferenceElement_Data,
+                                                                           local_space_data.ZFEM_LocalSpace_Data,
+                                                                           pointsCurvilinearCoordinates);
+    }
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
     }
@@ -220,6 +280,9 @@ std::vector<Eigen::MatrixXd> BasisFunctionsDerivativeValues(const ReferenceEleme
     case MethodTypes::VEM_PCC_Ortho: {
         return reference_element_data.VEM_LocalSpace->ComputeBasisFunctionsDerivativeValues(local_space_data.VEM_LocalSpace_Data,
                                                                                             projectionType);
+    }
+    case MethodTypes::ZFEM_PCC: {
+        return reference_element_data.ZFEM_LocalSpace->ComputeBasisFunctionsDerivativeValues(local_space_data.ZFEM_LocalSpace_Data);
     }
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
@@ -264,6 +327,9 @@ Gedim::Quadrature::QuadratureData InternalQuadrature(const ReferenceElement_Data
     case MethodTypes::VEM_PCC_Ortho: {
         return local_space_data.VEM_LocalSpace_Data.InternalQuadrature;
     }
+    case MethodTypes::ZFEM_PCC: {
+        return local_space_data.ZFEM_LocalSpace_Data.InternalQuadrature;
+    }
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
     }
@@ -280,6 +346,9 @@ unsigned int Size(const ReferenceElement_Data &reference_element_data, const Loc
     case MethodTypes::VEM_PCC_Inertia:
     case MethodTypes::VEM_PCC_Ortho: {
         return local_space_data.VEM_LocalSpace_Data.NumBasisFunctions;
+    }
+    case MethodTypes::ZFEM_PCC: {
+        return local_space_data.ZFEM_LocalSpace_Data.NumBasisFunctions;
     }
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
@@ -301,6 +370,10 @@ Eigen::MatrixXd StabilizationMatrix(const ReferenceElement_Data &reference_eleme
     case MethodTypes::VEM_PCC_Ortho: {
         return reference_element_data.VEM_LocalSpace->ComputeDofiDofiStabilizationMatrix(local_space_data.VEM_LocalSpace_Data,
                                                                                          projectionType);
+    }
+    case MethodTypes::ZFEM_PCC: {
+        return Eigen::MatrixXd::Zero(local_space_data.ZFEM_LocalSpace_Data.NumBasisFunctions,
+                                     local_space_data.ZFEM_LocalSpace_Data.NumBasisFunctions);
     }
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
@@ -334,6 +407,29 @@ Eigen::MatrixXd EdgeDofsCoordinates(const ReferenceElement_Data &reference_eleme
 
         const Eigen::Vector3d edge_tangent = local_space_data.VEM_Geometry.EdgesTangent.col(edge_local_index);
         const double edge_direction = local_space_data.VEM_Geometry.EdgesDirection[edge_local_index] ? 1.0 : -1.0;
+
+        Eigen::MatrixXd edge_dofs_coordinates = Eigen::MatrixXd::Zero(3, num_edge_dofs);
+        for (unsigned int r = 0; r < num_edge_dofs; r++)
+        {
+            edge_dofs_coordinates.col(r) << edge_origin + edge_direction * referenceEdgeDOFsPoint(0, r) * edge_tangent;
+        }
+
+        return edge_dofs_coordinates;
+    }
+    case MethodTypes::ZFEM_PCC: {
+        const auto &referenceEdgeDOFsPoint = local_space_data.ZFEM_LocalSpace_Data.ReferenceEdgeDOFsInternalPoints;
+        const unsigned int num_edge_dofs = referenceEdgeDOFsPoint.cols();
+
+        if (num_edge_dofs == 0)
+            return Eigen::MatrixXd(0, 0);
+
+        const unsigned int num_edges = local_space_data.ZFEM_Geometry.Vertices.cols();
+        const Eigen::Vector3d edge_origin = local_space_data.ZFEM_Geometry.EdgesDirection.at(edge_local_index)
+                                                ? local_space_data.ZFEM_Geometry.Vertices.col(edge_local_index)
+                                                : local_space_data.ZFEM_Geometry.Vertices.col((edge_local_index + 1) % num_edges);
+
+        const Eigen::Vector3d edge_tangent = local_space_data.ZFEM_Geometry.EdgesTangent.col(edge_local_index);
+        const double edge_direction = local_space_data.ZFEM_Geometry.EdgesDirection[edge_local_index] ? 1.0 : -1.0;
 
         Eigen::MatrixXd edge_dofs_coordinates = Eigen::MatrixXd::Zero(3, num_edge_dofs);
         for (unsigned int r = 0; r < num_edge_dofs; r++)
@@ -427,6 +523,10 @@ PDETools::DOFs::DOFsManager::MeshDOFsInfo SetMeshDOFsInfo(
             mesh_dof_info.CellsNumDOFs[0][c] = reference_element_data.VEM_ReferenceElement_Data.NumDofs0D;
         }
         break;
+        case MethodTypes::ZFEM_PCC: {
+            mesh_dof_info.CellsNumDOFs[0][c] = reference_element_data.ZFEM_ReferenceElement_Data.NumDofs0D;
+        }
+        break;
         default:
             throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
         }
@@ -451,6 +551,10 @@ PDETools::DOFs::DOFsManager::MeshDOFsInfo SetMeshDOFsInfo(
         case MethodTypes::VEM_PCC_Inertia:
         case MethodTypes::VEM_PCC_Ortho: {
             mesh_dof_info.CellsNumDOFs[1][c] = reference_element_data.VEM_ReferenceElement_Data.NumDofs1D;
+        }
+        break;
+        case MethodTypes::ZFEM_PCC: {
+            mesh_dof_info.CellsNumDOFs[1][c] = reference_element_data.ZFEM_ReferenceElement_Data.NumDofs1D;
         }
         break;
         default:
@@ -485,6 +589,10 @@ PDETools::DOFs::DOFsManager::MeshDOFsInfo SetMeshDOFsInfo(
             mesh_dof_info.CellsNumDOFs[2][c] = reference_element_data.VEM_ReferenceElement_Data.NumDofs2D;
         }
         break;
+        case MethodTypes::ZFEM_PCC: {
+            mesh_dof_info.CellsNumDOFs[2][c] = reference_element_data.ZFEM_ReferenceElement_Data.NumDofs2D;
+        }
+        break;
         default:
             throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
         }
@@ -501,7 +609,7 @@ Performance_Data ComputePerformance(const ReferenceElement_Data &reference_eleme
     switch (reference_element_data.Method_Type)
     {
     case MethodTypes::FEM_PCC: {
-        performance.VEM_Performance_Data.NumInternalQuadraturePoints =
+        performance.performance_data.NumInternalQuadraturePoints =
             local_space_data.FEM_LocalSpace_Data.InternalQuadrature.Weights.size();
     }
     break;
@@ -510,16 +618,30 @@ Performance_Data ComputePerformance(const ReferenceElement_Data &reference_eleme
     case MethodTypes::VEM_PCC_Ortho: {
         Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis performanceAnalysis;
 
-        performance.VEM_Performance_Data.Analysis =
+        performance.performance_data.vem_analysis_data =
             performanceAnalysis.Compute(Polydim::Utilities::Monomials_2D(),
                                         reference_element_data.VEM_ReferenceElement_Data.Monomials,
                                         *reference_element_data.VEM_LocalSpace,
                                         local_space_data.VEM_LocalSpace_Data);
 
-        performance.VEM_Performance_Data.NumInternalQuadraturePoints =
+        performance.performance_data.NumInternalQuadraturePoints =
             local_space_data.VEM_LocalSpace_Data.InternalQuadrature.Weights.size();
-        performance.VEM_Performance_Data.NumBoundaryQuadraturePoints =
+        performance.performance_data.NumBoundaryQuadraturePoints =
             local_space_data.VEM_LocalSpace_Data.BoundaryQuadrature.Quadrature.Weights.size();
+    }
+    break;
+    case MethodTypes::ZFEM_PCC: {
+
+        Polydim::ZFEM::PCC::ZFEM_PCC_PerformanceAnalysis performanceAnalysis;
+
+        performance.performance_data.NumInternalQuadraturePoints =
+            local_space_data.ZFEM_LocalSpace_Data.InternalQuadrature.Weights.size();
+
+        performance.performance_data.zfem_analysis_data =
+            performanceAnalysis.Compute2D(Polydim::Utilities::Monomials_2D(),
+                                          reference_element_data.ZFEM_ReferenceElement_Data.monomials_data,
+                                          *reference_element_data.ZFEM_LocalSpace,
+                                          local_space_data.ZFEM_LocalSpace_Data);
     }
     break;
     default:
@@ -527,6 +649,213 @@ Performance_Data ComputePerformance(const ReferenceElement_Data &reference_eleme
     }
 
     return performance;
+}
+//***************************************************************************
+void export_dofs(const Gedim::GeometryUtilities &geometry_utilities,
+                 const Gedim::MeshMatricesDAO &mesh,
+                 const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                 const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                 const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                 const Gedim::IArray &right_hand_side,
+                 const Gedim::IArray &solution,
+                 const Gedim::IArray &solution_strongs,
+                 const std::string &file_path)
+{
+    std::list<Eigen::Vector3d> dofs_coordinate;
+    std::list<double> solution_values;
+    std::list<double> rhs_values;
+    std::list<double> dof_global_index_values;
+    std::list<double> dof_type_values;
+    std::list<double> dof_cell_index_values;
+    std::list<double> dof_dimension_values;
+    std::list<double> dof_boundary_type_values;
+    std::list<double> dof_boundary_marker_values;
+
+    for (unsigned int c = 0; c < mesh.Cell0DTotalNumber(); ++c)
+    {
+        const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(0).at(c);
+
+        const auto &local_dofs = dofs_data.CellsDOFs[0].at(c);
+
+        const unsigned int num_loc_dofs = local_dofs.size();
+
+        if (num_loc_dofs == 0)
+            continue;
+
+        for (unsigned int loc_i = 0; loc_i < num_loc_dofs; ++loc_i)
+        {
+            const auto &local_dof = local_dofs.at(loc_i);
+
+            dof_cell_index_values.push_back(c);
+            dof_dimension_values.push_back(0);
+            dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
+            dof_boundary_marker_values.push_back(boundary_info.Marker);
+            dofs_coordinate.push_back(mesh.Cell0DCoordinates(c));
+            dof_type_values.push_back(static_cast<double>(local_dof.Type));
+            dof_global_index_values.push_back(local_dof.Global_Index);
+
+            switch (local_dof.Type)
+            {
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                solution_values.push_back(solution_strongs.GetValue(local_dof.Global_Index));
+                rhs_values.push_back(std::nan(""));
+                break;
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
+                solution_values.push_back(solution.GetValue(local_dof.Global_Index));
+                rhs_values.push_back(right_hand_side.GetValue(local_dof.Global_Index));
+                break;
+            default:
+                throw std::runtime_error("Unknown DOF Type");
+            }
+        }
+    }
+
+    for (unsigned int c = 0; c < mesh.Cell1DTotalNumber(); ++c)
+    {
+        const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(1).at(c);
+
+        const auto &local_dofs = dofs_data.CellsDOFs[1].at(c);
+
+        const unsigned int num_loc_dofs = local_dofs.size();
+
+        if (num_loc_dofs == 0)
+            continue;
+
+        const std::vector<double> local_edge_coordinates = geometry_utilities.EquispaceCoordinates(num_loc_dofs, 0.0, 1.0, false);
+        const Eigen::Vector3d edge_origin = mesh.Cell1DOriginCoordinates(c);
+        const Eigen::Vector3d edge_tangent = mesh.Cell1DEndCoordinates(c) - edge_origin;
+
+        for (unsigned int loc_i = 0; loc_i < num_loc_dofs; ++loc_i)
+        {
+            const auto &local_dof = local_dofs.at(loc_i);
+
+            dof_cell_index_values.push_back(c);
+            dof_dimension_values.push_back(1);
+            dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
+            dof_boundary_marker_values.push_back(boundary_info.Marker);
+            dofs_coordinate.push_back(edge_origin + local_edge_coordinates[loc_i] * edge_tangent);
+            dof_type_values.push_back(static_cast<double>(local_dof.Type));
+            dof_global_index_values.push_back(local_dof.Global_Index);
+
+            switch (local_dof.Type)
+            {
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                solution_values.push_back(solution_strongs.GetValue(local_dof.Global_Index));
+                rhs_values.push_back(std::nan(""));
+                break;
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
+                solution_values.push_back(solution.GetValue(local_dof.Global_Index));
+                rhs_values.push_back(right_hand_side.GetValue(local_dof.Global_Index));
+                break;
+            default:
+                throw std::runtime_error("Unknown DOF Type");
+            }
+        }
+    }
+
+    for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); ++c)
+    {
+        const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(2).at(c);
+
+        const auto &local_dofs = dofs_data.CellsDOFs[2].at(c);
+
+        const unsigned int num_loc_dofs = local_dofs.size();
+
+        if (num_loc_dofs == 0)
+            continue;
+
+        const auto local_polygon_coordinates = geometry_utilities.EquispaceCoordinates(num_loc_dofs + 1, 0.0, 1.0, true);
+        const Eigen::Vector3d polygon_centroid = mesh_geometric_data.Cell2DsCentroids.at(c);
+        const auto polygonCentroidEdgesDistance =
+            geometry_utilities.PolygonCentroidEdgesDistance(mesh_geometric_data.Cell2DsVertices.at(c),
+                                                            mesh_geometric_data.Cell2DsCentroids.at(c),
+                                                            mesh_geometric_data.Cell2DsEdgeNormals.at(c));
+        const double circle_diameter = 0.5 * geometry_utilities.PolygonInRadius(polygonCentroidEdgesDistance);
+
+        for (unsigned int loc_i = 0; loc_i < num_loc_dofs; ++loc_i)
+        {
+            const auto &local_dof = local_dofs.at(loc_i);
+
+            dof_cell_index_values.push_back(c);
+            dof_dimension_values.push_back(2);
+            dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
+            dof_boundary_marker_values.push_back(boundary_info.Marker);
+
+            dofs_coordinate.push_back(
+                polygon_centroid +
+                circle_diameter * Eigen::Vector3d(cos(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
+                                                  sin(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
+                                                  0.0));
+
+            dof_type_values.push_back(static_cast<double>(local_dof.Type));
+            dof_global_index_values.push_back(local_dof.Global_Index);
+
+            switch (local_dof.Type)
+            {
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                solution_values.push_back(solution_strongs.GetValue(local_dof.Global_Index));
+                rhs_values.push_back(std::nan(""));
+                break;
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
+                solution_values.push_back(solution.GetValue(local_dof.Global_Index));
+                rhs_values.push_back(right_hand_side.GetValue(local_dof.Global_Index));
+                break;
+            default:
+                throw std::runtime_error("Unknown DOF Type");
+            }
+        }
+    }
+
+    Eigen::MatrixXd coordinates(3, dofs_coordinate.size());
+    unsigned int c = 0;
+    for (const auto &dof_coordinate : dofs_coordinate)
+        coordinates.col(c++) << dof_coordinate;
+    const auto rhs_values_data = std::vector<double>(rhs_values.begin(), rhs_values.end());
+    const auto solution_values_data = std::vector<double>(solution_values.begin(), solution_values.end());
+    const auto dof_global_index_values_data =
+        std::vector<double>(dof_global_index_values.begin(), dof_global_index_values.end());
+    const auto dof_type_values_data = std::vector<double>(dof_type_values.begin(), dof_type_values.end());
+    const auto dof_cell_index_values_data = std::vector<double>(dof_cell_index_values.begin(), dof_cell_index_values.end());
+    const auto dof_dimension_values_data = std::vector<double>(dof_dimension_values.begin(), dof_dimension_values.end());
+    const auto dof_boundary_type_values_data =
+        std::vector<double>(dof_boundary_type_values.begin(), dof_boundary_type_values.end());
+    const auto dof_boundary_marker_values_data =
+        std::vector<double>(dof_boundary_marker_values.begin(), dof_boundary_marker_values.end());
+
+    Gedim::VTKUtilities exporter;
+    exporter.AddPoints(
+        coordinates,
+        {{"cell_dimension",
+          Gedim::VTPProperty::Formats::Points,
+          static_cast<unsigned int>(dof_dimension_values_data.size()),
+          dof_dimension_values_data.data()},
+         {"cell_index",
+          Gedim::VTPProperty::Formats::Points,
+          static_cast<unsigned int>(dof_cell_index_values_data.size()),
+          dof_cell_index_values_data.data()},
+         {"boundary_type",
+          Gedim::VTPProperty::Formats::Points,
+          static_cast<unsigned int>(dof_boundary_type_values_data.size()),
+          dof_boundary_type_values_data.data()},
+         {"boundary_marker",
+          Gedim::VTPProperty::Formats::Points,
+          static_cast<unsigned int>(dof_boundary_marker_values_data.size()),
+          dof_boundary_marker_values_data.data()},
+         {"dof_global_index",
+          Gedim::VTPProperty::Formats::Points,
+          static_cast<unsigned int>(dof_global_index_values_data.size()),
+          dof_global_index_values_data.data()},
+         {"dof_type",
+          Gedim::VTPProperty::Formats::Points,
+          static_cast<unsigned int>(dof_type_values_data.size()),
+          dof_type_values_data.data()},
+         {"rhs", Gedim::VTPProperty::Formats::Points, static_cast<unsigned int>(rhs_values_data.size()), rhs_values_data.data()},
+         {"solution",
+          Gedim::VTPProperty::Formats::Points,
+          static_cast<unsigned int>(solution_values_data.size()),
+          solution_values_data.data()}});
+
+    exporter.Export(file_path);
 }
 //***************************************************************************
 } // namespace LocalSpace_PCC_2D

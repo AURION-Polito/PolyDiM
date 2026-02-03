@@ -104,6 +104,7 @@ endif()
 # Insert Sources
 ###############################################################################################
 add_subdirectory(VEM)
+add_subdirectory(ZFEM)
 add_subdirectory(FEM)
 add_subdirectory(PDETools)
 

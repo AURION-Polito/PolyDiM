@@ -12,7 +12,6 @@
 #include "program_utilities.hpp"
 
 #include "VTKUtilities.hpp"
-#include <numbers>
 
 namespace Polydim
 {
@@ -76,8 +75,10 @@ void create_domain_mesh(const Polydim::examples::Elliptic_PCC_2D::Program_config
     }
 }
 // ***************************************************************************
-Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_properties(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
-                                                                                  const Gedim::MeshMatricesDAO &mesh)
+Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_properties(
+    const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
+    const Gedim::MeshUtilities::MeshGeometricData2DConfig &mesh_geometric_data_config,
+    const Gedim::MeshMatricesDAO &mesh)
 {
     Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
     geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance1D();
@@ -86,7 +87,7 @@ Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_propertie
 
     Gedim::MeshUtilities meshUtilities;
 
-    return Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_2D_geometry_data(geometryUtilities, meshUtilities, mesh);
+    return Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_2D_geometry_data(geometryUtilities, meshUtilities, mesh, mesh_geometric_data_config);
 }
 // ***************************************************************************
 void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
@@ -136,7 +137,7 @@ void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configura
     {
         const char separator = ';';
         const std::string errorFileName = exportSolutionFolder + "/Errors_" + std::to_string(TEST_ID) + "_" +
-                                          std::to_string(Method_ID) + +"_" + std::to_string(config.MethodOrder()) + ".csv";
+                                          std::to_string(Method_ID) + "_" + std::to_string(config.MethodOrder()) + ".csv";
         const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
 
         std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);
@@ -176,30 +177,28 @@ void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configura
     }
 
     {
-        {
-            Gedim::VTKUtilities exporter;
-            exporter.AddPolygons(mesh.Cell0DsCoordinates(),
-                                 mesh.Cell2DsVertices(),
-                                 {{"Numeric",
-                                   Gedim::VTPProperty::Formats::Points,
-                                   static_cast<unsigned int>(post_process_data.cell0Ds_numeric.size()),
-                                   post_process_data.cell0Ds_numeric.data()},
-                                  {"Exact",
-                                   Gedim::VTPProperty::Formats::Points,
-                                   static_cast<unsigned int>(post_process_data.cell0Ds_exact.size()),
-                                   post_process_data.cell0Ds_exact.data()},
-                                  {"ErrorL2",
-                                   Gedim::VTPProperty::Formats::Cells,
-                                   static_cast<unsigned int>(post_process_data.cell2Ds_error_L2.size()),
-                                   post_process_data.cell2Ds_error_L2.data()},
-                                  {"ErrorH1",
-                                   Gedim::VTPProperty::Formats::Cells,
-                                   static_cast<unsigned int>(post_process_data.cell2Ds_error_H1.size()),
-                                   post_process_data.cell2Ds_error_H1.data()}});
+        Gedim::VTKUtilities exporter;
+        exporter.AddPolygons(mesh.Cell0DsCoordinates(),
+                             mesh.Cell2DsVertices(),
+                             {{"Numeric",
+                               Gedim::VTPProperty::Formats::Points,
+                               static_cast<unsigned int>(post_process_data.cell0Ds_numeric.size()),
+                               post_process_data.cell0Ds_numeric.data()},
+                              {"Exact",
+                               Gedim::VTPProperty::Formats::Points,
+                               static_cast<unsigned int>(post_process_data.cell0Ds_exact.size()),
+                               post_process_data.cell0Ds_exact.data()},
+                              {"ErrorL2",
+                               Gedim::VTPProperty::Formats::Cells,
+                               static_cast<unsigned int>(post_process_data.cell2Ds_error_L2.size()),
+                               post_process_data.cell2Ds_error_L2.data()},
+                              {"ErrorH1",
+                               Gedim::VTPProperty::Formats::Cells,
+                               static_cast<unsigned int>(post_process_data.cell2Ds_error_H1.size()),
+                               post_process_data.cell2Ds_error_H1.data()}});
 
-            exporter.Export(exportVtuFolder + "/Solution_" + std::to_string(TEST_ID) + "_" + std::to_string(Method_ID) +
-                            +"_" + std::to_string(config.MethodOrder()) + ".vtu");
-        }
+        exporter.Export(exportVtuFolder + "/Solution_" + std::to_string(TEST_ID) + "_" + std::to_string(Method_ID) +
+                        "_" + std::to_string(config.MethodOrder()) + ".vtu");
     }
 }
 // ***************************************************************************
@@ -218,208 +217,20 @@ void export_dofs(const Polydim::examples::Elliptic_PCC_2D::Program_configuration
     geometryUtilitiesConfig.Tolerance2D = config.GeometricTolerance2D();
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
-    std::list<Eigen::Vector3d> dofs_coordinate;
-    std::list<double> solution_values;
-    std::list<double> rhs_values;
-    std::list<double> dof_global_index_values;
-    std::list<double> dof_type_values;
-    std::list<double> dof_cell_index_values;
-    std::list<double> dof_dimension_values;
-    std::list<double> dof_boundary_type_values;
-    std::list<double> dof_boundary_marker_values;
+    const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
+    const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
+    const std::string file_path = exportVtuFolder + "/dofs_" + std::to_string(TEST_ID) + "_" +
+                                  std::to_string(Method_ID) + "_" + std::to_string(config.MethodOrder()) + ".vtu";
 
-    for (unsigned int c = 0; c < mesh.Cell0DTotalNumber(); ++c)
-    {
-        const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(0).at(c);
-
-        const auto &local_dofs = dofs_data.CellsDOFs[0].at(c);
-
-        const unsigned int num_loc_dofs = local_dofs.size();
-
-        if (num_loc_dofs == 0)
-            continue;
-
-        for (unsigned int loc_i = 0; loc_i < num_loc_dofs; ++loc_i)
-        {
-            const auto &local_dof = local_dofs.at(loc_i);
-
-            dof_cell_index_values.push_back(c);
-            dof_dimension_values.push_back(0);
-            dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
-            dof_boundary_marker_values.push_back(boundary_info.Marker);
-            dofs_coordinate.push_back(mesh.Cell0DCoordinates(c));
-            dof_type_values.push_back(static_cast<double>(local_dof.Type));
-            dof_global_index_values.push_back(local_dof.Global_Index);
-
-            switch (local_dof.Type)
-            {
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
-                solution_values.push_back(assembler_data.solutionDirichlet.GetValue(local_dof.Global_Index));
-                rhs_values.push_back(std::nan(""));
-                break;
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-                solution_values.push_back(assembler_data.solution.GetValue(local_dof.Global_Index));
-                rhs_values.push_back(assembler_data.rightHandSide.GetValue(local_dof.Global_Index));
-                break;
-            default:
-                throw std::runtime_error("Unknown DOF Type");
-            }
-        }
-    }
-
-    for (unsigned int c = 0; c < mesh.Cell1DTotalNumber(); ++c)
-    {
-        const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(1).at(c);
-
-        const auto &local_dofs = dofs_data.CellsDOFs[1].at(c);
-
-        const unsigned int num_loc_dofs = local_dofs.size();
-
-        if (num_loc_dofs == 0)
-            continue;
-
-        const std::vector<double> local_edge_coordinates = geometryUtilities.EquispaceCoordinates(num_loc_dofs, 0.0, 1.0, false);
-        const Eigen::Vector3d edge_origin = mesh.Cell1DOriginCoordinates(c);
-        const Eigen::Vector3d edge_tangent = mesh.Cell1DEndCoordinates(c) - edge_origin;
-
-        for (unsigned int loc_i = 0; loc_i < num_loc_dofs; ++loc_i)
-        {
-            const auto &local_dof = local_dofs.at(loc_i);
-
-            dof_cell_index_values.push_back(c);
-            dof_dimension_values.push_back(1);
-            dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
-            dof_boundary_marker_values.push_back(boundary_info.Marker);
-            dofs_coordinate.push_back(edge_origin + local_edge_coordinates[loc_i] * edge_tangent);
-            dof_type_values.push_back(static_cast<double>(local_dof.Type));
-            dof_global_index_values.push_back(local_dof.Global_Index);
-
-            switch (local_dof.Type)
-            {
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
-                solution_values.push_back(assembler_data.solutionDirichlet.GetValue(local_dof.Global_Index));
-                rhs_values.push_back(std::nan(""));
-                break;
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-                solution_values.push_back(assembler_data.solution.GetValue(local_dof.Global_Index));
-                rhs_values.push_back(assembler_data.rightHandSide.GetValue(local_dof.Global_Index));
-                break;
-            default:
-                throw std::runtime_error("Unknown DOF Type");
-            }
-        }
-    }
-
-    for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); ++c)
-    {
-        const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(2).at(c);
-
-        const auto &local_dofs = dofs_data.CellsDOFs[2].at(c);
-
-        const unsigned int num_loc_dofs = local_dofs.size();
-
-        if (num_loc_dofs == 0)
-            continue;
-
-        const auto local_polygon_coordinates = geometryUtilities.EquispaceCoordinates(num_loc_dofs + 1, 0.0, 1.0, true);
-        const Eigen::Vector3d polygon_centroid = mesh_geometric_data.Cell2DsCentroids.at(c);
-        const auto polygonCentroidEdgesDistance =
-            geometryUtilities.PolygonCentroidEdgesDistance(mesh_geometric_data.Cell2DsVertices.at(c),
-                                                           mesh_geometric_data.Cell2DsCentroids.at(c),
-                                                           mesh_geometric_data.Cell2DsEdgeNormals.at(c));
-        const double circle_diameter = 0.5 * geometryUtilities.PolygonInRadius(polygonCentroidEdgesDistance);
-
-        for (unsigned int loc_i = 0; loc_i < num_loc_dofs; ++loc_i)
-        {
-            const auto &local_dof = local_dofs.at(loc_i);
-
-            dof_cell_index_values.push_back(c);
-            dof_dimension_values.push_back(2);
-            dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
-            dof_boundary_marker_values.push_back(boundary_info.Marker);
-
-            dofs_coordinate.push_back(
-                polygon_centroid +
-                circle_diameter * Eigen::Vector3d(cos(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
-                                                  sin(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
-                                                  0.0));
-
-            dof_type_values.push_back(static_cast<double>(local_dof.Type));
-            dof_global_index_values.push_back(local_dof.Global_Index);
-
-            switch (local_dof.Type)
-            {
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
-                solution_values.push_back(assembler_data.solutionDirichlet.GetValue(local_dof.Global_Index));
-                rhs_values.push_back(std::nan(""));
-                break;
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-                solution_values.push_back(assembler_data.solution.GetValue(local_dof.Global_Index));
-                rhs_values.push_back(assembler_data.rightHandSide.GetValue(local_dof.Global_Index));
-                break;
-            default:
-                throw std::runtime_error("Unknown DOF Type");
-            }
-        }
-    }
-
-    {
-        Eigen::MatrixXd coordinates(3, dofs_coordinate.size());
-        unsigned int c = 0;
-        for (const auto &dof_coordinate : dofs_coordinate)
-            coordinates.col(c++) << dof_coordinate;
-        const auto rhs_values_data = std::vector<double>(rhs_values.begin(), rhs_values.end());
-        const auto solution_values_data = std::vector<double>(solution_values.begin(), solution_values.end());
-        const auto dof_global_index_values_data =
-            std::vector<double>(dof_global_index_values.begin(), dof_global_index_values.end());
-        const auto dof_type_values_data = std::vector<double>(dof_type_values.begin(), dof_type_values.end());
-        const auto dof_cell_index_values_data = std::vector<double>(dof_cell_index_values.begin(), dof_cell_index_values.end());
-        const auto dof_dimension_values_data = std::vector<double>(dof_dimension_values.begin(), dof_dimension_values.end());
-        const auto dof_boundary_type_values_data =
-            std::vector<double>(dof_boundary_type_values.begin(), dof_boundary_type_values.end());
-        const auto dof_boundary_marker_values_data =
-            std::vector<double>(dof_boundary_marker_values.begin(), dof_boundary_marker_values.end());
-
-        Gedim::VTKUtilities exporter;
-        exporter.AddPoints(coordinates,
-                           {{"cell_dimension",
-                             Gedim::VTPProperty::Formats::Points,
-                             static_cast<unsigned int>(dof_dimension_values_data.size()),
-                             dof_dimension_values_data.data()},
-                            {"cell_index",
-                             Gedim::VTPProperty::Formats::Points,
-                             static_cast<unsigned int>(dof_cell_index_values_data.size()),
-                             dof_cell_index_values_data.data()},
-                            {"boundary_type",
-                             Gedim::VTPProperty::Formats::Points,
-                             static_cast<unsigned int>(dof_boundary_type_values_data.size()),
-                             dof_boundary_type_values_data.data()},
-                            {"boundary_marker",
-                             Gedim::VTPProperty::Formats::Points,
-                             static_cast<unsigned int>(dof_boundary_marker_values_data.size()),
-                             dof_boundary_marker_values_data.data()},
-                            {"dof_global_index",
-                             Gedim::VTPProperty::Formats::Points,
-                             static_cast<unsigned int>(dof_global_index_values_data.size()),
-                             dof_global_index_values_data.data()},
-                            {"dof_type",
-                             Gedim::VTPProperty::Formats::Points,
-                             static_cast<unsigned int>(dof_type_values_data.size()),
-                             dof_type_values_data.data()},
-                            {"rhs",
-                             Gedim::VTPProperty::Formats::Points,
-                             static_cast<unsigned int>(rhs_values_data.size()),
-                             rhs_values_data.data()},
-                            {"solution",
-                             Gedim::VTPProperty::Formats::Points,
-                             static_cast<unsigned int>(solution_values_data.size()),
-                             solution_values_data.data()}});
-
-        const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
-        const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
-        exporter.Export(exportVtuFolder + "/dofs_" + std::to_string(TEST_ID) + "_" + std::to_string(Method_ID) + +"_" +
-                        std::to_string(config.MethodOrder()) + ".vtu");
-    }
+    PDETools::LocalSpace_PCC_2D::export_dofs(geometryUtilities,
+                                             mesh,
+                                             mesh_geometric_data,
+                                             mesh_dofs_info,
+                                             dofs_data,
+                                             assembler_data.rightHandSide,
+                                             assembler_data.solution,
+                                             assembler_data.solutionDirichlet,
+                                             file_path);
 }
 // ***************************************************************************
 void export_performance(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
@@ -432,41 +243,54 @@ void export_performance(const Polydim::examples::Elliptic_PCC_2D::Program_config
         const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
         const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
         exporter.open(exportFolder + "/Cell2Ds_MethodPerformance_" + std::to_string(TEST_ID) + "_" +
-                      std::to_string(Method_ID) + +"_" + std::to_string(config.MethodOrder()) + ".csv");
+                      std::to_string(Method_ID) + "_" + std::to_string(config.MethodOrder()) + ".csv");
         exporter.precision(16);
 
         if (exporter.fail())
             throw std::runtime_error("Error on mesh cell2Ds file");
 
-        exporter << "Cell2D_Index" << separator;
-        exporter << "NumQuadPoints_Boundary" << separator;
-        exporter << "NumQuadPoints_Internal" << separator;
-        exporter << "PiNabla_Cond" << separator;
-        exporter << "Pi0k_Cond" << separator;
-        exporter << "Pi0km1_Cond" << separator;
-        exporter << "PiNabla_Error" << separator;
-        exporter << "Pi0k_Error" << separator;
-        exporter << "Pi0km1_Error" << separator;
-        exporter << "HCD_Error" << separator;
-        exporter << "GBD_Error" << separator;
-        exporter << "Stab_Error" << std::endl;
-
-        for (unsigned int v = 0; v < performance_data.Cell2DsPerformance.size(); v++)
+        switch (config.MethodType())
         {
-            const auto &cell2D_performance = performance_data.Cell2DsPerformance[v].VEM_Performance_Data;
 
-            exporter << std::scientific << v << separator;
-            exporter << std::scientific << cell2D_performance.NumBoundaryQuadraturePoints << separator;
-            exporter << std::scientific << cell2D_performance.NumInternalQuadraturePoints << separator;
-            exporter << std::scientific << cell2D_performance.Analysis.PiNablaConditioning << separator;
-            exporter << std::scientific << cell2D_performance.Analysis.Pi0kConditioning << separator;
-            exporter << std::scientific << cell2D_performance.Analysis.Pi0km1Conditioning << separator;
-            exporter << std::scientific << cell2D_performance.Analysis.ErrorPiNabla << separator;
-            exporter << std::scientific << cell2D_performance.Analysis.ErrorPi0k << separator;
-            exporter << std::scientific << cell2D_performance.Analysis.ErrorPi0km1 << separator;
-            exporter << std::scientific << cell2D_performance.Analysis.ErrorHCD << separator;
-            exporter << std::scientific << cell2D_performance.Analysis.ErrorGBD << separator;
-            exporter << std::scientific << cell2D_performance.Analysis.ErrorStabilization << std::endl;
+        case PDETools::LocalSpace_PCC_2D::MethodTypes::FEM_PCC:
+            break;
+        case PDETools::LocalSpace_PCC_2D::MethodTypes::VEM_PCC:
+        case PDETools::LocalSpace_PCC_2D::MethodTypes::VEM_PCC_Inertia:
+        case PDETools::LocalSpace_PCC_2D::MethodTypes::VEM_PCC_Ortho: {
+            exporter << "Cell2D_Index" << separator;
+            exporter << "NumQuadPoints_Boundary" << separator;
+            exporter << "NumQuadPoints_Internal" << separator;
+            exporter << "PiNabla_Cond" << separator;
+            exporter << "Pi0k_Cond" << separator;
+            exporter << "Pi0km1_Cond" << separator;
+            exporter << "PiNabla_Error" << separator;
+            exporter << "Pi0k_Error" << separator;
+            exporter << "Pi0km1_Error" << separator;
+            exporter << "HCD_Error" << separator;
+            exporter << "GBD_Error" << separator;
+            exporter << "Stab_Error" << std::endl;
+
+            for (unsigned int v = 0; v < performance_data.Cell2DsPerformance.size(); v++)
+            {
+                const auto &cell2D_performance = performance_data.Cell2DsPerformance[v].performance_data;
+
+                exporter << std::scientific << v << separator;
+                exporter << std::scientific << cell2D_performance.NumBoundaryQuadraturePoints << separator;
+                exporter << std::scientific << cell2D_performance.NumInternalQuadraturePoints << separator;
+                exporter << std::scientific << cell2D_performance.vem_analysis_data.PiNablaConditioning << separator;
+                exporter << std::scientific << cell2D_performance.vem_analysis_data.Pi0kConditioning << separator;
+                exporter << std::scientific << cell2D_performance.vem_analysis_data.Pi0km1Conditioning << separator;
+                exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorPiNabla << separator;
+                exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorPi0k << separator;
+                exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorPi0km1 << separator;
+                exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorHCD << separator;
+                exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorGBD << separator;
+                exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorStabilization << std::endl;
+            }
+        }
+        break;
+        case PDETools::LocalSpace_PCC_2D::MethodTypes::ZFEM_PCC:
+            break;
         }
 
         exporter.close();

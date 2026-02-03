@@ -93,8 +93,13 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("ComputeGeometricProperties...", true);
     Gedim::Profiler::StartTime("ComputeGeometricProperties");
 
-    const auto meshGeometricData =
-        Polydim::examples::Elliptic_PCC_2D::program_utilities::create_domain_mesh_geometric_properties(config, mesh);
+    const auto reference_element_data =
+        Polydim::PDETools::LocalSpace_PCC_2D::CreateReferenceElement(config.MethodType(), config.MethodOrder());
+
+    const auto meshGeometricData = Polydim::examples::Elliptic_PCC_2D::program_utilities::create_domain_mesh_geometric_properties(
+        config,
+        Polydim::PDETools::LocalSpace_PCC_2D::MeshGeometricDataConfigiguration(reference_element_data),
+        mesh);
 
     Gedim::Profiler::StopTime("ComputeGeometricProperties");
     Gedim::Output::PrintStatusProgram("ComputeGeometricProperties");
@@ -102,9 +107,6 @@ int main(int argc, char **argv)
     /// Initialize Discrete Space
     Gedim::Output::PrintGenericMessage("CreateDiscreteSpace of order " + std::to_string(config.MethodOrder()) + " and DOFs...", true);
     Gedim::Profiler::StartTime("CreateDiscreteSpace");
-
-    const auto reference_element_data =
-        Polydim::PDETools::LocalSpace_PCC_2D::CreateReferenceElement(config.MethodType(), config.MethodOrder());
 
     Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data(mesh);
 

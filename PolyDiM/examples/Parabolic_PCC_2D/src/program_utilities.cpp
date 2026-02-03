@@ -250,226 +250,48 @@ void export_dofs(const Polydim::examples::Parabolic_PCC_2D::Program_configuratio
     const unsigned int space_order = config.MethodOrder();
     const unsigned int time_order = config.Theta() == 0.5 ? 2 : 1;
 
-    std::list<Eigen::Vector3d> dofs_coordinate;
-    std::list<double> solution_values;
-    std::list<double> rhs_values;
-    std::list<double> dof_global_index_values;
-    std::list<double> dof_type_values;
-    std::list<double> dof_cell_index_values;
-    std::list<double> dof_dimension_values;
-    std::list<double> dof_boundary_type_values;
-    std::list<double> dof_boundary_marker_values;
+    const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
+    const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
 
-    for (unsigned int c = 0; c < mesh.Cell0DTotalNumber(); ++c)
-    {
-        const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(0).at(c);
+    const std::string file_path = exportVtuFolder + "/dofs" + "_" + std::to_string(TEST_ID) + "_" +
+                                  std::to_string(Method_ID) + "_" + std::to_string(space_order) + "_" +
+                                  std::to_string(time_order) + "_" + std::to_string(time_index) + ".vtu";
 
-        const auto &local_dofs = dofs_data.CellsDOFs[0].at(c);
-
-        const unsigned int num_loc_dofs = local_dofs.size();
-
-        if (num_loc_dofs == 0)
-            continue;
-
-        for (unsigned int loc_i = 0; loc_i < num_loc_dofs; ++loc_i)
-        {
-            const auto &local_dof = local_dofs.at(loc_i);
-
-            dof_cell_index_values.push_back(c);
-            dof_dimension_values.push_back(0);
-            dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
-            dof_boundary_marker_values.push_back(boundary_info.Marker);
-            dofs_coordinate.push_back(mesh.Cell0DCoordinates(c));
-            dof_type_values.push_back(static_cast<double>(local_dof.Type));
-            dof_global_index_values.push_back(local_dof.Global_Index);
-
-            switch (local_dof.Type)
-            {
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
-                solution_values.push_back(assembler_data.solutionDirichlet.GetValue(local_dof.Global_Index));
-                rhs_values.push_back(std::nan(""));
-                break;
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-                solution_values.push_back(assembler_data.solution.GetValue(local_dof.Global_Index));
-                rhs_values.push_back(assembler_data.rightHandSide.GetValue(local_dof.Global_Index));
-                break;
-            default:
-                throw std::runtime_error("Unknown DOF Type");
-            }
-        }
-    }
-
-    for (unsigned int c = 0; c < mesh.Cell1DTotalNumber(); ++c)
-    {
-        const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(1).at(c);
-
-        const auto &local_dofs = dofs_data.CellsDOFs[1].at(c);
-
-        const unsigned int num_loc_dofs = local_dofs.size();
-
-        if (num_loc_dofs == 0)
-            continue;
-
-        const std::vector<double> local_edge_coordinates = geometryUtilities.EquispaceCoordinates(num_loc_dofs, 0.0, 1.0, false);
-        const Eigen::Vector3d edge_origin = mesh.Cell1DOriginCoordinates(c);
-        const Eigen::Vector3d edge_tangent = mesh.Cell1DEndCoordinates(c) - edge_origin;
-
-        for (unsigned int loc_i = 0; loc_i < num_loc_dofs; ++loc_i)
-        {
-            const auto &local_dof = local_dofs.at(loc_i);
-
-            dof_cell_index_values.push_back(c);
-            dof_dimension_values.push_back(1);
-            dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
-            dof_boundary_marker_values.push_back(boundary_info.Marker);
-            dofs_coordinate.push_back(edge_origin + local_edge_coordinates[loc_i] * edge_tangent);
-            dof_type_values.push_back(static_cast<double>(local_dof.Type));
-            dof_global_index_values.push_back(local_dof.Global_Index);
-
-            switch (local_dof.Type)
-            {
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
-                solution_values.push_back(assembler_data.solutionDirichlet.GetValue(local_dof.Global_Index));
-                rhs_values.push_back(std::nan(""));
-                break;
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-                solution_values.push_back(assembler_data.solution.GetValue(local_dof.Global_Index));
-                rhs_values.push_back(assembler_data.rightHandSide.GetValue(local_dof.Global_Index));
-                break;
-            default:
-                throw std::runtime_error("Unknown DOF Type");
-            }
-        }
-    }
-
-    for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); ++c)
-    {
-        const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(2).at(c);
-
-        const auto &local_dofs = dofs_data.CellsDOFs[2].at(c);
-
-        const unsigned int num_loc_dofs = local_dofs.size();
-
-        if (num_loc_dofs == 0)
-            continue;
-
-        const auto local_polygon_coordinates = geometryUtilities.EquispaceCoordinates(num_loc_dofs + 1, 0.0, 1.0, true);
-        const Eigen::Vector3d polygon_centroid = mesh_geometric_data.Cell2DsCentroids.at(c);
-        const auto polygonCentroidEdgesDistance =
-            geometryUtilities.PolygonCentroidEdgesDistance(mesh_geometric_data.Cell2DsVertices.at(c),
-                                                           mesh_geometric_data.Cell2DsCentroids.at(c),
-                                                           mesh_geometric_data.Cell2DsEdgeNormals.at(c));
-        const double circle_diameter = 0.5 * geometryUtilities.PolygonInRadius(polygonCentroidEdgesDistance);
-
-        for (unsigned int loc_i = 0; loc_i < num_loc_dofs; ++loc_i)
-        {
-            const auto &local_dof = local_dofs.at(loc_i);
-
-            dof_cell_index_values.push_back(c);
-            dof_dimension_values.push_back(2);
-            dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
-            dof_boundary_marker_values.push_back(boundary_info.Marker);
-
-            dofs_coordinate.push_back(
-                polygon_centroid +
-                circle_diameter * Eigen::Vector3d(cos(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
-                                                  sin(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
-                                                  0.0));
-
-            dof_type_values.push_back(static_cast<double>(local_dof.Type));
-            dof_global_index_values.push_back(local_dof.Global_Index);
-
-            switch (local_dof.Type)
-            {
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
-                solution_values.push_back(assembler_data.solutionDirichlet.GetValue(local_dof.Global_Index));
-                rhs_values.push_back(std::nan(""));
-                break;
-            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-                solution_values.push_back(assembler_data.solution.GetValue(local_dof.Global_Index));
-                rhs_values.push_back(assembler_data.rightHandSide.GetValue(local_dof.Global_Index));
-                break;
-            default:
-                throw std::runtime_error("Unknown DOF Type");
-            }
-        }
-    }
-
-    {
-        Eigen::MatrixXd coordinates(3, dofs_coordinate.size());
-        unsigned int c = 0;
-        for (const auto &dof_coordinate : dofs_coordinate)
-            coordinates.col(c++) << dof_coordinate;
-        const auto rhs_values_data = std::vector<double>(rhs_values.begin(), rhs_values.end());
-        const auto solution_values_data = std::vector<double>(solution_values.begin(), solution_values.end());
-        const auto dof_global_index_values_data =
-            std::vector<double>(dof_global_index_values.begin(), dof_global_index_values.end());
-        const auto dof_type_values_data = std::vector<double>(dof_type_values.begin(), dof_type_values.end());
-        const auto dof_cell_index_values_data = std::vector<double>(dof_cell_index_values.begin(), dof_cell_index_values.end());
-        const auto dof_dimension_values_data = std::vector<double>(dof_dimension_values.begin(), dof_dimension_values.end());
-        const auto dof_boundary_type_values_data =
-            std::vector<double>(dof_boundary_type_values.begin(), dof_boundary_type_values.end());
-        const auto dof_boundary_marker_values_data =
-            std::vector<double>(dof_boundary_marker_values.begin(), dof_boundary_marker_values.end());
-
-        Gedim::VTKUtilities exporter;
-        exporter.AddPoints(coordinates,
-                           {{"cell_dimension",
-                             Gedim::VTPProperty::Formats::Points,
-                             static_cast<unsigned int>(dof_dimension_values_data.size()),
-                             dof_dimension_values_data.data()},
-                            {"cell_index",
-                             Gedim::VTPProperty::Formats::Points,
-                             static_cast<unsigned int>(dof_cell_index_values_data.size()),
-                             dof_cell_index_values_data.data()},
-                            {"boundary_type",
-                             Gedim::VTPProperty::Formats::Points,
-                             static_cast<unsigned int>(dof_boundary_type_values_data.size()),
-                             dof_boundary_type_values_data.data()},
-                            {"boundary_marker",
-                             Gedim::VTPProperty::Formats::Points,
-                             static_cast<unsigned int>(dof_boundary_marker_values_data.size()),
-                             dof_boundary_marker_values_data.data()},
-                            {"dof_global_index",
-                             Gedim::VTPProperty::Formats::Points,
-                             static_cast<unsigned int>(dof_global_index_values_data.size()),
-                             dof_global_index_values_data.data()},
-                            {"dof_type",
-                             Gedim::VTPProperty::Formats::Points,
-                             static_cast<unsigned int>(dof_type_values_data.size()),
-                             dof_type_values_data.data()},
-                            {"rhs",
-                             Gedim::VTPProperty::Formats::Points,
-                             static_cast<unsigned int>(rhs_values_data.size()),
-                             rhs_values_data.data()},
-                            {"solution",
-                             Gedim::VTPProperty::Formats::Points,
-                             static_cast<unsigned int>(solution_values_data.size()),
-                             solution_values_data.data()}});
-
-        const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
-        const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
-        exporter.Export(exportVtuFolder + "/dofs" + "_" + std::to_string(TEST_ID) + "_" + std::to_string(Method_ID) + "_" +
-                        std::to_string(space_order) + "_" + std::to_string(time_order) + "_" + std::to_string(time_index) + ".vtu");
-    }
+    PDETools::LocalSpace_PCC_2D::export_dofs(geometryUtilities,
+                                             mesh,
+                                             mesh_geometric_data,
+                                             mesh_dofs_info,
+                                             dofs_data,
+                                             assembler_data.rightHandSide,
+                                             assembler_data.solution,
+                                             assembler_data.solutionDirichlet,
+                                             file_path);
 }
 // ***************************************************************************
 void export_performance(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,
                         const Assembler::Performance_Data &performance_data,
                         const std::string &exportFolder)
 {
+
+    const char separator = ',';
+    std::ofstream exporter;
+    const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
+    const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
+    exporter.open(exportFolder + "/Cell2Ds_MethodPerformance_" + std::to_string(TEST_ID) + "_" +
+                  std::to_string(Method_ID) + "_" + std::to_string(config.MethodOrder()) + ".csv");
+    exporter.precision(16);
+
+    if (exporter.fail())
+        throw std::runtime_error("Error on mesh cell2Ds file");
+
+    switch (config.MethodType())
     {
-        const char separator = ',';
-        std::ofstream exporter;
-        const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
-        const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
-        exporter.open(exportFolder + "/Cell2Ds_MethodPerformance_" + std::to_string(TEST_ID) + "_" +
-                      std::to_string(Method_ID) + +"_" + std::to_string(config.MethodOrder()) + ".csv");
-        exporter.precision(16);
 
-        if (exporter.fail())
-            throw std::runtime_error("Error on mesh cell2Ds file");
-
+    case PDETools::LocalSpace_PCC_2D::MethodTypes::FEM_PCC:
+        break;
+    case PDETools::LocalSpace_PCC_2D::MethodTypes::VEM_PCC:
+    case PDETools::LocalSpace_PCC_2D::MethodTypes::VEM_PCC_Inertia:
+    case PDETools::LocalSpace_PCC_2D::MethodTypes::VEM_PCC_Ortho: {
         exporter << "Cell2D_Index" << separator;
         exporter << "NumQuadPoints_Boundary" << separator;
         exporter << "NumQuadPoints_Internal" << separator;
@@ -485,24 +307,28 @@ void export_performance(const Polydim::examples::Parabolic_PCC_2D::Program_confi
 
         for (unsigned int v = 0; v < performance_data.Cell2DsPerformance.size(); v++)
         {
-            const auto &cell2D_performance = performance_data.Cell2DsPerformance[v].VEM_Performance_Data;
+            const auto &cell2D_performance = performance_data.Cell2DsPerformance[v].performance_data;
 
             exporter << std::scientific << v << separator;
             exporter << std::scientific << cell2D_performance.NumBoundaryQuadraturePoints << separator;
             exporter << std::scientific << cell2D_performance.NumInternalQuadraturePoints << separator;
-            exporter << std::scientific << cell2D_performance.Analysis.PiNablaConditioning << separator;
-            exporter << std::scientific << cell2D_performance.Analysis.Pi0kConditioning << separator;
-            exporter << std::scientific << cell2D_performance.Analysis.Pi0km1Conditioning << separator;
-            exporter << std::scientific << cell2D_performance.Analysis.ErrorPiNabla << separator;
-            exporter << std::scientific << cell2D_performance.Analysis.ErrorPi0k << separator;
-            exporter << std::scientific << cell2D_performance.Analysis.ErrorPi0km1 << separator;
-            exporter << std::scientific << cell2D_performance.Analysis.ErrorHCD << separator;
-            exporter << std::scientific << cell2D_performance.Analysis.ErrorGBD << separator;
-            exporter << std::scientific << cell2D_performance.Analysis.ErrorStabilization << std::endl;
+            exporter << std::scientific << cell2D_performance.vem_analysis_data.PiNablaConditioning << separator;
+            exporter << std::scientific << cell2D_performance.vem_analysis_data.Pi0kConditioning << separator;
+            exporter << std::scientific << cell2D_performance.vem_analysis_data.Pi0km1Conditioning << separator;
+            exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorPiNabla << separator;
+            exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorPi0k << separator;
+            exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorPi0km1 << separator;
+            exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorHCD << separator;
+            exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorGBD << separator;
+            exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorStabilization << std::endl;
         }
-
-        exporter.close();
     }
+    break;
+    case PDETools::LocalSpace_PCC_2D::MethodTypes::ZFEM_PCC:
+        break;
+    }
+
+    exporter.close();
 }
 // ***************************************************************************
 std::vector<double> create_time_steps(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,

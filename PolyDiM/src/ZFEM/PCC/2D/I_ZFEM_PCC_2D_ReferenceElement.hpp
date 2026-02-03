@@ -9,20 +9,20 @@
 //
 // This file can be used citing references in CITATION.cff file.
 
-#ifndef __I_VEM_PCC_2D_ReferenceElement_HPP
-#define __I_VEM_PCC_2D_ReferenceElement_HPP
+#ifndef __I_ZFEM_PCC_2D_ReferenceElement_HPP
+#define __I_ZFEM_PCC_2D_ReferenceElement_HPP
 
+#include "FEM_Triangle_PCC_2D_ReferenceElement.hpp"
 #include "MeshUtilities.hpp"
 #include "Monomials_Data.hpp"
-#include "VEM_Quadrature_2D.hpp"
 
 namespace Polydim
 {
-namespace VEM
+namespace ZFEM
 {
 namespace PCC
 {
-struct VEM_PCC_2D_ReferenceElement_Data final
+struct ZFEM_PCC_2D_ReferenceElement_Data final
 {
     unsigned int Dimension;
     unsigned int Order;
@@ -30,21 +30,21 @@ struct VEM_PCC_2D_ReferenceElement_Data final
     unsigned int NumDofs1D;
     unsigned int NumDofs2D;
 
-    Utilities::Monomials_Data Monomials;
-    Quadrature::VEM_QuadratureData_2D Quadrature;
+    Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement_Data fem_reference_element_data;
+    Utilities::Monomials_Data monomials_data;
 
     Gedim::MeshUtilities::MeshGeometricData2DConfig mesh_geometric_data_config = Gedim::MeshUtilities::MeshGeometricData2DConfig(
-        {false, true, true, true, true, true, false, true, true, true, false, false, false});
+        {false, false, true, false, true, true, false, true, true, true, true, true, true});
 };
 
-class I_VEM_PCC_2D_ReferenceElement
+class I_ZFEM_PCC_2D_ReferenceElement
 {
   public:
-    virtual VEM_PCC_2D_ReferenceElement_Data Create(const unsigned int order) const = 0;
+    virtual ZFEM_PCC_2D_ReferenceElement_Data Create(const unsigned int order) const = 0;
 };
 
 } // namespace PCC
-} // namespace VEM
+} // namespace ZFEM
 } // namespace Polydim
 
 #endif
