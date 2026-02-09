@@ -124,6 +124,36 @@ namespace Polydim
       ASSERT_EQ(dofs_data.NumberDOFs, elliptic_operator.A.size.at(1));
       ASSERT_EQ(dofs_data.NumberDOFs, elliptic_operator.A_Strong.size.at(0));
       ASSERT_EQ(dofs_data.NumberStrongs, elliptic_operator.A_Strong.size.at(1));
+
+      auto exact_solution_function = [&method_order](const double& x, const double& y, const double& z)
+      {
+        const double polynomial = x + y + 0.5;
+
+        double result = 1.0;
+        for (int i = 0; i < method_order; ++i)
+            result *= polynomial;
+
+        return result;
+      };
+
+      auto strong_solution_function = [&exact_solution_function](const unsigned int marker, const double& x, const double& y, const double& z)
+      {
+        if (marker != 1)
+          throw std::runtime_error("marker not managed");
+
+        return exact_solution_function(x, y, z);
+      };
+
+      const auto strong_solution = PDETools::Assembler_Utilities::assembler_strong_solution(geometry_utilities,
+                                                                                      mesh,
+                                                                                      mesh_geometric_data,
+                                                                                      mesh_dofs_info,
+                                                                                      dofs_data,
+                                                                                      reference_element_data,
+                                                                                      strong_solution_function);
+
+      ASSERT_EQ(dofs_data.NumberStrongs, strong_solution.size());
+
     }
 
   } // namespace UnitTesting
