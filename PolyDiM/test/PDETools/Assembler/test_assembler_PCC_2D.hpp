@@ -107,6 +107,23 @@ namespace Polydim
 
       ASSERT_EQ(dofs_data.NumberDOFs, source_term.size());
 
+      auto diffusion_term_function = [](const double& x, const double& y, const double& z, const Eigen::VectorXd& u)
+      {
+        return 1.0;
+      };
+
+      const auto elliptic_operator = PDETools::Assembler_Utilities::assembler_elliptic_operator(geometry_utilities,
+                                                                                      mesh,
+                                                                                      mesh_geometric_data,
+                                                                                      mesh_dofs_info,
+                                                                                      dofs_data,
+                                                                                      reference_element_data,
+                                                                                      diffusion_term_function);
+
+      ASSERT_EQ(dofs_data.NumberDOFs, elliptic_operator.A.size.at(0));
+      ASSERT_EQ(dofs_data.NumberDOFs, elliptic_operator.A.size.at(1));
+      ASSERT_EQ(dofs_data.NumberDOFs, elliptic_operator.A_Strong.size.at(0));
+      ASSERT_EQ(dofs_data.NumberStrongs, elliptic_operator.A_Strong.size.at(1));
     }
 
   } // namespace UnitTesting
