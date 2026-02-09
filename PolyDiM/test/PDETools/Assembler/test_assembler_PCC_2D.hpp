@@ -87,7 +87,8 @@ namespace Polydim
 
       auto source_term = [&method_order](const Eigen::MatrixXd &points)
       {
-        Eigen::VectorXd source_term = Eigen::VectorXd::Constant(points.cols(), 2.0 * order * (order - 1));
+        Eigen::VectorXd source_term = Eigen::VectorXd::Constant(points.cols(),
+                                                                2.0 * method_order * (method_order - 1));
         const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
 
         const int max_order = method_order - 2;
