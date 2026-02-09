@@ -32,7 +32,7 @@ struct ZFEM_PCC_PerformanceAnalysis final
     template <typename ZFEM_Monomials_Type, typename ZFEM_Monomials_Data_Type, typename ZFEM_LocalSpace_Type, typename ZFEM_LocalSpaceData_Type>
     ZFEM_PCC_PerformanceAnalysis_Data Compute2D(const ZFEM_Monomials_Type &monomials,
                                                 const ZFEM_Monomials_Data_Type &monomials_data,
-                                                const ZFEM_LocalSpace_Type &ZFEM_local_space,
+                                                const ZFEM_LocalSpace_Type &,
                                                 const ZFEM_LocalSpaceData_Type &ZFEM_local_space_data) const
     {
         const Eigen::MatrixXd VanderInternal = monomials.Vander(monomials_data,
