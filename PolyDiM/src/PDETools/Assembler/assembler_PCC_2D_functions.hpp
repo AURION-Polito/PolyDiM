@@ -26,6 +26,8 @@ namespace Polydim
   {
     namespace Assembler_Utilities
     {
+      namespace PCC_2D
+      {
       // ***************************************************************************
       struct Sparse_Matrix_Triplet final
       {
@@ -76,6 +78,9 @@ namespace Polydim
         eigen_A.Triplets(A.rows,
                          A.cols,
                          A.values);
+
+        eigen_A.Create();
+
         return eigen_A;
       }
       // ***************************************************************************
@@ -392,6 +397,7 @@ namespace Polydim
         return static_cast<Eigen::VectorXd&>(strong_solution);
       }
       // ***************************************************************************
+      } // namespace PCC_2D
     } // namespace Assembler_Utilities
   } // namespace PDETools
 } // namespace Polydim

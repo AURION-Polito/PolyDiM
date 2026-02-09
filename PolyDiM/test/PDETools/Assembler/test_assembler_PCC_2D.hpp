@@ -16,6 +16,7 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include "Eigen_LUSolver.hpp"
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
 #include "PDE_Mesh_Utilities.hpp"
 #include "LocalSpace_PCC_2D.hpp"
@@ -97,7 +98,7 @@ namespace Polydim
         return -source_term_value;
       };
 
-      const auto source_term = PDETools::Assembler_Utilities::assembler_source_term(geometry_utilities,
+      const auto source_term = PDETools::Assembler_Utilities::PCC_2D::assembler_source_term(geometry_utilities,
                                                                                       mesh,
                                                                                       mesh_geometric_data,
                                                                                       mesh_dofs_info,
@@ -112,7 +113,7 @@ namespace Polydim
         return 1.0;
       };
 
-      const auto elliptic_operator = PDETools::Assembler_Utilities::assembler_elliptic_operator(geometry_utilities,
+      const auto elliptic_operator = PDETools::Assembler_Utilities::PCC_2D::assembler_elliptic_operator(geometry_utilities,
                                                                                       mesh,
                                                                                       mesh_geometric_data,
                                                                                       mesh_dofs_info,
@@ -144,7 +145,7 @@ namespace Polydim
         return exact_solution_function(x, y, z);
       };
 
-      const auto strong_solution = PDETools::Assembler_Utilities::assembler_strong_solution(geometry_utilities,
+      const auto strong_solution = PDETools::Assembler_Utilities::PCC_2D::assembler_strong_solution(geometry_utilities,
                                                                                       mesh,
                                                                                       mesh_geometric_data,
                                                                                       mesh_dofs_info,
@@ -153,6 +154,26 @@ namespace Polydim
                                                                                       strong_solution_function);
 
       ASSERT_EQ(dofs_data.NumberStrongs, strong_solution.size());
+
+
+      {
+        const auto f = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(source_term);
+        const auto u_D = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(strong_solution);
+        const auto A = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(elliptic_operator.A);
+        const auto A_D = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(elliptic_operator.A_Strong);
+
+        auto rhs = f;
+        rhs.SubtractionMultiplication(A_D, u_D);
+
+        Gedim::Eigen_Array<> u;
+        u.SetSize(dofs_data.NumberDOFs);
+
+        Gedim::Eigen_LUSolver solver;
+        solver.Initialize(A);
+        solver.Solve(rhs, u);
+
+
+      }
 
     }
 
