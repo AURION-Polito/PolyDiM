@@ -58,6 +58,37 @@ struct ZFEM_PCC_Utilities final
                                                           const unsigned int &num_basis_functions,
                                                           const unsigned int &num_virtual_basis_functions,
                                                           const std::vector<Polydim::FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace_Data> &fem_local_space_data,
+                                                          const Eigen::MatrixXi &local_to_global) const
+    {
+        FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace fem_local_space;
+        const unsigned int num_quadrature =
+            reference_element_data.fem_reference_element_data.ReferenceTriangleQuadrature.Points.cols();
+        const unsigned int num_triangles = fem_local_space_data.size();
+
+        Eigen::MatrixXd total_fem_basis_functions_values =
+            Eigen::MatrixXd::Zero(num_quadrature * num_triangles, num_basis_functions + num_virtual_basis_functions);
+
+        unsigned int offeset_quadrature_points = 0;
+        for (unsigned int t = 0; t < num_triangles; t++)
+        {
+            const Eigen::MatrixXd fem_basis_function_values =
+                fem_local_space.ComputeBasisFunctionsValues(reference_element_data.fem_reference_element_data,
+                                                            fem_local_space_data[t]);
+
+            for (unsigned int p = 0; p < local_to_global.cols(); p++)
+                total_fem_basis_functions_values.block(offeset_quadrature_points, local_to_global(t, p), num_quadrature, 1) =
+                    fem_basis_function_values.col(p);
+
+            offeset_quadrature_points += num_quadrature;
+        }
+
+        return total_fem_basis_functions_values;
+    }
+
+    inline Eigen::MatrixXd ComputeFEMBasisFunctionsValues(const ZFEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                          const unsigned int &num_basis_functions,
+                                                          const unsigned int &num_virtual_basis_functions,
+                                                          const std::vector<Polydim::FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace_Data> &fem_local_space_data,
                                                           const Eigen::MatrixXi &local_to_global,
                                                           const std::vector<Eigen::MatrixXd> &points) const
     {
@@ -92,6 +123,44 @@ struct ZFEM_PCC_Utilities final
         }
 
         return total_fem_basis_functions_values;
+    }
+
+    inline std::vector<Eigen::MatrixXd> ComputeFEMBasisFunctionsDerivativeValues(
+        unsigned int dimension,
+        const ZFEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+        const unsigned int &num_basis_functions,
+        const unsigned int &num_virtual_basis_functions,
+        const std::vector<Polydim::FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace_Data> &fem_local_space_data,
+        const Eigen::MatrixXi &local_to_global) const
+    {
+        FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace fem_local_space;
+        const unsigned int num_quadrature =
+            reference_element_data.fem_reference_element_data.ReferenceTriangleQuadrature.Points.cols();
+        const unsigned int num_triangles = fem_local_space_data.size();
+
+        std::vector<Eigen::MatrixXd> total_fem_basis_functions_derivative_values(
+            dimension,
+            Eigen::MatrixXd::Zero(num_quadrature * num_triangles, num_basis_functions + num_virtual_basis_functions));
+
+        unsigned int offeset_quadrature_points = 0;
+        for (unsigned int t = 0; t < num_triangles; t++)
+        {
+
+            const std::vector<Eigen::MatrixXd> fem_basis_function_derivatives_values =
+                fem_local_space.ComputeBasisFunctionsDerivativeValues(reference_element_data.fem_reference_element_data,
+                                                                      fem_local_space_data[t]);
+
+            for (unsigned int d = 0; d < dimension; d++)
+            {
+                for (unsigned int p = 0; p < local_to_global.cols(); p++)
+                    total_fem_basis_functions_derivative_values[d].block(offeset_quadrature_points, local_to_global(t, p), num_quadrature, 1) =
+                        fem_basis_function_derivatives_values[d].col(p);
+            }
+
+            offeset_quadrature_points += num_quadrature;
+        }
+
+        return total_fem_basis_functions_derivative_values;
     }
 
     inline std::vector<Eigen::MatrixXd> ComputeFEMBasisFunctionsDerivativeValues(

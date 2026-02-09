@@ -44,6 +44,8 @@ struct ZFEM_PCC_2D_LocalSpace_Data final
     unsigned int Dimension;
     unsigned int Order;
 
+    double Diameter;
+
     Eigen::MatrixXi local_to_total;
 
     Gedim::Quadrature::QuadratureData InternalQuadrature;
@@ -68,10 +70,7 @@ struct ZFEM_PCC_2D_LocalSpace_Data final
     unsigned int NumTotalBasisFunctions;
 
     unsigned int Nk;
-    Eigen::MatrixXd VanderInternal;
-    Eigen::MatrixXd VanderDOFs;
     Eigen::MatrixXd VanderVirtuals;
-    std::vector<Eigen::MatrixXd> VanderInternalDerivatives;
     Eigen::MatrixXd Dmatrix;
 
     Eigen::RowVectorXd ReferenceEdgeDOFsInternalPoints;

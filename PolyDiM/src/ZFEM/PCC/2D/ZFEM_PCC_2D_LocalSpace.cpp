@@ -36,6 +36,7 @@ ZFEM_PCC_2D_LocalSpace_Data ZFEM_PCC_2D_LocalSpace::CreateLocalSpace(const ZFEM_
 
     localSpace.KernelIncenter = polygon.ChebishevCenter;
     localSpace.KernelInRadius = polygon.InRadius;
+    localSpace.Diameter = polygon.Diameter;
 
     const unsigned int num_vertices = polygon.Vertices.cols();
 
@@ -65,10 +66,9 @@ ZFEM_PCC_2D_LocalSpace_Data ZFEM_PCC_2D_LocalSpace::CreateLocalSpace(const ZFEM_
         quadrature.PolygonInternalQuadrature(reference_element_data.fem_reference_element_data.ReferenceTriangleQuadrature,
                                              polygon.Traingulations);
 
-    std::vector<Eigen::MatrixXd> triangles_internal_quadrature_points(num_vertices);
     for (unsigned int v = 0; v < num_vertices; v++)
     {
-        const Eigen::MatrixXd triangle_vertices = polygon.Traingulations[v];
+        const Eigen::MatrixXd &triangle_vertices = polygon.Traingulations[v];
         const auto triangle_edge_lengths = geometryUtilities.PolygonEdgeLengths(triangle_vertices);
         const auto triangle_edge_tangents = geometryUtilities.PolygonEdgeTangents(triangle_vertices);
         const std::vector<bool> triangle_edge_directions = {true, polygon.EdgesDirection[v], false};
@@ -77,8 +77,6 @@ ZFEM_PCC_2D_LocalSpace_Data ZFEM_PCC_2D_LocalSpace::CreateLocalSpace(const ZFEM_
 
         localSpace.fem_local_space_data[v] =
             fem_local_space.CreateLocalSpace(reference_element_data.fem_reference_element_data, localSpace.fem_geometry[v]);
-
-        triangles_internal_quadrature_points[v] = localSpace.fem_local_space_data[v].InternalQuadrature.Points;
     }
 
     localSpace.local_to_total = ZFEM_utilities.CreateMaps(localSpace.Order,
@@ -99,22 +97,11 @@ ZFEM_PCC_2D_LocalSpace_Data ZFEM_PCC_2D_LocalSpace::CreateLocalSpace(const ZFEM_
 
     localSpace.Nk = reference_element_data.monomials_data.NumMonomials;
 
-    localSpace.VanderInternal = monomials.Vander(reference_element_data.monomials_data,
-                                                 localSpace.InternalQuadrature.Points,
-                                                 polygon.ChebishevCenter,
-                                                 polygon.Diameter);
-
-    localSpace.VanderInternalDerivatives =
-        monomials.VanderDerivatives(reference_element_data.monomials_data, localSpace.VanderInternal, polygon.Diameter);
-
-    ComputePolynomialsDofs(reference_element_data, polygon.ChebishevCenter, polygon.Diameter, localSpace);
-
     localSpace.fem_basis_functions_values = ZFEM_utilities.ComputeFEMBasisFunctionsValues(reference_element_data,
                                                                                           localSpace.NumBasisFunctions,
                                                                                           localSpace.NumVirtualBasisFunctions,
                                                                                           localSpace.fem_local_space_data,
-                                                                                          localSpace.local_to_total,
-                                                                                          triangles_internal_quadrature_points);
+                                                                                          localSpace.local_to_total);
 
     localSpace.fem_basis_functions_derivative_values =
         ZFEM_utilities.ComputeFEMBasisFunctionsDerivativeValues(localSpace.Dimension,
@@ -122,8 +109,9 @@ ZFEM_PCC_2D_LocalSpace_Data ZFEM_PCC_2D_LocalSpace::CreateLocalSpace(const ZFEM_
                                                                 localSpace.NumBasisFunctions,
                                                                 localSpace.NumVirtualBasisFunctions,
                                                                 localSpace.fem_local_space_data,
-                                                                localSpace.local_to_total,
-                                                                triangles_internal_quadrature_points);
+                                                                localSpace.local_to_total);
+
+    ComputePolynomialsDofs(reference_element_data, localSpace.KernelIncenter, localSpace.Diameter, localSpace);
 
     ZFEM_utilities.ComputeMinimizerSumOfSquaredWeightsMonomials(localSpace.VirtualNodes,
                                                                 localSpace.NumBasisFunctions,
@@ -151,16 +139,8 @@ void ZFEM_PCC_2D_LocalSpace::ComputePolynomialsDofs(const ZFEM_PCC_2D_ReferenceE
                                                     const double &diameter,
                                                     ZFEM_PCC_2D_LocalSpace_Data &localSpace) const
 {
-
-    localSpace.Dmatrix = MatrixXd::Zero(localSpace.NumBasisFunctions, localSpace.Nk);
-
-    localSpace.VanderDOFs =
+    localSpace.Dmatrix =
         monomials.Vander(reference_element_data.monomials_data, localSpace.DOFsCoordinates, internal_points, diameter);
-
-    // boundary degrees of freedom of monomials (values at points on
-    // the boundary)
-    localSpace.Dmatrix = localSpace.VanderDOFs;
-
     localSpace.VanderVirtuals =
         monomials.Vander(reference_element_data.monomials_data, localSpace.VirtualNodes, internal_points, diameter);
 }
