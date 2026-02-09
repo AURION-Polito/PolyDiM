@@ -54,7 +54,7 @@ namespace Polydim
                                                                   0.1,
                                                                   mesh);
 
-      const unsigned int method_order = 1;
+      const unsigned int method_order = 2;
       const auto reference_element_data =
           Polydim::PDETools::LocalSpace_PCC_2D::CreateReferenceElement(Polydim::PDETools::LocalSpace_PCC_2D::MethodTypes::FEM_PCC,
                                                                        method_order);
@@ -80,8 +80,8 @@ namespace Polydim
        {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
 
       const auto mesh_dofs_info = Polydim::PDETools::LocalSpace_PCC_2D::SetMeshDOFsInfo(reference_element_data,
-                                                                                      mesh,
-                                                                                      boundary_info);
+                                                                                        mesh,
+                                                                                        boundary_info);
       const auto dofs_data = dofManager.CreateDOFs_2D(mesh_dofs_info,
                                                       mesh_connectivity_data);
 

@@ -40,7 +40,6 @@ namespace Assembler_Utilities
 
       return source_term;
   };
-
   // ***************************************************************************
   Eigen::VectorXd assembler_source_term(
       const Gedim::GeometryUtilities& geometry_utilities,
@@ -77,7 +76,7 @@ namespace Assembler_Utilities
           const Eigen::VectorXd source_term_values = source_term_evaluation(cell2D_internal_quadrature.Points,
                                                                             source_term_function);
 
-          Eigen::VectorXd local_rhs =
+          const Eigen::VectorXd local_rhs =
               equation.ComputeCellForcingTerm(source_term_values, basis_functions_values, cell2D_internal_quadrature.Weights);
 
           const auto &global_dofs = dofs_data.CellsGlobalDOFs[2].at(c);
