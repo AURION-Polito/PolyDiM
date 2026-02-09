@@ -25,15 +25,31 @@ namespace PDETools
 {
 namespace Assembler_Utilities
 {
+  Eigen::VectorXd source_term_evaluation(const Eigen::MatrixXd &points,
+                                          const std::function<double (const double&, const double&, const double&, const Eigen::VectorXd&)> source_term_function)
+  {
+      Eigen::VectorXd source_term(points.cols());
+
+      for (int i = 0; i < points.cols(); ++i)
+      {
+          source_term[i] = source_term_function(points(0, i),
+                                                points(1, i),
+                                                points(2, i),
+                                                source_term);
+      }
+
+      return source_term;
+  };
+
   // ***************************************************************************
-  Eigen::VectorXd assembler_forcing_term(
+  Eigen::VectorXd assembler_source_term(
       const Gedim::GeometryUtilities& geometry_utilities,
       const Gedim::MeshMatricesDAO &mesh,
       const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
       const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
       const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
       const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
-      const std::function<Eigen::VectorXd (const Eigen::MatrixXd&)> forcing_term_function)
+      const std::function<double (const double&, const double&, const double&, const Eigen::VectorXd&)> source_term_function)
   {
       Gedim::Eigen_Array<> forcing_term;
 
@@ -58,7 +74,8 @@ namespace Assembler_Utilities
           const auto cell2D_internal_quadrature =
               Polydim::PDETools::LocalSpace_PCC_2D::InternalQuadrature(reference_element_data, local_space_data);
 
-          const auto source_term_values = forcing_term_function(cell2D_internal_quadrature.Points);
+          const Eigen::VectorXd source_term_values = source_term_evaluation(cell2D_internal_quadrature.Points,
+                                                                            source_term_function);
 
           Eigen::VectorXd local_rhs =
               equation.ComputeCellForcingTerm(source_term_values, basis_functions_values, cell2D_internal_quadrature.Weights);

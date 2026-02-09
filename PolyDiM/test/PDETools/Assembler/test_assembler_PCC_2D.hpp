@@ -85,26 +85,27 @@ namespace Polydim
       const auto dofs_data = dofManager.CreateDOFs_2D(mesh_dofs_info,
                                                       mesh_connectivity_data);
 
-      auto source_term = [&method_order](const Eigen::MatrixXd &points)
+      auto source_term_function = [&method_order](const double& x, const double& y, const double& z, const Eigen::VectorXd& u)
       {
-        Eigen::VectorXd source_term = Eigen::VectorXd::Constant(points.cols(),
-                                                                2.0 * method_order * (method_order - 1));
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+        double source_term_value = 2.0 * method_order * (method_order - 1);
+        const double polynomial = x + y + 0.5;
 
         const int max_order = method_order - 2;
         for (int i = 0; i < max_order; ++i)
-            source_term.array() *= polynomial;
+            source_term_value *= polynomial;
 
-        return -source_term;
+        return -source_term_value;
       };
 
-      const auto forcing_term = PDETools::Assembler_Utilities::assembler_forcing_term(geometry_utilities,
+      const auto source_term = PDETools::Assembler_Utilities::assembler_source_term(geometry_utilities,
                                                                                       mesh,
                                                                                       mesh_geometric_data,
                                                                                       mesh_dofs_info,
                                                                                       dofs_data,
                                                                                       reference_element_data,
-                                                                                      source_term);
+                                                                                      source_term_function);
+
+      ASSERT_EQ(dofs_data.NumberDOFs, source_term.size());
 
     }
 
