@@ -317,7 +317,7 @@ struct ZFEM_PCC_Utilities final
                 local_to_total.row(t).segment(3 + 2 * NumDOFs1D, NumDOFs1D) =
                     edge_reference_id_dofs + NumBasisFunctions + next_t * NumDOFs1D;
 
-                if (num_pt_triangle[t] > 0)
+                if (NumDOFs2D > 1 && num_pt_triangle[t] > 0)
                 {
                     unsigned int count = 0;
                     const unsigned int repeat_times = ceil(((double)NumDOFs2D) / num_pt_triangle[t]);
@@ -350,24 +350,14 @@ struct ZFEM_PCC_Utilities final
         return local_to_total;
     }
 
-    void ComputeMinimizerSumOfSquaredWeightsMonomials(const Eigen::MatrixXd &virtual_vertices,
-                                                      const unsigned int NumBasisFunctions,
-                                                      const Eigen::MatrixXd &Dmatrix,
+    void ComputeMinimizerSumOfSquaredWeightsMonomials(const Eigen::MatrixXd &Dmatrix,
                                                       const Eigen::MatrixXd &VanderVirtuals,
                                                       Eigen::MatrixXd &weights) const
     {
-        const unsigned int num_virtuals = virtual_vertices.cols();
-
         const Eigen::MatrixXd Mmatrix = Dmatrix.transpose() * Dmatrix;
         const Eigen::LLT<Eigen::MatrixXd> Mmatrix_LLT = Mmatrix.llt();
 
-        weights.resize(NumBasisFunctions, num_virtuals);
-        for (unsigned int j = 0; j < num_virtuals; j++)
-        {
-            const Eigen::VectorXd rhsP = VanderVirtuals.row(j);
-            const Eigen::VectorXd y = Mmatrix_LLT.solve(rhsP);
-            weights.col(j) = Dmatrix * y;
-        }
+        weights = Dmatrix * Mmatrix_LLT.solve(VanderVirtuals.transpose());
     }
 };
 } // namespace PCC
