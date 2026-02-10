@@ -72,11 +72,11 @@ TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
         {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
         {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
         {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 1}},
+        {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
         {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
         {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 1}},
-        {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 1}},
+        {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+        {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
         {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
 
     const auto mesh_dofs_info = Polydim::PDETools::LocalSpace_PCC_2D::SetMeshDOFsInfo(reference_element_data, mesh, boundary_info);
@@ -171,6 +171,13 @@ TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
 
         Gedim::Eigen_Array<> u;
         u.SetSize(dofs_data.NumberDOFs);
+
+        std::cout.precision(2);
+        std::cout<< std::scientific<< A<< std::endl;
+        std::cout<< std::scientific<< A_D<< std::endl;
+        std::cout<< std::scientific<< u_D<< std::endl;
+        std::cout<< std::scientific<< f<< std::endl;
+        std::cout<< std::scientific<< rhs<< std::endl;
 
         Gedim::Eigen_LUSolver solver;
         solver.Initialize(A);

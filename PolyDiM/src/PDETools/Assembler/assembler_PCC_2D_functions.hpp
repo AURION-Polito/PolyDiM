@@ -129,14 +129,6 @@ Sparse_Matrix_Data to_Sparse_Matrix_Data(const Gedim::Eigen_SparseArray<> &A)
         t++;
     }
 
-    std::cout.precision(2);
-    std::cout<< std::scientific<< Eigen::MatrixXd(eigen_A)<< std::endl;
-
-    for (unsigned int i = 0; i < result.rows.size(); ++i)
-    {
-      std::cout<< std::scientific<< result.rows.at(i)<< "x"<< result.cols.at(i)<< ": "<< result.values.at(i)<< std::endl;
-    }
-
     return result;
 }
 // ***************************************************************************
