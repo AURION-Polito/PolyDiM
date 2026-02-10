@@ -579,6 +579,9 @@ Post_Process_Data assembler_post_process(
 {
     Post_Process_Data result;
 
+    const auto num_solution = to_Eigen_Array(numerical_solution);
+    const auto num_solution_strong = to_Eigen_Array(numerical_solution_strong);
+
     result.cell0Ds_numeric.setZero(mesh.Cell0DTotalNumber());
     result.cell0Ds_exact.setZero(mesh.Cell0DTotalNumber());
 
@@ -647,8 +650,8 @@ Post_Process_Data assembler_post_process(
                                                                                 local_count_dofs.offsets_DOFs,
                                                                                 {0},
                                                                                 {0},
-                                                                                numerical_solution,
-                                                                                numerical_solution_strong);
+                                                                                num_solution,
+                                                                                num_solution_strong);
 
         const Eigen::VectorXd local_error_L2 = (basis_functions_values * dofs_values - exact_solution_values).array().square();
         const Eigen::VectorXd local_numeric_norm_L2 = (basis_functions_values * dofs_values).array().square();
