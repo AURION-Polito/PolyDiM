@@ -32,8 +32,10 @@ void create_domain_mesh(const Polydim::examples::Elliptic_PCC_2D::Program_config
                         const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D &domain,
                         Gedim::MeshMatricesDAO &mesh);
 
-Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_properties(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
-                                                                                  const Gedim::MeshMatricesDAO &mesh);
+Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_properties(
+    const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
+    const Gedim::MeshUtilities::MeshGeometricData2DConfig &mesh_geometric_data_config,
+    const Gedim::MeshMatricesDAO &mesh);
 
 void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configuration &config,
                      const Gedim::MeshMatricesDAO &mesh,

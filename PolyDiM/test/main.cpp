@@ -34,6 +34,10 @@
 #include "test_VEM_DF_PCC_2D_LocalSpace.hpp"
 #include "test_VEM_DF_PCC_3D_LocalSpace.hpp"
 
+#include "test_ZFEM_PCC_2D_LocalSpace.hpp"
+
+#include "test_assembler_PCC_2D.hpp"
+
 int main(int argc, char *argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);

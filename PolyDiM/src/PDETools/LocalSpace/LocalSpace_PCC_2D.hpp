@@ -14,13 +14,15 @@
 
 #include "DOFsManager.hpp"
 #include "FEM_PCC_2D_LocalSpace.hpp"
+#include "IArray.hpp"
 #include "I_VEM_PCC_2D_ReferenceElement.hpp"
-#include "MeshMatricesDAO.hpp"
+#include "I_ZFEM_PCC_2D_LocalSpace.hpp"
 #include "MeshUtilities.hpp"
 #include "QuadratureData.hpp"
 #include "VEM_PCC_2D_Creator.hpp"
 #include "VEM_PCC_2D_LocalSpace_Data.hpp"
 #include "VEM_PCC_PerformanceAnalysis.hpp"
+#include "ZFEM_PCC_PerformanceAnalysis.hpp"
 
 namespace Polydim
 {
@@ -33,7 +35,8 @@ enum struct MethodTypes
     FEM_PCC = 0,
     VEM_PCC = 1,
     VEM_PCC_Inertia = 2,
-    VEM_PCC_Ortho = 3
+    VEM_PCC_Ortho = 3,
+    ZFEM_PCC = 4
 };
 
 class ReferenceElement_Data final
@@ -50,6 +53,10 @@ class ReferenceElement_Data final
     std::unique_ptr<Polydim::FEM::PCC::FEM_PCC_2D_ReferenceElement> FEM_ReferenceElement;
     Polydim::FEM::PCC::FEM_PCC_2D_ReferenceElement_Data FEM_ReferenceElement_Data;
     std::unique_ptr<Polydim::FEM::PCC::FEM_PCC_2D_LocalSpace> FEM_LocalSpace;
+
+    std::unique_ptr<Polydim::ZFEM::PCC::I_ZFEM_PCC_2D_ReferenceElement> ZFEM_ReferenceElement;
+    Polydim::ZFEM::PCC::ZFEM_PCC_2D_ReferenceElement_Data ZFEM_ReferenceElement_Data;
+    std::unique_ptr<ZFEM::PCC::I_ZFEM_PCC_2D_LocalSpace> ZFEM_LocalSpace;
 };
 
 class LocalSpace_Data final
@@ -60,6 +67,9 @@ class LocalSpace_Data final
 
     Polydim::FEM::PCC::FEM_PCC_2D_Polygon_Geometry FEM_Geometry;
     Polydim::FEM::PCC::FEM_PCC_2D_LocalSpace_Data FEM_LocalSpace_Data;
+
+    Polydim::ZFEM::PCC::ZFEM_PCC_2D_Polygon_Geometry ZFEM_Geometry;
+    Polydim::ZFEM::PCC::ZFEM_PCC_2D_LocalSpace_Data ZFEM_LocalSpace_Data;
 };
 
 class Performance_Data final
@@ -70,14 +80,17 @@ class Performance_Data final
       public:
         unsigned int NumBoundaryQuadraturePoints = 0;
         unsigned int NumInternalQuadraturePoints = 0;
-        Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis_Data Analysis;
+        Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis_Data vem_analysis_data;
+        ZFEM::PCC::ZFEM_PCC_PerformanceAnalysis_Data zfem_analysis_data;
     };
 
-    Polydim::PDETools::LocalSpace_PCC_2D::Performance_Data::Cell2D_Performance VEM_Performance_Data;
+    Polydim::PDETools::LocalSpace_PCC_2D::Performance_Data::Cell2D_Performance performance_data;
 };
 
 Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data CreateReferenceElement(const Polydim::PDETools::LocalSpace_PCC_2D::MethodTypes &method_type,
                                                                                    const unsigned int method_order);
+
+Gedim::MeshUtilities::MeshGeometricData2DConfig MeshGeometricDataConfigiguration(const ReferenceElement_Data &reference_element_data);
 
 Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo SetMeshDOFsInfo(
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
@@ -145,6 +158,17 @@ unsigned int Size(const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_D
 Polydim::PDETools::LocalSpace_PCC_2D::Performance_Data ComputePerformance(
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
     const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data);
+
+void export_dofs(const Gedim::GeometryUtilities &geometry_utilities,
+                 const Gedim::MeshMatricesDAO &mesh,
+                 const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                 const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                 const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                 const Gedim::IArray &right_hand_side,
+                 const Gedim::IArray &solution,
+                 const Gedim::IArray &solution_strongs,
+                 const std::string &file_path);
+
 } // namespace LocalSpace_PCC_2D
 } // namespace PDETools
 } // namespace Polydim

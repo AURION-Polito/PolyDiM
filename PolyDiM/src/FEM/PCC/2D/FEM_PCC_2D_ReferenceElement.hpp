@@ -15,6 +15,7 @@
 #include "Eigen/Eigen"
 #include "FEM_Quadrilateral_PCC_2D_ReferenceElement.hpp"
 #include "FEM_Triangle_PCC_2D_ReferenceElement.hpp"
+#include "MeshUtilities.hpp"
 
 namespace Polydim
 {
@@ -30,6 +31,9 @@ struct FEM_PCC_2D_ReferenceElement_Data final
     unsigned int NumDofs1D;
     Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement_Data triangle_reference_element_data;
     Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement_Data quadrilateral_reference_element_data;
+
+    Gedim::MeshUtilities::MeshGeometricData2DConfig mesh_geometric_data_config = Gedim::MeshUtilities::MeshGeometricData2DConfig(
+        {false, false, false, false, true, true, false, true, true, true, false, false, false});
 };
 
 struct FEM_PCC_2D_ReferenceElement final

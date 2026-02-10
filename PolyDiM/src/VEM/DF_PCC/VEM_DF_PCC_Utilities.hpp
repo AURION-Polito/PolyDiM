@@ -109,7 +109,7 @@ struct VEM_DF_PCC_Utilities final
 
 #if PYBIND == 1
     template <typename MonomialType>
-    inline Eigen::MatrixXd ComputePolynomialsValues(const Eigen::MatrixXd &vanderInternal, const MonomialType &monomials) const
+    inline Eigen::MatrixXd ComputePolynomialsValues(const Eigen::MatrixXd &vanderInternal, const MonomialType &) const
     {
         return vanderInternal;
     }
@@ -133,7 +133,7 @@ struct VEM_DF_PCC_Utilities final
 #if PYBIND == 1
     template <typename MonomialType>
     inline std::vector<Eigen::MatrixXd> ComputePolynomialsDerivativeValues(const std::vector<Eigen::MatrixXd> &vanderInternalDerivatives,
-                                                                           const MonomialType &monomials) const
+                                                                           const MonomialType &) const
     {
         return vanderInternalDerivatives;
     }

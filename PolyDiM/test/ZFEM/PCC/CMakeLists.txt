@@ -1,5 +1,4 @@
-add_subdirectory(Assembler)
-add_subdirectory(DOFs)
+list(APPEND polydim_test_headers ${CMAKE_CURRENT_SOURCE_DIR}/test_ZFEM_PCC_2D_LocalSpace.hpp)
 
 list(APPEND polydim_test_includes ${CMAKE_CURRENT_SOURCE_DIR})
 

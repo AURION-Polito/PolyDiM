@@ -374,13 +374,16 @@ inline Gedim::MeshUtilities::MeshGeometricData1D compute_mesh_1D_geometry_data(c
     return mesh_utilities.FillMesh1DGeometricData(geometry_utilities, mesh);
 }
 
-inline Gedim::MeshUtilities::MeshGeometricData2D compute_mesh_2D_geometry_data(const Gedim::GeometryUtilities &geometry_utilities,
-                                                                               const Gedim::MeshUtilities &mesh_utilities,
-                                                                               const Gedim::MeshMatricesDAO &mesh)
+inline Gedim::MeshUtilities::MeshGeometricData2D compute_mesh_2D_geometry_data(
+    const Gedim::GeometryUtilities &geometry_utilities,
+    const Gedim::MeshUtilities &mesh_utilities,
+    const Gedim::MeshMatricesDAO &mesh,
+    const Gedim::MeshUtilities::MeshGeometricData2DConfig &mesh_geometric_data_config = Gedim::MeshUtilities::MeshGeometricData2DConfig(
+        {true, true, true, true, true, true, true, true, true, true, true, true, true}))
 {
     std::vector<Gedim::GeometryUtilities::PolygonTypes> cell2Ds_types(mesh.Cell2DTotalNumber(),
                                                                       Gedim::GeometryUtilities::PolygonTypes::Generic_Concave);
-    return mesh_utilities.FillMesh2DGeometricData(geometry_utilities, mesh, cell2Ds_types);
+    return mesh_utilities.FillMesh2DGeometricData(geometry_utilities, mesh, cell2Ds_types, mesh_geometric_data_config);
 }
 
 inline Gedim::MeshUtilities::MeshGeometricData3D compute_mesh_3D_geometry_data(const Gedim::GeometryUtilities &geometry_utilities,

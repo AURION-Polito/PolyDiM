@@ -637,7 +637,7 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_2D_O1)
 TEST(Test_VEM_PCC, Test_VEM_PCC_2D_O2)
 {
 
-    const std::string exportFolder = "VEM/PCC/Test_VEM_PCC_2D_O2";
+    const std::string exportFolder = "ExportParaview/VEM/PCC/Test_VEM_PCC_2D_O2";
     Gedim::Output::CreateFolder(exportFolder);
 
     Gedim::GeometryUtilitiesConfig geometry_utilities_config;

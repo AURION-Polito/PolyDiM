@@ -1,5 +1,4 @@
-add_subdirectory(Assembler)
-add_subdirectory(DOFs)
+add_subdirectory(PCC)
 
 list(APPEND polydim_test_includes ${CMAKE_CURRENT_SOURCE_DIR})
 
