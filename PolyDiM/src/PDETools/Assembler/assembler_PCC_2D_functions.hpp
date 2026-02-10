@@ -44,6 +44,12 @@ struct Sparse_Matrix_Data final
     std::vector<double> values;
 };
 // ***************************************************************************
+struct Exact_Solution_Data final
+{
+    Eigen::VectorXd exact_solution;
+    Eigen::VectorXd exact_solution_strong;
+};
+// ***************************************************************************
 struct Variational_Operator final
 {
     Sparse_Matrix_Data A;
@@ -63,7 +69,12 @@ std::list<Eigen::Triplet<double>> to_triplets(const Eigen::SparseMatrix<double> 
     return v;
 }
 // ***************************************************************************
-Gedim::Eigen_Array<> to_Eigen_Array(const Eigen::VectorXd &v)
+inline Eigen::VectorXd to_VectorXd(const Gedim::Eigen_Array<> &v)
+{
+    return static_cast<const Eigen::VectorXd &>(v);
+}
+// ***************************************************************************
+inline Gedim::Eigen_Array<> to_Eigen_Array(const Eigen::VectorXd &v)
 {
     return Gedim::Eigen_Array<>(v);
 }
@@ -142,6 +153,19 @@ Eigen::VectorXd function_evaluation(const unsigned int marker,
     return function_values;
 };
 // ***************************************************************************
+Eigen::VectorXd function_evaluation(const Eigen::MatrixXd &points,
+                                    const std::function<double(const double &, const double &, const double &)> f)
+{
+    Eigen::VectorXd function_values(points.cols());
+
+    for (int i = 0; i < points.cols(); ++i)
+    {
+        function_values[i] = f(points(0, i), points(1, i), points(2, i));
+    }
+
+    return function_values;
+};
+// ***************************************************************************
 Eigen::VectorXd assembler_source_term(
     const Gedim::GeometryUtilities &geometry_utilities,
     const Gedim::MeshMatricesDAO &mesh,
@@ -190,6 +214,8 @@ Eigen::VectorXd assembler_source_term(
                                                                                           local_rhs,
                                                                                           forcing_term);
     }
+
+    forcing_term.Create();
 
     return static_cast<Eigen::VectorXd &>(forcing_term);
 }
@@ -371,7 +397,149 @@ Eigen::VectorXd assembler_strong_solution(
         }
     }
 
+    strong_solution.Create();
+
     return static_cast<Eigen::VectorXd &>(strong_solution);
+}
+// ***************************************************************************
+Exact_Solution_Data assembler_exact_solution(
+    const Gedim::GeometryUtilities &geometry_utilities,
+    const Gedim::MeshMatricesDAO &mesh,
+    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+    const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+    const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
+    const std::function<double(const double &, const double &, const double &)> exact_solution_function)
+{
+  Gedim::Eigen_Array<> exact_solution;
+  Gedim::Eigen_Array<> exact_solution_strong;
+
+  exact_solution.SetSize(dofs_data.NumberDOFs);
+  exact_solution_strong.SetSize(dofs_data.NumberStrongs);
+
+    // Assemble equation elements
+    for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
+    {
+        // DOFs: vertices
+        const Eigen::MatrixXd coordinates = mesh.Cell2DVerticesCoordinates(c);
+        const Eigen::VectorXd dofs_vertices = function_evaluation(coordinates,
+                                                                  exact_solution_function);
+
+        // Assemble local numerical solution
+        unsigned int count = 0;
+        for (unsigned int p = 0; p < mesh.Cell2DNumberVertices(c); p++)
+        {
+            const unsigned int cell0D_index = mesh.Cell2DVertex(c, p);
+
+            const auto local_dofs = dofs_data.CellsDOFs.at(0).at(cell0D_index);
+            for (unsigned int loc_i = 0; loc_i < local_dofs.size(); loc_i++)
+            {
+                const auto &local_dof_i = local_dofs.at(loc_i);
+                const int global_i = local_dof_i.Global_Index;
+
+                switch (local_dof_i.Type)
+                {
+                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong: {
+                    exact_solution_strong.SetValue(global_i, dofs_vertices(count++));
+                }
+                break;
+                case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
+                    exact_solution.SetValue(global_i, dofs_vertices(count++));
+                }
+                break;
+                default:
+                    throw std::runtime_error("Unknown DOF Type");
+                }
+            }
+        }
+
+        // Assemble strong boundary condition on Cell1Ds
+        if (reference_element_data.Order > 1)
+        {
+          const auto local_space_data = Polydim::PDETools::LocalSpace_PCC_2D::CreateLocalSpace(geometry_utilities.Tolerance1D(),
+                                                                                               geometry_utilities.Tolerance2D(),
+                                                                                               mesh_geometric_data,
+                                                                                               c,
+                                                                                               reference_element_data);
+
+
+            // Assemble strong boundary condition on Cell1Ds
+            for (unsigned int ed = 0; ed < mesh.Cell2DNumberEdges(c); ++ed)
+            {
+                const unsigned int cell1D_index = mesh.Cell2DEdge(c, ed);
+
+                const auto local_dofs = dofs_data.CellsDOFs.at(1).at(cell1D_index);
+
+                const auto edge_dofs_coordinates =
+                    Polydim::PDETools::LocalSpace_PCC_2D::EdgeDofsCoordinates(reference_element_data, local_space_data, ed);
+
+                const Eigen::VectorXd dofs_edge = function_evaluation(edge_dofs_coordinates,
+                                                                      exact_solution_function);
+
+                for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
+                {
+                    const auto &local_dof_i = local_dofs.at(loc_i);
+                    const int global_i = local_dof_i.Global_Index;
+
+                    switch (local_dof_i.Type)
+                    {
+                    case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong: {
+                        exact_solution_strong.SetValue(global_i, dofs_edge(loc_i));
+                    }
+                    break;
+                    case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
+                        exact_solution.SetValue(global_i, dofs_edge(loc_i));
+                    }
+                    break;
+                    default:
+                        throw std::runtime_error("Unknown DOF Type");
+                    }
+                }
+            }
+
+            const auto local_dofs = dofs_data.CellsDOFs.at(2).at(c);
+
+            if (local_dofs.size())
+            {
+                const auto internal_dofs_coordinates =
+                    Polydim::PDETools::LocalSpace_PCC_2D::InternalDofsCoordinates(reference_element_data, local_space_data);
+
+                const Eigen::VectorXd initial_values_at_dofs = function_evaluation(internal_dofs_coordinates.Points,
+                                                                                   exact_solution_function);
+
+                const Eigen::VectorXd dofs_internal =
+                    Polydim::PDETools::LocalSpace_PCC_2D::InternalDofs(reference_element_data,
+                                                                       local_space_data,
+                                                                       initial_values_at_dofs,
+                                                                       internal_dofs_coordinates);
+
+                for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
+                {
+                    const auto &local_dof_i = local_dofs.at(loc_i);
+                    const int global_i = local_dof_i.Global_Index;
+
+                    switch (local_dof_i.Type)
+                    {
+                    case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong: {
+                        exact_solution_strong.SetValue(global_i, dofs_internal(loc_i));
+                    }
+                    break;
+                    case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
+                        exact_solution.SetValue(global_i, dofs_internal(loc_i));
+                    }
+                    break;
+                    default:
+                        throw std::runtime_error("Unknown DOF Type");
+                    }
+                }
+            }
+        }
+    }
+
+    exact_solution.Create();
+    exact_solution_strong.Create();
+
+    return { static_cast<Eigen::VectorXd &>(exact_solution), static_cast<Eigen::VectorXd &>(exact_solution_strong) };
 }
 // ***************************************************************************
 } // namespace PCC_2D

@@ -148,6 +148,18 @@ TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
 
     ASSERT_EQ(dofs_data.NumberStrongs, strong_solution.size());
 
+
+    const auto exact_solution = PDETools::Assembler_Utilities::PCC_2D::assembler_exact_solution(geometry_utilities,
+                                                                                                mesh,
+                                                                                                mesh_geometric_data,
+                                                                                                mesh_dofs_info,
+                                                                                                dofs_data,
+                                                                                                reference_element_data,
+                                                                                                exact_solution_function);
+
+    ASSERT_EQ(dofs_data.NumberDOFs, exact_solution.exact_solution.size());
+    ASSERT_EQ(dofs_data.NumberStrongs, exact_solution.exact_solution_strong.size());
+
     {
         const auto f = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(source_term);
         const auto u_D = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(strong_solution);
@@ -163,6 +175,9 @@ TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
         Gedim::Eigen_LUSolver solver;
         solver.Initialize(A);
         solver.Solve(rhs, u);
+
+        ASSERT_TRUE((PDETools::Assembler_Utilities::PCC_2D::to_VectorXd(u) -
+                    exact_solution.exact_solution).norm() < 1.0e-13 * exact_solution.exact_solution.norm());
     }
 }
 
