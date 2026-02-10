@@ -113,9 +113,7 @@ ZFEM_PCC_2D_LocalSpace_Data ZFEM_PCC_2D_LocalSpace::CreateLocalSpace(const ZFEM_
 
     ComputePolynomialsDofs(reference_element_data, localSpace.KernelIncenter, localSpace.Diameter, localSpace);
 
-    ZFEM_utilities.ComputeMinimizerSumOfSquaredWeightsMonomials(localSpace.VirtualNodes,
-                                                                localSpace.NumBasisFunctions,
-                                                                localSpace.Dmatrix,
+    ZFEM_utilities.ComputeMinimizerSumOfSquaredWeightsMonomials(localSpace.Dmatrix,
                                                                 localSpace.VanderVirtuals,
                                                                 localSpace.VirtualWeights);
 

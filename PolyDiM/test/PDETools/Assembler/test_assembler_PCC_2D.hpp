@@ -54,7 +54,7 @@ TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
                                                                 0.1,
                                                                 mesh);
 
-    const unsigned int method_order = 2;
+    const unsigned int method_order = 1;
     const auto reference_element_data =
         Polydim::PDETools::LocalSpace_PCC_2D::CreateReferenceElement(Polydim::PDETools::LocalSpace_PCC_2D::MethodTypes::FEM_PCC,
                                                                      method_order);
@@ -72,11 +72,11 @@ TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
         {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
         {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
         {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 1}},
+        {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
         {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
         {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 1}},
-        {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 1}},
+        {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+        {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
         {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
 
     const auto mesh_dofs_info = Polydim::PDETools::LocalSpace_PCC_2D::SetMeshDOFsInfo(reference_element_data, mesh, boundary_info);
@@ -148,6 +148,18 @@ TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
 
     ASSERT_EQ(dofs_data.NumberStrongs, strong_solution.size());
 
+
+    const auto exact_solution = PDETools::Assembler_Utilities::PCC_2D::assembler_exact_solution(geometry_utilities,
+                                                                                                mesh,
+                                                                                                mesh_geometric_data,
+                                                                                                mesh_dofs_info,
+                                                                                                dofs_data,
+                                                                                                reference_element_data,
+                                                                                                exact_solution_function);
+
+    ASSERT_EQ(dofs_data.NumberDOFs, exact_solution.exact_solution.size());
+    ASSERT_EQ(dofs_data.NumberStrongs, exact_solution.exact_solution_strong.size());
+
     {
         const auto f = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(source_term);
         const auto u_D = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(strong_solution);
@@ -160,9 +172,34 @@ TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
         Gedim::Eigen_Array<> u;
         u.SetSize(dofs_data.NumberDOFs);
 
+        std::cout.precision(2);
+        std::cout<< std::scientific<< A<< std::endl;
+        std::cout<< std::scientific<< A_D<< std::endl;
+        std::cout<< std::scientific<< u_D<< std::endl;
+        std::cout<< std::scientific<< f<< std::endl;
+        std::cout<< std::scientific<< rhs<< std::endl;
+
         Gedim::Eigen_LUSolver solver;
         solver.Initialize(A);
         solver.Solve(rhs, u);
+
+        const auto numeric_solution = PDETools::Assembler_Utilities::PCC_2D::to_VectorXd(u);
+
+        const auto post_process_data = PDETools::Assembler_Utilities::PCC_2D::assembler_post_process(geometry_utilities,
+                                                                                                     mesh,
+                                                                                                     mesh_geometric_data,
+                                                                                                     mesh_dofs_info,
+                                                                                                     dofs_data,
+                                                                                                     reference_element_data,
+                                                                                                     numeric_solution,
+                                                                                                     strong_solution,
+                                                                                                     exact_solution_function);
+
+
+        ASSERT_TRUE((strong_solution -
+                    exact_solution.exact_solution_strong).norm() < 1.0e-13 * exact_solution.exact_solution_strong.norm());
+        ASSERT_TRUE((numeric_solution -
+                    exact_solution.exact_solution).norm() < 1.0e-13 * exact_solution.exact_solution.norm());
     }
 }
 

@@ -238,18 +238,16 @@ struct ZFEM_PCC_Utilities final
     {
         Eigen::MatrixXi local_to_total(num_vertices, 3 * (1 + NumDOFs1D) + NumDOFs2D);
 
+        const Eigen::ArrayXi edge_reference_id_dofs = Eigen::VectorXi::LinSpaced(NumDOFs1D, 0, NumDOFs1D - 1);
+
         // Vertex and boundary DOFs
         for (unsigned int t = 0; t < num_vertices; t++)
         {
             const unsigned int next_t = (t + 1) % num_vertices;
 
-            const Eigen::VectorXi a =
-                Eigen::VectorXi::LinSpaced(NumDOFs1D, num_vertices + t * NumDOFs1D, num_vertices + t * NumDOFs1D + NumDOFs1D - 1);
-
             local_to_total(t, 1) = t;
             local_to_total(t, 2) = next_t;
-            local_to_total.row(t).segment(3 + NumDOFs1D, NumDOFs1D) =
-                Eigen::VectorXi::LinSpaced(NumDOFs1D, num_vertices + t * NumDOFs1D, num_vertices + t * NumDOFs1D + NumDOFs1D - 1);
+            local_to_total.row(t).segment(3 + NumDOFs1D, NumDOFs1D) = edge_reference_id_dofs + t * NumDOFs1D + num_vertices;
         }
 
         if (order <= 2)
@@ -260,97 +258,65 @@ struct ZFEM_PCC_Utilities final
             {
                 const unsigned int next_t = (t + 1) % num_vertices;
 
-                local_to_total.row(t).segment(3, NumDOFs1D) =
-                    Eigen::VectorXi::LinSpaced(NumDOFs1D,
-                                               NumBasisFunctions + 1 + t * NumDOFs1D,
-                                               NumBasisFunctions + 1 + t * NumDOFs1D + NumDOFs1D - 1);
-
+                local_to_total.row(t).segment(3, NumDOFs1D) = edge_reference_id_dofs + NumBasisFunctions + 1 + t * NumDOFs1D;
                 local_to_total.row(t).segment(3 + 2 * NumDOFs1D, NumDOFs1D) =
-                    Eigen::VectorXi::LinSpaced(NumDOFs1D,
-                                               NumBasisFunctions + 1 + next_t * NumDOFs1D,
-                                               NumBasisFunctions + 1 + next_t * NumDOFs1D + NumDOFs1D - 1);
+                    edge_reference_id_dofs + NumBasisFunctions + 1 + next_t * NumDOFs1D;
             }
         }
         else if (order == 3)
         {
             local_to_total.col(0) = Eigen::VectorXi::Constant(num_vertices, NumBasisFunctions - 1);
-            local_to_total.col(3 + 3 * NumDOFs1D) = Eigen::VectorXi::Constant(num_vertices, NumBasisFunctions - 1);
 
             for (unsigned int t = 0; t < num_vertices; t++)
             {
                 const unsigned int next_t = (t + 1) % num_vertices;
 
-                local_to_total.row(t).segment(3, NumDOFs1D) =
-                    Eigen::VectorXi::LinSpaced(NumDOFs1D,
-                                               NumBasisFunctions + t * NumDOFs1D,
-                                               NumBasisFunctions + t * NumDOFs1D + NumDOFs1D - 1);
-
+                local_to_total.row(t).segment(3, NumDOFs1D) = edge_reference_id_dofs + NumBasisFunctions + t * NumDOFs1D;
                 local_to_total.row(t).segment(3 + 2 * NumDOFs1D, NumDOFs1D) =
-                    Eigen::VectorXi::LinSpaced(NumDOFs1D,
-                                               NumBasisFunctions + next_t * NumDOFs1D,
-                                               NumBasisFunctions + next_t * NumDOFs1D + NumDOFs1D - 1);
-
+                    edge_reference_id_dofs + NumBasisFunctions + next_t * NumDOFs1D;
                 local_to_total(t, 3 + 3 * NumDOFs1D) = NumBasisFunctions + num_vertices * NumDOFs1D + t;
             }
         }
         else
         {
+            local_to_total.col(0) = Eigen::VectorXi::Constant(num_vertices, NumBasisFunctions - NumDOFs2D);
+
             const unsigned int base = (NumDOFs2D - 1) / num_vertices;
             const unsigned int other = (NumDOFs2D - 1) % num_vertices;
 
-            std::vector<unsigned int> sort_area_indices(num_vertices, 0);
+            std::vector<unsigned int> num_pt_triangle(num_vertices, 0);
 
-            std::vector<unsigned int> ord_dofs(NumDOFs2D, 0);
-            std::iota(ord_dofs.begin(), ord_dofs.end(), 0);
-
-            // ordinati come nella mesh
-            std::iota(sort_area_indices.begin(), sort_area_indices.end(), 0);
             const unsigned int num_selected_triangles = NumDOFs2D - 1;
-            if (num_selected_triangles > 1)
+
+            unsigned int count = 0;
+            const unsigned int repeat_times = ceil(num_vertices / ((double)num_selected_triangles));
+            for (unsigned int i = 0; i < repeat_times; i++)
             {
-                unsigned int count = 0;
-                const unsigned int repeat_times = ceil(num_vertices / ((double)num_selected_triangles));
-                for (unsigned int i = 0; i < repeat_times; i++)
+                for (unsigned int j = 0; j < num_selected_triangles; j++)
                 {
-                    for (unsigned int j = 0; j < (num_selected_triangles); j++)
+                    if (i + j * repeat_times < num_vertices && count < num_vertices)
                     {
-                        if (i + j * repeat_times < num_vertices && count < num_vertices)
-                            sort_area_indices[count++] = i + j * repeat_times;
+                        num_pt_triangle[i + j * repeat_times] = base + (count < other ? 1 : 0);
+                        count++;
                     }
                 }
             }
 
-            // In modo casuale
-            // auto rng = std::default_random_engine{};
-            // std::ranges::shuffle(sort_area_indices, rng);
-
-            // ordinati per area
-            // std::sort(sort_area_indices.begin(), sort_area_indices.end(), [&triangles_area](size_t i1, size_t i2) {
-            //     return triangles_area[i1] < triangles_area[i2];
-            // });
-
-            std::vector<unsigned int> num_pt_triangle(num_vertices, 0);
-            for (unsigned int i = 0; i < num_vertices; ++i)
-                num_pt_triangle[sort_area_indices[i]] = base + (i < other ? 1 : 0);
-
-            std::vector<unsigned int> p_mod(NumDOFs2D);
             unsigned int offset_internal = NumBasisFunctions + num_vertices * NumDOFs1D;
             unsigned int offset_internal_dof = NumBasisFunctions - NumDOFs2D + 1;
+
+            std::vector<unsigned int> copy_ordered(NumDOFs2D);
+            std::iota(copy_ordered.begin(), copy_ordered.end(), 0);
+
+            std::vector<unsigned int> p_mod(NumDOFs2D);
             for (unsigned int t = 0; t < num_vertices; t++)
             {
                 const unsigned int next_t = (t + 1) % num_vertices;
 
-                for (unsigned int p = 0; p < NumDOFs1D; p++)
-                {
-                    local_to_total(t, 3 + p) = NumBasisFunctions + t * NumDOFs1D + p;
-                    local_to_total(t, 3 + 2 * NumDOFs1D + p) = NumBasisFunctions + next_t * NumDOFs1D + p;
-                }
+                local_to_total.row(t).segment(3, NumDOFs1D) = edge_reference_id_dofs + NumBasisFunctions + t * NumDOFs1D;
+                local_to_total.row(t).segment(3 + 2 * NumDOFs1D, NumDOFs1D) =
+                    edge_reference_id_dofs + NumBasisFunctions + next_t * NumDOFs1D;
 
-                local_to_total(t, 0) = NumBasisFunctions - NumDOFs2D;
-
-                std::rotate(ord_dofs.begin(), ord_dofs.begin() + 1, ord_dofs.end());
-
-                std::iota(p_mod.begin(), p_mod.end(), 0);
                 if (NumDOFs2D > 1 && num_pt_triangle[t] > 0)
                 {
                     unsigned int count = 0;
@@ -360,20 +326,22 @@ struct ZFEM_PCC_Utilities final
                         for (unsigned int j = 0; j < num_pt_triangle[t]; j++)
                         {
                             if (i + j * repeat_times < NumDOFs2D && count < NumDOFs2D)
-                                p_mod[count++] = i + j * repeat_times;
+                                p_mod[count++] = (i + j * repeat_times + t + 1) % NumDOFs2D;
                         }
                     }
                 }
+                else
+                    p_mod = copy_ordered;
 
                 for (unsigned int p = 0; p < num_pt_triangle[t]; p++)
                 {
-                    local_to_total(t, 3 * (NumDOFs1D + 1) + ord_dofs[p_mod[p]]) = offset_internal_dof;
+                    local_to_total(t, 3 * (NumDOFs1D + 1) + p_mod[p]) = offset_internal_dof;
                     offset_internal_dof += 1;
                 }
 
                 for (unsigned int p = num_pt_triangle[t]; p < NumDOFs2D; p++)
                 {
-                    local_to_total(t, 3 * (NumDOFs1D + 1) + ord_dofs[p_mod[p]]) = offset_internal;
+                    local_to_total(t, 3 * (NumDOFs1D + 1) + p_mod[p]) = offset_internal;
                     offset_internal += 1;
                 }
             }
@@ -382,24 +350,14 @@ struct ZFEM_PCC_Utilities final
         return local_to_total;
     }
 
-    void ComputeMinimizerSumOfSquaredWeightsMonomials(const Eigen::MatrixXd &virtual_vertices,
-                                                      const unsigned int NumBasisFunctions,
-                                                      const Eigen::MatrixXd &Dmatrix,
+    void ComputeMinimizerSumOfSquaredWeightsMonomials(const Eigen::MatrixXd &Dmatrix,
                                                       const Eigen::MatrixXd &VanderVirtuals,
                                                       Eigen::MatrixXd &weights) const
     {
-        const unsigned int num_virtuals = virtual_vertices.cols();
-
         const Eigen::MatrixXd Mmatrix = Dmatrix.transpose() * Dmatrix;
         const Eigen::LLT<Eigen::MatrixXd> Mmatrix_LLT = Mmatrix.llt();
 
-        weights.resize(NumBasisFunctions, num_virtuals);
-        for (unsigned int j = 0; j < num_virtuals; j++)
-        {
-            const Eigen::VectorXd rhsP = VanderVirtuals.row(j);
-            const Eigen::VectorXd y = Mmatrix_LLT.solve(rhsP);
-            weights.col(j) = Dmatrix * y;
-        }
+        weights = Dmatrix * Mmatrix_LLT.solve(VanderVirtuals.transpose());
     }
 };
 } // namespace PCC
