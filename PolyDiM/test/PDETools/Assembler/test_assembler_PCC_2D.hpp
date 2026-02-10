@@ -176,6 +176,8 @@ TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
         solver.Initialize(A);
         solver.Solve(rhs, u);
 
+        ASSERT_TRUE((PDETools::Assembler_Utilities::PCC_2D::to_VectorXd(u_D) -
+                    exact_solution.exact_solution_strong).norm() < 1.0e-13 * exact_solution.exact_solution_strong.norm());
         ASSERT_TRUE((PDETools::Assembler_Utilities::PCC_2D::to_VectorXd(u) -
                     exact_solution.exact_solution).norm() < 1.0e-13 * exact_solution.exact_solution.norm());
     }
