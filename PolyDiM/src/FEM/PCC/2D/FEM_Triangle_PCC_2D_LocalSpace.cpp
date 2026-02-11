@@ -83,10 +83,6 @@ FEM_Triangle_PCC_2D_LocalSpace_Data FEM_Triangle_PCC_2D_LocalSpace::CreateLocalS
         dofCounter++;
     }
 
-    localSpace.dofs_permutation.resize(localSpace.NumberOfBasisFunctions);
-    for (unsigned int d = 0; d < localSpace.NumberOfBasisFunctions; ++d)
-        localSpace.dofs_permutation.indices()[localSpace.DofsMeshOrder.at(d)] = d;
-
     // reorder basis function values with mesh order
     localSpace.Dofs = MapValues(localSpace, Gedim::MapTriangle::F(localSpace.MapData, reference_element_data.DofPositions));
 
@@ -107,8 +103,8 @@ std::vector<MatrixXd> FEM_Triangle_PCC_2D_LocalSpace::MapDerivativeValues(const 
     basis_functions_reordered.at(1).noalias() = local_space.MapData.BInv(0, 1) * referenceDerivateValues.at(0);
     basis_functions_reordered.at(1).noalias() += local_space.MapData.BInv(1, 1) * referenceDerivateValues.at(1);
 
-    basis_functions_reordered.at(0) *= local_space.dofs_permutation;
-    basis_functions_reordered.at(1) *= local_space.dofs_permutation;
+    basis_functions_reordered.at(0) =  basis_functions_reordered.at(0)(Eigen::all, local_space.DofsMeshOrder);
+    basis_functions_reordered.at(1) =  basis_functions_reordered.at(1)(Eigen::all, local_space.DofsMeshOrder);
 
     return basis_functions_reordered;
 }
