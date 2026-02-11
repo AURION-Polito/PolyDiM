@@ -27,14 +27,14 @@ namespace PDE_Mesh_Utilities
 {
 class PDE_Domain_1D final
 {
-  public:
+public:
     Eigen::MatrixXd vertices;
     double length;
 };
 
 class PDE_Domain_2D final
 {
-  public:
+public:
     enum class Domain_Shape_Types
     {
         Parallelogram = 0,
@@ -62,7 +62,7 @@ struct PDE_Time_Domain_2D final
 
 class PDE_Domain_3D final
 {
-  public:
+public:
     enum class Domain_Shape_Types
     {
         Parallelepiped = 0,
@@ -378,8 +378,9 @@ inline Gedim::MeshUtilities::MeshGeometricData2D compute_mesh_2D_geometry_data(
     const Gedim::GeometryUtilities &geometry_utilities,
     const Gedim::MeshUtilities &mesh_utilities,
     const Gedim::MeshMatricesDAO &mesh,
-    const Gedim::MeshUtilities::MeshGeometricData2DConfig &mesh_geometric_data_config = Gedim::MeshUtilities::MeshGeometricData2DConfig(
-        {true, true, true, true, true, true, true, true, true, true, true, true, true}))
+    const Gedim::MeshUtilities::MeshGeometricData2DConfig &mesh_geometric_data_config
+    = Gedim::MeshUtilities::MeshGeometricData2DConfig(
+        true, true, true, true, true, true, true, true, true, true, true, true, true))
 {
     std::vector<Gedim::GeometryUtilities::PolygonTypes> cell2Ds_types(mesh.Cell2DTotalNumber(),
                                                                       Gedim::GeometryUtilities::PolygonTypes::Generic_Concave);
