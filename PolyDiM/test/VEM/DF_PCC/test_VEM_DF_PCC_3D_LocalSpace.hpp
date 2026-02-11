@@ -451,7 +451,7 @@ TEST(Test_VEM_DF_PCC, Test_VEM_DF_PCC_3D_O2_O3_O4)
 
     const Test_VEM_DF_PCC_3D_Polyhedron_Geometry polyhedron_data = Test_VEM_DF_PCC_3D_Geometry(geometry_utilities);
 
-    const std::string exportFolder = "ExportParaview/VEM/DF_PCC/Test_VEM_DF_PCC_3D_O2_O3_O4";
+    const std::string exportFolder = "Export/VEM/DF_PCC/Test_VEM_DF_PCC_3D_O2_O3_O4";
     Gedim::Output::CreateFolder(exportFolder);
 
     const unsigned int numFaces = polyhedron_data.PolygonalFaces.size();
