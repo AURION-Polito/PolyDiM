@@ -99,7 +99,7 @@ class VEM_MCC_2D_Ortho_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_
     {
         switch (projectionType)
         {
-        case ProjectionTypes::Pi0k:
+        case Polydim::VEM::MCC::ProjectionTypes::Pi0k:
             return utilities.ComputeBasisFunctionsValues(localSpace.Dimension, localSpace.Pi0k, localSpace.GkVanderInternal);
         default:
             throw std::runtime_error("not valid projectors");

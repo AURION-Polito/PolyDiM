@@ -83,11 +83,11 @@ class VEM_MCC_2D_Partial_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocit
         const Polydim::VEM::MCC::VEM_MCC_2D_Polygon_Geometry &polygon) const;
 
     inline Eigen::MatrixXd ComputeDofiDofiStabilizationMatrix(const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace,
-                                                              const ProjectionTypes &projectionType) const
+                                                              const Polydim::VEM::MCC::ProjectionTypes &projectionType) const
     {
         switch (projectionType)
         {
-        case ProjectionTypes::Pi0k:
+        case Polydim::VEM::MCC::ProjectionTypes::Pi0k:
             return utilities.ComputeDofiDofiStabilizationMatrix(localSpace.Pi0k, localSpace.Measure, localSpace.Dmatrix);
         default:
             throw std::runtime_error("not valid projection type");
@@ -95,11 +95,11 @@ class VEM_MCC_2D_Partial_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocit
     }
 
     inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsValues(const Polydim::VEM::MCC::VEM_MCC_2D_Velocity_LocalSpace_Data &localSpace,
-                                                                    const ProjectionTypes &projectionType) const
+                                                                    const Polydim::VEM::MCC::ProjectionTypes &projectionType) const
     {
         switch (projectionType)
         {
-        case ProjectionTypes::Pi0k:
+        case Polydim::VEM::MCC::ProjectionTypes::Pi0k:
             return utilities.ComputeBasisFunctionsValues(localSpace.Dimension, localSpace.Pi0k, localSpace.GkVanderInternal);
         default:
             throw std::runtime_error("not valid projectors");
