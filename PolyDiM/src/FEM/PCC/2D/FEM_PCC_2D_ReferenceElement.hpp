@@ -39,7 +39,7 @@ struct FEM_PCC_2D_ReferenceElement_Data final
         mesh_geometric_data_config.Cell2DsBoundingBox = false;
         mesh_geometric_data_config.Cell2DsTriangulations = false; ///< cell2D triangulations
         mesh_geometric_data_config.Cell2DsAreas = false;          ///< cell2D areas
-        mesh_geometric_data_config.Cell2DsCentroids = true;      ///< cell2D centroids
+        mesh_geometric_data_config.Cell2DsCentroids = false;      ///< cell2D centroids
         mesh_geometric_data_config.Cell2DsDiameters = true;      ///< cell2D diameters
         mesh_geometric_data_config.Cell2DsEdgeDirections = false; ///< cell2D edge directions
         mesh_geometric_data_config.Cell2DsEdgesCentroid = true;  ///< cell2D edge centroid
