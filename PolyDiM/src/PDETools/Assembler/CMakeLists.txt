@@ -1,5 +1,10 @@
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/Assembler_Utilities.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/assembler_PCC_2D_functions.hpp)
+list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/assembler_PCC_2D_functions_utilities.hpp)
+list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/assembler_PCC_2D_functions_data.hpp)
+
+list(APPEND polydim_src_sources ${CMAKE_CURRENT_SOURCE_DIR}/assembler_PCC_2D_functions.cpp)
+list(APPEND polydim_src_sources ${CMAKE_CURRENT_SOURCE_DIR}/assembler_PCC_2D_functions_utilities.cpp)
 
 list(APPEND polydim_src_includes ${CMAKE_CURRENT_SOURCE_DIR})
 
