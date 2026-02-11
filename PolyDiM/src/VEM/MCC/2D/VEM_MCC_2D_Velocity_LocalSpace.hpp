@@ -114,7 +114,7 @@ class VEM_MCC_2D_Velocity_LocalSpace final : public I_VEM_MCC_2D_Velocity_LocalS
         switch (projectionType)
         {
 
-        case ProjectionTypes::Pi0k: {
+        case Polydim::VEM::MCC::ProjectionTypes::Pi0k: {
             const unsigned int numQuadrature = points.cols();
 
             const Eigen::MatrixXd VanderInternalKp1 =
