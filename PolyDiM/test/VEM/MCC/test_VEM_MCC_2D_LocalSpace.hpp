@@ -293,7 +293,7 @@ TEST(Test_VEM_MCC, Test_VEM_MCC_2D_O0_O1_O2_O3)
     geometry_utilities_config.Tolerance1D = std::numeric_limits<double>::epsilon();
     Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
 
-    const std::string exportFolder = "ExportParaview/VEM/MCC/Test_VEM_MCC_2D_O0_O1_O2_O3";
+    const std::string exportFolder = "Export/VEM/MCC/Test_VEM_MCC_2D_O0_O1_O2_O3";
     Gedim::Output::CreateFolder(exportFolder);
 
     const auto polygon_data = Test_VEM_MCC_2D_Geometry(geometry_utilities);
