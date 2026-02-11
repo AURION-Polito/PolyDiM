@@ -32,9 +32,27 @@ struct FEM_PCC_2D_ReferenceElement_Data final
     Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement_Data triangle_reference_element_data;
     Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement_Data quadrilateral_reference_element_data;
 
-    Gedim::MeshUtilities::MeshGeometricData2DConfig mesh_geometric_data_config = Gedim::MeshUtilities::MeshGeometricData2DConfig(
-        {false, false, false, false, true, true, false, true, true, true, false, false, false});
+    Gedim::MeshUtilities::MeshGeometricData2DConfig mesh_geometric_data_config;
+
+    FEM_PCC_2D_ReferenceElement_Data()
+    {
+        mesh_geometric_data_config.Cell2DsBoundingBox = false;
+        mesh_geometric_data_config.Cell2DsTriangulations = false; ///< cell2D triangulations
+        mesh_geometric_data_config.Cell2DsAreas = false;          ///< cell2D areas
+        mesh_geometric_data_config.Cell2DsCentroids = true;      ///< cell2D centroids
+        mesh_geometric_data_config.Cell2DsDiameters = true;      ///< cell2D diameters
+        mesh_geometric_data_config.Cell2DsEdgeDirections = false; ///< cell2D edge directions
+        mesh_geometric_data_config.Cell2DsEdgesCentroid = true;  ///< cell2D edge centroid
+        mesh_geometric_data_config.Cell2DsEdgeLengths = true;    ///< cell2D edge lengths
+        mesh_geometric_data_config.Cell2DsEdgeTangents = true;   ///< cell2D edge tangents
+        mesh_geometric_data_config.Cell2DsEdgeNormals = true;    ///< cell2D edge normals
+        mesh_geometric_data_config.Cell2DsChebyshevCenter = false;
+        mesh_geometric_data_config.Cell2DsTriangulationsByChebyshevCenter = false;            ///< cell2D triangulations
+        mesh_geometric_data_config.Cell2DsInRadius = false; ///< cell2D triangulations
+    }
 };
+
+
 
 struct FEM_PCC_2D_ReferenceElement final
 {
