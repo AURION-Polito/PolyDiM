@@ -46,8 +46,8 @@ struct Exact_Solution_Data final
 // ***************************************************************************
 struct Variational_Operator final
 {
-    Sparse_Matrix_Data A;
-    Sparse_Matrix_Data A_Strong;
+    Polydim::PDETools::Assembler_Utilities::PCC_2D::Sparse_Matrix_Data A;
+    Polydim::PDETools::Assembler_Utilities::PCC_2D::Sparse_Matrix_Data A_Strong;
 };
 // ***************************************************************************
 struct Post_Process_Data final
