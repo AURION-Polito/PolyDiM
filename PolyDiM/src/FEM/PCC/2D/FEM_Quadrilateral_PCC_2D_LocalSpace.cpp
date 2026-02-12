@@ -137,15 +137,16 @@ std::vector<MatrixXd> FEM_Quadrilateral_PCC_2D_LocalSpace::MapDerivativeValues(c
     switch (local_space.quadrilateral_type)
     {
     case Polydim::FEM::PCC::QuadrilateralType::Parallelogram: {
+        std::vector<Eigen::MatrixXd> basis_functions_mapped(2);
+        basis_functions_mapped.at(0).noalias() = local_space.MapData.BInv(0, 0) * referenceDerivateValues.at(0);
+        basis_functions_mapped.at(0).noalias() += local_space.MapData.BInv(1, 0) * referenceDerivateValues.at(1);
+
+        basis_functions_mapped.at(1).noalias() = local_space.MapData.BInv(0, 1) * referenceDerivateValues.at(0);
+        basis_functions_mapped.at(1).noalias() += local_space.MapData.BInv(1, 1) * referenceDerivateValues.at(1);
+
         std::vector<Eigen::MatrixXd> basis_functions_reordered(2);
-        basis_functions_reordered.at(0).noalias() = local_space.MapData.BInv(0, 0) * referenceDerivateValues.at(0);
-        basis_functions_reordered.at(0).noalias() += local_space.MapData.BInv(1, 0) * referenceDerivateValues.at(1);
-
-        basis_functions_reordered.at(1).noalias() = local_space.MapData.BInv(0, 1) * referenceDerivateValues.at(0);
-        basis_functions_reordered.at(1).noalias() += local_space.MapData.BInv(1, 1) * referenceDerivateValues.at(1);
-
-        basis_functions_reordered.at(0) = basis_functions_reordered.at(0)(Eigen::all, local_space.DofsMeshOrder);
-        basis_functions_reordered.at(1) = basis_functions_reordered.at(1)(Eigen::all, local_space.DofsMeshOrder);
+        basis_functions_reordered.at(0) = basis_functions_mapped.at(0)(Eigen::all, local_space.DofsMeshOrder);
+        basis_functions_reordered.at(1) = basis_functions_mapped.at(1)(Eigen::all, local_space.DofsMeshOrder);
 
         return basis_functions_reordered;
     }
