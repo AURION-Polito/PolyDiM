@@ -29,7 +29,7 @@ class FEM_Triangle_PCC_2D_LocalSpace final
     inline Eigen::MatrixXd MapValues(const Polydim::FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace_Data &local_space,
                                      const Eigen::MatrixXd &referenceValues) const
     {
-        return referenceValues * local_space.dofs_permutation;
+      return referenceValues(Eigen::all, local_space.DofsMeshOrder);
     }
 
     std::vector<Eigen::MatrixXd> MapDerivativeValues(const Polydim::FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace_Data &local_space,

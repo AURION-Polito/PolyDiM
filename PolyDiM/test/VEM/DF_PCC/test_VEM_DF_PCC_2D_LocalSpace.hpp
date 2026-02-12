@@ -304,7 +304,7 @@ TEST(Test_VEM_DF_PCC, Test_VEM_DF_PCC_2D_O2_O3_O4)
     geometry_utilities_config.Tolerance1D = std::numeric_limits<double>::epsilon();
     Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
 
-    const std::string exportFolder = "ExportParaview/VEM/DF_PCC/Test_VEM_DF_PCC_2D_O2_O3_O4";
+    const std::string exportFolder = "Export/VEM/DF_PCC/Test_VEM_DF_PCC_2D_O2_O3_O4";
     Gedim::Output::CreateFolder(exportFolder);
 
     const auto polygon_data = Test_VEM_DF_PCC_2D_Geometry(geometry_utilities);

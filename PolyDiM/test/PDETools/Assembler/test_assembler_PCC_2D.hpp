@@ -22,6 +22,8 @@
 #include "MeshUtilities.hpp"
 #include "PDE_Mesh_Utilities.hpp"
 #include "assembler_PCC_2D_functions.hpp"
+#include "assembler_PCC_2D_functions_data.hpp"
+#include "assembler_PCC_2D_functions_utilities.hpp"
 
 namespace Polydim
 {
@@ -96,7 +98,6 @@ TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
     const auto source_term = PDETools::Assembler_Utilities::PCC_2D::assembler_source_term(geometry_utilities,
                                                                                           mesh,
                                                                                           mesh_geometric_data,
-                                                                                          mesh_dofs_info,
                                                                                           dofs_data,
                                                                                           reference_element_data,
                                                                                           source_term_function);
@@ -110,7 +111,6 @@ TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
     const auto elliptic_operator = PDETools::Assembler_Utilities::PCC_2D::assembler_elliptic_operator(geometry_utilities,
                                                                                                       mesh,
                                                                                                       mesh_geometric_data,
-                                                                                                      mesh_dofs_info,
                                                                                                       dofs_data,
                                                                                                       reference_element_data,
                                                                                                       diffusion_term_function);
@@ -152,7 +152,6 @@ TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
     const auto exact_solution = PDETools::Assembler_Utilities::PCC_2D::assembler_exact_solution(geometry_utilities,
                                                                                                 mesh,
                                                                                                 mesh_geometric_data,
-                                                                                                mesh_dofs_info,
                                                                                                 dofs_data,
                                                                                                 reference_element_data,
                                                                                                 exact_solution_function);
@@ -188,7 +187,6 @@ TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
         const auto post_process_data = PDETools::Assembler_Utilities::PCC_2D::assembler_post_process(geometry_utilities,
                                                                                                      mesh,
                                                                                                      mesh_geometric_data,
-                                                                                                     mesh_dofs_info,
                                                                                                      dofs_data,
                                                                                                      reference_element_data,
                                                                                                      numeric_solution,

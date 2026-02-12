@@ -55,7 +55,6 @@ struct FEM_Triangle_PCC_2D_LocalSpace_Data final
     unsigned int NumInternalBasisFunctions;
     Eigen::MatrixXd Dofs;
     std::vector<unsigned int> DofsMeshOrder;
-    Eigen::PermutationMatrix<Eigen::Dynamic, Eigen::Dynamic> dofs_permutation;
     std::array<unsigned int, 4> Dof0DsIndex;
     std::array<unsigned int, 4> Dof1DsIndex;
     std::array<unsigned int, 2> Dof2DsIndex;
@@ -72,7 +71,6 @@ struct FEM_Quadrilateral_PCC_2D_LocalSpace_Data final
     unsigned int NumberOfBasisFunctions;
     Eigen::MatrixXd Dofs;
     std::vector<unsigned int> DofsMeshOrder;
-    Eigen::PermutationMatrix<Eigen::Dynamic, Eigen::Dynamic> dofs_permutation;
     std::array<unsigned int, 5> Dof0DsIndex;
     std::array<unsigned int, 5> Dof1DsIndex;
     std::array<unsigned int, 2> Dof2DsIndex;

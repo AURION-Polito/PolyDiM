@@ -20,7 +20,7 @@ namespace UnitTesting
 //****************************************************************************
 TEST(TEST_ZFEM_PCC_2D_LocalSpace, TEST_ZFEM_PCC_2D_LocalSpace_1_2_3_4_5_6)
 {
-    const std::string exportFolder = "ExportParaview/ZFEM/PCC/"
+    const std::string exportFolder = "Export/ZFEM/PCC/"
                                      "TEST_ZFEM_PCC_2D_LocalSpace_1_2_3_4_5_6";
     Gedim::Output::CreateFolder(exportFolder);
 
@@ -186,7 +186,7 @@ TEST(Test_ZFEM_PCC, Test_ZFEM_PCC_2D_1_to_6)
     ZFEM::PCC::ZFEM_PCC_2D_ReferenceElement reference_element;
     ZFEM::PCC::ZFEM_PCC_2D_LocalSpace local_space;
 
-    const std::string exportTestFolderParaview = "ExportParaview/ZFEM/PCC/"
+    const std::string exportTestFolderParaview = "Export/ZFEM/PCC/"
                                                  "Test_ZFEM_PCC_2D_1_to_6";
     Gedim::Output::CreateFolder(exportTestFolderParaview);
 
@@ -307,7 +307,7 @@ TEST(Test_ZFEM_PCC, Test_ZFEM_PCC_2D_Degenerate_1)
 {
 
     /// Create folders
-    const std::string exportTestFolderParaview = "ExportParaview/ZFEM/PCC/"
+    const std::string exportTestFolderParaview = "Export/ZFEM/PCC/"
                                                  "Test_ZFEM_PCC_2D_Degenerate_1";
     Gedim::Output::CreateFolder(exportTestFolderParaview);
 
@@ -433,7 +433,7 @@ TEST(Test_ZFEM_PCC, Test_ZFEM_PCC_2D_Degenerate_2)
 {
 
     /// Create folders
-    const std::string exportTestFolderParaview = "ExportParaview/ZFEM/PCC/"
+    const std::string exportTestFolderParaview = "Export/ZFEM/PCC/"
                                                  "Test_ZFEM_PCC_2D_Degenerate_2";
     Gedim::Output::CreateFolder(exportTestFolderParaview);
 
