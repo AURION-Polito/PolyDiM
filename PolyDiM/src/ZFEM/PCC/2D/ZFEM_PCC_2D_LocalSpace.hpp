@@ -31,6 +31,7 @@ class ZFEM_PCC_2D_LocalSpace final : public I_ZFEM_PCC_2D_LocalSpace
     Utilities::Monomials_2D monomials;
     FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace fem_local_space;
 
+  public:
     void PolygonFineNodes(const unsigned int num_vertices,
                           const unsigned int &NumBasisFunctions,
                           const unsigned int &NumTotalBasisFunctions,
@@ -41,7 +42,6 @@ class ZFEM_PCC_2D_LocalSpace final : public I_ZFEM_PCC_2D_LocalSpace
                           Eigen::MatrixXd &VirtualNodes,
                           Eigen::MatrixXd &FinerNodes) const;
 
-  public:
     ZFEM_PCC_2D_LocalSpace_Data CreateLocalSpace(const ZFEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                                  const ZFEM_PCC_2D_Polygon_Geometry &polygon) const;
 
