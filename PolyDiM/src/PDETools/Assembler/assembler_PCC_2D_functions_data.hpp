@@ -50,17 +50,30 @@ struct Variational_Operator final
     Polydim::PDETools::Assembler_Utilities::PCC_2D::Sparse_Matrix_Data A_Strong;
 };
 // ***************************************************************************
-struct Post_Process_Data final
+struct Post_Process_Data_Cell0Ds final
 {
     Eigen::VectorXd cell0Ds_numeric;
     Eigen::VectorXd cell0Ds_exact;
+};
+// ***************************************************************************
+struct Post_Process_Data_ErrorL2 final
+{
     Eigen::VectorXd cell2Ds_exact_norm_L2;
     Eigen::VectorXd cell2Ds_numeric_norm_L2;
     Eigen::VectorXd cell2Ds_error_L2;
-    double mesh_size;
     double error_L2;
     double exact_norm_L2;
     double numeric_norm_L2;
+};
+// ***************************************************************************
+struct Post_Process_Data_ErrorH1 final
+{
+    Eigen::VectorXd cell2Ds_exact_norm_H1;
+    Eigen::VectorXd cell2Ds_numeric_norm_H1;
+    Eigen::VectorXd cell2Ds_error_H1;
+    double error_H1;
+    double exact_norm_H1;
+    double numeric_norm_H1;
 };
 // ***************************************************************************
 } // namespace PCC_2D

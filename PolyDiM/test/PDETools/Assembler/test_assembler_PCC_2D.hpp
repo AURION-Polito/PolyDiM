@@ -27,50 +27,50 @@
 
 namespace Polydim
 {
-namespace UnitTesting
-{
+  namespace UnitTesting
+  {
 
-TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
-{
-    Gedim::GeometryUtilitiesConfig geometry_utilities_config;
-    geometry_utilities_config.Tolerance1D = 1.0e-8;
-    geometry_utilities_config.Tolerance2D = 1.0e-12;
-    Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
+    TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
+    {
+      Gedim::GeometryUtilitiesConfig geometry_utilities_config;
+      geometry_utilities_config.Tolerance1D = 1.0e-8;
+      geometry_utilities_config.Tolerance2D = 1.0e-12;
+      Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
 
-    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain;
-    domain.area = 1.0;
-    domain.vertices = Eigen::MatrixXd::Zero(3, 4);
-    domain.vertices.row(0) << 0.0, 1.0, 1.0, 0.0;
-    domain.vertices.row(1) << 0.0, 0.0, 1.0, 1.0;
-    domain.shape_type = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types::Parallelogram;
+      Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain;
+      domain.area = 1.0;
+      domain.vertices = Eigen::MatrixXd::Zero(3, 4);
+      domain.vertices.row(0) << 0.0, 1.0, 1.0, 0.0;
+      domain.vertices.row(1) << 0.0, 0.0, 1.0, 1.0;
+      domain.shape_type = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types::Parallelogram;
 
-    Gedim::MeshUtilities mesh_utilities;
+      Gedim::MeshUtilities mesh_utilities;
 
-    Gedim::MeshMatrices meshData;
-    Gedim::MeshMatricesDAO mesh(meshData);
+      Gedim::MeshMatrices meshData;
+      Gedim::MeshMatricesDAO mesh(meshData);
 
-    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::create_mesh_2D(geometry_utilities,
-                                                                mesh_utilities,
-                                                                Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular,
-                                                                domain,
-                                                                0.1,
-                                                                mesh);
+      Polydim::PDETools::Mesh::PDE_Mesh_Utilities::create_mesh_2D(geometry_utilities,
+                                                                  mesh_utilities,
+                                                                  Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular,
+                                                                  domain,
+                                                                  0.1,
+                                                                  mesh);
 
-    const unsigned int method_order = 3;
-    const auto reference_element_data =
-        Polydim::PDETools::LocalSpace_PCC_2D::CreateReferenceElement(Polydim::PDETools::LocalSpace_PCC_2D::MethodTypes::FEM_PCC,
-                                                                     method_order);
+      const unsigned int method_order = 3;
+      const auto reference_element_data =
+          Polydim::PDETools::LocalSpace_PCC_2D::CreateReferenceElement(Polydim::PDETools::LocalSpace_PCC_2D::MethodTypes::FEM_PCC,
+                                                                       method_order);
 
-    const auto mesh_geometric_data = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_2D_geometry_data(
-        geometry_utilities,
-        mesh_utilities,
-        mesh,
-        Polydim::PDETools::LocalSpace_PCC_2D::MeshGeometricDataConfigiguration(reference_element_data));
+      const auto mesh_geometric_data = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_2D_geometry_data(
+                                         geometry_utilities,
+                                         mesh_utilities,
+                                         mesh,
+                                         Polydim::PDETools::LocalSpace_PCC_2D::MeshGeometricDataConfigiguration(reference_element_data));
 
-    Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data(mesh);
-    Polydim::PDETools::DOFs::DOFsManager dofManager;
+      Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data(mesh);
+      Polydim::PDETools::DOFs::DOFsManager dofManager;
 
-    std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info = {
+      std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info = {
         {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
         {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
         {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
@@ -81,115 +81,126 @@ TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
         {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 4}},
         {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
 
-    const auto mesh_dofs_info = Polydim::PDETools::LocalSpace_PCC_2D::SetMeshDOFsInfo(reference_element_data, mesh, boundary_info);
-    const auto dofs_data = dofManager.CreateDOFs_2D(mesh_dofs_info, mesh_connectivity_data);
+      const auto mesh_dofs_info = Polydim::PDETools::LocalSpace_PCC_2D::SetMeshDOFsInfo(reference_element_data, mesh, boundary_info);
+      const auto dofs_data = dofManager.CreateDOFs_2D(mesh_dofs_info, mesh_connectivity_data);
 
-    auto source_term_function = [&method_order](const double &x, const double &y, const double &z, const Eigen::VectorXd &u) {
+      auto source_term_function = [&method_order](const double &x, const double &y, const double &z, const Eigen::VectorXd &u) {
         double source_term_value = 2.0 * method_order * (method_order - 1);
         const double polynomial = x + y + 0.5;
 
         const int max_order = method_order - 2;
         for (int i = 0; i < max_order; ++i)
-            source_term_value *= polynomial;
+          source_term_value *= polynomial;
 
         return -source_term_value;
-    };
+      };
 
-    const auto source_term = PDETools::Assembler_Utilities::PCC_2D::assembler_source_term(geometry_utilities,
-                                                                                          mesh,
-                                                                                          mesh_geometric_data,
-                                                                                          dofs_data,
-                                                                                          reference_element_data,
-                                                                                          source_term_function);
+      const auto source_term = PDETools::Assembler_Utilities::PCC_2D::assembler_source_term(geometry_utilities,
+                                                                                            mesh,
+                                                                                            mesh_geometric_data,
+                                                                                            dofs_data,
+                                                                                            reference_element_data,
+                                                                                            source_term_function);
 
-    ASSERT_EQ(dofs_data.NumberDOFs, source_term.size());
+      ASSERT_EQ(dofs_data.NumberDOFs, source_term.size());
 
-    auto diffusion_term_function = [](const double &x, const double &y, const double &z, const Eigen::VectorXd &u) {
+      auto diffusion_term_function = [](const double &x, const double &y, const double &z, const Eigen::VectorXd &u) {
         return 1.0;
-    };
+      };
 
-    const auto elliptic_operator = PDETools::Assembler_Utilities::PCC_2D::assembler_elliptic_operator(geometry_utilities,
-                                                                                                      mesh,
-                                                                                                      mesh_geometric_data,
-                                                                                                      dofs_data,
-                                                                                                      reference_element_data,
-                                                                                                      diffusion_term_function);
+      const auto elliptic_operator = PDETools::Assembler_Utilities::PCC_2D::assembler_elliptic_operator(geometry_utilities,
+                                                                                                        mesh,
+                                                                                                        mesh_geometric_data,
+                                                                                                        dofs_data,
+                                                                                                        reference_element_data,
+                                                                                                        diffusion_term_function);
 
-    ASSERT_EQ(dofs_data.NumberDOFs, elliptic_operator.A.size.at(0));
-    ASSERT_EQ(dofs_data.NumberDOFs, elliptic_operator.A.size.at(1));
-    ASSERT_EQ(dofs_data.NumberDOFs, elliptic_operator.A_Strong.size.at(0));
-    ASSERT_EQ(dofs_data.NumberStrongs, elliptic_operator.A_Strong.size.at(1));
+      ASSERT_EQ(dofs_data.NumberDOFs, elliptic_operator.A.size.at(0));
+      ASSERT_EQ(dofs_data.NumberDOFs, elliptic_operator.A.size.at(1));
+      ASSERT_EQ(dofs_data.NumberDOFs, elliptic_operator.A_Strong.size.at(0));
+      ASSERT_EQ(dofs_data.NumberStrongs, elliptic_operator.A_Strong.size.at(1));
 
-    auto exact_solution_function = [&method_order](const double &x, const double &y, const double &z) {
+      auto exact_solution_function = [&method_order](const double &x, const double &y, const double &z) {
         const double polynomial = x + y + 0.5;
 
         double result = 1.0;
         for (int i = 0; i < method_order; ++i)
-            result *= polynomial;
+          result *= polynomial;
 
         return result;
-    };
+      };
 
-    auto strong_solution_function =
-        [&exact_solution_function](const unsigned int marker, const double &x, const double &y, const double &z) {
-            if (marker != 1)
-                throw std::runtime_error("marker not managed");
+      auto exact_gradient_solution_function = [&method_order](const double &x, const double &y, const double &z) {
+        const double polynomial = x + y + 0.5;
 
-            return exact_solution_function(x, y, z);
-        };
+        double result = method_order;
+        const int max_order = method_order - 1;
+        for (int i = 0; i < max_order; ++i)
+          result *= polynomial;
 
-    const auto strong_solution = PDETools::Assembler_Utilities::PCC_2D::assembler_strong_solution(geometry_utilities,
-                                                                                                  mesh,
-                                                                                                  mesh_geometric_data,
-                                                                                                  mesh_dofs_info,
-                                                                                                  dofs_data,
-                                                                                                  reference_element_data,
-                                                                                                  strong_solution_function);
+        return std::array<double, 3>({ result, result, 0.0 });
+      };
 
-    ASSERT_EQ(dofs_data.NumberStrongs, strong_solution.size());
+      auto strong_solution_function =
+          [&exact_solution_function](const unsigned int marker, const double &x, const double &y, const double &z) {
+        if (marker != 1)
+          throw std::runtime_error("marker not managed");
 
-    auto weak_term_function = [&method_order](const unsigned int marker, const double &x, const double &y, const double &z) {
+        return exact_solution_function(x, y, z);
+      };
+
+      const auto strong_solution = PDETools::Assembler_Utilities::PCC_2D::assembler_strong_solution(geometry_utilities,
+                                                                                                    mesh,
+                                                                                                    mesh_geometric_data,
+                                                                                                    mesh_dofs_info,
+                                                                                                    dofs_data,
+                                                                                                    reference_element_data,
+                                                                                                    strong_solution_function);
+
+      ASSERT_EQ(dofs_data.NumberStrongs, strong_solution.size());
+
+      auto weak_term_function = [&method_order](const unsigned int marker, const double &x, const double &y, const double &z) {
         double derivatives = 1.0;
         const double polynomial = x + y + 0.5;
 
         const int max_order = method_order - 1;
         for (int i = 0; i < max_order; ++i)
-            derivatives *= polynomial;
+          derivatives *= polynomial;
 
         switch (marker)
         {
-        case 2:
+          case 2:
             return method_order * derivatives;
-        case 4:
+          case 4:
             return method_order * derivatives;
-        default:
+          default:
             throw std::runtime_error("not valid marker");
         }
 
         throw std::runtime_error("Not supported");
-    };
+      };
 
-    const auto weak_term = PDETools::Assembler_Utilities::PCC_2D::assembler_weak_term(geometry_utilities,
-                                                                                      mesh,
-                                                                                      mesh_geometric_data,
-                                                                                      mesh_dofs_info,
-                                                                                      dofs_data,
-                                                                                      reference_element_data,
-                                                                                      weak_term_function);
+      const auto weak_term = PDETools::Assembler_Utilities::PCC_2D::assembler_weak_term(geometry_utilities,
+                                                                                        mesh,
+                                                                                        mesh_geometric_data,
+                                                                                        mesh_dofs_info,
+                                                                                        dofs_data,
+                                                                                        reference_element_data,
+                                                                                        weak_term_function);
 
-    ASSERT_EQ(dofs_data.NumberDOFs, weak_term.size());
+      ASSERT_EQ(dofs_data.NumberDOFs, weak_term.size());
 
-    const auto exact_solution = PDETools::Assembler_Utilities::PCC_2D::assembler_exact_solution(geometry_utilities,
-                                                                                                mesh,
-                                                                                                mesh_geometric_data,
-                                                                                                dofs_data,
-                                                                                                reference_element_data,
-                                                                                                exact_solution_function);
+      const auto exact_solution = PDETools::Assembler_Utilities::PCC_2D::assembler_exact_solution(geometry_utilities,
+                                                                                                  mesh,
+                                                                                                  mesh_geometric_data,
+                                                                                                  dofs_data,
+                                                                                                  reference_element_data,
+                                                                                                  exact_solution_function);
 
-    ASSERT_EQ(dofs_data.NumberDOFs, exact_solution.exact_solution.size());
-    ASSERT_EQ(dofs_data.NumberStrongs, exact_solution.exact_solution_strong.size());
+      ASSERT_EQ(dofs_data.NumberDOFs, exact_solution.exact_solution.size());
+      ASSERT_EQ(dofs_data.NumberStrongs, exact_solution.exact_solution_strong.size());
 
-    {
+      {
         const auto f = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(source_term);
         const auto w_t = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(weak_term);
         const auto u_D = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(strong_solution);
@@ -209,14 +220,30 @@ TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
 
         const auto numeric_solution = PDETools::Assembler_Utilities::PCC_2D::to_VectorXd(u);
 
-        const auto post_process_data = PDETools::Assembler_Utilities::PCC_2D::assembler_post_process(geometry_utilities,
-                                                                                                     mesh,
-                                                                                                     mesh_geometric_data,
-                                                                                                     dofs_data,
-                                                                                                     reference_element_data,
-                                                                                                     numeric_solution,
-                                                                                                     strong_solution,
-                                                                                                     exact_solution_function);
+        const auto u_cell0Ds = PDETools::Assembler_Utilities::PCC_2D::assembler_extract_cell0Ds(mesh,
+                                                                                        dofs_data,
+                                                                                        numeric_solution,
+                                                                                        strong_solution,
+                                                                                        exact_solution_function);
+
+
+        const auto error_L2 = PDETools::Assembler_Utilities::PCC_2D::assembler_error_L2(geometry_utilities,
+                                                                                        mesh,
+                                                                                        mesh_geometric_data,
+                                                                                        dofs_data,
+                                                                                        reference_element_data,
+                                                                                        numeric_solution,
+                                                                                        strong_solution,
+                                                                                        exact_solution_function);
+
+        const auto error_H1 = PDETools::Assembler_Utilities::PCC_2D::assembler_error_H1(geometry_utilities,
+                                                                                        mesh,
+                                                                                        mesh_geometric_data,
+                                                                                        dofs_data,
+                                                                                        reference_element_data,
+                                                                                        numeric_solution,
+                                                                                        strong_solution,
+                                                                                        exact_gradient_solution_function);
 
         std::cout.precision(2);
         //std::cout<< std::scientific<< "A: "<< A<< std::endl;
@@ -228,15 +255,16 @@ TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
         std::cout << std::scientific << "u_ex: " << exact_solution.exact_solution.transpose() << std::endl;
         std::cout << std::scientific << "u_D: " << u_D << std::endl;
         std::cout << std::scientific << "u_ex_D: " << exact_solution.exact_solution_strong.transpose() << std::endl;
-        std::cout << std::scientific << "err_L2: " << (post_process_data.error_L2 / post_process_data.exact_norm_L2) << std::endl;
+        std::cout << std::scientific << "err_L2: " << (error_L2.error_L2 / error_L2.exact_norm_L2) << std::endl;
+        std::cout << std::scientific << "err_H1: " << (error_H1.error_H1 / error_H1.exact_norm_H1) << std::endl;
 
         ASSERT_TRUE((strong_solution - exact_solution.exact_solution_strong).norm() <
                     1.0e-13 * exact_solution.exact_solution_strong.norm());
         ASSERT_TRUE((numeric_solution - exact_solution.exact_solution).norm() < 1.0e-13 * exact_solution.exact_solution.norm());
+      }
     }
-}
 
-} // namespace UnitTesting
+  } // namespace UnitTesting
 } // namespace Polydim
 
 #endif
