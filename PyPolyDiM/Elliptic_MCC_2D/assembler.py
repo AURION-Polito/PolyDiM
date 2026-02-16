@@ -288,7 +288,6 @@ class Assembler:
 
             cell2_d_internal_quadrature = polydim.pde_tools.local_space_mcc_2_d.internal_quadrature(reference_element_data, local_space_data)
 
-
             local_count_do_fs = assembler_utilities_obj.local_count_do_fs(2, c, do_fs_data)
             do_fs_values = assembler_utilities_obj.global_solution_to_local_solution(2,
                                                                                      c,
