@@ -73,7 +73,7 @@ namespace Polydim
         }
         // ***************************************************************************
         std::array<Eigen::VectorXd, 3> function_evaluation(const Eigen::MatrixXd &points,
-                                            const std::function<std::array<double, 3>(const double &, const double &, const double &)> f)
+                                                           const std::function<std::array<double, 3>(const double &, const double &, const double &)> f)
         {
           std::array<Eigen::VectorXd, 3> function_values;
           function_values.at(0).resize(points.cols());
@@ -144,13 +144,13 @@ namespace Polydim
           return static_cast<Eigen::VectorXd &>(forcing_term);
         }
         // ***************************************************************************
-        Variational_Operator assembler_elliptic_operator(
-            const Gedim::GeometryUtilities &geometry_utilities,
-            const Gedim::MeshMatricesDAO &mesh,
-            const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-            const DOFs::DOFsManager::DOFsData &dofs_data,
-            const LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
-            const std::function<double(const double &, const double &, const double &, const Eigen::VectorXd &)> diffusion_term_function)
+        Variational_Operator assembler_elliptic_operator(const Gedim::GeometryUtilities &geometry_utilities,
+                                                         const Gedim::MeshMatricesDAO &mesh,
+                                                         const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                                         const DOFs::DOFsManager::DOFsData &dofs_data,
+                                                         const LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
+                                                         const std::function<double(const double&, const double&, const double&)> diffusion_term_function,
+                                                         const std::function<double(const double &, const double &, const double &)> reaction_term_function)
         {
           Gedim::Eigen_SparseArray<> elliptic_matrix;
           Gedim::Eigen_SparseArray<> elliptic_strong_matrix;
@@ -183,23 +183,40 @@ namespace Polydim
             const auto cell2D_internal_quadrature =
                 Polydim::PDETools::LocalSpace_PCC_2D::InternalQuadrature(reference_element_data, local_space_data);
 
-            const Eigen::VectorXd diffusion_term_values = function_evaluation(cell2D_internal_quadrature.Points, diffusion_term_function);
+            const auto local_space_size = Polydim::PDETools::LocalSpace_PCC_2D::Size(reference_element_data, local_space_data);
 
-            const Eigen::MatrixXd local_A = equation.ComputeCellDiffusionMatrix(diffusion_term_values,
-                                                                                basis_functions_derivative_values,
-                                                                                cell2D_internal_quadrature.Weights);
+            Eigen::MatrixXd local_A = Eigen::MatrixXd::Zero(local_space_size,
+                                                            local_space_size);
 
-            const double k_max = diffusion_term_values.cwiseAbs().maxCoeff();
-            const Eigen::MatrixXd local_A_stab =
-                k_max * Polydim::PDETools::LocalSpace_PCC_2D::StabilizationMatrix(reference_element_data, local_space_data);
+            if (diffusion_term_function)
+            {
+              const Eigen::VectorXd diffusion_term_values = function_evaluation(cell2D_internal_quadrature.Points, diffusion_term_function);
 
-            assert(Polydim::PDETools::LocalSpace_PCC_2D::Size(reference_element_data, local_space_data) ==
+              local_A += equation.ComputeCellDiffusionMatrix(diffusion_term_values,
+                                                             basis_functions_derivative_values,
+                                                             cell2D_internal_quadrature.Weights);
+
+              const double k_max = diffusion_term_values.cwiseAbs().maxCoeff();
+              local_A +=
+                  k_max * Polydim::PDETools::LocalSpace_PCC_2D::StabilizationMatrix(reference_element_data, local_space_data);
+            }
+
+            if (reaction_term_function)
+            {
+              const Eigen::VectorXd reaction_term_values = function_evaluation(cell2D_internal_quadrature.Points, reaction_term_function);
+
+              local_A += equation.ComputeCellReactionMatrix(reaction_term_values,
+                                                            basis_functions_values,
+                                                            cell2D_internal_quadrature.Weights);
+            }
+
+            assert(local_space_size ==
                    dofs_data.CellsGlobalDOFs[2].at(c).size());
 
             Polydim::PDETools::Assembler_Utilities::assemble_local_matrix_to_global_matrix<2>(c,
                                                                                               local_matrix_to_global_matrix_dofs_data,
                                                                                               local_matrix_to_global_matrix_dofs_data,
-                                                                                              local_A + local_A_stab,
+                                                                                              local_A,
                                                                                               elliptic_matrix,
                                                                                               elliptic_strong_matrix);
           }
@@ -748,9 +765,9 @@ namespace Polydim
 
             const Eigen::VectorXd local_error_H1 =
                 (basis_functions_derivative_values.at(0) * dofs_values -
-                exact_derivative_solution_values.at(0)).array().square() +
+                 exact_derivative_solution_values.at(0)).array().square() +
                 (basis_functions_derivative_values.at(1) * dofs_values -
-                exact_derivative_solution_values.at(1)).array().square();
+                 exact_derivative_solution_values.at(1)).array().square();
 
             const Eigen::VectorXd local_numeric_norm_H1 =
                 (basis_functions_derivative_values.at(0) * dofs_values).array().square() +

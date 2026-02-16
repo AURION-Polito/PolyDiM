@@ -36,13 +36,13 @@ Eigen::VectorXd assembler_source_term(
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
     const std::function<double(const double &, const double &, const double &, const Eigen::VectorXd &)> source_term_function);
 // ***************************************************************************
-Variational_Operator assembler_elliptic_operator(
-    const Gedim::GeometryUtilities &geometry_utilities,
+Variational_Operator assembler_elliptic_operator(const Gedim::GeometryUtilities &geometry_utilities,
     const Gedim::MeshMatricesDAO &mesh,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
     const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
-    const std::function<double(const double &, const double &, const double &, const Eigen::VectorXd &)> diffusion_term_function);
+    const std::function<double(const double &, const double &, const double &)> diffusion_term_function,
+    const std::function<double (const double&, const double&, const double&)> reaction_term_function);
 // ***************************************************************************
 Eigen::VectorXd assembler_strong_solution(
     const Gedim::GeometryUtilities &geometry_utilities,

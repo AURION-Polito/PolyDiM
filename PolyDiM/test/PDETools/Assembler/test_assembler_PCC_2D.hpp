@@ -60,6 +60,9 @@ namespace Polydim
                                                                   0.1,
                                                                   mesh);
 
+      const double a = 2.0;
+      const std::array<double, 3> b = { 0.0, 0.0, 0.0 };
+      const double c = 3.0;
       const unsigned int method_order = 3;
       const auto reference_element_data =
           Polydim::PDETools::LocalSpace_PCC_2D::CreateReferenceElement(Polydim::PDETools::LocalSpace_PCC_2D::MethodTypes::FEM_PCC,
@@ -88,15 +91,48 @@ namespace Polydim
       const auto mesh_dofs_info = Polydim::PDETools::LocalSpace_PCC_2D::SetMeshDOFsInfo(reference_element_data, mesh, boundary_info);
       const auto dofs_data = dofManager.CreateDOFs_2D(mesh_dofs_info, mesh_connectivity_data);
 
-      auto source_term_function = [&method_order](const double &x, const double &y, const double &z, const Eigen::VectorXd &u) {
-        double source_term_value = 2.0 * method_order * (method_order - 1);
+      auto exact_solution_function = [&method_order, &a, &b, &c](const double &x, const double &y, const double &z) {
+        const double polynomial = x + y + 0.5;
+
+        double result = 1.0;
+        for (int i = 0; i < method_order; ++i)
+          result *= polynomial;
+
+        return result;
+      };
+
+      auto exact_gradient_solution_function = [&method_order, &a, &b, &c](const double &x, const double &y, const double &z) {
+        const double polynomial = x + y + 0.5;
+
+        double result = method_order;
+        const int max_order = method_order - 1;
+        for (int i = 0; i < max_order; ++i)
+          result *= polynomial;
+
+        return std::array<double, 3>({ result, result, 0.0 });
+      };
+
+      auto exact_laplacian_solution_function = [&method_order, &a, &b, &c](const double &x, const double &y, const double &z) {
+        double result = 2.0 * method_order * (method_order - 1);
         const double polynomial = x + y + 0.5;
 
         const int max_order = method_order - 2;
         for (int i = 0; i < max_order; ++i)
-          source_term_value *= polynomial;
+          result *= polynomial;
 
-        return -source_term_value;
+        return result;
+      };
+
+      auto source_term_function = [&method_order, &a, &b, &c, &exact_solution_function, &exact_gradient_solution_function, &exact_laplacian_solution_function](const double &x, const double &y, const double &z, const Eigen::VectorXd &check) {
+        const auto u_lap = exact_laplacian_solution_function(x, y, z);
+        const auto u_grad = exact_gradient_solution_function(x, y, z);
+        const auto u = exact_solution_function(x, y, z);
+
+        return - a * u_lap +
+            (b.at(0) * u_grad.at(0) +
+             b.at(1) * u_grad.at(1) +
+             b.at(2) * u_grad.at(2)) +
+            c * u;
       };
 
       const auto source_term = PDETools::Assembler_Utilities::PCC_2D::assembler_source_term(geometry_utilities,
@@ -108,8 +144,16 @@ namespace Polydim
 
       ASSERT_EQ(dofs_data.NumberDOFs, source_term.size());
 
-      auto diffusion_term_function = [](const double &x, const double &y, const double &z, const Eigen::VectorXd &u) {
-        return 1.0;
+      auto diffusion_term_function = [&a](const double &x, const double &y, const double &z) {
+        return a;
+      };
+
+      auto advection_term_function = [&b](const double &x, const double &y, const double &z) {
+        return b;
+      };
+
+      auto reaction_term_function = [&c](const double &x, const double &y, const double &z) {
+        return c;
       };
 
       const auto elliptic_operator = PDETools::Assembler_Utilities::PCC_2D::assembler_elliptic_operator(geometry_utilities,
@@ -117,33 +161,13 @@ namespace Polydim
                                                                                                         mesh_geometric_data,
                                                                                                         dofs_data,
                                                                                                         reference_element_data,
-                                                                                                        diffusion_term_function);
+                                                                                                        diffusion_term_function,
+                                                                                                        reaction_term_function);
 
       ASSERT_EQ(dofs_data.NumberDOFs, elliptic_operator.A.size.at(0));
       ASSERT_EQ(dofs_data.NumberDOFs, elliptic_operator.A.size.at(1));
       ASSERT_EQ(dofs_data.NumberDOFs, elliptic_operator.A_Strong.size.at(0));
       ASSERT_EQ(dofs_data.NumberStrongs, elliptic_operator.A_Strong.size.at(1));
-
-      auto exact_solution_function = [&method_order](const double &x, const double &y, const double &z) {
-        const double polynomial = x + y + 0.5;
-
-        double result = 1.0;
-        for (int i = 0; i < method_order; ++i)
-          result *= polynomial;
-
-        return result;
-      };
-
-      auto exact_gradient_solution_function = [&method_order](const double &x, const double &y, const double &z) {
-        const double polynomial = x + y + 0.5;
-
-        double result = method_order;
-        const int max_order = method_order - 1;
-        for (int i = 0; i < max_order; ++i)
-          result *= polynomial;
-
-        return std::array<double, 3>({ result, result, 0.0 });
-      };
 
       auto strong_solution_function =
           [&exact_solution_function](const unsigned int marker, const double &x, const double &y, const double &z) {
