@@ -71,15 +71,15 @@ TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
     Polydim::PDETools::DOFs::DOFsManager dofManager;
 
     std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info = {
-        {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-        {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-        {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
+      {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                      {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                      {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                      {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                      {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                      {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                      {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
+                      {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 4}},
+                      {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
 
     const auto mesh_dofs_info = Polydim::PDETools::LocalSpace_PCC_2D::SetMeshDOFsInfo(reference_element_data, mesh, boundary_info);
     const auto dofs_data = dofManager.CreateDOFs_2D(mesh_dofs_info, mesh_connectivity_data);
@@ -148,6 +148,38 @@ TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
 
     ASSERT_EQ(dofs_data.NumberStrongs, strong_solution.size());
 
+    auto weak_term_function =
+        [&method_order](const unsigned int marker, const double &x, const double &y, const double &z) {
+
+            double derivatives = 1.0;
+            const double polynomial = x + y + 0.5;
+
+            const int max_order = method_order - 1;
+            for (int i = 0; i < max_order; ++i)
+                derivatives *= polynomial;
+
+            switch (marker)
+            {
+            case 2:
+                return max_order * derivatives;
+            case 4:
+                return max_order * derivatives;
+            default:
+                throw std::runtime_error("not valid marker");
+            }
+
+            throw std::runtime_error("Not supported");
+        };
+
+    const auto weak_term = PDETools::Assembler_Utilities::PCC_2D::assembler_weak_term(geometry_utilities,
+                                                                                                  mesh,
+                                                                                                  mesh_geometric_data,
+                                                                                                  mesh_dofs_info,
+                                                                                                  dofs_data,
+                                                                                                  reference_element_data,
+                                                                                                  weak_term_function);
+
+    ASSERT_EQ(dofs_data.NumberDOFs, weak_term.size());
 
     const auto exact_solution = PDETools::Assembler_Utilities::PCC_2D::assembler_exact_solution(geometry_utilities,
                                                                                                 mesh,
@@ -161,11 +193,13 @@ TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
 
     {
         const auto f = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(source_term);
+        const auto w_t = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(weak_term);
         const auto u_D = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(strong_solution);
         const auto A = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(elliptic_operator.A);
         const auto A_D = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(elliptic_operator.A_Strong);
 
         auto rhs = f;
+        rhs += w_t;
         rhs.SubtractionMultiplication(A_D, u_D);
 
         Gedim::Eigen_Array<> u;

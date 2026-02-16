@@ -415,6 +415,133 @@ namespace PCC_2D
     return { static_cast<Eigen::VectorXd &>(exact_solution), static_cast<Eigen::VectorXd &>(exact_solution_strong) };
   }
 // ***************************************************************************
+  Eigen::VectorXd assembler_weak_term(const Gedim::GeometryUtilities& geometry_utilities,
+                                      const Gedim::MeshMatricesDAO& mesh,
+                                      const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                      const DOFs::DOFsManager::MeshDOFsInfo& mesh_dofs_info,
+                                      const DOFs::DOFsManager::DOFsData& dofs_data,
+                                      const LocalSpace_PCC_2D::ReferenceElement_Data& reference_element_data,
+                                      const std::function<double (const unsigned int, const double&, const double&, const double&)> weak_term_function)
+  {
+    Gedim::Eigen_Array<> weak_term;
+
+    weak_term.SetSize(dofs_data.NumberDOFs);
+
+    Polydim::PDETools::Assembler_Utilities::local_matrix_to_global_matrix_dofs_data local_matrix_to_global_matrix_dofs_data =
+    {{std::cref(dofs_data)}, {0}, {0}, {0}};
+
+    for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); ++c)
+    {
+      if (!mesh.Cell2DIsActive(c))
+        continue;
+
+      const auto local_space_data = Polydim::PDETools::LocalSpace_PCC_2D::CreateLocalSpace(geometry_utilities.Tolerance1D(),
+                                                                                           geometry_utilities.Tolerance2D(),
+                                                                                           mesh_geometric_data,
+                                                                                           c,
+                                                                                           reference_element_data);
+
+      const auto basis_functions_values =
+          Polydim::PDETools::LocalSpace_PCC_2D::BasisFunctionsValues(reference_element_data, local_space_data);
+
+      const auto cell2D_internal_quadrature =
+          Polydim::PDETools::LocalSpace_PCC_2D::InternalQuadrature(reference_element_data, local_space_data);
+
+      const unsigned numVertices = mesh_geometric_data.Cell2DsVertices.at(c).cols();
+
+      for (unsigned int ed = 0; ed < numVertices; ed++)
+      {
+          const unsigned int cell1D_index = mesh.Cell2DEdge(c, ed);
+
+          const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(1).at(cell1D_index);
+
+          if (boundary_info.Type != Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Weak)
+              continue;
+
+          // compute vem values
+          const auto weakReferenceSegment =
+              Gedim::Quadrature::Quadrature_Gauss1D::FillPointsAndWeights(2 * reference_element_data.Order);
+
+          const Eigen::VectorXd pointsCurvilinearCoordinates = weakReferenceSegment.Points.row(0);
+
+          // map edge internal quadrature points
+          const Eigen::Vector3d &edgeStart = mesh_geometric_data.Cell2DsEdgeDirections.at(c)[ed]
+                                                 ? mesh_geometric_data.Cell2DsVertices.at(c).col(ed)
+                                                 : mesh_geometric_data.Cell2DsVertices.at(c).col((ed + 1) % numVertices);
+
+          const Eigen::Vector3d &edgeTangent = mesh_geometric_data.Cell2DsEdgeTangents.at(c).col(ed);
+          const double direction = mesh_geometric_data.Cell2DsEdgeDirections.at(c)[ed] ? 1.0 : -1.0;
+
+          const unsigned int numEdgeWeakQuadraturePoints = weakReferenceSegment.Points.cols();
+          Eigen::MatrixXd weakQuadraturePoints(3, numEdgeWeakQuadraturePoints);
+          for (unsigned int q = 0; q < numEdgeWeakQuadraturePoints; q++)
+              weakQuadraturePoints.col(q) = edgeStart + direction * weakReferenceSegment.Points(0, q) * edgeTangent;
+
+          const double absMapDeterminant = std::abs(mesh_geometric_data.Cell2DsEdgeLengths.at(c)[ed]);
+          const Eigen::MatrixXd weakQuadratureWeights = weakReferenceSegment.Weights * absMapDeterminant;
+
+          const Eigen::VectorXd neumannValues =
+              function_evaluation(boundary_info.Marker, weakQuadraturePoints, weak_term_function);
+          const auto weak_basis_function_values =
+              Polydim::PDETools::LocalSpace_PCC_2D::BasisFunctionsValuesOnEdge(ed, reference_element_data, local_space_data, pointsCurvilinearCoordinates);
+
+          // compute values of Neumann condition
+          const Eigen::VectorXd neumannContributions =
+              weak_basis_function_values.transpose() * weakQuadratureWeights.asDiagonal() * neumannValues;
+
+          for (unsigned int p = 0; p < 2; ++p)
+          {
+              const unsigned int cell0D_index = mesh.Cell1DVertex(cell1D_index, p);
+
+              const auto local_dofs = dofs_data.CellsDOFs.at(0).at(cell0D_index);
+
+              for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
+              {
+                  const auto &local_dof_i = local_dofs.at(loc_i);
+
+                  switch (local_dof_i.Type)
+                  {
+                  case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                      continue;
+                  case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
+                      weak_term.AddValue(local_dof_i.Global_Index, neumannContributions[p]);
+                  }
+                  break;
+                  default:
+                      throw std::runtime_error("Unknown DOF Type");
+                  }
+              }
+          }
+
+          const auto local_dofs = dofs_data.CellsDOFs.at(1).at(cell1D_index);
+          for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
+          {
+              const auto &local_dof_i = local_dofs.at(loc_i);
+
+              const unsigned int localIndex = loc_i;
+
+              switch (local_dof_i.Type)
+              {
+              case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                  continue;
+              case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
+                  weak_term.AddValue(local_dof_i.Global_Index, neumannContributions[localIndex + 2]);
+              }
+              break;
+              default:
+                  throw std::runtime_error("Unknown DOF Type");
+              }
+          }
+      }
+
+
+    }
+
+    weak_term.Create();
+
+    return static_cast<Eigen::VectorXd &>(weak_term);
+  }
+// ***************************************************************************
   Post_Process_Data assembler_post_process(const Gedim::GeometryUtilities& geometry_utilities, const Gedim::MeshMatricesDAO& mesh, const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data, const DOFs::DOFsManager::DOFsData& dofs_data, const LocalSpace_PCC_2D::ReferenceElement_Data& reference_element_data, const Eigen::VectorXd& numerical_solution, const Eigen::VectorXd& numerical_solution_strong, const std::function<double (const double&, const double&, const double&)> exact_solution_function)
   {
     Post_Process_Data result;
