@@ -172,11 +172,13 @@ TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
         u.SetSize(dofs_data.NumberDOFs);
 
         std::cout.precision(2);
-        std::cout<< std::scientific<< A<< std::endl;
-        std::cout<< std::scientific<< A_D<< std::endl;
-        std::cout<< std::scientific<< u_D<< std::endl;
-        std::cout<< std::scientific<< f<< std::endl;
-        std::cout<< std::scientific<< rhs<< std::endl;
+        std::cout<< std::scientific<< "A: "<< A<< std::endl;
+        std::cout<< std::scientific<< "A_D: "<< A_D<< std::endl;
+        std::cout<< std::scientific<< "u_D: "<< u_D<< std::endl;
+        std::cout<< std::scientific<< "f: "<< f<< std::endl;
+        std::cout<< std::scientific<< "r: "<< rhs<< std::endl;
+        std::cout<< std::scientific<< "u_ex: "<< exact_solution.exact_solution.transpose()<< std::endl;
+        std::cout<< std::scientific<< "u_ex_D: "<< exact_solution.exact_solution_strong.transpose()<< std::endl;
 
         Gedim::Eigen_LUSolver solver;
         solver.Initialize(A);
