@@ -150,6 +150,16 @@ int main(int argc, char **argv)
 
         solver.Solve(assembler_data.rightHandSide, assembler_data.solution);
 
+        {
+          using namespace Gedim;
+        std::cout.precision(2);
+        std::cout<< std::scientific<< "A: "<< assembler_data.globalMatrixA<< std::endl;
+        std::cout<< std::scientific<< "A_D: "<< assembler_data.dirichletMatrixA<< std::endl;
+        std::cout << std::scientific << "r: " << assembler_data.rightHandSide << std::endl;
+        std::cout << std::scientific << "u: " << assembler_data.solution << std::endl;
+        std::cout << std::scientific << "u_D: " << assembler_data.solutionDirichlet << std::endl;
+        }
+
         Gedim::Profiler::StopTime("Solve");
         Gedim::Output::PrintStatusProgram("Solve");
     }

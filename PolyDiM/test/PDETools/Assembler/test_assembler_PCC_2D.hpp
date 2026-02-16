@@ -32,8 +32,6 @@ namespace UnitTesting
 
 TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
 {
-    GTEST_SKIP_("Ignore test for classes");
-
     Gedim::GeometryUtilitiesConfig geometry_utilities_config;
     geometry_utilities_config.Tolerance1D = 1.0e-8;
     geometry_utilities_config.Tolerance2D = 1.0e-12;
@@ -58,7 +56,7 @@ TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
                                                                 0.1,
                                                                 mesh);
 
-    const unsigned int method_order = 2;
+    const unsigned int method_order = 3;
     const auto reference_element_data =
         Polydim::PDETools::LocalSpace_PCC_2D::CreateReferenceElement(Polydim::PDETools::LocalSpace_PCC_2D::MethodTypes::FEM_PCC,
                                                                      method_order);
@@ -161,9 +159,9 @@ TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
         switch (marker)
         {
         case 2:
-            return max_order * derivatives;
+            return method_order * derivatives;
         case 4:
-            return max_order * derivatives;
+            return method_order * derivatives;
         default:
             throw std::runtime_error("not valid marker");
         }
@@ -221,10 +219,10 @@ TEST(TEST_assembler_PCC_2D, TEST_assembler_PCC_2D_forcing_term)
                                                                                                      exact_solution_function);
 
         std::cout.precision(2);
-        // std::cout<< std::scientific<< "A: "<< A<< std::endl;
-        // std::cout<< std::scientific<< "A_D: "<< A_D<< std::endl;
+        //std::cout<< std::scientific<< "A: "<< A<< std::endl;
+        //std::cout<< std::scientific<< "A_D: "<< A_D<< std::endl;
         std::cout << std::scientific << "f: " << f << std::endl;
-        std::cout << std::scientific << "r: " << rhs << std::endl;
+        std::cout << std::scientific << "w_t: " << w_t << std::endl;
         std::cout << std::scientific << "r: " << rhs << std::endl;
         std::cout << std::scientific << "u: " << u << std::endl;
         std::cout << std::scientific << "u_ex: " << exact_solution.exact_solution.transpose() << std::endl;

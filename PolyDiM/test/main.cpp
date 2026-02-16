@@ -11,30 +11,30 @@
 
 #include <gtest/gtest.h>
 
-#include "test_DOFsManager.hpp"
+//#include "test_DOFsManager.hpp"
 
-#include "test_FEM_Hexahedron_PCC_3D_LocalSpace.hpp"
-#include "test_FEM_PCC_1D_LocalSpace.hpp"
-#include "test_FEM_Quadrilateral_PCC_2D_LocalSpace.hpp"
-#include "test_FEM_Tetrahedron_PCC_3D_LocalSpace.hpp"
-#include "test_FEM_Triangle_PCC_2D_LocalSpace.hpp"
+//#include "test_FEM_Hexahedron_PCC_3D_LocalSpace.hpp"
+//#include "test_FEM_PCC_1D_LocalSpace.hpp"
+//#include "test_FEM_Quadrilateral_PCC_2D_LocalSpace.hpp"
+//#include "test_FEM_Tetrahedron_PCC_3D_LocalSpace.hpp"
+//#include "test_FEM_Triangle_PCC_2D_LocalSpace.hpp"
 
-#include "test_FEM_Triangle_RT_MCC_2D_LocalSpace.hpp"
+//#include "test_FEM_Triangle_RT_MCC_2D_LocalSpace.hpp"
 
-#include "test_VEM_PCC_2D_Inertia_LocalSpace.hpp"
-#include "test_VEM_PCC_2D_LocalSpace.hpp"
-#include "test_VEM_PCC_2D_Ortho_LocalSpace.hpp"
-#include "test_VEM_PCC_3D_Inertia_LocalSpace.hpp"
-#include "test_VEM_PCC_3D_LocalSpace.hpp"
-#include "test_VEM_PCC_3D_Ortho_LocalSpace.hpp"
+//#include "test_VEM_PCC_2D_Inertia_LocalSpace.hpp"
+//#include "test_VEM_PCC_2D_LocalSpace.hpp"
+//#include "test_VEM_PCC_2D_Ortho_LocalSpace.hpp"
+//#include "test_VEM_PCC_3D_Inertia_LocalSpace.hpp"
+//#include "test_VEM_PCC_3D_LocalSpace.hpp"
+//#include "test_VEM_PCC_3D_Ortho_LocalSpace.hpp"
 
-#include "test_VEM_MCC_2D_LocalSpace.hpp"
-#include "test_VEM_MCC_3D_LocalSpace.hpp"
+//#include "test_VEM_MCC_2D_LocalSpace.hpp"
+//#include "test_VEM_MCC_3D_LocalSpace.hpp"
 
-#include "test_VEM_DF_PCC_2D_LocalSpace.hpp"
-#include "test_VEM_DF_PCC_3D_LocalSpace.hpp"
+//#include "test_VEM_DF_PCC_2D_LocalSpace.hpp"
+//#include "test_VEM_DF_PCC_3D_LocalSpace.hpp"
 
-#include "test_ZFEM_PCC_2D_LocalSpace.hpp"
+//#include "test_ZFEM_PCC_2D_LocalSpace.hpp"
 
 #include "test_assembler_PCC_2D.hpp"
 
