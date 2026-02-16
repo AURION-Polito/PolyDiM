@@ -28,10 +28,14 @@ namespace PCC_2D
 std::list<Eigen::Triplet<double>> to_triplets(const Eigen::SparseMatrix<double> &M);
 // ***************************************************************************
 inline Eigen::VectorXd to_VectorXd(const Gedim::Eigen_Array<> &v)
-{ return static_cast<const Eigen::VectorXd &>(v); }
+{
+    return static_cast<const Eigen::VectorXd &>(v);
+}
 // ***************************************************************************
 inline Gedim::Eigen_Array<> to_Eigen_Array(const Eigen::VectorXd &v)
-{ return Gedim::Eigen_Array<>(v); }
+{
+    return Gedim::Eigen_Array<>(v);
+}
 // ***************************************************************************
 Gedim::Eigen_SparseArray<> to_Eigen_SparseArray(const Sparse_Matrix_Data &A);
 // ***************************************************************************

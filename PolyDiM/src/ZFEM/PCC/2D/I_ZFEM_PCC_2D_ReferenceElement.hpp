@@ -39,17 +39,17 @@ struct ZFEM_PCC_2D_ReferenceElement_Data final
     {
         mesh_geometric_data_config.Cell2DsBoundingBox = false;
         mesh_geometric_data_config.Cell2DsTriangulations = false; ///< cell2D triangulations
-        mesh_geometric_data_config.Cell2DsAreas = true;          ///< cell2D areas
+        mesh_geometric_data_config.Cell2DsAreas = true;           ///< cell2D areas
         mesh_geometric_data_config.Cell2DsCentroids = false;      ///< cell2D centroids
-        mesh_geometric_data_config.Cell2DsDiameters = true;      ///< cell2D diameters
-        mesh_geometric_data_config.Cell2DsEdgeDirections = true; ///< cell2D edge directions
+        mesh_geometric_data_config.Cell2DsDiameters = true;       ///< cell2D diameters
+        mesh_geometric_data_config.Cell2DsEdgeDirections = true;  ///< cell2D edge directions
         mesh_geometric_data_config.Cell2DsEdgesCentroid = false;  ///< cell2D edge centroid
-        mesh_geometric_data_config.Cell2DsEdgeLengths = true;    ///< cell2D edge lengths
-        mesh_geometric_data_config.Cell2DsEdgeTangents = true;   ///< cell2D edge tangents
-        mesh_geometric_data_config.Cell2DsEdgeNormals = true;    ///< cell2D edge normals
+        mesh_geometric_data_config.Cell2DsEdgeLengths = true;     ///< cell2D edge lengths
+        mesh_geometric_data_config.Cell2DsEdgeTangents = true;    ///< cell2D edge tangents
+        mesh_geometric_data_config.Cell2DsEdgeNormals = true;     ///< cell2D edge normals
         mesh_geometric_data_config.Cell2DsChebyshevCenter = true;
-        mesh_geometric_data_config.Cell2DsTriangulationsByChebyshevCenter = true;            ///< cell2D triangulations
-        mesh_geometric_data_config.Cell2DsInRadius = true; ///< cell2D triangulations
+        mesh_geometric_data_config.Cell2DsTriangulationsByChebyshevCenter = true; ///< cell2D triangulations
+        mesh_geometric_data_config.Cell2DsInRadius = true;                        ///< cell2D triangulations
     }
 };
 

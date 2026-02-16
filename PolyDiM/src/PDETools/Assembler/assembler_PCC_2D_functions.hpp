@@ -53,32 +53,29 @@ Eigen::VectorXd assembler_strong_solution(
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
     const std::function<double(const unsigned int, const double &, const double &, const double &)> strong_solution_function);
 // ***************************************************************************
-Exact_Solution_Data assembler_exact_solution(
-    const Gedim::GeometryUtilities &geometry_utilities,
-    const Gedim::MeshMatricesDAO &mesh,
-    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-    const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
-    const std::function<double(const double &, const double &, const double &)> exact_solution_function);
+Exact_Solution_Data assembler_exact_solution(const Gedim::GeometryUtilities &geometry_utilities,
+                                             const Gedim::MeshMatricesDAO &mesh,
+                                             const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                             const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                                             const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
+                                             const std::function<double(const double &, const double &, const double &)> exact_solution_function);
 // ***************************************************************************
-Eigen::VectorXd assembler_weak_term(
-    const Gedim::GeometryUtilities &geometry_utilities,
-    const Gedim::MeshMatricesDAO &mesh,
-    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-    const DOFs::DOFsManager::MeshDOFsInfo& mesh_dofs_info,
-    const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
-    const std::function<double(const unsigned int, const double &, const double &, const double &)> weak_term_function);
+Eigen::VectorXd assembler_weak_term(const Gedim::GeometryUtilities &geometry_utilities,
+                                    const Gedim::MeshMatricesDAO &mesh,
+                                    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                    const DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                                    const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                                    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
+                                    const std::function<double(const unsigned int, const double &, const double &, const double &)> weak_term_function);
 // ***************************************************************************
-Post_Process_Data assembler_post_process(
-    const Gedim::GeometryUtilities &geometry_utilities,
-    const Gedim::MeshMatricesDAO &mesh,
-    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-    const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
-    const Eigen::VectorXd& numerical_solution,
-    const Eigen::VectorXd& numerical_solution_strong,
-    const std::function<double(const double &, const double &, const double &)> exact_solution_function);
+Post_Process_Data assembler_post_process(const Gedim::GeometryUtilities &geometry_utilities,
+                                         const Gedim::MeshMatricesDAO &mesh,
+                                         const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                         const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                                         const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
+                                         const Eigen::VectorXd &numerical_solution,
+                                         const Eigen::VectorXd &numerical_solution_strong,
+                                         const std::function<double(const double &, const double &, const double &)> exact_solution_function);
 // ***************************************************************************
 } // namespace PCC_2D
 } // namespace Assembler_Utilities
