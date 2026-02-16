@@ -268,6 +268,7 @@ namespace Polydim
                                    u_cell0Ds.cell0Ds_exact.data()
                                  }
                                });
+          exporter.Export(exportFolder + "/solution.vtu");
         }
 
         std::cout.precision(2);
