@@ -24,6 +24,7 @@
 #include "assembler_PCC_2D_functions.hpp"
 #include "assembler_PCC_2D_functions_data.hpp"
 #include "assembler_PCC_2D_functions_utilities.hpp"
+#include "VTKUtilities.hpp"
 
 namespace Polydim
 {
@@ -36,6 +37,9 @@ namespace Polydim
       geometry_utilities_config.Tolerance1D = 1.0e-8;
       geometry_utilities_config.Tolerance2D = 1.0e-12;
       Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
+
+      const std::string exportFolder = "./Export/TEST_assembler_PCC_2D/TEST_assembler_PCC_2D_forcing_term";
+      Gedim::Output::CreateFolder(exportFolder);
 
       Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain;
       domain.area = 1.0;
@@ -245,6 +249,27 @@ namespace Polydim
                                                                                         strong_solution,
                                                                                         exact_gradient_solution_function);
 
+        {
+          Gedim::VTKUtilities exporter;
+
+          exporter.AddPolygons(mesh.Cell0DsCoordinates(),
+                               mesh.Cell2DsVertices(),
+                               {
+                                 {
+                                  "numeric_solution",
+                                   Gedim::VTPProperty::Formats::Points,
+                                   static_cast<unsigned int>(u_cell0Ds.cell0Ds_numeric.size()),
+                                   u_cell0Ds.cell0Ds_numeric.data()
+                                 },
+                                 {
+                                  "exact_solution",
+                                   Gedim::VTPProperty::Formats::Points,
+                                   static_cast<unsigned int>(u_cell0Ds.cell0Ds_exact.size()),
+                                   u_cell0Ds.cell0Ds_exact.data()
+                                 }
+                               });
+        }
+
         std::cout.precision(2);
         //std::cout<< std::scientific<< "A: "<< A<< std::endl;
         //std::cout<< std::scientific<< "A_D: "<< A_D<< std::endl;
@@ -261,6 +286,8 @@ namespace Polydim
         ASSERT_TRUE((strong_solution - exact_solution.exact_solution_strong).norm() <
                     1.0e-13 * exact_solution.exact_solution_strong.norm());
         ASSERT_TRUE((numeric_solution - exact_solution.exact_solution).norm() < 1.0e-13 * exact_solution.exact_solution.norm());
+        ASSERT_TRUE(error_L2.error_L2 < 1.0e-13 * error_L2.exact_norm_L2);
+        ASSERT_TRUE(error_H1.error_H1 < 1.0e-13 * error_H1.exact_norm_H1);
       }
     }
 
