@@ -216,7 +216,7 @@ namespace Polydim
                                                                                      cell2D_internal_quadrature.Points);
 
             const auto test_local_space_size = Polydim::PDETools::LocalSpace_PCC_2D::Size(test_reference_element_data, test_local_space_data);
-            const auto trial_local_space_size = Polydim::PDETools::LocalSpace_PCC_2D::Size(trial_reference_element_data, test_local_space_data);
+            const auto trial_local_space_size = Polydim::PDETools::LocalSpace_PCC_2D::Size(trial_reference_element_data, trial_local_space_data);
 
             Eigen::MatrixXd local_A = Eigen::MatrixXd::Zero(test_local_space_size,
                                                             trial_local_space_size);
