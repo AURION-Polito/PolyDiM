@@ -135,13 +135,13 @@ Eigen::VectorXd assembler_weak_term(const Gedim::GeometryUtilities &geometry_uti
                                     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &test_reference_element_data,
                                     const std::function<double(const unsigned int, const double &, const double &, const double &)> weak_term_function);
 // ***************************************************************************
-Post_Process_Data_Cell0Ds assembler_extract_cell0Ds(const Gedim::MeshMatricesDAO &mesh,
+Post_Process_Data_Cell0Ds extract_solution_on_cell0Ds(const Gedim::MeshMatricesDAO &mesh,
                                                     const DOFs::DOFsManager::DOFsData &trial_dofs_data,
                                                     const Eigen::VectorXd &numerical_solution,
                                                     const Eigen::VectorXd &numerical_solution_strong,
                                                     const std::function<double(const double &, const double &, const double &)> exact_solution_function);
 // ***************************************************************************
-Post_Process_Data_ErrorL2 assembler_error_L2(const Gedim::GeometryUtilities &geometry_utilities,
+Post_Process_Data_ErrorL2 compute_error_L2(const Gedim::GeometryUtilities &geometry_utilities,
                                              const Gedim::MeshMatricesDAO &mesh,
                                              const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                              const Polydim::PDETools::DOFs::DOFsManager::DOFsData &trial_dofs_data,
@@ -150,7 +150,7 @@ Post_Process_Data_ErrorL2 assembler_error_L2(const Gedim::GeometryUtilities &geo
                                              const Eigen::VectorXd &numerical_solution_strong,
                                              const std::function<double(const double &, const double &, const double &)> exact_solution_function);
 // ***************************************************************************
-Post_Process_Data_ErrorH1 assembler_error_H1(const Gedim::GeometryUtilities &geometry_utilities,
+Post_Process_Data_ErrorH1 compute_error_H1(const Gedim::GeometryUtilities &geometry_utilities,
                                              const Gedim::MeshMatricesDAO &mesh,
                                              const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                              const Polydim::PDETools::DOFs::DOFsManager::DOFsData &trial_dofs_data,
@@ -158,6 +158,16 @@ Post_Process_Data_ErrorH1 assembler_error_H1(const Gedim::GeometryUtilities &geo
                                              const Eigen::VectorXd &numerical_solution,
                                              const Eigen::VectorXd &numerical_solution_strong,
                                              const std::function<std::array<double, 3>(const double &, const double &, const double &)> exact_gradient_solution_function);
+// ***************************************************************************
+Evaluate_Solution_On_Quadrature_Points_Data evaluate_solution_on_quadrature_points(const Gedim::GeometryUtilities &geometry_utilities,
+                                                                                   const Gedim::MeshMatricesDAO &mesh,
+                                                                                   const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                                                                   const Polydim::PDETools::DOFs::DOFsManager::DOFsData &trial_dofs_data,
+                                                                                   const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
+                                                                                   const Eigen::VectorXd &numerical_solution,
+                                                                                   const Eigen::VectorXd &numerical_solution_strong,
+                                                                                   const std::function<double(const double &, const double &, const double &)> exact_solution_function,
+                                                                                   const std::function<std::array<double, 3>(const double &, const double &, const double &)> exact_gradient_solution_function);
 // ***************************************************************************
 } // namespace PCC_2D
 } // namespace Assembler_Utilities

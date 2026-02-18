@@ -639,7 +639,7 @@ namespace Polydim
           return static_cast<Eigen::VectorXd &>(weak_term);
         }
         // ***************************************************************************
-        Post_Process_Data_Cell0Ds assembler_extract_cell0Ds(const Gedim::MeshMatricesDAO &mesh,
+        Post_Process_Data_Cell0Ds extract_solution_on_cell0Ds(const Gedim::MeshMatricesDAO &mesh,
                                                             const DOFs::DOFsManager::DOFsData &trial_dofs_data,
                                                             const Eigen::VectorXd &numerical_solution,
                                                             const Eigen::VectorXd &numerical_solution_strong,
@@ -683,7 +683,7 @@ namespace Polydim
           return result;
         }
         // ***************************************************************************
-        Post_Process_Data_ErrorL2 assembler_error_L2(const Gedim::GeometryUtilities &geometry_utilities,
+        Post_Process_Data_ErrorL2 compute_error_L2(const Gedim::GeometryUtilities &geometry_utilities,
                                                      const Gedim::MeshMatricesDAO &mesh,
                                                      const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                                      const DOFs::DOFsManager::DOFsData &trial_dofs_data,
@@ -752,7 +752,7 @@ namespace Polydim
           return result;
         }
         // ***************************************************************************
-        Post_Process_Data_ErrorH1 assembler_error_H1(const Gedim::GeometryUtilities &geometry_utilities,
+        Post_Process_Data_ErrorH1 compute_error_H1(const Gedim::GeometryUtilities &geometry_utilities,
                                                      const Gedim::MeshMatricesDAO &mesh,
                                                      const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                                      const DOFs::DOFsManager::DOFsData &trial_dofs_data,
@@ -829,7 +829,77 @@ namespace Polydim
 
           return result;
         }
+// ***************************************************************************
+        Evaluate_Solution_On_Quadrature_Points_Data evaluate_solution_on_quadrature_points(const Gedim::GeometryUtilities& geometry_utilities,
+                                                                                           const Gedim::MeshMatricesDAO& mesh,
+                                                                                           const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                                                                           const DOFs::DOFsManager::DOFsData& trial_dofs_data,
+                                                                                           const LocalSpace_PCC_2D::ReferenceElement_Data& trial_reference_element_data,
+                                                                                           const Eigen::VectorXd& numerical_solution,
+                                                                                           const Eigen::VectorXd& numerical_solution_strong,
+                                                                                           const std::function<double (const double&, const double&, const double&)> exact_solution_function,
+                                                                                           const std::function<std::array<double, 3>(const double &, const double &, const double &)> exact_gradient_solution_function)
+        {
+          Evaluate_Solution_On_Quadrature_Points_Data result;
 
+          const auto num_solution = to_Eigen_Array(numerical_solution);
+          const auto num_solution_strong = to_Eigen_Array(numerical_solution_strong);
+
+          std::vector<Eigen::MatrixXd> quadrature_points(mesh.Cell2DTotalNumber());
+          std::vector<Eigen::VectorXd> quadrature_weigths(mesh.Cell2DTotalNumber());
+          std::vector<Eigen::VectorXd> numeric_solution(mesh.Cell2DTotalNumber());
+          std::vector<std::array<Eigen::VectorXd, 2>> numeric_gradient_solution(mesh.Cell2DTotalNumber());
+          std::vector<Eigen::VectorXd> exact_solution(mesh.Cell2DTotalNumber());
+          std::vector<std::array<Eigen::VectorXd, 2>> exact_gradient_solution(mesh.Cell2DTotalNumber());
+
+
+          for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
+          {
+            if (!mesh.Cell2DIsActive(c))
+              continue;
+
+            const auto trial_local_space_data = Polydim::PDETools::LocalSpace_PCC_2D::CreateLocalSpace(geometry_utilities.Tolerance1D(),
+                                                                                                 geometry_utilities.Tolerance2D(),
+                                                                                                 mesh_geometric_data,
+                                                                                                 c,
+                                                                                                 trial_reference_element_data);
+
+            const auto trial_basis_functions_values =
+                Polydim::PDETools::LocalSpace_PCC_2D::BasisFunctionsValues(trial_reference_element_data,
+                                                                           trial_local_space_data,
+                                                                           Polydim::VEM::PCC::ProjectionTypes::Pi0k);
+
+            const auto trial_basis_functions_derivative_values =
+                Polydim::PDETools::LocalSpace_PCC_2D::BasisFunctionsDerivativeValues(trial_reference_element_data, trial_local_space_data);
+
+            const auto cell2D_internal_quadrature =
+                Polydim::PDETools::LocalSpace_PCC_2D::InternalQuadrature(trial_reference_element_data, trial_local_space_data);
+
+            quadrature_points.at(c) = cell2D_internal_quadrature.Points;
+            quadrature_weigths.at(c) = cell2D_internal_quadrature.Weights;
+
+            exact_solution.at(c) = function_evaluation(cell2D_internal_quadrature.Points, exact_solution_function);
+            exact_gradient_solution.at(c) = function_evaluation(cell2D_internal_quadrature.Points, exact_gradient_solution_function);
+
+            const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, trial_dofs_data);
+            const Eigen::VectorXd dofs_values =
+                PDETools::Assembler_Utilities::global_solution_to_local_solution<2>(c,
+                                                                                    trial_dofs_data,
+                                                                                    local_count_dofs.num_total_dofs,
+                                                                                    local_count_dofs.offsets_DOFs,
+                                                                                    {0},
+                                                                                    {0},
+                                                                                    num_solution,
+                                                                                    num_solution_strong);
+
+            numeric_solution.at(c) = trial_basis_functions_values * dofs_values;
+            numeric_gradient_solution.at(c).at(0) = trial_basis_functions_derivative_values.at(0) * dofs_values;
+            numeric_gradient_solution.at(c).at(1) = trial_basis_functions_derivative_values.at(1) * dofs_values;
+
+          }
+
+          return result;
+        }
         // ***************************************************************************
       } // namespace PCC_2D
     } // namespace Assembler_Utilities

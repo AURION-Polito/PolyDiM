@@ -256,14 +256,14 @@ namespace Polydim
 
         const auto numeric_solution = PDETools::Assembler_Utilities::PCC_2D::to_VectorXd(u);
 
-        const auto u_cell0Ds = PDETools::Assembler_Utilities::PCC_2D::assembler_extract_cell0Ds(mesh,
+        const auto u_cell0Ds = PDETools::Assembler_Utilities::PCC_2D::extract_solution_on_cell0Ds(mesh,
                                                                                                 trial_dofs_data,
                                                                                                 numeric_solution,
                                                                                                 strong_solution,
                                                                                                 exact_solution_function);
 
 
-        const auto error_L2 = PDETools::Assembler_Utilities::PCC_2D::assembler_error_L2(geometry_utilities,
+        const auto error_L2 = PDETools::Assembler_Utilities::PCC_2D::compute_error_L2(geometry_utilities,
                                                                                         mesh,
                                                                                         mesh_geometric_data,
                                                                                         trial_dofs_data,
@@ -272,7 +272,7 @@ namespace Polydim
                                                                                         strong_solution,
                                                                                         exact_solution_function);
 
-        const auto error_H1 = PDETools::Assembler_Utilities::PCC_2D::assembler_error_H1(geometry_utilities,
+        const auto error_H1 = PDETools::Assembler_Utilities::PCC_2D::compute_error_H1(geometry_utilities,
                                                                                         mesh,
                                                                                         mesh_geometric_data,
                                                                                         trial_dofs_data,

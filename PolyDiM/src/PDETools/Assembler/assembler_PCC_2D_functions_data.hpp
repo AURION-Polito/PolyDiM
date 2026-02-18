@@ -50,6 +50,16 @@ struct Variational_Operator final
     Polydim::PDETools::Assembler_Utilities::PCC_2D::Sparse_Matrix_Data A_Strong;
 };
 // ***************************************************************************
+struct Evaluate_Solution_On_Quadrature_Points_Data final
+{
+    Eigen::MatrixXd quadrature_points;
+    Eigen::VectorXd quadrature_weigths;
+    Eigen::VectorXd numeric_solution;
+    std::array<Eigen::VectorXd, 2> numeric_gradient_solution;
+    Eigen::VectorXd exact_solution;
+    std::array<Eigen::VectorXd, 2> exact_gradient_solution;
+};
+// ***************************************************************************
 struct Post_Process_Data_Cell0Ds final
 {
     Eigen::VectorXd cell0Ds_numeric;
