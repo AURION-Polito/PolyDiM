@@ -187,20 +187,16 @@ namespace Polydim
 
       ASSERT_EQ(dofs_data.NumberStrongs, strong_solution.size());
 
-      auto weak_term_function = [&method_order](const unsigned int marker, const double &x, const double &y, const double &z) {
-        double derivatives = 1.0;
-        const double polynomial = x + y + 0.5;
+      auto weak_term_function = [&a, &exact_gradient_solution_function](const unsigned int marker, const double &x, const double &y, const double &z) {
 
-        const int max_order = method_order - 1;
-        for (int i = 0; i < max_order; ++i)
-          derivatives *= polynomial;
+        const auto u_grad = exact_gradient_solution_function(x, y, z);
 
         switch (marker)
         {
           case 2:
-            return method_order * derivatives;
+            return a * u_grad.at(0);
           case 4:
-            return method_order * derivatives;
+            return a * u_grad.at(1);
           default:
             throw std::runtime_error("not valid marker");
         }
@@ -290,6 +286,18 @@ namespace Polydim
                                    Gedim::VTPProperty::Formats::Points,
                                    static_cast<unsigned int>(u_cell0Ds.cell0Ds_exact.size()),
                                    u_cell0Ds.cell0Ds_exact.data()
+                                 },
+                                 {
+                                  "error_L2",
+                                   Gedim::VTPProperty::Formats::Cells,
+                                   static_cast<unsigned int>(error_L2.cell2Ds_error_L2.size()),
+                                   error_L2.cell2Ds_error_L2.data()
+                                 },
+                                 {
+                                  "error_H1",
+                                   Gedim::VTPProperty::Formats::Cells,
+                                   static_cast<unsigned int>(error_H1.cell2Ds_error_H1.size()),
+                                   error_H1.cell2Ds_error_H1.data()
                                  }
                                });
           exporter.Export(exportFolder + "/solution.vtu");
