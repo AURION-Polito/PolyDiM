@@ -150,6 +150,7 @@ namespace Polydim
                                                          const DOFs::DOFsManager::DOFsData &dofs_data,
                                                          const LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                                                          const std::function<double(const double&, const double&, const double&)> diffusion_term_function,
+                                                         const std::function<std::array<double, 3>(const double&, const double&, const double&)> advection_term_function,
                                                          const std::function<double(const double &, const double &, const double &)> reaction_term_function)
         {
           Gedim::Eigen_SparseArray<> elliptic_matrix;
@@ -190,7 +191,7 @@ namespace Polydim
 
             if (diffusion_term_function)
             {
-              const Eigen::VectorXd diffusion_term_values = function_evaluation(cell2D_internal_quadrature.Points, diffusion_term_function);
+              const auto diffusion_term_values = function_evaluation(cell2D_internal_quadrature.Points, diffusion_term_function);
 
               local_A += equation.ComputeCellDiffusionMatrix(diffusion_term_values,
                                                              basis_functions_derivative_values,
@@ -201,9 +202,21 @@ namespace Polydim
                   k_max * Polydim::PDETools::LocalSpace_PCC_2D::StabilizationMatrix(reference_element_data, local_space_data);
             }
 
+            if (advection_term_function)
+            {
+              const auto advection_term_values = function_evaluation(cell2D_internal_quadrature.Points,
+                                                                                               advection_term_function);
+
+              local_A += equation.ComputeCellAdvectionMatrix(advection_term_values,
+                                                             basis_functions_values,
+                                                             basis_functions_derivative_values,
+                                                             cell2D_internal_quadrature.Weights);
+
+            }
+
             if (reaction_term_function)
             {
-              const Eigen::VectorXd reaction_term_values = function_evaluation(cell2D_internal_quadrature.Points, reaction_term_function);
+              const auto reaction_term_values = function_evaluation(cell2D_internal_quadrature.Points, reaction_term_function);
 
               local_A += equation.ComputeCellReactionMatrix(reaction_term_values,
                                                             basis_functions_values,

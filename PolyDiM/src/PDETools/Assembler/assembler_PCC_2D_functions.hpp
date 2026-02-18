@@ -42,7 +42,59 @@ Variational_Operator assembler_elliptic_operator(const Gedim::GeometryUtilities 
     const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
     const std::function<double(const double &, const double &, const double &)> diffusion_term_function,
+    const std::function<std::array<double, 3> (const double&, const double&, const double&)> advection_term_function,
     const std::function<double (const double&, const double&, const double&)> reaction_term_function);
+// ***************************************************************************
+inline Variational_Operator assembler_diffusion_operator(const Gedim::GeometryUtilities &geometry_utilities,
+    const Gedim::MeshMatricesDAO &mesh,
+    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+    const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
+    const std::function<double(const double &, const double &, const double &)> diffusion_term_function)
+{
+  return assembler_elliptic_operator(geometry_utilities,
+                                     mesh,
+                                     mesh_geometric_data,
+                                     dofs_data,
+                                     reference_element_data,
+                                     diffusion_term_function,
+                                     nullptr,
+                                     nullptr);
+}
+// ***************************************************************************
+inline Variational_Operator assembler_reaction_operator(const Gedim::GeometryUtilities &geometry_utilities,
+    const Gedim::MeshMatricesDAO &mesh,
+    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+    const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
+    const std::function<double (const double&, const double&, const double&)> reaction_term_function)
+{
+  return assembler_elliptic_operator(geometry_utilities,
+                                     mesh,
+                                     mesh_geometric_data,
+                                     dofs_data,
+                                     reference_element_data,
+                                     nullptr,
+                                     nullptr,
+                                     reaction_term_function);
+}
+// ***************************************************************************
+inline Variational_Operator assembler_advection_operator(const Gedim::GeometryUtilities &geometry_utilities,
+    const Gedim::MeshMatricesDAO &mesh,
+    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+    const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
+    const std::function<std::array<double, 3> (const double&, const double&, const double&)> advection_term_function)
+{
+  return assembler_elliptic_operator(geometry_utilities,
+                                     mesh,
+                                     mesh_geometric_data,
+                                     dofs_data,
+                                     reference_element_data,
+                                     nullptr,
+                                     advection_term_function,
+                                     nullptr);
+}
 // ***************************************************************************
 Eigen::VectorXd assembler_strong_solution(
     const Gedim::GeometryUtilities &geometry_utilities,

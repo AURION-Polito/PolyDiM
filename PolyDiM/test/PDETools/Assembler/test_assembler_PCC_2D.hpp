@@ -61,7 +61,7 @@ namespace Polydim
                                                                   mesh);
 
       const double a = 2.0;
-      const std::array<double, 3> b = { 0.0, 0.0, 0.0 };
+      const std::array<double, 3> b = { 0.1, 0.02, 0.01 };
       const double c = 3.0;
       const unsigned int method_order = 3;
       const auto reference_element_data =
@@ -162,6 +162,7 @@ namespace Polydim
                                                                                                         dofs_data,
                                                                                                         reference_element_data,
                                                                                                         diffusion_term_function,
+                                                                                                        advection_term_function,
                                                                                                         reaction_term_function);
 
       ASSERT_EQ(dofs_data.NumberDOFs, elliptic_operator.A.size.at(0));
