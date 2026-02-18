@@ -230,9 +230,12 @@ namespace Polydim
                                                              test_basis_functions_derivative_values,
                                                              cell2D_internal_quadrature.Weights);
 
-              const double k_max = diffusion_term_values.cwiseAbs().maxCoeff();
-              local_A +=
-                  k_max * Polydim::PDETools::LocalSpace_PCC_2D::StabilizationMatrix(test_reference_element_data, test_local_space_data);
+              if (test_local_space_size == trial_local_space_size)
+              {
+                const double k_max = diffusion_term_values.cwiseAbs().maxCoeff();
+                local_A +=
+                    k_max * Polydim::PDETools::LocalSpace_PCC_2D::StabilizationMatrix(test_reference_element_data, test_local_space_data);
+              }
             }
 
             if (advection_term_function)

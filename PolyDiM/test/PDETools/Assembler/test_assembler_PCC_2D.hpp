@@ -70,7 +70,7 @@ namespace Polydim
                                                                        method_order);
       const auto test_reference_element_data =
           Polydim::PDETools::LocalSpace_PCC_2D::CreateReferenceElement(Polydim::PDETools::LocalSpace_PCC_2D::MethodTypes::FEM_PCC,
-                                                                       method_order - 1);
+                                                                       method_order);
 
       const auto mesh_geometric_data = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_2D_geometry_data(
                                          geometry_utilities,
