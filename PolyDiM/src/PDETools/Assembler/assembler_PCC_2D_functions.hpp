@@ -37,7 +37,7 @@ Eigen::VectorXd assemble_source_term(
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &test_reference_element_data,
     const std::function<double(const double &, const double &, const double &)> source_term_function);
 // ***************************************************************************
-Eigen::VectorXd assemble_non_linear_source_term(const Gedim::GeometryUtilities &geometry_utilities,
+Eigen::VectorXd assemble_source_term(const Gedim::GeometryUtilities &geometry_utilities,
     const Gedim::MeshMatricesDAO &mesh,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
     const DOFs::DOFsManager::DOFsData& trial_dofs_data,
@@ -47,6 +47,17 @@ Eigen::VectorXd assemble_non_linear_source_term(const Gedim::GeometryUtilities &
     const Eigen::VectorXd &numerical_solution,
     const Eigen::VectorXd &numerical_solution_strong,
     const std::function<double(const double &, const double &, const double &, const Eigen::VectorXd &, const Eigen::VectorXd &, const Eigen::VectorXd &)> source_term_function);
+// ***************************************************************************
+Eigen::VectorXd assemble_source_term(const Gedim::GeometryUtilities &geometry_utilities,
+    const Gedim::MeshMatricesDAO &mesh,
+    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+    const DOFs::DOFsManager::DOFsData& trial_dofs_data,
+    const DOFs::DOFsManager::DOFsData &test_dofs_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &test_reference_element_data,
+    const Eigen::VectorXd &numerical_solution,
+    const Eigen::VectorXd &numerical_solution_strong,
+    const std::function<std::array<double, 3>(const double &, const double &, const double &, const Eigen::VectorXd &, const Eigen::VectorXd &, const Eigen::VectorXd &)> source_term_function);
 // ***************************************************************************
 Variational_Operator assemble_elliptic_operator(const Gedim::GeometryUtilities &geometry_utilities,
     const Gedim::MeshMatricesDAO &mesh,
