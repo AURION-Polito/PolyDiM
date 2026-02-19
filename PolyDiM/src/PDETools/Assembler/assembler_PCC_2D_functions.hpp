@@ -46,7 +46,7 @@ Eigen::VectorXd assemble_source_term(const Gedim::GeometryUtilities &geometry_ut
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &test_reference_element_data,
     const Eigen::VectorXd &numerical_solution,
     const Eigen::VectorXd &numerical_solution_strong,
-    const std::function<double(const double &, const double &, const double &, const Eigen::VectorXd &, const Eigen::VectorXd &, const Eigen::VectorXd &)> source_term_function);
+    const std::function<double(const double &, const double &, const double &, const double &, const std::array<double, 3>&)> source_term_function);
 // ***************************************************************************
 Eigen::VectorXd assemble_source_term(const Gedim::GeometryUtilities &geometry_utilities,
     const Gedim::MeshMatricesDAO &mesh,
@@ -57,7 +57,7 @@ Eigen::VectorXd assemble_source_term(const Gedim::GeometryUtilities &geometry_ut
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &test_reference_element_data,
     const Eigen::VectorXd &numerical_solution,
     const Eigen::VectorXd &numerical_solution_strong,
-    const std::function<std::array<double, 3>(const double &, const double &, const double &, const Eigen::VectorXd &, const Eigen::VectorXd &, const Eigen::VectorXd &)> source_term_function);
+    const std::function<std::array<double, 3>(const double &, const double &, const double &, const double &, const std::array<double, 3>&)> source_term_function);
 // ***************************************************************************
 Variational_Operator assemble_elliptic_operator(const Gedim::GeometryUtilities &geometry_utilities,
     const Gedim::MeshMatricesDAO &mesh,
@@ -142,9 +142,9 @@ Variational_Operator assemble_elliptic_operator(const Gedim::GeometryUtilities &
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &test_reference_element_data,
     const Eigen::VectorXd &numerical_solution,
     const Eigen::VectorXd &numerical_solution_strong,
-    const std::function<double(const double &, const double &, const double &, const Eigen::VectorXd &, const Eigen::VectorXd &, const Eigen::VectorXd &)> diffusion_term_function,
-    const std::function<std::array<double, 3> (const double&, const double&, const double&, const Eigen::VectorXd &, const Eigen::VectorXd &, const Eigen::VectorXd &)> advection_term_function,
-    const std::function<double(const double &, const double &, const double &, const Eigen::VectorXd &, const Eigen::VectorXd &, const Eigen::VectorXd &)> reaction_term_function);
+    const std::function<double(const double &, const double &, const double &, const double &, const std::array<double, 3>&)> diffusion_term_function,
+    const std::function<std::array<double, 3> (const double &, const double &, const double &, const double &, const std::array<double, 3>&)> advection_term_function,
+    const std::function<double(const double &, const double &, const double &, const double &, std::array<double, 3>&)> reaction_term_function);
 // ***************************************************************************
 inline Variational_Operator assemble_diffusion_operator(const Gedim::GeometryUtilities &geometry_utilities,
     const Gedim::MeshMatricesDAO &mesh,
@@ -155,7 +155,7 @@ inline Variational_Operator assemble_diffusion_operator(const Gedim::GeometryUti
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &test_reference_element_data,
     const Eigen::VectorXd &numerical_solution,
     const Eigen::VectorXd &numerical_solution_strong,
-    const std::function<double(const double &, const double &, const double &, const Eigen::VectorXd &, const Eigen::VectorXd &, const Eigen::VectorXd &)> diffusion_term_function)
+    const std::function<double(const double &, const double &, const double &, const double &, const std::array<double, 3>&)> diffusion_term_function)
 {
   return assemble_elliptic_operator(geometry_utilities,
                                      mesh,
@@ -164,8 +164,8 @@ inline Variational_Operator assemble_diffusion_operator(const Gedim::GeometryUti
                                      test_dofs_data,
                                      trial_reference_element_data,
                                      test_reference_element_data,
-                                    numerical_solution,
-                                    numerical_solution_strong,
+                                     numerical_solution,
+                                     numerical_solution_strong,
                                      diffusion_term_function,
                                      nullptr,
                                      nullptr);
@@ -180,7 +180,7 @@ inline Variational_Operator assemble_reaction_operator(const Gedim::GeometryUtil
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &test_reference_element_data,
     const Eigen::VectorXd &numerical_solution,
     const Eigen::VectorXd &numerical_solution_strong,
-    const std::function<double (const double&, const double&, const double&, const Eigen::VectorXd &, const Eigen::VectorXd &, const Eigen::VectorXd &)> reaction_term_function)
+    const std::function<double (const double &, const double &, const double &, const double &, const std::array<double, 3>&)> reaction_term_function)
 {
   return assemble_elliptic_operator(geometry_utilities,
                                      mesh,
@@ -189,8 +189,8 @@ inline Variational_Operator assemble_reaction_operator(const Gedim::GeometryUtil
                                      test_dofs_data,
                                      trial_reference_element_data,
                                      test_reference_element_data,
-                                    numerical_solution,
-                                    numerical_solution_strong,
+                                     numerical_solution,
+                                     numerical_solution_strong,
                                      nullptr,
                                      nullptr,
                                      reaction_term_function);
@@ -205,7 +205,7 @@ inline Variational_Operator assemble_advection_operator(const Gedim::GeometryUti
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &test_reference_element_data,
     const Eigen::VectorXd &numerical_solution,
     const Eigen::VectorXd &numerical_solution_strong,
-    const std::function<std::array<double, 3> (const double&, const double&, const double&, const Eigen::VectorXd &, const Eigen::VectorXd &, const Eigen::VectorXd &)> advection_term_function)
+    const std::function<std::array<double, 3> (const double &, const double &, const double &, const double &, const std::array<double, 3>&)> advection_term_function)
 {
   return assemble_elliptic_operator(geometry_utilities,
                                      mesh,
