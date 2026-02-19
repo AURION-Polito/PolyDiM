@@ -369,45 +369,6 @@ namespace Polydim
                                },
                              });
 
-          exporter.AddPoints(mesh.Cell0DsCoordinates(),
-                             {
-                               {
-                                 "numeric_solution",
-                                 Gedim::VTPProperty::Formats::Points,
-                                 static_cast<unsigned int>(u_on_cell0Ds.numeric_solution.size()),
-                                 u_on_cell0Ds.numeric_solution.data()
-                               },
-                               {
-                                 "numeric_x_solution",
-                                 Gedim::VTPProperty::Formats::Points,
-                                 static_cast<unsigned int>(u_on_cell0Ds.numeric_gradient_solution.at(0).size()),
-                                 u_on_cell0Ds.numeric_gradient_solution.at(0).data()
-                               },
-                               {
-                                 "numeric_y_solution",
-                                 Gedim::VTPProperty::Formats::Points,
-                                 static_cast<unsigned int>(u_on_cell0Ds.numeric_gradient_solution.at(1).size()),
-                                 u_on_cell0Ds.numeric_gradient_solution.at(1).data()
-                               },
-                               {
-                                 "exact_solution",
-                                 Gedim::VTPProperty::Formats::Points,
-                                 static_cast<unsigned int>(u_on_cell0Ds.exact_solution.size()),
-                                 u_on_cell0Ds.exact_solution.data()
-                               },
-                               {
-                                 "exact_x_solution",
-                                 Gedim::VTPProperty::Formats::Points,
-                                 static_cast<unsigned int>(u_on_cell0Ds.exact_gradient_solution.at(0).size()),
-                                 u_on_cell0Ds.exact_gradient_solution.at(0).data()
-                               },
-                               {
-                                 "exact_y_solution",
-                                 Gedim::VTPProperty::Formats::Points,
-                                 static_cast<unsigned int>(u_on_cell0Ds.exact_gradient_solution.at(1).size()),
-                                 u_on_cell0Ds.exact_gradient_solution.at(1).data()
-                               },
-                             });
           exporter.Export(exportFolder + "/solution_on_quadrature.vtu");
         }
 

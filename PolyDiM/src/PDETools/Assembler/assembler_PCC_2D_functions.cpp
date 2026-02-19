@@ -652,9 +652,6 @@ namespace Polydim
           const auto num_solution_strong = to_Eigen_Array(numerical_solution_strong);
 
           result.numeric_solution.resize(mesh.Cell0DTotalNumber());
-          result.numeric_gradient_solution.at(0).setZero(mesh.Cell0DTotalNumber());
-          result.numeric_gradient_solution.at(1).setZero(mesh.Cell0DTotalNumber());
-          result.numeric_gradient_solution.at(2).setZero(mesh.Cell0DTotalNumber());
           result.exact_solution.resize(mesh.Cell0DTotalNumber());
           result.exact_gradient_solution.at(0).resize(mesh.Cell0DTotalNumber());
           result.exact_gradient_solution.at(1).resize(mesh.Cell0DTotalNumber());

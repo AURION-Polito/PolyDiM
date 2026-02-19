@@ -63,7 +63,6 @@ struct Evaluate_Solution_On_Quadrature_Points_Data final
 struct Post_Process_Data_Cell0Ds final
 {
     Eigen::VectorXd numeric_solution;
-    std::array<Eigen::VectorXd, 3> numeric_gradient_solution;
     Eigen::VectorXd exact_solution;
     std::array<Eigen::VectorXd, 3> exact_gradient_solution;
 };
