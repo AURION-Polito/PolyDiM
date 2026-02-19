@@ -164,7 +164,7 @@ namespace Polydim
         return c;
       };
 
-      const auto elliptic_operator = PDETools::Assembler_Utilities::PCC_2D::assembler_elliptic_operator(geometry_utilities,
+      const auto elliptic_operator = PDETools::Assembler_Utilities::PCC_2D::assemble_elliptic_operator(geometry_utilities,
                                                                                                         mesh,
                                                                                                         mesh_geometric_data,
                                                                                                         trial_dofs_data,
@@ -188,7 +188,7 @@ namespace Polydim
         return exact_solution_function(x, y, z);
       };
 
-      const auto strong_solution = PDETools::Assembler_Utilities::PCC_2D::assembler_strong_solution(geometry_utilities,
+      const auto strong_solution = PDETools::Assembler_Utilities::PCC_2D::assemble_strong_solution(geometry_utilities,
                                                                                                     mesh,
                                                                                                     mesh_geometric_data,
                                                                                                     trial_mesh_dofs_info,
@@ -215,7 +215,7 @@ namespace Polydim
         throw std::runtime_error("Not supported");
       };
 
-      const auto weak_term = PDETools::Assembler_Utilities::PCC_2D::assembler_weak_term(geometry_utilities,
+      const auto weak_term = PDETools::Assembler_Utilities::PCC_2D::assemble_weak_term(geometry_utilities,
                                                                                         mesh,
                                                                                         mesh_geometric_data,
                                                                                         trial_mesh_dofs_info,
@@ -226,7 +226,7 @@ namespace Polydim
 
       ASSERT_EQ(test_dofs_data.NumberDOFs, weak_term.size());
 
-      const auto exact_solution = PDETools::Assembler_Utilities::PCC_2D::assembler_exact_solution(geometry_utilities,
+      const auto exact_solution = PDETools::Assembler_Utilities::PCC_2D::assemble_exact_solution(geometry_utilities,
                                                                                                   mesh,
                                                                                                   mesh_geometric_data,
                                                                                                   trial_dofs_data,

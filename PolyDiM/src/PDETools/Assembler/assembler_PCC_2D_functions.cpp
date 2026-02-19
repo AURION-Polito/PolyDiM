@@ -153,7 +153,7 @@ namespace Polydim
           return static_cast<Eigen::VectorXd &>(forcing_term);
         }
         // ***************************************************************************
-        Variational_Operator assembler_elliptic_operator(const Gedim::GeometryUtilities &geometry_utilities,
+        Variational_Operator assemble_elliptic_operator(const Gedim::GeometryUtilities &geometry_utilities,
                                                          const Gedim::MeshMatricesDAO &mesh,
                                                          const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                                          const DOFs::DOFsManager::DOFsData &trial_dofs_data,
@@ -279,7 +279,7 @@ namespace Polydim
           return convert_operator(elliptic_matrix, elliptic_strong_matrix);
         }
         // ***************************************************************************
-        Eigen::VectorXd assembler_strong_solution(const Gedim::GeometryUtilities &geometry_utilities,
+        Eigen::VectorXd assemble_strong_solution(const Gedim::GeometryUtilities &geometry_utilities,
                                                   const Gedim::MeshMatricesDAO &mesh,
                                                   const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                                   const DOFs::DOFsManager::MeshDOFsInfo &trial_mesh_dofs_info,
@@ -386,7 +386,7 @@ namespace Polydim
           return static_cast<Eigen::VectorXd &>(strong_solution);
         }
         // ***************************************************************************
-        Exact_Solution_Data assembler_exact_solution(const Gedim::GeometryUtilities &geometry_utilities,
+        Exact_Solution_Data assemble_exact_solution(const Gedim::GeometryUtilities &geometry_utilities,
                                                      const Gedim::MeshMatricesDAO &mesh,
                                                      const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                                      const DOFs::DOFsManager::DOFsData &trial_dofs_data,
@@ -522,7 +522,7 @@ namespace Polydim
           return {static_cast<Eigen::VectorXd &>(exact_solution), static_cast<Eigen::VectorXd &>(exact_solution_strong)};
         }
         // ***************************************************************************
-        Eigen::VectorXd assembler_weak_term(const Gedim::GeometryUtilities &geometry_utilities,
+        Eigen::VectorXd assemble_weak_term(const Gedim::GeometryUtilities &geometry_utilities,
                                             const Gedim::MeshMatricesDAO &mesh,
                                             const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                             const DOFs::DOFsManager::MeshDOFsInfo &trial_mesh_dofs_info,
