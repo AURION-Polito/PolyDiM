@@ -130,7 +130,7 @@ namespace Polydim
         return result;
       };
 
-      auto source_term_function = [&method_order, &a, &b, &c, &exact_solution_function, &exact_gradient_solution_function, &exact_laplacian_solution_function](const double &x, const double &y, const double &z, const Eigen::VectorXd &check) {
+      auto source_term_function = [&method_order, &a, &b, &c, &exact_solution_function, &exact_gradient_solution_function, &exact_laplacian_solution_function](const double &x, const double &y, const double &z) {
         const auto u_lap = exact_laplacian_solution_function(x, y, z);
         const auto u_grad = exact_gradient_solution_function(x, y, z);
         const auto u = exact_solution_function(x, y, z);
