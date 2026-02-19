@@ -133,6 +133,94 @@ inline Variational_Operator assemble_advection_operator(const Gedim::GeometryUti
                                      nullptr);
 }
 // ***************************************************************************
+Variational_Operator assemble_elliptic_operator(const Gedim::GeometryUtilities &geometry_utilities,
+    const Gedim::MeshMatricesDAO &mesh,
+    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+    const DOFs::DOFsManager::DOFsData &trial_dofs_data,
+    const DOFs::DOFsManager::DOFsData &test_dofs_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &test_reference_element_data,
+    const Eigen::VectorXd &numerical_solution,
+    const Eigen::VectorXd &numerical_solution_strong,
+    const std::function<double(const double &, const double &, const double &, const Eigen::VectorXd &, const Eigen::VectorXd &, const Eigen::VectorXd &)> diffusion_term_function,
+    const std::function<std::array<double, 3> (const double&, const double&, const double&, const Eigen::VectorXd &, const Eigen::VectorXd &, const Eigen::VectorXd &)> advection_term_function,
+    const std::function<double(const double &, const double &, const double &, const Eigen::VectorXd &, const Eigen::VectorXd &, const Eigen::VectorXd &)> reaction_term_function);
+// ***************************************************************************
+inline Variational_Operator assemble_diffusion_operator(const Gedim::GeometryUtilities &geometry_utilities,
+    const Gedim::MeshMatricesDAO &mesh,
+    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+    const DOFs::DOFsManager::DOFsData &trial_dofs_data,
+    const DOFs::DOFsManager::DOFsData &test_dofs_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &test_reference_element_data,
+    const Eigen::VectorXd &numerical_solution,
+    const Eigen::VectorXd &numerical_solution_strong,
+    const std::function<double(const double &, const double &, const double &, const Eigen::VectorXd &, const Eigen::VectorXd &, const Eigen::VectorXd &)> diffusion_term_function)
+{
+  return assemble_elliptic_operator(geometry_utilities,
+                                     mesh,
+                                     mesh_geometric_data,
+                                     trial_dofs_data,
+                                     test_dofs_data,
+                                     trial_reference_element_data,
+                                     test_reference_element_data,
+                                    numerical_solution,
+                                    numerical_solution_strong,
+                                     diffusion_term_function,
+                                     nullptr,
+                                     nullptr);
+}
+// ***************************************************************************
+inline Variational_Operator assemble_reaction_operator(const Gedim::GeometryUtilities &geometry_utilities,
+    const Gedim::MeshMatricesDAO &mesh,
+    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+    const DOFs::DOFsManager::DOFsData &trial_dofs_data,
+    const DOFs::DOFsManager::DOFsData &test_dofs_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &test_reference_element_data,
+    const Eigen::VectorXd &numerical_solution,
+    const Eigen::VectorXd &numerical_solution_strong,
+    const std::function<double (const double&, const double&, const double&, const Eigen::VectorXd &, const Eigen::VectorXd &, const Eigen::VectorXd &)> reaction_term_function)
+{
+  return assemble_elliptic_operator(geometry_utilities,
+                                     mesh,
+                                     mesh_geometric_data,
+                                     trial_dofs_data,
+                                     test_dofs_data,
+                                     trial_reference_element_data,
+                                     test_reference_element_data,
+                                    numerical_solution,
+                                    numerical_solution_strong,
+                                     nullptr,
+                                     nullptr,
+                                     reaction_term_function);
+}
+// ***************************************************************************
+inline Variational_Operator assemble_advection_operator(const Gedim::GeometryUtilities &geometry_utilities,
+    const Gedim::MeshMatricesDAO &mesh,
+    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+    const DOFs::DOFsManager::DOFsData &trial_dofs_data,
+    const DOFs::DOFsManager::DOFsData &test_dofs_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &test_reference_element_data,
+    const Eigen::VectorXd &numerical_solution,
+    const Eigen::VectorXd &numerical_solution_strong,
+    const std::function<std::array<double, 3> (const double&, const double&, const double&, const Eigen::VectorXd &, const Eigen::VectorXd &, const Eigen::VectorXd &)> advection_term_function)
+{
+  return assemble_elliptic_operator(geometry_utilities,
+                                     mesh,
+                                     mesh_geometric_data,
+                                     trial_dofs_data,
+                                     test_dofs_data,
+                                     trial_reference_element_data,
+                                     test_reference_element_data,
+                                    numerical_solution,
+                                    numerical_solution_strong,
+                                     nullptr,
+                                     advection_term_function,
+                                     nullptr);
+}
+// ***************************************************************************
 Eigen::VectorXd assemble_strong_solution(const Gedim::GeometryUtilities &geometry_utilities,
     const Gedim::MeshMatricesDAO &mesh,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
