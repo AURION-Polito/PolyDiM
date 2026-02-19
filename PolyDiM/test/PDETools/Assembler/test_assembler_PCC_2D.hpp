@@ -256,30 +256,41 @@ namespace Polydim
 
         const auto numeric_solution = PDETools::Assembler_Utilities::PCC_2D::to_VectorXd(u);
 
-        const auto u_cell0Ds = PDETools::Assembler_Utilities::PCC_2D::extract_solution_on_cell0Ds(mesh,
-                                                                                                trial_dofs_data,
-                                                                                                numeric_solution,
-                                                                                                strong_solution,
-                                                                                                exact_solution_function);
+        const auto u_on_cell0Ds = PDETools::Assembler_Utilities::PCC_2D::extract_solution_on_cell0Ds(mesh,
+                                                                                                     trial_dofs_data,
+                                                                                                     numeric_solution,
+                                                                                                     strong_solution,
+                                                                                                     exact_solution_function,
+                                                                                                     exact_gradient_solution_function);
 
 
         const auto error_L2 = PDETools::Assembler_Utilities::PCC_2D::compute_error_L2(geometry_utilities,
-                                                                                        mesh,
-                                                                                        mesh_geometric_data,
-                                                                                        trial_dofs_data,
-                                                                                        trial_reference_element_data,
-                                                                                        numeric_solution,
-                                                                                        strong_solution,
-                                                                                        exact_solution_function);
+                                                                                      mesh,
+                                                                                      mesh_geometric_data,
+                                                                                      trial_dofs_data,
+                                                                                      trial_reference_element_data,
+                                                                                      numeric_solution,
+                                                                                      strong_solution,
+                                                                                      exact_solution_function);
 
         const auto error_H1 = PDETools::Assembler_Utilities::PCC_2D::compute_error_H1(geometry_utilities,
-                                                                                        mesh,
-                                                                                        mesh_geometric_data,
-                                                                                        trial_dofs_data,
-                                                                                        trial_reference_element_data,
-                                                                                        numeric_solution,
-                                                                                        strong_solution,
-                                                                                        exact_gradient_solution_function);
+                                                                                      mesh,
+                                                                                      mesh_geometric_data,
+                                                                                      trial_dofs_data,
+                                                                                      trial_reference_element_data,
+                                                                                      numeric_solution,
+                                                                                      strong_solution,
+                                                                                      exact_gradient_solution_function);
+
+        const auto u_on_quadrature = PDETools::Assembler_Utilities::PCC_2D::evaluate_solution_on_quadrature_points(geometry_utilities,
+                                                                                                                   mesh,
+                                                                                                                   mesh_geometric_data,
+                                                                                                                   trial_dofs_data,
+                                                                                                                   trial_reference_element_data,
+                                                                                                                   numeric_solution,
+                                                                                                                   strong_solution,
+                                                                                                                   exact_solution_function,
+                                                                                                                   exact_gradient_solution_function);
 
         {
           Gedim::VTKUtilities exporter;
@@ -288,31 +299,116 @@ namespace Polydim
                                mesh.Cell2DsVertices(),
                                {
                                  {
-                                  "numeric_solution",
+                                   "numeric_solution",
                                    Gedim::VTPProperty::Formats::Points,
-                                   static_cast<unsigned int>(u_cell0Ds.cell0Ds_numeric.size()),
-                                   u_cell0Ds.cell0Ds_numeric.data()
+                                   static_cast<unsigned int>(u_on_cell0Ds.numeric_solution.size()),
+                                   u_on_cell0Ds.numeric_solution.data()
                                  },
                                  {
-                                  "exact_solution",
+                                   "exact_solution",
                                    Gedim::VTPProperty::Formats::Points,
-                                   static_cast<unsigned int>(u_cell0Ds.cell0Ds_exact.size()),
-                                   u_cell0Ds.cell0Ds_exact.data()
+                                   static_cast<unsigned int>(u_on_cell0Ds.exact_solution.size()),
+                                   u_on_cell0Ds.exact_solution.data()
                                  },
                                  {
-                                  "error_L2",
+                                   "error_L2",
                                    Gedim::VTPProperty::Formats::Cells,
                                    static_cast<unsigned int>(error_L2.cell2Ds_error_L2.size()),
                                    error_L2.cell2Ds_error_L2.data()
                                  },
                                  {
-                                  "error_H1",
+                                   "error_H1",
                                    Gedim::VTPProperty::Formats::Cells,
                                    static_cast<unsigned int>(error_H1.cell2Ds_error_H1.size()),
                                    error_H1.cell2Ds_error_H1.data()
                                  }
                                });
           exporter.Export(exportFolder + "/solution.vtu");
+        }
+
+        {
+          Gedim::VTKUtilities exporter;
+
+          exporter.AddPoints(u_on_quadrature.quadrature_points,
+                             {
+                               {
+                                 "numeric_solution",
+                                 Gedim::VTPProperty::Formats::Points,
+                                 static_cast<unsigned int>(u_on_quadrature.numeric_solution.size()),
+                                 u_on_quadrature.numeric_solution.data()
+                               },
+                               {
+                                 "numeric_x_solution",
+                                 Gedim::VTPProperty::Formats::Points,
+                                 static_cast<unsigned int>(u_on_quadrature.numeric_gradient_solution.at(0).size()),
+                                 u_on_quadrature.numeric_gradient_solution.at(0).data()
+                               },
+                               {
+                                 "numeric_y_solution",
+                                 Gedim::VTPProperty::Formats::Points,
+                                 static_cast<unsigned int>(u_on_quadrature.numeric_gradient_solution.at(1).size()),
+                                 u_on_quadrature.numeric_gradient_solution.at(1).data()
+                               },
+                               {
+                                 "exact_solution",
+                                 Gedim::VTPProperty::Formats::Points,
+                                 static_cast<unsigned int>(u_on_quadrature.exact_solution.size()),
+                                 u_on_quadrature.exact_solution.data()
+                               },
+                               {
+                                 "exact_x_solution",
+                                 Gedim::VTPProperty::Formats::Points,
+                                 static_cast<unsigned int>(u_on_quadrature.exact_gradient_solution.at(0).size()),
+                                 u_on_quadrature.exact_gradient_solution.at(0).data()
+                               },
+                               {
+                                 "exact_y_solution",
+                                 Gedim::VTPProperty::Formats::Points,
+                                 static_cast<unsigned int>(u_on_quadrature.exact_gradient_solution.at(1).size()),
+                                 u_on_quadrature.exact_gradient_solution.at(1).data()
+                               },
+                             });
+
+          exporter.AddPoints(mesh.Cell0DsCoordinates(),
+                             {
+                               {
+                                 "numeric_solution",
+                                 Gedim::VTPProperty::Formats::Points,
+                                 static_cast<unsigned int>(u_on_cell0Ds.numeric_solution.size()),
+                                 u_on_cell0Ds.numeric_solution.data()
+                               },
+                               {
+                                 "numeric_x_solution",
+                                 Gedim::VTPProperty::Formats::Points,
+                                 static_cast<unsigned int>(u_on_cell0Ds.numeric_gradient_solution.at(0).size()),
+                                 u_on_cell0Ds.numeric_gradient_solution.at(0).data()
+                               },
+                               {
+                                 "numeric_y_solution",
+                                 Gedim::VTPProperty::Formats::Points,
+                                 static_cast<unsigned int>(u_on_cell0Ds.numeric_gradient_solution.at(1).size()),
+                                 u_on_cell0Ds.numeric_gradient_solution.at(1).data()
+                               },
+                               {
+                                 "exact_solution",
+                                 Gedim::VTPProperty::Formats::Points,
+                                 static_cast<unsigned int>(u_on_cell0Ds.exact_solution.size()),
+                                 u_on_cell0Ds.exact_solution.data()
+                               },
+                               {
+                                 "exact_x_solution",
+                                 Gedim::VTPProperty::Formats::Points,
+                                 static_cast<unsigned int>(u_on_cell0Ds.exact_gradient_solution.at(0).size()),
+                                 u_on_cell0Ds.exact_gradient_solution.at(0).data()
+                               },
+                               {
+                                 "exact_y_solution",
+                                 Gedim::VTPProperty::Formats::Points,
+                                 static_cast<unsigned int>(u_on_cell0Ds.exact_gradient_solution.at(1).size()),
+                                 u_on_cell0Ds.exact_gradient_solution.at(1).data()
+                               },
+                             });
+          exporter.Export(exportFolder + "/solution_on_quadrature.vtu");
         }
 
         std::cout.precision(2);

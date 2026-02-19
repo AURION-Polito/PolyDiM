@@ -643,22 +643,34 @@ namespace Polydim
                                                             const DOFs::DOFsManager::DOFsData &trial_dofs_data,
                                                             const Eigen::VectorXd &numerical_solution,
                                                             const Eigen::VectorXd &numerical_solution_strong,
-                                                            const std::function<double(const double &, const double &, const double &)> exact_solution_function)
+                                                            const std::function<double(const double &, const double &, const double &)> exact_solution_function,
+                                                              const std::function<std::array<double, 3>(const double &, const double &, const double &)> exact_gradient_solution_function)
         {
           Post_Process_Data_Cell0Ds result;
 
           const auto num_solution = to_Eigen_Array(numerical_solution);
           const auto num_solution_strong = to_Eigen_Array(numerical_solution_strong);
 
-          result.cell0Ds_numeric.setZero(mesh.Cell0DTotalNumber());
-          result.cell0Ds_exact.setZero(mesh.Cell0DTotalNumber());
+          result.numeric_solution.resize(mesh.Cell0DTotalNumber());
+          result.numeric_gradient_solution.at(0).setZero(mesh.Cell0DTotalNumber());
+          result.numeric_gradient_solution.at(1).setZero(mesh.Cell0DTotalNumber());
+          result.numeric_gradient_solution.at(2).setZero(mesh.Cell0DTotalNumber());
+          result.exact_solution.resize(mesh.Cell0DTotalNumber());
+          result.exact_gradient_solution.at(0).resize(mesh.Cell0DTotalNumber());
+          result.exact_gradient_solution.at(1).resize(mesh.Cell0DTotalNumber());
+          result.exact_gradient_solution.at(2).resize(mesh.Cell0DTotalNumber());
 
           for (unsigned int p = 0; p < mesh.Cell0DTotalNumber(); p++)
           {
             if (!mesh.Cell0DIsActive(p))
               continue;
 
-            result.cell0Ds_exact[p] = function_evaluation(mesh.Cell0DCoordinates(p), exact_solution_function)[0];
+            result.exact_solution[p] = function_evaluation(mesh.Cell0DCoordinates(p), exact_solution_function)[0];
+            const auto grad_solution = function_evaluation(mesh.Cell0DCoordinates(p), exact_gradient_solution_function);
+
+            result.exact_gradient_solution.at(0)[p] = grad_solution.at(0)[0];
+            result.exact_gradient_solution.at(1)[p] = grad_solution.at(1)[0];
+            result.exact_gradient_solution.at(2)[p] = grad_solution.at(2)[0];
 
             const auto local_dofs = trial_dofs_data.CellsDOFs.at(0).at(p);
 
@@ -669,10 +681,10 @@ namespace Polydim
               switch (local_dof_i.Type)
               {
                 case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
-                  result.cell0Ds_numeric[p] = numerical_solution_strong[local_dof_i.Global_Index];
+                  result.numeric_solution[p] = numerical_solution_strong[local_dof_i.Global_Index];
                   break;
                 case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
-                  result.cell0Ds_numeric[p] = numerical_solution[local_dof_i.Global_Index];
+                  result.numeric_solution[p] = numerical_solution[local_dof_i.Global_Index];
                   break;
                 default:
                   throw std::runtime_error("Unknown DOF Type");
@@ -845,12 +857,14 @@ namespace Polydim
           const auto num_solution = to_Eigen_Array(numerical_solution);
           const auto num_solution_strong = to_Eigen_Array(numerical_solution_strong);
 
+          unsigned int num_total_quadrature_points;
+          std::vector<unsigned int> cell2D_num_quadrature_points(mesh.Cell2DTotalNumber());
           std::vector<Eigen::MatrixXd> quadrature_points(mesh.Cell2DTotalNumber());
           std::vector<Eigen::VectorXd> quadrature_weigths(mesh.Cell2DTotalNumber());
           std::vector<Eigen::VectorXd> numeric_solution(mesh.Cell2DTotalNumber());
-          std::vector<std::array<Eigen::VectorXd, 2>> numeric_gradient_solution(mesh.Cell2DTotalNumber());
+          std::vector<std::array<Eigen::VectorXd, 3>> numeric_gradient_solution(mesh.Cell2DTotalNumber());
           std::vector<Eigen::VectorXd> exact_solution(mesh.Cell2DTotalNumber());
-          std::vector<std::array<Eigen::VectorXd, 2>> exact_gradient_solution(mesh.Cell2DTotalNumber());
+          std::vector<std::array<Eigen::VectorXd, 3>> exact_gradient_solution(mesh.Cell2DTotalNumber());
 
 
           for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
@@ -875,6 +889,10 @@ namespace Polydim
             const auto cell2D_internal_quadrature =
                 Polydim::PDETools::LocalSpace_PCC_2D::InternalQuadrature(trial_reference_element_data, trial_local_space_data);
 
+            const unsigned int num_quadrature_points = cell2D_internal_quadrature.Points.cols();
+            num_total_quadrature_points += num_quadrature_points;
+            cell2D_num_quadrature_points.at(c) = num_quadrature_points;
+
             quadrature_points.at(c) = cell2D_internal_quadrature.Points;
             quadrature_weigths.at(c) = cell2D_internal_quadrature.Weights;
 
@@ -895,7 +913,52 @@ namespace Polydim
             numeric_solution.at(c) = trial_basis_functions_values * dofs_values;
             numeric_gradient_solution.at(c).at(0) = trial_basis_functions_derivative_values.at(0) * dofs_values;
             numeric_gradient_solution.at(c).at(1) = trial_basis_functions_derivative_values.at(1) * dofs_values;
+            numeric_gradient_solution.at(c).at(2) = Eigen::VectorXd::Zero(num_quadrature_points);
+          }
 
+          result.quadrature_points.resize(3, num_total_quadrature_points);
+          result.quadrature_weigths.resize(num_total_quadrature_points);
+          result.numeric_solution.resize(num_total_quadrature_points);
+          result.exact_solution.resize(num_total_quadrature_points);
+          result.numeric_gradient_solution.at(0).resize(num_total_quadrature_points);
+          result.numeric_gradient_solution.at(1).resize(num_total_quadrature_points);
+          result.numeric_gradient_solution.at(2).resize(num_total_quadrature_points);
+          result.exact_gradient_solution.at(0).resize(num_total_quadrature_points);
+          result.exact_gradient_solution.at(1).resize(num_total_quadrature_points);
+          result.exact_gradient_solution.at(2).resize(num_total_quadrature_points);
+
+          unsigned int local_num_q = 0;
+          for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
+          {
+            if (!mesh.Cell2DIsActive(c))
+              continue;
+
+            const auto& cell2D_num_q = cell2D_num_quadrature_points.at(c);
+
+            result.quadrature_points.block(0,
+                                           local_num_q,
+                                           3,
+                                           cell2D_num_q) = quadrature_points.at(c);
+            result.quadrature_weigths.segment(local_num_q,
+                                              cell2D_num_q) = quadrature_weigths.at(c);
+            result.numeric_solution.segment(local_num_q,
+                                              cell2D_num_q) = numeric_solution.at(c);
+            result.exact_solution.segment(local_num_q,
+                                              cell2D_num_q) = exact_solution.at(c);
+            result.numeric_gradient_solution.at(0).segment(local_num_q,
+                                              cell2D_num_q) = numeric_gradient_solution.at(c).at(0);
+            result.numeric_gradient_solution.at(1).segment(local_num_q,
+                                              cell2D_num_q) = numeric_gradient_solution.at(c).at(1);
+            result.numeric_gradient_solution.at(2).segment(local_num_q,
+                                              cell2D_num_q) = numeric_gradient_solution.at(c).at(2);
+            result.exact_gradient_solution.at(0).segment(local_num_q,
+                                              cell2D_num_q) = exact_gradient_solution.at(c).at(0);
+            result.exact_gradient_solution.at(1).segment(local_num_q,
+                                              cell2D_num_q) = exact_gradient_solution.at(c).at(1);
+            result.exact_gradient_solution.at(2).segment(local_num_q,
+                                              cell2D_num_q) = exact_gradient_solution.at(c).at(2);
+
+            local_num_q += cell2D_num_q;
           }
 
           return result;
