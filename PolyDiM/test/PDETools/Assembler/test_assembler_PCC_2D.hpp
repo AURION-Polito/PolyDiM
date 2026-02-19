@@ -142,7 +142,7 @@ namespace Polydim
             c * u;
       };
 
-      const auto source_term = PDETools::Assembler_Utilities::PCC_2D::assembler_source_term(geometry_utilities,
+      const auto source_term = PDETools::Assembler_Utilities::PCC_2D::assemble_source_term(geometry_utilities,
                                                                                             mesh,
                                                                                             mesh_geometric_data,
                                                                                             test_dofs_data,

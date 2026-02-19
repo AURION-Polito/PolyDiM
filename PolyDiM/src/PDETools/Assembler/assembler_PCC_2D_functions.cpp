@@ -92,7 +92,7 @@ namespace Polydim
           return function_values;
         }
         // ***************************************************************************
-        Eigen::VectorXd assembler_source_term(const Gedim::GeometryUtilities &geometry_utilities,
+        Eigen::VectorXd assemble_source_term(const Gedim::GeometryUtilities &geometry_utilities,
                                               const Gedim::MeshMatricesDAO &mesh,
                                               const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                               const DOFs::DOFsManager::DOFsData &test_dofs_data,
@@ -854,7 +854,7 @@ namespace Polydim
           const auto num_solution = to_Eigen_Array(numerical_solution);
           const auto num_solution_strong = to_Eigen_Array(numerical_solution_strong);
 
-          unsigned int num_total_quadrature_points;
+          unsigned int num_total_quadrature_points = 0;
           std::vector<unsigned int> cell2D_num_quadrature_points(mesh.Cell2DTotalNumber());
           std::vector<Eigen::MatrixXd> quadrature_points(mesh.Cell2DTotalNumber());
           std::vector<Eigen::VectorXd> quadrature_weigths(mesh.Cell2DTotalNumber());
