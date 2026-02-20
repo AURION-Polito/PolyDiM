@@ -939,8 +939,19 @@ namespace Polydim
             quadrature_points.at(c) = cell2D_internal_quadrature.Points;
             quadrature_weigths.at(c) = cell2D_internal_quadrature.Weights;
 
-            exact_solution.at(c) = function_evaluation(cell2D_internal_quadrature.Points, exact_solution_function);
-            exact_gradient_solution.at(c) = function_evaluation(cell2D_internal_quadrature.Points, exact_gradient_solution_function);
+            if (exact_solution_function)
+              exact_solution.at(c) = function_evaluation(cell2D_internal_quadrature.Points, exact_solution_function);
+            else
+              exact_solution.at(c).setZero(cell2D_internal_quadrature.Points.cols());
+
+            if (exact_gradient_solution_function)
+              exact_gradient_solution.at(c) = function_evaluation(cell2D_internal_quadrature.Points, exact_gradient_solution_function);
+            else
+            {
+              exact_gradient_solution.at(c).at(0).setZero(cell2D_internal_quadrature.Points.cols());
+              exact_gradient_solution.at(c).at(1).setZero(cell2D_internal_quadrature.Points.cols());
+              exact_gradient_solution.at(c).at(2).setZero(cell2D_internal_quadrature.Points.cols());
+            }
 
             const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, trial_dofs_data);
             const Eigen::VectorXd dofs_values =

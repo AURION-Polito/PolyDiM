@@ -328,8 +328,8 @@ Evaluate_Solution_On_Quadrature_Points_Data evaluate_solution_on_quadrature_poin
                                                                                    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
                                                                                    const Eigen::VectorXd &numerical_solution,
                                                                                    const Eigen::VectorXd &numerical_solution_strong,
-                                                                                   const std::function<double(const double &, const double &, const double &)>& exact_solution_function,
-                                                                                   const std::function<std::array<double, 3>(const double &, const double &, const double &)>& exact_gradient_solution_function);
+                                                                                   const std::function<double(const double &, const double &, const double &)>& exact_solution_function = nullptr,
+                                                                                   const std::function<std::array<double, 3>(const double &, const double &, const double &)>& exact_gradient_solution_function = nullptr);
 // ***************************************************************************
 } // namespace PCC_2D
 } // namespace Assembler_Utilities
