@@ -9,8 +9,8 @@
 //
 // This file can be used citing references in CITATION.cff file.
 
-#ifndef __TEST_assembler_non_linear_H
-#define __TEST_assembler_non_linear_H
+#ifndef __TEST_assembler_non_linear_PCC_2D_H
+#define __TEST_assembler_non_linear_PCC_2D_H
 
 #include <gmock/gmock-matchers.h>
 #include <gmock/gmock.h>
@@ -31,14 +31,14 @@ namespace Polydim
   namespace UnitTesting
   {
 
-    TEST(TEST_assembler_non_linear, TEST_assembler_non_linear_example)
+    TEST(TEST_assembler_non_linear_PCC_2D, TEST_assembler_non_linear_example)
     {
       Gedim::GeometryUtilitiesConfig geometry_utilities_config;
       geometry_utilities_config.Tolerance1D = 1.0e-8;
       geometry_utilities_config.Tolerance2D = 1.0e-12;
       Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
 
-      const std::string exportFolder = "./Export/TEST_assembler_non_linear/TEST_assembler_non_linear_example";
+      const std::string exportFolder = "./Export/TEST_assembler_non_linear_PCC_2D/TEST_assembler_non_linear_example";
       Gedim::Output::CreateFolder(exportFolder);
 
       Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain;

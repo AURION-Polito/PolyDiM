@@ -1,5 +1,6 @@
-list(APPEND polydim_test_headers ${CMAKE_CURRENT_SOURCE_DIR}/test_assembler_PCC_2D.hpp)
-list(APPEND polydim_test_headers ${CMAKE_CURRENT_SOURCE_DIR}/test_assembler_non_linear.hpp)
+list(APPEND polydim_test_headers ${CMAKE_CURRENT_SOURCE_DIR}/test_assembler_elliptic_PCC_2D.hpp)
+list(APPEND polydim_test_headers ${CMAKE_CURRENT_SOURCE_DIR}/test_assembler_non_linear_PCC_2D.hpp)
+list(APPEND polydim_test_headers ${CMAKE_CURRENT_SOURCE_DIR}/test_assembler_stokes_PCC_2D.hpp)
 
 list(APPEND polydim_test_includes ${CMAKE_CURRENT_SOURCE_DIR})
 
