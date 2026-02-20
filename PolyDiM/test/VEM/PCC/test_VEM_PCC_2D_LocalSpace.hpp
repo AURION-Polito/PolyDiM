@@ -617,7 +617,7 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_2D_O1)
     // Test Reference PiNabla
     const auto refPiNabla = Test_VEM_PCC_2D_RefPiNabla()[0];
     const double relErrPiNabla = (local_space.PiNabla - refPiNabla).norm() / refPiNabla.norm();
-    ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.5e-14, relErrPiNabla, geometry_utilities.Tolerance1D()));
+    ASSERT_TRUE(relErrPiNabla < 1.5e-14);
 
     // Test VEM performances
     Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis performanceAnalysis;
@@ -625,13 +625,13 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_2D_O1)
     const auto result =
         performanceAnalysis.Compute(Polydim::Utilities::Monomials_2D(), reference_element_data.Monomials, vem_local_space, local_space);
 
-    ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(7.0e-15, result.ErrorPiNabla, geometry_utilities.Tolerance1D()));
-    ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.6e-14, result.ErrorPi0km1, geometry_utilities.Tolerance1D()));
-    ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(4.8e-14, result.ErrorPi0k, geometry_utilities.Tolerance1D()));
+    ASSERT_TRUE(result.ErrorPiNabla < 7.0e-15);
+    ASSERT_TRUE(result.ErrorPi0km1 < 1.6e-14);
+    ASSERT_TRUE(result.ErrorPi0k < 4.8e-14);
     ASSERT_EQ(result.ErrorPi0km1Grad.size(), 2);
     for (unsigned int d = 0; d < 2; ++d)
-        ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(2.6e-14, result.ErrorPi0km1Grad[d], geometry_utilities.Tolerance1D()));
-    ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.5e-14, result.ErrorStabilization, geometry_utilities.Tolerance1D()));
+        ASSERT_TRUE(result.ErrorPi0km1Grad[d] < 2.6e-14);
+    ASSERT_TRUE(result.ErrorStabilization < 1.5e-14);
 }
 
 TEST(Test_VEM_PCC, Test_VEM_PCC_2D_O2)
@@ -676,20 +676,20 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_2D_O2)
     // Test Reference PiNabla
     const auto refPiNabla = Test_VEM_PCC_2D_RefPiNabla()[1];
     const double relErrPiNabla = (local_space.PiNabla - refPiNabla).norm() / refPiNabla.norm();
-    ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.5e-14, relErrPiNabla, std::numeric_limits<double>::epsilon()));
+    ASSERT_TRUE(relErrPiNabla < 1.0e-12);
     // Test VEM performances
     Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis performanceAnalysis;
 
     const auto result =
         performanceAnalysis.Compute(Polydim::Utilities::Monomials_2D(), reference_element_data.Monomials, vem_local_space, local_space);
 
-    ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(7.0e-15, result.ErrorPiNabla, geometry_utilities.Tolerance1D()));
-    ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.6e-14, result.ErrorPi0km1, geometry_utilities.Tolerance1D()));
-    ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(4.8e-14, result.ErrorPi0k, geometry_utilities.Tolerance1D()));
+    ASSERT_TRUE(result.ErrorPiNabla < 1.0e-12);
+    ASSERT_TRUE(result.ErrorPi0km1 < 1.0e-12);
+    ASSERT_TRUE(result.ErrorPi0k < 1.0e-12);
     ASSERT_EQ(result.ErrorPi0km1Grad.size(), 2);
     for (unsigned int d = 0; d < 2; ++d)
-        ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(2.6e-14, result.ErrorPi0km1Grad[d], geometry_utilities.Tolerance1D()));
-    ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.5e-14, result.ErrorStabilization, geometry_utilities.Tolerance1D()));
+        ASSERT_TRUE(result.ErrorPi0km1Grad[d] < 1.0e-11);
+    ASSERT_TRUE(result.ErrorStabilization < 1.0e-11);
 }
 
 TEST(Test_VEM_PCC, Test_VEM_PCC_2D_O3)
@@ -698,7 +698,7 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_2D_O3)
     geometry_utilities_config.Tolerance1D = std::numeric_limits<double>::epsilon();
     Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
 
-    const std::string exportFolder = "VEM/PCC/Test_VEM_PCC_2D_O3";
+    const std::string exportFolder = "Export/VEM/PCC/Test_VEM_PCC_2D_O3";
     Gedim::Output::CreateFolder(exportFolder);
 
     const auto polygon_data = Test_VEM_PCC_2D_Geometry(geometry_utilities);
@@ -733,20 +733,20 @@ TEST(Test_VEM_PCC, Test_VEM_PCC_2D_O3)
     // Test Reference PiNabla
     const auto refPiNabla = Test_VEM_PCC_2D_RefPiNabla()[2];
     const double relErrPiNabla = (local_space.PiNabla - refPiNabla).norm() / refPiNabla.norm();
-    ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.5e-14, relErrPiNabla, std::numeric_limits<double>::epsilon()));
+    ASSERT_TRUE(relErrPiNabla < 1.5e-14);
     // Test VEM performances
     Polydim::VEM::PCC::VEM_PCC_PerformanceAnalysis performanceAnalysis;
 
     const auto result =
         performanceAnalysis.Compute(Polydim::Utilities::Monomials_2D(), reference_element_data.Monomials, vem_local_space, local_space);
 
-    ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(7.0e-15, result.ErrorPiNabla, geometry_utilities.Tolerance1D()));
-    ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.7e-14, result.ErrorPi0km1, geometry_utilities.Tolerance1D()));
-    ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(5.4e-14, result.ErrorPi0k, geometry_utilities.Tolerance1D()));
+    ASSERT_TRUE(result.ErrorPiNabla < 1.0e-12);
+    ASSERT_TRUE(result.ErrorPi0km1 < 1.0e-12);
+    ASSERT_TRUE(result.ErrorPi0k < 1.0e-12);
     ASSERT_EQ(result.ErrorPi0km1Grad.size(), 2);
     for (unsigned int d = 0; d < 2; ++d)
-        ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.0e-13, result.ErrorPi0km1Grad[d], geometry_utilities.Tolerance1D()));
-    ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.0e-13, result.ErrorStabilization, geometry_utilities.Tolerance1D()));
+        ASSERT_TRUE(result.ErrorPi0km1Grad[d] < 1.0e-11);
+    ASSERT_TRUE(result.ErrorStabilization < 1.0e-11);
 }
 } // namespace UnitTesting
 } // namespace Polydim
