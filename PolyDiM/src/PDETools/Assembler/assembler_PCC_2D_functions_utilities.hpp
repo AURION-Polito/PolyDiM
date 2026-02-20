@@ -40,8 +40,8 @@ inline Gedim::Eigen_Array<> to_Eigen_Array(const Eigen::VectorXd &v)
 Gedim::Eigen_SparseArray<> to_Eigen_SparseArray(const Sparse_Matrix_Data &A);
 // ***************************************************************************
 Gedim::Eigen_SparseArray<> to_Eigen_SparseArray(const Sparse_Matrix_Data &A,
-                                                const std::array<unsigned int, 2>& new_size,
-                                                const std::array<unsigned int, 2>& shifts = { 0, 0 },
+                                                const std::array<unsigned int, 2> &new_size,
+                                                const std::array<unsigned int, 2> &shifts = {0, 0},
                                                 const bool transpose = false);
 // ***************************************************************************
 Sparse_Matrix_Data to_Sparse_Matrix_Data(const Gedim::Eigen_SparseArray<> &A);

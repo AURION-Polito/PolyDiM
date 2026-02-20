@@ -93,8 +93,7 @@ struct EllipticEquation final
                                                      const Eigen::VectorXd &quadrature_weights) const
     {
         return test_basis_functions_values.transpose() *
-            quadrature_weights.cwiseProduct(reaction_term_values).asDiagonal() *
-            trial_basis_functions_values;
+               quadrature_weights.cwiseProduct(reaction_term_values).asDiagonal() * trial_basis_functions_values;
     }
 
     Eigen::MatrixXd ComputeCellAdvectionMatrix(const std::array<Eigen::VectorXd, 3> &advection_term_values,
