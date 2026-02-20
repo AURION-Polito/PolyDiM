@@ -34,7 +34,7 @@ namespace Polydim
         // ***************************************************************************
         Eigen::VectorXd function_evaluation(const Eigen::MatrixXd &points,
                                             const Eigen::VectorXd& u,
-                                            const std::array<Eigen::VectorXd, 2> u_gradient,
+                                            const std::array<Eigen::VectorXd, 2>& u_gradient,
                                             const std::function<double(const double &, const double &, const double &, const double &, const std::array<double, 3> &)>& f)
         {
           Eigen::VectorXd function_values(points.cols());
@@ -43,7 +43,7 @@ namespace Polydim
           {
             function_values[i] = f(points(0, i), points(1, i), points(2, i), u[i], std::array<double, 3>({ u_gradient.at(0)[i],
                                                                                                            u_gradient.at(1)[i],
-                                                                                                           u_gradient.at(2)[i]
+                                                                                                           0.0
                                                                                                          }));
           }
 
@@ -52,7 +52,7 @@ namespace Polydim
         // ***************************************************************************
         std::array<Eigen::VectorXd, 3> function_evaluation(const Eigen::MatrixXd &points,
                                                            const Eigen::VectorXd& u,
-                                                           const std::array<Eigen::VectorXd, 2> u_gradient,
+                                                           const std::array<Eigen::VectorXd, 2>& u_gradient,
                                                            const std::function<std::array<double, 3>(const double &, const double &, const double &, const double &, const std::array<double, 3> &)>& f)
         {
           std::array<Eigen::VectorXd, 3> function_values;
@@ -64,7 +64,7 @@ namespace Polydim
           {
             const auto result_f = f(points(0, i), points(1, i), points(2, i), u[i], std::array<double, 3>({ u_gradient.at(0)[i],
                                                                                                             u_gradient.at(1)[i],
-                                                                                                            u_gradient.at(2)[i]
+                                                                                                            0.0
                                                                                                           }));
 
             function_values.at(0)[i] = result_f.at(0);
