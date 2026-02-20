@@ -89,7 +89,7 @@ Gedim::Eigen_SparseArray<> to_Eigen_SparseArray(const Sparse_Matrix_Data& A,
     shifted_cols.at(t) = A.cols.at(t) + shifts.at(1);
   }
 
-  if (transpose)
+  if (!transpose)
     eigen_A.Triplets(shifted_rows, shifted_cols, A.values);
   else
     eigen_A.Triplets(shifted_cols, shifted_rows, A.values);
