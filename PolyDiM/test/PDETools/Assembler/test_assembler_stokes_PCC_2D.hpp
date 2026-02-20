@@ -377,15 +377,6 @@ namespace Polydim
                                                                                       u_y_strong,
                                                                                       velocity_y_exact_solution_function);
 
-        //        const auto error_H1 = PDETools::Assembler_Utilities::PCC_2D::compute_error_H1(geometry_utilities,
-        //                                                                                      mesh,
-        //                                                                                      mesh_geometric_data,
-        //                                                                                      trial_dofs_data,
-        //                                                                                      trial_reference_element_data,
-        //                                                                                      numeric_solution,
-        //                                                                                      strong_solution,
-        //                                                                                      exact_gradient_solution_function);
-
         //        const auto u_on_quadrature = PDETools::Assembler_Utilities::PCC_2D::evaluate_solution_on_quadrature_points(geometry_utilities,
         //                                                                                                                   mesh,
         //                                                                                                                   mesh_geometric_data,

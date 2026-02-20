@@ -217,8 +217,8 @@ namespace Polydim
 
         ASSERT_EQ(test_dofs_data.NumberDOFs, elliptic_operator.operator_dofs.size.at(0));
         ASSERT_EQ(trial_dofs_data.NumberDOFs, elliptic_operator.operator_dofs.size.at(1));
-        ASSERT_EQ(test_dofs_data.NumberDOFs, elliptic_operator.operator_Strong.size.at(0));
-        ASSERT_EQ(trial_dofs_data.NumberStrongs, elliptic_operator.operator_Strong.size.at(1));
+        ASSERT_EQ(test_dofs_data.NumberDOFs, elliptic_operator.operator_strong.size.at(0));
+        ASSERT_EQ(trial_dofs_data.NumberStrongs, elliptic_operator.operator_strong.size.at(1));
 
         const auto adv_source_term = PDETools::Assembler_Utilities::PCC_2D::assemble_source_term(geometry_utilities,
                                                                                                  mesh,
@@ -252,7 +252,7 @@ namespace Polydim
           const auto f_rct = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(rct_source_term);
           const auto u_D = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(u_strong);
           const auto A = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(elliptic_operator.operator_dofs);
-          const auto A_D = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(elliptic_operator.operator_Strong);
+          const auto A_D = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(elliptic_operator.operator_strong);
 
           auto rhs = f_g - f_adv - f_rct;
           rhs.SubtractionMultiplication(A_D, u_D);
