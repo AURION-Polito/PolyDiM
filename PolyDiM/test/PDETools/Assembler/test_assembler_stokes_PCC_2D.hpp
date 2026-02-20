@@ -57,7 +57,7 @@ namespace Polydim
                                                                   mesh_utilities,
                                                                   Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular,
                                                                   domain,
-                                                                  0.1,
+                                                                  0.001,
                                                                   mesh);
 
       const double nu = 1.0;
@@ -127,10 +127,10 @@ namespace Polydim
       };
 
       auto velocity_x_laplacian_solution_function = [](const double &x, const double &y, const double &z) {
-        return - (+8.0 * M_PI * M_PI * cos(4.0 * M_PI * x) - 4.0 * M_PI * M_PI) * sin(2.0 * M_PI * y) * cos(2.0 * M_PI * y);
+        return (+8.0 * M_PI * M_PI * cos(4.0 * M_PI * x) - 4.0 * M_PI * M_PI) * sin(2.0 * M_PI * y) * cos(2.0 * M_PI * y);
       };
       auto velocity_y_laplacian_solution_function = [](const double &x, const double &y, const double &z) {
-        return - (-8.0 * M_PI * M_PI * cos(4.0 * M_PI * y) + 4.0 * M_PI * M_PI) * sin(2.0 * M_PI * x) * cos(2.0 * M_PI * x);
+        return (-8.0 * M_PI * M_PI * cos(4.0 * M_PI * y) + 4.0 * M_PI * M_PI) * sin(2.0 * M_PI * x) * cos(2.0 * M_PI * x);
       };
 
       auto f_x_function = [&nu, &pressure_gradient_solution_function, &velocity_x_laplacian_solution_function](const double &x, const double &y, const double &z) {
@@ -194,28 +194,28 @@ namespace Polydim
       const auto B_x = PDETools::Assembler_Utilities::PCC_2D::assemble_advection_operator(geometry_utilities,
                                                                                           mesh,
                                                                                           mesh_geometric_data,
-                                                                                          velocity_dofs_data,
                                                                                           pressure_dofs_data,
-                                                                                          velocity_reference_element_data,
+                                                                                          velocity_dofs_data,
                                                                                           pressure_reference_element_data,
+                                                                                          velocity_reference_element_data,
                                                                                           adv_1_function);
       const auto B_y = PDETools::Assembler_Utilities::PCC_2D::assemble_advection_operator(geometry_utilities,
                                                                                           mesh,
                                                                                           mesh_geometric_data,
-                                                                                          velocity_dofs_data,
                                                                                           pressure_dofs_data,
-                                                                                          velocity_reference_element_data,
+                                                                                          velocity_dofs_data,
                                                                                           pressure_reference_element_data,
+                                                                                          velocity_reference_element_data,
                                                                                           adv_2_function);
 
-      ASSERT_EQ(pressure_dofs_data.NumberDOFs, B_x.operator_dofs.size.at(0));
-      ASSERT_EQ(velocity_dofs_data.NumberDOFs, B_x.operator_dofs.size.at(1));
-      ASSERT_EQ(pressure_dofs_data.NumberDOFs, B_x.operator_strong.size.at(0));
-      ASSERT_EQ(velocity_dofs_data.NumberStrongs, B_x.operator_strong.size.at(1));
-      ASSERT_EQ(pressure_dofs_data.NumberDOFs, B_y.operator_dofs.size.at(0));
-      ASSERT_EQ(velocity_dofs_data.NumberDOFs, B_y.operator_dofs.size.at(1));
-      ASSERT_EQ(pressure_dofs_data.NumberDOFs, B_y.operator_strong.size.at(0));
-      ASSERT_EQ(velocity_dofs_data.NumberStrongs, B_y.operator_strong.size.at(1));
+      ASSERT_EQ(velocity_dofs_data.NumberDOFs, B_x.operator_dofs.size.at(0));
+      ASSERT_EQ(pressure_dofs_data.NumberDOFs, B_x.operator_dofs.size.at(1));
+      ASSERT_EQ(velocity_dofs_data.NumberDOFs, B_x.operator_strong.size.at(0));
+      ASSERT_EQ(pressure_dofs_data.NumberStrongs, B_x.operator_strong.size.at(1));
+      ASSERT_EQ(velocity_dofs_data.NumberDOFs, B_y.operator_dofs.size.at(0));
+      ASSERT_EQ(pressure_dofs_data.NumberDOFs, B_y.operator_dofs.size.at(1));
+      ASSERT_EQ(velocity_dofs_data.NumberDOFs, B_y.operator_strong.size.at(0));
+      ASSERT_EQ(pressure_dofs_data.NumberStrongs, B_y.operator_strong.size.at(1));
 
       auto pressure_strong_function =
           [&pressure_exact_solution_function](const unsigned int marker, const double &x, const double &y, const double &z) {
@@ -296,25 +296,14 @@ namespace Polydim
                                                                                             { tot_dofs, tot_dofs },
                                                                                             { 0, 2 * velocity_dofs_data.NumberDOFs },
                                                                                             true));
-          const auto J_BT_x_D = PDETools::Assembler_Utilities::PCC_2D::to_SparseMatrix(
-                                  PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(B_x.operator_strong,
-                                                                                              { tot_dofs, tot_strongs },
-                                                                                              { 0, 2 * velocity_dofs_data.NumberStrongs },
-                                                                                              true));
           const auto J_BT_y = PDETools::Assembler_Utilities::PCC_2D::to_SparseMatrix(
                                 PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(B_y.operator_dofs,
                                                                                             { tot_dofs, tot_dofs },
                                                                                             { velocity_dofs_data.NumberDOFs, 2 * velocity_dofs_data.NumberDOFs },
                                                                                             true));
-          const auto J_BT_y_D = PDETools::Assembler_Utilities::PCC_2D::to_SparseMatrix(
-                                  PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(B_y.operator_strong,
-                                                                                              { tot_dofs, tot_strongs },
-                                                                                              { velocity_dofs_data.NumberDOFs, 2 * velocity_dofs_data.NumberStrongs },
-                                                                                              true));
-
 
           const auto J = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(J_A_x + J_A_y - J_B_x - J_B_y - J_BT_x - J_BT_y);
-          const auto J_D = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(J_A_x_D + J_A_y_D - J_B_x_D - J_B_y_D - J_BT_x_D - J_BT_y_D);
+          const auto J_D = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(J_A_x_D + J_A_y_D - J_B_x_D - J_B_y_D);
 
           auto rhs = f;
           rhs.SubtractionMultiplication(J_D, u_D);
