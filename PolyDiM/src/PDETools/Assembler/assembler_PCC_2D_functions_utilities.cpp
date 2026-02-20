@@ -73,6 +73,32 @@ Sparse_Matrix_Data to_Sparse_Matrix_Data(const Gedim::Eigen_SparseArray<> &A)
     return result;
 }
 // ***************************************************************************
+Gedim::Eigen_SparseArray<> to_Eigen_SparseArray(const Sparse_Matrix_Data &A,
+                                                const std::array<unsigned int, 2> &new_size,
+                                                const std::array<unsigned int, 2> &shifts,
+                                                const bool transpose)
+{
+    Gedim::Eigen_SparseArray<> eigen_A;
+    eigen_A.SetSize(new_size.at(0), new_size.at(1), Gedim::ISparseArray::SparseArrayTypes::None);
+
+    std::vector<unsigned int> shifted_rows(A.rows.size());
+    std::vector<unsigned int> shifted_cols(A.cols.size());
+    for (unsigned int t = 0; t < A.rows.size(); ++t)
+    {
+        shifted_rows.at(t) = A.rows.at(t) + shifts.at(0);
+        shifted_cols.at(t) = A.cols.at(t) + shifts.at(1);
+    }
+
+    if (!transpose)
+        eigen_A.Triplets(shifted_rows, shifted_cols, A.values);
+    else
+        eigen_A.Triplets(shifted_cols, shifted_rows, A.values);
+
+    eigen_A.Create();
+
+    return eigen_A;
+}
+// ***************************************************************************
 } // namespace PCC_2D
 } // namespace Assembler_Utilities
 } // namespace PDETools

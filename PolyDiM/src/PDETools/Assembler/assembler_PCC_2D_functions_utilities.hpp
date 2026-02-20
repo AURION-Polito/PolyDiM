@@ -39,7 +39,22 @@ inline Gedim::Eigen_Array<> to_Eigen_Array(const Eigen::VectorXd &v)
 // ***************************************************************************
 Gedim::Eigen_SparseArray<> to_Eigen_SparseArray(const Sparse_Matrix_Data &A);
 // ***************************************************************************
+Gedim::Eigen_SparseArray<> to_Eigen_SparseArray(const Sparse_Matrix_Data &A,
+                                                const std::array<unsigned int, 2> &new_size,
+                                                const std::array<unsigned int, 2> &shifts = {0, 0},
+                                                const bool transpose = false);
+// ***************************************************************************
 Sparse_Matrix_Data to_Sparse_Matrix_Data(const Gedim::Eigen_SparseArray<> &A);
+// ***************************************************************************
+inline Eigen::SparseMatrix<double> to_SparseMatrix(const Gedim::Eigen_SparseArray<> &A)
+{
+    return static_cast<const Eigen::SparseMatrix<double> &>(A);
+}
+// ***************************************************************************
+inline Gedim::Eigen_SparseArray<> to_Eigen_SparseArray(const Eigen::SparseMatrix<double> &A)
+{
+    return Gedim::Eigen_SparseArray<>(A);
+}
 // ***************************************************************************
 } // namespace PCC_2D
 } // namespace Assembler_Utilities

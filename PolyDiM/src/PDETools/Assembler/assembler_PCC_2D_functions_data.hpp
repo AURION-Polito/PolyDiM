@@ -38,29 +38,53 @@ struct Sparse_Matrix_Data final
     std::vector<double> values;
 };
 // ***************************************************************************
-struct Exact_Solution_Data final
+struct Evaluate_Function_On_DOFs_Data final
 {
-    Eigen::VectorXd exact_solution;
-    Eigen::VectorXd exact_solution_strong;
+    Eigen::VectorXd function_dofs;
+    Eigen::VectorXd function_strong;
 };
 // ***************************************************************************
 struct Variational_Operator final
 {
-    Polydim::PDETools::Assembler_Utilities::PCC_2D::Sparse_Matrix_Data A;
-    Polydim::PDETools::Assembler_Utilities::PCC_2D::Sparse_Matrix_Data A_Strong;
+    Polydim::PDETools::Assembler_Utilities::PCC_2D::Sparse_Matrix_Data operator_dofs;
+    Polydim::PDETools::Assembler_Utilities::PCC_2D::Sparse_Matrix_Data operator_strong;
 };
 // ***************************************************************************
-struct Post_Process_Data final
+struct Evaluate_Solution_On_Quadrature_Points_Data final
 {
-    Eigen::VectorXd cell0Ds_numeric;
-    Eigen::VectorXd cell0Ds_exact;
+    Eigen::MatrixXd quadrature_points;
+    Eigen::VectorXd quadrature_weigths;
+    Eigen::VectorXd numeric_solution;
+    std::array<Eigen::VectorXd, 3> numeric_gradient_solution;
+    Eigen::VectorXd exact_solution;
+    std::array<Eigen::VectorXd, 3> exact_gradient_solution;
+};
+// ***************************************************************************
+struct Post_Process_Data_Cell0Ds final
+{
+    Eigen::VectorXd numeric_solution;
+    Eigen::VectorXd exact_solution;
+    std::array<Eigen::VectorXd, 3> exact_gradient_solution;
+};
+// ***************************************************************************
+struct Post_Process_Data_ErrorL2 final
+{
     Eigen::VectorXd cell2Ds_exact_norm_L2;
     Eigen::VectorXd cell2Ds_numeric_norm_L2;
     Eigen::VectorXd cell2Ds_error_L2;
-    double mesh_size;
     double error_L2;
     double exact_norm_L2;
     double numeric_norm_L2;
+};
+// ***************************************************************************
+struct Post_Process_Data_ErrorH1 final
+{
+    Eigen::VectorXd cell2Ds_exact_norm_H1;
+    Eigen::VectorXd cell2Ds_numeric_norm_H1;
+    Eigen::VectorXd cell2Ds_error_H1;
+    double error_H1;
+    double exact_norm_H1;
+    double numeric_norm_H1;
 };
 // ***************************************************************************
 } // namespace PCC_2D
