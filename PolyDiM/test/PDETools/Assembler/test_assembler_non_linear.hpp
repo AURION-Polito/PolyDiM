@@ -112,6 +112,16 @@ namespace Polydim
         return - 32.0 * (x * (1.0 - x) + y * (1.0 - y));
       };
 
+      const auto exact_solution = PDETools::Assembler_Utilities::PCC_2D::assemble_exact_solution(geometry_utilities,
+                                                                                                 mesh,
+                                                                                                 mesh_geometric_data,
+                                                                                                 trial_dofs_data,
+                                                                                                 trial_reference_element_data,
+                                                                                                 exact_solution_function);
+
+      ASSERT_EQ(trial_dofs_data.NumberDOFs, exact_solution.function_dofs.size());
+      ASSERT_EQ(trial_dofs_data.NumberStrongs, exact_solution.function_strong.size());
+
       auto source_term_function = [&exact_solution_function, &exact_gradient_solution_function, &exact_laplacian_solution_function](const double &x, const double &y, const double &z) {
         const auto u_lap = exact_laplacian_solution_function(x, y, z);
         const auto u_grad = exact_gradient_solution_function(x, y, z);
@@ -181,15 +191,6 @@ namespace Polydim
       ASSERT_EQ(test_dofs_data.NumberDOFs, elliptic_operator.A_Strong.size.at(0));
       ASSERT_EQ(trial_dofs_data.NumberStrongs, elliptic_operator.A_Strong.size.at(1));
 
-      const auto exact_solution = PDETools::Assembler_Utilities::PCC_2D::assemble_exact_solution(geometry_utilities,
-                                                                                                 mesh,
-                                                                                                 mesh_geometric_data,
-                                                                                                 trial_dofs_data,
-                                                                                                 trial_reference_element_data,
-                                                                                                 exact_solution_function);
-
-      ASSERT_EQ(trial_dofs_data.NumberDOFs, exact_solution.exact_solution.size());
-      ASSERT_EQ(trial_dofs_data.NumberStrongs, exact_solution.exact_solution_strong.size());
 
       {
         const auto f = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(source_term);

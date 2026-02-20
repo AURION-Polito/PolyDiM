@@ -38,10 +38,10 @@ struct Sparse_Matrix_Data final
     std::vector<double> values;
 };
 // ***************************************************************************
-struct Exact_Solution_Data final
+struct Evaluate_Function_On_DOFs_Data final
 {
-    Eigen::VectorXd exact_solution;
-    Eigen::VectorXd exact_solution_strong;
+    Eigen::VectorXd function_dofs;
+    Eigen::VectorXd function_strong;
 };
 // ***************************************************************************
 struct Variational_Operator final

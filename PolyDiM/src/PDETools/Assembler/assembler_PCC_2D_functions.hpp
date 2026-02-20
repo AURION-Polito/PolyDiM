@@ -142,9 +142,9 @@ Variational_Operator assemble_elliptic_operator(const Gedim::GeometryUtilities &
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &test_reference_element_data,
     const Eigen::VectorXd &numerical_solution,
     const Eigen::VectorXd &numerical_solution_strong,
-    const std::function<double(const double &, const double &, const double &, const double &, const std::array<double, 3>&)> diffusion_term_function,
-    const std::function<std::array<double, 3> (const double &, const double &, const double &, const double &, const std::array<double, 3>&)> advection_term_function,
-    const std::function<double(const double &, const double &, const double &, const double &, std::array<double, 3>&)> reaction_term_function);
+    const std::function<double(const double &, const double &, const double &, const double &, const std::array<double, 3> &)> diffusion_term_function,
+    const std::function<std::array<double, 3> (const double &, const double &, const double &, const double &, const std::array<double, 3> &)> advection_term_function,
+    const std::function<double(const double &, const double &, const double &, const double &, const std::array<double, 3> &)> reaction_term_function);
 // ***************************************************************************
 inline Variational_Operator assemble_diffusion_operator(const Gedim::GeometryUtilities &geometry_utilities,
     const Gedim::MeshMatricesDAO &mesh,
@@ -229,12 +229,27 @@ Eigen::VectorXd assemble_strong_solution(const Gedim::GeometryUtilities &geometr
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
     const std::function<double(const unsigned int, const double &, const double &, const double &)> strong_solution_function);
 // ***************************************************************************
-Exact_Solution_Data assemble_exact_solution(const Gedim::GeometryUtilities &geometry_utilities,
+Evaluate_Function_On_DOFs_Data evaluate_function_on_dofs(const Gedim::GeometryUtilities &geometry_utilities,
                                              const Gedim::MeshMatricesDAO &mesh,
-                                             const Gedim::MeshUtilities::MeshGeometricData2D &trial_mesh_geometric_data,
+                                             const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                              const Polydim::PDETools::DOFs::DOFsManager::DOFsData &trial_dofs_data,
                                              const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
-                                             const std::function<double(const double &, const double &, const double &)> exact_solution_function);
+                                             const std::function<double(const double &, const double &, const double &)> evaluation_function);
+// ***************************************************************************
+inline Evaluate_Function_On_DOFs_Data assemble_exact_solution(const Gedim::GeometryUtilities &geometry_utilities,
+                                             const Gedim::MeshMatricesDAO &mesh,
+                                             const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                             const Polydim::PDETools::DOFs::DOFsManager::DOFsData &trial_dofs_data,
+                                             const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
+                                             const std::function<double(const double &, const double &, const double &)> exact_solution_function)
+{
+  return evaluate_function_on_dofs(geometry_utilities,
+                                   mesh,
+                                   mesh_geometric_data,
+                                   trial_dofs_data,
+                                   trial_reference_element_data,
+                                   exact_solution_function);
+}
 // ***************************************************************************
 Eigen::VectorXd assemble_weak_term(const Gedim::GeometryUtilities &geometry_utilities,
                                     const Gedim::MeshMatricesDAO &mesh,

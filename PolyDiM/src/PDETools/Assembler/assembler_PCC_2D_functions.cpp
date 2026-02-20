@@ -416,25 +416,25 @@ namespace Polydim
           return static_cast<Eigen::VectorXd &>(strong_solution);
         }
         // ***************************************************************************
-        Exact_Solution_Data assemble_exact_solution(const Gedim::GeometryUtilities &geometry_utilities,
+        Evaluate_Function_On_DOFs_Data evaluate_function_on_dofs(const Gedim::GeometryUtilities &geometry_utilities,
                                                     const Gedim::MeshMatricesDAO &mesh,
                                                     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                                     const DOFs::DOFsManager::DOFsData &trial_dofs_data,
                                                     const LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
-                                                    const std::function<double(const double &, const double &, const double &)> exact_solution_function)
+                                                    const std::function<double(const double &, const double &, const double &)> evaluation_function)
         {
-          Gedim::Eigen_Array<> exact_solution;
-          Gedim::Eigen_Array<> exact_solution_strong;
+          Gedim::Eigen_Array<> function_on_dofs;
+          Gedim::Eigen_Array<> function_strong;
 
-          exact_solution.SetSize(trial_dofs_data.NumberDOFs);
-          exact_solution_strong.SetSize(trial_dofs_data.NumberStrongs);
+          function_on_dofs.SetSize(trial_dofs_data.NumberDOFs);
+          function_strong.SetSize(trial_dofs_data.NumberStrongs);
 
           // Assemble equation elements
           for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); c++)
           {
             // DOFs: vertices
             const Eigen::MatrixXd coordinates = mesh.Cell2DVerticesCoordinates(c);
-            const Eigen::VectorXd dofs_vertices = function_evaluation(coordinates, exact_solution_function);
+            const Eigen::VectorXd dofs_vertices = function_evaluation(coordinates, evaluation_function);
 
             // Assemble local numerical solution
             unsigned int count = 0;
@@ -451,11 +451,11 @@ namespace Polydim
                 switch (local_dof_i.Type)
                 {
                   case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong: {
-                    exact_solution_strong.SetValue(global_i, dofs_vertices(count++));
+                    function_strong.SetValue(global_i, dofs_vertices(count++));
                   }
                     break;
                   case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
-                    exact_solution.SetValue(global_i, dofs_vertices(count++));
+                    function_on_dofs.SetValue(global_i, dofs_vertices(count++));
                   }
                     break;
                   default:
@@ -484,7 +484,7 @@ namespace Polydim
                 const auto edge_dofs_coordinates =
                     Polydim::PDETools::LocalSpace_PCC_2D::EdgeDofsCoordinates(trial_reference_element_data, trial_local_space_data, ed);
 
-                const Eigen::VectorXd dofs_edge = function_evaluation(edge_dofs_coordinates, exact_solution_function);
+                const Eigen::VectorXd dofs_edge = function_evaluation(edge_dofs_coordinates, evaluation_function);
 
                 for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
                 {
@@ -494,11 +494,11 @@ namespace Polydim
                   switch (local_dof_i.Type)
                   {
                     case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong: {
-                      exact_solution_strong.SetValue(global_i, dofs_edge(loc_i));
+                      function_strong.SetValue(global_i, dofs_edge(loc_i));
                     }
                       break;
                     case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
-                      exact_solution.SetValue(global_i, dofs_edge(loc_i));
+                      function_on_dofs.SetValue(global_i, dofs_edge(loc_i));
                     }
                       break;
                     default:
@@ -514,13 +514,13 @@ namespace Polydim
                 const auto internal_dofs_coordinates =
                     Polydim::PDETools::LocalSpace_PCC_2D::InternalDofsCoordinates(trial_reference_element_data, trial_local_space_data);
 
-                const Eigen::VectorXd exact_values_at_dofs =
-                    function_evaluation(internal_dofs_coordinates.Points, exact_solution_function);
+                const Eigen::VectorXd function_values_at_dofs =
+                    function_evaluation(internal_dofs_coordinates.Points, evaluation_function);
 
                 const Eigen::VectorXd dofs_internal =
                     Polydim::PDETools::LocalSpace_PCC_2D::InternalDofs(trial_reference_element_data,
                                                                        trial_local_space_data,
-                                                                       exact_values_at_dofs,
+                                                                       function_values_at_dofs,
                                                                        internal_dofs_coordinates);
 
                 for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
@@ -531,11 +531,11 @@ namespace Polydim
                   switch (local_dof_i.Type)
                   {
                     case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong: {
-                      exact_solution_strong.SetValue(global_i, dofs_internal(loc_i));
+                      function_strong.SetValue(global_i, dofs_internal(loc_i));
                     }
                       break;
                     case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF: {
-                      exact_solution.SetValue(global_i, dofs_internal(loc_i));
+                      function_on_dofs.SetValue(global_i, dofs_internal(loc_i));
                     }
                       break;
                     default:
@@ -546,10 +546,10 @@ namespace Polydim
             }
           }
 
-          exact_solution.Create();
-          exact_solution_strong.Create();
+          function_on_dofs.Create();
+          function_strong.Create();
 
-          return {static_cast<Eigen::VectorXd &>(exact_solution), static_cast<Eigen::VectorXd &>(exact_solution_strong)};
+          return {static_cast<Eigen::VectorXd &>(function_on_dofs), static_cast<Eigen::VectorXd &>(function_strong)};
         }
         // ***************************************************************************
         Eigen::VectorXd assemble_weak_term(const Gedim::GeometryUtilities &geometry_utilities,

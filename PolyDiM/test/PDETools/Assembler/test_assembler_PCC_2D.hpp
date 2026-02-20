@@ -226,15 +226,15 @@ namespace Polydim
 
       ASSERT_EQ(test_dofs_data.NumberDOFs, weak_term.size());
 
-      const auto exact_solution = PDETools::Assembler_Utilities::PCC_2D::assemble_exact_solution(geometry_utilities,
+      const auto exact_solution = PDETools::Assembler_Utilities::PCC_2D::evaluate_function_on_dofs(geometry_utilities,
                                                                                                   mesh,
                                                                                                   mesh_geometric_data,
                                                                                                   trial_dofs_data,
                                                                                                   trial_reference_element_data,
                                                                                                   exact_solution_function);
 
-      ASSERT_EQ(trial_dofs_data.NumberDOFs, exact_solution.exact_solution.size());
-      ASSERT_EQ(trial_dofs_data.NumberStrongs, exact_solution.exact_solution_strong.size());
+      ASSERT_EQ(trial_dofs_data.NumberDOFs, exact_solution.function_dofs.size());
+      ASSERT_EQ(trial_dofs_data.NumberStrongs, exact_solution.function_strong.size());
 
       {
         const auto f = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(source_term);
@@ -385,9 +385,10 @@ namespace Polydim
         //std::cout << std::scientific << "err_L2: " << (error_L2.error_L2 / error_L2.exact_norm_L2) << std::endl;
         //std::cout << std::scientific << "err_H1: " << (error_H1.error_H1 / error_H1.exact_norm_H1) << std::endl;
 
-        ASSERT_TRUE((strong_solution - exact_solution.exact_solution_strong).norm() <
-                    1.0e-13 * exact_solution.exact_solution_strong.norm());
-        ASSERT_TRUE((numeric_solution - exact_solution.exact_solution).norm() < 1.0e-13 * exact_solution.exact_solution.norm());
+        ASSERT_TRUE((strong_solution - exact_solution.function_strong).norm() <
+                    1.0e-13 * exact_solution.function_strong.norm());
+        ASSERT_TRUE((numeric_solution - exact_solution.function_dofs).norm() <
+                    1.0e-13 * exact_solution.function_dofs.norm());
         ASSERT_TRUE(error_L2.error_L2 < 1.0e-13 * error_L2.exact_norm_L2);
         ASSERT_TRUE(error_H1.error_H1 < 1.0e-13 * error_H1.exact_norm_H1);
       }
