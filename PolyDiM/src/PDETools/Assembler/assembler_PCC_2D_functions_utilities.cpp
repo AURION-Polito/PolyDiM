@@ -79,10 +79,8 @@ Gedim::Eigen_SparseArray<> to_Eigen_SparseArray(const Sparse_Matrix_Data& A,
                                                 const bool transpose)
 {
   Gedim::Eigen_SparseArray<> eigen_A;
-  if (!transpose)
   eigen_A.SetSize(new_size.at(0), new_size.at(1), Gedim::ISparseArray::SparseArrayTypes::None);
-  else
-    eigen_A.SetSize(new_size.at(1), new_size.at(0), Gedim::ISparseArray::SparseArrayTypes::None);
+
 
   std::vector<unsigned int> shifted_rows(A.rows.size());
   std::vector<unsigned int> shifted_cols(A.cols.size());
@@ -90,17 +88,6 @@ Gedim::Eigen_SparseArray<> to_Eigen_SparseArray(const Sparse_Matrix_Data& A,
   {
     shifted_rows.at(t) = A.rows.at(t) + shifts.at(0);
     shifted_cols.at(t) = A.cols.at(t) + shifts.at(1);
-
-    if (!transpose)
-    {
-    assert(shifted_rows.at(t) < new_size.at(0));
-    assert(shifted_cols.at(t) < new_size.at(1));
-    }
-    else
-    {
-      assert(shifted_rows.at(t) < new_size.at(1));
-      assert(shifted_cols.at(t) < new_size.at(0));
-    }
   }
 
   if (!transpose)
