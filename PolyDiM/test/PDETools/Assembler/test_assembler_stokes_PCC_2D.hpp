@@ -57,7 +57,7 @@ namespace Polydim
                                                                   mesh_utilities,
                                                                   Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular,
                                                                   domain,
-                                                                  0.001,
+                                                                  0.01,
                                                                   mesh);
 
       const double nu = 1.0;
@@ -496,13 +496,14 @@ namespace Polydim
                 }
 
 
-        std::cout.precision(2);
-        std::cout<< std::scientific<< "u_x_errorL2: "<< (u_x_error_L2.error_L2 / u_x_error_L2.numeric_norm_L2)<< " ";
-        std::cout<< std::scientific<< "u_y_errorL2: "<< (u_y_error_L2.error_L2 / u_y_error_L2.numeric_norm_L2)<< " ";
-        std::cout<< std::scientific<< "p_errorL2: "<< (p_error_L2.error_L2 / p_error_L2.numeric_norm_L2)<< std::endl;
+        // std::cout.precision(2);
+        // std::cout<< std::scientific<< "u_x_errorL2: "<< (u_x_error_L2.error_L2 / u_x_error_L2.numeric_norm_L2)<< " ";
+        // std::cout<< std::scientific<< "u_y_errorL2: "<< (u_y_error_L2.error_L2 / u_y_error_L2.numeric_norm_L2)<< " ";
+        // std::cout<< std::scientific<< "p_errorL2: "<< (p_error_L2.error_L2 / p_error_L2.numeric_norm_L2)<< std::endl;
 
-        //        ASSERT_TRUE(error_L2.error_L2 < 1.0e-13 * error_L2.exact_norm_L2);
-        //        ASSERT_TRUE(error_H1.error_H1 < 1.0e-13 * error_H1.exact_norm_H1);
+        ASSERT_TRUE(u_x_error_L2.error_L2 < 1.0e-1 * u_x_error_L2.numeric_norm_L2);
+        ASSERT_TRUE(u_y_error_L2.error_L2 < 1.0e-1 * u_y_error_L2.numeric_norm_L2);
+        ASSERT_TRUE(p_error_L2.error_L2 < 1.0e-1 * p_error_L2.numeric_norm_L2);
       }
     }
 
