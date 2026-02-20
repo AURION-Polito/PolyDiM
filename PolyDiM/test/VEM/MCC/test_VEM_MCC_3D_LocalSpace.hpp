@@ -441,11 +441,9 @@ TEST(Test_VEM_MCC, Test_VEM_MCC_3D_O0_O1_O2_O3)
         const auto result =
             performanceAnalysis.Compute(Polydim::Utilities::Monomials_3D(), reference_element_data.MonomialsKp1, vem_local_space, local_space);
 
-        ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.0e-10, result.ErrorPi0k, geometry_utilities.Tolerance1D()));
-
-        ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.0e-10, result.ErrorGBD, geometry_utilities.Tolerance1D()));
-
-        ASSERT_TRUE(geometry_utilities.IsValueGreaterOrEqual(1.0e-10, result.ErrorStabilization, geometry_utilities.Tolerance1D()));
+        ASSERT_TRUE(result.ErrorPi0k < 1.0e-10);
+        ASSERT_TRUE(result.ErrorGBD < 1.0e-10);
+        ASSERT_TRUE(result.ErrorStabilization < 1.0e-10);
     }
 }
 
