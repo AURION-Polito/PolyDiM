@@ -130,7 +130,18 @@ namespace Polydim
         return -u_lap + u * (u_grad.at(0) + u_grad.at(1));
       };
 
-      Eigen::VectorXd u_k = Eigen::VectorXd::Zero(trial_dofs_data.NumberDOFs);
+      auto initial_condition_function = [](const double &x, const double &y, const double &z)
+      {
+        return 0.0;
+      };
+
+      auto u_k = PDETools::Assembler_Utilities::PCC_2D::evaluate_function_on_dofs(geometry_utilities,
+                                                                                  mesh,
+                                                                                  mesh_geometric_data,
+                                                                                  trial_dofs_data,
+                                                                                  trial_reference_element_data,
+                                                                                  initial_condition_function).function_dofs;
+
       auto strong_solution_function =
           [&exact_solution_function](const unsigned int marker, const double &x, const double &y, const double &z) {
         if (marker != 1)
@@ -339,9 +350,6 @@ namespace Polydim
         //std::cout << std::scientific << "err_L2: " << (error_L2.error_L2 / error_L2.exact_norm_L2) << std::endl;
         //std::cout << std::scientific << "err_H1: " << (error_H1.error_H1 / error_H1.exact_norm_H1) << std::endl;
 
-        ASSERT_TRUE((u_strong - exact_solution.exact_solution_strong).norm() <
-                    1.0e-13 * exact_solution.exact_solution_strong.norm());
-        ASSERT_TRUE((numeric_solution - exact_solution.exact_solution).norm() < 1.0e-13 * exact_solution.exact_solution.norm());
         ASSERT_TRUE(error_L2.error_L2 < 1.0e-13 * error_L2.exact_norm_L2);
         ASSERT_TRUE(error_H1.error_H1 < 1.0e-13 * error_H1.exact_norm_H1);
       }

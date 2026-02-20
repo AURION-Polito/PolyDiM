@@ -35,7 +35,7 @@ namespace Polydim
         Eigen::VectorXd function_evaluation(const Eigen::MatrixXd &points,
                                             const Eigen::VectorXd& u,
                                             const std::array<Eigen::VectorXd, 2> u_gradient,
-                                            const std::function<double(const double &, const double &, const double &, const double &, const std::array<double, 3> &)> f)
+                                            const std::function<double(const double &, const double &, const double &, const double &, const std::array<double, 3> &)>& f)
         {
           Eigen::VectorXd function_values(points.cols());
 
@@ -53,7 +53,7 @@ namespace Polydim
         std::array<Eigen::VectorXd, 3> function_evaluation(const Eigen::MatrixXd &points,
                                                            const Eigen::VectorXd& u,
                                                            const std::array<Eigen::VectorXd, 2> u_gradient,
-                                                           const std::function<std::array<double, 3>(const double &, const double &, const double &, const double &, const std::array<double, 3> &)> f)
+                                                           const std::function<std::array<double, 3>(const double &, const double &, const double &, const double &, const std::array<double, 3> &)>& f)
         {
           std::array<Eigen::VectorXd, 3> function_values;
           function_values.at(0).resize(points.cols());
@@ -77,7 +77,7 @@ namespace Polydim
         // ***************************************************************************
         Eigen::VectorXd function_evaluation(const unsigned int marker,
                                             const Eigen::MatrixXd &points,
-                                            const std::function<double(const unsigned int, const double &, const double &, const double &)> f)
+                                            const std::function<double(const unsigned int, const double &, const double &, const double &)>& f)
         {
           Eigen::VectorXd function_values(points.cols());
 
@@ -90,7 +90,7 @@ namespace Polydim
         }
         // ***************************************************************************
         Eigen::VectorXd function_evaluation(const Eigen::MatrixXd &points,
-                                            const std::function<double(const double &, const double &, const double &)> f)
+                                            const std::function<double(const double &, const double &, const double &)>& f)
         {
           Eigen::VectorXd function_values(points.cols());
 
@@ -103,7 +103,7 @@ namespace Polydim
         }
         // ***************************************************************************
         std::array<Eigen::VectorXd, 3> function_evaluation(const Eigen::MatrixXd &points,
-                                                           const std::function<std::array<double, 3>(const double &, const double &, const double &)> f)
+                                                           const std::function<std::array<double, 3>(const double &, const double &, const double &)>& f)
         {
           std::array<Eigen::VectorXd, 3> function_values;
           function_values.at(0).resize(points.cols());
@@ -128,7 +128,7 @@ namespace Polydim
                                              const DOFs::DOFsManager::DOFsData &test_dofs_data,
                                              const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
                                              const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &test_reference_element_data,
-                                             const std::function<double (const double&, const double&, const double&)> source_term_function)
+                                             const std::function<double (const double&, const double&, const double&)>& source_term_function)
         {
           Gedim::Eigen_Array<> forcing_term;
 
@@ -190,9 +190,9 @@ namespace Polydim
                                                         const DOFs::DOFsManager::DOFsData &test_dofs_data,
                                                         const LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
                                                         const LocalSpace_PCC_2D::ReferenceElement_Data &test_reference_element_data,
-                                                        const std::function<double(const double&, const double&, const double&)> diffusion_term_function,
-                                                        const std::function<std::array<double, 3>(const double&, const double&, const double&)> advection_term_function,
-                                                        const std::function<double(const double &, const double &, const double &)> reaction_term_function)
+                                                        const std::function<double(const double&, const double&, const double&)>& diffusion_term_function,
+                                                        const std::function<std::array<double, 3>(const double&, const double&, const double&)>& advection_term_function,
+                                                        const std::function<double(const double &, const double &, const double &)>& reaction_term_function)
         {
           Gedim::Eigen_SparseArray<> elliptic_matrix;
           Gedim::Eigen_SparseArray<> elliptic_strong_matrix;
@@ -315,7 +315,7 @@ namespace Polydim
                                                  const DOFs::DOFsManager::MeshDOFsInfo &trial_mesh_dofs_info,
                                                  const DOFs::DOFsManager::DOFsData &trial_dofs_data,
                                                  const LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
-                                                 const std::function<double(const unsigned int, const double &, const double &, const double &)> strong_solution_function)
+                                                 const std::function<double(const unsigned int, const double &, const double &, const double &)>& strong_solution_function)
         {
           Gedim::Eigen_Array<> strong_solution;
 
@@ -421,7 +421,7 @@ namespace Polydim
                                                     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                                     const DOFs::DOFsManager::DOFsData &trial_dofs_data,
                                                     const LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
-                                                    const std::function<double(const double &, const double &, const double &)> evaluation_function)
+                                                    const std::function<double(const double &, const double &, const double &)>& evaluation_function)
         {
           Gedim::Eigen_Array<> function_on_dofs;
           Gedim::Eigen_Array<> function_strong;
@@ -559,7 +559,7 @@ namespace Polydim
                                            const DOFs::DOFsManager::DOFsData &test_dofs_data,
                                            const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
                                            const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &test_reference_element_data,
-                                           const std::function<double(const unsigned int, const double &, const double &, const double &)> weak_term_function)
+                                           const std::function<double(const unsigned int, const double &, const double &, const double &)>& weak_term_function)
         {
           Gedim::Eigen_Array<> weak_term;
 
@@ -673,8 +673,8 @@ namespace Polydim
                                                               const DOFs::DOFsManager::DOFsData &trial_dofs_data,
                                                               const Eigen::VectorXd &numerical_solution,
                                                               const Eigen::VectorXd &numerical_solution_strong,
-                                                              const std::function<double(const double &, const double &, const double &)> exact_solution_function,
-                                                              const std::function<std::array<double, 3>(const double &, const double &, const double &)> exact_gradient_solution_function)
+                                                              const std::function<double(const double &, const double &, const double &)>& exact_solution_function,
+                                                              const std::function<std::array<double, 3>(const double &, const double &, const double &)>& exact_gradient_solution_function)
         {
           Post_Process_Data_Cell0Ds result;
 
@@ -729,7 +729,7 @@ namespace Polydim
                                                    const LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
                                                    const Eigen::VectorXd &numerical_solution,
                                                    const Eigen::VectorXd &numerical_solution_strong,
-                                                   const std::function<double(const double &, const double &, const double &)> exact_solution_function)
+                                                   const std::function<double(const double &, const double &, const double &)>& exact_solution_function)
         {
           Post_Process_Data_ErrorL2 result;
 
@@ -798,7 +798,7 @@ namespace Polydim
                                                    const LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
                                                    const Eigen::VectorXd &numerical_solution,
                                                    const Eigen::VectorXd &numerical_solution_strong,
-                                                   const std::function<std::array<double, 3>(const double &, const double &, const double &)> exact_gradient_solution_function)
+                                                   const std::function<std::array<double, 3>(const double &, const double &, const double &)>& exact_gradient_solution_function)
         {
           Post_Process_Data_ErrorH1 result;
 
@@ -876,8 +876,8 @@ namespace Polydim
                                                                                            const LocalSpace_PCC_2D::ReferenceElement_Data& trial_reference_element_data,
                                                                                            const Eigen::VectorXd& numerical_solution,
                                                                                            const Eigen::VectorXd& numerical_solution_strong,
-                                                                                           const std::function<double (const double&, const double&, const double&)> exact_solution_function,
-                                                                                           const std::function<std::array<double, 3>(const double &, const double &, const double &)> exact_gradient_solution_function)
+                                                                                           const std::function<double (const double&, const double&, const double&)>& exact_solution_function,
+                                                                                           const std::function<std::array<double, 3>(const double &, const double &, const double &)>& exact_gradient_solution_function)
         {
           Evaluate_Solution_On_Quadrature_Points_Data result;
 
@@ -1000,7 +1000,7 @@ namespace Polydim
                                              const LocalSpace_PCC_2D::ReferenceElement_Data& test_reference_element_data,
                                              const Eigen::VectorXd& numerical_solution,
                                              const Eigen::VectorXd& numerical_solution_strong,
-                                             const std::function<double (const double &, const double &, const double &, const double &, const std::array<double, 3> &)> source_term_function)
+                                             const std::function<double (const double &, const double &, const double &, const double &, const std::array<double, 3> &)>& source_term_function)
         {
           Gedim::Eigen_Array<> forcing_term;
           forcing_term.SetSize(test_dofs_data.NumberDOFs);
@@ -1091,7 +1091,7 @@ namespace Polydim
                                              const LocalSpace_PCC_2D::ReferenceElement_Data& test_reference_element_data,
                                              const Eigen::VectorXd& numerical_solution,
                                              const Eigen::VectorXd& numerical_solution_strong,
-                                             const std::function<std::array<double, 3> (const double &, const double &, const double &, const double &, const std::array<double, 3> &)> source_term_function)
+                                             const std::function<std::array<double, 3> (const double &, const double &, const double &, const double &, const std::array<double, 3> &)>& source_term_function)
         {
           Gedim::Eigen_Array<> forcing_term;
           forcing_term.SetSize(test_dofs_data.NumberDOFs);
@@ -1185,9 +1185,9 @@ namespace Polydim
                                                         const LocalSpace_PCC_2D::ReferenceElement_Data &test_reference_element_data,
                                                         const Eigen::VectorXd &numerical_solution,
                                                         const Eigen::VectorXd &numerical_solution_strong,
-                                                        const std::function<double(const double &, const double &, const double &, const double &, const std::array<double, 3> &)> diffusion_term_function,
-                                                        const std::function<std::array<double, 3> (const double &, const double &, const double &, const double &, const std::array<double, 3> &)> advection_term_function,
-                                                        const std::function<double(const double &, const double &, const double &, const double &, const std::array<double, 3> &)> reaction_term_function)
+                                                        const std::function<double(const double &, const double &, const double &, const double &, const std::array<double, 3> &)>& diffusion_term_function,
+                                                        const std::function<std::array<double, 3> (const double &, const double &, const double &, const double &, const std::array<double, 3> &)>& advection_term_function,
+                                                        const std::function<double(const double &, const double &, const double &, const double &, const std::array<double, 3> &)>& reaction_term_function)
         {
           Gedim::Eigen_SparseArray<> elliptic_matrix;
           Gedim::Eigen_SparseArray<> elliptic_strong_matrix;
