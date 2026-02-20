@@ -762,7 +762,11 @@ namespace Polydim
             const auto cell2D_internal_quadrature =
                 Polydim::PDETools::LocalSpace_PCC_2D::InternalQuadrature(trial_reference_element_data, trial_local_space_data);
 
-            const auto exact_solution_values = function_evaluation(cell2D_internal_quadrature.Points, exact_solution_function);
+            Eigen::VectorXd exact_solution_values;
+            if (exact_solution_function)
+              exact_solution_values = function_evaluation(cell2D_internal_quadrature.Points, exact_solution_function);
+            else
+              exact_solution_values = Eigen::VectorXd::Zero(cell2D_internal_quadrature.Points.cols());
 
             const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, trial_dofs_data);
             const Eigen::VectorXd dofs_values =
@@ -829,7 +833,15 @@ namespace Polydim
             const auto cell2D_internal_quadrature =
                 Polydim::PDETools::LocalSpace_PCC_2D::InternalQuadrature(trial_reference_element_data, trial_local_space_data);
 
-            const auto exact_derivative_solution_values = function_evaluation(cell2D_internal_quadrature.Points, exact_gradient_solution_function);
+            std::array<Eigen::VectorXd, 3> exact_derivative_solution_values;
+            if (exact_gradient_solution_function)
+              exact_derivative_solution_values = function_evaluation(cell2D_internal_quadrature.Points, exact_gradient_solution_function);
+            else
+            {
+              exact_derivative_solution_values.at(0) = Eigen::VectorXd::Zero(cell2D_internal_quadrature.Points.cols());
+              exact_derivative_solution_values.at(1) = Eigen::VectorXd::Zero(cell2D_internal_quadrature.Points.cols());
+              exact_derivative_solution_values.at(2) = Eigen::VectorXd::Zero(cell2D_internal_quadrature.Points.cols());
+            }
 
             const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, trial_dofs_data);
             const Eigen::VectorXd dofs_values =

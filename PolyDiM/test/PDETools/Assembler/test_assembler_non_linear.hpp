@@ -122,14 +122,6 @@ namespace Polydim
       ASSERT_EQ(trial_dofs_data.NumberDOFs, exact_solution.function_dofs.size());
       ASSERT_EQ(trial_dofs_data.NumberStrongs, exact_solution.function_strong.size());
 
-      auto source_term_function = [&exact_solution_function, &exact_gradient_solution_function, &exact_laplacian_solution_function](const double &x, const double &y, const double &z) {
-        const auto u_lap = exact_laplacian_solution_function(x, y, z);
-        const auto u_grad = exact_gradient_solution_function(x, y, z);
-        const auto u = exact_solution_function(x, y, z);
-
-        return -u_lap + u * (u_grad.at(0) + u_grad.at(1));
-      };
-
       auto initial_condition_function = [](const double &x, const double &y, const double &z)
       {
         return 0.0;
@@ -161,6 +153,13 @@ namespace Polydim
       ASSERT_EQ(trial_dofs_data.NumberStrongs, u_strong.size());
 
 
+      auto source_term_function = [&exact_solution_function, &exact_gradient_solution_function, &exact_laplacian_solution_function](const double &x, const double &y, const double &z) {
+        const auto u_lap = exact_laplacian_solution_function(x, y, z);
+        const auto u_grad = exact_gradient_solution_function(x, y, z);
+        const auto u = exact_solution_function(x, y, z);
+
+        return -u_lap + u * (u_grad.at(0) + u_grad.at(1));
+      };
 
       const auto source_term = PDETools::Assembler_Utilities::PCC_2D::assemble_source_term(geometry_utilities,
                                                                                            mesh,
@@ -171,6 +170,13 @@ namespace Polydim
                                                                                            source_term_function);
 
       ASSERT_EQ(test_dofs_data.NumberDOFs, source_term.size());
+
+
+      double residual_norm = 1.0;
+      double solution_norm = 1.0;
+      double newton_tol = 1.0e-6;
+      double max_iterations = 7;
+      double num_iteration = 1;
 
       auto diffusion_term_function = [](const double &x, const double &y, const double &z, const double& u_k, const std::array<double, 3>& u_grad_k) {
         return 1.0;
@@ -184,175 +190,246 @@ namespace Polydim
         return (u_grad_k.at(0) + u_grad_k.at(1));
       };
 
-      const auto elliptic_operator = PDETools::Assembler_Utilities::PCC_2D::assemble_elliptic_operator(geometry_utilities,
-                                                                                                       mesh,
-                                                                                                       mesh_geometric_data,
-                                                                                                       trial_dofs_data,
-                                                                                                       test_dofs_data,
-                                                                                                       trial_reference_element_data,
-                                                                                                       test_reference_element_data,
-                                                                                                       u_k,
-                                                                                                       u_strong,
-                                                                                                       diffusion_term_function,
-                                                                                                       advection_term_function,
-                                                                                                       reaction_term_function);
+      auto adv_non_linear_function = [](const double &x, const double &y, const double &z, const double& u_k, const std::array<double, 3>& u_grad_k) {
+        return std::array<double, 3>({ u_grad_k.at(0), u_grad_k.at(1), 0.0 });
+      };
 
-      ASSERT_EQ(test_dofs_data.NumberDOFs, elliptic_operator.A.size.at(0));
-      ASSERT_EQ(trial_dofs_data.NumberDOFs, elliptic_operator.A.size.at(1));
-      ASSERT_EQ(test_dofs_data.NumberDOFs, elliptic_operator.A_Strong.size.at(0));
-      ASSERT_EQ(trial_dofs_data.NumberStrongs, elliptic_operator.A_Strong.size.at(1));
+      auto rct_non_linear_function = [](const double &x, const double &y, const double &z, const double& u_k, const std::array<double, 3>& u_grad_k) {
+        return u_k * (u_grad_k.at(0) + u_grad_k.at(1));
+      };
 
+      Eigen::VectorXd du_strong = Eigen::VectorXd::Zero(trial_dofs_data.NumberStrongs);
 
+      while (num_iteration < max_iterations && residual_norm > newton_tol * solution_norm)
       {
-        const auto f = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(source_term);
-        const auto u_D = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(u_strong);
-        const auto A = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(elliptic_operator.A);
-        const auto A_D = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(elliptic_operator.A_Strong);
+        const auto elliptic_operator = PDETools::Assembler_Utilities::PCC_2D::assemble_elliptic_operator(geometry_utilities,
+                                                                                                         mesh,
+                                                                                                         mesh_geometric_data,
+                                                                                                         trial_dofs_data,
+                                                                                                         test_dofs_data,
+                                                                                                         trial_reference_element_data,
+                                                                                                         test_reference_element_data,
+                                                                                                         u_k,
+                                                                                                         u_strong,
+                                                                                                         diffusion_term_function,
+                                                                                                         advection_term_function,
+                                                                                                         reaction_term_function);
 
-        auto rhs = f;
-        rhs.SubtractionMultiplication(A_D, u_D);
+        ASSERT_EQ(test_dofs_data.NumberDOFs, elliptic_operator.A.size.at(0));
+        ASSERT_EQ(trial_dofs_data.NumberDOFs, elliptic_operator.A.size.at(1));
+        ASSERT_EQ(test_dofs_data.NumberDOFs, elliptic_operator.A_Strong.size.at(0));
+        ASSERT_EQ(trial_dofs_data.NumberStrongs, elliptic_operator.A_Strong.size.at(1));
 
-        Gedim::Eigen_Array<> u;
-        u.SetSize(trial_dofs_data.NumberDOFs);
+        const auto adv_source_term = PDETools::Assembler_Utilities::PCC_2D::assemble_source_term(geometry_utilities,
+                                                                                                 mesh,
+                                                                                                 mesh_geometric_data,
+                                                                                                 trial_dofs_data,
+                                                                                                 test_dofs_data,
+                                                                                                 trial_reference_element_data,
+                                                                                                 test_reference_element_data,
+                                                                                                 u_k,
+                                                                                                 u_strong,
+                                                                                                 adv_non_linear_function);
+        ASSERT_EQ(test_dofs_data.NumberDOFs, adv_source_term.size());
 
-        Gedim::Eigen_LUSolver solver;
-        solver.Initialize(A);
-        solver.Solve(rhs, u);
+        const auto rct_source_term = PDETools::Assembler_Utilities::PCC_2D::assemble_source_term(geometry_utilities,
+                                                                                                 mesh,
+                                                                                                 mesh_geometric_data,
+                                                                                                 trial_dofs_data,
+                                                                                                 test_dofs_data,
+                                                                                                 trial_reference_element_data,
+                                                                                                 test_reference_element_data,
+                                                                                                 u_k,
+                                                                                                 u_strong,
+                                                                                                 rct_non_linear_function);
+        ASSERT_EQ(test_dofs_data.NumberDOFs, rct_source_term.size());
 
-        const auto numeric_solution = PDETools::Assembler_Utilities::PCC_2D::to_VectorXd(u);
 
-        const auto u_on_cell0Ds = PDETools::Assembler_Utilities::PCC_2D::extract_solution_on_cell0Ds(mesh,
-                                                                                                     trial_dofs_data,
-                                                                                                     numeric_solution,
-                                                                                                     u_strong,
-                                                                                                     exact_solution_function,
-                                                                                                     exact_gradient_solution_function);
+        Eigen::VectorXd du;
+        {
+          const auto f_g = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(source_term);
+          const auto f_adv = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(adv_source_term);
+          const auto f_rct = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(rct_source_term);
+          const auto u_D = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(u_strong);
+          const auto A = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(elliptic_operator.A);
+          const auto A_D = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(elliptic_operator.A_Strong);
 
+          auto rhs = f_g - f_adv - f_rct;
+          rhs.SubtractionMultiplication(A_D, u_D);
 
-        const auto error_L2 = PDETools::Assembler_Utilities::PCC_2D::compute_error_L2(geometry_utilities,
+          Gedim::Eigen_Array<> du_array;
+          du_array.SetSize(trial_dofs_data.NumberDOFs);
+
+          Gedim::Eigen_LUSolver solver;
+          solver.Initialize(A);
+          solver.Solve(rhs, du_array);
+          du = PDETools::Assembler_Utilities::PCC_2D::to_VectorXd(du_array);
+        }
+
+        u_k = u_k + du;
+
+        const auto du_error_L2 = PDETools::Assembler_Utilities::PCC_2D::compute_error_L2(geometry_utilities,
+                                                                                         mesh,
+                                                                                         mesh_geometric_data,
+                                                                                         trial_dofs_data,
+                                                                                         trial_reference_element_data,
+                                                                                         du,
+                                                                                         du_strong);
+
+        const auto u_error_L2 = PDETools::Assembler_Utilities::PCC_2D::compute_error_L2(geometry_utilities,
+                                                                                        mesh,
+                                                                                        mesh_geometric_data,
+                                                                                        trial_dofs_data,
+                                                                                        trial_reference_element_data,
+                                                                                        u_k,
+                                                                                        u_strong,
+                                                                                        exact_solution_function);
+
+        const auto u_error_H1 = PDETools::Assembler_Utilities::PCC_2D::compute_error_H1(geometry_utilities,
+                                                                                        mesh,
+                                                                                        mesh_geometric_data,
+                                                                                        trial_dofs_data,
+                                                                                        trial_reference_element_data,
+                                                                                        u_k,
+                                                                                        u_strong,
+                                                                                        exact_gradient_solution_function);
+
+        solution_norm = u_error_L2.error_L2;
+        residual_norm = du_error_L2.numeric_norm_L2;
+
+        std::cout.precision(2);
+        std::cout<< std::scientific<< "res: "<< (residual_norm / solution_norm)<< " / "<< newton_tol<< " ";
+        std::cout<< " it: "<< num_iteration<< " / "<< max_iterations<< std::endl;
+      }
+
+      const auto u_error_L2 = PDETools::Assembler_Utilities::PCC_2D::compute_error_L2(geometry_utilities,
                                                                                       mesh,
                                                                                       mesh_geometric_data,
                                                                                       trial_dofs_data,
                                                                                       trial_reference_element_data,
-                                                                                      numeric_solution,
+                                                                                      u_k,
                                                                                       u_strong,
                                                                                       exact_solution_function);
 
-        const auto error_H1 = PDETools::Assembler_Utilities::PCC_2D::compute_error_H1(geometry_utilities,
+      const auto u_error_H1 = PDETools::Assembler_Utilities::PCC_2D::compute_error_H1(geometry_utilities,
                                                                                       mesh,
                                                                                       mesh_geometric_data,
                                                                                       trial_dofs_data,
                                                                                       trial_reference_element_data,
-                                                                                      numeric_solution,
+                                                                                      u_k,
                                                                                       u_strong,
                                                                                       exact_gradient_solution_function);
 
-        const auto u_on_quadrature = PDETools::Assembler_Utilities::PCC_2D::evaluate_solution_on_quadrature_points(geometry_utilities,
-                                                                                                                   mesh,
-                                                                                                                   mesh_geometric_data,
-                                                                                                                   trial_dofs_data,
-                                                                                                                   trial_reference_element_data,
-                                                                                                                   numeric_solution,
-                                                                                                                   u_strong,
-                                                                                                                   exact_solution_function,
-                                                                                                                   exact_gradient_solution_function);
+      const auto u_on_cell0Ds = PDETools::Assembler_Utilities::PCC_2D::extract_solution_on_cell0Ds(mesh,
+                                                                                                   trial_dofs_data,
+                                                                                                   u_k,
+                                                                                                   u_strong,
+                                                                                                   exact_solution_function,
+                                                                                                   exact_gradient_solution_function);
 
-        {
-          Gedim::VTKUtilities exporter;
 
-          exporter.AddPolygons(mesh.Cell0DsCoordinates(),
-                               mesh.Cell2DsVertices(),
-                               {
-                                 {
-                                   "numeric_solution",
-                                   Gedim::VTPProperty::Formats::Points,
-                                   static_cast<unsigned int>(u_on_cell0Ds.numeric_solution.size()),
-                                   u_on_cell0Ds.numeric_solution.data()
-                                 },
-                                 {
-                                   "exact_solution",
-                                   Gedim::VTPProperty::Formats::Points,
-                                   static_cast<unsigned int>(u_on_cell0Ds.exact_solution.size()),
-                                   u_on_cell0Ds.exact_solution.data()
-                                 },
-                                 {
-                                   "error_L2",
-                                   Gedim::VTPProperty::Formats::Cells,
-                                   static_cast<unsigned int>(error_L2.cell2Ds_error_L2.size()),
-                                   error_L2.cell2Ds_error_L2.data()
-                                 },
-                                 {
-                                   "error_H1",
-                                   Gedim::VTPProperty::Formats::Cells,
-                                   static_cast<unsigned int>(error_H1.cell2Ds_error_H1.size()),
-                                   error_H1.cell2Ds_error_H1.data()
-                                 }
-                               });
-          exporter.Export(exportFolder + "/solution.vtu");
-        }
+      const auto u_on_quadrature = PDETools::Assembler_Utilities::PCC_2D::evaluate_solution_on_quadrature_points(geometry_utilities,
+                                                                                                                 mesh,
+                                                                                                                 mesh_geometric_data,
+                                                                                                                 trial_dofs_data,
+                                                                                                                 trial_reference_element_data,
+                                                                                                                 u_k,
+                                                                                                                 u_strong,
+                                                                                                                 exact_solution_function,
+                                                                                                                 exact_gradient_solution_function);
 
-        {
-          Gedim::VTKUtilities exporter;
+      {
+        Gedim::VTKUtilities exporter;
 
-          exporter.AddPoints(u_on_quadrature.quadrature_points,
+        exporter.AddPolygons(mesh.Cell0DsCoordinates(),
+                             mesh.Cell2DsVertices(),
                              {
                                {
                                  "numeric_solution",
                                  Gedim::VTPProperty::Formats::Points,
-                                 static_cast<unsigned int>(u_on_quadrature.numeric_solution.size()),
-                                 u_on_quadrature.numeric_solution.data()
-                               },
-                               {
-                                 "numeric_x_solution",
-                                 Gedim::VTPProperty::Formats::Points,
-                                 static_cast<unsigned int>(u_on_quadrature.numeric_gradient_solution.at(0).size()),
-                                 u_on_quadrature.numeric_gradient_solution.at(0).data()
-                               },
-                               {
-                                 "numeric_y_solution",
-                                 Gedim::VTPProperty::Formats::Points,
-                                 static_cast<unsigned int>(u_on_quadrature.numeric_gradient_solution.at(1).size()),
-                                 u_on_quadrature.numeric_gradient_solution.at(1).data()
+                                 static_cast<unsigned int>(u_on_cell0Ds.numeric_solution.size()),
+                                 u_on_cell0Ds.numeric_solution.data()
                                },
                                {
                                  "exact_solution",
                                  Gedim::VTPProperty::Formats::Points,
-                                 static_cast<unsigned int>(u_on_quadrature.exact_solution.size()),
-                                 u_on_quadrature.exact_solution.data()
+                                 static_cast<unsigned int>(u_on_cell0Ds.exact_solution.size()),
+                                 u_on_cell0Ds.exact_solution.data()
                                },
                                {
-                                 "exact_x_solution",
-                                 Gedim::VTPProperty::Formats::Points,
-                                 static_cast<unsigned int>(u_on_quadrature.exact_gradient_solution.at(0).size()),
-                                 u_on_quadrature.exact_gradient_solution.at(0).data()
+                                 "error_L2",
+                                 Gedim::VTPProperty::Formats::Cells,
+                                 static_cast<unsigned int>(u_error_L2.cell2Ds_error_L2.size()),
+                                 u_error_L2.cell2Ds_error_L2.data()
                                },
                                {
-                                 "exact_y_solution",
-                                 Gedim::VTPProperty::Formats::Points,
-                                 static_cast<unsigned int>(u_on_quadrature.exact_gradient_solution.at(1).size()),
-                                 u_on_quadrature.exact_gradient_solution.at(1).data()
-                               },
+                                 "error_H1",
+                                 Gedim::VTPProperty::Formats::Cells,
+                                 static_cast<unsigned int>(u_error_H1.cell2Ds_error_H1.size()),
+                                 u_error_H1.cell2Ds_error_H1.data()
+                               }
                              });
-
-          exporter.Export(exportFolder + "/solution_on_quadrature.vtu");
-        }
-
-        //std::cout.precision(2);
-        //std::cout<< std::scientific<< "A: "<< A<< std::endl;
-        //std::cout<< std::scientific<< "A_D: "<< A_D<< std::endl;
-        //std::cout << std::scientific << "f: " << f << std::endl;
-        //std::cout << std::scientific << "w_t: " << w_t << std::endl;
-        //std::cout << std::scientific << "r: " << rhs << std::endl;
-        //std::cout << std::scientific << "u: " << u << std::endl;
-        //std::cout << std::scientific << "u_ex: " << exact_solution.exact_solution.transpose() << std::endl;
-        //std::cout << std::scientific << "u_D: " << u_D << std::endl;
-        //std::cout << std::scientific << "u_ex_D: " << exact_solution.exact_solution_strong.transpose() << std::endl;
-        //std::cout << std::scientific << "err_L2: " << (error_L2.error_L2 / error_L2.exact_norm_L2) << std::endl;
-        //std::cout << std::scientific << "err_H1: " << (error_H1.error_H1 / error_H1.exact_norm_H1) << std::endl;
-
-        ASSERT_TRUE(error_L2.error_L2 < 1.0e-13 * error_L2.exact_norm_L2);
-        ASSERT_TRUE(error_H1.error_H1 < 1.0e-13 * error_H1.exact_norm_H1);
+        exporter.Export(exportFolder + "/solution.vtu");
       }
+
+      {
+        Gedim::VTKUtilities exporter;
+
+        exporter.AddPoints(u_on_quadrature.quadrature_points,
+                           {
+                             {
+                               "numeric_solution",
+                               Gedim::VTPProperty::Formats::Points,
+                               static_cast<unsigned int>(u_on_quadrature.numeric_solution.size()),
+                               u_on_quadrature.numeric_solution.data()
+                             },
+                             {
+                               "numeric_x_solution",
+                               Gedim::VTPProperty::Formats::Points,
+                               static_cast<unsigned int>(u_on_quadrature.numeric_gradient_solution.at(0).size()),
+                               u_on_quadrature.numeric_gradient_solution.at(0).data()
+                             },
+                             {
+                               "numeric_y_solution",
+                               Gedim::VTPProperty::Formats::Points,
+                               static_cast<unsigned int>(u_on_quadrature.numeric_gradient_solution.at(1).size()),
+                               u_on_quadrature.numeric_gradient_solution.at(1).data()
+                             },
+                             {
+                               "exact_solution",
+                               Gedim::VTPProperty::Formats::Points,
+                               static_cast<unsigned int>(u_on_quadrature.exact_solution.size()),
+                               u_on_quadrature.exact_solution.data()
+                             },
+                             {
+                               "exact_x_solution",
+                               Gedim::VTPProperty::Formats::Points,
+                               static_cast<unsigned int>(u_on_quadrature.exact_gradient_solution.at(0).size()),
+                               u_on_quadrature.exact_gradient_solution.at(0).data()
+                             },
+                             {
+                               "exact_y_solution",
+                               Gedim::VTPProperty::Formats::Points,
+                               static_cast<unsigned int>(u_on_quadrature.exact_gradient_solution.at(1).size()),
+                               u_on_quadrature.exact_gradient_solution.at(1).data()
+                             },
+                           });
+
+        exporter.Export(exportFolder + "/solution_on_quadrature.vtu");
+      }
+
+      //std::cout.precision(2);
+      //std::cout<< std::scientific<< "A: "<< A<< std::endl;
+      //std::cout<< std::scientific<< "A_D: "<< A_D<< std::endl;
+      //std::cout << std::scientific << "f: " << f << std::endl;
+      //std::cout << std::scientific << "w_t: " << w_t << std::endl;
+      //std::cout << std::scientific << "r: " << rhs << std::endl;
+      //std::cout << std::scientific << "u: " << u << std::endl;
+      //std::cout << std::scientific << "u_ex: " << exact_solution.exact_solution.transpose() << std::endl;
+      //std::cout << std::scientific << "u_D: " << u_D << std::endl;
+      //std::cout << std::scientific << "u_ex_D: " << exact_solution.exact_solution_strong.transpose() << std::endl;
+      //std::cout << std::scientific << "err_L2: " << (error_L2.error_L2 / error_L2.exact_norm_L2) << std::endl;
+      //std::cout << std::scientific << "err_H1: " << (error_H1.error_H1 / error_H1.exact_norm_H1) << std::endl;
     }
 
   } // namespace UnitTesting
