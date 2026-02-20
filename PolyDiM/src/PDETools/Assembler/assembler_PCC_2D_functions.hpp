@@ -276,22 +276,24 @@ Polydim::PDETools::Assembler_Utilities::PCC_2D::Post_Process_Data_Cell0Ds extrac
     const std::function<double(const double &, const double &, const double &)> &exact_solution_function = nullptr,
     const std::function<std::array<double, 3>(const double &, const double &, const double &)> &exact_gradient_solution_function = nullptr);
 // ***************************************************************************
-Polydim::PDETools::Assembler_Utilities::PCC_2D::Post_Process_Data_ErrorL2 compute_error_L2(const Gedim::GeometryUtilities &geometry_utilities,
-                                           const Gedim::MeshMatricesDAO &mesh,
-                                           const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-                                           const Polydim::PDETools::DOFs::DOFsManager::DOFsData &trial_dofs_data,
-                                           const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
-                                           const Eigen::VectorXd &numerical_solution,
-                                           const Eigen::VectorXd &numerical_solution_strong,
-                                           const std::function<double(const double &, const double &, const double &)> &exact_solution_function);
+Polydim::PDETools::Assembler_Utilities::PCC_2D::Post_Process_Data_ErrorL2 compute_error_L2(
+    const Gedim::GeometryUtilities &geometry_utilities,
+    const Gedim::MeshMatricesDAO &mesh,
+    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+    const Polydim::PDETools::DOFs::DOFsManager::DOFsData &trial_dofs_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
+    const Eigen::VectorXd &numerical_solution,
+    const Eigen::VectorXd &numerical_solution_strong,
+    const std::function<double(const double &, const double &, const double &)> &exact_solution_function);
 // ***************************************************************************
-inline Polydim::PDETools::Assembler_Utilities::PCC_2D::Post_Process_Data_ErrorL2 compute_error_L2(const Gedim::GeometryUtilities &geometry_utilities,
-                                                  const Gedim::MeshMatricesDAO &mesh,
-                                                  const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-                                                  const Polydim::PDETools::DOFs::DOFsManager::DOFsData &trial_dofs_data,
-                                                  const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
-                                                  const Eigen::VectorXd &numerical_solution,
-                                                  const Eigen::VectorXd &numerical_solution_strong)
+inline Polydim::PDETools::Assembler_Utilities::PCC_2D::Post_Process_Data_ErrorL2 compute_error_L2(
+    const Gedim::GeometryUtilities &geometry_utilities,
+    const Gedim::MeshMatricesDAO &mesh,
+    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+    const Polydim::PDETools::DOFs::DOFsManager::DOFsData &trial_dofs_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
+    const Eigen::VectorXd &numerical_solution,
+    const Eigen::VectorXd &numerical_solution_strong)
 {
     return compute_error_L2(geometry_utilities,
                             mesh,
@@ -303,7 +305,7 @@ inline Polydim::PDETools::Assembler_Utilities::PCC_2D::Post_Process_Data_ErrorL2
                             nullptr);
 }
 // ***************************************************************************
-Post_Process_Data_ErrorH1 compute_error_H1(
+Polydim::PDETools::Assembler_Utilities::PCC_2D::Post_Process_Data_ErrorH1 compute_error_H1(
     const Gedim::GeometryUtilities &geometry_utilities,
     const Gedim::MeshMatricesDAO &mesh,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
@@ -313,13 +315,14 @@ Post_Process_Data_ErrorH1 compute_error_H1(
     const Eigen::VectorXd &numerical_solution_strong,
     const std::function<std::array<double, 3>(const double &, const double &, const double &)> &exact_gradient_solution_function);
 // ***************************************************************************
-inline Post_Process_Data_ErrorH1 compute_error_H1(const Gedim::GeometryUtilities &geometry_utilities,
-                                                  const Gedim::MeshMatricesDAO &mesh,
-                                                  const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-                                                  const Polydim::PDETools::DOFs::DOFsManager::DOFsData &trial_dofs_data,
-                                                  const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
-                                                  const Eigen::VectorXd &numerical_solution,
-                                                  const Eigen::VectorXd &numerical_solution_strong)
+inline Polydim::PDETools::Assembler_Utilities::PCC_2D::Post_Process_Data_ErrorH1 compute_error_H1(
+    const Gedim::GeometryUtilities &geometry_utilities,
+    const Gedim::MeshMatricesDAO &mesh,
+    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+    const Polydim::PDETools::DOFs::DOFsManager::DOFsData &trial_dofs_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
+    const Eigen::VectorXd &numerical_solution,
+    const Eigen::VectorXd &numerical_solution_strong)
 {
     return compute_error_H1(geometry_utilities,
                             mesh,
