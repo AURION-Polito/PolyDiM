@@ -46,8 +46,8 @@ struct Evaluate_Function_On_DOFs_Data final
 // ***************************************************************************
 struct Variational_Operator final
 {
-    Polydim::PDETools::Assembler_Utilities::PCC_2D::Sparse_Matrix_Data A;
-    Polydim::PDETools::Assembler_Utilities::PCC_2D::Sparse_Matrix_Data A_Strong;
+    Polydim::PDETools::Assembler_Utilities::PCC_2D::Sparse_Matrix_Data operator_dofs;
+    Polydim::PDETools::Assembler_Utilities::PCC_2D::Sparse_Matrix_Data operator_strong;
 };
 // ***************************************************************************
 struct Evaluate_Solution_On_Quadrature_Points_Data final

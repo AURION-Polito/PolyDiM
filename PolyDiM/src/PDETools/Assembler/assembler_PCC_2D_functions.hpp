@@ -264,8 +264,8 @@ Post_Process_Data_Cell0Ds extract_solution_on_cell0Ds(const Gedim::MeshMatricesD
                                                     const DOFs::DOFsManager::DOFsData &trial_dofs_data,
                                                     const Eigen::VectorXd &numerical_solution,
                                                     const Eigen::VectorXd &numerical_solution_strong,
-                                                    const std::function<double(const double &, const double &, const double &)>& exact_solution_function,
-                                                     const std::function<std::array<double, 3>(const double &, const double &, const double &)>& exact_gradient_solution_function);
+                                                    const std::function<double(const double &, const double &, const double &)>& exact_solution_function = nullptr,
+                                                     const std::function<std::array<double, 3>(const double &, const double &, const double &)>& exact_gradient_solution_function = nullptr);
 // ***************************************************************************
 Post_Process_Data_ErrorL2 compute_error_L2(const Gedim::GeometryUtilities &geometry_utilities,
                                              const Gedim::MeshMatricesDAO &mesh,

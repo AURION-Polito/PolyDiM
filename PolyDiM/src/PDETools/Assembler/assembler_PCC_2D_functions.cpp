@@ -26,8 +26,8 @@ namespace Polydim
         {
           Variational_Operator result;
 
-          result.A = to_Sparse_Matrix_Data(elliptic_matrix);
-          result.A_Strong = to_Sparse_Matrix_Data(elliptic_strong_matrix);
+          result.operator_dofs = to_Sparse_Matrix_Data(elliptic_matrix);
+          result.operator_strong = to_Sparse_Matrix_Data(elliptic_strong_matrix);
 
           return result;
         }
@@ -417,11 +417,11 @@ namespace Polydim
         }
         // ***************************************************************************
         Evaluate_Function_On_DOFs_Data evaluate_function_on_dofs(const Gedim::GeometryUtilities &geometry_utilities,
-                                                    const Gedim::MeshMatricesDAO &mesh,
-                                                    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-                                                    const DOFs::DOFsManager::DOFsData &trial_dofs_data,
-                                                    const LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
-                                                    const std::function<double(const double &, const double &, const double &)>& evaluation_function)
+                                                                 const Gedim::MeshMatricesDAO &mesh,
+                                                                 const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                                                 const DOFs::DOFsManager::DOFsData &trial_dofs_data,
+                                                                 const LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
+                                                                 const std::function<double(const double &, const double &, const double &)>& evaluation_function)
         {
           Gedim::Eigen_Array<> function_on_dofs;
           Gedim::Eigen_Array<> function_strong;
@@ -681,23 +681,27 @@ namespace Polydim
           const auto num_solution = to_Eigen_Array(numerical_solution);
           const auto num_solution_strong = to_Eigen_Array(numerical_solution_strong);
 
-          result.numeric_solution.resize(mesh.Cell0DTotalNumber());
-          result.exact_solution.resize(mesh.Cell0DTotalNumber());
-          result.exact_gradient_solution.at(0).resize(mesh.Cell0DTotalNumber());
-          result.exact_gradient_solution.at(1).resize(mesh.Cell0DTotalNumber());
-          result.exact_gradient_solution.at(2).resize(mesh.Cell0DTotalNumber());
+          result.numeric_solution.setZero(mesh.Cell0DTotalNumber());
+          result.exact_solution.setZero(mesh.Cell0DTotalNumber());
+          result.exact_gradient_solution.at(0).setZero(mesh.Cell0DTotalNumber());
+          result.exact_gradient_solution.at(1).setZero(mesh.Cell0DTotalNumber());
+          result.exact_gradient_solution.at(2).setZero(mesh.Cell0DTotalNumber());
 
           for (unsigned int p = 0; p < mesh.Cell0DTotalNumber(); p++)
           {
             if (!mesh.Cell0DIsActive(p))
               continue;
 
-            result.exact_solution[p] = function_evaluation(mesh.Cell0DCoordinates(p), exact_solution_function)[0];
-            const auto grad_solution = function_evaluation(mesh.Cell0DCoordinates(p), exact_gradient_solution_function);
+            if (exact_solution_function)
+              result.exact_solution[p] = function_evaluation(mesh.Cell0DCoordinates(p), exact_solution_function)[0];
 
-            result.exact_gradient_solution.at(0)[p] = grad_solution.at(0)[0];
-            result.exact_gradient_solution.at(1)[p] = grad_solution.at(1)[0];
-            result.exact_gradient_solution.at(2)[p] = grad_solution.at(2)[0];
+            if (exact_gradient_solution_function)
+            {
+              const auto grad_solution = function_evaluation(mesh.Cell0DCoordinates(p), exact_gradient_solution_function);
+              result.exact_gradient_solution.at(0)[p] = grad_solution.at(0)[0];
+              result.exact_gradient_solution.at(1)[p] = grad_solution.at(1)[0];
+              result.exact_gradient_solution.at(2)[p] = grad_solution.at(2)[0];
+            }
 
             const auto local_dofs = trial_dofs_data.CellsDOFs.at(0).at(p);
 

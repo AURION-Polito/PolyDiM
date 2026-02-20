@@ -175,10 +175,10 @@ namespace Polydim
                                                                                                         advection_term_function,
                                                                                                         reaction_term_function);
 
-      ASSERT_EQ(test_dofs_data.NumberDOFs, elliptic_operator.A.size.at(0));
-      ASSERT_EQ(trial_dofs_data.NumberDOFs, elliptic_operator.A.size.at(1));
-      ASSERT_EQ(test_dofs_data.NumberDOFs, elliptic_operator.A_Strong.size.at(0));
-      ASSERT_EQ(trial_dofs_data.NumberStrongs, elliptic_operator.A_Strong.size.at(1));
+      ASSERT_EQ(test_dofs_data.NumberDOFs, elliptic_operator.operator_dofs.size.at(0));
+      ASSERT_EQ(trial_dofs_data.NumberDOFs, elliptic_operator.operator_dofs.size.at(1));
+      ASSERT_EQ(test_dofs_data.NumberDOFs, elliptic_operator.operator_Strong.size.at(0));
+      ASSERT_EQ(trial_dofs_data.NumberStrongs, elliptic_operator.operator_Strong.size.at(1));
 
       auto strong_solution_function =
           [&exact_solution_function](const unsigned int marker, const double &x, const double &y, const double &z) {
@@ -240,8 +240,8 @@ namespace Polydim
         const auto f = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(source_term);
         const auto w_t = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(weak_term);
         const auto u_D = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(strong_solution);
-        const auto A = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(elliptic_operator.A);
-        const auto A_D = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(elliptic_operator.A_Strong);
+        const auto A = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(elliptic_operator.operator_dofs);
+        const auto A_D = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(elliptic_operator.operator_Strong);
 
         auto rhs = f;
         rhs += w_t;
