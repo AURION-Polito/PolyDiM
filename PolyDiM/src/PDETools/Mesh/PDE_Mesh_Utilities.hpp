@@ -85,13 +85,13 @@ enum class MeshGenerator_Types_1D
 
 enum class MeshGenerator_Types_2D
 {
-    Triangular = 0,  ///< generated triangular mesh
-    Minimal = 1,     ///< generated minimal mesh
-    Polygonal = 2,   ///< generated voronoi polygonal mesh
-    OFFImporter = 3, ///< imported off mesh
-    CsvImporter = 4, ///< imported csv mesh
-    Squared = 5,     ///< squared mesh
-    RandomDistorted = 6, ///< random distorted
+    Triangular = 0,              ///< generated triangular mesh
+    Minimal = 1,                 ///< generated minimal mesh
+    Polygonal = 2,               ///< generated voronoi polygonal mesh
+    OFFImporter = 3,             ///< imported off mesh
+    CsvImporter = 4,             ///< imported csv mesh
+    Squared = 5,                 ///< squared mesh
+    RandomDistorted = 6,         ///< random distorted
     TriangularSimpleImporter = 7 ///< import 2D triangular mesh
 };
 
@@ -334,15 +334,15 @@ inline void import_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
         mesh_utilities.ImportObjectFileFormat(file_path, mesh);
     }
     break;
-      case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::TriangularSimpleImporter: {
-          mesh_utilities.ImportTriangularMesh(geometry_utilities,
-                                              file_path + "/Cell0Ds.csv",
-                                              file_path + "/Cell2Ds.csv",
-                                              file_path + "/Cell2DsMarker.csv",
-                                              ',',
-                                              mesh);
-      }
-      break;
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::TriangularSimpleImporter: {
+        mesh_utilities.ImportTriangularMesh(geometry_utilities,
+                                            file_path + "/Cell0Ds.csv",
+                                            file_path + "/Cell2Ds.csv",
+                                            file_path + "/Cell2DsMarker.csv",
+                                            ',',
+                                            mesh);
+    }
+    break;
     default:
         throw std::runtime_error("MeshGenerator_Types_2D " + std::to_string((unsigned int)mesh_type) + " not supported");
     }
