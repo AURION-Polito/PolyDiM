@@ -91,7 +91,8 @@ enum class MeshGenerator_Types_2D
     OFFImporter = 3, ///< imported off mesh
     CsvImporter = 4, ///< imported csv mesh
     Squared = 5,     ///< squared mesh
-    RandomDistorted = 6
+    RandomDistorted = 6, ///< random distorted
+    TriangularSimpleImporter = 7 ///< import 2D triangular mesh
 };
 
 enum class MeshGenerator_Types_3D
@@ -312,7 +313,8 @@ inline void import_mesh_1D(const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::Me
     }
 }
 
-inline void import_mesh_2D(const Gedim::MeshUtilities &mesh_utilities,
+inline void import_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
+                           const Gedim::MeshUtilities &mesh_utilities,
                            const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D &mesh_type,
                            const std::string &file_path,
                            Gedim::MeshMatricesDAO &mesh)
@@ -332,6 +334,15 @@ inline void import_mesh_2D(const Gedim::MeshUtilities &mesh_utilities,
         mesh_utilities.ImportObjectFileFormat(file_path, mesh);
     }
     break;
+      case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::TriangularSimpleImporter: {
+          mesh_utilities.ImportTriangularMesh(geometry_utilities,
+                                              file_path + "/Cell0Ds.csv",
+                                              file_path + "/Cell2Ds.csv",
+                                              file_path + "/Cell2DsMarker.csv",
+                                              ',',
+                                              mesh);
+      }
+      break;
     default:
         throw std::runtime_error("MeshGenerator_Types_2D " + std::to_string((unsigned int)mesh_type) + " not supported");
     }
