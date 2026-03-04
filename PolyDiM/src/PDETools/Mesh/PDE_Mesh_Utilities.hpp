@@ -85,14 +85,15 @@ enum class MeshGenerator_Types_1D
 
 enum class MeshGenerator_Types_2D
 {
-    Triangular = 0,              ///< generated triangular mesh
-    Minimal = 1,                 ///< generated minimal mesh
-    Polygonal = 2,               ///< generated voronoi polygonal mesh
-    OFFImporter = 3,             ///< imported off mesh
-    CsvImporter = 4,             ///< imported csv mesh
-    Squared = 5,                 ///< squared mesh
-    RandomDistorted = 6,         ///< random distorted
-    TriangularSimpleImporter = 7 ///< import 2D triangular mesh
+    Triangular = 0,               ///< generated triangular mesh
+    Minimal = 1,                  ///< generated minimal mesh
+    Polygonal = 2,                ///< generated voronoi polygonal mesh
+    OFFImporter = 3,              ///< imported off mesh
+    CsvImporter = 4,              ///< imported csv mesh
+    Squared = 5,                  ///< squared mesh
+    RandomDistorted = 6,          ///< random distorted
+    TriangularSimpleImporter = 7, ///< import 2D triangular mesh
+    StructuredTringular = 8
 };
 
 enum class MeshGenerator_Types_3D
@@ -193,6 +194,31 @@ inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
                                            geometry_utilities.EquispaceCoordinates(num_cells_base + 1, 0.0, 1.0, true),
                                            geometry_utilities.EquispaceCoordinates(num_cells_height + 1, 0.0, 1.0, true),
                                            mesh);
+    }
+    break;
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::StructuredTringular: {
+        switch (pde_domain.shape_type)
+        {
+        case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types::Parallelogram:
+            break;
+        default:
+            throw std::runtime_error("Squared mesh cannot be created");
+        }
+
+        const double max_cell_edge = sqrt(pde_domain.area * max_relative_area);
+
+        const Eigen::Vector3d domain_origin = pde_domain.vertices.col(0);
+        const Eigen::Vector3d domain_base_tangent = pde_domain.vertices.col(1) - domain_origin;
+        const Eigen::Vector3d domain_height_tangent = pde_domain.vertices.rightCols(1) - domain_origin;
+        const unsigned int num_cells_base = ceil(domain_base_tangent.norm() / max_cell_edge);
+        const unsigned int num_cells_height = ceil(domain_height_tangent.norm() / max_cell_edge);
+
+        mesh_utilities.CreateStructuredTriangularMesh(domain_origin,
+                                                      domain_base_tangent,
+                                                      domain_height_tangent,
+                                                      geometry_utilities.EquispaceCoordinates(num_cells_base + 1, 0.0, 1.0, true),
+                                                      geometry_utilities.EquispaceCoordinates(num_cells_height + 1, 0.0, 1.0, true),
+                                                      mesh);
     }
     break;
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::RandomDistorted: {
