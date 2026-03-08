@@ -113,6 +113,28 @@ class FEM_PCC_2D_LocalSpace final
         }
     }
 
+    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const Polydim::FEM::PCC::FEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                         const Polydim::FEM::PCC::FEM_PCC_2D_LocalSpace_Data &local_space,
+                                                         const Eigen::MatrixXd &points) const
+    {
+        switch (local_space.fem_type)
+        {
+        case Polydim::FEM::PCC::FEM_PCC_2D_Types::Triangle: {
+
+            return triangle_local_space.ComputeBasisFunctionsLaplacianValues(reference_element_data.triangle_reference_element_data,
+                                                                             local_space.triangle_local_space_data,
+                                                                             points);
+        }
+        case Polydim::FEM::PCC::FEM_PCC_2D_Types::Quadrilateral: {
+            return quadrilateral_local_space.ComputeBasisFunctionsLaplacianValues(reference_element_data.quadrilateral_reference_element_data,
+                                                                                  local_space.quadrilateral_local_space_data,
+                                                                                  points);
+        }
+        default:
+            throw std::runtime_error("not valid fem type");
+        }
+    }
+
     std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const Polydim::FEM::PCC::FEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                                                        const Polydim::FEM::PCC::FEM_PCC_2D_LocalSpace_Data &local_space,
                                                                        const Eigen::MatrixXd &points) const
