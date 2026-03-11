@@ -26,6 +26,9 @@ namespace PCC
 class FEM_Triangle_PCC_2D_LocalSpace final
 {
   private:
+    Gedim::MapTriangle mapTriangle;
+    Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement reference_element;
+
     inline Eigen::MatrixXd MapValues(const Polydim::FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace_Data &local_space,
                                      const Eigen::MatrixXd &referenceValues) const
     {
@@ -91,7 +94,7 @@ class FEM_Triangle_PCC_2D_LocalSpace final
     Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement_Data &reference_element_data,
                                                          const Polydim::FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace_Data &local_space) const
     {
-        if (local_space.Order > 2)
+        if (local_space.Order > 3)
             throw std::runtime_error("Unsupported order");
 
         return MapLaplacianValues(local_space, reference_element_data.ReferenceBasisFunctionSecondDerivativeValues);
@@ -108,12 +111,21 @@ class FEM_Triangle_PCC_2D_LocalSpace final
                                                 const Polydim::FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace_Data &local_space,
                                                 const Eigen::MatrixXd &points) const
     {
-        Gedim::MapTriangle mapTriangle;
         const Eigen::MatrixXd referencePoints = mapTriangle.FInv(local_space.MapData, points);
 
-        Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement reference_element;
-
         return MapValues(local_space, reference_element.EvaluateBasisFunctions(referencePoints, reference_element_data));
+    }
+
+    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                         const Polydim::FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace_Data &local_space,
+                                                         const Eigen::MatrixXd &points) const
+    {
+        if (local_space.Order > 3)
+            throw std::runtime_error("Unsupported order");
+
+        const Eigen::MatrixXd referencePoints = mapTriangle.FInv(local_space.MapData, points);
+
+        return MapLaplacianValues(local_space, reference_element.EvaluateBasisFunctionSecondDerivatives(referencePoints, reference_element_data));
     }
 
     std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(
@@ -121,10 +133,7 @@ class FEM_Triangle_PCC_2D_LocalSpace final
         const Polydim::FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace_Data &local_space,
         const Eigen::MatrixXd &points) const
     {
-        Gedim::MapTriangle mapTriangle;
         const Eigen::MatrixXd referencePoints = mapTriangle.FInv(local_space.MapData, points);
-
-        Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement reference_element;
 
         return MapDerivativeValues(local_space, reference_element.EvaluateBasisFunctionDerivatives(referencePoints, reference_element_data));
     }
