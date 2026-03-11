@@ -102,6 +102,33 @@ class FEM_Quadrilateral_PCC_2D_LocalSpace final
         return MapValues(local_space, reference_element.EvaluateBasisFunctions(referencePoints, reference_element_data));
     }
 
+    Eigen::MatrixXd ComputeBasisFunctionsLaplacianValues(const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                         const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space,
+                                                         const Eigen::MatrixXd &points) const
+    {
+        Eigen::MatrixXd referencePoints;
+        switch (local_space.quadrilateral_type)
+        {
+        case Polydim::FEM::PCC::QuadrilateralType::Parallelogram: {
+            Gedim::MapParallelogram mapQuadrilateral;
+            referencePoints = mapQuadrilateral.FInv(local_space.MapData, points);
+        }
+        break;
+        case Polydim::FEM::PCC::QuadrilateralType::Generic: {
+            Gedim::MapQuadrilateral mapQuadrilateral;
+            referencePoints = mapQuadrilateral.FInv(local_space.Vertices, points);
+        }
+        break;
+        default:
+            throw std::runtime_error("not valid quadrilateral");
+        }
+
+        Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement reference_element;
+        return MapLaplacianValues(local_space,
+                                  reference_element.EvaluateBasisFunctionSecondDerivatives(referencePoints, reference_element_data),
+                                  referencePoints);
+    }
+
     std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(
         const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_ReferenceElement_Data &reference_element_data,
         const Polydim::FEM::PCC::FEM_Quadrilateral_PCC_2D_LocalSpace_Data &local_space,

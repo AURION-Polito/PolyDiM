@@ -29,7 +29,6 @@ FEM_Triangle_PCC_2D_LocalSpace_Data FEM_Triangle_PCC_2D_LocalSpace::CreateLocalS
 
     FEM_Triangle_PCC_2D_LocalSpace_Data localSpace;
 
-    Gedim::MapTriangle mapTriangle;
     localSpace.MapData = mapTriangle.Compute(polygon.Vertices);
     localSpace.B_lap = localSpace.MapData.BInv * localSpace.MapData.BInv.transpose();
 
@@ -129,7 +128,6 @@ Gedim::Quadrature::QuadratureData FEM_Triangle_PCC_2D_LocalSpace::InternalQuadra
 {
     Gedim::Quadrature::QuadratureData quadrature;
 
-    Gedim::MapTriangle mapTriangle;
     quadrature.Points = Gedim::MapTriangle::F(mapData, reference_quadrature.Points);
     quadrature.Weights = reference_quadrature.Weights.array() *
                          Gedim::MapTriangle::DetJ(mapData, reference_quadrature.Points).array().abs();
