@@ -221,7 +221,7 @@ TEST(TEST_assembler_non_linear_PCC_2D, TEST_assembler_non_linear_example)
         ASSERT_EQ(test_dofs_data.NumberDOFs, elliptic_operator.operator_strong.size.at(0));
         ASSERT_EQ(trial_dofs_data.NumberStrongs, elliptic_operator.operator_strong.size.at(1));
 
-        const auto adv_source_term = PDETools::Assembler_Utilities::PCC_2D::assemble_source_term(geometry_utilities,
+        const auto adv_source_term = PDETools::Assembler_Utilities::PCC_2D::assemble_source_term_der(geometry_utilities,
                                                                                                  mesh,
                                                                                                  mesh_geometric_data,
                                                                                                  trial_dofs_data,
@@ -255,7 +255,6 @@ TEST(TEST_assembler_non_linear_PCC_2D, TEST_assembler_non_linear_example)
             const auto A_D = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(elliptic_operator.operator_strong);
 
             auto rhs = f_g - f_adv - f_rct;
-            rhs.SubtractionMultiplication(A_D, u_D);
 
             Gedim::Eigen_Array<> du_array;
             du_array.SetSize(trial_dofs_data.NumberDOFs);

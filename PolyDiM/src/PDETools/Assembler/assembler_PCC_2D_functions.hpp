@@ -48,7 +48,7 @@ Eigen::VectorXd assemble_source_term(
     const Eigen::VectorXd &numerical_solution_strong,
     const std::function<double(const double &, const double &, const double &, const double &, const std::array<double, 3> &)> &source_term_function);
 // ***************************************************************************
-Eigen::VectorXd assemble_source_term(
+Eigen::VectorXd assemble_source_term_der(
     const Gedim::GeometryUtilities &geometry_utilities,
     const Gedim::MeshMatricesDAO &mesh,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,

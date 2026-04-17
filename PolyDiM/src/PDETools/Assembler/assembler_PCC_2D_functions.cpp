@@ -1104,7 +1104,7 @@ Eigen::VectorXd assemble_source_term(
     return static_cast<Eigen::VectorXd &>(forcing_term);
 }
 // ***************************************************************************
-Eigen::VectorXd assemble_source_term(
+Eigen::VectorXd assemble_source_term_der(
     const Gedim::GeometryUtilities &geometry_utilities,
     const Gedim::MeshMatricesDAO &mesh,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
