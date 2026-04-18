@@ -1492,7 +1492,9 @@ namespace Polydim
                                                                                     num_speed_solution_strong);
 
             std::array<Eigen::VectorXd, 2> u_on_quadrature;
-            u_on_quadrature.at(0) = speed_component_basis_functions_derivative_values.at(0) *
+            u_on_quadrature.at(0) = speed_basis_functions_values.at(0) *
+                                    speed_dofs_values;
+            u_on_quadrature.at(1) = speed_basis_functions_values.at(1) *
                                     speed_dofs_values;
 
             std::array<Eigen::VectorXd, 4> u_gradient_on_quadrature;
