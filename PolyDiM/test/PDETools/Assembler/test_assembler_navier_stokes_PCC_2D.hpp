@@ -350,7 +350,10 @@ namespace Polydim
           {
             const auto J =
                 PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(J_S + J_C);
-            auto f = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(f_S - C.convective_rhs);
+            Eigen::VectorXd f_C = Eigen::VectorXd::Zero(tot_dofs);
+            f_C.segment(0, 2 * velocity_dofs_data.NumberDOFs) = C.convective_rhs;
+
+            auto f = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(f_S - f_C);
             const auto uk = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(u_k);
             f.SubtractionMultiplication(J_Stokes, uk);
 
