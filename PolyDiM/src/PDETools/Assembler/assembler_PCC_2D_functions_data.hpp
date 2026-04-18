@@ -50,6 +50,12 @@ struct Variational_Operator final
     Polydim::PDETools::Assembler_Utilities::PCC_2D::Sparse_Matrix_Data operator_strong;
 };
 // ***************************************************************************
+struct NS_Operators final
+{
+    Variational_Operator convective_operator;
+    Eigen::VectorXd convective_rhs;
+};
+// ***************************************************************************
 struct Evaluate_Solution_On_Quadrature_Points_Data final
 {
     Eigen::MatrixXd quadrature_points;

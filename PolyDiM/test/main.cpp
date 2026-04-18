@@ -39,6 +39,7 @@
 #include "test_assembler_elliptic_PCC_2D.hpp"
 #include "test_assembler_non_linear_PCC_2D.hpp"
 #include "test_assembler_stokes_PCC_2D.hpp"
+#include "test_assembler_navier_stokes_PCC_2D.hpp"
 
 int main(int argc, char *argv[])
 {

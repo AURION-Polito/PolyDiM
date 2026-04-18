@@ -221,7 +221,7 @@ TEST(TEST_assembler_non_linear_PCC_2D, TEST_assembler_non_linear_example)
         ASSERT_EQ(test_dofs_data.NumberDOFs, elliptic_operator.operator_strong.size.at(0));
         ASSERT_EQ(trial_dofs_data.NumberStrongs, elliptic_operator.operator_strong.size.at(1));
 
-        const auto adv_source_term = PDETools::Assembler_Utilities::PCC_2D::assemble_source_term_der(geometry_utilities,
+        const auto adv_source_term = PDETools::Assembler_Utilities::PCC_2D::assemble_source_term_gradients(geometry_utilities,
                                                                                                  mesh,
                                                                                                  mesh_geometric_data,
                                                                                                  trial_dofs_data,
