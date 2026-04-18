@@ -57,7 +57,7 @@ namespace Polydim
                                                                   mesh_utilities,
                                                                   Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular,
                                                                   domain,
-                                                                  0.01,
+                                                                  0.001,
                                                                   mesh);
 
       const double nu = 0.1;
@@ -265,7 +265,7 @@ namespace Polydim
       double residual_norm = 1.0;
       double solution_norm = 1.0;
       double newton_tol = 1.0e-6;
-      double max_iterations = 7;
+      double max_iterations = 10;
       double num_iteration = 1;
 
       const unsigned int tot_dofs = 2 * velocity_dofs_data.NumberDOFs + pressure_dofs_data.NumberDOFs;
