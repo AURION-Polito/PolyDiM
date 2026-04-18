@@ -262,80 +262,140 @@ namespace Polydim
       Eigen::VectorXd u_x_strong = Eigen::VectorXd::Zero(velocity_dofs_data.NumberStrongs);
       Eigen::VectorXd u_y_strong = Eigen::VectorXd::Zero(velocity_dofs_data.NumberStrongs);
 
-      {
-        const unsigned int tot_dofs = 2 * velocity_dofs_data.NumberDOFs + pressure_dofs_data.NumberDOFs;
-        const unsigned int tot_strongs = 2 * velocity_dofs_data.NumberStrongs + pressure_dofs_data.NumberStrongs;
+      double residual_norm = 1.0;
+      double solution_norm = 1.0;
+      double newton_tol = 1.0e-6;
+      double max_iterations = 7;
+      double num_iteration = 1;
 
-        Eigen::VectorXd p_numeric;
-        Eigen::VectorXd u_x_numeric;
-        Eigen::VectorXd u_y_numeric;
+      const unsigned int tot_dofs = 2 * velocity_dofs_data.NumberDOFs + pressure_dofs_data.NumberDOFs;
+      const unsigned int tot_strongs = 2 * velocity_dofs_data.NumberStrongs + pressure_dofs_data.NumberStrongs;
+
+      Eigen::VectorXd u_D_concat = Eigen::VectorXd::Zero(tot_strongs);
+      u_D_concat.segment(0, velocity_dofs_data.NumberStrongs) = u_x_strong;
+      u_D_concat.segment(velocity_dofs_data.NumberStrongs, velocity_dofs_data.NumberStrongs) = u_y_strong;
+      u_D_concat.segment(2 * velocity_dofs_data.NumberStrongs, pressure_dofs_data.NumberStrongs) = p_strong;
+
+      Eigen::SparseMatrix<double> J_S;
+      Eigen::VectorXd f_S;
+      Gedim::Eigen_SparseArray<> J_Stokes;
+      {
+        const auto J_A_x = PDETools::Assembler_Utilities::PCC_2D::to_SparseMatrix(
+                             PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(A.operator_dofs, {tot_dofs, tot_dofs}, {0, 0}));
+        const auto J_A_y = PDETools::Assembler_Utilities::PCC_2D::to_SparseMatrix(PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(
+                                                                                    A.operator_dofs,
+                                                                                    {tot_dofs, tot_dofs},
+                                                                                    {velocity_dofs_data.NumberDOFs, velocity_dofs_data.NumberDOFs}));
+        const auto J_B_x = PDETools::Assembler_Utilities::PCC_2D::to_SparseMatrix(
+                             PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(B_x.operator_dofs,
+                                                                                         {tot_dofs, tot_dofs},
+                                                                                         {2 * velocity_dofs_data.NumberDOFs, 0}));
+        const auto J_B_y = PDETools::Assembler_Utilities::PCC_2D::to_SparseMatrix(PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(
+                                                                                    B_y.operator_dofs,
+                                                                                    {tot_dofs, tot_dofs},
+                                                                                    {2 * velocity_dofs_data.NumberDOFs, velocity_dofs_data.NumberDOFs}));
+        const auto J_BT_x = PDETools::Assembler_Utilities::PCC_2D::to_SparseMatrix(
+                              PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(B_x.operator_dofs,
+                                                                                          {tot_dofs, tot_dofs},
+                                                                                          {2 * velocity_dofs_data.NumberDOFs, 0},
+                                                                                          true));
+        const auto J_BT_y =
+            PDETools::Assembler_Utilities::PCC_2D::to_SparseMatrix(PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(
+                                                                     B_y.operator_dofs,
+                                                                     {tot_dofs, tot_dofs},
+                                                                     {2 * velocity_dofs_data.NumberDOFs, velocity_dofs_data.NumberDOFs},
+                                                                     true));
+
+        J_S = J_A_x + J_A_y - J_B_x - J_B_y - J_BT_x - J_BT_y;
+        J_Stokes = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(J_S);
+
+        f_S = Eigen::VectorXd::Zero(tot_dofs);
+        f_S.segment(0, velocity_dofs_data.NumberDOFs) = f_x;
+        f_S.segment(velocity_dofs_data.NumberDOFs, velocity_dofs_data.NumberDOFs) = f_y;
+      }
+
+      auto initial_condition_function = [](const double &x, const double &y, const double &z) { return 0.0; };
+
+      Eigen::VectorXd u_k = Eigen::VectorXd::Zero(tot_dofs);
+      Eigen::VectorXd dp_strong = Eigen::VectorXd::Zero(pressure_dofs_data.NumberStrongs);
+      Eigen::VectorXd du_x_strong = Eigen::VectorXd::Zero(velocity_dofs_data.NumberStrongs);
+      Eigen::VectorXd du_y_strong = Eigen::VectorXd::Zero(velocity_dofs_data.NumberStrongs);
+      Eigen::VectorXd u_x_numeric = u_k.segment(0, velocity_dofs_data.NumberDOFs);
+      Eigen::VectorXd u_y_numeric = u_k.segment(velocity_dofs_data.NumberDOFs, velocity_dofs_data.NumberDOFs);
+      Eigen::VectorXd p_numeric = u_k.segment(2 * velocity_dofs_data.NumberDOFs, pressure_dofs_data.NumberDOFs);
+
+      while (num_iteration < max_iterations && residual_norm > newton_tol * solution_norm)
+      {
+        const auto C = PDETools::Assembler_Utilities::PCC_2D::assemble_NS_operators(geometry_utilities,
+                                                                                    mesh,
+                                                                                    mesh_geometric_data,
+                                                                                    velocity_dofs_data,
+                                                                                    velocity_reference_element_data,
+                                                                                    u_x_numeric,
+                                                                                    u_y_numeric,
+                                                                                    u_x_strong,
+                                                                                    u_y_strong);
+
+        Eigen::VectorXd dp_numeric;
+        Eigen::VectorXd du_x_numeric;
+        Eigen::VectorXd du_y_numeric;
 
         {
-          Eigen::VectorXd f_concat = Eigen::VectorXd::Zero(tot_dofs);
-          f_concat.segment(0, velocity_dofs_data.NumberDOFs) = f_x;
-          f_concat.segment(velocity_dofs_data.NumberDOFs, velocity_dofs_data.NumberDOFs) = f_y;
+          const auto J_C = PDETools::Assembler_Utilities::PCC_2D::to_SparseMatrix(
+                             PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(C.convective_operator.operator_dofs,
+                                                                                         {tot_dofs, tot_dofs},
+                                                                                         {0, 0}));
 
-          const auto f = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(f_concat);
+          Eigen::VectorXd du;
+          {
+            const auto J =
+                PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(J_S + J_C);
+            auto f = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(f_S - C.convective_rhs);
+            const auto uk = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(u_k);
+            f.SubtractionMultiplication(J_Stokes, uk);
 
-          Eigen::VectorXd u_D_concat = Eigen::VectorXd::Zero(tot_strongs);
-          u_D_concat.segment(0, velocity_dofs_data.NumberStrongs) = u_x_strong;
-          u_D_concat.segment(velocity_dofs_data.NumberStrongs, velocity_dofs_data.NumberStrongs) = u_y_strong;
-          u_D_concat.segment(2 * velocity_dofs_data.NumberStrongs, pressure_dofs_data.NumberStrongs) = p_strong;
-          const auto u_D = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_Array(u_D_concat);
+            Gedim::Eigen_Array<> du_array;
+            du_array.SetSize(tot_dofs);
 
-          const auto J_A_x = PDETools::Assembler_Utilities::PCC_2D::to_SparseMatrix(
-                               PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(A.operator_dofs, {tot_dofs, tot_dofs}, {0, 0}));
-          const auto J_A_y = PDETools::Assembler_Utilities::PCC_2D::to_SparseMatrix(PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(
-                                                                                      A.operator_dofs,
-                                                                                      {tot_dofs, tot_dofs},
-                                                                                      {velocity_dofs_data.NumberDOFs, velocity_dofs_data.NumberDOFs}));
-          const auto J_B_x = PDETools::Assembler_Utilities::PCC_2D::to_SparseMatrix(
-                               PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(B_x.operator_dofs,
-                                                                                           {tot_dofs, tot_dofs},
-                                                                                           {2 * velocity_dofs_data.NumberDOFs, 0}));
-          const auto J_B_y = PDETools::Assembler_Utilities::PCC_2D::to_SparseMatrix(PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(
-                                                                                      B_y.operator_dofs,
-                                                                                      {tot_dofs, tot_dofs},
-                                                                                      {2 * velocity_dofs_data.NumberDOFs, velocity_dofs_data.NumberDOFs}));
-          const auto J_BT_x = PDETools::Assembler_Utilities::PCC_2D::to_SparseMatrix(
-                                PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(B_x.operator_dofs,
-                                                                                            {tot_dofs, tot_dofs},
-                                                                                            {2 * velocity_dofs_data.NumberDOFs, 0},
-                                                                                            true));
-          const auto J_BT_y =
-              PDETools::Assembler_Utilities::PCC_2D::to_SparseMatrix(PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(
-                                                                       B_y.operator_dofs,
-                                                                       {tot_dofs, tot_dofs},
-                                                                       {2 * velocity_dofs_data.NumberDOFs, velocity_dofs_data.NumberDOFs},
-                                                                       true));
+            Gedim::Eigen_LUSolver solver;
+            solver.Initialize(J);
+            solver.Solve(f, du_array);
+            du = PDETools::Assembler_Utilities::PCC_2D::to_VectorXd(du_array);
+          }
 
-          const auto J =
-              PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(J_A_x + J_A_y - J_B_x - J_B_y - J_BT_x - J_BT_y);
+          u_k = u_k + du;
 
-          Gedim::Eigen_Array<> u;
-          u.SetSize(tot_dofs);
+          du_x_numeric = du.segment(0, velocity_dofs_data.NumberDOFs);
+          du_y_numeric = du.segment(velocity_dofs_data.NumberDOFs, velocity_dofs_data.NumberDOFs);
+          dp_numeric = du.segment(2 * velocity_dofs_data.NumberDOFs, pressure_dofs_data.NumberDOFs);
 
-          // std::cout.precision(8);
-          // std::cout<< std::scientific<< "J: "<< J<< std::endl;
-          // std::cout << std::scientific << "f: " << f << std::endl;
-
-          Gedim::Eigen_LUSolver solver;
-          solver.Initialize(J);
-          solver.Solve(f, u);
-
-          const auto numeric_solution = PDETools::Assembler_Utilities::PCC_2D::to_VectorXd(u);
-
-          u_x_numeric = u.Segment(0, velocity_dofs_data.NumberDOFs);
-          u_y_numeric = u.Segment(velocity_dofs_data.NumberDOFs, velocity_dofs_data.NumberDOFs);
-          p_numeric = u.Segment(2 * velocity_dofs_data.NumberDOFs, pressure_dofs_data.NumberDOFs);
+          u_x_numeric = u_k.segment(0, velocity_dofs_data.NumberDOFs);
+          u_y_numeric = u_k.segment(velocity_dofs_data.NumberDOFs, velocity_dofs_data.NumberDOFs);
+          p_numeric = u_k.segment(2 * velocity_dofs_data.NumberDOFs, pressure_dofs_data.NumberDOFs);
         }
 
-        const auto u_x_on_cell0Ds =
-            PDETools::Assembler_Utilities::PCC_2D::extract_solution_on_cell0Ds(mesh, velocity_dofs_data, u_x_numeric, u_x_strong, velocity_x_exact_solution_function);
-        const auto u_y_on_cell0Ds =
-            PDETools::Assembler_Utilities::PCC_2D::extract_solution_on_cell0Ds(mesh, velocity_dofs_data, u_y_numeric, u_y_strong, velocity_y_exact_solution_function);
-        const auto p_on_cell0Ds =
-            PDETools::Assembler_Utilities::PCC_2D::extract_solution_on_cell0Ds(mesh, pressure_dofs_data, p_numeric, p_strong, pressure_exact_solution_function);
+        const auto dp_error_L2 = PDETools::Assembler_Utilities::PCC_2D::compute_error_L2(geometry_utilities,
+                                                                                        mesh,
+                                                                                        mesh_geometric_data,
+                                                                                        pressure_dofs_data,
+                                                                                        pressure_reference_element_data,
+                                                                                        dp_numeric,
+                                                                                        dp_strong);
+
+        const auto du_x_error_L2 = PDETools::Assembler_Utilities::PCC_2D::compute_error_L2(geometry_utilities,
+                                                                                          mesh,
+                                                                                          mesh_geometric_data,
+                                                                                          velocity_dofs_data,
+                                                                                          velocity_reference_element_data,
+                                                                                          du_x_numeric,
+                                                                                          du_x_strong);
+        const auto du_y_error_L2 = PDETools::Assembler_Utilities::PCC_2D::compute_error_L2(geometry_utilities,
+                                                                                          mesh,
+                                                                                          mesh_geometric_data,
+                                                                                          velocity_dofs_data,
+                                                                                          velocity_reference_element_data,
+                                                                                          du_y_numeric,
+                                                                                          du_y_strong);
 
         const auto p_error_L2 = PDETools::Assembler_Utilities::PCC_2D::compute_error_L2(geometry_utilities,
                                                                                         mesh,
@@ -363,129 +423,178 @@ namespace Polydim
                                                                                           u_y_strong,
                                                                                           velocity_y_exact_solution_function);
 
-        const auto u_x_on_quadrature =
-            PDETools::Assembler_Utilities::PCC_2D::evaluate_solution_on_quadrature_points(geometry_utilities,
-                                                                                          mesh,
-                                                                                          mesh_geometric_data,
-                                                                                          velocity_dofs_data,
-                                                                                          velocity_reference_element_data,
-                                                                                          u_x_numeric,
-                                                                                          u_x_strong,
-                                                                                          velocity_x_exact_solution_function);
-        const auto u_y_on_quadrature =
-            PDETools::Assembler_Utilities::PCC_2D::evaluate_solution_on_quadrature_points(geometry_utilities,
-                                                                                          mesh,
-                                                                                          mesh_geometric_data,
-                                                                                          velocity_dofs_data,
-                                                                                          velocity_reference_element_data,
-                                                                                          u_y_numeric,
-                                                                                          u_y_strong,
-                                                                                          velocity_y_exact_solution_function);
-        const auto p_on_quadrature =
-            PDETools::Assembler_Utilities::PCC_2D::evaluate_solution_on_quadrature_points(geometry_utilities,
-                                                                                          mesh,
-                                                                                          mesh_geometric_data,
-                                                                                          pressure_dofs_data,
-                                                                                          pressure_reference_element_data,
-                                                                                          p_numeric,
-                                                                                          p_strong,
-                                                                                          pressure_exact_solution_function);
+        solution_norm = std::sqrt(u_x_error_L2.numeric_norm_L2 *
+                                  u_x_error_L2.numeric_norm_L2 +
+                                  u_y_error_L2.numeric_norm_L2 *
+                                  u_y_error_L2.numeric_norm_L2 +
+                                  p_error_L2.numeric_norm_L2 *
+                                  p_error_L2.numeric_norm_L2);
+        residual_norm = std::sqrt(du_x_error_L2.numeric_norm_L2 *
+                                  du_x_error_L2.numeric_norm_L2 +
+                                  du_y_error_L2.numeric_norm_L2 *
+                                  du_y_error_L2.numeric_norm_L2 +
+                                  dp_error_L2.numeric_norm_L2 *
+                                  dp_error_L2.numeric_norm_L2);
+        num_iteration++;
 
-        {
-          Gedim::VTKUtilities exporter;
+        std::cout.precision(2);
+        std::cout<< std::scientific<< "u_x_errorL2: "<< (u_x_error_L2.error_L2 / u_x_error_L2.numeric_norm_L2)<< " ";
+        std::cout<< std::scientific<< "u_y_errorL2: "<< (u_y_error_L2.error_L2 / u_y_error_L2.numeric_norm_L2)<< " ";
+        std::cout<< std::scientific<< "p_errorL2: "<< (p_error_L2.error_L2 / p_error_L2.numeric_norm_L2)<< std::endl;
+        std::cout<< std::scientific<< "res: "<< (residual_norm / solution_norm)<< " / "<< newton_tol<< " ";
+        std::cout<< " it: "<< num_iteration<< " / "<< max_iterations<< std::endl;
+      }
 
-          exporter.AddPolygons(mesh.Cell0DsCoordinates(),
-                               mesh.Cell2DsVertices(),
-                               {{"u_x_numeric",
-                                 Gedim::VTPProperty::Formats::Points,
-                                 static_cast<unsigned int>(u_x_on_cell0Ds.numeric_solution.size()),
-                                 u_x_on_cell0Ds.numeric_solution.data()},
-                                {"u_x_exact",
-                                 Gedim::VTPProperty::Formats::Points,
-                                 static_cast<unsigned int>(u_x_on_cell0Ds.exact_solution.size()),
-                                 u_x_on_cell0Ds.exact_solution.data()},
-                                {"u_y_numeric",
-                                 Gedim::VTPProperty::Formats::Points,
-                                 static_cast<unsigned int>(u_y_on_cell0Ds.numeric_solution.size()),
-                                 u_y_on_cell0Ds.numeric_solution.data()},
-                                {"u_y_exact",
-                                 Gedim::VTPProperty::Formats::Points,
-                                 static_cast<unsigned int>(u_y_on_cell0Ds.exact_solution.size()),
-                                 u_y_on_cell0Ds.exact_solution.data()},
-                                {"p_numeric",
-                                 Gedim::VTPProperty::Formats::Points,
-                                 static_cast<unsigned int>(p_on_cell0Ds.numeric_solution.size()),
-                                 p_on_cell0Ds.numeric_solution.data()},
-                                {"p_exact",
-                                 Gedim::VTPProperty::Formats::Points,
-                                 static_cast<unsigned int>(p_on_cell0Ds.exact_solution.size()),
-                                 p_on_cell0Ds.exact_solution.data()},
-                                {"u_x_error_L2",
-                                 Gedim::VTPProperty::Formats::Cells,
-                                 static_cast<unsigned int>(u_x_error_L2.cell2Ds_error_L2.size()),
-                                 u_x_error_L2.cell2Ds_error_L2.data()},
-                                {"u_y_error_L2",
-                                 Gedim::VTPProperty::Formats::Cells,
-                                 static_cast<unsigned int>(u_y_error_L2.cell2Ds_error_L2.size()),
-                                 u_y_error_L2.cell2Ds_error_L2.data()},
-                                {"p_error_L2",
-                                 Gedim::VTPProperty::Formats::Cells,
-                                 static_cast<unsigned int>(p_error_L2.cell2Ds_error_L2.size()),
-                                 p_error_L2.cell2Ds_error_L2.data()}});
-          exporter.Export(exportFolder + "/solution.vtu");
-        }
+      const auto p_error_L2 = PDETools::Assembler_Utilities::PCC_2D::compute_error_L2(geometry_utilities,
+                                                                                      mesh,
+                                                                                      mesh_geometric_data,
+                                                                                      pressure_dofs_data,
+                                                                                      pressure_reference_element_data,
+                                                                                      p_numeric,
+                                                                                      p_strong,
+                                                                                      pressure_exact_solution_function);
 
-        {
-          Gedim::VTKUtilities exporter;
+      const auto u_x_error_L2 = PDETools::Assembler_Utilities::PCC_2D::compute_error_L2(geometry_utilities,
+                                                                                        mesh,
+                                                                                        mesh_geometric_data,
+                                                                                        velocity_dofs_data,
+                                                                                        velocity_reference_element_data,
+                                                                                        u_x_numeric,
+                                                                                        u_x_strong,
+                                                                                        velocity_x_exact_solution_function);
+      const auto u_y_error_L2 = PDETools::Assembler_Utilities::PCC_2D::compute_error_L2(geometry_utilities,
+                                                                                        mesh,
+                                                                                        mesh_geometric_data,
+                                                                                        velocity_dofs_data,
+                                                                                        velocity_reference_element_data,
+                                                                                        u_y_numeric,
+                                                                                        u_y_strong,
+                                                                                        velocity_y_exact_solution_function);
 
-          exporter.AddPoints(u_x_on_quadrature.quadrature_points,
+      const auto u_x_on_quadrature =
+          PDETools::Assembler_Utilities::PCC_2D::evaluate_solution_on_quadrature_points(geometry_utilities,
+                                                                                        mesh,
+                                                                                        mesh_geometric_data,
+                                                                                        velocity_dofs_data,
+                                                                                        velocity_reference_element_data,
+                                                                                        u_x_numeric,
+                                                                                        u_x_strong,
+                                                                                        velocity_x_exact_solution_function);
+      const auto u_y_on_quadrature =
+          PDETools::Assembler_Utilities::PCC_2D::evaluate_solution_on_quadrature_points(geometry_utilities,
+                                                                                        mesh,
+                                                                                        mesh_geometric_data,
+                                                                                        velocity_dofs_data,
+                                                                                        velocity_reference_element_data,
+                                                                                        u_y_numeric,
+                                                                                        u_y_strong,
+                                                                                        velocity_y_exact_solution_function);
+      const auto p_on_quadrature =
+          PDETools::Assembler_Utilities::PCC_2D::evaluate_solution_on_quadrature_points(geometry_utilities,
+                                                                                        mesh,
+                                                                                        mesh_geometric_data,
+                                                                                        pressure_dofs_data,
+                                                                                        pressure_reference_element_data,
+                                                                                        p_numeric,
+                                                                                        p_strong,
+                                                                                        pressure_exact_solution_function);
+
+      const auto u_x_on_cell0Ds =
+          PDETools::Assembler_Utilities::PCC_2D::extract_solution_on_cell0Ds(mesh, velocity_dofs_data, u_x_numeric, u_x_strong, velocity_x_exact_solution_function);
+      const auto u_y_on_cell0Ds =
+          PDETools::Assembler_Utilities::PCC_2D::extract_solution_on_cell0Ds(mesh, velocity_dofs_data, u_y_numeric, u_y_strong, velocity_y_exact_solution_function);
+      const auto p_on_cell0Ds =
+          PDETools::Assembler_Utilities::PCC_2D::extract_solution_on_cell0Ds(mesh, pressure_dofs_data, p_numeric, p_strong, pressure_exact_solution_function);
+
+      {
+        Gedim::VTKUtilities exporter;
+
+        exporter.AddPolygons(mesh.Cell0DsCoordinates(),
+                             mesh.Cell2DsVertices(),
                              {{"u_x_numeric",
                                Gedim::VTPProperty::Formats::Points,
-                               static_cast<unsigned int>(u_x_on_quadrature.numeric_solution.size()),
-                               u_x_on_quadrature.numeric_solution.data()},
-                              {"u_y_numeric",
-                               Gedim::VTPProperty::Formats::Points,
-                               static_cast<unsigned int>(u_y_on_quadrature.numeric_solution.size()),
-                               u_y_on_quadrature.numeric_solution.data()},
+                               static_cast<unsigned int>(u_x_on_cell0Ds.numeric_solution.size()),
+                               u_x_on_cell0Ds.numeric_solution.data()},
                               {"u_x_exact",
                                Gedim::VTPProperty::Formats::Points,
-                               static_cast<unsigned int>(u_x_on_quadrature.exact_solution.size()),
-                               u_x_on_quadrature.exact_solution.data()},
+                               static_cast<unsigned int>(u_x_on_cell0Ds.exact_solution.size()),
+                               u_x_on_cell0Ds.exact_solution.data()},
+                              {"u_y_numeric",
+                               Gedim::VTPProperty::Formats::Points,
+                               static_cast<unsigned int>(u_y_on_cell0Ds.numeric_solution.size()),
+                               u_y_on_cell0Ds.numeric_solution.data()},
                               {"u_y_exact",
                                Gedim::VTPProperty::Formats::Points,
-                               static_cast<unsigned int>(u_y_on_quadrature.exact_solution.size()),
-                               u_y_on_quadrature.exact_solution.data()}});
-
-          exporter.Export(exportFolder + "/u_on_quadrature.vtu");
-        }
-
-        {
-          Gedim::VTKUtilities exporter;
-
-          exporter.AddPoints(p_on_quadrature.quadrature_points,
-                             {
-
-                               {"p_numeric",
-                                Gedim::VTPProperty::Formats::Points,
-                                static_cast<unsigned int>(p_on_quadrature.numeric_solution.size()),
-                                p_on_quadrature.numeric_solution.data()},
-                               {"p_exact",
-                                Gedim::VTPProperty::Formats::Points,
-                                static_cast<unsigned int>(p_on_quadrature.exact_solution.size()),
-                                p_on_quadrature.exact_solution.data()}});
-
-          exporter.Export(exportFolder + "/p_on_quadrature.vtu");
-        }
-
-        // std::cout.precision(2);
-        // std::cout<< std::scientific<< "u_x_errorL2: "<< (u_x_error_L2.error_L2 / u_x_error_L2.numeric_norm_L2)<< " ";
-        // std::cout<< std::scientific<< "u_y_errorL2: "<< (u_y_error_L2.error_L2 / u_y_error_L2.numeric_norm_L2)<< " ";
-        // std::cout<< std::scientific<< "p_errorL2: "<< (p_error_L2.error_L2 / p_error_L2.numeric_norm_L2)<< std::endl;
-
-        ASSERT_TRUE(u_x_error_L2.error_L2 < 1.0e-1 * u_x_error_L2.numeric_norm_L2);
-        ASSERT_TRUE(u_y_error_L2.error_L2 < 1.0e-1 * u_y_error_L2.numeric_norm_L2);
-        ASSERT_TRUE(p_error_L2.error_L2 < 1.0e-1 * p_error_L2.numeric_norm_L2);
+                               static_cast<unsigned int>(u_y_on_cell0Ds.exact_solution.size()),
+                               u_y_on_cell0Ds.exact_solution.data()},
+                              {"p_numeric",
+                               Gedim::VTPProperty::Formats::Points,
+                               static_cast<unsigned int>(p_on_cell0Ds.numeric_solution.size()),
+                               p_on_cell0Ds.numeric_solution.data()},
+                              {"p_exact",
+                               Gedim::VTPProperty::Formats::Points,
+                               static_cast<unsigned int>(p_on_cell0Ds.exact_solution.size()),
+                               p_on_cell0Ds.exact_solution.data()},
+                              {"u_x_error_L2",
+                               Gedim::VTPProperty::Formats::Cells,
+                               static_cast<unsigned int>(u_x_error_L2.cell2Ds_error_L2.size()),
+                               u_x_error_L2.cell2Ds_error_L2.data()},
+                              {"u_y_error_L2",
+                               Gedim::VTPProperty::Formats::Cells,
+                               static_cast<unsigned int>(u_y_error_L2.cell2Ds_error_L2.size()),
+                               u_y_error_L2.cell2Ds_error_L2.data()},
+                              {"p_error_L2",
+                               Gedim::VTPProperty::Formats::Cells,
+                               static_cast<unsigned int>(p_error_L2.cell2Ds_error_L2.size()),
+                               p_error_L2.cell2Ds_error_L2.data()}});
+        exporter.Export(exportFolder + "/solution.vtu");
       }
+
+      {
+        Gedim::VTKUtilities exporter;
+
+        exporter.AddPoints(u_x_on_quadrature.quadrature_points,
+                           {{"u_x_numeric",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(u_x_on_quadrature.numeric_solution.size()),
+                             u_x_on_quadrature.numeric_solution.data()},
+                            {"u_y_numeric",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(u_y_on_quadrature.numeric_solution.size()),
+                             u_y_on_quadrature.numeric_solution.data()},
+                            {"u_x_exact",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(u_x_on_quadrature.exact_solution.size()),
+                             u_x_on_quadrature.exact_solution.data()},
+                            {"u_y_exact",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(u_y_on_quadrature.exact_solution.size()),
+                             u_y_on_quadrature.exact_solution.data()}});
+
+        exporter.Export(exportFolder + "/u_on_quadrature.vtu");
+      }
+
+      {
+        Gedim::VTKUtilities exporter;
+
+        exporter.AddPoints(p_on_quadrature.quadrature_points,
+                           {
+
+                             {"p_numeric",
+                              Gedim::VTPProperty::Formats::Points,
+                              static_cast<unsigned int>(p_on_quadrature.numeric_solution.size()),
+                              p_on_quadrature.numeric_solution.data()},
+                             {"p_exact",
+                              Gedim::VTPProperty::Formats::Points,
+                              static_cast<unsigned int>(p_on_quadrature.exact_solution.size()),
+                              p_on_quadrature.exact_solution.data()}});
+
+        exporter.Export(exportFolder + "/p_on_quadrature.vtu");
+      }
+
+      ASSERT_TRUE(u_x_error_L2.error_L2 < 1.0e-1 * u_x_error_L2.numeric_norm_L2);
+      ASSERT_TRUE(u_y_error_L2.error_L2 < 1.0e-1 * u_y_error_L2.numeric_norm_L2);
+      ASSERT_TRUE(p_error_L2.error_L2 < 1.0e-1 * p_error_L2.numeric_norm_L2);
     }
 
   } // namespace UnitTesting

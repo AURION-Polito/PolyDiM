@@ -255,6 +255,7 @@ TEST(TEST_assembler_non_linear_PCC_2D, TEST_assembler_non_linear_example)
             const auto A_D = PDETools::Assembler_Utilities::PCC_2D::to_Eigen_SparseArray(elliptic_operator.operator_strong);
 
             auto rhs = f_g - f_adv - f_rct;
+            rhs.SubtractionMultiplication(A_D, u_D);
 
             Gedim::Eigen_Array<> du_array;
             du_array.SetSize(trial_dofs_data.NumberDOFs);
@@ -293,7 +294,7 @@ TEST(TEST_assembler_non_linear_PCC_2D, TEST_assembler_non_linear_example)
                                                                                         u_strong,
                                                                                         exact_gradient_solution_function);
 
-        solution_norm = u_error_L2.error_L2;
+        solution_norm = u_error_L2.numeric_norm_L2;
         residual_norm = du_error_L2.numeric_norm_L2;
         num_iteration++;
 
