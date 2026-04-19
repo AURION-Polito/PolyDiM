@@ -48,7 +48,7 @@ Eigen::VectorXd assemble_source_term(
     const Eigen::VectorXd &numerical_solution_strong,
     const std::function<double(const double &, const double &, const double &, const double &, const std::array<double, 3> &)> &source_term_function);
 // ***************************************************************************
-Eigen::VectorXd assemble_source_term(
+Eigen::VectorXd assemble_source_term_gradients(
     const Gedim::GeometryUtilities &geometry_utilities,
     const Gedim::MeshMatricesDAO &mesh,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
@@ -344,6 +344,18 @@ Evaluate_Solution_On_Quadrature_Points_Data evaluate_solution_on_quadrature_poin
     const Eigen::VectorXd &numerical_solution_strong,
     const std::function<double(const double &, const double &, const double &)> &exact_solution_function = nullptr,
     const std::function<std::array<double, 3>(const double &, const double &, const double &)> &exact_gradient_solution_function = nullptr);
+// ***************************************************************************
+Polydim::PDETools::Assembler_Utilities::PCC_2D::NS_Operators assemble_NS_operators(
+    const Gedim::GeometryUtilities &geometry_utilities,
+    const Gedim::MeshMatricesDAO &mesh,
+    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+    const Polydim::PDETools::DOFs::DOFsManager::DOFsData &speed_component_dofs_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &speed_component_reference_element_data,
+    const Eigen::VectorXd &numerical_speed_x_solution,
+    const Eigen::VectorXd &numerical_speed_y_solution,
+    const Eigen::VectorXd &numerical_speed_x_solution_strong,
+    const Eigen::VectorXd &numerical_speed_y_solution_strong);
+
 // ***************************************************************************
 } // namespace PCC_2D
 } // namespace Assembler_Utilities

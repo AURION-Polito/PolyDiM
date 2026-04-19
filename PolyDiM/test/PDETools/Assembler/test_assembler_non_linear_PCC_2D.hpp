@@ -221,16 +221,17 @@ TEST(TEST_assembler_non_linear_PCC_2D, TEST_assembler_non_linear_example)
         ASSERT_EQ(test_dofs_data.NumberDOFs, elliptic_operator.operator_strong.size.at(0));
         ASSERT_EQ(trial_dofs_data.NumberStrongs, elliptic_operator.operator_strong.size.at(1));
 
-        const auto adv_source_term = PDETools::Assembler_Utilities::PCC_2D::assemble_source_term(geometry_utilities,
-                                                                                                 mesh,
-                                                                                                 mesh_geometric_data,
-                                                                                                 trial_dofs_data,
-                                                                                                 test_dofs_data,
-                                                                                                 trial_reference_element_data,
-                                                                                                 test_reference_element_data,
-                                                                                                 u_k,
-                                                                                                 u_strong,
-                                                                                                 adv_non_linear_function);
+        const auto adv_source_term =
+            PDETools::Assembler_Utilities::PCC_2D::assemble_source_term_gradients(geometry_utilities,
+                                                                                  mesh,
+                                                                                  mesh_geometric_data,
+                                                                                  trial_dofs_data,
+                                                                                  test_dofs_data,
+                                                                                  trial_reference_element_data,
+                                                                                  test_reference_element_data,
+                                                                                  u_k,
+                                                                                  u_strong,
+                                                                                  adv_non_linear_function);
         ASSERT_EQ(test_dofs_data.NumberDOFs, adv_source_term.size());
 
         const auto rct_source_term = PDETools::Assembler_Utilities::PCC_2D::assemble_source_term(geometry_utilities,
@@ -294,7 +295,7 @@ TEST(TEST_assembler_non_linear_PCC_2D, TEST_assembler_non_linear_example)
                                                                                         u_strong,
                                                                                         exact_gradient_solution_function);
 
-        solution_norm = u_error_L2.error_L2;
+        solution_norm = u_error_L2.numeric_norm_L2;
         residual_norm = du_error_L2.numeric_norm_L2;
         num_iteration++;
 

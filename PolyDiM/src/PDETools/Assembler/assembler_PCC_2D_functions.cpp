@@ -1104,7 +1104,7 @@ Eigen::VectorXd assemble_source_term(
     return static_cast<Eigen::VectorXd &>(forcing_term);
 }
 // ***************************************************************************
-Eigen::VectorXd assemble_source_term(
+Eigen::VectorXd assemble_source_term_gradients(
     const Gedim::GeometryUtilities &geometry_utilities,
     const Gedim::MeshMatricesDAO &mesh,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
@@ -1339,6 +1339,192 @@ Variational_Operator assemble_elliptic_operator(
     elliptic_strong_matrix.Create();
 
     return convert_operator(elliptic_matrix, elliptic_strong_matrix);
+}
+// ***************************************************************************
+Eigen::MatrixXd compute_NS_convective_lhs(const std::array<Eigen::VectorXd, 2> &u_k_values,
+                                          const std::array<Eigen::VectorXd, 4> &u_k_derivatives_values,
+                                          const std::array<Eigen::MatrixXd, 2> &basis_functions_values,
+                                          const std::array<Eigen::MatrixXd, 4> &basis_functions_derivatives_values,
+                                          const Eigen::VectorXd &quadrature_weights)
+{
+    Eigen::MatrixXd cellCMatrix = Eigen::MatrixXd::Zero(basis_functions_values[0].cols(), basis_functions_values[0].cols());
+
+    for (unsigned int d1 = 0; d1 < 2; d1++)
+    {
+        for (unsigned int d2 = 0; d2 < 2; d2++)
+            cellCMatrix.noalias() += basis_functions_values.at(d1).transpose() *
+                                     quadrature_weights.cwiseProduct(u_k_values.at(d2)).asDiagonal() *
+                                     basis_functions_derivatives_values.at(2 * d1 + d2);
+    }
+
+    for (unsigned int d1 = 0; d1 < 2; d1++)
+    {
+        for (unsigned int d2 = 0; d2 < 2; d2++)
+            cellCMatrix.noalias() += basis_functions_values.at(d1).transpose() *
+                                     quadrature_weights.cwiseProduct(u_k_derivatives_values.at(2 * d1 + d2)).asDiagonal() *
+                                     basis_functions_values.at(d2);
+    }
+
+    return cellCMatrix;
+}
+// ***************************************************************************
+Eigen::VectorXd compute_NS_convective_rhs(const std::array<Eigen::VectorXd, 2> &u_k_values,
+                                          const std::array<Eigen::VectorXd, 4> &u_k_derivatives_values,
+                                          const std::array<Eigen::MatrixXd, 2> &basis_functions_values,
+                                          const Eigen::VectorXd &quadrature_weights)
+{
+    Eigen::VectorXd cellRightHandSide = Eigen::VectorXd::Zero(basis_functions_values[0].cols());
+
+    for (unsigned int d1 = 0; d1 < 2; d1++)
+    {
+        for (unsigned int d2 = 0; d2 < 2; d2++)
+            cellRightHandSide.noalias() += basis_functions_values.at(d1).transpose() * quadrature_weights.asDiagonal() *
+                                           u_k_values.at(d2).cwiseProduct(u_k_derivatives_values.at(2 * d1 + d2));
+    }
+
+    return cellRightHandSide;
+}
+// ***************************************************************************
+Polydim::PDETools::Assembler_Utilities::PCC_2D::NS_Operators assemble_NS_operators(
+    const Gedim::GeometryUtilities &geometry_utilities,
+    const Gedim::MeshMatricesDAO &mesh,
+    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+    const Polydim::PDETools::DOFs::DOFsManager::DOFsData &speed_component_dofs_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &speed_component_reference_element_data,
+    const Eigen::VectorXd &numerical_speed_x_solution,
+    const Eigen::VectorXd &numerical_speed_y_solution,
+    const Eigen::VectorXd &numerical_speed_x_solution_strong,
+    const Eigen::VectorXd &numerical_speed_y_solution_strong)
+{
+    std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> dofs_data = {speed_component_dofs_data, speed_component_dofs_data};
+    const auto count_dofs = Polydim::PDETools::Assembler_Utilities::count_dofs(dofs_data);
+
+    Gedim::Eigen_SparseArray<> convective_matrix;
+    Gedim::Eigen_SparseArray<> convective_strong_matrix;
+    convective_matrix.SetSize(count_dofs.num_total_dofs, count_dofs.num_total_dofs, Gedim::ISparseArray::SparseArrayTypes::None);
+    convective_strong_matrix.SetSize(count_dofs.num_total_dofs, count_dofs.num_total_strong);
+
+    Gedim::Eigen_Array<> convective_rhs_term;
+    convective_rhs_term.SetSize(count_dofs.num_total_dofs);
+
+    Eigen::VectorXd numerical_speed_solution = Eigen::VectorXd::Zero(count_dofs.num_total_dofs);
+    numerical_speed_solution.segment(0, speed_component_dofs_data.NumberDOFs) = numerical_speed_x_solution;
+    numerical_speed_solution.segment(speed_component_dofs_data.NumberDOFs, speed_component_dofs_data.NumberDOFs) =
+        numerical_speed_y_solution;
+
+    Eigen::VectorXd numerical_speed_solution_strong = Eigen::VectorXd::Zero(count_dofs.num_total_strong);
+    numerical_speed_solution_strong.segment(0, speed_component_dofs_data.NumberStrongs) = numerical_speed_x_solution_strong;
+    numerical_speed_solution_strong.segment(speed_component_dofs_data.NumberStrongs, speed_component_dofs_data.NumberStrongs) =
+        numerical_speed_y_solution_strong;
+
+    const auto num_speed_solution = to_Eigen_Array(numerical_speed_solution);
+    const auto num_speed_solution_strong = to_Eigen_Array(numerical_speed_solution_strong);
+
+    for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); ++c)
+    {
+        if (!mesh.Cell2DIsActive(c))
+            continue;
+
+        const auto speed_component_local_space_data =
+            Polydim::PDETools::LocalSpace_PCC_2D::CreateLocalSpace(geometry_utilities.Tolerance1D(),
+                                                                   geometry_utilities.Tolerance2D(),
+                                                                   mesh_geometric_data,
+                                                                   c,
+                                                                   speed_component_reference_element_data);
+
+        const auto cell2D_internal_quadrature =
+            Polydim::PDETools::LocalSpace_PCC_2D::InternalQuadrature(speed_component_reference_element_data,
+                                                                     speed_component_local_space_data);
+
+        const auto speed_component_basis_functions_values =
+            Polydim::PDETools::LocalSpace_PCC_2D::BasisFunctionsValues(speed_component_reference_element_data,
+                                                                       speed_component_local_space_data);
+        const auto speed_component_basis_functions_derivative_values =
+            Polydim::PDETools::LocalSpace_PCC_2D::BasisFunctionsDerivativeValues(speed_component_reference_element_data,
+                                                                                 speed_component_local_space_data);
+
+        const auto speed_component_local_space_size =
+            Polydim::PDETools::LocalSpace_PCC_2D::Size(speed_component_reference_element_data, speed_component_local_space_data);
+
+        std::array<Eigen::MatrixXd, 2> speed_basis_functions_values;
+        speed_basis_functions_values.at(0).setZero(speed_component_basis_functions_values.rows(), 2 * speed_component_local_space_size);
+        speed_basis_functions_values.at(0).middleCols(0, speed_component_local_space_size) = speed_component_basis_functions_values;
+        speed_basis_functions_values.at(1).setZero(speed_component_basis_functions_values.rows(), 2 * speed_component_local_space_size);
+        speed_basis_functions_values.at(1).middleCols(speed_component_local_space_size, speed_component_local_space_size) =
+            speed_component_basis_functions_values;
+
+        std::array<Eigen::MatrixXd, 4> speed_basis_functions_derivative_values;
+        for (unsigned int d = 0; d < 4; ++d)
+        {
+            speed_basis_functions_derivative_values.at(d).setZero(
+                speed_component_basis_functions_derivative_values.at(0).rows(),
+                2 * speed_component_local_space_size);
+        }
+        for (unsigned int d1 = 0; d1 < 2; d1++)
+        {
+            for (unsigned int d2 = 0; d2 < 2; d2++)
+            {
+                speed_basis_functions_derivative_values.at(2 * d1 + d2).middleCols(d1 * speed_component_local_space_size, speed_component_local_space_size) =
+                    speed_component_basis_functions_derivative_values.at(d2);
+            }
+        }
+
+        const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, dofs_data);
+        const Eigen::VectorXd speed_dofs_values =
+            PDETools::Assembler_Utilities::global_solution_to_local_solution<2>(c,
+                                                                                dofs_data,
+                                                                                local_count_dofs.num_total_dofs,
+                                                                                local_count_dofs.offsets_DOFs,
+                                                                                count_dofs.offsets_DOFs,
+                                                                                count_dofs.offsets_Strongs,
+                                                                                num_speed_solution,
+                                                                                num_speed_solution_strong);
+
+        std::array<Eigen::VectorXd, 2> u_on_quadrature;
+        u_on_quadrature.at(0) = speed_basis_functions_values.at(0) * speed_dofs_values;
+        u_on_quadrature.at(1) = speed_basis_functions_values.at(1) * speed_dofs_values;
+
+        std::array<Eigen::VectorXd, 4> u_gradient_on_quadrature;
+        u_gradient_on_quadrature.at(0) = speed_basis_functions_derivative_values.at(0) * speed_dofs_values;
+        u_gradient_on_quadrature.at(1) = speed_basis_functions_derivative_values.at(1) * speed_dofs_values;
+        u_gradient_on_quadrature.at(2) = speed_basis_functions_derivative_values.at(2) * speed_dofs_values;
+        u_gradient_on_quadrature.at(3) = speed_basis_functions_derivative_values.at(3) * speed_dofs_values;
+
+        const auto local_lhs = compute_NS_convective_lhs(u_on_quadrature,
+                                                         u_gradient_on_quadrature,
+                                                         speed_basis_functions_values,
+                                                         speed_basis_functions_derivative_values,
+                                                         cell2D_internal_quadrature.Weights);
+
+        const auto local_rhs = compute_NS_convective_rhs(u_on_quadrature,
+                                                         u_gradient_on_quadrature,
+                                                         speed_basis_functions_values,
+                                                         cell2D_internal_quadrature.Weights);
+
+        Polydim::PDETools::Assembler_Utilities::local_matrix_to_global_matrix_dofs_data local_matrix_to_global_matrix_dofs_data = {
+            {std::cref(dofs_data[0]), std::cref(dofs_data[1])},
+            local_count_dofs.offsets_DOFs,
+            count_dofs.offsets_DOFs,
+            count_dofs.offsets_Strongs};
+
+        Polydim::PDETools::Assembler_Utilities::assemble_local_matrix_to_global_matrix<2>(c,
+                                                                                          local_matrix_to_global_matrix_dofs_data,
+                                                                                          local_matrix_to_global_matrix_dofs_data,
+                                                                                          local_lhs,
+                                                                                          convective_matrix,
+                                                                                          convective_strong_matrix);
+
+        Polydim::PDETools::Assembler_Utilities::assemble_local_matrix_to_global_matrix<2>(c,
+                                                                                          local_matrix_to_global_matrix_dofs_data,
+                                                                                          local_rhs,
+                                                                                          convective_rhs_term);
+    }
+
+    convective_matrix.Create();
+    convective_strong_matrix.Create();
+    convective_rhs_term.Create();
+
+    return {convert_operator(convective_matrix, convective_strong_matrix), static_cast<Eigen::VectorXd &>(convective_rhs_term)};
 }
 // ***************************************************************************
 } // namespace PCC_2D
