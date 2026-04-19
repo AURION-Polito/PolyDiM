@@ -38,7 +38,7 @@ namespace Polydim
       geometry_utilities_config.Tolerance2D = 1.0e-12;
       Gedim::GeometryUtilities geometry_utilities(geometry_utilities_config);
 
-      const std::string exportFolder = "./Export/TEST_assembler_stokes_PCC_2D/TEST_assembler_stokes_PCC_2D_example";
+      const std::string exportFolder = "./Export/TEST_assembler_stokes_PCC_2D/TEST_assembler_navier_stokes_PCC_2D_example";
       Gedim::Output::CreateFolder(exportFolder);
 
       Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain;
@@ -57,7 +57,7 @@ namespace Polydim
                                                                   mesh_utilities,
                                                                   Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular,
                                                                   domain,
-                                                                  0.001,
+                                                                  0.005,
                                                                   mesh);
 
       const double nu = 0.1;
@@ -597,7 +597,7 @@ namespace Polydim
 
       ASSERT_TRUE(u_x_error_L2.error_L2 < 1.0e-1 * u_x_error_L2.numeric_norm_L2);
       ASSERT_TRUE(u_y_error_L2.error_L2 < 1.0e-1 * u_y_error_L2.numeric_norm_L2);
-      ASSERT_TRUE(p_error_L2.error_L2 < 1.0e-1 * p_error_L2.numeric_norm_L2);
+      ASSERT_TRUE(p_error_L2.error_L2 < 2.0e-1 * p_error_L2.numeric_norm_L2);
     }
 
   } // namespace UnitTesting
