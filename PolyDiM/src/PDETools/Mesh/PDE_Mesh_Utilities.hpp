@@ -40,6 +40,7 @@ class PDE_Domain_2D final
         Parallelogram = 0,
         Polygon = 1,
         Ellipse = 2,
+        Unknown = 3
     };
 
     Eigen::MatrixXd vertices;
