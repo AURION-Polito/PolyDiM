@@ -60,7 +60,7 @@ struct FEM_Hexahedron_PCC_3D_ReferenceElement final
             1.0, 1.0, 1.0, 1.0;
     }
 
-    ~FEM_Hexahedron_PCC_3D_ReferenceElement(){};
+    ~FEM_Hexahedron_PCC_3D_ReferenceElement() {};
 
     Polydim::FEM::PCC::FEM_Hexahedron_PCC_3D_ReferenceElement_Data Create(const unsigned int order) const
     {
