@@ -58,7 +58,7 @@ struct FEM_PCC_2D_ReferenceElement final
     FEM_PCC_2D_ReferenceElement()
     {
     }
-    ~FEM_PCC_2D_ReferenceElement() {};
+    ~FEM_PCC_2D_ReferenceElement(){};
 
     FEM_PCC_2D_ReferenceElement_Data Create(const unsigned int order) const
     {
