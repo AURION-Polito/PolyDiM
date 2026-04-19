@@ -440,12 +440,12 @@ namespace Polydim
                                   dp_error_L2.numeric_norm_L2);
         num_iteration++;
 
-        std::cout.precision(2);
-        std::cout<< std::scientific<< "u_x_errorL2: "<< (u_x_error_L2.error_L2 / u_x_error_L2.numeric_norm_L2)<< " ";
-        std::cout<< std::scientific<< "u_y_errorL2: "<< (u_y_error_L2.error_L2 / u_y_error_L2.numeric_norm_L2)<< " ";
-        std::cout<< std::scientific<< "p_errorL2: "<< (p_error_L2.error_L2 / p_error_L2.numeric_norm_L2)<< std::endl;
-        std::cout<< std::scientific<< "res: "<< (residual_norm / solution_norm)<< " / "<< newton_tol<< " ";
-        std::cout<< " it: "<< num_iteration<< " / "<< max_iterations<< std::endl;
+        //std::cout.precision(2);
+        //std::cout<< std::scientific<< "u_x_errorL2: "<< (u_x_error_L2.error_L2 / u_x_error_L2.numeric_norm_L2)<< " ";
+        //std::cout<< std::scientific<< "u_y_errorL2: "<< (u_y_error_L2.error_L2 / u_y_error_L2.numeric_norm_L2)<< " ";
+        //std::cout<< std::scientific<< "p_errorL2: "<< (p_error_L2.error_L2 / p_error_L2.numeric_norm_L2)<< std::endl;
+        //std::cout<< std::scientific<< "res: "<< (residual_norm / solution_norm)<< " / "<< newton_tol<< " ";
+        //std::cout<< " it: "<< num_iteration<< " / "<< max_iterations<< std::endl;
       }
 
       const auto p_error_L2 = PDETools::Assembler_Utilities::PCC_2D::compute_error_L2(geometry_utilities,
