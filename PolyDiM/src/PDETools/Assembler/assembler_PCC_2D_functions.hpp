@@ -334,7 +334,7 @@ inline Polydim::PDETools::Assembler_Utilities::PCC_2D::Post_Process_Data_ErrorH1
                             nullptr);
 }
 // ***************************************************************************
-Evaluate_Solution_On_Quadrature_Points_Data evaluate_solution_on_quadrature_points(
+Polydim::PDETools::Assembler_Utilities::PCC_2D::Evaluate_Solution_On_Quadrature_Points_Data evaluate_solution_on_quadrature_points(
     const Gedim::GeometryUtilities &geometry_utilities,
     const Gedim::MeshMatricesDAO &mesh,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,

@@ -52,7 +52,7 @@ struct Variational_Operator final
 // ***************************************************************************
 struct NS_Operators final
 {
-    Variational_Operator convective_operator;
+    Polydim::PDETools::Assembler_Utilities::PCC_2D::Variational_Operator convective_operator;
     Eigen::VectorXd convective_rhs;
 };
 // ***************************************************************************
