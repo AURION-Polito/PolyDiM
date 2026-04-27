@@ -95,10 +95,10 @@ std::vector<Eigen::MatrixXd> FEM_Triangle_RT_MCC_2D_LocalSpace::MapVelocityValue
     const std::vector<Eigen::MatrixXd> &referenceValues) const
 {
     std::vector<Eigen::MatrixXd> velocity_values(2, Eigen::MatrixXd::Zero(referenceValues[0].rows(), referenceValues[0].cols()));
-    velocity_values[0] = (1.0 / local_space.MapData.DetB) * (local_space.MapData.B(0, 0) * referenceValues[0] +
-                                                             local_space.MapData.B(0, 1) * referenceValues[1]);
-    velocity_values[1] = (1.0 / local_space.MapData.DetB) * (local_space.MapData.B(1, 0) * referenceValues[0] +
-                                                             local_space.MapData.B(1, 1) * referenceValues[1]);
+    velocity_values[0] = (1.0 / local_space.MapData.DetBMatrix) * (local_space.MapData.BMatrix(0, 0) * referenceValues[0] +
+                                                                   local_space.MapData.BMatrix(0, 1) * referenceValues[1]);
+    velocity_values[1] = (1.0 / local_space.MapData.DetBMatrix) * (local_space.MapData.BMatrix(1, 0) * referenceValues[0] +
+                                                                   local_space.MapData.BMatrix(1, 1) * referenceValues[1]);
 
     return velocity_values;
 }
@@ -115,7 +115,7 @@ Eigen::MatrixXd FEM_Triangle_RT_MCC_2D_LocalSpace::MapVelocityDivergenceValues(c
                                                                                const Eigen::MatrixXd &referenceDerivateValues) const
 {
 
-    Eigen::MatrixXd divergence_values = (1.0 / local_space.MapData.DetB) * referenceDerivateValues;
+    Eigen::MatrixXd divergence_values = (1.0 / local_space.MapData.DetBMatrix) * referenceDerivateValues;
     return divergence_values;
 }
 // ***************************************************************************

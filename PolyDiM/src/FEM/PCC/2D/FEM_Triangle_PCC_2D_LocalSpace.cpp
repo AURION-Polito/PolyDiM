@@ -30,7 +30,7 @@ FEM_Triangle_PCC_2D_LocalSpace_Data FEM_Triangle_PCC_2D_LocalSpace::CreateLocalS
     FEM_Triangle_PCC_2D_LocalSpace_Data localSpace;
 
     localSpace.MapData = mapTriangle.Compute(polygon.Vertices);
-    localSpace.B_lap = localSpace.MapData.BInv * localSpace.MapData.BInv.transpose();
+    localSpace.B_lap = localSpace.MapData.BMatrixInv * localSpace.MapData.BMatrixInv.transpose();
 
     localSpace.Order = reference_element_data.Order;
     localSpace.NumberOfBasisFunctions = reference_element_data.NumBasisFunctions;
@@ -96,11 +96,11 @@ std::vector<MatrixXd> FEM_Triangle_PCC_2D_LocalSpace::MapDerivativeValues(const 
                                                                           const std::vector<Eigen::MatrixXd> &referenceDerivateValues) const
 {
     std::vector<Eigen::MatrixXd> basis_functions_mapped(2);
-    basis_functions_mapped.at(0).noalias() = local_space.MapData.BInv(0, 0) * referenceDerivateValues.at(0);
-    basis_functions_mapped.at(0).noalias() += local_space.MapData.BInv(1, 0) * referenceDerivateValues.at(1);
+    basis_functions_mapped.at(0).noalias() = local_space.MapData.BMatrixInv(0, 0) * referenceDerivateValues.at(0);
+    basis_functions_mapped.at(0).noalias() += local_space.MapData.BMatrixInv(1, 0) * referenceDerivateValues.at(1);
 
-    basis_functions_mapped.at(1).noalias() = local_space.MapData.BInv(0, 1) * referenceDerivateValues.at(0);
-    basis_functions_mapped.at(1).noalias() += local_space.MapData.BInv(1, 1) * referenceDerivateValues.at(1);
+    basis_functions_mapped.at(1).noalias() = local_space.MapData.BMatrixInv(0, 1) * referenceDerivateValues.at(0);
+    basis_functions_mapped.at(1).noalias() += local_space.MapData.BMatrixInv(1, 1) * referenceDerivateValues.at(1);
 
     std::vector<Eigen::MatrixXd> basis_functions_reordered(2);
     basis_functions_reordered.at(0) = basis_functions_mapped.at(0)(Eigen::all, local_space.DofsMeshOrder);

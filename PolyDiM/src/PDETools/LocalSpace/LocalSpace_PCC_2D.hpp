@@ -36,7 +36,7 @@ enum struct MethodTypes
     VEM_PCC = 1,
     VEM_PCC_Inertia = 2,
     VEM_PCC_Ortho = 3,
-    ZFEM_PCC = 4
+    ZFEM_PCC = 4,
 };
 
 class ReferenceElement_Data final

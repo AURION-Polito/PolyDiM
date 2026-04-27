@@ -32,10 +32,10 @@ std::vector<Eigen::MatrixXd> MapInvVelocityValues(const Polydim::FEM::MCC::FEM_T
                                                   const std::vector<Eigen::MatrixXd> &values)
 {
     std::vector<Eigen::MatrixXd> ref_velocity_values(2, Eigen::MatrixXd::Zero(values[0].rows(), values[0].cols()));
-    ref_velocity_values[0] = local_space.MapData.DetB *
-                             (local_space.MapData.BInv(0, 0) * values[0] + local_space.MapData.BInv(0, 1) * values[1]);
-    ref_velocity_values[1] = local_space.MapData.DetB *
-                             (local_space.MapData.BInv(1, 0) * values[0] + local_space.MapData.BInv(1, 1) * values[1]);
+    ref_velocity_values[0] = local_space.MapData.DetBMatrix * (local_space.MapData.BMatrixInv(0, 0) * values[0] +
+                                                               local_space.MapData.BMatrixInv(0, 1) * values[1]);
+    ref_velocity_values[1] = local_space.MapData.DetBMatrix * (local_space.MapData.BMatrixInv(1, 0) * values[0] +
+                                                               local_space.MapData.BMatrixInv(1, 1) * values[1]);
 
     return ref_velocity_values;
 }
