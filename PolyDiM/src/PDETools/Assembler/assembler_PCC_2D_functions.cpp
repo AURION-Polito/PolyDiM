@@ -121,6 +121,25 @@ std::array<Eigen::VectorXd, 3> function_evaluation(
     return function_values;
 }
 // ***************************************************************************
+std::array<Eigen::VectorXd, 9> function_evaluation(
+    const Eigen::MatrixXd &points,
+    const std::function<std::array<double, 9>(const double &, const double &, const double &)> &f)
+{
+    std::array<Eigen::VectorXd, 9> function_values;
+    for (unsigned int d = 0; d < 9; ++d)
+      function_values.at(d).resize(points.cols());
+
+    for (int i = 0; i < points.cols(); ++i)
+    {
+        const auto result_f = f(points(0, i), points(1, i), points(2, i));
+
+        for (unsigned int d = 0; d < 9; ++d)
+          function_values.at(d)[i] = result_f.at(d);
+    }
+
+    return function_values;
+}
+// ***************************************************************************
 Eigen::VectorXd assemble_source_term(const Gedim::GeometryUtilities &geometry_utilities,
                                      const Gedim::MeshMatricesDAO &mesh,
                                      const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
@@ -192,7 +211,7 @@ Variational_Operator assemble_elliptic_operator(
     const DOFs::DOFsManager::DOFsData &test_dofs_data,
     const LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
     const LocalSpace_PCC_2D::ReferenceElement_Data &test_reference_element_data,
-    const std::function<double(const double &, const double &, const double &)> &diffusion_term_function,
+    const std::function<std::array<double, 9>(const double &, const double &, const double &)> &diffusion_term_function,
     const std::function<std::array<double, 3>(const double &, const double &, const double &)> &advection_term_function,
     const std::function<double(const double &, const double &, const double &)> &reaction_term_function)
 {
@@ -263,8 +282,14 @@ Variational_Operator assemble_elliptic_operator(
 
             if (test_local_space_size == trial_local_space_size)
             {
-                const double k_max = diffusion_term_values.cwiseAbs().maxCoeff();
-                local_A += k_max * Polydim::PDETools::LocalSpace_PCC_2D::StabilizationMatrix(test_reference_element_data,
+              double k_max = 0.0;
+              for (const auto &diffusion_term : diffusion_term_values)
+              {
+                  const double max_k = diffusion_term.cwiseAbs().maxCoeff();
+                  k_max = k_max < max_k ? max_k : k_max;
+              }
+
+              local_A += k_max * Polydim::PDETools::LocalSpace_PCC_2D::StabilizationMatrix(test_reference_element_data,
                                                                                              test_local_space_data);
             }
         }
