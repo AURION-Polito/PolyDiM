@@ -68,11 +68,11 @@ Polydim::PDETools::Assembler_Utilities::PCC_2D::Variational_Operator assemble_el
     const Polydim::PDETools::DOFs::DOFsManager::DOFsData &test_dofs_data,
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &test_reference_element_data,
-    const std::function<double(const double &, const double &, const double &)> &diffusion_term_function,
+    const std::function<std::array<double, 9>(const double &, const double &, const double &)> &diffusion_term_function,
     const std::function<std::array<double, 3>(const double &, const double &, const double &)> &advection_term_function,
     const std::function<double(const double &, const double &, const double &)> &reaction_term_function);
 // ***************************************************************************
-inline Polydim::PDETools::Assembler_Utilities::PCC_2D::Variational_Operator assemble_diffusion_operator(
+Polydim::PDETools::Assembler_Utilities::PCC_2D::Variational_Operator assemble_diffusion_operator(
     const Gedim::GeometryUtilities &geometry_utilities,
     const Gedim::MeshMatricesDAO &mesh,
     const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
@@ -80,7 +80,17 @@ inline Polydim::PDETools::Assembler_Utilities::PCC_2D::Variational_Operator asse
     const Polydim::PDETools::DOFs::DOFsManager::DOFsData &test_dofs_data,
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &test_reference_element_data,
-    const std::function<double(const double &, const double &, const double &)> &diffusion_term_function)
+    const std::function<double(const double &, const double &, const double &)> &diffusion_term_function);
+// ***************************************************************************
+inline Polydim::PDETools::Assembler_Utilities::PCC_2D::Variational_Operator assemble_anysotropic_diffusion_operator(
+    const Gedim::GeometryUtilities &geometry_utilities,
+    const Gedim::MeshMatricesDAO &mesh,
+    const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+    const Polydim::PDETools::DOFs::DOFsManager::DOFsData &trial_dofs_data,
+    const Polydim::PDETools::DOFs::DOFsManager::DOFsData &test_dofs_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &trial_reference_element_data,
+    const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &test_reference_element_data,
+    const std::function<std::array<double, 9>(const double &, const double &, const double &)> &diffusion_term_function)
 {
     return assemble_elliptic_operator(geometry_utilities,
                                       mesh,
