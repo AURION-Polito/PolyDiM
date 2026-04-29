@@ -92,16 +92,16 @@ inline Polydim::PDETools::Assembler_Utilities::PCC_2D::Variational_Operator asse
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &test_reference_element_data,
     const std::function<std::array<double, 9>(const double &, const double &, const double &)> &diffusion_term_function)
 {
-  return assemble_elliptic_operator(geometry_utilities,
-                                    mesh,
-                                    mesh_geometric_data,
-                                    trial_dofs_data,
-                                    test_dofs_data,
-                                    trial_reference_element_data,
-                                    test_reference_element_data,
-                                    diffusion_term_function,
-                                    nullptr,
-                                    nullptr);
+    return assemble_elliptic_operator(geometry_utilities,
+                                      mesh,
+                                      mesh_geometric_data,
+                                      trial_dofs_data,
+                                      test_dofs_data,
+                                      trial_reference_element_data,
+                                      test_reference_element_data,
+                                      diffusion_term_function,
+                                      nullptr,
+                                      nullptr);
 }
 // ***************************************************************************
 inline Polydim::PDETools::Assembler_Utilities::PCC_2D::Variational_Operator assemble_reaction_operator(

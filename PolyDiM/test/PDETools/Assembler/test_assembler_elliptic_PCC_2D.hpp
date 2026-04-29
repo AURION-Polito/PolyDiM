@@ -162,17 +162,17 @@ TEST(TEST_assembler_elliptic_PCC_2D, TEST_assembler_elliptic_PCC_2D_example)
 
     auto reaction_term_function = [&c](const double &x, const double &y, const double &z) { return c; };
 
-    const auto elliptic_operator =
-        PDETools::Assembler_Utilities::PCC_2D::assemble_elliptic_operator(geometry_utilities,
-                                                                          mesh,
-                                                                          mesh_geometric_data,
-                                                                          trial_dofs_data,
-                                                                          test_dofs_data,
-                                                                          trial_reference_element_data,
-                                                                          test_reference_element_data,
-                                                                          PDETools::Assembler_Utilities::PCC_2D::anysotropic_diffusion_term_function(diffusion_term_function),
-                                                                          advection_term_function,
-                                                                          reaction_term_function);
+    const auto elliptic_operator = PDETools::Assembler_Utilities::PCC_2D::assemble_elliptic_operator(
+        geometry_utilities,
+        mesh,
+        mesh_geometric_data,
+        trial_dofs_data,
+        test_dofs_data,
+        trial_reference_element_data,
+        test_reference_element_data,
+        PDETools::Assembler_Utilities::PCC_2D::anysotropic_diffusion_term_function(diffusion_term_function),
+        advection_term_function,
+        reaction_term_function);
 
     ASSERT_EQ(test_dofs_data.NumberDOFs, elliptic_operator.operator_dofs.size.at(0));
     ASSERT_EQ(trial_dofs_data.NumberDOFs, elliptic_operator.operator_dofs.size.at(1));
