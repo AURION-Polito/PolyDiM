@@ -170,7 +170,7 @@ TEST(TEST_assembler_elliptic_PCC_2D, TEST_assembler_elliptic_PCC_2D_example)
                                                                           test_dofs_data,
                                                                           trial_reference_element_data,
                                                                           test_reference_element_data,
-                                                                          diffusion_term_function,
+                                                                          PDETools::Assembler_Utilities::PCC_2D::anysotropic_diffusion_term_function(diffusion_term_function),
                                                                           advection_term_function,
                                                                           reaction_term_function);
 

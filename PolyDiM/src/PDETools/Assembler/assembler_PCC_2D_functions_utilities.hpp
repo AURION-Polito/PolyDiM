@@ -56,6 +56,14 @@ inline Gedim::Eigen_SparseArray<> to_Eigen_SparseArray(const Eigen::SparseMatrix
     return Gedim::Eigen_SparseArray<>(A);
 }
 // ***************************************************************************
+inline auto anysotropic_diffusion_term_function(const std::function<double(const double &, const double &, const double &)> &diffusion_term_function)
+{
+  return [diffusion_term_function](const double& x, const double& y, const double& z)
+  {
+    return std::array<double, 9>({ diffusion_term_function(x, y, z), 0.0, 0.0, 0.0, diffusion_term_function(x, y, z), 0.0, 0.0, 0.0, diffusion_term_function(x, y, z) });
+  };
+};
+// ***************************************************************************
 } // namespace PCC_2D
 } // namespace Assembler_Utilities
 } // namespace PDETools

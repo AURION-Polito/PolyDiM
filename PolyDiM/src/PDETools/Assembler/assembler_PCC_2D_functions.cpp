@@ -1552,6 +1552,27 @@ Polydim::PDETools::Assembler_Utilities::PCC_2D::NS_Operators assemble_NS_operato
     return {convert_operator(convective_matrix, convective_strong_matrix), static_cast<Eigen::VectorXd &>(convective_rhs_term)};
 }
 // ***************************************************************************
+Variational_Operator assemble_diffusion_operator(const Gedim::GeometryUtilities& geometry_utilities,
+                                                 const Gedim::MeshMatricesDAO& mesh,
+                                                 const Gedim::MeshUtilities::MeshGeometricData2D& mesh_geometric_data,
+                                                 const DOFs::DOFsManager::DOFsData& trial_dofs_data,
+                                                 const DOFs::DOFsManager::DOFsData& test_dofs_data,
+                                                 const LocalSpace_PCC_2D::ReferenceElement_Data& trial_reference_element_data,
+                                                 const LocalSpace_PCC_2D::ReferenceElement_Data& test_reference_element_data,
+                                                 const std::function<double (const double&, const double&, const double&)>& diffusion_term_function)
+{
+  return assemble_elliptic_operator(geometry_utilities,
+                                    mesh,
+                                    mesh_geometric_data,
+                                    trial_dofs_data,
+                                    test_dofs_data,
+                                    trial_reference_element_data,
+                                    test_reference_element_data,
+                                    PDETools::Assembler_Utilities::PCC_2D::anysotropic_diffusion_term_function(diffusion_term_function),
+                                    nullptr,
+                                    nullptr);
+}
+// ***************************************************************************
 } // namespace PCC_2D
 } // namespace Assembler_Utilities
 } // namespace PDETools
