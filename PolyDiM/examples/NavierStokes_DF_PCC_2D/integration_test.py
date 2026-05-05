@@ -414,7 +414,7 @@ def main():
     t_pos = [0.1, 1.0e-03, 0.1, 5.0e-08]
     draw_loglog_slope(fig, ax, (t_pos[0], t_pos[1]), 3, slope=2, color='k')
     draw_loglog_slope(fig, ax, (t_pos[2], t_pos[3]), 3, slope=4, color='k')
-    plt.savefig(program_folder + export_folder + "/{}_h1_velocity_decay_plot.png".format(test_type), bbox_inches='tight', dpi=300)
+    plt.savefig(program_folder + "/" + export_folder + "/{}_h1_velocity_decay_plot.png".format(test_type), bbox_inches='tight', dpi=300)
     plt.show()
 
     fig, ax = plt.subplots(figsize=(12, 12))
@@ -443,7 +443,7 @@ def main():
     plt.grid(True, which="both", ls="--")
     t_pos = [0.1, 0.008]
     draw_loglog_slope(fig, ax, (t_pos[0], t_pos[1]), 3, slope=2, color='k')
-    plt.savefig(program_folder + export_folder + "/{}_l2_pressure_decay_plot.png".format(test_type), bbox_inches='tight', dpi=300)
+    plt.savefig(program_folder + "/" + export_folder + "/{}_l2_pressure_decay_plot.png".format(test_type), bbox_inches='tight', dpi=300)
     plt.show()
 
     if remove_folder:
