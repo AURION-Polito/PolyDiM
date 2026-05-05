@@ -226,7 +226,8 @@ def main():
     program_folder = os.path.dirname(os.path.realpath(__file__))
     program_path = os.path.join(".", program_folder, "NavierStokes_DF_PCC_2D")
 
-    remove_folder = True
+    remove_folder = False
+    os.system("rm -rf " + os.path.join(program_folder, export_folder))
 
     method_type = 1
     method_orders = [2, 3, 4]
@@ -413,7 +414,7 @@ def main():
     t_pos = [0.1, 1.0e-03, 0.1, 5.0e-08]
     draw_loglog_slope(fig, ax, (t_pos[0], t_pos[1]), 3, slope=2, color='k')
     draw_loglog_slope(fig, ax, (t_pos[2], t_pos[3]), 3, slope=4, color='k')
-    plt.savefig(export_folder + "/{}_h1_velocity_decay_plot.png".format(test_type), bbox_inches='tight', dpi=300)
+    plt.savefig(program_folder + export_folder + "/{}_h1_velocity_decay_plot.png".format(test_type), bbox_inches='tight', dpi=300)
     plt.show()
 
     fig, ax = plt.subplots(figsize=(12, 12))
