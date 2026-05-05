@@ -18,6 +18,7 @@
 #include "Quadrature_Gauss1D.hpp"
 #include "Quadrature_GaussLobatto1D.hpp"
 #include "lagrange_1D.hpp"
+#include <cassert>
 
 namespace Polydim
 {

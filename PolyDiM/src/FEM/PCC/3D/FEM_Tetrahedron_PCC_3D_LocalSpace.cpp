@@ -10,6 +10,7 @@
 // This file can be used citing references in CITATION.cff file.
 
 #include "FEM_Tetrahedron_PCC_3D_LocalSpace.hpp"
+#include <cassert>
 
 using namespace Eigen;
 

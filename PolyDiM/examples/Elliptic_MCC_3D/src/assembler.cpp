@@ -13,6 +13,7 @@
 
 #include "Assembler_Utilities.hpp"
 #include "EllipticEquation.hpp"
+#include <cassert>
 
 using namespace std;
 using namespace Eigen;

@@ -12,6 +12,7 @@
 #include "assembler_PCC_2D_functions.hpp"
 #include "EllipticEquation.hpp"
 #include "assembler_PCC_2D_functions_utilities.hpp"
+#include <cassert>
 
 namespace Polydim
 {

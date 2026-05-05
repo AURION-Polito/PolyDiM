@@ -242,64 +242,63 @@ void export_performance(const Polydim::examples::Elliptic_PCC_2D::Program_config
                         const Assembler::Performance_Data &performance_data,
                         const std::string &exportFolder)
 {
+
+    const char separator = ',';
+    std::ofstream exporter;
+    const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
+    const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
+    exporter.open(exportFolder + "/Cell2Ds_MethodPerformance_" + std::to_string(TEST_ID) + "_" +
+                  std::to_string(Method_ID) + "_" + std::to_string(config.MethodOrder()) + ".csv");
+    exporter.precision(16);
+
+    if (exporter.fail())
+        throw std::runtime_error("Error on mesh cell2Ds file");
+
+    switch (config.MethodType())
     {
-        const char separator = ',';
-        std::ofstream exporter;
-        const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
-        const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
-        exporter.open(exportFolder + "/Cell2Ds_MethodPerformance_" + std::to_string(TEST_ID) + "_" +
-                      std::to_string(Method_ID) + "_" + std::to_string(config.MethodOrder()) + ".csv");
-        exporter.precision(16);
 
-        if (exporter.fail())
-            throw std::runtime_error("Error on mesh cell2Ds file");
-
-        switch (config.MethodType())
-        {
-
-        case PDETools::LocalSpace_PCC_2D::MethodTypes::FEM_PCC:
-            break;
-        case PDETools::LocalSpace_PCC_2D::MethodTypes::VEM_PCC:
-        case PDETools::LocalSpace_PCC_2D::MethodTypes::VEM_PCC_Inertia:
-        case PDETools::LocalSpace_PCC_2D::MethodTypes::VEM_PCC_Ortho: {
-            exporter << "Cell2D_Index" << separator;
-            exporter << "NumQuadPoints_Boundary" << separator;
-            exporter << "NumQuadPoints_Internal" << separator;
-            exporter << "PiNabla_Cond" << separator;
-            exporter << "Pi0k_Cond" << separator;
-            exporter << "Pi0km1_Cond" << separator;
-            exporter << "PiNabla_Error" << separator;
-            exporter << "Pi0k_Error" << separator;
-            exporter << "Pi0km1_Error" << separator;
-            exporter << "HCD_Error" << separator;
-            exporter << "GBD_Error" << separator;
-            exporter << "Stab_Error" << std::endl;
-
-            for (unsigned int v = 0; v < performance_data.Cell2DsPerformance.size(); v++)
-            {
-                const auto &cell2D_performance = performance_data.Cell2DsPerformance[v].performance_data;
-
-                exporter << std::scientific << v << separator;
-                exporter << std::scientific << cell2D_performance.NumBoundaryQuadraturePoints << separator;
-                exporter << std::scientific << cell2D_performance.NumInternalQuadraturePoints << separator;
-                exporter << std::scientific << cell2D_performance.vem_analysis_data.PiNablaConditioning << separator;
-                exporter << std::scientific << cell2D_performance.vem_analysis_data.Pi0kConditioning << separator;
-                exporter << std::scientific << cell2D_performance.vem_analysis_data.Pi0km1Conditioning << separator;
-                exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorPiNabla << separator;
-                exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorPi0k << separator;
-                exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorPi0km1 << separator;
-                exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorHCD << separator;
-                exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorGBD << separator;
-                exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorStabilization << std::endl;
-            }
-        }
+    case PDETools::LocalSpace_PCC_2D::MethodTypes::FEM_PCC:
         break;
-        case PDETools::LocalSpace_PCC_2D::MethodTypes::ZFEM_PCC:
-            break;
-        }
+    case PDETools::LocalSpace_PCC_2D::MethodTypes::VEM_PCC:
+    case PDETools::LocalSpace_PCC_2D::MethodTypes::VEM_PCC_Inertia:
+    case PDETools::LocalSpace_PCC_2D::MethodTypes::VEM_PCC_Ortho: {
+        exporter << "Cell2D_Index" << separator;
+        exporter << "NumQuadPoints_Boundary" << separator;
+        exporter << "NumQuadPoints_Internal" << separator;
+        exporter << "PiNabla_Cond" << separator;
+        exporter << "Pi0k_Cond" << separator;
+        exporter << "Pi0km1_Cond" << separator;
+        exporter << "PiNabla_Error" << separator;
+        exporter << "Pi0k_Error" << separator;
+        exporter << "Pi0km1_Error" << separator;
+        exporter << "HCD_Error" << separator;
+        exporter << "GBD_Error" << separator;
+        exporter << "Stab_Error" << std::endl;
 
-        exporter.close();
+        for (unsigned int v = 0; v < performance_data.Cell2DsPerformance.size(); v++)
+        {
+            const auto &cell2D_performance = performance_data.Cell2DsPerformance[v].performance_data;
+
+            exporter << std::scientific << v << separator;
+            exporter << std::scientific << cell2D_performance.NumBoundaryQuadraturePoints << separator;
+            exporter << std::scientific << cell2D_performance.NumInternalQuadraturePoints << separator;
+            exporter << std::scientific << cell2D_performance.vem_analysis_data.PiNablaConditioning << separator;
+            exporter << std::scientific << cell2D_performance.vem_analysis_data.Pi0kConditioning << separator;
+            exporter << std::scientific << cell2D_performance.vem_analysis_data.Pi0km1Conditioning << separator;
+            exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorPiNabla << separator;
+            exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorPi0k << separator;
+            exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorPi0km1 << separator;
+            exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorHCD << separator;
+            exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorGBD << separator;
+            exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorStabilization << std::endl;
+        }
     }
+    break;
+    case PDETools::LocalSpace_PCC_2D::MethodTypes::ZFEM_PCC:
+        break;
+    }
+
+    exporter.close();
 }
 // ***************************************************************************
 } // namespace program_utilities

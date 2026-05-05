@@ -41,22 +41,9 @@ class Assembler final
         Gedim::Eigen_Array<> solutionDirichlet;
     };
 
-    struct VEM_Performance_Result final
+    struct Performance_Data final
     {
-        struct Cell2D_Performance final
-        {
-            unsigned int NumBoundaryQuadraturePoints = 0;
-            unsigned int NumInternalQuadraturePoints = 0;
-            double maxPiNablaConditioning;    ///< conditioning of piNabla
-            double maxPi0kConditioning;       ///< conditioning of piNabla
-            double maxErrorPiNabla;           ///< |piNabla * Dofs - I|
-            double maxErrorPi0k;              ///< |pi0k * Dofs - I|
-            double ErrorStabilization = -1.0; ///< |S * Dofs|
-            double maxErrorHCD;               ///< |H - CD|
-            double maxErrorGBD;               ///< |G - BD|
-        };
-
-        std::vector<Cell2D_Performance> Cell2DsPerformance;
+        std::vector<Polydim::PDETools::LocalSpace_DF_PCC_2D::Performance_Data> Cell2DsPerformance;
     };
 
     struct PostProcess_Data final
@@ -110,23 +97,24 @@ class Assembler final
     };
 
   private:
-    void ComputeStrongTerm(const Gedim::MeshMatricesDAO &mesh,
-                           const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+    void ComputeStrongTerm(const unsigned int cell2D_index,
+                           const Gedim::MeshMatricesDAO &mesh,
                            const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
                            const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
                            const std::vector<size_t> &offsetStrongs,
-                           const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
+                           const PDETools::LocalSpace_DF_PCC_2D::ReferenceElement_Data &reference_element_data,
+                           const PDETools::LocalSpace_DF_PCC_2D::LocalSpace_Data &local_space_data,
                            const test::I_Test &test,
                            Stokes_DF_PCC_2D_Problem_Data &assembler_data) const;
 
     void ComputeWeakTerm(const unsigned int cell2DIndex,
                          const Gedim::MeshMatricesDAO &mesh,
-                         const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Polygon_Geometry &polygon,
+                         const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                          const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
                          const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
                          const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
-                         const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
-                         const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_local_space,
+                         const PDETools::LocalSpace_DF_PCC_2D::ReferenceElement_Data &reference_element_data,
+                         const PDETools::LocalSpace_DF_PCC_2D::LocalSpace_Data &local_space_data,
                          const Polydim::examples::Brinkman_DF_PCC_2D::test::I_Test &test,
                          Stokes_DF_PCC_2D_Problem_Data &assembler_data) const;
 
@@ -135,41 +123,31 @@ class Assembler final
                                                const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                                const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
                                                const Polydim::PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
-                                               const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reference_element_data,
-                                               const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_local_space,
+                                               const PDETools::LocalSpace_DF_PCC_2D::ReferenceElement_Data &reference_element_data,
                                                const Polydim::examples::Brinkman_DF_PCC_2D::test::I_Test &test,
                                                const Stokes_DF_PCC_2D_Problem_Data &assembler_data) const;
 
   public:
-    Stokes_DF_PCC_2D_Problem_Data Assemble(
-        const Polydim::examples::Brinkman_DF_PCC_2D::Program_configuration &config,
-        const Gedim::MeshMatricesDAO &mesh,
-        const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-        const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
-        const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
-        const Polydim::PDETools::Assembler_Utilities::count_dofs_data &counts_dofs,
-        const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
-        const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &pressure_reference_element_data,
-        const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_velocity_local_space,
-        const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Pressure_LocalSpace &vem_pressure_local_space,
-        const Polydim::examples::Brinkman_DF_PCC_2D::test::I_Test &test) const;
+    Stokes_DF_PCC_2D_Problem_Data Assemble(const Polydim::examples::Brinkman_DF_PCC_2D::Program_configuration &config,
+                                           const Gedim::MeshMatricesDAO &mesh,
+                                           const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
+                                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
+                                           const Polydim::PDETools::Assembler_Utilities::count_dofs_data &counts_dofs,
+                                           const Polydim::PDETools::LocalSpace_DF_PCC_2D::ReferenceElement_Data &reference_element_data,
+                                           const Polydim::examples::Brinkman_DF_PCC_2D::test::I_Test &test) const;
 
-    VEM_Performance_Result ComputeVemPerformance(
-        const Polydim::examples::Brinkman_DF_PCC_2D::Program_configuration &config,
-        const Gedim::MeshMatricesDAO &mesh,
-        const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-        const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
-        const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_velocity_local_space) const;
+    Performance_Data ComputeMethodPerformance(const Polydim::examples::Brinkman_DF_PCC_2D::Program_configuration &config,
+                                              const Gedim::MeshMatricesDAO &mesh,
+                                              const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
+                                              const Polydim::PDETools::LocalSpace_DF_PCC_2D::ReferenceElement_Data &reference_element_data) const;
 
     PostProcess_Data PostProcessSolution(const Polydim::examples::Brinkman_DF_PCC_2D::Program_configuration &config,
                                          const Gedim::MeshMatricesDAO &mesh,
                                          const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                                          const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
                                          const Polydim::PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
-                                         const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
-                                         const Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &pressure_reference_element_data,
-                                         const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_velocity_local_space,
-                                         const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Pressure_LocalSpace &vem_pressure_local_space,
+                                         const Polydim::PDETools::LocalSpace_DF_PCC_2D::ReferenceElement_Data &reference_element_data,
                                          const Stokes_DF_PCC_2D_Problem_Data &assembler_data,
                                          const Polydim::examples::Brinkman_DF_PCC_2D::test::I_Test &test) const;
 
@@ -177,20 +155,11 @@ class Assembler final
         const Polydim::examples::Brinkman_DF_PCC_2D::Program_configuration &config,
         const Gedim::MeshMatricesDAO &mesh,
         const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
-        const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &full_dofs_data,
-        const Polydim::PDETools::Assembler_Utilities::count_dofs_data &full_count_dofs,
         const std::vector<PDETools::DOFs::DOFsManager::DOFsData> &reduced_dofs_data,
         const Polydim::PDETools::Assembler_Utilities::count_dofs_data &reduced_count_dofs,
-        const VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &full_velocity_reference_element_data,
-        const VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &full_pressure_reference_element_data,
-        const VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &reduced_velocity_reference_element_data,
-        const VEM::DF_PCC::VEM_DF_PCC_2D_Pressure_ReferenceElement_Data &reduced_pressure_reference_element_data,
-        const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_full_velocity_local_space,
-        const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Pressure_LocalSpace &vem_full_pressure_local_space,
-        const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Velocity_LocalSpace &vem_reduced_velocity_local_space,
-        const Polydim::VEM::DF_PCC::I_VEM_DF_PCC_2D_Pressure_LocalSpace &vem_reduced_pressure_local_space,
-        const Stokes_DF_PCC_2D_Problem_Data &full_assembler_data,
-        const Stokes_DF_PCC_2D_Problem_Data &reduced_assembler_data) const;
+        const Polydim::PDETools::LocalSpace_DF_PCC_2D::ReferenceElement_Data &reduced_reference_element_data,
+        const Stokes_DF_PCC_2D_Problem_Data &reduced_assembler_data,
+        const Polydim::examples::Brinkman_DF_PCC_2D::test::I_Test &test) const;
 };
 } // namespace Brinkman_DF_PCC_2D
 } // namespace examples

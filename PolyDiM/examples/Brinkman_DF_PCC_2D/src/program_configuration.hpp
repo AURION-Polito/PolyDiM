@@ -13,6 +13,7 @@
 #define __program_configuration_H
 
 #include "Configurations.hpp"
+#include "LocalSpace_DF_PCC_2D.hpp"
 #include "PDE_Mesh_Utilities.hpp"
 #include "VEM_DF_PCC_2D_Creator.hpp"
 #include "test_definition.hpp"
@@ -31,8 +32,7 @@ struct Program_configuration final
                                            static_cast<unsigned int>(Polydim::examples::Brinkman_DF_PCC_2D::test::Test_Types::Patch_Test),
                                            "Test Type: 1 - Patch_Test; 2 - StokesSinSin; 3 - Stokes_ZeroVelocity_1; 4 "
                                            "- Stokes_ZeroVelocity_2; 5 - Darcy; 6 - Brinkman; 7 - DarcyStokes_1; 8 - "
-                                           "DarcyStokes_2 "
-                                           "(Default: 1)");
+                                           "DarcyStokes_2 (Default: 1)");
 
         // Export parameters
         Gedim::Configurations::AddProperty("ExportFolder", "./Run", "Folder where to export data (Default: ./Export)");
@@ -50,13 +50,15 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty("GeometricTolerance2D", 1.0e-14, "Geometric Tolerance 2D (Default: 1.0e-14)");
 
         /// Method parameters
-        Gedim::Configurations::AddProperty(
-            "VemType",
-            static_cast<unsigned int>(Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_LocalSpace_Types::VEM_DF_PCC_2D_LocalSpace),
-            "Vem Type, 1 - Vem; 2 - RVem (Default: 1)");
-        Gedim::Configurations::AddProperty("VemOrder", static_cast<unsigned int>(2), "VEM order (Default: 2)");
-        Gedim::Configurations::AddProperty("ComputeVEMPerformance", true, "Compute VEM Performance (Default: true)");
-        Gedim::Configurations::AddProperty("ComputeDiscrepancyError", false, "Compute Discrepancy error (Default: false)");
+        Gedim::Configurations::AddProperty("MethodType",
+                                           static_cast<unsigned int>(Polydim::PDETools::LocalSpace_DF_PCC_2D::MethodTypes::VEM_DF_PCC_FULL),
+                                           "Method Type, 0 - Taylor-Hood; 1 - VEM_FULL; 2 - VEM_REDUCED (Default: 1)");
+        Gedim::Configurations::AddProperty("MethodOrder", static_cast<unsigned int>(2), "Method order (Default: 2)");
+        Gedim::Configurations::AddProperty("ComputeMethodPerformance", true, "Compute method performance (Default: true)");
+        Gedim::Configurations::AddProperty("ComputeDiscrepancyError",
+                                           false,
+                                           "Compute Discrepancy error - valid only for VEM REDUCED TYPE (Default: "
+                                           "false)");
     }
 
     inline Polydim::examples::Brinkman_DF_PCC_2D::test::Test_Types TestType() const
@@ -91,24 +93,24 @@ struct Program_configuration final
         return Gedim::Configurations::GetPropertyValue<double>("GeometricTolerance2D");
     }
 
-    inline Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_LocalSpace_Types VemType() const
+    inline Polydim::PDETools::LocalSpace_DF_PCC_2D::MethodTypes MethodType() const
     {
-        return (Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_LocalSpace_Types)Gedim::Configurations::GetPropertyValue<unsigned int>("VemType");
+        return (Polydim::PDETools::LocalSpace_DF_PCC_2D::MethodTypes)Gedim::Configurations::GetPropertyValue<unsigned int>("MethodType");
     }
-    inline bool ComputeVEMPerformance() const
+    inline bool ComputeMethodPerformance() const
     {
-        return Gedim::Configurations::GetPropertyValue<bool>("ComputeVEMPerformance");
+        return Gedim::Configurations::GetPropertyValue<bool>("ComputeMethodPerformance");
     }
     inline bool ComputeDiscrepancyError() const
     {
         return Gedim::Configurations::GetPropertyValue<bool>("ComputeDiscrepancyError");
     }
-    inline unsigned int VemOrder() const
+    inline unsigned int MethodOrder() const
     {
-        if (Gedim::Configurations::GetPropertyValue<unsigned int>("VemOrder") < 2)
+        if (Gedim::Configurations::GetPropertyValue<unsigned int>("MethodOrder") < 2)
             throw std::runtime_error("not valid order");
 
-        return Gedim::Configurations::GetPropertyValue<unsigned int>("VemOrder");
+        return Gedim::Configurations::GetPropertyValue<unsigned int>("MethodOrder");
     }
 };
 } // namespace Brinkman_DF_PCC_2D

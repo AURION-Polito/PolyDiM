@@ -13,6 +13,7 @@
 
 #include "Assembler_Utilities.hpp"
 #include "EllipticEquation.hpp"
+#include <cassert>
 
 namespace Polydim
 {

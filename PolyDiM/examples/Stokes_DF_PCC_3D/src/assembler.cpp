@@ -15,6 +15,7 @@
 #include "EllipticEquation.hpp"
 #include "VEM_DF_PCC_PerformanceAnalysis.hpp"
 #include "program_configuration.hpp"
+#include <cassert>
 
 using namespace std;
 using namespace Eigen;

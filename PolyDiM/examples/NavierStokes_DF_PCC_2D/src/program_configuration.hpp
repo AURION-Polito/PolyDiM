@@ -13,8 +13,8 @@
 #define __program_configuration_H
 
 #include "Configurations.hpp"
+#include "LocalSpace_DF_PCC_2D.hpp"
 #include "PDE_Mesh_Utilities.hpp"
-#include "VEM_DF_PCC_2D_Creator.hpp"
 #include "test_definition.hpp"
 
 namespace Polydim
@@ -56,12 +56,11 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty("GeometricTolerance2D", 1.0e-14, "Geometric Tolerance 2D (Default: 1.0e-14)");
 
         /// Method parameters
-        Gedim::Configurations::AddProperty(
-            "VemType",
-            static_cast<unsigned int>(Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_LocalSpace_Types::VEM_DF_PCC_2D_LocalSpace),
-            "Vem Type, 1 - Vem; (Default: 1)");
-        Gedim::Configurations::AddProperty("VemOrder", static_cast<unsigned int>(2), "VEM order (Default: 2)");
-        Gedim::Configurations::AddProperty("ComputeVEMPerformance", true, "Compute VEM Performance (Default: true)");
+        Gedim::Configurations::AddProperty("MethodType",
+                                           static_cast<unsigned int>(Polydim::PDETools::LocalSpace_DF_PCC_2D::MethodTypes::VEM_DF_PCC_FULL),
+                                           "Method Type, 0 - Taylor-Hood; 1 - VEM_FULL; 2 - VEM_REDUCED (Default: 1)");
+        Gedim::Configurations::AddProperty("MethodOrder", static_cast<unsigned int>(2), "Method order (Default: 2)");
+        Gedim::Configurations::AddProperty("ComputeMethodPerformance", true, "Compute Method Performance (Default: true)");
 
         /// Solver
         Gedim::Configurations::AddProperty("ConvectiveForm",
@@ -125,22 +124,20 @@ struct Program_configuration final
         return Gedim::Configurations::GetPropertyValue<double>("GeometricTolerance2D");
     }
 
-    inline Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_LocalSpace_Types VemType() const
+    inline Polydim::PDETools::LocalSpace_DF_PCC_2D::MethodTypes MethodType() const
     {
-        if (Gedim::Configurations::GetPropertyValue<unsigned int>("VemType") == 2)
-            throw std::runtime_error("not valid vem type");
-
-        return (Polydim::VEM::DF_PCC::VEM_DF_PCC_2D_LocalSpace_Types)Gedim::Configurations::GetPropertyValue<unsigned int>("VemType");
+        return (Polydim::PDETools::LocalSpace_DF_PCC_2D::MethodTypes)Gedim::Configurations::GetPropertyValue<unsigned int>("MethodType");
     }
-    inline bool ComputeVEMPerformance() const
+    inline bool ComputeMethodPerformance() const
     {
-        return Gedim::Configurations::GetPropertyValue<bool>("ComputeVEMPerformance");
+        return Gedim::Configurations::GetPropertyValue<bool>("ComputeMethodPerformance");
     }
-    inline unsigned int VemOrder() const
+    inline unsigned int MethodOrder() const
     {
-        if (Gedim::Configurations::GetPropertyValue<unsigned int>("VemOrder") < 2)
+        if (Gedim::Configurations::GetPropertyValue<unsigned int>("MethodOrder") < 2)
             throw std::runtime_error("not valid order");
-        return Gedim::Configurations::GetPropertyValue<unsigned int>("VemOrder");
+
+        return Gedim::Configurations::GetPropertyValue<unsigned int>("MethodOrder");
     }
 
     inline ConvectiveFormType ConvectiveForm() const

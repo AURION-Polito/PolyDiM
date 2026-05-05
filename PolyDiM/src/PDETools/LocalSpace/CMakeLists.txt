@@ -1,8 +1,10 @@
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/LocalSpace_PCC_2D.hpp)
+list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/LocalSpace_DF_PCC_2D.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/LocalSpace_MCC_2D.hpp)
 list(APPEND polydim_src_headers ${CMAKE_CURRENT_SOURCE_DIR}/LocalSpace_PCC_3D.hpp)
 
 list(APPEND polydim_src_sources ${CMAKE_CURRENT_SOURCE_DIR}/LocalSpace_PCC_2D.cpp)
+list(APPEND polydim_src_sources ${CMAKE_CURRENT_SOURCE_DIR}/LocalSpace_DF_PCC_2D.cpp)
 list(APPEND polydim_src_sources ${CMAKE_CURRENT_SOURCE_DIR}/LocalSpace_MCC_2D.cpp)
 list(APPEND polydim_src_sources ${CMAKE_CURRENT_SOURCE_DIR}/LocalSpace_PCC_3D.cpp)
 

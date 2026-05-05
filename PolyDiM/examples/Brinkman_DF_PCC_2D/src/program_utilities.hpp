@@ -48,11 +48,10 @@ void export_velocity_dofs(const Polydim::examples::Brinkman_DF_PCC_2D::Program_c
                           const Gedim::MeshMatricesDAO &mesh,
                           const Gedim::MeshUtilities::MeshGeometricData2D &mesh_geometric_data,
                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> &mesh_dofs_info,
-                          const VEM::DF_PCC::VEM_DF_PCC_2D_Velocity_ReferenceElement_Data &vem_velocity_reference_element_data,
+                          const Polydim::PDETools::LocalSpace_DF_PCC_2D::ReferenceElement_Data &reference_element_data,
                           const std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> &dofs_data,
-                          const PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
+                          const Polydim::PDETools::Assembler_Utilities::count_dofs_data &count_dofs,
                           const Polydim::examples::Brinkman_DF_PCC_2D::Assembler::Stokes_DF_PCC_2D_Problem_Data &assembler_data,
-                          const Polydim::examples::Brinkman_DF_PCC_2D::Assembler::PostProcess_Data &post_process_data,
                           const std::string &exportVtuFolder);
 
 void export_discrepancy_errors(const Polydim::examples::Brinkman_DF_PCC_2D::Program_configuration &config,
@@ -60,6 +59,10 @@ void export_discrepancy_errors(const Polydim::examples::Brinkman_DF_PCC_2D::Prog
                                const Polydim::examples::Brinkman_DF_PCC_2D::Assembler::DiscrepancyErrors_Data &discrepancy_errors_data,
                                const std::string &exportSolutionFolder,
                                const std::string &exportVtuFolder);
+
+void export_performance(const Program_configuration &config,
+                        const Assembler::Performance_Data &performance_data,
+                        const std::string &exportFolder);
 
 } // namespace program_utilities
 } // namespace Brinkman_DF_PCC_2D

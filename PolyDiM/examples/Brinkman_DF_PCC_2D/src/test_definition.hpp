@@ -44,7 +44,7 @@ enum struct Test_Types
 struct I_Test
 {
     virtual Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain() const = 0;
-    virtual std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 4> boundary_info() const = 0;
+    virtual std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 2> boundary_info() const = 0;
     virtual Eigen::VectorXd fluid_viscosity(const Eigen::MatrixXd &points) const = 0;
     virtual std::array<Eigen::VectorXd, 9> inverse_diffusion_term(const Eigen::MatrixXd &points) const = 0;
     virtual std::array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd &points) const = 0;
@@ -77,7 +77,7 @@ struct Patch_Test final : public I_Test
         return domain;
     }
 
-    std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 4> boundary_info() const
+    std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 2> boundary_info() const
     {
 
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result = {
@@ -91,18 +91,7 @@ struct Patch_Test final : public I_Test
             {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
             {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
 
-        std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> resultI = {
-            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
-
-        return {result, result, resultI, resultI};
+        return {result, result};
     }
 
     std::array<Eigen::VectorXd, 9> inverse_diffusion_term(const Eigen::MatrixXd &points) const
@@ -253,7 +242,7 @@ struct StokesSinSin final : public I_Test
         return domain;
     }
 
-    std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 4> boundary_info() const
+    std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 2> boundary_info() const
     {
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result = {
             {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
@@ -266,18 +255,7 @@ struct StokesSinSin final : public I_Test
             {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
             {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
 
-        std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> resultI = {
-            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
-
-        return {result, result, resultI, resultI};
+        return {result, result};
     }
 
     std::array<Eigen::VectorXd, 9> inverse_diffusion_term(const Eigen::MatrixXd &points) const
@@ -401,7 +379,7 @@ struct Stokes_ZeroVelocity_1 final : public I_Test
         return domain;
     }
 
-    std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 4> boundary_info() const
+    std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 2> boundary_info() const
     {
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result = {
             {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
@@ -414,18 +392,7 @@ struct Stokes_ZeroVelocity_1 final : public I_Test
             {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
             {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
 
-        std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> resultI = {
-            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
-
-        return {result, result, resultI, resultI};
+        return {result, result};
     }
 
     std::array<Eigen::VectorXd, 9> inverse_diffusion_term(const Eigen::MatrixXd &points) const
@@ -516,7 +483,7 @@ struct Stokes_ZeroVelocity_2 final : public I_Test
         return domain;
     }
 
-    std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 4> boundary_info() const
+    std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 2> boundary_info() const
     {
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result = {
             {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
@@ -529,18 +496,7 @@ struct Stokes_ZeroVelocity_2 final : public I_Test
             {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
             {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
 
-        std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> resultI = {
-            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
-
-        return {result, result, resultI, resultI};
+        return {result, result};
     }
 
     std::array<Eigen::VectorXd, 9> inverse_diffusion_term(const Eigen::MatrixXd &points) const
@@ -632,7 +588,7 @@ struct Darcy final : public I_Test
         return domain;
     }
 
-    std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 4> boundary_info() const
+    std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 2> boundary_info() const
     {
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result = {
             {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
@@ -645,18 +601,7 @@ struct Darcy final : public I_Test
             {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 6}},
             {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 8}}};
 
-        std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> resultI = {
-            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
-
-        return {result, result, resultI, resultI};
+        return {result, result};
     }
 
     std::array<Eigen::VectorXd, 9> inverse_diffusion_term(const Eigen::MatrixXd &points) const
@@ -759,7 +704,7 @@ struct Brinkman final : public I_Test
         return domain;
     }
 
-    std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 4> boundary_info() const
+    std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 2> boundary_info() const
     {
 
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result = {
@@ -773,18 +718,7 @@ struct Brinkman final : public I_Test
             {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
             {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
 
-        std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> resultI = {
-            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
-
-        return {result, result, resultI, resultI};
+        return {result, result};
     }
 
     std::array<Eigen::VectorXd, 9> inverse_diffusion_term(const Eigen::MatrixXd &points) const
@@ -884,7 +818,7 @@ struct DarcyStokes_1 final : public I_Test
         return domain;
     }
 
-    std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 4> boundary_info() const
+    std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 2> boundary_info() const
     {
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result1 = {
             {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
@@ -926,27 +860,7 @@ struct DarcyStokes_1 final : public I_Test
             {16, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
             {17, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
 
-        std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> resultI = {
-            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {9, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {10, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {12, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {13, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {14, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {15, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {16, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {17, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
-
-        return {result1, result2, resultI, resultI};
+        return {result1, result2};
     }
 
     std::array<Eigen::VectorXd, 9> inverse_diffusion_term(const Eigen::MatrixXd &points) const
@@ -1161,7 +1075,7 @@ struct DarcyStokes_2 final : public I_Test
         return domain;
     }
 
-    std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 4> boundary_info() const
+    std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 2> boundary_info() const
     {
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result1 = {
             {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
@@ -1203,27 +1117,7 @@ struct DarcyStokes_2 final : public I_Test
             {16, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 3}},
             {17, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
 
-        std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> resultI = {
-            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {9, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {10, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {12, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {13, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {14, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {15, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {16, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-            {17, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}}};
-
-        return {result1, result2, resultI, resultI};
+        return {result1, result2};
     }
 
     std::array<Eigen::VectorXd, 9> inverse_diffusion_term(const Eigen::MatrixXd &points) const

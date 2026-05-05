@@ -15,6 +15,7 @@
 #include "EllipticEquation.hpp"
 #include "FEM_PCC_1D_Creator.hpp"
 #include "VEM_PCC_Utilities.hpp"
+#include <cassert>
 
 namespace Polydim
 {

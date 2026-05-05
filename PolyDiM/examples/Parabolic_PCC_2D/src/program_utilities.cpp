@@ -12,7 +12,7 @@
 #include "program_utilities.hpp"
 
 #include "VTKUtilities.hpp"
-#include <numbers>
+#include <cassert>
 
 namespace Polydim
 {

@@ -12,7 +12,7 @@
 #include "assembler.hpp"
 
 #include "EllipticEquation.hpp"
-#include "VEM_MCC_2D_LocalSpace_Data.hpp"
+#include <cassert>
 
 using namespace std;
 using namespace Eigen;

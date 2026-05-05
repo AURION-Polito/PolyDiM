@@ -31,18 +31,18 @@ enum struct Test_Types
 {
     Patch_Test = 1,
     StokesSinSin = 2, /// Test 6.1 - Da Veiga, Lovadina, Vacca, "DIVERGENCE FREE VIRTUAL ELEMENTS FOR THE STOKES PROBLEM
-                      /// ON POLYGONAL MESHES", 2017, doi: 10.1051/m2an/2016032
+    /// ON POLYGONAL MESHES", 2017, doi: 10.1051/m2an/2016032
     NavierStokes = 3, /// Test 5.3 - Da Veiga, Lovadina, Vacca, "VIRTUAL ELEMENTS FOR THE NAVIER--STOKES PROBLEM ON
-                      /// POLYGONAL MESHES", 2018, doi: 10.1137/17M1132811
+    /// POLYGONAL MESHES", 2018, doi: 10.1137/17M1132811
     NavierStokes_VanishingExternalLoad = 4 /// Test 5.2 - Da Veiga, Lovadina, Vacca, "VIRTUAL ELEMENTS FOR THE
-                                           /// NAVIER--STOKES PROBLEM ON POLYGONAL MESHES", 2018,
-                                           /// doi: 10.1137/17M1132811
+    /// NAVIER--STOKES PROBLEM ON POLYGONAL MESHES", 2018,
+    /// doi: 10.1137/17M1132811
 };
 // ***************************************************************************
 struct I_Test
 {
     virtual Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain() const = 0;
-    virtual std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info() const = 0;
+    virtual std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 2> boundary_info() const = 0;
     virtual Eigen::VectorXd fluid_viscosity(const Eigen::MatrixXd &points) const = 0;
     virtual std::array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd &points) const = 0;
     virtual std::array<Eigen::VectorXd, 3> strong_boundary_condition(const unsigned int marker,
@@ -73,17 +73,20 @@ struct Patch_Test final : public I_Test
         return domain;
     }
 
-    std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info() const
+    std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 2> boundary_info() const
     {
-        return {{0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
+        std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result = {
+            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
+
+        return {result, result};
     }
 
     Eigen::VectorXd fluid_viscosity(const Eigen::MatrixXd &points) const
@@ -213,17 +216,20 @@ struct StokesSinSin final : public I_Test
         return domain;
     }
 
-    std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info() const
+    std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 2> boundary_info() const
     {
-        return {{0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
-                {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
+        std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result = {
+            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
+            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
+
+        return {result, result};
     }
 
     Eigen::VectorXd fluid_viscosity(const Eigen::MatrixXd &points) const
@@ -329,17 +335,20 @@ struct NavierStokes final : public I_Test
         return domain;
     }
 
-    std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info() const
+    std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 2> boundary_info() const
     {
-        return {{0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
-                {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
+        std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result = {
+            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {2, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {3, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {4, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {5, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
+            {6, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {7, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+            {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
+
+        return {result, result};
     }
 
     Eigen::VectorXd fluid_viscosity(const Eigen::MatrixXd &points) const
@@ -456,10 +465,13 @@ struct NavierStokes_VanishingExternalLoad final : public I_Test
         return domain;
     }
 
-    std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> boundary_info() const
+    std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 2> boundary_info() const
     {
-        return {{0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-                {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
+        std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> result = {
+            {0, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+            {1, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
+
+        return {result, result};
     }
 
     Eigen::VectorXd fluid_viscosity(const Eigen::MatrixXd &points) const

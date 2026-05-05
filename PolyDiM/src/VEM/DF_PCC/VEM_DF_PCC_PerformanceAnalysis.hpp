@@ -38,6 +38,13 @@ struct VEM_DF_PCC_PerformanceAnalysis_Data
     std::vector<double> ErrorHCD;
     std::vector<double> ErrorGBD;
     std::vector<double> ErrorHED;
+
+    double maxPiNablaConditioning;
+    double maxPi0kConditioning;
+    double maxErrorPiNabla;
+    double maxErrorPi0k;
+    double maxErrorHCD;
+    double maxErrorGBD;
 };
 
 struct VEM_DF_PCC_PerformanceAnalysis final
@@ -152,6 +159,13 @@ struct VEM_DF_PCC_PerformanceAnalysis final
                 }
             }
         }
+
+        result.maxErrorGBD = *std::max_element(result.ErrorGBD.begin(), result.ErrorGBD.end());
+        result.maxErrorHCD = *std::max_element(result.ErrorHCD.begin(), result.ErrorHCD.end());
+        result.maxErrorPiNabla = *std::max_element(result.ErrorPiNabla.begin(), result.ErrorPiNabla.end());
+        result.maxErrorPi0k = *std::max_element(result.ErrorPi0k.begin(), result.ErrorPi0k.end());
+        result.maxPiNablaConditioning = *std::max_element(result.PiNablaConditioning.begin(), result.PiNablaConditioning.end());
+        result.maxPi0kConditioning = *std::max_element(result.Pi0kConditioning.begin(), result.Pi0kConditioning.end());
 
         return result;
     }

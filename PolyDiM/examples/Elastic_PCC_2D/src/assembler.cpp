@@ -14,7 +14,7 @@
 #include "Assembler_Utilities.hpp"
 #include "EllipticEquation.hpp"
 #include "Quadrature_Gauss1D.hpp"
-#include "VEM_PCC_Utilities.hpp"
+#include <cassert>
 
 namespace Polydim
 {

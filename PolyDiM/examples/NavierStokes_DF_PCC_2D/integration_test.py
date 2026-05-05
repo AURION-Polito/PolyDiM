@@ -3,8 +3,8 @@ import csv
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np
-import pickle
 
+export_folder = "integration_tests"
 
 def draw_loglog_slope(fig, ax, origin, width_inches, slope, inverted=False, color=None, polygon_kwargs=None,
                       label=True, labelcolor=None, label_kwargs=None, zorder=None):
@@ -106,8 +106,8 @@ def draw_loglog_slope(fig, ax, origin, width_inches, slope, inverted=False, colo
 def run_program(program_folder,
                 program_path,
                 run_folder,
-                vem_type,
-                vem_order,
+                method_type,
+                method_order,
                 test_type,
                 mesh_generator,
                 mesh_max_area,
@@ -123,20 +123,20 @@ def run_program(program_folder,
                                "{0}_TT{1}_VT{2}".format(
                                    run_folder,
                                    test_type,
-                                   vem_type),
+                                   method_type),
                                "{0}_TT{1}_VT{2}_VO{3}".format(
                                    run_folder,
                                    test_type,
-                                   vem_type,
-                                   vem_order))
+                                   method_type,
+                                   method_order))
 
-    program_parameters = "VemType:uint={0}".format(vem_type)
-    program_parameters += " VemOrder:uint={0}".format(vem_order)
+    program_parameters = "MethodType:uint={0}".format(method_type)
+    program_parameters += " MethodOrder:uint={0}".format(method_order)
     program_parameters += " ExportFolder:string={0}".format(export_path)
     program_parameters += " TestType:uint={0}".format(test_type)
     program_parameters += " MeshGenerator:uint={0}".format(mesh_generator)
     program_parameters += " MeshMaxArea:double={0}".format(mesh_max_area)
-    program_parameters += " ComputeVEMPerformance:bool={0}".format(0)
+    program_parameters += " ComputeMethodPerformance:bool={0}".format(0)
     program_parameters += " NLMaxNumberIterations:uint={0}".format(num_nl_iterations)
     program_parameters += " NLAbsChangeInSolutionTolerance:double={0}".format(1.0e-9)
     program_parameters += " NLAbsResidualTolerance:double={0}".format(1.0e-10)
@@ -148,8 +148,8 @@ def run_program(program_folder,
     output_file = os.path.join(program_folder,
                                "terminal.log")
 
-    run_label = "VemType {0}".format(vem_type)
-    run_label += " VemOrder {0}".format(vem_order)
+    run_label = "MethodType {0}".format(method_type)
+    run_label += " MethodOrder {0}".format(method_order)
     run_label += " TestType {0}".format(test_type)
     run_label += " ConvectiveForm {0}".format(conv_form)
     run_label += " MeshGenerator {0}".format(mesh_generator)
@@ -162,10 +162,10 @@ def run_program(program_folder,
     return export_path
 
 
-def import_errors(export_path, vem_type, vem_order, test_type):
+def import_errors(export_path, method_type, method_order, test_type):
     errors_file = os.path.join(export_path,
                                "Solution",
-                               "Errors_" + str(test_type) + "_" + str(vem_type) + "_" + str(vem_order) + ".csv")
+                               "Errors_" + str(test_type) + "_" + str(method_type) + "_" + str(method_order) + ".csv")
     errors = []
     with open(errors_file, newline='') as csvfile:
         file_reader = csv.reader(csvfile, delimiter=';')
@@ -197,13 +197,13 @@ def import_errors(export_path, vem_type, vem_order, test_type):
 
 
 def test_errors(errors,
-                vem_order,
+                method_order,
                 tol,
                 test_type,
                 conv_form):
     num_rows = len(errors)
 
-    if (num_rows == 2):
+    if num_rows == 2:
         print("Patch: ", abs(errors[1][1]) / abs(errors[1][3]), abs(errors[1][2]) / abs(errors[1][4]), int(errors[1][5]), errors[1][6])
         assert abs(errors[1][1]) < tol * abs(errors[1][3])
         assert abs(errors[1][2]) < tol * abs(errors[1][4])
@@ -212,25 +212,24 @@ def test_errors(errors,
         assert abs(errors[1][6]) < tol
     else:
         errors = np.array(errors[1:])
-        slope_L2_pres = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 2]), 1)[0]
-        slope_H1_vel = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 1]), 1)[0]
-        print("Num. Ref. ", str(num_rows-1), " : ", slope_H1_vel, slope_L2_pres, errors[:, 5], errors[:, 6])
-        assert round(slope_L2_pres) >= round(float(vem_order))
+        slope_l2_pres = float(np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 2]), 1)[0])
+        slope_h1_vel = float(np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 1]), 1)[0])
+        print("Num. Ref. ", str(num_rows-1), " : ", slope_h1_vel, slope_l2_pres, errors[:, 5], errors[:, 6])
+        assert round(slope_l2_pres) >= round(float(method_order))
         if test_type == 4 and conv_form == 0:
-            assert round(slope_H1_vel) >= round(float(vem_order + 2))
+            assert round(slope_h1_vel) >= round(float(method_order + 2))
         else:
-            assert round(slope_H1_vel) >= round(float(vem_order))
+            assert round(slope_h1_vel) >= round(float(method_order))
 
 
-if __name__ == "__main__":
+def main():
     program_folder = os.path.dirname(os.path.realpath(__file__))
     program_path = os.path.join(".", program_folder, "NavierStokes_DF_PCC_2D")
 
-    remove_folder = False
+    remove_folder = True
 
-    vem_type = 1
-    vem_orders = [2, 3, 4]
-    export_folder = "integration_tests"
+    method_type = 1
+    method_orders = [2, 3, 4]
     tol = 5.0e-8
 
     print("RUN TESTS...")
@@ -240,21 +239,21 @@ if __name__ == "__main__":
     mesh_max_area = 0.0
     conv_forms = [0, 2]
     for conv_form in conv_forms:
-        for vem_order in vem_orders:
+        for method_order in method_orders:
             export_path = run_program(program_folder,
                                       program_path,
                                       "Run_MG{0}_CF{1}".format(mesh_generator, conv_form),
-                                      vem_type,
-                                      vem_order,
+                                      method_type,
+                                      method_order,
                                       test_type,
                                       mesh_generator,
                                       mesh_max_area,
                                       0,
                                       conv_form,
                                       10)
-            errors = import_errors(export_path, vem_type, vem_order, test_type)
+            errors = import_errors(export_path, method_type, method_order, test_type)
             test_errors(errors,
-                        vem_order,
+                        method_order,
                         tol,
                         test_type,
                         conv_form)
@@ -266,14 +265,14 @@ if __name__ == "__main__":
     mesh_max_areas = [0.125*0.125, 0.0625*0.0625]
     conv_forms = [2]
     for conv_form in conv_forms:
-        for vem_order in vem_orders:
+        for method_order in method_orders:
             num_ref = 0
             for mesh_max_area in mesh_max_areas:
                 export_path = run_program(program_folder,
                                           program_path,
                                           "Run_MG{0}_CF{1}".format(mesh_generator, conv_form),
-                                          vem_type,
-                                          vem_order,
+                                          method_type,
+                                          method_order,
                                           test_type,
                                           mesh_generator,
                                           mesh_max_area,
@@ -281,9 +280,9 @@ if __name__ == "__main__":
                                           conv_form,
                                           10)
                 num_ref += 1
-            errors = import_errors(export_path, vem_type, vem_order, test_type)
+            errors = import_errors(export_path, method_type, method_order, test_type)
             test_errors(errors,
-                        vem_order,
+                        method_order,
                         tol,
                         test_type,
                         conv_form)
@@ -295,14 +294,14 @@ if __name__ == "__main__":
     mesh_max_areas = [0.125*0.125, 0.0625*0.0625]
     conv_forms = [0, 1]
     for conv_form in conv_forms:
-        for vem_order in vem_orders:
+        for method_order in method_orders:
             num_ref = 0
             for mesh_max_area in mesh_max_areas:
                 export_path = run_program(program_folder,
                                           program_path,
                                           "Run_MG{0}_CF{1}".format(mesh_generator, conv_form),
-                                          vem_type,
-                                          vem_order,
+                                          method_type,
+                                          method_order,
                                           test_type,
                                           mesh_generator,
                                           mesh_max_area,
@@ -310,9 +309,9 @@ if __name__ == "__main__":
                                           conv_form,
                                           10)
                 num_ref += 1
-            errors = import_errors(export_path, vem_type, vem_order, test_type)
+            errors = import_errors(export_path, method_type, method_order, test_type)
             test_errors(errors,
-                        vem_order,
+                        method_order,
                         tol,
                         test_type,
                         conv_form)
@@ -324,14 +323,14 @@ if __name__ == "__main__":
     mesh_max_areas = [0.01, 0.005]
     conv_forms = [0, 1]
     for conv_form in conv_forms:
-        for vem_order in vem_orders:
+        for method_order in method_orders:
             num_ref = 0
             for mesh_max_area in mesh_max_areas:
                 export_path = run_program(program_folder,
                                           program_path,
                                           "Run_MG{0}_CF{1}".format(mesh_generator, conv_form),
-                                          vem_type,
-                                          vem_order,
+                                          method_type,
+                                          method_order,
                                           test_type,
                                           mesh_generator,
                                           mesh_max_area,
@@ -340,9 +339,9 @@ if __name__ == "__main__":
                                           10)
                 num_ref += 1
 
-            errors = import_errors(export_path, vem_type, vem_order, test_type)
+            errors = import_errors(export_path, method_type, method_order, test_type)
             test_errors(errors,
-                        vem_order,
+                        method_order,
                         tol,
                         test_type,
                         conv_form)
@@ -351,21 +350,21 @@ if __name__ == "__main__":
 
     test_type = 4
     mesh_generator = 4
-    mesh_import_paths = ["../../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R1",
-                         "../../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R2",
-                         "../../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R3"]
+    mesh_import_paths = [program_folder + "/../../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R1",
+                         program_folder + "/../../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R2",
+                         program_folder + "/../../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R3"]
     conv_forms = [0, 1]
-    vem_orders = [2]
+    method_orders = [2]
     list_errors = []
     for conv_form in conv_forms:
-        for vem_order in vem_orders:
+        for method_order in method_orders:
             num_ref = 0
             for mesh_imp_path in mesh_import_paths:
                 export_path = run_program(program_folder,
                                           program_path,
                                           "Run_MG{0}_CF{1}".format(mesh_generator, conv_form),
-                                          vem_type,
-                                          vem_order,
+                                          method_type,
+                                          method_order,
                                           test_type,
                                           mesh_generator,
                                           0.0,
@@ -375,9 +374,9 @@ if __name__ == "__main__":
                                           mesh_imp_path)
                 num_ref += 1
 
-            errors = import_errors(export_path, vem_type, vem_order, test_type)
+            errors = import_errors(export_path, method_type, method_order, test_type)
             test_errors(errors,
-                        vem_order,
+                        method_order,
                         tol,
                         test_type,
                         conv_form)
@@ -443,7 +442,7 @@ if __name__ == "__main__":
     plt.grid(True, which="both", ls="--")
     t_pos = [0.1, 0.008]
     draw_loglog_slope(fig, ax, (t_pos[0], t_pos[1]), 3, slope=2, color='k')
-    plt.savefig(export_folder + "/{}_l2_pressure_decay_plot.png".format(test_type), bbox_inches='tight', dpi=300)
+    plt.savefig(program_folder + export_folder + "/{}_l2_pressure_decay_plot.png".format(test_type), bbox_inches='tight', dpi=300)
     plt.show()
 
     if remove_folder:
@@ -451,3 +450,5 @@ if __name__ == "__main__":
 
     print("TESTS SUCCESS")
 
+if __name__ == "__main__":
+    main()
