@@ -86,7 +86,7 @@ Polydim::PDETools::LocalSpace_DF_PCC_2D::ReferenceElement_Data CreateReferenceEl
 std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> SetMeshDOFsInfo(
     const Polydim::PDETools::LocalSpace_DF_PCC_2D::ReferenceElement_Data &reference_element_data,
     const Gedim::MeshMatricesDAO &mesh,
-    const std::array<std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, 2> &boundary_info);
+    const std::array<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryMap, 2> &boundary_info);
 
 LocalSpace_Data CreateLocalSpace(const double &geometric_tolerance_1D,
                                  const double &geometric_tolerance_2D,

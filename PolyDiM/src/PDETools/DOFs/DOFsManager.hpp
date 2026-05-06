@@ -82,6 +82,8 @@ class DOFsManager
 
         std::array<std::vector<unsigned int>, DOFSMANAGER_MAX_DIMENSION + 1> CellsNumDOFs;
         std::array<std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, DOFSMANAGER_MAX_DIMENSION + 1> CellsBoundaryInfo;
+
+        using BoundaryMap = std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>;
     };
 
     using BoundaryTypes = typename MeshDOFsInfo::BoundaryInfo::BoundaryTypes;
