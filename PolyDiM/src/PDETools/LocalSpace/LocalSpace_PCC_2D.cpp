@@ -766,11 +766,13 @@ void export_dofs(const Gedim::GeometryUtilities &geometry_utilities,
             continue;
 
         const auto local_polygon_coordinates = geometry_utilities.EquispaceCoordinates(num_loc_dofs + 1, 0.0, 1.0, true);
-        const Eigen::Vector3d polygon_centroid = mesh_geometric_data.Cell2DsCentroids.at(c);
+        const double polygon_area = geometry_utilities.PolygonArea(mesh_geometric_data.Cell2DsVertices.at(c));
+        const Eigen::Vector3d polygon_centroid =
+            geometry_utilities.PolygonCentroid(mesh_geometric_data.Cell2DsVertices.at(c), polygon_area);
+        const Eigen::MatrixXd polygon_edge_normals =
+            geometry_utilities.PolygonEdgeNormals(mesh_geometric_data.Cell2DsVertices.at(c));
         const auto polygonCentroidEdgesDistance =
-            geometry_utilities.PolygonCentroidEdgesDistance(mesh_geometric_data.Cell2DsVertices.at(c),
-                                                            mesh_geometric_data.Cell2DsCentroids.at(c),
-                                                            mesh_geometric_data.Cell2DsEdgeNormals.at(c));
+            geometry_utilities.PolygonCentroidEdgesDistance(mesh_geometric_data.Cell2DsVertices.at(c), polygon_centroid, polygon_edge_normals);
         const double circle_diameter = 0.5 * geometry_utilities.PolygonInRadius(polygonCentroidEdgesDistance);
 
         for (unsigned int loc_i = 0; loc_i < num_loc_dofs; ++loc_i)

@@ -32,7 +32,7 @@ void Assembler::ComputeStrongTerm(const unsigned int &cell3DIndex,
                                   Elliptic_PCC_3D_Problem_Data &assembler_data) const
 {
 
-    if(dofs_data.CellsGlobalNumberStrongs.at(3).at(cell3DIndex) == 0)
+    if (dofs_data.CellsGlobalNumberStrongs.at(3).at(cell3DIndex) == 0)
         return;
 
     // Assemble strong boundary condition on Cell0Ds
@@ -161,7 +161,7 @@ void Assembler::ComputeWeakTerm(const unsigned int cell3DIndex,
                                 Elliptic_PCC_3D_Problem_Data &assembler_data) const
 {
 
-    if(!dofs_data.CellsGlobalHasBoundaryDOFs.at(3).at(cell3DIndex))
+    if (!dofs_data.CellsGlobalHasBoundaryDOFs.at(3).at(cell3DIndex))
         return;
 
     // Assemble weak boundary condition on Cell2Ds

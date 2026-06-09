@@ -51,8 +51,6 @@ void DOFsManager::CreateCellDOFs(const MeshDOFsInfo &meshDOFsInfo, DOFsData &dof
         const auto &cell_boundary_info = cells_boundary_info.at(c);
         const BoundaryTypes &cellBoundaryType = cell_boundary_info.Type;
 
-
-
         cellsDOFs.at(c).resize(numCellDofs);
 
         switch (cellBoundaryType)

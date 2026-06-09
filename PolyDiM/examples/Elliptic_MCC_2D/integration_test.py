@@ -100,25 +100,25 @@ def check_errors(errors,
         assert abs(errors[1][3]) < tol * abs(errors[1][5])
     else:
         errors = np.array(errors[1:])
-        slope_L2_vel = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 1]), 1)[0]
-        slope_L2_pres = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 2]), 1)[0]
-        slope_super_L2_pres = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 3]), 1)[0]
-        print("Num. Ref. ", str(num_rows - 1), ": ", slope_L2_vel, slope_L2_pres, slope_super_L2_pres)
+        slope_l2_vel = float(np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 1]), 1)[0])
+        slope_l2_pres = float(np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 2]), 1)[0])
+        slope_super_l2_pres = float(np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 3]), 1)[0])
+        print("Num. Ref. ", str(num_rows - 1), ": ", slope_l2_vel, slope_l2_pres, slope_super_l2_pres)
         if vem_order != 3:
-            assert round(slope_L2_vel) == round(float(vem_order + 1.0))
-        assert round(slope_L2_pres) == round(float(vem_order + 1.0))
+            assert round(slope_l2_vel) == round(float(vem_order + 1.0))
+        assert round(slope_l2_pres) == round(float(vem_order + 1.0))
         if vem_type != 5 and vem_type != 4:
-            assert round(slope_super_L2_pres) >= round(float(vem_order + 2.0))
+            assert round(slope_super_l2_pres) >= round(float(vem_order + 2.0))
 
 
-if __name__ == "__main__":
+def main():
     program_folder = os.path.dirname(os.path.realpath(__file__))
     program_path = os.path.join(".", program_folder, "Elliptic_MCC_2D")
 
     remove_folder = False
 
 
-    export_folder = "integration_tests"
+
     os.system("rm -rf " + os.path.join(program_folder, export_folder))
     tol = 1.0e-12
 
@@ -290,3 +290,8 @@ if __name__ == "__main__":
         os.system("rm -rf " + os.path.join(program_folder, export_folder))
 
     print("TESTS SUCCESS")
+
+
+if __name__ == "__main__":
+    export_folder = "integration_tests"
+    main()

@@ -12,12 +12,10 @@
 #ifndef __PDETOOLS_DOFS_DOFsManager_HPP
 #define __PDETOOLS_DOFS_DOFsManager_HPP
 
-
-#include "Gedim_Macro.hpp"
 #include "Eigen/Eigen"
+#include "Gedim_Macro.hpp"
 #include <array>
 #include <concepts>
-
 
 #define DOFSMANAGER_MAX_DIMENSION 3
 
@@ -133,7 +131,6 @@ class DOFsManager
         std::array<std::vector<bool>, DOFSMANAGER_MAX_DIMENSION + 1> CellsGlobalHasInternalDOFs;
         std::array<std::vector<bool>, DOFSMANAGER_MAX_DIMENSION + 1> CellsGlobalHasBoundaryDOFs;
         std::array<std::vector<unsigned int>, DOFSMANAGER_MAX_DIMENSION + 1> CellsGlobalNumberStrongs;
-
     };
 
     struct CellsDOFsIndicesData final
@@ -317,19 +314,19 @@ class DOFsManager
             cellsGlobalNumberDOFs[cell1DIndex] += dofs.CellsNumberDOFs.at(0).at(cell1D_origin_cell0DIndex);
             cellsGlobalNumberStrongs[cell1DIndex] += dofs.CellsNumberStrongs.at(0).at(cell1D_origin_cell0DIndex);
 
-            if(dofs.CellsHasInternalDOFs.at(0).at(cell1D_origin_cell0DIndex))
+            if (dofs.CellsHasInternalDOFs.at(0).at(cell1D_origin_cell0DIndex))
                 cellsGlobalHasInternalDOFs[cell1DIndex] = true;
 
-            if(dofs.CellsHasBoundaryDOFs.at(0).at(cell1D_origin_cell0DIndex))
+            if (dofs.CellsHasBoundaryDOFs.at(0).at(cell1D_origin_cell0DIndex))
                 cellsGlobalHasBoundaryDOFs[cell1DIndex] = true;
 
             cellsGlobalNumberDOFs[cell1DIndex] += dofs.CellsNumberDOFs.at(0).at(cell1D_end_cell0DIndex);
             cellsGlobalNumberStrongs[cell1DIndex] += dofs.CellsNumberStrongs.at(0).at(cell1D_end_cell0DIndex);
 
-            if(dofs.CellsHasInternalDOFs.at(0).at(cell1D_end_cell0DIndex))
+            if (dofs.CellsHasInternalDOFs.at(0).at(cell1D_end_cell0DIndex))
                 cellsGlobalHasInternalDOFs[cell1DIndex] = true;
 
-            if(dofs.CellsHasBoundaryDOFs.at(0).at(cell1D_end_cell0DIndex))
+            if (dofs.CellsHasBoundaryDOFs.at(0).at(cell1D_end_cell0DIndex))
                 cellsGlobalHasBoundaryDOFs[cell1DIndex] = true;
 
             cellsGlobalNumberDOFs[cell1DIndex] += dofs.CellsNumberDOFs.at(1).at(cell1DIndex);
@@ -415,12 +412,11 @@ class DOFsManager
                 cellsGlobalNumberDOFs[cell2DIndex] += dofs.CellsNumberDOFs.at(1).at(edge_cell1DIndex);
                 cellsGlobalNumberStrongs[cell2DIndex] += dofs.CellsNumberStrongs.at(1).at(edge_cell1DIndex);
 
-                if(dofs.CellsHasInternalDOFs.at(1).at(edge_cell1DIndex))
+                if (dofs.CellsHasInternalDOFs.at(1).at(edge_cell1DIndex))
                     cellsGlobalHasInternalDOFs[cell2DIndex] = true;
 
-                if(dofs.CellsHasBoundaryDOFs.at(1).at(edge_cell1DIndex))
+                if (dofs.CellsHasBoundaryDOFs.at(1).at(edge_cell1DIndex))
                     cellsGlobalHasBoundaryDOFs[cell2DIndex] = true;
-
             }
 
             ConcatenateGlobalDOFs(2, cell2DIndex, dofs.CellsDOFs.at(2).at(cell2DIndex), cellsGlobalDOFs[cell2DIndex], globalDOF_counter);
@@ -518,11 +514,10 @@ class DOFsManager
                 cellsGlobalNumberDOFs[cell3DIndex] += dofs.CellsNumberDOFs.at(2).at(face_cell2DIndex);
                 cellsGlobalNumberStrongs[cell3DIndex] += dofs.CellsNumberStrongs.at(2).at(face_cell2DIndex);
 
-
-                if(dofs.CellsHasInternalDOFs.at(2).at(face_cell2DIndex))
+                if (dofs.CellsHasInternalDOFs.at(2).at(face_cell2DIndex))
                     cellsGlobalHasInternalDOFs[cell3DIndex] = true;
 
-                if(dofs.CellsHasBoundaryDOFs.at(2).at(face_cell2DIndex))
+                if (dofs.CellsHasBoundaryDOFs.at(2).at(face_cell2DIndex))
                     cellsGlobalHasBoundaryDOFs[cell3DIndex] = true;
             }
 
