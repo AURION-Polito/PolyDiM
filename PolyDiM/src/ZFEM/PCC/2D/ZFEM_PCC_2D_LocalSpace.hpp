@@ -27,9 +27,9 @@ namespace PCC
 class ZFEM_PCC_2D_LocalSpace final : public I_ZFEM_PCC_2D_LocalSpace
 {
   private:
-    ZFEM_PCC_Utilities ZFEM_utilities;
-    Utilities::Monomials_2D monomials;
-    FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace fem_local_space;
+    Polydim::ZFEM::PCC::ZFEM_PCC_Utilities ZFEM_utilities;
+    Polydim::Utilities::Monomials_2D monomials;
+    Polydim::FEM::PCC::FEM_Triangle_PCC_2D_LocalSpace fem_local_space;
 
   public:
     void PolygonFineNodes(const unsigned int num_vertices,
@@ -42,26 +42,26 @@ class ZFEM_PCC_2D_LocalSpace final : public I_ZFEM_PCC_2D_LocalSpace
                           Eigen::MatrixXd &VirtualNodes,
                           Eigen::MatrixXd &FinerNodes) const;
 
-    ZFEM_PCC_2D_LocalSpace_Data CreateLocalSpace(const ZFEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                 const ZFEM_PCC_2D_Polygon_Geometry &polygon) const;
+    ZFEM_PCC_2D_LocalSpace_Data CreateLocalSpace(const Polydim::ZFEM::PCC::ZFEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                 const Polydim::ZFEM::PCC::ZFEM_PCC_2D_Polygon_Geometry &polygon) const;
 
-    void ComputePolynomialsDofs(const ZFEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+    void ComputePolynomialsDofs(const Polydim::ZFEM::PCC::ZFEM_PCC_2D_ReferenceElement_Data &reference_element_data,
                                 const Eigen::Vector3d &internal_points,
                                 const double &diameter,
-                                ZFEM_PCC_2D_LocalSpace_Data &localSpace) const;
+                                Polydim::ZFEM::PCC::ZFEM_PCC_2D_LocalSpace_Data &localSpace) const;
 
-    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const ZFEM_PCC_2D_LocalSpace_Data &localSpace) const
+    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const Polydim::ZFEM::PCC::ZFEM_PCC_2D_LocalSpace_Data &localSpace) const
     {
         return localSpace.ZFEM_basis_functions_values;
     }
 
-    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const ZFEM_PCC_2D_LocalSpace_Data &localSpace) const
+    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const Polydim::ZFEM::PCC::ZFEM_PCC_2D_LocalSpace_Data &localSpace) const
     {
         return localSpace.ZFEM_basis_functions_derivative_values;
     }
 
-    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const ZFEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                       const ZFEM_PCC_2D_LocalSpace_Data &localSpace,
+    inline Eigen::MatrixXd ComputeBasisFunctionsValues(const Polydim::ZFEM::PCC::ZFEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                       const Polydim::ZFEM::PCC::ZFEM_PCC_2D_LocalSpace_Data &localSpace,
                                                        const std::vector<Eigen::MatrixXd> &points) const
     {
         const Eigen::MatrixXd total_fem_basis_functions_values =
@@ -78,8 +78,8 @@ class ZFEM_PCC_2D_LocalSpace final : public I_ZFEM_PCC_2D_LocalSpace
                                                           localSpace.VirtualWeights);
     }
 
-    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const ZFEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                                                              const ZFEM_PCC_2D_LocalSpace_Data &localSpace,
+    inline std::vector<Eigen::MatrixXd> ComputeBasisFunctionsDerivativeValues(const Polydim::ZFEM::PCC::ZFEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                                                              const Polydim::ZFEM::PCC::ZFEM_PCC_2D_LocalSpace_Data &localSpace,
                                                                               const std::vector<Eigen::MatrixXd> &points) const
     {
 
@@ -99,8 +99,8 @@ class ZFEM_PCC_2D_LocalSpace final : public I_ZFEM_PCC_2D_LocalSpace
                                                                     localSpace.VirtualWeights);
     }
 
-    inline Eigen::MatrixXd ComputeValuesOnEdge(const ZFEM_PCC_2D_ReferenceElement_Data &reference_element_data,
-                                               const ZFEM_PCC_2D_LocalSpace_Data &localSpace,
+    inline Eigen::MatrixXd ComputeValuesOnEdge(const Polydim::ZFEM::PCC::ZFEM_PCC_2D_ReferenceElement_Data &reference_element_data,
+                                               const Polydim::ZFEM::PCC::ZFEM_PCC_2D_LocalSpace_Data &localSpace,
                                                const Eigen::VectorXd &pointsCurvilinearCoordinates) const
     {
 

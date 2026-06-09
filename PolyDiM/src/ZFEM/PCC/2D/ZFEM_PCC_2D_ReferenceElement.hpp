@@ -22,12 +22,12 @@ namespace ZFEM
 namespace PCC
 {
 
-class ZFEM_PCC_2D_ReferenceElement final : public I_ZFEM_PCC_2D_ReferenceElement
+class ZFEM_PCC_2D_ReferenceElement final : public Polydim::ZFEM::PCC::I_ZFEM_PCC_2D_ReferenceElement
 {
   public:
     ZFEM_PCC_2D_ReferenceElement_Data Create(const unsigned int order) const
     {
-        ZFEM_PCC_2D_ReferenceElement_Data result;
+        Polydim::ZFEM::PCC::ZFEM_PCC_2D_ReferenceElement_Data result;
 
         result.Dimension = 2;
         result.Order = order;
@@ -38,7 +38,7 @@ class ZFEM_PCC_2D_ReferenceElement final : public I_ZFEM_PCC_2D_ReferenceElement
         Polydim::FEM::PCC::FEM_Triangle_PCC_2D_ReferenceElement fem_reference_element;
         result.fem_reference_element_data = fem_reference_element.Create(order);
 
-        Utilities::Monomials_2D monomials;
+        Polydim::Utilities::Monomials_2D monomials;
         result.monomials_data = monomials.Compute(order);
 
         return result;
