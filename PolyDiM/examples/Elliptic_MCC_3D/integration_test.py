@@ -1,6 +1,5 @@
 import os
 import csv
-import math
 import numpy as np
 
 
@@ -83,28 +82,29 @@ def import_errors(export_path, vem_type, vem_order, test_type):
     return errors
 
 
-def test_errors(errors,
-                vem_order,
-                tol):
+def check_errors(errors,
+                 vem_order,
+                 tol):
     num_rows = len(errors)
 
     if num_rows == 2:
-        print("Num. Ref. 1: ", abs(errors[1][1]) / abs(errors[1][4]), abs(errors[1][2]) / abs(errors[1][5]), abs(errors[1][3]) / abs(errors[1][5]))
+        print("Num. Ref. 1: ", abs(errors[1][1]) / abs(errors[1][4]), abs(errors[1][2]) / abs(errors[1][5]),
+              abs(errors[1][3]) / abs(errors[1][5]))
         assert abs(errors[1][1]) < tol * abs(errors[1][4])
         assert abs(errors[1][2]) < tol * abs(errors[1][5])
         assert abs(errors[1][3]) < tol * abs(errors[1][5])
     else:
         errors = np.array(errors[1:])
-        slope_L2_vel = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 1]), 1)[0]
-        slope_L2_pres = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 2]), 1)[0]
-        slope_super_L2_pres = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 3]), 1)[0]
-        print("Num. Ref. ", str(num_rows-1), ": ", slope_L2_vel, slope_L2_pres, slope_super_L2_pres)
-        assert round(slope_L2_vel) == round(float(vem_order + 1.0))
-        assert round(slope_L2_pres) == round(float(vem_order + 1.0))
-        assert round(slope_super_L2_pres) >= round(float(vem_order + 2.0))
+        slope_l2_vel = float(np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 1]), 1)[0])
+        slope_l2_pres = float(np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 2]), 1)[0])
+        slope_super_l2_pres = float(np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 3]), 1)[0])
+        print("Num. Ref. ", str(num_rows - 1), ": ", slope_l2_vel, slope_l2_pres, slope_super_l2_pres)
+        assert round(slope_l2_vel) == round(float(vem_order + 1.0))
+        assert round(slope_l2_pres) == round(float(vem_order + 1.0))
+        assert round(slope_super_l2_pres) >= round(float(vem_order + 2.0))
 
 
-if __name__ == "__main__":
+def main():
     program_folder = os.path.dirname(os.path.realpath(__file__))
     program_path = os.path.join(".", program_folder, "Elliptic_MCC_3D")
 
@@ -112,7 +112,6 @@ if __name__ == "__main__":
 
     vem_types = [1]
     vem_orders = [0, 1, 2]
-    export_folder = "integration_tests"
     os.system("rm -rf " + os.path.join(program_folder, export_folder))
     tol = 1.0e-10
 
@@ -132,9 +131,9 @@ if __name__ == "__main__":
                                       mesh_generator,
                                       mesh_max_volume)
             errors = import_errors(export_path, vem_type, vem_order, test_type)
-            test_errors(errors,
-                        vem_order,
-                        tol)
+            check_errors(errors,
+                         vem_order,
+                         tol)
 
             if remove_folder:
                 os.system("rm -rf " + os.path.join(program_folder, export_path))
@@ -154,9 +153,9 @@ if __name__ == "__main__":
                                           mesh_generator,
                                           mesh_max_volume)
             errors = import_errors(export_path, vem_type, vem_order, test_type)
-            test_errors(errors,
-                        vem_order,
-                        tol)
+            check_errors(errors,
+                         vem_order,
+                         tol)
             if remove_folder:
                 os.system("rm -rf " + os.path.join(program_folder, export_path))
 
@@ -164,4 +163,9 @@ if __name__ == "__main__":
         os.system("rm -rf " + os.path.join(program_folder, export_folder))
 
     print("TESTS SUCCESS")
+
+
+if __name__ == "__main__":
+    export_folder = "integration_tests"
+    main()
 

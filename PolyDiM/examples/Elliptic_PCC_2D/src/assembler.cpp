@@ -24,7 +24,7 @@ namespace examples
 namespace Elliptic_PCC_2D
 {
 //***************************************************************************
-void Assembler::ComputeStrongTerm(const unsigned int cell2D_index,
+void Assembler::ComputeStrongTerm(const unsigned int cell2DIndex,
                                   const Gedim::MeshMatricesDAO &mesh,
                                   const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
                                   const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
@@ -33,10 +33,14 @@ void Assembler::ComputeStrongTerm(const unsigned int cell2D_index,
                                   const test::I_Test &test,
                                   Elliptic_PCC_2D_Problem_Data &assembler_data) const
 {
+
+    if (dofs_data.CellsGlobalNumberStrongs.at(2).at(cell2DIndex) == 0)
+        return;
+
     // Assemble strong boundary condition on Cell0Ds
-    for (unsigned int v = 0; v < mesh.Cell2DNumberVertices(cell2D_index); ++v)
+    for (unsigned int v = 0; v < mesh.Cell2DNumberVertices(cell2DIndex); ++v)
     {
-        const unsigned int cell0D_index = mesh.Cell2DVertex(cell2D_index, v);
+        const unsigned int cell0D_index = mesh.Cell2DVertex(cell2DIndex, v);
         const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(0).at(cell0D_index);
 
         if (boundary_info.Type != Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes::Strong)
@@ -69,9 +73,9 @@ void Assembler::ComputeStrongTerm(const unsigned int cell2D_index,
     }
 
     // Assemble strong boundary condition on Cell1Ds
-    for (unsigned int ed = 0; ed < mesh.Cell2DNumberEdges(cell2D_index); ++ed)
+    for (unsigned int ed = 0; ed < mesh.Cell2DNumberEdges(cell2DIndex); ++ed)
     {
-        const unsigned int cell1D_index = mesh.Cell2DEdge(cell2D_index, ed);
+        const unsigned int cell1D_index = mesh.Cell2DEdge(cell2DIndex, ed);
 
         const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(1).at(cell1D_index);
         const auto local_dofs = dofs_data.CellsDOFs.at(1).at(cell1D_index);
@@ -116,6 +120,10 @@ void Assembler::ComputeWeakTerm(const unsigned int cell2DIndex,
                                 const Polydim::examples::Elliptic_PCC_2D::test::I_Test &test,
                                 Elliptic_PCC_2D_Problem_Data &assembler_data) const
 {
+
+    if (!dofs_data.CellsGlobalHasBoundaryDOFs.at(2).at(cell2DIndex))
+        return;
+
     const unsigned numVertices = mesh_geometric_data.Cell2DsVertices.at(cell2DIndex).cols();
 
     for (unsigned int ed = 0; ed < numVertices; ed++)

@@ -31,6 +31,10 @@ void Assembler::ComputeStrongTerm(const unsigned int &cell3DIndex,
                                   const test::I_Test &test,
                                   Elliptic_PCC_3D_Problem_Data &assembler_data) const
 {
+
+    if (dofs_data.CellsGlobalNumberStrongs.at(3).at(cell3DIndex) == 0)
+        return;
+
     // Assemble strong boundary condition on Cell0Ds
     for (unsigned int p = 0; p < mesh.Cell3DNumberVertices(cell3DIndex); ++p)
     {
@@ -156,7 +160,11 @@ void Assembler::ComputeWeakTerm(const unsigned int cell3DIndex,
                                 const Polydim::examples::Elliptic_PCC_3D::test::I_Test &test,
                                 Elliptic_PCC_3D_Problem_Data &assembler_data) const
 {
-    // Assemble strong boundary condition on Cell2Ds
+
+    if (!dofs_data.CellsGlobalHasBoundaryDOFs.at(3).at(cell3DIndex))
+        return;
+
+    // Assemble weak boundary condition on Cell2Ds
     unsigned int quadraturePointOffset = 0;
     for (unsigned int f = 0; f < mesh.Cell3DNumberFaces(cell3DIndex); f++)
     {

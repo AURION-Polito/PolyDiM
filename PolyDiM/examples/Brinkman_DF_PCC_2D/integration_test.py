@@ -2,7 +2,7 @@ import os
 import csv
 import numpy as np
 
-export_folder = "integration_tests"
+
 
 
 def run_program(program_folder,
@@ -133,7 +133,7 @@ def read_flux(export_path, method_type, method_order, test_type):
     return np.array(flux)
 
 
-def test_errors(errors,
+def errors_test(errors,
                 method_order,
                 method_type,
                 tol,
@@ -178,7 +178,7 @@ def test_errors(errors,
             assert round(slope_h1_vel) >= round(float(method_order))
 
 
-def test_discrepancy_errors(errors, tol):
+def discrepancy_errors_test(errors, tol):
     num_rows = len(errors)
 
     for r in range(num_rows - 1):
@@ -217,7 +217,7 @@ def main():
                                       mesh_max_area=mesh_max_area,
                                       compute_discrepancy=False)
             errors = import_errors(export_path, method_type, method_order, test_type)
-            test_errors(errors,
+            errors_test(errors,
                         method_order,
                         method_type,
                         tol,
@@ -245,7 +245,7 @@ def main():
                                           compute_discrepancy=False)
                 num_ref += 1
             errors = import_errors(export_path, method_type, method_order, test_type)
-            test_errors(errors,
+            errors_test(errors,
                         method_order,
                         method_type,
                         tol,
@@ -270,7 +270,7 @@ def main():
                                           compute_discrepancy=True)
                 num_ref += 1
             errors = import_discrepancy_errors(export_path, method_type, method_order, test_type)
-            test_discrepancy_errors(errors, tol)
+            discrepancy_errors_test(errors, tol)
             if remove_folder:
                 os.system("rm -rf " + os.path.join(program_folder, export_path))
 
@@ -294,7 +294,7 @@ def main():
                                           compute_discrepancy=False)
                 num_ref += 1
             errors = import_errors(export_path, method_type, method_order, test_type)
-            test_errors(errors,
+            errors_test(errors,
                         method_order,
                         method_type,
                         tol,
@@ -319,7 +319,7 @@ def main():
                                           compute_discrepancy=True)
                 num_ref += 1
             errors = import_discrepancy_errors(export_path, method_type, method_order, test_type)
-            test_discrepancy_errors(errors, tol)
+            discrepancy_errors_test(errors, tol)
             if remove_folder:
                 os.system("rm -rf " + os.path.join(program_folder, export_path))
 
@@ -343,7 +343,7 @@ def main():
                                           compute_discrepancy=False)
                 num_ref += 1
             errors = import_errors(export_path, method_type, method_order, test_type)
-            test_errors(errors,
+            errors_test(errors,
                         method_order,
                         method_type,
                         tol,
@@ -372,7 +372,7 @@ def main():
 
                 num_ref += 1
             errors = import_errors(export_path, method_type, method_order, test_type)
-            test_errors(errors,
+            errors_test(errors,
                         method_order,
                         method_type,
                         tol,
@@ -400,7 +400,7 @@ def main():
                                           compute_discrepancy=False)
                 num_ref += 1
             errors = import_errors(export_path, method_type, method_order, test_type)
-            test_errors(errors,
+            errors_test(errors,
                         method_order,
                         method_type,
                         tol,
@@ -428,7 +428,7 @@ def main():
                                           compute_discrepancy=False)
                 num_ref += 1
             errors = import_errors(export_path, method_type, method_order, test_type)
-            test_errors(errors,
+            errors_test(errors,
                         method_order,
                         method_type,
                         tol,
@@ -456,7 +456,7 @@ def main():
                                           compute_discrepancy=False)
                 num_ref += 1
             errors = import_errors(export_path, method_type, method_order, test_type)
-            test_errors(errors,
+            errors_test(errors,
                         method_order,
                         method_type,
                         tol,
@@ -484,7 +484,7 @@ def main():
                                           compute_discrepancy=False)
                 num_ref += 1
             errors = import_errors(export_path, method_type, method_order, test_type)
-            test_errors(errors,
+            errors_test(errors,
                         method_order,
                         method_type,
                         tol,
@@ -512,7 +512,7 @@ def main():
                                           compute_discrepancy=False)
                 num_ref += 1
             errors = import_errors(export_path, method_type, method_order, test_type)
-            test_errors(errors,
+            errors_test(errors,
                         method_order,
                         method_type,
                         tol,
@@ -537,7 +537,7 @@ def main():
                                           compute_discrepancy=True)
                 num_ref += 1
             errors = import_discrepancy_errors(export_path, method_type, method_order, test_type)
-            test_discrepancy_errors(errors, tol)
+            discrepancy_errors_test(errors, tol)
             if remove_folder:
                 os.system("rm -rf " + os.path.join(program_folder, export_path))
 
@@ -561,7 +561,7 @@ def main():
                                           compute_discrepancy=False)
                 num_ref += 1
             errors = import_errors(export_path, method_type, method_order, test_type)
-            test_errors(errors,
+            errors_test(errors,
                         method_order,
                         method_type,
                         tol,
@@ -586,7 +586,7 @@ def main():
                                           compute_discrepancy=True)
                 num_ref += 1
             errors = import_discrepancy_errors(export_path, method_type, method_order, test_type)
-            test_discrepancy_errors(errors, tol)
+            discrepancy_errors_test(errors, tol)
             if remove_folder:
                 os.system("rm -rf " + os.path.join(program_folder, export_path))
 
@@ -610,7 +610,7 @@ def main():
                                           compute_discrepancy=False)
 
                 errors = import_errors(export_path, method_type, method_order, test_type)
-                test_errors(errors,
+                errors_test(errors,
                             method_order,
                             method_type,
                             tol,
@@ -631,4 +631,5 @@ def main():
 
 
 if __name__ == "__main__":
+    export_folder = "integration_tests"
     main()

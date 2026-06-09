@@ -1,6 +1,5 @@
 import os
 import csv
-import math
 import numpy as np
 
 
@@ -80,7 +79,7 @@ def import_errors(export_path, method_type, method_order, test_type):
     return errors
 
 
-def test_errors(errors,
+def check_errors(errors,
                 method_order,
                 tol):
     num_rows = len(errors)
@@ -91,21 +90,20 @@ def test_errors(errors,
         assert abs(errors[1][2]) < tol * abs(errors[1][4])
     else:
         errors = np.array(errors[1:])
-        slope_L2 = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 1]), 1)[0]
-        slope_H1 = np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 2]), 1)[0]
-        print("Num. Ref. ", str(num_rows-1), ": ", slope_L2, slope_H1)
-        assert round(slope_L2) == round(float(method_order + 1.0))
-        assert round(slope_H1) == round(float(method_order))
+        slope_l2 = float(np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 1]), 1)[0])
+        slope_h1 = float(np.polyfit(np.log(errors[:, 0]), np.log(errors[:, 2]), 1)[0])
+        print("Num. Ref. ", str(num_rows-1), ": ", slope_l2, slope_h1)
+        assert round(slope_l2) == round(float(method_order + 1.0))
+        assert round(slope_h1) == round(float(method_order))
 
 
-if __name__ == "__main__":
+def main():
     program_folder = os.path.dirname(os.path.realpath(__file__))
     program_path = os.path.join(".", program_folder, "Elliptic_PCC_1D")
 
     remove_folder = False
 
     method_types = [1]
-    export_folder = "integration_tests"
     os.system("rm -rf " + os.path.join(program_folder, export_folder))
     tol = 1.0e-12
 
@@ -126,7 +124,7 @@ if __name__ == "__main__":
                                       mesh_generator,
                                       mesh_max_length)
             errors = import_errors(export_path, method_type, method_order, test_type)
-            test_errors(errors,
+            check_errors(errors,
                         method_order,
                         tol)
 
@@ -148,7 +146,7 @@ if __name__ == "__main__":
                                           mesh_generator,
                                           mesh_max_length)
             errors = import_errors(export_path, method_type, method_order, test_type)
-            test_errors(errors,
+            check_errors(errors,
                         method_order,
                         tol)
             if remove_folder:
@@ -158,3 +156,8 @@ if __name__ == "__main__":
         os.system("rm -rf " + os.path.join(program_folder, export_folder))
 
     print("TESTS SUCCESS")
+
+
+if __name__ == "__main__":
+    export_folder = "integration_tests"
+    main()
