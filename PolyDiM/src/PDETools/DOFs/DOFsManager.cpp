@@ -39,6 +39,10 @@ void DOFsManager::CreateCellDOFs(const MeshDOFsInfo &meshDOFsInfo, DOFsData &dof
     const unsigned int numCells = cells_num_dofs.size();
     auto &cellsDOFs = dofs.CellsDOFs.at(dim);
     cellsDOFs.resize(numCells);
+    dofs.CellsNumberStrongs.at(dim).resize(numCells, 0);
+    dofs.CellsNumberDOFs.at(dim).resize(numCells, 0);
+    dofs.CellsHasInternalDOFs.at(dim).resize(numCells, false);
+    dofs.CellsHasBoundaryDOFs.at(dim).resize(numCells, false);
 
     for (unsigned int c = 0; c < numCells; c++)
     {
@@ -46,6 +50,8 @@ void DOFsManager::CreateCellDOFs(const MeshDOFsInfo &meshDOFsInfo, DOFsData &dof
 
         const auto &cell_boundary_info = cells_boundary_info.at(c);
         const BoundaryTypes &cellBoundaryType = cell_boundary_info.Type;
+
+
 
         cellsDOFs.at(c).resize(numCellDofs);
 
@@ -61,6 +67,9 @@ void DOFsManager::CreateCellDOFs(const MeshDOFsInfo &meshDOFsInfo, DOFsData &dof
 
             dofs.NumberDOFs += numCellDofs;
             dofs.NumberInternalDOFs += numCellDofs;
+
+            dofs.CellsNumberDOFs.at(dim).at(c) += numCellDofs;
+            dofs.CellsHasInternalDOFs.at(dim).at(c) = true;
         }
         break;
         case BoundaryTypes::Strong: {
@@ -72,6 +81,8 @@ void DOFsManager::CreateCellDOFs(const MeshDOFsInfo &meshDOFsInfo, DOFsData &dof
             }
 
             dofs.NumberStrongs += numCellDofs;
+
+            dofs.CellsNumberStrongs.at(dim).at(c) += numCellDofs;
         }
         break;
         case BoundaryTypes::Robin:
@@ -85,6 +96,9 @@ void DOFsManager::CreateCellDOFs(const MeshDOFsInfo &meshDOFsInfo, DOFsData &dof
 
             dofs.NumberDOFs += numCellDofs;
             dofs.NumberBoundaryDOFs += numCellDofs;
+
+            dofs.CellsNumberDOFs.at(dim).at(c) += numCellDofs;
+            dofs.CellsHasBoundaryDOFs.at(dim).at(c) = true;
         }
         break;
         default:

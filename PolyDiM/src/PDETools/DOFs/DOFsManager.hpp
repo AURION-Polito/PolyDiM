@@ -12,11 +12,12 @@
 #ifndef __PDETOOLS_DOFS_DOFsManager_HPP
 #define __PDETOOLS_DOFS_DOFsManager_HPP
 
+
+#include "Gedim_Macro.hpp"
 #include "Eigen/Eigen"
 #include <array>
 #include <concepts>
 
-#include "Gedim_Macro.hpp"
 
 #define DOFSMANAGER_MAX_DIMENSION 3
 
@@ -122,6 +123,17 @@ class DOFsManager
         unsigned int NumberStrongs;
         std::array<std::vector<std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF>>, DOFSMANAGER_MAX_DIMENSION + 1> CellsDOFs;
         std::array<std::vector<std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData::GlobalCell_DOF>>, DOFSMANAGER_MAX_DIMENSION + 1> CellsGlobalDOFs;
+
+        std::array<std::vector<unsigned int>, DOFSMANAGER_MAX_DIMENSION + 1> CellsNumberDOFs;
+        std::array<std::vector<bool>, DOFSMANAGER_MAX_DIMENSION + 1> CellsHasInternalDOFs;
+        std::array<std::vector<bool>, DOFSMANAGER_MAX_DIMENSION + 1> CellsHasBoundaryDOFs;
+        std::array<std::vector<unsigned int>, DOFSMANAGER_MAX_DIMENSION + 1> CellsNumberStrongs;
+
+        std::array<std::vector<unsigned int>, DOFSMANAGER_MAX_DIMENSION + 1> CellsGlobalNumberDOFs;
+        std::array<std::vector<bool>, DOFSMANAGER_MAX_DIMENSION + 1> CellsGlobalHasInternalDOFs;
+        std::array<std::vector<bool>, DOFSMANAGER_MAX_DIMENSION + 1> CellsGlobalHasBoundaryDOFs;
+        std::array<std::vector<unsigned int>, DOFSMANAGER_MAX_DIMENSION + 1> CellsGlobalNumberStrongs;
+
     };
 
     struct CellsDOFsIndicesData final
@@ -230,7 +242,12 @@ class DOFsManager
         const unsigned int numCells = meshDOFsInfo.CellsNumDOFs.at(0).size();
 
         auto &cellsGlobalDOFs = dofs.CellsGlobalDOFs.at(0);
+        auto &cellsGlobalNumberDOFs = dofs.CellsGlobalNumberDOFs.at(0);
+        auto &cellsGlobalNumberStrongs = dofs.CellsGlobalNumberStrongs.at(0);
+
         cellsGlobalDOFs.resize(numCells);
+        cellsGlobalNumberDOFs.resize(numCells, 0);
+        cellsGlobalNumberStrongs.resize(numCells, 0);
 
         for (unsigned int cell0DIndex = 0; cell0DIndex < numCells; cell0DIndex++)
         {
@@ -238,6 +255,9 @@ class DOFsManager
 
             const unsigned int cellNumGlobalDOFs = cell0D_DOFs.size();
             cellsGlobalDOFs[cell0DIndex].resize(cellNumGlobalDOFs);
+
+            cellsGlobalNumberDOFs[cell0DIndex] += dofs.CellsNumberDOFs.at(0).at(cell0DIndex);
+            cellsGlobalNumberStrongs[cell0DIndex] += dofs.CellsNumberStrongs.at(0).at(cell0DIndex);
 
             unsigned int globalDOF_counter = 0;
 
@@ -267,7 +287,16 @@ class DOFsManager
         const unsigned int numCells = meshDOFsInfo.CellsNumDOFs.at(1).size();
 
         auto &cellsGlobalDOFs = dofs.CellsGlobalDOFs.at(1);
+        auto &cellsGlobalNumberDOFs = dofs.CellsGlobalNumberDOFs.at(1);
+        auto &cellsGlobalNumberStrongs = dofs.CellsGlobalNumberStrongs.at(1);
+        auto &cellsGlobalHasInternalDOFs = dofs.CellsGlobalHasInternalDOFs.at(1);
+        auto &cellsGlobalHasBoundaryDOFs = dofs.CellsGlobalHasBoundaryDOFs.at(1);
+
         cellsGlobalDOFs.resize(numCells);
+        cellsGlobalNumberDOFs.resize(numCells, 0);
+        cellsGlobalNumberStrongs.resize(numCells, 0);
+        cellsGlobalHasInternalDOFs.resize(numCells, false);
+        cellsGlobalHasBoundaryDOFs.resize(numCells, false);
 
         for (unsigned int cell1DIndex = 0; cell1DIndex < numCells; cell1DIndex++)
         {
@@ -284,6 +313,27 @@ class DOFsManager
             cellsGlobalDOFs[cell1DIndex].resize(cellNumGlobalDOFs);
 
             unsigned int globalDOF_counter = 0;
+
+            cellsGlobalNumberDOFs[cell1DIndex] += dofs.CellsNumberDOFs.at(0).at(cell1D_origin_cell0DIndex);
+            cellsGlobalNumberStrongs[cell1DIndex] += dofs.CellsNumberStrongs.at(0).at(cell1D_origin_cell0DIndex);
+
+            if(dofs.CellsHasInternalDOFs.at(0).at(cell1D_origin_cell0DIndex))
+                cellsGlobalHasInternalDOFs[cell1DIndex] = true;
+
+            if(dofs.CellsHasBoundaryDOFs.at(0).at(cell1D_origin_cell0DIndex))
+                cellsGlobalHasBoundaryDOFs[cell1DIndex] = true;
+
+            cellsGlobalNumberDOFs[cell1DIndex] += dofs.CellsNumberDOFs.at(0).at(cell1D_end_cell0DIndex);
+            cellsGlobalNumberStrongs[cell1DIndex] += dofs.CellsNumberStrongs.at(0).at(cell1D_end_cell0DIndex);
+
+            if(dofs.CellsHasInternalDOFs.at(0).at(cell1D_end_cell0DIndex))
+                cellsGlobalHasInternalDOFs[cell1DIndex] = true;
+
+            if(dofs.CellsHasBoundaryDOFs.at(0).at(cell1D_end_cell0DIndex))
+                cellsGlobalHasBoundaryDOFs[cell1DIndex] = true;
+
+            cellsGlobalNumberDOFs[cell1DIndex] += dofs.CellsNumberDOFs.at(1).at(cell1DIndex);
+            cellsGlobalNumberStrongs[cell1DIndex] += dofs.CellsNumberStrongs.at(1).at(cell1DIndex);
 
             ConcatenateGlobalDOFs(0, cell1D_origin_cell0DIndex, origin_cell0D_DOFs, cellsGlobalDOFs[cell1DIndex], globalDOF_counter);
             ConcatenateGlobalDOFs(0, cell1D_end_cell0DIndex, end_cell0D_DOFs, cellsGlobalDOFs[cell1DIndex], globalDOF_counter);
@@ -313,7 +363,16 @@ class DOFsManager
         const unsigned int numCells = meshDOFsInfo.CellsNumDOFs.at(2).size();
 
         auto &cellsGlobalDOFs = dofs.CellsGlobalDOFs.at(2);
+        auto &cellsGlobalNumberDOFs = dofs.CellsGlobalNumberDOFs.at(2);
+        auto &cellsGlobalNumberStrongs = dofs.CellsGlobalNumberStrongs.at(2);
+        auto &cellsGlobalHasInternalDOFs = dofs.CellsGlobalHasInternalDOFs.at(2);
+        auto &cellsGlobalHasBoundaryDOFs = dofs.CellsGlobalHasBoundaryDOFs.at(2);
+
         cellsGlobalDOFs.resize(numCells);
+        cellsGlobalNumberDOFs.resize(numCells, 0);
+        cellsGlobalNumberStrongs.resize(numCells, 0);
+        cellsGlobalHasInternalDOFs.resize(numCells, false);
+        cellsGlobalHasBoundaryDOFs.resize(numCells, false);
 
         for (unsigned int cell2DIndex = 0; cell2DIndex < numCells; cell2DIndex++)
         {
@@ -343,15 +402,31 @@ class DOFsManager
             {
                 const unsigned int vertex_cell0DIndex = cell2D_vertices.at(v);
                 ConcatenateGlobalDOFs(0, vertex_cell0DIndex, dofs.CellsDOFs.at(0).at(vertex_cell0DIndex), cellsGlobalDOFs[cell2DIndex], globalDOF_counter);
+
+                cellsGlobalNumberDOFs[cell2DIndex] += dofs.CellsNumberDOFs.at(0).at(vertex_cell0DIndex);
+                cellsGlobalNumberStrongs[cell2DIndex] += dofs.CellsNumberStrongs.at(0).at(vertex_cell0DIndex);
             }
 
             for (unsigned int e = 0; e < cell2D_edges.size(); e++)
             {
                 const unsigned int edge_cell1DIndex = cell2D_edges.at(e);
                 ConcatenateGlobalDOFs(1, edge_cell1DIndex, dofs.CellsDOFs.at(1).at(edge_cell1DIndex), cellsGlobalDOFs[cell2DIndex], globalDOF_counter);
+
+                cellsGlobalNumberDOFs[cell2DIndex] += dofs.CellsNumberDOFs.at(1).at(edge_cell1DIndex);
+                cellsGlobalNumberStrongs[cell2DIndex] += dofs.CellsNumberStrongs.at(1).at(edge_cell1DIndex);
+
+                if(dofs.CellsHasInternalDOFs.at(1).at(edge_cell1DIndex))
+                    cellsGlobalHasInternalDOFs[cell2DIndex] = true;
+
+                if(dofs.CellsHasBoundaryDOFs.at(1).at(edge_cell1DIndex))
+                    cellsGlobalHasBoundaryDOFs[cell2DIndex] = true;
+
             }
 
             ConcatenateGlobalDOFs(2, cell2DIndex, dofs.CellsDOFs.at(2).at(cell2DIndex), cellsGlobalDOFs[cell2DIndex], globalDOF_counter);
+
+            cellsGlobalNumberDOFs[cell2DIndex] += dofs.CellsNumberDOFs.at(2).at(cell2DIndex);
+            cellsGlobalNumberStrongs[cell2DIndex] += dofs.CellsNumberStrongs.at(2).at(cell2DIndex);
         }
     }
 
@@ -377,7 +452,16 @@ class DOFsManager
         const unsigned int numCells = meshDOFsInfo.CellsNumDOFs.at(3).size();
 
         auto &cellsGlobalDOFs = dofs.CellsGlobalDOFs.at(3);
+        auto &cellsGlobalNumberDOFs = dofs.CellsGlobalNumberDOFs.at(3);
+        auto &cellsGlobalNumberStrongs = dofs.CellsGlobalNumberStrongs.at(3);
+        auto &cellsGlobalHasInternalDOFs = dofs.CellsGlobalHasInternalDOFs.at(3);
+        auto &cellsGlobalHasBoundaryDOFs = dofs.CellsGlobalHasBoundaryDOFs.at(3);
+
         cellsGlobalDOFs.resize(numCells);
+        cellsGlobalNumberDOFs.resize(numCells, 0);
+        cellsGlobalNumberStrongs.resize(numCells, 0);
+        cellsGlobalHasInternalDOFs.resize(numCells, false);
+        cellsGlobalHasBoundaryDOFs.resize(numCells, false);
 
         for (unsigned int cell3DIndex = 0; cell3DIndex < numCells; cell3DIndex++)
         {
@@ -412,21 +496,40 @@ class DOFsManager
             {
                 const unsigned int vertex_cell0DIndex = cell3D_vertices.at(v);
                 ConcatenateGlobalDOFs(0, vertex_cell0DIndex, dofs.CellsDOFs.at(0).at(vertex_cell0DIndex), cellsGlobalDOFs[cell3DIndex], globalDOF_counter);
+
+                cellsGlobalNumberDOFs[cell3DIndex] += dofs.CellsNumberDOFs.at(0).at(vertex_cell0DIndex);
+                cellsGlobalNumberStrongs[cell3DIndex] += dofs.CellsNumberStrongs.at(0).at(vertex_cell0DIndex);
             }
 
             for (unsigned int e = 0; e < cell3D_edges.size(); e++)
             {
                 const unsigned int edge_cell1DIndex = cell3D_edges.at(e);
                 ConcatenateGlobalDOFs(1, edge_cell1DIndex, dofs.CellsDOFs.at(1).at(edge_cell1DIndex), cellsGlobalDOFs[cell3DIndex], globalDOF_counter);
+
+                cellsGlobalNumberDOFs[cell3DIndex] += dofs.CellsNumberDOFs.at(1).at(edge_cell1DIndex);
+                cellsGlobalNumberStrongs[cell3DIndex] += dofs.CellsNumberStrongs.at(1).at(edge_cell1DIndex);
             }
 
             for (unsigned int f = 0; f < cell3D_faces.size(); f++)
             {
                 const unsigned int face_cell2DIndex = cell3D_faces.at(f);
                 ConcatenateGlobalDOFs(2, face_cell2DIndex, dofs.CellsDOFs.at(2).at(face_cell2DIndex), cellsGlobalDOFs[cell3DIndex], globalDOF_counter);
+
+                cellsGlobalNumberDOFs[cell3DIndex] += dofs.CellsNumberDOFs.at(2).at(face_cell2DIndex);
+                cellsGlobalNumberStrongs[cell3DIndex] += dofs.CellsNumberStrongs.at(2).at(face_cell2DIndex);
+
+
+                if(dofs.CellsHasInternalDOFs.at(2).at(face_cell2DIndex))
+                    cellsGlobalHasInternalDOFs[cell3DIndex] = true;
+
+                if(dofs.CellsHasBoundaryDOFs.at(2).at(face_cell2DIndex))
+                    cellsGlobalHasBoundaryDOFs[cell3DIndex] = true;
             }
 
             ConcatenateGlobalDOFs(3, cell3DIndex, dofs.CellsDOFs.at(3).at(cell3DIndex), cellsGlobalDOFs[cell3DIndex], globalDOF_counter);
+
+            cellsGlobalNumberDOFs[cell3DIndex] += dofs.CellsNumberDOFs.at(3).at(cell3DIndex);
+            cellsGlobalNumberStrongs[cell3DIndex] += dofs.CellsNumberStrongs.at(3).at(cell3DIndex);
         }
     }
 

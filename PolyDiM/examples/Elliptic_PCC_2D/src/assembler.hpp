@@ -67,7 +67,7 @@ class Assembler final
     };
 
   private:
-    void ComputeStrongTerm(const unsigned int cell2D_index,
+    void ComputeStrongTerm(const unsigned int cell2DIndex,
                            const Gedim::MeshMatricesDAO &mesh,
                            const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
                            const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
