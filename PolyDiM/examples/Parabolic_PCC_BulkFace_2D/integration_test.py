@@ -1,6 +1,5 @@
 import os
 import csv
-import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -12,9 +11,9 @@ def run_program(program_folder,
                 test_type,
                 mesh_generator,
                 num_ref,
-                time_step = 1.0,
-                mesh_max_area = 0.1,
-                mesh_import_path = "./",
+                time_step=1.0,
+                mesh_max_area=0.1,
+                mesh_import_path="./",
                 ):
     export_path = os.path.join(program_folder,
                                export_folder,
@@ -70,12 +69,12 @@ def import_errors(export_path, method_type, method_order, test_type):
         for row in data:
             errors_row = []
             if counter == 0:
-                errors_row.append(row[5]) # h
-                errors_row.append(row[6]) # delta_time
-                errors_row.append(row[7]) # errorL2
-                errors_row.append(row[8]) # errorH1
-                errors_row.append(row[9]) # normL2
-                errors_row.append(row[10]) # normH1
+                errors_row.append(row[5])  # h
+                errors_row.append(row[6])  # delta_time
+                errors_row.append(row[7])  # errorL2
+                errors_row.append(row[8])  # errorH1
+                errors_row.append(row[9])  # normL2
+                errors_row.append(row[10])  # normH1
             else:
                 errors_row.append(float(row[5]))
                 errors_row.append(float(row[6]))
@@ -89,28 +88,30 @@ def import_errors(export_path, method_type, method_order, test_type):
     return errors
 
 
-def test_errors(errors,
-                method_order,
-                tol):
+def check_errors(errors,
+                 method_order,
+                 tol):
     num_rows = len(errors)
 
     print("{:<10}{:<10}{:<10}{:<10}{:<10}{:<10}".format("h", "deltaT", "errorL2", "EOC-L2", "errorH1", "EOC-H1"))
-    print("{:<10.2e}{:<10.2e}{:<10.2e}{:<10}{:<10.2e}{:<10}".format(errors[0, 0], errors[0, 1],  errors[0, 2], "-", errors[0, 3], "-"))
-    for i in range(num_rows-1):
-        slope_L2 = np.polyfit(np.log(errors[0:i+2, 0]), np.log(errors[0:i+2, 2]), 1)[0]
-        slope_H1 = np.polyfit(np.log(errors[0:i+2, 0]), np.log(errors[0:i+2, 3]), 1)[0]
-        print("{:<10.2e}{:<10.2e}{:<10.2e}{:<10.2e}{:<10.2e}{:<10.2e}".format(errors[i+1, 0], errors[i+1, 1],  errors[i+1, 2], slope_L2, errors[i+1, 3], slope_H1))
-        assert round(slope_L2) >= round(float(method_order + 1.0))
-        assert round(slope_H1) >= round(float(method_order))
+    print("{:<10.2e}{:<10.2e}{:<10.2e}{:<10}{:<10.2e}{:<10}".format(errors[0, 0], errors[0, 1], errors[0, 2], "-",
+                                                                    errors[0, 3], "-"))
+    for i in range(num_rows - 1):
+        slope_l2 = float(np.polyfit(np.log(errors[0:i + 2, 0]), np.log(errors[0:i + 2, 2]), 1)[0])
+        slope_h1 = float(np.polyfit(np.log(errors[0:i + 2, 0]), np.log(errors[0:i + 2, 3]), 1)[0])
+        print("{:<10.2e}{:<10.2e}{:<10.2e}{:<10.2e}{:<10.2e}{:<10.2e}".format(errors[i + 1, 0], errors[i + 1, 1],
+                                                                              errors[i + 1, 2], slope_l2,
+                                                                              errors[i + 1, 3], slope_h1))
+        assert round(slope_l2) >= round(float(method_order + 1.0))
+        assert round(slope_h1) >= round(float(method_order))
 
 
-if __name__ == "__main__":
+def main():
     program_folder = os.path.dirname(os.path.realpath(__file__))
     program_path = os.path.join(".", program_folder, "Parabolic_PCC_BulkFace_2D")
 
     remove_folder = False
 
-    export_folder = "integration_tests"
     os.system("rm -rf " + os.path.join(program_folder, export_folder))
     tol = 1.0e-12
 
@@ -137,13 +138,13 @@ if __name__ == "__main__":
                                       test_type,
                                       mesh_generator,
                                       num_ref,
-                                      time_step = time_step,
+                                      time_step=time_step,
                                       mesh_import_path=mesh_import_path)
             num_ref += 1
         errors = import_errors(export_path, method_type, method_order, test_type)
         tab_errors = np.array(errors[1:])
 
-        test_errors(tab_errors,  method_order,  tol)
+        check_errors(tab_errors, method_order, tol)
 
         if remove_folder:
             os.system("rm -rf " + os.path.join(program_folder, export_path))
@@ -171,23 +172,26 @@ if __name__ == "__main__":
                                       test_type,
                                       mesh_generator,
                                       num_ref,
-                                      time_step = time_steps[num_ref],
+                                      time_step=time_steps[num_ref],
                                       mesh_import_path=mesh_import_path)
 
             num_ref += 1
         errors = import_errors(export_path, method_type, method_order, test_type)
         tab_errors = np.array(errors[1:])
 
-        test_errors(tab_errors,  method_order,  tol)
+        check_errors(tab_errors, method_order, tol)
 
         if remove_folder:
             os.system("rm -rf " + os.path.join(program_folder, export_path))
 
         list_errors.append(tab_errors)
 
-
-
     if remove_folder:
         os.system("rm -rf " + os.path.join(program_folder, export_folder))
 
     print("TESTS SUCCESS")
+
+
+if __name__ == "__main__":
+    export_folder = "integration_tests"
+    main()

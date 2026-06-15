@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np
 
-export_folder = "integration_tests"
+
 
 def draw_loglog_slope(fig, ax, origin, width_inches, slope, inverted=False, color=None, polygon_kwargs=None,
                       label=True, labelcolor=None, label_kwargs=None, zorder=None):
@@ -17,12 +17,12 @@ def draw_loglog_slope(fig, ax, origin, width_inches, slope, inverted=False, colo
     @param slope: The slope of the triangle, i.e. order of convergence
     @param inverted: Whether to mirror the triangle around the origin, i.e. whether
         it indicates the slope towards the lower left instead of upper right (defaults to false)
-    @param color: The color of the of the triangle edges (defaults to default color)
+    @param color: The color of the triangle edges (defaults to default color)
     @param polygon_kwargs: Additional kwargs to the Polygon draw call that creates the slope
     @param label: Whether to enable labeling the slope (defaults to true)
-    @param labelcolor: The color of the slope labels (defaults to the edge color)
+    @param label color: The color of the slope labels (defaults to the edge color)
     @param label_kwargs: Additional kwargs to the Annotation draw call that creates the labels
-    @param zorder: The z-order value of the triangle and labels, defaults to a high value
+    @param z-order: The z-order value of the triangle and labels, defaults to a high value
     """
 
     if polygon_kwargs is None:
@@ -196,7 +196,7 @@ def import_errors(export_path, method_type, method_order, test_type):
     return errors
 
 
-def test_errors(errors,
+def check_errors(errors,
                 method_order,
                 tol,
                 test_type,
@@ -253,7 +253,7 @@ def main():
                                       conv_form,
                                       10)
             errors = import_errors(export_path, method_type, method_order, test_type)
-            test_errors(errors,
+            check_errors(errors,
                         method_order,
                         tol,
                         test_type,
@@ -282,7 +282,7 @@ def main():
                                           10)
                 num_ref += 1
             errors = import_errors(export_path, method_type, method_order, test_type)
-            test_errors(errors,
+            check_errors(errors,
                         method_order,
                         tol,
                         test_type,
@@ -311,7 +311,7 @@ def main():
                                           10)
                 num_ref += 1
             errors = import_errors(export_path, method_type, method_order, test_type)
-            test_errors(errors,
+            check_errors(errors,
                         method_order,
                         tol,
                         test_type,
@@ -341,7 +341,7 @@ def main():
                 num_ref += 1
 
             errors = import_errors(export_path, method_type, method_order, test_type)
-            test_errors(errors,
+            check_errors(errors,
                         method_order,
                         tol,
                         test_type,
@@ -376,7 +376,7 @@ def main():
                 num_ref += 1
 
             errors = import_errors(export_path, method_type, method_order, test_type)
-            test_errors(errors,
+            check_errors(errors,
                         method_order,
                         tol,
                         test_type,
@@ -452,4 +452,5 @@ def main():
     print("TESTS SUCCESS")
 
 if __name__ == "__main__":
+    export_folder = "integration_tests"
     main()

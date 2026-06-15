@@ -1,6 +1,5 @@
 import os
 import csv
-import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -72,11 +71,11 @@ def run_program(program_folder,
     return export_path
 
 
-def import_errors(export_path, method_type, method_order, time_order, test_type):
+def import_errors(export_path, method_type, method_order, time_order_values, test_type):
     errors_file = os.path.join(export_path,
                                "Solution",
                                "Errors_" + str(test_type) + "_" + str(method_type) + "_" + str(
-                                   method_order) + "_" + str(time_order) + ".csv")
+                                   method_order) + "_" + str(time_order_values) + ".csv")
     errors = []
     with open(errors_file, newline='') as csvfile:
         file_reader = csv.reader(csvfile, delimiter=';')
@@ -107,57 +106,56 @@ def import_errors(export_path, method_type, method_order, time_order, test_type)
     return errors
 
 
-def test_space_errors(errors,
+def check_space_errors(errors,
+                       method_order,
+                       max_time,
+                       tol):
+    errors = np.array(errors[1:])
+    table_rows = np.where((errors[:, 2] == max_time))[0]
+    num_rows = table_rows.size
+
+    if num_rows == 1:
+        row_number = table_rows[0]
+        print("Num. Ref. 1: ", abs(errors[row_number, 3]) / abs(errors[row_number, 5]),
+              abs(errors[row_number, 4]) / abs(errors[row_number, 6]))
+        assert abs(errors[row_number, 3]) < tol * abs(errors[row_number, 5])
+        assert abs(errors[row_number, 4]) < tol * abs(errors[row_number, 6])
+    else:
+        slope_l2 = float(np.polyfit(np.log(errors[table_rows, 0]), np.log(errors[table_rows, 3]), 1)[0])
+        slope_h1 = float(np.polyfit(np.log(errors[table_rows, 0]), np.log(errors[table_rows, 4]), 1)[0])
+        print("Num. Ref. ", str(num_rows - 1), ": ", slope_l2, slope_h1)
+        assert round(slope_l2) == round(float(method_order + 1.0))
+        assert round(slope_h1) == round(float(method_order))
+
+
+def check_time_errors(errors,
                       method_order,
                       max_time,
                       tol):
     errors = np.array(errors[1:])
-    T_rows = np.where((errors[:, 2] == max_time))[0]
-    num_rows = T_rows.size
+    table_rows = np.where((errors[:, 2] == max_time))[0]
+    num_rows = table_rows.size
 
     if num_rows == 1:
-        row_number = T_rows[0]
+        row_number = table_rows[0]
         print("Num. Ref. 1: ", abs(errors[row_number, 3]) / abs(errors[row_number, 5]),
               abs(errors[row_number, 4]) / abs(errors[row_number, 6]))
         assert abs(errors[row_number, 3]) < tol * abs(errors[row_number, 5])
         assert abs(errors[row_number, 4]) < tol * abs(errors[row_number, 6])
     else:
-        slope_L2 = np.polyfit(np.log(errors[T_rows, 0]), np.log(errors[T_rows, 3]), 1)[0]
-        slope_H1 = np.polyfit(np.log(errors[T_rows, 0]), np.log(errors[T_rows, 4]), 1)[0]
-        print("Num. Ref. ", str(num_rows - 1), ": ", slope_L2, slope_H1)
-        assert round(slope_L2) == round(float(method_order + 1.0))
-        assert round(slope_H1) == round(float(method_order))
+        slope_l2 = float(np.polyfit(np.log(1.0 / errors[table_rows, 1]), np.log(errors[table_rows, 3]), 1)[0])
+        slope_h1 = float(np.polyfit(np.log(1.0 / errors[table_rows, 1]), np.log(errors[table_rows, 4]), 1)[0])
+        print("Num. Ref. ", str(num_rows - 1), ": ", slope_l2, slope_h1)
+        assert round(slope_l2) == round(float(method_order))
+        assert round(slope_h1) == round(float(method_order))
 
 
-def test_time_errors(errors,
-                     method_order,
-                     max_time,
-                     tol):
-    errors = np.array(errors[1:])
-    T_rows = np.where((errors[:, 2] == max_time))[0]
-    num_rows = T_rows.size
-
-    if num_rows == 1:
-        row_number = T_rows[0]
-        print("Num. Ref. 1: ", abs(errors[row_number, 3]) / abs(errors[row_number, 5]),
-              abs(errors[row_number, 4]) / abs(errors[row_number, 6]))
-        assert abs(errors[row_number, 3]) < tol * abs(errors[row_number, 5])
-        assert abs(errors[row_number, 4]) < tol * abs(errors[row_number, 6])
-    else:
-        slope_L2 = np.polyfit(np.log(1.0 / errors[T_rows, 1]), np.log(errors[T_rows, 3]), 1)[0]
-        slope_H1 = np.polyfit(np.log(1.0 / errors[T_rows, 1]), np.log(errors[T_rows, 4]), 1)[0]
-        print("Num. Ref. ", str(num_rows - 1), ": ", slope_L2, slope_H1)
-        assert round(slope_L2) == round(float(method_order))
-        assert round(slope_H1) == round(float(method_order))
-
-
-if __name__ == "__main__":
+def main():
     program_folder = os.path.dirname(os.path.realpath(__file__))
     program_path = os.path.join(".", program_folder, "Parabolic_PCC_2D")
 
     remove_folder = True
 
-    export_folder = "integration_tests"
     os.system("rm -rf " + os.path.join(program_folder, export_folder))
     tol = 1.0e-10
 
@@ -183,10 +181,10 @@ if __name__ == "__main__":
                                           mesh_max_area=mesh_max_area,
                                           theta=theta)
                 errors = import_errors(export_path, method_type, method_order, time_order(theta), test_type)
-                test_space_errors(errors,
-                                  method_order,
-                                  1.0,
-                                  tol)
+                check_space_errors(errors,
+                                   method_order,
+                                   1.0,
+                                   tol)
 
                 if remove_folder:
                     os.system("rm -rf " + os.path.join(program_folder, export_path))
@@ -211,10 +209,10 @@ if __name__ == "__main__":
                                           mesh_max_area=mesh_max_area,
                                           theta=theta)
                 errors = import_errors(export_path, method_type, method_order, time_order(theta), test_type)
-                test_space_errors(errors,
-                                  method_order,
-                                  1.0,
-                                  tol)
+                check_space_errors(errors,
+                                   method_order,
+                                   1.0,
+                                   tol)
 
                 if remove_folder:
                     os.system("rm -rf " + os.path.join(program_folder, export_path))
@@ -243,10 +241,10 @@ if __name__ == "__main__":
                                               theta=theta)
 
                 errors = import_errors(export_path, method_type, method_order, time_order(theta), test_type)
-                test_time_errors(errors,
-                                 time_order(theta),
-                                 1.0,
-                                 tol)
+                check_time_errors(errors,
+                                  time_order(theta),
+                                  1.0,
+                                  tol)
 
                 if remove_folder:
                     os.system("rm -rf " + os.path.join(program_folder, export_path))
@@ -278,12 +276,17 @@ if __name__ == "__main__":
                         num_ref += 1
 
                     errors = import_errors(export_path, method_type, method_order, time_order(theta), test_type)
-                    test_space_errors(errors,
-                                      method_order,
-                                      1.0,
-                                      tol)
+                    check_space_errors(errors,
+                                       method_order,
+                                       1.0,
+                                       tol)
 
                     if remove_folder:
                         os.system("rm -rf " + os.path.join(program_folder, export_path))
 
     print("TESTS SUCCESS")
+
+
+if __name__ == "__main__":
+    export_folder = "integration_tests"
+    main()
