@@ -94,7 +94,8 @@ enum class MeshGenerator_Types_2D
     Squared = 5,                  ///< squared mesh
     RandomDistorted = 6,          ///< random distorted
     TriangularSimpleImporter = 7, ///< import 2D triangular mesh
-    StructuredTringular = 8
+    StructuredTriangular = 8,     ///<
+    QuadFromTriangular = 9        ///< generate quadrilateral mesh starting fromt triangular
 };
 
 enum class MeshGenerator_Types_3D
@@ -197,7 +198,7 @@ inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
                                            mesh);
     }
     break;
-    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::StructuredTringular: {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::StructuredTriangular: {
         switch (pde_domain.shape_type)
         {
         case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types::Parallelogram:
@@ -248,6 +249,11 @@ inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
                                                             0.4,
                                                             0.4,
                                                             mesh);
+    }
+    break;
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::QuadFromTriangular: {
+        const double max_cell_area = pde_domain.area * max_relative_area;
+        mesh_utilities.CreateQuadrilateralMeshFromTriangularMesh(geometry_utilities, pde_domain.vertices, max_cell_area, mesh);
     }
     break;
     default:
