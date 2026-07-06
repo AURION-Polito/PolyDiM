@@ -125,7 +125,10 @@ Git submodule pointing to [AURION-Polito/gedim](https://github.com/AURION-Polito
 PolyDiM is built: it provides the common geometrical operations in 1D/2D/3D, the mesh data
 structures, quadrature rules, linear-algebra/solver interfaces, and I/O used by discretization
 methods. It requires the **C++20** standard (gcc ≥ 10) and CMake ≥ 3.12. Initialize it with
-`git submodule update --init --recursive`.
+
+```bash
+git submodule update --init --recursive
+```
 
 Internal structure:
 
