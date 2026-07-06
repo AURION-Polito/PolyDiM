@@ -23,44 +23,59 @@ namespace PDETools
 {
 namespace Mesh
 {
+
+/// @brief Domain definitions and mesh generation/import helpers for PDE problems.
+///
+/// This namespace bridges the abstract computational domains used by the examples
+/// (@ref PDE_Domain_1D, @ref PDE_Domain_2D, @ref PDE_Domain_3D) to the GeDiM mesh
+/// generators and importers. It offers a uniform, dimension-templated way to create a
+/// mesh from a domain, import one from file, and precompute the per-cell geometric
+/// data required by the local spaces. Optional generators throw at run time when the
+/// corresponding third-party library (Triangle, Voro++, TetGen) is not enabled.
 namespace PDE_Mesh_Utilities
 {
+
+/// @brief One-dimensional computational domain (a segment).
 class PDE_Domain_1D final
 {
   public:
-    Eigen::MatrixXd vertices;
-    double length;
+    Eigen::MatrixXd vertices; ///< Segment endpoints (one per column).
+    double length;            ///< Length of the segment.
 };
 
+/// @brief Two-dimensional computational domain.
 class PDE_Domain_2D final
 {
   public:
+    /// @brief Shape family of a 2D domain.
     enum class Domain_Shape_Types
     {
-        Parallelogram = 0,
-        Polygon = 1,
-        Ellipse = 2,
-        Unknown = 3
+        Parallelogram = 0, ///< Parallelogram (enables structured meshes).
+        Polygon = 1,       ///< Generic polygon.
+        Ellipse = 2,       ///< Ellipse (uses the radius/center/rotation fields).
+        Unknown = 3        ///< Unspecified shape.
     };
 
-    Eigen::MatrixXd vertices;
-    double area;
+    Eigen::MatrixXd vertices; ///< Domain vertices (one per column); boundary polygon for polygonal shapes.
+    double area;              ///< Area of the domain.
 
     // Ellipse type
-    double radius_1;
-    double radius_2;
-    Eigen::Vector3d center;
-    Eigen::Vector3d rotation_angle;
+    double radius_1;                ///< First semi-axis (ellipse shape only).
+    double radius_2;                ///< Second semi-axis (ellipse shape only).
+    Eigen::Vector3d center;         ///< Center of the ellipse (ellipse shape only).
+    Eigen::Vector3d rotation_angle; ///< Rotation of the ellipse (ellipse shape only).
 
-    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types shape_type;
+    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D::Domain_Shape_Types shape_type; ///< Domain shape family.
 };
 
+/// @brief Space–time domain for a 2D time-dependent problem.
 struct PDE_Time_Domain_2D final
 {
-    std::array<double, 2> time_domain;
+    std::array<double, 2> time_domain; ///< Time interval \f$[t_0, t_1]\f$.
     Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D spatial_domain;
 };
 
+/// @brief Three-dimensional computational domain.
 class PDE_Domain_3D final
 {
   public:
@@ -70,11 +85,11 @@ class PDE_Domain_3D final
         Polygon = 1
     };
 
-    Eigen::MatrixXd vertices;
-    Eigen::MatrixXi edges;
-    std::vector<Eigen::MatrixXi> faces;
-    double volume;
-    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_3D::Domain_Shape_Types shape_type;
+    Eigen::MatrixXd vertices;           ///< Domain vertices (one per column).
+    Eigen::MatrixXi edges;              ///< Domain edges (vertex-index pairs).
+    std::vector<Eigen::MatrixXi> faces; ///< Domain faces (per-face vertex/edge indices).
+    double volume;                      ///< Volume of the domain.
+    Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_3D::Domain_Shape_Types shape_type; ///< Domain shape family.
 };
 
 enum class MeshGenerator_Types_1D
@@ -109,6 +124,19 @@ enum class MeshGenerator_Types_3D
     Cubic = 6        ///< cubic mesh
 };
 
+/// @brief Generate a 1D mesh on a segment domain.
+///
+/// Fills @p mesh with a segment discretization according to @p mesh_type. The
+/// @c Minimal generator produces a single-element mesh, while @c Equispaced subdivides
+/// the segment into cells whose relative length does not exceed @p max_relative_length.
+///
+/// @param geometry_utilities   GeDiM geometry helper.
+/// @param mesh_utilities       GeDiM mesh helper.
+/// @param mesh_type            Generator to use.
+/// @param pde_domain           Segment domain.
+/// @param max_relative_length  Target cell length relative to the segment (Equispaced only).
+/// @param[out] mesh            Resulting mesh.
+/// @throws std::runtime_error if @p mesh_type is not a supported 1D generator.
 inline void create_mesh_1D(const Gedim::GeometryUtilities &geometry_utilities,
                            const Gedim::MeshUtilities &mesh_utilities,
                            const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_1D &mesh_type,
@@ -142,6 +170,22 @@ inline void create_mesh_1D(const Gedim::GeometryUtilities &geometry_utilities,
     }
 }
 
+/// @brief Generate a 2D mesh on a polygonal/parallelogram domain.
+///
+/// Fills @p mesh according to @p mesh_type: unstructured triangular (Triangle),
+/// Voronoi polygonal (Voro++), single-polygon minimal, structured squared/triangular
+/// grids, randomly distorted quadrilaterals, or quadrilaterals from a triangular mesh.
+/// Structured generators require a @c Parallelogram domain. Cell size is controlled by
+/// @p max_relative_area (target cell area relative to the domain area).
+///
+/// @param geometry_utilities GeDiM geometry helper.
+/// @param mesh_utilities     GeDiM mesh helper.
+/// @param mesh_type          Generator to use.
+/// @param pde_domain         2D domain.
+/// @param max_relative_area  Target cell area relative to the domain area.
+/// @param[out] mesh          Resulting mesh.
+/// @throws std::runtime_error if @p mesh_type is unsupported, a required library
+///         (Triangle, Voro++) is disabled, or a structured generator is used on a non-parallelogram domain.
 inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
                            const Gedim::MeshUtilities &mesh_utilities,
                            const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D &mesh_type,
@@ -261,6 +305,21 @@ inline void create_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
     }
 }
 
+/// @brief Generate a 3D mesh on a polyhedral/parallelepiped domain.
+///
+/// Fills @p mesh according to @p mesh_type: unstructured tetrahedral (TetGen), Voronoi
+/// polyhedral (Voro++), single-polyhedron minimal, or structured cubic grid. The cubic
+/// generator requires a @c Parallelepiped domain. Cell size is controlled by
+/// @p max_relative_volume (target cell volume relative to the domain volume).
+///
+/// @param geometry_utilities  GeDiM geometry helper.
+/// @param mesh_utilities      GeDiM mesh helper.
+/// @param mesh_type           Generator to use.
+/// @param pde_domain          3D domain (vertices, edges and faces).
+/// @param max_relative_volume Target cell volume relative to the domain volume.
+/// @param[out] mesh           Resulting mesh.
+/// @throws std::runtime_error if @p mesh_type is unsupported, a required library
+///         (TetGen, Voro++) is disabled, or the cubic generator is used on a non-parallelepiped domain.
 inline void create_mesh_3D(const Gedim::GeometryUtilities &geometry_utilities,
                            const Gedim::MeshUtilities &mesh_utilities,
                            const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D &mesh_type,
@@ -326,6 +385,12 @@ inline void create_mesh_3D(const Gedim::GeometryUtilities &geometry_utilities,
     }
 }
 
+/// @brief Import a 1D mesh from file.
+///
+/// @param mesh_type  Importer to use (currently @c CsvImporter).
+/// @param file_path  Path to the mesh folder/file.
+/// @param[out] mesh  Resulting mesh.
+/// @throws std::runtime_error if @p mesh_type is not a supported 1D importer.
 inline void import_mesh_1D(const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_1D &mesh_type,
                            const std::string &file_path,
                            Gedim::MeshMatricesDAO &mesh)
@@ -346,6 +411,17 @@ inline void import_mesh_1D(const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::Me
     }
 }
 
+/// @brief Import a 2D mesh from file.
+///
+/// Supports CSV import (GeDiM cell files), Object File Format (OFF), and a simple
+/// triangular-mesh importer reading @c Cell0Ds / @c Cell2Ds / @c Cell2DsMarker CSV files.
+///
+/// @param geometry_utilities GeDiM geometry helper.
+/// @param mesh_utilities     GeDiM mesh helper.
+/// @param mesh_type          Importer to use.
+/// @param file_path          Path to the mesh folder/file.
+/// @param[out] mesh          Resulting mesh.
+/// @throws std::runtime_error if @p mesh_type is not a supported 2D importer.
 inline void import_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
                            const Gedim::MeshUtilities &mesh_utilities,
                            const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D &mesh_type,
@@ -381,6 +457,15 @@ inline void import_mesh_2D(const Gedim::GeometryUtilities &geometry_utilities,
     }
 }
 
+/// @brief Import a 3D mesh from file.
+///
+/// Supports CSV import (GeDiM cell files), OpenVolumeMesh (OVM), and VTK import.
+///
+/// @param mesh_utilities GeDiM mesh helper.
+/// @param mesh_type      Importer to use.
+/// @param file_path      Path to the mesh folder/file.
+/// @param[out] mesh      Resulting mesh.
+/// @throws std::runtime_error if @p mesh_type is not a supported 3D importer.
 inline void import_mesh_3D(const Gedim::MeshUtilities &mesh_utilities,
                            const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D &mesh_type,
                            const std::string &file_path,
@@ -411,6 +496,12 @@ inline void import_mesh_3D(const Gedim::MeshUtilities &mesh_utilities,
     }
 }
 
+/// @brief Precompute the per-cell geometric data of a 1D mesh.
+///
+/// @param geometry_utilities GeDiM geometry helper.
+/// @param mesh_utilities     GeDiM mesh helper.
+/// @param mesh               Input mesh.
+/// @return The 1D geometric data required by the local spaces.
 inline Gedim::MeshUtilities::MeshGeometricData1D compute_mesh_1D_geometry_data(const Gedim::GeometryUtilities &geometry_utilities,
                                                                                const Gedim::MeshUtilities &mesh_utilities,
                                                                                const Gedim::MeshMatricesDAO &mesh)
@@ -418,6 +509,16 @@ inline Gedim::MeshUtilities::MeshGeometricData1D compute_mesh_1D_geometry_data(c
     return mesh_utilities.FillMesh1DGeometricData(geometry_utilities, mesh);
 }
 
+/// @brief Precompute the per-cell geometric data of a 2D mesh.
+///
+/// All cells are treated as generic (possibly concave) polygons. The set of geometric
+/// quantities to compute is controlled by @p mesh_geometric_data_config (all enabled by default).
+///
+/// @param geometry_utilities         GeDiM geometry helper.
+/// @param mesh_utilities             GeDiM mesh helper.
+/// @param mesh                       Input mesh.
+/// @param mesh_geometric_data_config Which geometric quantities to precompute.
+/// @return The 2D geometric data required by the local spaces.
 inline Gedim::MeshUtilities::MeshGeometricData2D compute_mesh_2D_geometry_data(
     const Gedim::GeometryUtilities &geometry_utilities,
     const Gedim::MeshUtilities &mesh_utilities,
@@ -430,6 +531,13 @@ inline Gedim::MeshUtilities::MeshGeometricData2D compute_mesh_2D_geometry_data(
     return mesh_utilities.FillMesh2DGeometricData(geometry_utilities, mesh, cell2Ds_types, mesh_geometric_data_config);
 }
 
+/// @brief Precompute the per-cell geometric data of a 3D mesh.
+///
+/// Computes the 2D-cell/3D-cell neighbour connectivity before assembling the geometric data.
+///
+/// @param geometry_utilities GeDiM geometry helper.
+/// @param[in,out] mesh       Input mesh (neighbour connectivity is computed in place).
+/// @return The 3D geometric data required by the local spaces.
 inline Gedim::MeshUtilities::MeshGeometricData3D compute_mesh_3D_geometry_data(const Gedim::GeometryUtilities &geometry_utilities,
                                                                                Gedim::MeshMatricesDAO &mesh)
 {

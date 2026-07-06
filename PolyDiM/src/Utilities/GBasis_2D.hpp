@@ -21,10 +21,9 @@ namespace Utilities
 {
 class GBasis_2D final
 {
-private:
+  private:
     /// @brief 2D scalar monomial basis \f$\{m_\alpha\}\f$ used to build the vector basis.
     Polydim::Utilities::Monomials_2D monomials;
-
 
     /// @brief Compute the decomposition indices of a single vector monomial onto the G-basis.
     ///
@@ -41,7 +40,7 @@ private:
     std::vector<Eigen::Vector2i> VectorDecompositionIndices(const Polydim::Utilities::GBasis_Data &data,
                                                             const Eigen::VectorXi &expo) const;
 
-public:
+  public:
     /// @brief Build the vector polynomial G-basis of a given degree.
     ///
     /// Assembles all quantities needed to represent the vector polynomial space

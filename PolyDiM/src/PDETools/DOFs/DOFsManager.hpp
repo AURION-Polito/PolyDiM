@@ -17,6 +17,7 @@
 #include <array>
 #include <concepts>
 
+/// @brief Maximum spatial dimension handled by the DOFsManager (arrays are sized as this plus one).
 #define DOFSMANAGER_MAX_DIMENSION 3
 
 namespace Polydim
@@ -59,27 +60,40 @@ concept is_mesh_connectivity_class_3D = requires(mesh_connectivity_class mesh) {
 };
 #endif
 
+/// @brief Builds and manages the degrees of freedom (DOFs) of a discrete space over a mesh.
+///
+/// Given per-entity DOF counts and boundary information, the DOFsManager assigns local
+/// and global indices to the DOFs living on the mesh entities (vertices, edges, faces,
+/// cells), distinguishing free DOFs from strongly-imposed (Dirichlet) ones, and builds
+/// the per-cell local-to-global maps used during assembly. The dimension-specific
+/// routines are templated on a mesh connectivity type constrained by the
+/// @ref is_mesh_connectivity_class_0D "is_mesh_connectivity_class_*" concepts; a
+/// @c PYBIND build path replaces the concept/template machinery for the Python bindings.
 class DOFsManager
 {
   public:
     struct MeshDOFsInfo final
     {
+
+        /// @brief Boundary classification attached to a mesh entity.
         struct BoundaryInfo
         {
             enum struct BoundaryTypes
             {
                 Unknwon = 0,
-                Strong = 1,
-                Weak = 2,
-                Robin = 4,
-                None = 3
+                Strong = 1, ///< Strongly imposed (e.g. Dirichlet for PCC) DOFs.
+                Weak = 2,   ///< Weakly imposed (e.g. Neumann for PCC) DOFs.
+                Robin = 4,  ///< Robin boundary condition.
+                None = 3    ///< Interior entity (no boundary condition).
             };
 
             Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo::BoundaryTypes Type;
-            unsigned int Marker;
+            unsigned int Marker; ///< Mesh marker the classification was derived from.
         };
 
+        /// @brief Number of DOFs on each cell, per entity dimension (index 0..3).
         std::array<std::vector<unsigned int>, DOFSMANAGER_MAX_DIMENSION + 1> CellsNumDOFs;
+        /// @brief Boundary classification of each cell, per entity dimension (index 0..3).
         std::array<std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>, DOFSMANAGER_MAX_DIMENSION + 1> CellsBoundaryInfo;
 
         using BoundaryMap = std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo>;
@@ -87,12 +101,17 @@ class DOFsManager
 
     using BoundaryTypes = typename MeshDOFsInfo::BoundaryInfo::BoundaryTypes;
 
+    /// @brief DOF specification that is constant across all entities of each dimension.
+    ///
+    /// Used to build a @ref MeshDOFsInfo when every entity of a given dimension carries
+    /// the same number of DOFs, with boundary classification resolved per marker.
     struct ConstantDOFsInfo final
     {
         std::array<unsigned int, DOFSMANAGER_MAX_DIMENSION + 1> NumDOFs;
         std::map<unsigned int, Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo::BoundaryInfo> BoundaryInfo;
     };
 
+    /// @brief Full DOF numbering produced for a mesh: local/global indices and aggregate counts.
     struct DOFsData final
     {
         struct DOF final
@@ -105,18 +124,18 @@ class DOFsManager
             };
 
             Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types Type;
-            unsigned int Global_Index;
+            unsigned int Global_Index; ///< Global index within the free or strong numbering.
         };
 
         struct GlobalCell_DOF
         {
-            unsigned int Dimension;
-            unsigned int CellIndex;
-            unsigned int DOFIndex;
+            unsigned int Dimension; ///< Entity dimension (0..3) hosting the DOF.
+            unsigned int CellIndex; ///< Index of the hosting entity.
+            unsigned int DOFIndex;  ///< Local DOF index within that entity.
         };
 
         unsigned int NumberDOFs;
-        unsigned int NumberInternalDOFs;
+        unsigned int NumberInternalDOFs; ///< Number of interior free DOFs.
         unsigned int NumberBoundaryDOFs;
         unsigned int NumberStrongs;
         std::array<std::vector<std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF>>, DOFSMANAGER_MAX_DIMENSION + 1> CellsDOFs;
@@ -133,6 +152,7 @@ class DOFsManager
         std::array<std::vector<unsigned int>, DOFSMANAGER_MAX_DIMENSION + 1> CellsGlobalNumberStrongs;
     };
 
+    /// @brief Flattened local/global index lists (free DOFs and strongs) for each cell.
     struct CellsDOFsIndicesData final
     {
         std::vector<std::vector<unsigned int>> Cells_DOFs_LocalIndex;
@@ -148,6 +168,11 @@ class DOFsManager
                                std::vector<typename DOFsData::GlobalCell_DOF> &global_cell_DOFs,
                                unsigned int &globalDOF_counter) const;
 
+    /// @brief Assign local DOF types/indices for all entities of the given dimension.
+    ///
+    /// @param meshDOFsInfo Mesh DOF layout (counts and boundary info).
+    /// @param[in,out] dofs DOF numbering being populated.
+    /// @param dim          Entity dimension to process (0..3).
     void CreateCellDOFs(const MeshDOFsInfo &meshDOFsInfo, DOFsData &dofs, const unsigned int dim) const;
 
     template <class mesh_connectivity_data_class>
@@ -594,6 +619,9 @@ class DOFsManager
         return meshDOFsInfo;
     }
 
+    /// @brief Build the DOF numbering for a 0D problem.
+    /// @param meshDOFsInfo Mesh DOF layout.
+    /// @return The DOF numbering (vertices only).
     DOFsData CreateDOFs_0D(const MeshDOFsInfo &meshDOFsInfo) const
     {
         DOFsData result;
@@ -612,6 +640,10 @@ class DOFsManager
         return result;
     }
 
+    /// @brief Build the DOF numbering for a 1D problem (vertices and edges).
+    /// @param meshDOFsInfo Mesh DOF layout.
+    /// @param mesh         Mesh connectivity.
+    /// @return The DOF numbering (0D–1D).
     template <class mesh_connectivity_data_class>
     DOFsData CreateDOFs_1D(const MeshDOFsInfo &meshDOFsInfo, const mesh_connectivity_data_class &mesh) const
     {
@@ -633,6 +665,10 @@ class DOFsManager
         return result;
     }
 
+    /// @brief Build the DOF numbering for a 2D problem (vertices, edges and cells).
+    /// @param meshDOFsInfo Mesh DOF layout.
+    /// @param mesh         Mesh connectivity.
+    /// @return The DOF numbering (0D–2D).
     template <class mesh_connectivity_data_class>
     DOFsData CreateDOFs_2D(const MeshDOFsInfo &meshDOFsInfo, const mesh_connectivity_data_class &mesh) const
     {
@@ -656,6 +692,10 @@ class DOFsManager
         return result;
     }
 
+    /// @brief Build the DOF numbering for a 3D problem (vertices, edges, faces and cells).
+    /// @param meshDOFsInfo Mesh DOF layout.
+    /// @param mesh         Mesh connectivity.
+    /// @return The DOF numbering (0D–3D).
     template <class mesh_connectivity_data_class>
     DOFsData CreateDOFs_3D(const MeshDOFsInfo &meshDOFsInfo, const mesh_connectivity_data_class &mesh) const
     {
@@ -681,6 +721,15 @@ class DOFsManager
         return result;
     }
 
+    /// @brief Extract per-cell local/global index lists for free DOFs and strongs.
+    ///
+    /// Flattens the assembled DOF locators of @p dofs into, for each cell of dimension
+    /// @p dim, the local and global index lists of its free DOFs and of its
+    /// strongly-imposed DOFs (see @ref CellsDOFsIndicesData).
+    ///
+    /// @param dofs DOF numbering produced by one of the @c CreateDOFs_* methods.
+    /// @param dim  Dimension of the cells to index (0..3).
+    /// @return The per-cell index lists.
     CellsDOFsIndicesData ComputeCellsDOFsIndices(const DOFsData &dofs, const unsigned int dim) const;
 };
 } // namespace DOFs

@@ -76,7 +76,8 @@ struct EllipticEquation final
     /// derivative directions. The tensor is passed in column-major order, i.e. the
     /// entry \f$K_{d_1 d_2}\f$ is stored at index \f$d_1 + 3\,d_2\f$.
     ///
-    /// @param diffusion_term_values                    Diffusion tensor entries \f$K_{d_1 d_2}\f$ (column-major, length 9) at the quadrature points.
+    /// @param diffusion_term_values                    Diffusion tensor entries \f$K_{d_1 d_2}\f$ (column-major, length
+    /// 9) at the quadrature points.
     /// @param trial_basis_functions_derivative_values  Trial-space derivatives, one matrix per spatial direction.
     /// @param test_basis_functions_derivative_values   Test-space derivatives, one matrix per spatial direction.
     /// @param quadrature_weights                       Quadrature weights.
@@ -107,7 +108,8 @@ struct EllipticEquation final
     /// Galerkin specialization of the tensor Petrov–Galerkin overload:
     /// \f$\int_E (\mathbf{K}\, \nabla u) \cdot \nabla v\f$ with a shared basis.
     ///
-    /// @param diffusion_term_values           Diffusion tensor entries (column-major, length 9) at the quadrature points.
+    /// @param diffusion_term_values           Diffusion tensor entries (column-major, length 9) at the quadrature
+    /// points.
     /// @param basis_functions_derivative_values Basis-function derivatives, one matrix per spatial direction.
     /// @param quadrature_weights              Quadrature weights.
     /// @return The local diffusion matrix.
@@ -158,7 +160,8 @@ struct EllipticEquation final
     /// field \f$\boldsymbol{\beta}\f$ (up to 3 components), pairing the test-function
     /// values with the trial-function derivatives summed over the spatial directions.
     ///
-    /// @param advection_term_values                    Advection field components \f$\beta_d\f$ at the quadrature points.
+    /// @param advection_term_values                    Advection field components \f$\beta_d\f$ at the quadrature
+    /// points.
     /// @param test_basis_functions_values              Test-space values at the quadrature points.
     /// @param trial_basis_functions_derivative_values  Trial-space derivatives, one matrix per spatial direction.
     /// @param quadrature_weights                       Quadrature weights.

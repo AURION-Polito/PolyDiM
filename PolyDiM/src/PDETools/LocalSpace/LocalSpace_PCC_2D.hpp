@@ -43,11 +43,11 @@ namespace LocalSpace_PCC_2D
 /// @brief Discretization method for the 2D PCC local space.
 enum struct MethodTypes
 {
-    FEM_PCC = 0,          ///< Finite Element Method.
-    VEM_PCC = 1,          ///< Virtual Element Method (standard basis).
-    VEM_PCC_Inertia = 2,  ///< VEM with an inertia-based (principal-axes) monomial basis.
-    VEM_PCC_Ortho = 3,    ///< VEM with an \f$L^2\f$-orthonormalized monomial basis.
-    ZFEM_PCC = 4,         ///< Zipped Finite Element Method.
+    FEM_PCC = 0,         ///< Finite Element Method.
+    VEM_PCC = 1,         ///< Virtual Element Method (standard basis).
+    VEM_PCC_Inertia = 2, ///< VEM with an inertia-based (principal-axes) monomial basis.
+    VEM_PCC_Ortho = 3,   ///< VEM with an \f$L^2\f$-orthonormalized monomial basis.
+    ZFEM_PCC = 4,        ///< Zipped Finite Element Method.
 };
 
 /// @brief Method-specific reference-element data for the 2D PCC local space.
@@ -59,7 +59,7 @@ class ReferenceElement_Data final
 {
   public:
     Polydim::PDETools::LocalSpace_PCC_2D::MethodTypes Method_Type; ///< Selected discretization method.
-    unsigned int Order; ///< Polynomial order of the space.
+    unsigned int Order;                                            ///< Polynomial order of the space.
 
     std::unique_ptr<Polydim::VEM::PCC::I_VEM_PCC_2D_ReferenceElement> VEM_ReferenceElement;
     Polydim::VEM::PCC::VEM_PCC_2D_ReferenceElement_Data VEM_ReferenceElement_Data;
@@ -199,20 +199,21 @@ Eigen::MatrixXd BasisFunctionsValuesOnEdge(const unsigned int &edge_local_index,
 ///
 /// @param reference_element_data Reference-element data describing the method.
 /// @param local_space_data       Local-space data for the cell.
-/// @param projectionType         VEM projection operator to apply (ignored by FEM/ZFEM); defaults to the derivative projection \f$\Pi^0_{k-1}\f$.
+/// @param projectionType         VEM projection operator to apply (ignored by FEM/ZFEM); defaults to the derivative
+/// projection \f$\Pi^0_{k-1}\f$.
 /// @return One (quadrature points \f$\times\f$ local DOFs) matrix per spatial direction.
 std::vector<Eigen::MatrixXd> BasisFunctionsDerivativeValues(
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
     const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data,
     const Polydim::VEM::PCC::ProjectionTypes &projectionType = Polydim::VEM::PCC::ProjectionTypes::Pi0km1Der);
 
-
 /// @brief Evaluate the basis-function derivatives at arbitrary points.
 ///
 /// @param reference_element_data Reference-element data describing the method.
 /// @param local_space_data       Local-space data for the cell.
 /// @param points                 Evaluation points (one per column).
-/// @param projectionType         VEM projection operator to apply (ignored by FEM/ZFEM); defaults to the derivative projection \f$\Pi^0_{k-1}\f$.
+/// @param projectionType         VEM projection operator to apply (ignored by FEM/ZFEM); defaults to the derivative
+/// projection \f$\Pi^0_{k-1}\f$.
 /// @return One (points \f$\times\f$ local DOFs) matrix per spatial direction.
 std::vector<Eigen::MatrixXd> BasisFunctionsDerivativeValues(
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
@@ -220,18 +221,17 @@ std::vector<Eigen::MatrixXd> BasisFunctionsDerivativeValues(
     const Eigen::MatrixXd &points,
     const Polydim::VEM::PCC::ProjectionTypes &projectionType = Polydim::VEM::PCC::ProjectionTypes::Pi0km1Der);
 
-
 /// @brief Evaluate the basis-function Laplacians at the internal quadrature points.
 ///
 /// @param reference_element_data Reference-element data describing the method.
 /// @param local_space_data       Local-space data for the cell.
-/// @param projectionType         VEM projection operator to apply (ignored by FEM/ZFEM); defaults to the derivative projection \f$\Pi^0_{k-1}\f$.
+/// @param projectionType         VEM projection operator to apply (ignored by FEM/ZFEM); defaults to the derivative
+/// projection \f$\Pi^0_{k-1}\f$.
 /// @return A (quadrature points \f$\times\f$ local DOFs) matrix of Laplacian values.
 Eigen::MatrixXd BasisFunctionsLaplacianValues(
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
     const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data,
     const Polydim::VEM::PCC::ProjectionTypes &projectionType = Polydim::VEM::PCC::ProjectionTypes::Pi0km1Der);
-
 
 /// @brief Compute the (VEM) stabilization matrix of the local space.
 ///
@@ -241,7 +241,8 @@ Eigen::MatrixXd BasisFunctionsLaplacianValues(
 ///
 /// @param reference_element_data Reference-element data describing the method.
 /// @param local_space_data       Local-space data for the cell.
-/// @param projectionType         Projection used to define the stabilization; defaults to the energy projection \f$\Pi^\nabla\f$.
+/// @param projectionType         Projection used to define the stabilization; defaults to the energy projection
+/// \f$\Pi^\nabla\f$.
 /// @return The local stabilization matrix.
 Eigen::MatrixXd StabilizationMatrix(const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                                     const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data,
@@ -265,7 +266,6 @@ Eigen::MatrixXd EdgeDofsCoordinates(const Polydim::PDETools::LocalSpace_PCC_2D::
 Gedim::Quadrature::QuadratureData InternalDofsCoordinates(const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                                                           const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data);
 
-
 /// @brief Compute the internal DOF values of a function.
 ///
 /// Given the function values sampled at the internal-DOF coordinates, returns the
@@ -281,7 +281,6 @@ Eigen::VectorXd InternalDofs(const ReferenceElement_Data &reference_element_data
                              const Eigen::VectorXd &values_at_dofs,
                              const Gedim::Quadrature::QuadratureData &internal_dofs_coordinates);
 
-
 /// @brief Internal quadrature rule of the cell.
 ///
 /// @param reference_element_data Reference-element data describing the method.
@@ -289,7 +288,6 @@ Eigen::VectorXd InternalDofs(const ReferenceElement_Data &reference_element_data
 /// @return The internal quadrature points and weights used for volume integration.
 Gedim::Quadrature::QuadratureData InternalQuadrature(const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
                                                      const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data);
-
 
 /// @brief Number of local degrees of freedom of the cell.
 ///
@@ -307,7 +305,6 @@ unsigned int Size(const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_D
 Polydim::PDETools::LocalSpace_PCC_2D::Performance_Data ComputePerformance(
     const Polydim::PDETools::LocalSpace_PCC_2D::ReferenceElement_Data &reference_element_data,
     const Polydim::PDETools::LocalSpace_PCC_2D::LocalSpace_Data &local_space_data);
-
 
 /// @brief Export the DOFs and solution fields to file for visualization.
 ///

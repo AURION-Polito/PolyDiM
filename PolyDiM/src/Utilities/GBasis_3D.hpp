@@ -21,7 +21,7 @@ namespace Utilities
 {
 class GBasis_3D final
 {
-private:
+  private:
     /// @brief 3D scalar monomial basis \f$\{m_\alpha\}\f$ used to build the vector basis.
     Polydim::Utilities::Monomials_3D monomials;
 
@@ -41,7 +41,7 @@ private:
     std::vector<Eigen::Vector4i> VectorDecompositionIndices(const Polydim::Utilities::GBasis_Data &data,
                                                             const Eigen::VectorXi &expo) const;
 
-public:
+  public:
     /// @brief Build the vector polynomial G-basis of a given degree in 3D.
     ///
     /// Assembles all quantities needed to represent the vector polynomial space
