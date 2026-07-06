@@ -127,7 +127,8 @@ structures, quadrature rules, linear-algebra/solver interfaces, and I/O used by 
 methods. It requires the **C++20** standard (gcc ≥ 10) and CMake ≥ 3.12. Initialize it with
 
 ```bash
-git submodule update --init --recursive
+git submodule init
+git submodule update
 ```
 
 Internal structure:
