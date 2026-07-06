@@ -78,7 +78,7 @@ configuration/installation files.
   - `Quadrature/` — VEM-specific quadrature rules in 2D and 3D.
   Each family also provides `Utilities` and `PerformanceAnalysis` for performance measurements.
 
-- **`ZFEM/`** — local spaces for the enriched FEM variant (`ZFEM/PCC/2D`), with a structure
+- **`ZFEM/`** — local spaces for the Zipped FEM variant (`ZFEM/PCC/2D`), with a structure
   analogous to FEM/VEM (ReferenceElement, LocalSpace, Creator, Utilities, PerformanceAnalysis).
 
 - **`PDETools/`** — cross-cutting tools to assemble and solve the PDEs:
