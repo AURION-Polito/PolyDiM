@@ -4,7 +4,7 @@
 
 PolyDiM is inspired by and built upon the foundational research of the Numerical Analysis Group in the Department of Mathematical Sciences "Giuseppe Luigi Lagrange" (DISMA) at the Politecnico di Torino.
 
-See the official [documentation](https://polydim.it/) to install the library and for the main guide.
+See the official documentation at the [official website](https://polydim.it/) for the main guide to install the library.
 
 This file can be used by citing references in CITATION.cff file.
 
