@@ -469,6 +469,12 @@ Gedim::Quadrature::QuadratureData InternalDofsCoordinates(const ReferenceElement
 
         return face_dofs_coordinates;
     }
+    case MethodTypes::ZFEM_PCC: {
+        face_dofs_coordinates.Points = local_space_data.ZFEM_LocalSpace_Data.DOFsCoordinates.rightCols(
+            local_space_data.ZFEM_LocalSpace_Data.NumInternalBasisFunctions);
+
+        return face_dofs_coordinates;
+    }
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
     }
@@ -492,6 +498,9 @@ Eigen::VectorXd InternalDofs(const ReferenceElement_Data &reference_element_data
             reference_element_data.VEM_LocalSpace->ComputeScaledPolynomialsValues(local_space_data.VEM_LocalSpace_Data);
 
         return scaled_polynomial.transpose() * internal_dofs_coordinates.Weights.asDiagonal() * values_at_dofs;
+    }
+    case MethodTypes::ZFEM_PCC: {
+        return values_at_dofs;
     }
     default:
         throw std::runtime_error("method type " + std::to_string((unsigned int)reference_element_data.Method_Type) + " not supported");
