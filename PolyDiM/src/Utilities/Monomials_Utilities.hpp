@@ -21,6 +21,11 @@ namespace Utilities
 {
 template <unsigned short dimension> struct Monomials_Utilities final
 {
+    /// @brief Collect the monomial exponents into a single matrix.
+    ///
+    /// @param data Monomial basis data.
+    /// @return A \f$\text{dimension} \times N_{\text{mon}}\f$ integer matrix whose
+    ///         \f$m\f$-th column is the exponent multi-index \f$\alpha\f$ of the \f$m\f$-th monomial.
     Eigen::MatrixXi Exponents(const Polydim::Utilities::Monomials_Data &data) const
     {
         Eigen::MatrixXi exponents(dimension, data.NumMonomials);
@@ -31,6 +36,20 @@ template <unsigned short dimension> struct Monomials_Utilities final
         return exponents;
     }
 
+    /// @brief Evaluate the Vandermonde matrix of the scaled monomial basis.
+    ///
+    /// Builds the matrix whose \f$(p, m)\f$ entry is the \f$m\f$-th scaled monomial
+    /// evaluated at the \f$p\f$-th point,
+    /// \f$\prod_d \left(\frac{x_d - x_{E,d}}{h_E}\right)^{\alpha_d}\f$. Per-coordinate
+    /// integer powers are precomputed once (@c VanderPartial) and combined according
+    /// to each monomial's exponent multi-index.
+    ///
+    /// @param data     Monomial basis data (degree, exponents, number of monomials).
+    /// @param points   Evaluation points, one per column.
+    /// @param centroid Element centroid \f$\boldsymbol{x}_E\f$.
+    /// @param diam     Element diameter \f$h_E\f$ used to scale the coordinates.
+    /// @return A \f$N_{\text{points}} \times N_{\text{mon}}\f$ Vandermonde matrix;
+    ///         a column of ones is returned when the basis reduces to the constant.
     Eigen::MatrixXd Vander(const Polydim::Utilities::Monomials_Data &data,
                            const Eigen::MatrixXd &points,
                            const Eigen::Vector3d &centroid,
@@ -70,6 +89,21 @@ template <unsigned short dimension> struct Monomials_Utilities final
         return vander;
     }
 
+    /// @brief Evaluate the Vandermonde matrices of the first-order partial derivatives.
+    ///
+    /// For each spatial direction \f$i\f$, returns the Vandermonde matrix of
+    /// \f$\partial_{x_i} m_\alpha\f$, reusing the already-evaluated monomial values
+    /// in @p Vander. Each derivative maps to a lower-degree monomial (via
+    /// @c DerivativeIndices) scaled by the derivative coefficient and by the chain-rule
+    /// factor \f$1/h_E\f$; directions with no contribution yield a zero column.
+    ///
+    /// @tparam MonomialType Monomial type exposing @c DerivativeIndices and @c DerivativeMatrix.
+    /// @param data      Monomial basis data.
+    /// @param monomials Monomial object providing the derivative maps.
+    /// @param Vander    Vandermonde matrix of the monomials at the same points (see Vander()).
+    /// @param diam      Element diameter \f$h_E\f$.
+    /// @return A vector of @c dimension matrices, the \f$i\f$-th being the Vandermonde
+    ///         matrix of \f$\partial_{x_i}\f$ of the basis (same shape as @p Vander).
     template <typename MonomialType>
     std::vector<Eigen::MatrixXd> VanderDerivatives(const Polydim::Utilities::Monomials_Data &data,
                                                    const MonomialType &monomials,
@@ -103,6 +137,20 @@ template <unsigned short dimension> struct Monomials_Utilities final
         return vanderDerivatives;
     }
 
+    /// @brief Evaluate the Vandermonde matrix of the monomial Laplacian.
+    ///
+    /// Returns the matrix whose \f$k\f$-th column holds \f$\Delta m_k\f$ evaluated at
+    /// the points, assembled from the precomputed @c data.Laplacian coefficients and
+    /// the second-derivative maps (@c SecondDerivativeIndices), scaled by
+    /// \f$1/h_E^2\f$. The constant and linear monomials, whose Laplacian vanishes,
+    /// give zero columns.
+    ///
+    /// @tparam MonomialType Monomial type exposing @c SecondDerivativeIndices.
+    /// @param data      Monomial basis data (must provide the @c Laplacian matrix).
+    /// @param monomials Monomial object providing the second-derivative maps.
+    /// @param Vander    Vandermonde matrix of the monomials at the same points (see Vander()).
+    /// @param diam      Element diameter \f$h_E\f$.
+    /// @return A matrix, shaped like @p Vander, holding \f$\Delta\f$ of the basis.
     template <typename MonomialType>
     Eigen::MatrixXd VanderLaplacian(const Polydim::Utilities::Monomials_Data &data,
                                     const MonomialType &monomials,
@@ -138,6 +186,19 @@ template <unsigned short dimension> struct Monomials_Utilities final
         return vanderLaplacian;
     }
 
+    /// @brief \f$L^2(E)\f$-orthonormalize the monomial basis via modified Gram–Schmidt.
+    ///
+    /// Orthonormalizes the scaled monomials with respect to the weighted
+    /// \f$L^2(E)\f$ inner product defined by the quadrature @p weights, using a
+    /// modified Gram–Schmidt factorization followed by a re-orthogonalization step
+    /// for numerical stability. The routine returns the change-of-basis matrices
+    /// mapping between the monomial and the orthonormal basis.
+    ///
+    /// @param weights   Quadrature weights defining the \f$L^2(E)\f$ inner product.
+    /// @param Vander     Vandermonde matrix of the monomials at the quadrature points.
+    /// @param[out] Hmatrix    Mass matrix in the orthonormal basis, \f$Q_2^\top Q_2\f$ (close to the identity).
+    /// @param[out] QmatrixInv Lower-triangular inverse change-of-basis matrix, \f$(R_2 R_1)^\top\f$.
+    /// @param[out] Qmatrix    Change-of-basis matrix to the orthonormal basis (inverse of @p QmatrixInv).
     void MGSOrthonormalize(const Eigen::VectorXd &weights,
                            const Eigen::MatrixXd &Vander,
                            Eigen::MatrixXd &Hmatrix,
