@@ -113,7 +113,7 @@ struct Patch_Test final : public I_Test
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Constant(points.cols(), 0.0)};
-    };
+    }
 
     std::array<Eigen::VectorXd, 9> inverse_diffusion_term(const Eigen::MatrixXd &points) const
     {
@@ -126,7 +126,7 @@ struct Patch_Test final : public I_Test
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Constant(points.cols(), 0.0)};
-    };
+    }
 
     Eigen::VectorXd source_term(const Eigen::MatrixXd &points) const
     {
@@ -147,7 +147,7 @@ struct Patch_Test final : public I_Test
             solution = polynomial;
 
         return -3.0 * second_derivatives + points.row(1).array().transpose() * points.row(0).array().transpose() * solution;
-    };
+    }
 
     Eigen::VectorXd weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
@@ -161,7 +161,7 @@ struct Patch_Test final : public I_Test
             result = result * polynomial;
 
         return result;
-    };
+    }
 
     Eigen::VectorXd strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
@@ -203,7 +203,7 @@ struct Patch_Test final : public I_Test
             result = result * polynomial;
 
         return result;
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd &points) const
     {
@@ -281,7 +281,7 @@ struct Poisson_Problem final : public I_Test
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Constant(points.cols(), 0.0)};
-    };
+    }
 
     std::array<Eigen::VectorXd, 9> inverse_diffusion_term(const Eigen::MatrixXd &points) const
     {
@@ -294,13 +294,13 @@ struct Poisson_Problem final : public I_Test
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Constant(points.cols(), 0.0)};
-    };
+    }
 
     Eigen::VectorXd source_term(const Eigen::MatrixXd &points) const
     {
         return 2.0 * std::numbers::pi * std::numbers::pi * sin(std::numbers::pi * points.row(0).array()) *
                sin(std::numbers::pi * points.row(1).array());
-    };
+    }
 
     Eigen::VectorXd strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
@@ -309,7 +309,7 @@ struct Poisson_Problem final : public I_Test
         default:
             throw std::runtime_error("Unknown marker");
         }
-    };
+    }
 
     Eigen::VectorXd weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
@@ -322,7 +322,7 @@ struct Poisson_Problem final : public I_Test
     Eigen::VectorXd exact_pressure(const Eigen::MatrixXd &points) const
     {
         return sin(std::numbers::pi * points.row(0).array()) * sin(std::numbers::pi * points.row(1).array());
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd &points) const
     {

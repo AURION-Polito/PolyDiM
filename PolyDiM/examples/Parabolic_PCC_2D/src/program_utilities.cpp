@@ -11,6 +11,7 @@
 
 #include "program_utilities.hpp"
 
+#include "IOEnum.hpp"
 #include "VTKUtilities.hpp"
 #include <cassert>
 
@@ -20,6 +21,10 @@ namespace examples
 {
 namespace Parabolic_PCC_2D
 {
+
+unsigned int Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::space_order;
+unsigned int Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::time_order;
+
 namespace program_utilities
 {
 // ***************************************************************************
@@ -29,17 +34,18 @@ std::unique_ptr<Polydim::examples::Parabolic_PCC_2D::test::I_Test> create_test(c
     {
     case Polydim::examples::Parabolic_PCC_2D::test::Test_Types::Patch_Test: {
         Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::space_order = config.MethodOrder();
-        Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::time_order = config.Theta() == 0.5 ? 2 : 1;
+        Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::time_order = abs(config.Theta() - 0.5) < 1.0e-12 ? 2 : 1;
         return std::make_unique<Polydim::examples::Parabolic_PCC_2D::test::Patch_Test>();
     }
     case Polydim::examples::Parabolic_PCC_2D::test::Test_Types::Space_Test: {
         Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::space_order = config.MethodOrder() + 1;
-        Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::time_order = 0; // config.Theta() == 0.5 ? 2 : 1;
+        Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::time_order = 0; // abs(config.Theta() - 0.5) < 1.0e-12 ?
+                                                                               // 2 : 1;
         return std::make_unique<Polydim::examples::Parabolic_PCC_2D::test::Patch_Test>();
     }
     case Polydim::examples::Parabolic_PCC_2D::test::Test_Types::Time_Test: {
         Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::space_order = config.MethodOrder();
-        Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::time_order = config.Theta() == 0.5 ? 2 + 1 : 1 + 1;
+        Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::time_order = abs(config.Theta() - 0.5) < 1.0e-12 ? 2 + 1 : 1 + 1;
         return std::make_unique<Polydim::examples::Parabolic_PCC_2D::test::Patch_Test>();
     }
     case Polydim::examples::Parabolic_PCC_2D::test::Test_Types::Parabolic_Problem:
@@ -116,45 +122,42 @@ void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configur
     const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
     const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
     const unsigned int space_order = config.MethodOrder();
-    const unsigned int time_order = config.Theta() == 0.5 ? 2 : 1;
+    const unsigned int time_order = abs(config.Theta() - 0.5) < 1.0e-12 ? 2 : 1;
+
+    std::string test_type{
+        Gedim::io_enum::enum_to_string<Polydim::examples::Parabolic_PCC_2D::test::Test_Types, 1, 4>(config.TestType())};
+    std::string mesh_generator{
+        Gedim::io_enum::enum_to_string<Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D, 0, 20>(
+            config.MeshGenerator())};
+    std::string method_type{
+        Gedim::io_enum::enum_to_string<Polydim::PDETools::LocalSpace_PCC_2D::MethodTypes, 0, 20>(config.MethodType())};
 
     {
-        const char separator = ';';
+        std::ostringstream error_to_str;
+        const int w = 13;
 
-        std::cout << "ProgramType" << separator;
-        std::cout << "MethodType" << separator;
-        std::cout << "space_method_order" << separator;
-        std::cout << "time_method_order" << separator;
-        std::cout << "Cell2Ds" << separator;
-        std::cout << "Dofs" << separator;
-        std::cout << "Strongs" << separator;
-        std::cout << "h" << separator;
-        std::cout << "time_index" << separator;
-        std::cout << "time_value" << separator;
-        std::cout << "errorL2" << separator;
-        std::cout << "errorH1" << separator;
-        std::cout << "normL2" << separator;
-        std::cout << "normH1" << separator;
-        std::cout << "nnzA" << separator;
-        std::cout << "residual" << std::endl;
+        error_to_str << Gedim::Output::MagentaColor;
+        error_to_str << std::right;
 
-        std::cout.precision(2);
-        std::cout << std::scientific << TEST_ID << separator;
-        std::cout << std::scientific << Method_ID << separator;
-        std::cout << std::scientific << space_order << separator;
-        std::cout << std::scientific << time_order << separator;
-        std::cout << std::scientific << mesh.Cell2DTotalNumber() << separator;
-        std::cout << std::scientific << dofs_data.NumberDOFs << separator;
-        std::cout << std::scientific << dofs_data.NumberStrongs << separator;
-        std::cout << std::scientific << post_process_data.mesh_size << separator;
-        std::cout << std::scientific << time_index << separator;
-        std::cout << std::scientific << time_value << separator;
-        std::cout << std::scientific << post_process_data.error_L2 << separator;
-        std::cout << std::scientific << post_process_data.error_H1 << separator;
-        std::cout << std::scientific << post_process_data.norm_L2 << separator;
-        std::cout << std::scientific << post_process_data.norm_H1 << separator;
-        std::cout << std::scientific << A.NonZeros() << separator;
-        std::cout << std::scientific << post_process_data.residual_norm << std::endl;
+        error_to_str << std::setw(w + 4) << "ProgramType" << std::setw(w) << "TimeOrder" << std::setw(w) << "TimeIndex"
+                     << std::setw(w) << "TimeValue" << std::setw(w) << "MethodType" << std::setw(w) << "SpaceOrder"
+                     << std::setw(w + 4) << "MeshGenerator" << std::setw(w) << "Cell2Ds" << std::setw(w) << "Dofs"
+                     << std::setw(w) << "Strongs" << std::setw(w) << "h" << std::setw(w) << "errorL2" << std::setw(w)
+                     << "errorH1" << std::setw(w) << "normL2" << std::setw(w) << "normH1" << std::setw(w) << "nnzA"
+                     << std::setw(w) << "residual" << std::endl;
+
+        error_to_str.precision(2);
+        error_to_str << std::scientific;
+        error_to_str << std::setw(w + 8) << test_type << std::setw(w) << time_order << std::setw(w) << time_index
+                     << std::setw(w) << time_value << std::setw(w) << method_type << std::setw(w)
+                     << config.MethodOrder() << std::setw(w + 4) << mesh_generator << std::setw(w)
+                     << mesh.Cell2DTotalNumber() << std::setw(w) << dofs_data.NumberDOFs << std::setw(w)
+                     << dofs_data.NumberStrongs << std::setw(w) << post_process_data.mesh_size << std::setw(w)
+                     << post_process_data.error_L2 << std::setw(w) << post_process_data.error_H1 << std::setw(w)
+                     << post_process_data.norm_L2 << std::setw(w) << post_process_data.norm_H1 << std::setw(w)
+                     << A.NonZeros() << std::setw(w) << post_process_data.residual_norm << Gedim::Output::EndColor;
+
+        Gedim::Output::PrintGenericMessage(error_to_str.str(), true);
     }
 
     {
@@ -204,34 +207,64 @@ void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configur
         errorFile << std::scientific << post_process_data.residual_norm << std::endl;
 
         errorFile.close();
+        Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor + "Errors are exported in: " + errorFileName +
+                                               Gedim::Output::EndColor,
+                                           true);
     }
 
+    if (config.ExportFormat()[1])
     {
-        {
-            Gedim::VTKUtilities exporter;
-            exporter.AddPolygons(mesh.Cell0DsCoordinates(),
-                                 mesh.Cell2DsVertices(),
-                                 {{"Numeric",
-                                   Gedim::VTPProperty::Formats::Points,
-                                   static_cast<unsigned int>(post_process_data.cell0Ds_numeric.size()),
-                                   post_process_data.cell0Ds_numeric.data()},
-                                  {"Exact",
-                                   Gedim::VTPProperty::Formats::Points,
-                                   static_cast<unsigned int>(post_process_data.cell0Ds_exact.size()),
-                                   post_process_data.cell0Ds_exact.data()},
-                                  {"ErrorL2",
-                                   Gedim::VTPProperty::Formats::Cells,
-                                   static_cast<unsigned int>(post_process_data.cell2Ds_error_L2.size()),
-                                   post_process_data.cell2Ds_error_L2.data()},
-                                  {"ErrorH1",
-                                   Gedim::VTPProperty::Formats::Cells,
-                                   static_cast<unsigned int>(post_process_data.cell2Ds_error_H1.size()),
-                                   post_process_data.cell2Ds_error_H1.data()}});
+        Gedim::VTKUtilities exporter;
+        exporter.AddPolygons(mesh.Cell0DsCoordinates(),
+                             mesh.Cell2DsVertices(),
+                             {{"Numeric",
+                               Gedim::VTPProperty::Formats::Points,
+                               static_cast<unsigned int>(post_process_data.cell0Ds_numeric.size()),
+                               post_process_data.cell0Ds_numeric.data()},
+                              {"Exact",
+                               Gedim::VTPProperty::Formats::Points,
+                               static_cast<unsigned int>(post_process_data.cell0Ds_exact.size()),
+                               post_process_data.cell0Ds_exact.data()},
+                              {"ErrorL2",
+                               Gedim::VTPProperty::Formats::Cells,
+                               static_cast<unsigned int>(post_process_data.cell2Ds_error_L2.size()),
+                               post_process_data.cell2Ds_error_L2.data()},
+                              {"ErrorH1",
+                               Gedim::VTPProperty::Formats::Cells,
+                               static_cast<unsigned int>(post_process_data.cell2Ds_error_H1.size()),
+                               post_process_data.cell2Ds_error_H1.data()}});
 
-            exporter.Export(exportVtuFolder + "/Solution" + "_" + std::to_string(TEST_ID) + "_" +
-                            std::to_string(Method_ID) + "_" + std::to_string(space_order) + "_" +
-                            std::to_string(time_order) + "_" + std::to_string(time_index) + ".vtu");
-        }
+        std::string file_name = exportVtuFolder + "/Solution" + "_" + std::to_string(TEST_ID) + "_" +
+                                std::to_string(Method_ID) + "_" + std::to_string(space_order) + "_" +
+                                std::to_string(time_order) + "_" + std::to_string(time_index) + ".vtu";
+        exporter.Export(file_name);
+
+        Gedim::Output::PrintGenericMessage(
+            Gedim::Output::MagentaColor + "Solution and Errors are exported in: " + file_name + Gedim::Output::EndColor,
+            true);
+    }
+
+    if (config.ExportFormat()[0])
+    {
+        const char separator = ';';
+        std::string file_name = exportVtuFolder + "/Solution" + "_" + std::to_string(TEST_ID) + "_" +
+                                std::to_string(Method_ID) + "_" + std::to_string(space_order) + "_" +
+                                std::to_string(time_order) + "_" + std::to_string(time_index) + ".vtu";
+
+        const Eigen::MatrixXd coordinates = mesh.Cell0DsCoordinates();
+
+        std::ofstream solutionFile(file_name, std::ios_base::trunc | std::ios_base::out);
+
+        solutionFile << "x" << separator << "y" << separator << "discrete_solution" << separator << "exact_solution" << std::endl;
+        for (unsigned int i = 0; i < post_process_data.cell0Ds_numeric.size(); i++)
+            solutionFile << coordinates(0, i) << separator << coordinates(1, i) << separator << coordinates(2, i)
+                         << separator << post_process_data.cell0Ds_numeric[i] << separator
+                         << post_process_data.cell0Ds_exact[i] << std::endl;
+
+        solutionFile.close();
+
+        Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor + "Solution is exported in: " + file_name + Gedim::Output::EndColor,
+                                           true);
     }
 }
 // ***************************************************************************

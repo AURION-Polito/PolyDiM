@@ -20,6 +20,9 @@ namespace examples
 {
 namespace Elliptic_PCC_3D
 {
+
+unsigned int Polydim::examples::Elliptic_PCC_3D::test::Patch_Test::order;
+
 namespace program_utilities
 {
 // ***************************************************************************
@@ -28,6 +31,7 @@ std::unique_ptr<Polydim::examples::Elliptic_PCC_3D::test::I_Test> create_test(co
     switch (config.TestType())
     {
     case Polydim::examples::Elliptic_PCC_3D::test::Test_Types::Patch_Test:
+        Polydim::examples::Elliptic_PCC_3D::test::Patch_Test::order = config.MethodOrder();
         return std::make_unique<Polydim::examples::Elliptic_PCC_3D::test::Patch_Test>();
     case Polydim::examples::Elliptic_PCC_3D::test::Test_Types::Poisson_Polynomial_Problem:
         return std::make_unique<Polydim::examples::Elliptic_PCC_3D::test::Poisson_Polynomial_Problem>();
@@ -205,51 +209,53 @@ void export_performance(const Polydim::examples::Elliptic_PCC_3D::Program_config
                         const Assembler::Performance_Data &performance_data,
                         const std::string &exportFolder)
 {
+
+    const char separator = ',';
+    std::ofstream exporter;
+    const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
+    const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
+    std::string file_name = exportFolder + "/Cell3Ds_MethodPerformance_" + std::to_string(TEST_ID) + "_" +
+                            std::to_string(Method_ID) + "_" + std::to_string(config.MethodOrder()) + ".csv";
+    exporter.open(file_name);
+    exporter.precision(16);
+
+    if (exporter.fail())
+        throw std::runtime_error("Error on mesh cell2Ds file");
+
+    exporter << "Cell3D_Index" << separator;
+    exporter << "NumQuadPoints_Boundary" << separator;
+    exporter << "NumQuadPoints_Internal" << separator;
+    exporter << "PiNabla_Cond" << separator;
+    exporter << "Pi0k_Cond" << separator;
+    exporter << "Pi0km1_Cond" << separator;
+    exporter << "PiNabla_Error" << separator;
+    exporter << "Pi0k_Error" << separator;
+    exporter << "Pi0km1_Error" << separator;
+    exporter << "HCD_Error" << separator;
+    exporter << "GBD_Error" << separator;
+    exporter << "Stab_Error" << std::endl;
+
+    for (unsigned int v = 0; v < performance_data.Cell3DsPerformance.size(); v++)
     {
-        const char separator = ',';
-        std::ofstream exporter;
-        const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
-        const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
-        exporter.open(exportFolder + "/Cell3Ds_MethodPerformance_" + std::to_string(TEST_ID) + "_" +
-                      std::to_string(Method_ID) + +"_" + std::to_string(config.MethodOrder()) + ".csv");
-        exporter.precision(16);
+        const auto &cell3D_performance = performance_data.Cell3DsPerformance[v].VEM_Performance_Data;
 
-        if (exporter.fail())
-            throw std::runtime_error("Error on mesh cell2Ds file");
-
-        exporter << "Cell3D_Index" << separator;
-        exporter << "NumQuadPoints_Boundary" << separator;
-        exporter << "NumQuadPoints_Internal" << separator;
-        exporter << "PiNabla_Cond" << separator;
-        exporter << "Pi0k_Cond" << separator;
-        exporter << "Pi0km1_Cond" << separator;
-        exporter << "PiNabla_Error" << separator;
-        exporter << "Pi0k_Error" << separator;
-        exporter << "Pi0km1_Error" << separator;
-        exporter << "HCD_Error" << separator;
-        exporter << "GBD_Error" << separator;
-        exporter << "Stab_Error" << std::endl;
-
-        for (unsigned int v = 0; v < performance_data.Cell3DsPerformance.size(); v++)
-        {
-            const auto &cell3D_performance = performance_data.Cell3DsPerformance[v].VEM_Performance_Data;
-
-            exporter << std::scientific << v << separator;
-            exporter << std::scientific << cell3D_performance.NumBoundaryQuadraturePoints << separator;
-            exporter << std::scientific << cell3D_performance.NumInternalQuadraturePoints << separator;
-            exporter << std::scientific << cell3D_performance.Analysis.PiNablaConditioning << separator;
-            exporter << std::scientific << cell3D_performance.Analysis.Pi0kConditioning << separator;
-            exporter << std::scientific << cell3D_performance.Analysis.Pi0km1Conditioning << separator;
-            exporter << std::scientific << cell3D_performance.Analysis.ErrorPiNabla << separator;
-            exporter << std::scientific << cell3D_performance.Analysis.ErrorPi0k << separator;
-            exporter << std::scientific << cell3D_performance.Analysis.ErrorPi0km1 << separator;
-            exporter << std::scientific << cell3D_performance.Analysis.ErrorHCD << separator;
-            exporter << std::scientific << cell3D_performance.Analysis.ErrorGBD << separator;
-            exporter << std::scientific << cell3D_performance.Analysis.ErrorStabilization << std::endl;
-        }
-
-        exporter.close();
+        exporter << std::scientific << v << separator;
+        exporter << std::scientific << cell3D_performance.NumBoundaryQuadraturePoints << separator;
+        exporter << std::scientific << cell3D_performance.NumInternalQuadraturePoints << separator;
+        exporter << std::scientific << cell3D_performance.Analysis.PiNablaConditioning << separator;
+        exporter << std::scientific << cell3D_performance.Analysis.Pi0kConditioning << separator;
+        exporter << std::scientific << cell3D_performance.Analysis.Pi0km1Conditioning << separator;
+        exporter << std::scientific << cell3D_performance.Analysis.ErrorPiNabla << separator;
+        exporter << std::scientific << cell3D_performance.Analysis.ErrorPi0k << separator;
+        exporter << std::scientific << cell3D_performance.Analysis.ErrorPi0km1 << separator;
+        exporter << std::scientific << cell3D_performance.Analysis.ErrorHCD << separator;
+        exporter << std::scientific << cell3D_performance.Analysis.ErrorGBD << separator;
+        exporter << std::scientific << cell3D_performance.Analysis.ErrorStabilization << std::endl;
     }
+
+    exporter.close();
+    Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor + "Performance are exported in: " + file_name + Gedim::Output::EndColor,
+                                       true);
 }
 // ***************************************************************************
 void export_dofs(const Polydim::examples::Elliptic_PCC_3D::Program_configuration &config,

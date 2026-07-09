@@ -27,12 +27,21 @@ namespace FEM
 namespace PCC
 {
 
+/// @brief Node distribution used to build the 1D PCC (primal/continuous) Lagrange reference element.
+///
+/// Selects how the interpolation nodes (and hence the degree-of-freedom positions) are laid out
+/// on the reference segment for orders greater than zero.
 enum class FEM_PCC_1D_Types
 {
     Equispaced = 0,
     GaussLobatto = 1
 };
 
+/// @brief Reference element data for a 1D PCC finite element.
+///
+/// Stores the topological and polynomial information, the degree-of-freedom positions on the
+/// reference segment, the Lagrange interpolation coefficients and the precomputed basis function
+/// (and derivative) values at the reference quadrature points.
 struct FEM_PCC_1D_ReferenceElement_Data final
 {
     unsigned int Dimension;
@@ -50,6 +59,10 @@ struct FEM_PCC_1D_ReferenceElement_Data final
     std::vector<Eigen::MatrixXd> ReferenceBasisFunctionDerivativeValues;
 };
 
+/// @brief Factory that builds the reference element data for a 1D PCC finite element.
+///
+/// Also exposes helpers to evaluate the linear (barycentric) coordinates and the Lagrange basis
+/// functions and their derivatives at arbitrary points on the reference segment.
 class FEM_PCC_1D_ReferenceElement final
 {
   public:

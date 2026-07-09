@@ -15,7 +15,6 @@
 #include "Configurations.hpp"
 #include "LocalSpace_DF_PCC_2D.hpp"
 #include "PDE_Mesh_Utilities.hpp"
-#include "VEM_DF_PCC_2D_Creator.hpp"
 #include "test_definition.hpp"
 
 namespace Polydim
@@ -36,6 +35,11 @@ struct Program_configuration final
 
         // Export parameters
         Gedim::Configurations::AddProperty("ExportFolder", "./Run", "Folder where to export data (Default: ./Export)");
+        Gedim::Configurations::AddProperty("ExportFormat",
+                                           std::vector<unsigned int>({1, 0}),
+                                           "A boolean vector of kind of desired export type for solution and mesh "
+                                           "[Csv, Vtu] (Default: [1,0])");
+
         // Mesh parameters
         Gedim::Configurations::AddProperty(
             "MeshGenerator",
@@ -44,9 +48,7 @@ struct Program_configuration final
             "Polygonal; 3 - OFF Importer; 4 - Csv Importer (semicolon); 5 - Squared (Default: 0)");
         Gedim::Configurations::AddProperty("MeshImportFilePath", "./", "Mesh imported file path (Default: './')");
         Gedim::Configurations::AddProperty("MeshMaxArea", 0.1, "Mesh 2D maximum relative cell area (Default: 0.1)");
-
         Gedim::Configurations::AddProperty("GeometricTolerance1D", 1.0e-12, "Geometric Tolerance 1D (Default: 1.0e-12)");
-
         Gedim::Configurations::AddProperty("GeometricTolerance2D", 1.0e-14, "Geometric Tolerance 2D (Default: 1.0e-14)");
 
         /// Method parameters
@@ -111,6 +113,11 @@ struct Program_configuration final
             throw std::runtime_error("not valid order");
 
         return Gedim::Configurations::GetPropertyValue<unsigned int>("MethodOrder");
+    }
+
+    inline std::vector<unsigned int> ExportFormat() const
+    {
+        return Gedim::Configurations::GetPropertyValue<std::vector<unsigned int>>("ExportFormat");
     }
 };
 } // namespace Brinkman_DF_PCC_2D

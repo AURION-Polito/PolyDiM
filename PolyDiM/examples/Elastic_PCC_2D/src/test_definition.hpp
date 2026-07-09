@@ -49,7 +49,7 @@ struct I_Test
 // ***************************************************************************
 struct Patch_Test final : public I_Test
 {
-    static int order;
+    static unsigned int order;
 
     Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_2D domain() const
     {
@@ -93,7 +93,7 @@ struct Patch_Test final : public I_Test
             result = result * polynomial;
 
         return {-6.0 * order * (order - 1) * result, -6.0 * order * (order - 1) * result, Eigen::VectorXd::Zero(points.cols())};
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
@@ -222,7 +222,7 @@ struct LinearElasticity final : public I_Test
         return {-(2.0 * mu * (u_1_xx + 0.5 * (u_1_yy + u_2_xy)) + lambda * (u_1_xx + u_2_xy)),
                 -(2.0 * mu * (0.5 * (u_1_xy + u_2_xx) + u_2_yy) + lambda * (u_1_xy + u_2_yy)),
                 Eigen::VectorXd::Zero(points.cols())};
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
@@ -326,7 +326,7 @@ struct LinearElasticity_Beam final : public I_Test
         return {Eigen::VectorXd::Constant(points.cols(), 0.0),
                 Eigen::VectorXd::Constant(points.cols(), -1.0),
                 Eigen::VectorXd::Zero(points.cols())};
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
@@ -413,7 +413,7 @@ struct LinearElasticity_CooksMembrane final : public I_Test
         return {Eigen::VectorXd::Constant(points.cols(), 0.0),
                 Eigen::VectorXd::Constant(points.cols(), 0.0),
                 Eigen::VectorXd::Zero(points.cols())};
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {

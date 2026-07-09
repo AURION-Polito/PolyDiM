@@ -89,7 +89,7 @@ struct Patch_Test final : public I_Test
     Eigen::VectorXd diffusion_term(const Eigen::MatrixXd &points) const
     {
         return Eigen::VectorXd::Constant(points.cols(), 1.0);
-    };
+    }
 
     Eigen::VectorXd source_term(const Eigen::MatrixXd &points, const double &time_value) const
     {
@@ -107,7 +107,7 @@ struct Patch_Test final : public I_Test
             source_time_term.array() *= time_polynomial;
 
         return source_time_term - source_space_term;
-    };
+    }
 
     Eigen::VectorXd initial_solution(const Eigen::MatrixXd &points) const
     {
@@ -120,7 +120,7 @@ struct Patch_Test final : public I_Test
             throw std::runtime_error("Unknown marker");
 
         return exact_solution(points, time_value);
-    };
+    }
 
     Eigen::VectorXd weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points, const double &time_value) const
     {
@@ -160,7 +160,7 @@ struct Patch_Test final : public I_Test
             time_exact.array() *= time_polynomial;
 
         return space_exact + time_exact;
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> exact_derivative_solution(const Eigen::MatrixXd &points, const double &time_value) const
     {
@@ -211,13 +211,13 @@ struct Parabolic_Problem final : public I_Test
     {
         const double k = 1.0;
         return Eigen::VectorXd::Constant(points.cols(), k);
-    };
+    }
 
     Eigen::VectorXd source_term(const Eigen::MatrixXd &points, const double &time_value) const
     {
         return (1.0 + 2.0 * std::numbers::pi * std::numbers::pi) * sin(std::numbers::pi * points.row(0).array()) *
                sin(std::numbers::pi * points.row(1).array()) * exp(time_value);
-    };
+    }
 
     Eigen::VectorXd initial_solution(const Eigen::MatrixXd &points) const
     {
@@ -230,7 +230,7 @@ struct Parabolic_Problem final : public I_Test
             throw std::runtime_error("Unknown marker");
 
         return exact_solution(points, time_value);
-    };
+    }
 
     Eigen::VectorXd weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points, const double &time_value) const
     {
@@ -244,7 +244,7 @@ struct Parabolic_Problem final : public I_Test
     Eigen::VectorXd exact_solution(const Eigen::MatrixXd &points, const double &time_value) const
     {
         return sin(std::numbers::pi * points.row(0).array()) * sin(std::numbers::pi * points.row(1).array()) * exp(time_value);
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> exact_derivative_solution(const Eigen::MatrixXd &points, const double &time_value) const
     {

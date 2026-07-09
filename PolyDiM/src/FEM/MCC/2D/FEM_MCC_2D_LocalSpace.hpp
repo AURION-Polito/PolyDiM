@@ -23,15 +23,32 @@ namespace FEM
 namespace MCC
 {
 
+/// @brief Local space for a 2D mixed (velocity/pressure) MCC finite element.
+///
+/// Provides a uniform, type-agnostic interface to build the local space on a polygon and to
+/// evaluate the velocity basis functions, their divergence and the pressure basis functions.
+/// Each public method dispatches on @ref FEM_MCC_2D_LocalSpace_Data::fem_type and forwards the
+/// call to the concrete element implementation (currently only the Raviart-Thomas triangle,
+/// @ref FEM_Triangle_RT_MCC_2D_LocalSpace); an unsupported type raises a std::runtime_error.
 class FEM_MCC_2D_LocalSpace final
 {
   private:
     Polydim::FEM::MCC::FEM_Triangle_RT_MCC_2D_LocalSpace rt_triangle_local_space;
 
   public:
+    /// @brief Builds the local space on a given polygon.
+    /// @param reference_element_data Reference element data selecting the finite element type and its parameters.
+    /// @param polygon Geometric description of the physical polygon on which the space is built.
+    /// @return The assembled local space data, including quadrature rules and basis function counts.
     Polydim::FEM::MCC::FEM_MCC_2D_LocalSpace_Data CreateLocalSpace(const Polydim::FEM::MCC::FEM_MCC_2D_ReferenceElement_Data &reference_element_data,
                                                                    const Polydim::FEM::MCC::FEM_MCC_2D_Polygon_Geometry &polygon) const;
 
+    /// @brief Evaluates the (vector-valued) velocity basis functions at the local space internal quadrature points.
+    /// @param reference_element_data Reference element data for the selected finite element type.
+    /// @param local_space Local space data previously built with @ref CreateLocalSpace.
+    /// @return One matrix per spatial component; each matrix holds a basis function per column evaluated at the
+    /// quadrature points (rows).
+    /// @throws std::runtime_error if the finite element type is not supported.
     std::vector<Eigen::MatrixXd> ComputeVelocityBasisFunctionsValues(const Polydim::FEM::MCC::FEM_MCC_2D_ReferenceElement_Data &reference_element_data,
                                                                      const Polydim::FEM::MCC::FEM_MCC_2D_LocalSpace_Data &local_space) const
     {
@@ -47,6 +64,11 @@ class FEM_MCC_2D_LocalSpace final
         }
     }
 
+    /// @brief Evaluates the (scalar) pressure basis functions at the local space internal quadrature points.
+    /// @param reference_element_data Reference element data for the selected finite element type.
+    /// @param local_space Local space data previously built with @ref CreateLocalSpace.
+    /// @return A matrix holding a basis function per column evaluated at the quadrature points (rows).
+    /// @throws std::runtime_error if the finite element type is not supported.
     Eigen::MatrixXd ComputePressureBasisFunctionsValues(const Polydim::FEM::MCC::FEM_MCC_2D_ReferenceElement_Data &reference_element_data,
                                                         const Polydim::FEM::MCC::FEM_MCC_2D_LocalSpace_Data &local_space) const
     {
@@ -62,6 +84,12 @@ class FEM_MCC_2D_LocalSpace final
         }
     }
 
+    /// @brief Evaluates the divergence of the velocity basis functions at the local space internal quadrature points.
+    /// @param reference_element_data Reference element data for the selected finite element type.
+    /// @param local_space Local space data previously built with @ref CreateLocalSpace.
+    /// @return A matrix holding the divergence of a basis function per column evaluated at the quadrature points
+    /// (rows).
+    /// @throws std::runtime_error if the finite element type is not supported.
     Eigen::MatrixXd ComputeVelocityBasisFunctionsDivergenceValues(const Polydim::FEM::MCC::FEM_MCC_2D_ReferenceElement_Data &reference_element_data,
                                                                   const Polydim::FEM::MCC::FEM_MCC_2D_LocalSpace_Data &local_space) const
     {
@@ -78,6 +106,13 @@ class FEM_MCC_2D_LocalSpace final
         }
     }
 
+    /// @brief Evaluates the (vector-valued) velocity basis functions at a user-provided set of points.
+    /// @param reference_element_data Reference element data for the selected finite element type.
+    /// @param local_space Local space data previously built with @ref CreateLocalSpace.
+    /// @param points Evaluation points, stored one point per column.
+    /// @return One matrix per spatial component; each matrix holds a basis function per column evaluated at the given
+    /// points (rows).
+    /// @throws std::runtime_error if the finite element type is not supported.
     std::vector<Eigen::MatrixXd> ComputeVelocityBasisFunctionsValues(const Polydim::FEM::MCC::FEM_MCC_2D_ReferenceElement_Data &reference_element_data,
                                                                      const Polydim::FEM::MCC::FEM_MCC_2D_LocalSpace_Data &local_space,
                                                                      const Eigen::MatrixXd &points) const
@@ -95,6 +130,12 @@ class FEM_MCC_2D_LocalSpace final
         }
     }
 
+    /// @brief Evaluates the (scalar) pressure basis functions at a user-provided set of points.
+    /// @param reference_element_data Reference element data for the selected finite element type.
+    /// @param local_space Local space data previously built with @ref CreateLocalSpace.
+    /// @param points Evaluation points, stored one point per column.
+    /// @return A matrix holding a basis function per column evaluated at the given points (rows).
+    /// @throws std::runtime_error if the finite element type is not supported.
     Eigen::MatrixXd ComputePressureBasisFunctionsValues(const Polydim::FEM::MCC::FEM_MCC_2D_ReferenceElement_Data &reference_element_data,
                                                         const Polydim::FEM::MCC::FEM_MCC_2D_LocalSpace_Data &local_space,
                                                         const Eigen::MatrixXd &points) const
@@ -112,6 +153,12 @@ class FEM_MCC_2D_LocalSpace final
         }
     }
 
+    /// @brief Evaluates the divergence of the velocity basis functions at a user-provided set of points.
+    /// @param reference_element_data Reference element data for the selected finite element type.
+    /// @param local_space Local space data previously built with @ref CreateLocalSpace.
+    /// @param points Evaluation points, stored one point per column.
+    /// @return A matrix holding the divergence of a basis function per column evaluated at the given points (rows).
+    /// @throws std::runtime_error if the finite element type is not supported.
     Eigen::MatrixXd ComputeVelocityBasisFunctionsDivergenceValues(const Polydim::FEM::MCC::FEM_MCC_2D_ReferenceElement_Data &reference_element_data,
                                                                   const Polydim::FEM::MCC::FEM_MCC_2D_LocalSpace_Data &local_space,
                                                                   const Eigen::MatrixXd &points) const

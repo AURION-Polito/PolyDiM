@@ -40,7 +40,7 @@ struct FEM_PCC_3D_ReferenceElement final
     {
     }
 
-    ~FEM_PCC_3D_ReferenceElement() {};
+    ~FEM_PCC_3D_ReferenceElement(){};
 
     Polydim::FEM::PCC::FEM_PCC_3D_ReferenceElement_Data Create(const unsigned int order) const
     {

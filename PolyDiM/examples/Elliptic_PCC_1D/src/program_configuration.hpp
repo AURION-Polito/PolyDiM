@@ -30,10 +30,17 @@ struct Program_configuration final
     {
         Gedim::Configurations::AddProperty("TestType",
                                            static_cast<unsigned int>(Polydim::examples::Elliptic_PCC_1D::test::Test_Types::Patch_Test),
-                                           "Test Type 1 - Patch_Test; 2 - Poisson_Polynomial_Problem "
+                                           "Test Type 1 - Patch_Test; 2 - Poisson_Polynomial_Problem; 3 - "
+                                           "Rotated_Patch_Test "
                                            "(Default: 1)");
+
         // Export parameters
         Gedim::Configurations::AddProperty("ExportFolder", "./Run", "Folder where to export data (Default: ./Export)");
+        Gedim::Configurations::AddProperty("ExportFormat",
+                                           std::vector<unsigned int>({1, 0}),
+                                           "A boolean vector of kind of desired export type for solution and mesh "
+                                           "[Csv, Vtu] (Default: [1,0])");
+
         // Mesh parameters
         Gedim::Configurations::AddProperty(
             "MeshGenerator",
@@ -41,7 +48,6 @@ struct Program_configuration final
             "Mesh 1D gereator type, 0 - Equispaced; 1 - Imported; 2 - Minimal (Default: 0)");
         Gedim::Configurations::AddProperty("MeshImportFilePath", "./", "Mesh imported file path (Default: './')");
         Gedim::Configurations::AddProperty("MeshMaxLength", 0.1, "Mesh 1D maximum relative cell length (Default: 0.1)");
-
         Gedim::Configurations::AddProperty("GeometricTolerance1D", 1.0e-12, "Geometric Tolerance 1D (Default: 1.0e-12)");
 
         // Method parameters
@@ -94,6 +100,11 @@ struct Program_configuration final
                                                                                                                      "y"
                                                                                                                      "p"
                                                                                                                      "e");
+    }
+
+    inline std::vector<unsigned int> ExportFormat() const
+    {
+        return Gedim::Configurations::GetPropertyValue<std::vector<unsigned int>>("ExportFormat");
     }
 };
 } // namespace Elliptic_PCC_1D

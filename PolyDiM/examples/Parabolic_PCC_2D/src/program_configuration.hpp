@@ -34,6 +34,11 @@ struct Program_configuration final
                                            "(Default: 1)");
         // Export parameters
         Gedim::Configurations::AddProperty("ExportFolder", "./Run", "Folder where to export data (Default: ./Export)");
+        Gedim::Configurations::AddProperty("ExportFormat",
+                                           std::vector<unsigned int>({1, 0}),
+                                           "A boolean vector of kind of desired export type for solution and mesh "
+                                           "[Csv, Vtu] (Default: [1,0])");
+
         // Mesh parameters
         Gedim::Configurations::AddProperty(
             "MeshGenerator",
@@ -108,6 +113,11 @@ struct Program_configuration final
     inline double Theta() const
     {
         return Gedim::Configurations::GetPropertyValue<double>("Theta");
+    }
+
+    inline std::vector<unsigned int> ExportFormat() const
+    {
+        return Gedim::Configurations::GetPropertyValue<std::vector<unsigned int>>("ExportFormat");
     }
 };
 } // namespace Parabolic_PCC_2D

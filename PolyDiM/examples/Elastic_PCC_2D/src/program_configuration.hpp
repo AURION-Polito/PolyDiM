@@ -38,8 +38,14 @@ struct Program_configuration final
                                            static_cast<unsigned int>(Polydim::examples::Elastic_PCC_2D::test::Test_Types::Patch_Test),
                                            "Test Type 1 - Patch_Test; 2 - LinearElasticity; 3 - LinearElasticity_Beam; "
                                            "4 - LinearElasticity_CooksMembrane (Default: 1)");
+
         // Export parameters
         Gedim::Configurations::AddProperty("ExportFolder", "./Run", "Folder where to export data (Default: ./Export)");
+        Gedim::Configurations::AddProperty("ExportFormat",
+                                           std::vector<unsigned int>({1, 0}),
+                                           "A boolean vector of kind of desired export type for solution and mesh "
+                                           "[Csv, Vtu] (Default: [1,0])");
+
         // Mesh parameters
         Gedim::Configurations::AddProperty(
             "MeshGenerator",
@@ -105,6 +111,11 @@ struct Program_configuration final
     inline unsigned int MethodOrder() const
     {
         return Gedim::Configurations::GetPropertyValue<unsigned int>("MethodOrder");
+    }
+
+    inline std::vector<unsigned int> ExportFormat() const
+    {
+        return Gedim::Configurations::GetPropertyValue<std::vector<unsigned int>>("ExportFormat");
     }
 };
 } // namespace Elastic_PCC_2D

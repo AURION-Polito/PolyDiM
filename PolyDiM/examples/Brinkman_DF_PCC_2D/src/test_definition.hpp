@@ -105,12 +105,12 @@ struct Patch_Test final : public I_Test
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Constant(points.cols(), 0.0)};
-    };
+    }
 
     Eigen::VectorXd fluid_viscosity(const Eigen::MatrixXd &points) const
     {
         return Eigen::VectorXd::Constant(points.cols(), 2.0);
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd &points) const
     {
@@ -123,7 +123,7 @@ struct Patch_Test final : public I_Test
         return {-4.0 * order * (order - 1) * result + (order - 1) * result + 0.8 * result * polynomial * polynomial,
                 -4.0 * order * (order - 1) * result + (order - 1) * result + 0.6 * result * polynomial * polynomial,
                 Eigen::VectorXd::Zero(points.cols())};
-    };
+    }
 
     Eigen::VectorXd divergence_term(const Eigen::MatrixXd &points) const
     {
@@ -134,7 +134,7 @@ struct Patch_Test final : public I_Test
             result = result * polynomial;
 
         return 2.0 * order * result;
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
@@ -190,7 +190,7 @@ struct Patch_Test final : public I_Test
         result -= mean;
 
         return result;
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd &points) const
     {
@@ -269,12 +269,12 @@ struct StokesSinSin final : public I_Test
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Constant(points.cols(), 0.0)};
-    };
+    }
 
     Eigen::VectorXd fluid_viscosity(const Eigen::MatrixXd &points) const
     {
         return Eigen::VectorXd::Constant(points.cols(), 1.0);
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd &points) const
     {
@@ -293,12 +293,12 @@ struct StokesSinSin final : public I_Test
         return {-laplacian[0] + pressure_derivatives[0],
                 -laplacian[1] + pressure_derivatives[1],
                 Eigen::VectorXd::Zero(points.cols())};
-    };
+    }
 
     Eigen::VectorXd divergence_term(const Eigen::MatrixXd &points) const
     {
         return Eigen::ArrayXd::Constant(points.cols(), 0.0);
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
@@ -332,7 +332,7 @@ struct StokesSinSin final : public I_Test
     Eigen::VectorXd exact_pressure(const Eigen::MatrixXd &points) const
     {
         return sin(points.row(0).array()) - sin(points.row(1).array());
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd &points) const
     {
@@ -406,24 +406,24 @@ struct Stokes_ZeroVelocity_1 final : public I_Test
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Constant(points.cols(), 0.0)};
-    };
+    }
 
     Eigen::VectorXd fluid_viscosity(const Eigen::MatrixXd &points) const
     {
         return Eigen::VectorXd::Constant(points.cols(), 1.0);
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd &points) const
     {
         return {3.0 * points.row(0).array() * points.row(0).array(),
                 -3.0 * points.row(1).array() * points.row(1).array(),
                 Eigen::VectorXd::Zero(points.cols())};
-    };
+    }
 
     Eigen::VectorXd divergence_term(const Eigen::MatrixXd &points) const
     {
         return Eigen::ArrayXd::Constant(points.cols(), 0.0);
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
@@ -446,7 +446,7 @@ struct Stokes_ZeroVelocity_1 final : public I_Test
     {
         return points.row(0).array() * points.row(0).array() * points.row(0).array() -
                points.row(1).array() * points.row(1).array() * points.row(1).array();
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd &points) const
     {
@@ -510,12 +510,12 @@ struct Stokes_ZeroVelocity_2 final : public I_Test
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Constant(points.cols(), 0.0)};
-    };
+    }
 
     Eigen::VectorXd fluid_viscosity(const Eigen::MatrixXd &points) const
     {
         return Eigen::VectorXd::Constant(points.cols(), 1.0);
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd &points) const
     {
@@ -524,12 +524,12 @@ struct Stokes_ZeroVelocity_2 final : public I_Test
                 2.0 * std::numbers::pi * sin(2.0 * std::numbers::pi * points.row(0).array()) *
                     cos(2.0 * std::numbers::pi * points.row(1).array()),
                 Eigen::VectorXd::Zero(points.cols())};
-    };
+    }
 
     Eigen::VectorXd divergence_term(const Eigen::MatrixXd &points) const
     {
         return Eigen::ArrayXd::Constant(points.cols(), 0.0);
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
@@ -551,7 +551,7 @@ struct Stokes_ZeroVelocity_2 final : public I_Test
     Eigen::VectorXd exact_pressure(const Eigen::MatrixXd &points) const
     {
         return sin(2.0 * std::numbers::pi * points.row(0).array()) * sin(2.0 * std::numbers::pi * points.row(1).array());
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd &points) const
     {
@@ -615,23 +615,23 @@ struct Darcy final : public I_Test
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Constant(points.cols(), 0.0)};
-    };
+    }
 
     Eigen::VectorXd fluid_viscosity(const Eigen::MatrixXd &points) const
     {
         return Eigen::VectorXd::Constant(points.cols(), 0.0);
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd &points) const
     {
         return {Eigen::VectorXd::Zero(points.cols()), Eigen::VectorXd::Zero(points.cols()), Eigen::VectorXd::Zero(points.cols())};
-    };
+    }
 
     Eigen::VectorXd divergence_term(const Eigen::MatrixXd &points) const
     {
         return 2.0 * std::numbers::pi * std::numbers::pi * cos(std::numbers::pi * points.row(0).array()) *
                cos(std::numbers::pi * points.row(1).array());
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
@@ -660,7 +660,7 @@ struct Darcy final : public I_Test
     Eigen::VectorXd exact_pressure(const Eigen::MatrixXd &points) const
     {
         return cos(std::numbers::pi * points.row(0).array()) * cos(std::numbers::pi * points.row(1).array());
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd &points) const
     {
@@ -732,12 +732,12 @@ struct Brinkman final : public I_Test
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Zero(points.cols()),
                 Eigen::VectorXd::Constant(points.cols(), 0.0)};
-    };
+    }
 
     Eigen::VectorXd fluid_viscosity(const Eigen::MatrixXd &points) const
     {
         return Eigen::VectorXd::Constant(points.cols(), 1.0);
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd &points) const
     {
@@ -748,12 +748,12 @@ struct Brinkman final : public I_Test
                         sin(std::numbers::pi * points.row(1).array()) +
                     2.0 * points.row(1).array() * points.row(0).array() * points.row(0).array(),
                 Eigen::VectorXd::Zero(points.cols())};
-    };
+    }
 
     Eigen::VectorXd divergence_term(const Eigen::MatrixXd &points) const
     {
         return Eigen::VectorXd::Zero(points.cols());
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
@@ -777,7 +777,7 @@ struct Brinkman final : public I_Test
     Eigen::VectorXd exact_pressure(const Eigen::MatrixXd &points) const
     {
         return points.row(0).array() * points.row(0).array() * points.row(1).array() * points.row(1).array() - 1.0 / 9.0;
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd &points) const
     {
@@ -897,7 +897,7 @@ struct DarcyStokes_1 final : public I_Test
                     Eigen::VectorXd::Constant(points.cols(), 0.0)};
         else
             throw std::runtime_error("not valid configuration");
-    };
+    }
 
     Eigen::VectorXd fluid_viscosity(const Eigen::MatrixXd &points) const
     {
@@ -907,7 +907,7 @@ struct DarcyStokes_1 final : public I_Test
             return Eigen::VectorXd::Constant(points.cols(), 0.0);
         else
             throw std::runtime_error("not valid configuration");
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd &points) const
     {
@@ -929,12 +929,12 @@ struct DarcyStokes_1 final : public I_Test
                     Eigen::VectorXd::Zero(points.cols())};
         else
             throw std::runtime_error("not valid configuration");
-    };
+    }
 
     Eigen::VectorXd divergence_term(const Eigen::MatrixXd &points) const
     {
         return Eigen::VectorXd::Zero(points.cols());
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
@@ -1034,7 +1034,7 @@ struct DarcyStokes_1 final : public I_Test
             return polynomial - 2.0;
         else
             return polynomial;
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd &points) const
     {
@@ -1154,7 +1154,7 @@ struct DarcyStokes_2 final : public I_Test
                     Eigen::VectorXd::Constant(points.cols(), 0.0)};
         else
             throw std::runtime_error("not valid configuration");
-    };
+    }
 
     Eigen::VectorXd fluid_viscosity(const Eigen::MatrixXd &points) const
     {
@@ -1164,13 +1164,13 @@ struct DarcyStokes_2 final : public I_Test
             return Eigen::VectorXd::Constant(points.cols(), 0.0);
         else
             throw std::runtime_error("not valid configuration");
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> source_term(const Eigen::MatrixXd &points) const
     {
 
         return {Eigen::VectorXd::Zero(points.cols()), Eigen::VectorXd::Zero(points.cols()), Eigen::VectorXd::Zero(points.cols())};
-    };
+    }
 
     Eigen::VectorXd divergence_term(const Eigen::MatrixXd &points) const
     {
@@ -1267,7 +1267,7 @@ struct DarcyStokes_2 final : public I_Test
     Eigen::VectorXd exact_pressure(const Eigen::MatrixXd &points) const
     {
         throw std::runtime_error("Not implemented method");
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> exact_velocity(const Eigen::MatrixXd &points) const
     {

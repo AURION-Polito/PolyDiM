@@ -71,12 +71,12 @@ struct Patch_Test final : public I_Test
     Eigen::VectorXd diffusion_term(const Eigen::MatrixXd &points) const
     {
         return Eigen::VectorXd::Constant(points.cols(), 1.0);
-    };
+    }
 
     Eigen::VectorXd reaction_term(const Eigen::MatrixXd &points) const
     {
         return Eigen::VectorXd::Constant(points.cols(), 0.0);
-    };
+    }
 
     Eigen::VectorXd source_term(const Eigen::MatrixXd &points) const
     {
@@ -88,7 +88,7 @@ struct Patch_Test final : public I_Test
             source_term.array() *= polynomial;
 
         return -source_term;
-    };
+    }
 
     Eigen::VectorXd strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
@@ -102,7 +102,7 @@ struct Patch_Test final : public I_Test
             result.array() *= polynomial;
 
         return result;
-    };
+    }
 
     Eigen::VectorXd weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
@@ -128,7 +128,7 @@ struct Patch_Test final : public I_Test
             result.array() *= polynomial;
 
         return result;
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> exact_derivative_solution(const Eigen::MatrixXd &points) const
     {
@@ -170,12 +170,12 @@ struct Rotated_Patch_Test final : public I_Test
     Eigen::VectorXd diffusion_term(const Eigen::MatrixXd &points) const
     {
         return Eigen::VectorXd::Constant(points.cols(), 1.0);
-    };
+    }
 
     Eigen::VectorXd reaction_term(const Eigen::MatrixXd &points) const
     {
         return Eigen::VectorXd::Constant(points.cols(), 1.0);
-    };
+    }
 
     Eigen::VectorXd source_term(const Eigen::MatrixXd &points) const
     {
@@ -187,7 +187,7 @@ struct Rotated_Patch_Test final : public I_Test
             source_term.array() *= polynomial;
 
         return -source_term + exact_solution(points).array();
-    };
+    }
 
     Eigen::VectorXd strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
@@ -195,7 +195,7 @@ struct Rotated_Patch_Test final : public I_Test
             throw std::runtime_error("Unknown marker");
 
         return exact_solution(points);
-    };
+    }
 
     Eigen::VectorXd weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
@@ -221,7 +221,7 @@ struct Rotated_Patch_Test final : public I_Test
             result.array() *= polynomial;
 
         return result;
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> exact_derivative_solution(const Eigen::MatrixXd &points) const
     {
@@ -260,17 +260,17 @@ struct Poisson_Polynomial_Problem final : public I_Test
     Eigen::VectorXd diffusion_term(const Eigen::MatrixXd &points) const
     {
         return Eigen::VectorXd::Constant(points.cols(), 2.0);
-    };
+    }
 
     Eigen::VectorXd source_term(const Eigen::MatrixXd &points) const
     {
         return 2.0 * std::numbers::pi * std::numbers::pi * sin(std::numbers::pi * points.row(0).array());
-    };
+    }
 
     Eigen::VectorXd reaction_term(const Eigen::MatrixXd &points) const
     {
         return Eigen::VectorXd::Constant(points.cols(), 0.0);
-    };
+    }
 
     Eigen::VectorXd strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
@@ -278,7 +278,7 @@ struct Poisson_Polynomial_Problem final : public I_Test
             throw std::runtime_error("Unknown marker");
 
         return sin(std::numbers::pi * points.row(0).array());
-    };
+    }
 
     Eigen::VectorXd weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points) const
     {
@@ -291,7 +291,7 @@ struct Poisson_Polynomial_Problem final : public I_Test
     Eigen::VectorXd exact_solution(const Eigen::MatrixXd &points) const
     {
         return sin(std::numbers::pi * points.row(0).array());
-    };
+    }
 
     std::array<Eigen::VectorXd, 3> exact_derivative_solution(const Eigen::MatrixXd &points) const
     {

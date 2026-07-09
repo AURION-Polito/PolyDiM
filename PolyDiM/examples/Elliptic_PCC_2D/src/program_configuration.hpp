@@ -30,10 +30,15 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty("TestType",
                                            static_cast<unsigned int>(Polydim::examples::Elliptic_PCC_2D::test::Test_Types::Patch_Test),
                                            "Test Type 1 - Patch_Test; 2 - Elliptic_Polynomial_Problem; 3 - "
-                                           "SUPG_AdvDiff_Problem; 4 - Elliptic_Problem "
-                                           "(Default: 1)");
+                                           "Elliptic_Problem"
+                                           "4 - SUPG_AdvDiff_Problem (Default: 1)");
         // Export parameters
         Gedim::Configurations::AddProperty("ExportFolder", "./Run", "Folder where to export data (Default: ./Export)");
+        Gedim::Configurations::AddProperty("ExportFormat",
+                                           std::vector<unsigned int>({1, 0}),
+                                           "A boolean vector of kind of desired export type for solution and mesh "
+                                           "[Csv, Vtu] (Default: [1,0])");
+
         // Mesh parameters
         Gedim::Configurations::AddProperty(
             "MeshGenerator",
@@ -53,8 +58,9 @@ struct Program_configuration final
                                            static_cast<unsigned int>(Polydim::PDETools::LocalSpace_PCC_2D::MethodTypes::FEM_PCC),
                                            "Method Type, 0 - FEM; 1 - EVem; 2 - EVem_Inertia; 3 - EVem_Ortho; "
                                            "4 - ZFEM (Default: 0)");
+
         Gedim::Configurations::AddProperty("MethodOrder", static_cast<unsigned int>(1), "Method order (Default: 1)");
-        Gedim::Configurations::AddProperty("ComputeMethodPerformance", true, "Compute Method Performance (Default: false)");
+        Gedim::Configurations::AddProperty("ComputeMethodPerformance", false, "Compute Method Performance (Default: false)");
         Gedim::Configurations::AddProperty("SUPG", false, "Use SUPG (Default: false)");
         Gedim::Configurations::AddProperty("PecletConstant", 3.3333333333333331e-01, "Peclet constant Ck (Default: 1.0/3.0)");
     }
@@ -108,6 +114,12 @@ struct Program_configuration final
     {
         return Gedim::Configurations::GetPropertyValue<bool>("SUPG");
     }
+
+    inline std::vector<unsigned int> ExportFormat() const
+    {
+        return Gedim::Configurations::GetPropertyValue<std::vector<unsigned int>>("ExportFormat");
+    }
+
     inline double PecletConstant() const
     {
         return Gedim::Configurations::GetPropertyValue<double>("PecletConstant");
