@@ -13,8 +13,8 @@
 
 #include "IOEnum.hpp"
 #include "VTKUtilities.hpp"
-#include <numbers>
 #include <iomanip>
+#include <numbers>
 
 namespace Polydim
 {

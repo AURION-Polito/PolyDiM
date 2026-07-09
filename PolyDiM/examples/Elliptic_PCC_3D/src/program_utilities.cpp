@@ -12,8 +12,8 @@
 #include "program_utilities.hpp"
 
 #include "VTKUtilities.hpp"
-#include <numbers>
 #include <iomanip>
+#include <numbers>
 
 namespace Polydim
 {
