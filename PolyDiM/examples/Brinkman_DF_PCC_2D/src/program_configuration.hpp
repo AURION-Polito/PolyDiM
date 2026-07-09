@@ -34,7 +34,7 @@ struct Program_configuration final
                                            "DarcyStokes_2 (Default: 1)");
 
         // Export parameters
-        Gedim::Configurations::AddProperty("ExportFolder", "./Run", "Folder where to export data (Default: ./Export)");
+        Gedim::Configurations::AddProperty("ExportFolder", "./Export", "Folder where to export data (Default: ./Export)");
         Gedim::Configurations::AddProperty("ExportFormat",
                                            std::vector<unsigned int>({1, 0}),
                                            "A boolean vector of kind of desired export type for solution and mesh "

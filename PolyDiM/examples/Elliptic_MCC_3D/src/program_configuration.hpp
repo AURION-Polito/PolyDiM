@@ -33,7 +33,7 @@ struct Program_configuration final
                                            "(Default: 1)");
 
         // Export parameters
-        Gedim::Configurations::AddProperty("ExportFolder", "./Run", "Folder where to export data (Default: ./Export)");
+        Gedim::Configurations::AddProperty("ExportFolder", "./Export", "Folder where to export data (Default: ./Export)");
         Gedim::Configurations::AddProperty("ExportFormat",
                                            std::vector<unsigned int>({1, 0}),
                                            "A boolean vector of kind of desired export type for solution and mesh "
@@ -43,7 +43,7 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty(
             "MeshGenerator",
             static_cast<unsigned int>(Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Tetrahedral),
-            "Mesh 3D gereator type, 0 - Tetrahedral; 1 - Minimal; 2 - "
+            "Mesh 3D generator type, 0 - Tetrahedral; 1 - Minimal; 2 - "
             "Polyhedral; 3 - OVMImporter; 4 - VtkImporter; 5 - CsvImporter; 6 - Cubic "
             "(Default: 0)");
         Gedim::Configurations::AddProperty("MeshImportFilePath", "./", "Mesh imported file path (Default: './')");

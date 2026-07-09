@@ -39,12 +39,12 @@ struct Program_configuration final
                                            "-Stokes_Benchmark_2  (Default: 1)");
 
         // Export parameters
-        Gedim::Configurations::AddProperty("ExportFolder", "./Run", "Folder where to export data (Default: ./Export)");
+        Gedim::Configurations::AddProperty("ExportFolder", "./Export", "Folder where to export data (Default: ./Export)");
         // Mesh parameters
         Gedim::Configurations::AddProperty(
             "MeshGenerator",
             static_cast<unsigned int>(Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Tetrahedral),
-            "Mesh 3D gereator type, 0 - Tetrahedral; 1 - Minimal; 2 - "
+            "Mesh 3D generator type, 0 - Tetrahedral; 1 - Minimal; 2 - "
             "Polyhedral; 3 - OVMImporter; 4 - VtkImporter; 5 - CsvImporter; 6 - Cubic (Default: 0)");
         Gedim::Configurations::AddProperty("MeshImportFilePath", "./", "Mesh imported file path (Default: './')");
         Gedim::Configurations::AddProperty("MeshMaxVolume", 0.1, "Mesh 3D maximum relative cell volume (Default: 0.1)");

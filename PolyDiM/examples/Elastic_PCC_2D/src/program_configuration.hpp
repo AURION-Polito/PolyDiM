@@ -40,7 +40,7 @@ struct Program_configuration final
                                            "4 - LinearElasticity_CooksMembrane (Default: 1)");
 
         // Export parameters
-        Gedim::Configurations::AddProperty("ExportFolder", "./Run", "Folder where to export data (Default: ./Export)");
+        Gedim::Configurations::AddProperty("ExportFolder", "./Export", "Folder where to export data (Default: ./Export)");
         Gedim::Configurations::AddProperty("ExportFormat",
                                            std::vector<unsigned int>({1, 0}),
                                            "A boolean vector of kind of desired export type for solution and mesh "
@@ -50,7 +50,7 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty(
             "MeshGenerator",
             static_cast<unsigned int>(Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular),
-            "Mesh 2D gereator type, 0 - Triangular; 1 - Minimal; 2 - "
+            "Mesh 2D generator type, 0 - Triangular; 1 - Minimal; 2 - "
             "Polygonal; 3 - OFF Importer; 4 - CsvImporter (; separator); 5 - Squared (Default: 0)");
         Gedim::Configurations::AddProperty("MeshImportFilePath", "./", "Mesh imported file path (Default: './')");
         Gedim::Configurations::AddProperty("MeshMaxArea", 0.1, "Mesh 2D maximum relative cell area (Default: 0.1)");

@@ -34,12 +34,12 @@ struct Program_configuration final
             static_cast<unsigned int>(Polydim::examples::Parabolic_PCC_BulkFace_2D::test::Test_Types::Elliptic_Problem),
             "Test Type 1 - Elliptic_Problem; 2 - Parabolic_Problem; (Default: 1)");
         // Export parameters
-        Gedim::Configurations::AddProperty("ExportFolder", "./Run", "Folder where to export data (Default: ./Export)");
+        Gedim::Configurations::AddProperty("ExportFolder", "./Export", "Folder where to export data (Default: ./Export)");
         // Mesh parameters
         Gedim::Configurations::AddProperty(
             "MeshGenerator",
             static_cast<unsigned int>(Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular),
-            "Mesh 2D gereator type, 0 - Triangular; 1 - Minimal; 2 - "
+            "Mesh 2D generator type, 0 - Triangular; 1 - Minimal; 2 - "
             "Polygonal; 3 - OFF Importer; 4 - CsvImporter (; separator); 5 - Squared; 6 - RandomDistorted (Default: "
             "0)");
         Gedim::Configurations::AddProperty("MeshImportFilePath", "./", "Mesh imported file path (Default: './')");
