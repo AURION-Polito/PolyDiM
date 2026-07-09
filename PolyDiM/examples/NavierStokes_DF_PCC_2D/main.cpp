@@ -19,6 +19,7 @@
 #include "assembler.hpp"
 #include "program_configuration.hpp"
 #include "program_utilities.hpp"
+#include <iomanip>
 
 int main(int argc, char **argv)
 {

@@ -18,7 +18,7 @@
 #include "assembler.hpp"
 #include "program_configuration.hpp"
 #include "test_definition.hpp"
-
+#include <iomanip>
 #include <numbers>
 
 namespace Polydim
