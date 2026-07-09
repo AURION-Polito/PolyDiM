@@ -274,7 +274,7 @@ Assembler::Elliptic_MCC_3D_Problem_Data Assembler::Assemble(
     return result;
 }
 // ***************************************************************************
-Assembler::VEM_Performance_Result Assembler::ComputeVemPerformance(
+Assembler::VEM_Performance_Result Assembler::ComputeMethodPerformance(
     const Polydim::examples::Elliptic_MCC_3D::Program_configuration &config,
     const Gedim::MeshMatricesDAO &mesh,
     const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
