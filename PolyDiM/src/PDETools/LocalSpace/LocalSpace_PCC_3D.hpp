@@ -28,14 +28,23 @@ namespace Polydim
 {
 namespace PDETools
 {
+
+/// @brief Unified interface to the 3D primal conforming (PCC) local spaces.
+///
+/// This namespace provides a single, method-agnostic API for building and
+/// evaluating the local (per-cell) discrete space of a scalar primal problem in 3D,
+/// hiding the differences between the finite element (FEM), virtual element (VEM,
+/// including its inertia-based and orthogonalized variants); the free functions
+/// dispatch to the corresponding implementation, so that assemblers can be written
+/// once and reused across methods.
 namespace LocalSpace_PCC_3D
 {
 enum class MethodTypes
 {
-    FEM_PCC = 0,
-    VEM_PCC = 1,
-    VEM_PCC_Inertia = 2,
-    VEM_PCC_Ortho = 3
+    FEM_PCC = 0, ///< Finite Element Method. \cite BrennerScott
+    VEM_PCC = 1, ///< Virtual Element Method (standard monomial basis). \cite LBe16
+    VEM_PCC_Inertia = 2, ///< VEM with an inertia-based (principal-axes) monomial basis. \cite Teora2024
+    VEM_PCC_Ortho = 3 ///< VEM with an \f$L^2\f$-orthonormalized monomial basis. \cite DassiMascotto2018
 };
 
 class ReferenceElement_Data final

@@ -24,6 +24,7 @@ namespace ZFEM
 namespace PCC
 {
 
+/// @brief This local space implements \cite zfem
 class ZFEM_PCC_2D_LocalSpace final : public I_ZFEM_PCC_2D_LocalSpace
 {
   private:
