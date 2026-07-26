@@ -231,7 +231,8 @@ void export_solution(const Polydim::examples::Elliptic_PCC_2D::Program_configura
 
         std::ofstream solutionFile(solutionFileName, std::ios_base::trunc | std::ios_base::out);
 
-        solutionFile << "x" << separator << "y" << separator << "discrete_solution" << separator << "exact_solution" << std::endl;
+        solutionFile << "x" << separator << "y" << separator << "z" << separator << "discrete_solution" << separator
+                     << "exact_solution" << std::endl;
         for (unsigned int i = 0; i < post_process_data.cell0Ds_numeric.size(); i++)
             solutionFile << coordinates(0, i) << separator << coordinates(1, i) << separator << coordinates(2, i)
                          << separator << post_process_data.cell0Ds_numeric[i] << separator
@@ -331,16 +332,17 @@ void export_performance(const Polydim::examples::Elliptic_PCC_2D::Program_config
             exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorGBD << separator;
             exporter << std::scientific << cell2D_performance.vem_analysis_data.ErrorStabilization << std::endl;
         }
+
+        exporter.close();
+
+        Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor + "Performance are exported in: " + file_name +
+                                               Gedim::Output::EndColor,
+                                           true);
     }
     break;
     case PDETools::LocalSpace_PCC_2D::MethodTypes::ZFEM_PCC:
         break;
     }
-
-    exporter.close();
-
-    Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor + "Performance are exported in: " + file_name + Gedim::Output::EndColor,
-                                       true);
 }
 // ***************************************************************************
 } // namespace program_utilities

@@ -221,7 +221,8 @@ void export_solution(const Polydim::examples::Elliptic_PCC_1D::Program_configura
 
         std::ofstream solutionFile(solutionFileName, std::ios_base::trunc | std::ios_base::out);
 
-        solutionFile << "x" << separator << "y" << separator << "discrete_solution" << separator << "exact_solution" << std::endl;
+        solutionFile << "x" << separator << "y" << separator << "z" << separator << "discrete_solution" << separator
+                     << "exact_solution" << std::endl;
         for (unsigned int i = 0; i < post_process_data.cell0Ds_numeric.size(); i++)
             solutionFile << coordinates(0, i) << separator << coordinates(1, i) << separator << coordinates(2, i)
                          << separator << post_process_data.cell0Ds_numeric[i] << separator

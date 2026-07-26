@@ -41,10 +41,10 @@ namespace LocalSpace_PCC_3D
 {
 enum class MethodTypes
 {
-    FEM_PCC = 0, ///< Finite Element Method. \cite BrennerScott
-    VEM_PCC = 1, ///< Virtual Element Method (standard monomial basis). \cite LBe16
+    FEM_PCC = 0,         ///< Finite Element Method. \cite BrennerScott
+    VEM_PCC = 1,         ///< Virtual Element Method (standard monomial basis). \cite LBe16
     VEM_PCC_Inertia = 2, ///< VEM with an inertia-based (principal-axes) monomial basis. \cite Teora2024
-    VEM_PCC_Ortho = 3 ///< VEM with an \f$L^2\f$-orthonormalized monomial basis. \cite DassiMascotto2018
+    VEM_PCC_Ortho = 3    ///< VEM with an \f$L^2\f$-orthonormalized monomial basis. \cite DassiMascotto2018
 };
 
 class ReferenceElement_Data final

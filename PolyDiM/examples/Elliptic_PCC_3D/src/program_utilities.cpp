@@ -11,6 +11,7 @@
 
 #include "program_utilities.hpp"
 
+#include "IOEnum.hpp"
 #include "VTKUtilities.hpp"
 #include <iomanip>
 #include <numbers>
@@ -100,46 +101,47 @@ void export_solution(const Polydim::examples::Elliptic_PCC_3D::Program_configura
                      const std::string &exportSolutionFolder,
                      const std::string &exportVtuFolder)
 {
-    const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
+    const unsigned int METHOD_ID = static_cast<unsigned int>(config.MethodType());
     const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
 
+    std::string test_type{
+        Gedim::io_enum::enum_to_string<Polydim::examples::Elliptic_PCC_3D::test::Test_Types, 1, 4>(config.TestType())};
+    std::string mesh_generator{
+        Gedim::io_enum::enum_to_string<Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D, 0, 20>(
+            config.MeshGenerator())};
+    std::string method_type{
+        Gedim::io_enum::enum_to_string<Polydim::PDETools::LocalSpace_PCC_3D::MethodTypes, 0, 20>(config.MethodType())};
+
     {
-        const char separator = ';';
+        std::ostringstream error_to_str;
+        const int w = 15;
 
-        std::cout << "ProgramType" << separator;
-        std::cout << "MethodType" << separator;
-        std::cout << "MethodOrder" << separator;
-        std::cout << "Cell3Ds" << separator;
-        std::cout << "Dofs" << separator;
-        std::cout << "Strongs" << separator;
-        std::cout << "h" << separator;
-        std::cout << "errorL2" << separator;
-        std::cout << "errorH1" << separator;
-        std::cout << "normL2" << separator;
-        std::cout << "normH1" << separator;
-        std::cout << "nnzA" << separator;
-        std::cout << "residual" << std::endl;
+        error_to_str << Gedim::Output::MagentaColor;
+        error_to_str << std::right;
 
-        std::cout.precision(2);
-        std::cout << std::scientific << TEST_ID << separator;
-        std::cout << std::scientific << Method_ID << separator;
-        std::cout << std::scientific << config.MethodOrder() << separator;
-        std::cout << std::scientific << mesh.Cell3DTotalNumber() << separator;
-        std::cout << std::scientific << dofs_data.NumberDOFs << separator;
-        std::cout << std::scientific << dofs_data.NumberStrongs << separator;
-        std::cout << std::scientific << post_process_data.mesh_size << separator;
-        std::cout << std::scientific << post_process_data.error_L2 << separator;
-        std::cout << std::scientific << post_process_data.error_H1 << separator;
-        std::cout << std::scientific << post_process_data.norm_L2 << separator;
-        std::cout << std::scientific << post_process_data.norm_H1 << separator;
-        std::cout << std::scientific << assembler_data.globalMatrixA.NonZeros() << separator;
-        std::cout << std::scientific << post_process_data.residual_norm << std::endl;
+        error_to_str << std::setw(w + 10) << "ProgramType" << std::setw(w) << "MethodType" << std::setw(w)
+                     << "MethodOrder" << std::setw(w) << "MeshGenerator" << std::setw(w) << "Cell3Ds" << std::setw(w)
+                     << "Dofs" << std::setw(w) << "Strongs" << std::setw(w) << "h" << std::setw(w) << "errorL2"
+                     << std::setw(w) << "errorH1" << std::setw(w) << "normL2" << std::setw(w) << "normH1"
+                     << std::setw(w) << "nnzA" << std::setw(w) << "residual" << std::endl;
+
+        error_to_str.precision(2);
+        error_to_str << std::scientific;
+        error_to_str << std::setw(w + 14) << test_type << std::setw(w) << method_type << std::setw(w)
+                     << config.MethodOrder() << std::setw(w) << mesh_generator << std::setw(w) << mesh.Cell3DTotalNumber()
+                     << std::setw(w) << dofs_data.NumberDOFs << std::setw(w) << dofs_data.NumberStrongs << std::setw(w)
+                     << post_process_data.mesh_size << std::setw(w) << post_process_data.error_L2 << std::setw(w)
+                     << post_process_data.error_H1 << std::setw(w) << post_process_data.norm_L2 << std::setw(w)
+                     << post_process_data.norm_H1 << std::setw(w) << assembler_data.globalMatrixA.NonZeros()
+                     << std::setw(w) << post_process_data.residual_norm << Gedim::Output::EndColor;
+
+        Gedim::Output::PrintGenericMessage(error_to_str.str(), true);
     }
 
     {
         const char separator = ';';
         const std::string errorFileName = exportSolutionFolder + "/Errors_" + std::to_string(TEST_ID) + "_" +
-                                          std::to_string(Method_ID) + +"_" + std::to_string(config.MethodOrder()) + ".csv";
+                                          std::to_string(METHOD_ID) + +"_" + std::to_string(config.MethodOrder()) + ".csv";
         const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
 
         std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);
@@ -162,7 +164,7 @@ void export_solution(const Polydim::examples::Elliptic_PCC_3D::Program_configura
 
         errorFile.precision(16);
         errorFile << std::scientific << TEST_ID << separator;
-        errorFile << std::scientific << Method_ID << separator;
+        errorFile << std::scientific << METHOD_ID << separator;
         errorFile << std::scientific << config.MethodOrder() << separator;
         errorFile << std::scientific << mesh.Cell3DTotalNumber() << separator;
         errorFile << std::scientific << dofs_data.NumberDOFs << separator;
@@ -176,33 +178,63 @@ void export_solution(const Polydim::examples::Elliptic_PCC_3D::Program_configura
         errorFile << std::scientific << post_process_data.residual_norm << std::endl;
 
         errorFile.close();
+        Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor + "Errors are exported in: " + errorFileName +
+                                               Gedim::Output::EndColor,
+                                           true);
     }
 
+    if (config.ExportFormat()[1])
     {
-        {
-            Gedim::VTKUtilities exporter;
-            exporter.AddPolyhedrons(mesh.Cell0DsCoordinates(),
-                                    mesh.Cell3DsFacesVertices(),
-                                    {{"Numeric",
-                                      Gedim::VTPProperty::Formats::Points,
-                                      static_cast<unsigned int>(post_process_data.cell0Ds_numeric.size()),
-                                      post_process_data.cell0Ds_numeric.data()},
-                                     {"Exact",
-                                      Gedim::VTPProperty::Formats::Points,
-                                      static_cast<unsigned int>(post_process_data.cell0Ds_exact.size()),
-                                      post_process_data.cell0Ds_exact.data()},
-                                     {"ErrorL2",
-                                      Gedim::VTPProperty::Formats::Cells,
-                                      static_cast<unsigned int>(post_process_data.cell3Ds_error_L2.size()),
-                                      post_process_data.cell3Ds_error_L2.data()},
-                                     {"ErrorH1",
-                                      Gedim::VTPProperty::Formats::Cells,
-                                      static_cast<unsigned int>(post_process_data.cell3Ds_error_H1.size()),
-                                      post_process_data.cell3Ds_error_H1.data()}});
+        Gedim::VTKUtilities exporter;
+        exporter.AddPolyhedrons(mesh.Cell0DsCoordinates(),
+                                mesh.Cell3DsFacesVertices(),
+                                {{"Numeric",
+                                  Gedim::VTPProperty::Formats::Points,
+                                  static_cast<unsigned int>(post_process_data.cell0Ds_numeric.size()),
+                                  post_process_data.cell0Ds_numeric.data()},
+                                 {"Exact",
+                                  Gedim::VTPProperty::Formats::Points,
+                                  static_cast<unsigned int>(post_process_data.cell0Ds_exact.size()),
+                                  post_process_data.cell0Ds_exact.data()},
+                                 {"ErrorL2",
+                                  Gedim::VTPProperty::Formats::Cells,
+                                  static_cast<unsigned int>(post_process_data.cell3Ds_error_L2.size()),
+                                  post_process_data.cell3Ds_error_L2.data()},
+                                 {"ErrorH1",
+                                  Gedim::VTPProperty::Formats::Cells,
+                                  static_cast<unsigned int>(post_process_data.cell3Ds_error_H1.size()),
+                                  post_process_data.cell3Ds_error_H1.data()}});
 
-            exporter.Export(exportVtuFolder + "/Solution_" + std::to_string(TEST_ID) + "_" + std::to_string(Method_ID) +
-                            +"_" + std::to_string(config.MethodOrder()) + ".vtu");
-        }
+        std::string file_name = exportVtuFolder + "/Solution_" + std::to_string(TEST_ID) + "_" +
+                                std::to_string(METHOD_ID) + "_" + std::to_string(config.MethodOrder()) + ".vtu";
+        exporter.Export(file_name);
+        Gedim::Output::PrintGenericMessage(
+            Gedim::Output::MagentaColor + "Solution and Errors are exported in: " + file_name + Gedim::Output::EndColor,
+            true);
+    }
+
+    if (config.ExportFormat()[0])
+    {
+        const char separator = ';';
+        const std::string solutionFileName = exportSolutionFolder + "/Solution_" + std::to_string(TEST_ID) + "_" +
+                                             std::to_string(METHOD_ID) + "_" + std::to_string(config.MethodOrder()) + ".csv";
+
+        const Eigen::MatrixXd coordinates = mesh.Cell0DsCoordinates();
+
+        std::ofstream solutionFile(solutionFileName, std::ios_base::trunc | std::ios_base::out);
+
+        solutionFile << "x" << separator << "y" << separator << "z" << separator << "discrete_solution" << separator
+                     << "exact_solution" << std::endl;
+        for (unsigned int i = 0; i < post_process_data.cell0Ds_numeric.size(); i++)
+            solutionFile << coordinates(0, i) << separator << coordinates(1, i) << separator << coordinates(2, i)
+                         << separator << post_process_data.cell0Ds_numeric[i] << separator
+                         << post_process_data.cell0Ds_exact[i] << std::endl;
+
+        solutionFile.close();
+
+        Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor +
+                                               "Solution is exported in: " + solutionFileName + Gedim::Output::EndColor,
+                                           true);
     }
 }
 // ***************************************************************************

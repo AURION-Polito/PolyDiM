@@ -172,8 +172,8 @@ int main(int argc, char **argv)
     Gedim::Profiler::StopTime("ComputeErrors");
     Gedim::Output::PrintStatusProgram("ComputeErrors");
 
-    Gedim::Output::PrintGenericMessage("ExportSolution...", true);
-    Gedim::Profiler::StartTime("ExportSolution");
+    Gedim::Output::PrintGenericMessage("ExportSolutionAndErrors...", true);
+    Gedim::Profiler::StartTime("ExportSolutionAndErrors");
 
     Polydim::examples::Elliptic_PCC_3D::program_utilities::export_solution(config, mesh, dofs_data, assembler_data, post_process_data, exportCsvFolder, exportVtuFolder);
 
@@ -188,8 +188,8 @@ int main(int argc, char **argv)
                                                                        *test,
                                                                        exportVtuFolder);
 
-    Gedim::Profiler::StopTime("ExportSolution");
-    Gedim::Output::PrintStatusProgram("ExportSolution");
+    Gedim::Profiler::StopTime("ExportSolutionAndErrors");
+    Gedim::Output::PrintStatusProgram("ExportSolutionAndErrors");
 
     if (config.ComputeMethodPerformance())
     {
