@@ -27,7 +27,7 @@ namespace PCC
 {
 enum struct ZFEM_PCC_2D_LocalSpace_Types
 {
-    ZFEM_PCC_2D_LocalSpace = 1
+    ZFEM_PCC_2D_LocalSpace = 1 /// \cite zfem
 };
 
 inline std::unique_ptr<I_ZFEM_PCC_2D_ReferenceElement> create_ZFEM_PCC_2D_reference_element(const ZFEM_PCC_2D_LocalSpace_Types &type)

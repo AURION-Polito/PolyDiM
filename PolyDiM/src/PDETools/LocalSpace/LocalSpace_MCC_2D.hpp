@@ -39,11 +39,11 @@ namespace LocalSpace_MCC_2D
 /// @brief Discretization method for the 2D MCC velocity/pressure pair.
 enum class MethodTypes
 {
-    VEM_MCC = 1,                 ///< Mixed VEM (standard basis).
+    VEM_MCC = 1,                 ///< Mixed VEM (standard basis). \cite secondMixed
     VEM_MCC_Partial = 2,         ///< Mixed VEM with a partially computed velocity space.
     VEM_MCC_Ortho = 3,           ///< Mixed VEM with an orthonormalized internal basis.
-    VEM_MCC_EdgeOrtho = 4,       ///< Mixed VEM with an orthonormalized edge basis.
-    VEM_MCC_Ortho_EdgeOrtho = 5, ///< Mixed VEM with both internal and edge orthonormalization.
+    VEM_MCC_EdgeOrtho = 4,       ///< Mixed VEM with an orthonormalized edge basis. \cite Teora2023
+    VEM_MCC_Ortho_EdgeOrtho = 5, ///< Mixed VEM with both internal and edge orthonormalization. \cite Teora2023
     FEM_RT_MCC = 6               ///< Raviart–Thomas finite element.
 };
 

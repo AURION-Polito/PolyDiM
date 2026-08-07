@@ -42,8 +42,8 @@ namespace LocalSpace_DF_PCC_2D
 enum struct MethodTypes
 {
     TAYLOR_HOOD = 0,       ///< Taylor–Hood finite element velocity/pressure pair.
-    VEM_DF_PCC_FULL = 1,   ///< Divergence-free VEM, full velocity space.
-    VEM_DF_PCC_REDUCED = 2 ///< Divergence-free VEM, reduced velocity space.
+    VEM_DF_PCC_FULL = 1,   ///< Divergence-free VEM, full velocity space. \cite DaVeigaLovadina2017
+    VEM_DF_PCC_REDUCED = 2 ///< Divergence-free VEM, reduced velocity space. \cite DaVeigaLovadina2017
 };
 
 /// @brief Method-specific reference-element data for the 2D DF_PCC local space.

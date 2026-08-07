@@ -66,6 +66,27 @@ int main(int argc, char **argv)
     const auto boundary_info_2D = test->boundary_info_2D();
     const auto boundary_info_1D = test->boundary_info_1D();
 
+    if (domain.spatial_domain.vertices.cols() == 0)
+    {
+        switch (config.MeshGenerator())
+        {
+        case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::OFFImporter:
+        case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::CsvImporter:
+            break;
+        case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular:
+        case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Minimal:
+        case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Polygonal:
+        case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Squared:
+        case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::RandomDistorted:
+        case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::TriangularSimpleImporter:
+        case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::StructuredTriangular:
+        case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::QuadFromTriangular:
+        dafault:
+            throw std::runtime_error("Test case requires imported mesh. Examples Mesh is availble in "
+                                     "'Mesh/2D/CircleTriangularMesh'.");
+        }
+    }
+
     Gedim::Profiler::StopTime("SetProblem");
     Gedim::Output::PrintStatusProgram("SetProblem");
 

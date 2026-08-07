@@ -16,7 +16,6 @@
 #include "Eigen_Array.hpp"
 #include "Eigen_SparseArray.hpp"
 #include "LocalSpace_PCC_2D.hpp"
-#include "MeshMatricesDAO.hpp"
 #include "MeshUtilities.hpp"
 #include "program_configuration.hpp"
 #include "test_definition.hpp"

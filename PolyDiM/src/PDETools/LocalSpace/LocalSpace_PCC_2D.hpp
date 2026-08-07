@@ -34,7 +34,7 @@ namespace PDETools
 /// This namespace provides a single, method-agnostic API for building and
 /// evaluating the local (per-cell) discrete space of a scalar primal problem in 2D,
 /// hiding the differences between the finite element (FEM), virtual element (VEM,
-/// including its inertia-based and orthogonalized variants), and enriched FEM (ZFEM)
+/// including its inertia-based and orthogonalized variants), and Zipped FEM (ZFEM)
 /// backends. The active backend is selected through MethodTypes; the free functions
 /// dispatch to the corresponding implementation, so that assemblers can be written
 /// once and reused across methods.
@@ -43,11 +43,11 @@ namespace LocalSpace_PCC_2D
 /// @brief Discretization method for the 2D PCC local space.
 enum struct MethodTypes
 {
-    FEM_PCC = 0,         ///< Finite Element Method.
-    VEM_PCC = 1,         ///< Virtual Element Method (standard basis).
-    VEM_PCC_Inertia = 2, ///< VEM with an inertia-based (principal-axes) monomial basis.
-    VEM_PCC_Ortho = 3,   ///< VEM with an \f$L^2\f$-orthonormalized monomial basis.
-    ZFEM_PCC = 4,        ///< Zipped Finite Element Method.
+    FEM_PCC = 0,         ///< Finite Element Method. \cite BrennerScott
+    VEM_PCC = 1,         ///< Virtual Element Method (standard monomial basis). \cite LBe16
+    VEM_PCC_Inertia = 2, ///< VEM with an inertia-based (principal-axes) monomial basis. \cite Teora2024
+    VEM_PCC_Ortho = 3,   ///< VEM with an \f$L^2\f$-orthonormalized monomial basis. \cite Mascotto2018
+    ZFEM_PCC = 4,        ///< Zipped Finite Element Method. \cite zfem
 };
 
 /// @brief Method-specific reference-element data for the 2D PCC local space.

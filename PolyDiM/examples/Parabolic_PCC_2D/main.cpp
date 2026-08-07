@@ -10,13 +10,11 @@
 // This file can be used citing references in CITATION.cff file.
 
 #include "Eigen_LUSolver.hpp"
+#include "MeshDAOExporterToCsv.hpp"
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
 #include "VTKUtilities.hpp"
 #include "program_utilities.hpp"
 #include "test_definition.hpp"
-
-unsigned int Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::space_order;
-unsigned int Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::time_order;
 
 int main(int argc, char **argv)
 {
@@ -33,12 +31,10 @@ int main(int argc, char **argv)
     const std::string exportFolder = config.ExportFolder();
     Gedim::Output::CreateFolder(exportFolder);
 
-    const std::string exportCsvFolder = exportFolder + "/Mesh";
+    const std::string exportCsvFolder = exportFolder + "/Csv";
     Gedim::Output::CreateFolder(exportCsvFolder);
     const std::string exportVtuFolder = exportFolder + "/Paraview";
     Gedim::Output::CreateFolder(exportVtuFolder);
-    const std::string exportSolutionFolder = exportFolder + "/Solution";
-    Gedim::Output::CreateFolder(exportSolutionFolder);
 
     const std::string logFolder = exportFolder + "/Log";
 
@@ -61,11 +57,14 @@ int main(int argc, char **argv)
     const auto domain = test->domain();
     const auto boundary_info = test->boundary_info();
 
-    // export domain
+    if (config.ExportFormat()[1])
     {
         Gedim::VTKUtilities vtkUtilities;
         vtkUtilities.AddPolygon(domain.spatial_domain.vertices);
         vtkUtilities.Export(exportVtuFolder + "/Domain.vtu");
+        Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor + "Domain is exported in: " + exportVtuFolder +
+                                               "/Domain.vtu" + Gedim::Output::EndColor,
+                                           true);
     }
 
     Gedim::Profiler::StopTime("SetProblem");
@@ -84,9 +83,28 @@ int main(int argc, char **argv)
     Gedim::Output::PrintStatusProgram("CreateMesh");
 
     // Export the domain mesh
+    if (config.ExportFormat()[1])
     {
         Gedim::MeshUtilities meshUtilities;
         meshUtilities.ExportMeshToVTU(mesh, exportVtuFolder, "Domain_Mesh");
+        Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor + "Mesh is exported in: " + exportVtuFolder +
+                                               Gedim::Output::EndColor,
+                                           true);
+    }
+
+    if (config.ExportFormat()[0])
+    {
+        const std::string exportMeshFolder = exportCsvFolder + "/Mesh";
+        Gedim::Output::CreateFolder(exportMeshFolder);
+
+        const Gedim::MeshFromCsvUtilities csv_utilities;
+        Gedim::MeshFromCsvUtilities::Configuration csv_configuration;
+        csv_configuration.Folder = exportMeshFolder;
+        Gedim::MeshDAOExporterToCsv exporter_to_csv(csv_utilities);
+        exporter_to_csv.Export(csv_configuration, mesh);
+        Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor + "Mesh is exported in: " + exportMeshFolder +
+                                               Gedim::Output::EndColor,
+                                           true);
     }
 
     Gedim::Output::PrintGenericMessage("ComputeGeometricProperties...", true);
@@ -99,7 +117,7 @@ int main(int argc, char **argv)
     Gedim::Output::PrintStatusProgram("ComputeGeometricProperties");
 
     /// Initialize Discrete Space
-    Gedim::Output::PrintGenericMessage("CreateDiscreteSpace of order " + std::to_string(config.MethodOrder()) + " and DOFs...", true);
+    Gedim::Output::PrintGenericMessage("CreateDiscreteSpace...", true);
     Gedim::Profiler::StartTime("CreateDiscreteSpace");
 
     const auto reference_element_data =
@@ -111,10 +129,6 @@ int main(int argc, char **argv)
 
     const auto meshDOFsInfo = Polydim::PDETools::LocalSpace_PCC_2D::SetMeshDOFsInfo(reference_element_data, mesh, boundary_info);
     const auto dofs_data = dofManager.CreateDOFs_2D(meshDOFsInfo, mesh_connectivity_data);
-
-    Gedim::Output::PrintGenericMessage("Discrete Space with " + std::to_string(dofs_data.NumberDOFs) + " DOFs and " +
-                                           std::to_string(dofs_data.NumberStrongs) + " STRONGs",
-                                       true);
 
     Gedim::Profiler::StopTime("CreateDiscreteSpace");
     Gedim::Output::PrintStatusProgram("CreateDiscreteSpace");
@@ -157,7 +171,7 @@ int main(int argc, char **argv)
                                                                             initial_post_process_data,
                                                                             0,
                                                                             time_steps.at(0),
-                                                                            exportSolutionFolder,
+                                                                            exportCsvFolder,
                                                                             exportVtuFolder);
 
     Polydim::examples::Parabolic_PCC_2D::program_utilities::export_dofs(config,
@@ -247,15 +261,7 @@ int main(int argc, char **argv)
         Gedim::Output::PrintGenericMessage("ExportSolution...", true);
         Gedim::Profiler::StartTime("ExportSolution");
 
-        Polydim::examples::Parabolic_PCC_2D::program_utilities::export_solution(config,
-                                                                                mesh,
-                                                                                dofs_data,
-                                                                                Kp1,
-                                                                                post_process_data,
-                                                                                t,
-                                                                                time_value,
-                                                                                exportSolutionFolder,
-                                                                                exportVtuFolder);
+        Polydim::examples::Parabolic_PCC_2D::program_utilities::export_solution(config, mesh, dofs_data, Kp1, post_process_data, t, time_value, exportCsvFolder, exportVtuFolder);
 
         Polydim::examples::Parabolic_PCC_2D::program_utilities::export_dofs(config,
                                                                             mesh,

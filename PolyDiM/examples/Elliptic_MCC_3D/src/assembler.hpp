@@ -111,11 +111,11 @@ class Assembler final
                                           const Polydim::VEM::MCC::I_VEM_MCC_3D_Pressure_LocalSpace &vem_pressure_space,
                                           const Polydim::examples::Elliptic_MCC_3D::test::I_Test &test) const;
 
-    VEM_Performance_Result ComputeVemPerformance(const Polydim::examples::Elliptic_MCC_3D::Program_configuration &config,
-                                                 const Gedim::MeshMatricesDAO &mesh,
-                                                 const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
-                                                 const Polydim::VEM::MCC::VEM_MCC_3D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
-                                                 const Polydim::VEM::MCC::I_VEM_MCC_3D_Velocity_LocalSpace &vem_velocity_space) const;
+    VEM_Performance_Result ComputeMethodPerformance(const Polydim::examples::Elliptic_MCC_3D::Program_configuration &config,
+                                                    const Gedim::MeshMatricesDAO &mesh,
+                                                    const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
+                                                    const Polydim::VEM::MCC::VEM_MCC_3D_Velocity_ReferenceElement_Data &velocity_reference_element_data,
+                                                    const Polydim::VEM::MCC::I_VEM_MCC_3D_Velocity_LocalSpace &vem_velocity_space) const;
 
     PostProcess_Data PostProcessSolution(const Polydim::examples::Elliptic_MCC_3D::Program_configuration &config,
                                          const Gedim::MeshMatricesDAO &mesh,

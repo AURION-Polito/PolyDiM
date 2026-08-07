@@ -35,12 +35,17 @@ struct Program_configuration final
                                            "Poisson_Problem "
                                            "(Default: 1)");
         // Export parameters
-        Gedim::Configurations::AddProperty("ExportFolder", "./Run", "Folder where to export data (Default: ./Export)");
+        Gedim::Configurations::AddProperty("ExportFolder", "./Export", "Folder where to export data (Default: ./Export)");
+        Gedim::Configurations::AddProperty("ExportFormat",
+                                           std::vector<unsigned int>({1, 0}),
+                                           "A boolean vector of kind of desired export type for solution and mesh "
+                                           "[Csv, Vtu] (Default: [1,0])");
+
         // Mesh parameters
         Gedim::Configurations::AddProperty(
             "MeshGenerator",
             static_cast<unsigned int>(Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Tetrahedral),
-            "Mesh 3D gereator type, 0 - Tetrahedral; 1 - Minimal; 2 - "
+            "Mesh 3D generator type, 0 - Tetrahedral; 1 - Minimal; 2 - "
             "Polyhedral; 3 - OVMImporter; 4 - VtkImporter; 5 - CsvImporter; 6 - Cubic "
             "(Default: 0)");
         Gedim::Configurations::AddProperty("MeshImportFilePath", "./", "Mesh imported file path (Default: './')");
@@ -59,7 +64,7 @@ struct Program_configuration final
                                            "EVem_Ortho (Default: "
                                            "0)");
         Gedim::Configurations::AddProperty("MethodOrder", static_cast<unsigned int>(1), "Method order (Default: 1)");
-        Gedim::Configurations::AddProperty("ComputeMethodPerformance", true, "Compute Method Performance (Default: true)");
+        Gedim::Configurations::AddProperty("ComputeMethodPerformance", false, "Compute Method Performance (Default: false)");
     }
 
     inline std::string ExportFolder() const
@@ -108,6 +113,10 @@ struct Program_configuration final
     inline unsigned int MethodOrder() const
     {
         return Gedim::Configurations::GetPropertyValue<unsigned int>("MethodOrder");
+    }
+    inline std::vector<unsigned int> ExportFormat() const
+    {
+        return Gedim::Configurations::GetPropertyValue<std::vector<unsigned int>>("ExportFormat");
     }
 };
 } // namespace Elliptic_PCC_3D

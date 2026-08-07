@@ -10,12 +10,11 @@
 // This file can be used citing references in CITATION.cff file.
 
 #include "Eigen_LUSolver.hpp"
+#include "MeshDAOExporterToCsv.hpp"
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
 #include "VTKUtilities.hpp"
 #include "program_utilities.hpp"
 #include "test_definition.hpp"
-
-unsigned int Polydim::examples::Elliptic_PCC_2D::test::Patch_Test::order;
 
 int main(int argc, char **argv)
 {
@@ -32,12 +31,10 @@ int main(int argc, char **argv)
     const std::string exportFolder = config.ExportFolder();
     Gedim::Output::CreateFolder(exportFolder);
 
-    const std::string exportCsvFolder = exportFolder + "/Mesh";
+    const std::string exportCsvFolder = exportFolder + "/Csv";
     Gedim::Output::CreateFolder(exportCsvFolder);
     const std::string exportVtuFolder = exportFolder + "/Paraview";
     Gedim::Output::CreateFolder(exportVtuFolder);
-    const std::string exportSolutionFolder = exportFolder + "/Solution";
-    Gedim::Output::CreateFolder(exportSolutionFolder);
 
     const std::string logFolder = exportFolder + "/Log";
 
@@ -55,18 +52,19 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("SetProblem...", true);
     Gedim::Profiler::StartTime("SetProblem");
 
-    Polydim::examples::Elliptic_PCC_2D::test::Patch_Test::order = config.MethodOrder();
-
     const auto test = Polydim::examples::Elliptic_PCC_2D::program_utilities::create_test(config);
-
     const auto domain = test->domain();
     const auto boundary_info = test->boundary_info();
 
     // export domain
+    if (config.ExportFormat()[1])
     {
         Gedim::VTKUtilities vtkUtilities;
         vtkUtilities.AddPolygon(domain.vertices);
         vtkUtilities.Export(exportVtuFolder + "/Domain.vtu");
+        Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor + "Domain is exported in: " + exportVtuFolder +
+                                               "/Domain.vtu" + Gedim::Output::EndColor,
+                                           true);
     }
 
     Gedim::Profiler::StopTime("SetProblem");
@@ -85,9 +83,28 @@ int main(int argc, char **argv)
     Gedim::Output::PrintStatusProgram("CreateMesh");
 
     // Export the domain mesh
+    if (config.ExportFormat()[1])
     {
         Gedim::MeshUtilities meshUtilities;
         meshUtilities.ExportMeshToVTU(mesh, exportVtuFolder, "Domain_Mesh");
+        Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor + "Mesh is exported in: " + exportVtuFolder +
+                                               Gedim::Output::EndColor,
+                                           true);
+    }
+
+    if (config.ExportFormat()[0])
+    {
+        const std::string exportMeshFolder = exportCsvFolder + "/Mesh";
+        Gedim::Output::CreateFolder(exportMeshFolder);
+
+        const Gedim::MeshFromCsvUtilities csv_utilities;
+        Gedim::MeshFromCsvUtilities::Configuration csv_configuration;
+        csv_configuration.Folder = exportMeshFolder;
+        Gedim::MeshDAOExporterToCsv exporter_to_csv(csv_utilities);
+        exporter_to_csv.Export(csv_configuration, mesh);
+        Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor + "Mesh is exported in: " + exportMeshFolder +
+                                               Gedim::Output::EndColor,
+                                           true);
     }
 
     Gedim::Output::PrintGenericMessage("ComputeGeometricProperties...", true);
@@ -105,7 +122,7 @@ int main(int argc, char **argv)
     Gedim::Output::PrintStatusProgram("ComputeGeometricProperties");
 
     /// Initialize Discrete Space
-    Gedim::Output::PrintGenericMessage("CreateDiscreteSpace of order " + std::to_string(config.MethodOrder()) + " and DOFs...", true);
+    Gedim::Output::PrintGenericMessage("CreateDiscreteSpace... ", true);
     Gedim::Profiler::StartTime("CreateDiscreteSpace");
 
     Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data(mesh);
@@ -115,16 +132,10 @@ int main(int argc, char **argv)
     const auto meshDOFsInfo = Polydim::PDETools::LocalSpace_PCC_2D::SetMeshDOFsInfo(reference_element_data, mesh, boundary_info);
     const auto dofs_data = dofManager.CreateDOFs_2D(meshDOFsInfo, mesh_connectivity_data);
 
-    Gedim::Output::PrintGenericMessage("Discrete Space with " + std::to_string(dofs_data.NumberDOFs) + " DOFs and " +
-                                           std::to_string(dofs_data.NumberStrongs) + " STRONGs",
-                                       true);
-
     Gedim::Profiler::StopTime("CreateDiscreteSpace");
     Gedim::Output::PrintStatusProgram("CreateDiscreteSpace");
 
-    Gedim::Output::PrintGenericMessage("AssembleSystem Discrete Type " +
-                                           std::to_string(static_cast<unsigned int>(config.MethodType())) + "...",
-                                       true);
+    Gedim::Output::PrintGenericMessage("AssembleSystem...", true);
     Gedim::Profiler::StartTime("AssembleSystem");
 
     Polydim::examples::Elliptic_PCC_2D::Assembler assembler;
@@ -163,10 +174,10 @@ int main(int argc, char **argv)
     Gedim::Profiler::StopTime("ComputeErrors");
     Gedim::Output::PrintStatusProgram("ComputeErrors");
 
-    Gedim::Output::PrintGenericMessage("ExportSolution...", true);
-    Gedim::Profiler::StartTime("ExportSolution");
+    Gedim::Output::PrintGenericMessage("ExportSolutionAndErrors...", true);
+    Gedim::Profiler::StartTime("ExportSolutionAndErrors");
 
-    Polydim::examples::Elliptic_PCC_2D::program_utilities::export_solution(config, mesh, dofs_data, assembler_data, post_process_data, exportSolutionFolder, exportVtuFolder);
+    Polydim::examples::Elliptic_PCC_2D::program_utilities::export_solution(config, mesh, dofs_data, assembler_data, post_process_data, exportCsvFolder, exportVtuFolder);
 
     Polydim::examples::Elliptic_PCC_2D::program_utilities::export_dofs(config,
                                                                        mesh,
@@ -178,21 +189,21 @@ int main(int argc, char **argv)
                                                                        post_process_data,
                                                                        exportVtuFolder);
 
-    Gedim::Profiler::StopTime("ExportSolution");
-    Gedim::Output::PrintStatusProgram("ExportSolution");
-
-    Gedim::Output::PrintGenericMessage("ComputeMethodPerformance...", true);
-    Gedim::Profiler::StartTime("ComputeMethodPerformance");
+    Gedim::Profiler::StopTime("ExportSolutionAndErrors");
+    Gedim::Output::PrintStatusProgram("ExportSolutionAndErrors");
 
     if (config.ComputeMethodPerformance())
     {
+
+        Gedim::Output::PrintGenericMessage("ComputeMethodPerformance...", true);
+        Gedim::Profiler::StartTime("ComputeMethodPerformance");
+
         const auto performance = assembler.ComputePerformance(config, mesh, meshGeometricData, reference_element_data);
+        Polydim::examples::Elliptic_PCC_2D::program_utilities::export_performance(config, performance, exportCsvFolder);
 
-        Polydim::examples::Elliptic_PCC_2D::program_utilities::export_performance(config, performance, exportSolutionFolder);
+        Gedim::Profiler::StopTime("ComputeMethodPerformance");
+        Gedim::Output::PrintStatusProgram("ComputeMethodPerformance");
     }
-
-    Gedim::Profiler::StopTime("ComputeMethodPerformance");
-    Gedim::Output::PrintStatusProgram("ComputeMethodPerformance");
 
     return 0;
 }
