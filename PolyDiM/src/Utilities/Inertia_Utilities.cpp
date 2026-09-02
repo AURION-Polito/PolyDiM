@@ -24,7 +24,7 @@ void Inertia_Utilities::InertiaMapping2D(const Gedim::GeometryUtilities &geometr
                                          const Vector3d &centroid,
                                          const double &diameter,
                                          const vector<Matrix3d> &triangulation_vertices,
-                                         Inertia_Data &inertia_data) const
+                                         Inertia_Data &inertia_data)
 {
 
     inertia_data.FmatrixInv = Matrix3d::Identity();
@@ -95,7 +95,7 @@ void Inertia_Utilities::InertiaMapping3D(const Gedim::GeometryUtilities &geometr
                                          const Vector3d &centroid,
                                          const double &diameter,
                                          const vector<MatrixXd> &tetrahedrons_vertices,
-                                         Inertia_Data &inertia_data) const
+                                         Inertia_Data &inertia_data)
 {
     inertia_data.FmatrixInv = Matrix3d::Identity();
     inertia_data.Fmatrix = Matrix3d::Identity();

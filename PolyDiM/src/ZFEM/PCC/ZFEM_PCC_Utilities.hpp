@@ -15,7 +15,6 @@
 #include "Eigen/Eigen"
 #include "FEM_Triangle_PCC_2D_LocalSpace.hpp"
 #include "I_ZFEM_PCC_2D_ReferenceElement.hpp"
-#include <algorithm>
 #include <numeric>
 
 namespace Polydim
