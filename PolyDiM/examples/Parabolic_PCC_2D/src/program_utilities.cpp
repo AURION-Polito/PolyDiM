@@ -25,6 +25,7 @@ namespace Parabolic_PCC_2D
 
 unsigned int Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::space_order;
 unsigned int Polydim::examples::Parabolic_PCC_2D::test::Patch_Test::time_order;
+double Polydim::examples::Parabolic_PCC_2D::test::Parabolic_Problem::K;
 
 namespace program_utilities
 {
@@ -50,6 +51,7 @@ std::unique_ptr<Polydim::examples::Parabolic_PCC_2D::test::I_Test> create_test(c
         return std::make_unique<Polydim::examples::Parabolic_PCC_2D::test::Patch_Test>();
     }
     case Polydim::examples::Parabolic_PCC_2D::test::Test_Types::Parabolic_Problem:
+        Polydim::examples::Parabolic_PCC_2D::test::Parabolic_Problem::K = config.K();
         return std::make_unique<Polydim::examples::Parabolic_PCC_2D::test::Parabolic_Problem>();
     default:
         throw std::runtime_error("Test type " + std::to_string((unsigned int)config.TestType()) + " not supported");
