@@ -177,6 +177,8 @@ struct Patch_Test final : public I_Test
 // ***************************************************************************
 struct Parabolic_Problem final : public I_Test
 {
+    static double K;
+
     Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Time_Domain_2D domain() const
     {
         Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Time_Domain_2D domain;
@@ -209,13 +211,12 @@ struct Parabolic_Problem final : public I_Test
 
     Eigen::VectorXd diffusion_term(const Eigen::MatrixXd &points) const
     {
-        const double k = 1.0;
-        return Eigen::VectorXd::Constant(points.cols(), k);
+        return Eigen::VectorXd::Constant(points.cols(), K);
     }
 
     Eigen::VectorXd source_term(const Eigen::MatrixXd &points, const double &time_value) const
     {
-        return (1.0 + 2.0 * std::numbers::pi * std::numbers::pi) * sin(std::numbers::pi * points.row(0).array()) *
+        return (1.0 + K * 2.0 * std::numbers::pi * std::numbers::pi) * sin(std::numbers::pi * points.row(0).array()) *
                sin(std::numbers::pi * points.row(1).array()) * exp(time_value);
     }
 
@@ -243,7 +244,8 @@ struct Parabolic_Problem final : public I_Test
 
     Eigen::VectorXd exact_solution(const Eigen::MatrixXd &points, const double &time_value) const
     {
-        return sin(std::numbers::pi * points.row(0).array()) * sin(std::numbers::pi * points.row(1).array()) * exp(time_value);
+        return sin(std::numbers::pi * points.row(0).array()) * sin(std::numbers::pi * points.row(1).array()) * exp(time_value) +
+               (K - 1.0);
     }
 
     std::array<Eigen::VectorXd, 3> exact_derivative_solution(const Eigen::MatrixXd &points, const double &time_value) const

@@ -63,6 +63,7 @@ struct Program_configuration final
 
         Gedim::Configurations::AddProperty("TimeStep", 0.5, "Max Time (Default: 0.5)");
         Gedim::Configurations::AddProperty("Theta", 0.0, "Theta parameter for theta-method [0, 1] (Default: 0.0)");
+        Gedim::Configurations::AddProperty("K", 1.0, "Diffusion Term for test 4 (Default: 1.0)");
     }
 
     inline std::string ExportFolder() const
@@ -113,6 +114,10 @@ struct Program_configuration final
     inline double Theta() const
     {
         return Gedim::Configurations::GetPropertyValue<double>("Theta");
+    }
+    inline double K() const
+    {
+        return Gedim::Configurations::GetPropertyValue<double>("K");
     }
 
     inline std::vector<unsigned int> ExportFormat() const
