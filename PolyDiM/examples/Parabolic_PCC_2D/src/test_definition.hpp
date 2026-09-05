@@ -244,7 +244,8 @@ struct Parabolic_Problem final : public I_Test
 
     Eigen::VectorXd exact_solution(const Eigen::MatrixXd &points, const double &time_value) const
     {
-        return sin(std::numbers::pi * points.row(0).array()) * sin(std::numbers::pi * points.row(1).array()) * exp(time_value) + (K - 1.0);
+        return sin(std::numbers::pi * points.row(0).array()) * sin(std::numbers::pi * points.row(1).array()) * exp(time_value) +
+               (K - 1.0);
     }
 
     std::array<Eigen::VectorXd, 3> exact_derivative_solution(const Eigen::MatrixXd &points, const double &time_value) const
