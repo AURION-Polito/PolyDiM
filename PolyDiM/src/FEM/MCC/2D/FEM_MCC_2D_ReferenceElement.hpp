@@ -45,7 +45,7 @@ struct FEM_MCC_2D_ReferenceElement final
     FEM_MCC_2D_ReferenceElement()
     {
     }
-    ~FEM_MCC_2D_ReferenceElement(){};
+    ~FEM_MCC_2D_ReferenceElement() {};
 
     FEM_MCC_2D_ReferenceElement_Data Create(const unsigned int order, const Polydim::FEM::MCC::FEM_MCC_Types &fem_main_type) const
     {

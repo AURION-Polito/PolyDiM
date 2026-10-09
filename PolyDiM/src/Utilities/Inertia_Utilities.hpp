@@ -56,12 +56,12 @@ struct Inertia_Utilities final
     ///                               used to compute the mass matrix.
     /// @param[out] inertia_data      Resulting affine-map data (see Inertia_Data).
     /// @throws std::runtime_error if the inertia (mass) matrix is singular.
-    void InertiaMapping2D(const Gedim::GeometryUtilities &geometryUtilities,
-                          const Eigen::MatrixXd &vertices,
-                          const Eigen::Vector3d &centroid,
-                          const double &diameter,
-                          const std::vector<Eigen::Matrix3d> &triangulation_vertices,
-                          Polydim::Utilities::Inertia_Data &inertia_data) const;
+    static void InertiaMapping2D(const Gedim::GeometryUtilities &geometryUtilities,
+                                 const Eigen::MatrixXd &vertices,
+                                 const Eigen::Vector3d &centroid,
+                                 const double &diameter,
+                                 const std::vector<Eigen::Matrix3d> &triangulation_vertices,
+                                 Polydim::Utilities::Inertia_Data &inertia_data);
 
     /// @brief Compute the inertia mapping of a polyhedron (3D).
     ///
@@ -79,12 +79,12 @@ struct Inertia_Utilities final
     ///                              used to compute the mass matrix.
     /// @param[out] inertia_data     Resulting affine-map data (see Inertia_Data).
     /// @throws std::runtime_error if the inertia (mass) matrix is singular.
-    void InertiaMapping3D(const Gedim::GeometryUtilities &geometryUtilities,
-                          const Eigen::MatrixXd &vertices,
-                          const Eigen::Vector3d &centroid,
-                          const double &diameter,
-                          const std::vector<Eigen::MatrixXd> &tetrahedrons_vertices,
-                          Polydim::Utilities::Inertia_Data &inertia_data) const;
+    static void InertiaMapping3D(const Gedim::GeometryUtilities &geometryUtilities,
+                                 const Eigen::MatrixXd &vertices,
+                                 const Eigen::Vector3d &centroid,
+                                 const double &diameter,
+                                 const std::vector<Eigen::MatrixXd> &tetrahedrons_vertices,
+                                 Polydim::Utilities::Inertia_Data &inertia_data);
 };
 
 } // namespace Utilities
