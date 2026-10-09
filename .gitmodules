@@ -4,3 +4,6 @@
 [submodule "PolyDiM-core"]
 	path = PolyDiM-core
 	url = git@github.com:AURION-Polito/PolyDiM-core.git
+[submodule "3rd_party_libraries"]
+	path = 3rd_party_libraries
+	url = git@github.com:AURION-Polito/3rd_party_libraries.git
