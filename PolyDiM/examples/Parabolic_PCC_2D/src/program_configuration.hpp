@@ -29,8 +29,7 @@ struct Program_configuration final
     {
         Gedim::Configurations::AddProperty("TestType",
                                            static_cast<unsigned int>(Polydim::examples::Parabolic_PCC_2D::test::Test_Types::Patch_Test),
-                                           "Test Type 1 - Patch_Test; 2 - Space_Test; 3 - Time_Test; 4 -  - "
-                                           "Parabolic_Problem "
+                                           "Test Type 1 - Patch_Test; 2 - Space_Test; 3 - Time_Test; 4 - Parabolic_Problem "
                                            "(Default: 1)");
         // Export parameters
         Gedim::Configurations::AddProperty("ExportFolder", "./Export", "Folder where to export data (Default: ./Export)");
@@ -57,8 +56,7 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty("MethodType",
                                            static_cast<unsigned int>(Polydim::PDETools::LocalSpace_PCC_2D::MethodTypes::FEM_PCC),
                                            "Method Type, 0 - FEM; 1 - EVem; 2 - EVem_Inertia; 3 - EVem_Ortho "
-                                           "(Default: "
-                                           "0)");
+                                           "(Default: 0)");
         Gedim::Configurations::AddProperty("MethodOrder", static_cast<unsigned int>(1), "Method order (Default: 1)");
 
         Gedim::Configurations::AddProperty("TimeStep", 0.5, "Max Time (Default: 0.5)");
