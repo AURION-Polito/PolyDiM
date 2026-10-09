@@ -1,3 +1,6 @@
 [submodule "gedim"]
 	path = gedim
 	url = git@github.com:AURION-Polito/gedim.git
+[submodule "PolyDiM-core"]
+	path = PolyDiM-core
+	url = git@github.com:AURION-Polito/PolyDiM-core.git
