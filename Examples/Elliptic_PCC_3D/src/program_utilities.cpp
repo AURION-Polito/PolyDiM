@@ -1,0 +1,625 @@
+// _LICENSE_HEADER_
+//
+// Copyright (C) 2019 - 2025.
+// Terms register on the GPL-3.0 license.
+//
+// This file can be redistributed and/or modified under the license terms.
+//
+// See top level LICENSE file for more details.
+//
+// This file can be used citing references in CITATION.cff file.
+
+#include "program_utilities.hpp"
+
+#include "IOEnum.hpp"
+#include "VTKUtilities.hpp"
+#include <iomanip>
+#include <numbers>
+
+namespace Polydim
+{
+namespace examples
+{
+namespace Elliptic_PCC_3D
+{
+
+unsigned int Polydim::examples::Elliptic_PCC_3D::test::Patch_Test::order;
+
+namespace program_utilities
+{
+// ***************************************************************************
+std::unique_ptr<Polydim::examples::Elliptic_PCC_3D::test::I_Test> create_test(const Polydim::examples::Elliptic_PCC_3D::Program_configuration &config)
+{
+    switch (config.TestType())
+    {
+    case Polydim::examples::Elliptic_PCC_3D::test::Test_Types::Patch_Test:
+        Polydim::examples::Elliptic_PCC_3D::test::Patch_Test::order = config.MethodOrder();
+        return std::make_unique<Polydim::examples::Elliptic_PCC_3D::test::Patch_Test>();
+    case Polydim::examples::Elliptic_PCC_3D::test::Test_Types::Poisson_Polynomial_Problem:
+        return std::make_unique<Polydim::examples::Elliptic_PCC_3D::test::Poisson_Polynomial_Problem>();
+    case Polydim::examples::Elliptic_PCC_3D::test::Test_Types::Poisson_Problem:
+        return std::make_unique<Polydim::examples::Elliptic_PCC_3D::test::Poisson_Problem>();
+    default:
+        throw std::runtime_error("Test type " + std::to_string((unsigned int)config.TestType()) + " not supported");
+    }
+}
+// ***************************************************************************
+void create_domain_mesh(const Polydim::examples::Elliptic_PCC_3D::Program_configuration &config,
+                        const Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_3D &domain,
+                        Gedim::MeshMatricesDAO &mesh)
+{
+    Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
+    geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance1D();
+    geometryUtilitiesConfig.Tolerance2D = config.GeometricTolerance2D();
+    geometryUtilitiesConfig.Tolerance3D = config.GeometricTolerance3D();
+    Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
+
+    Gedim::MeshUtilities meshUtilities;
+
+    switch (config.MeshGenerator())
+    {
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Tetrahedral:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Minimal:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Polyhedral:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Cubic: {
+        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::create_mesh_3D(geometryUtilities,
+                                                                    meshUtilities,
+                                                                    config.MeshGenerator(),
+                                                                    domain,
+                                                                    config.MeshMaxVolume(),
+                                                                    mesh);
+    }
+    break;
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::CsvImporter:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::VtkImporter:
+    case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::OVMImporter: {
+        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::import_mesh_3D(meshUtilities, config.MeshGenerator(), config.MeshImportFilePath(), mesh);
+    }
+    break;
+    default:
+        throw std::runtime_error("MeshGenerator " + std::to_string((unsigned int)config.MeshGenerator()) + " not supported");
+    }
+}
+// ***************************************************************************
+Gedim::MeshUtilities::MeshGeometricData3D create_domain_mesh_geometric_properties(const Polydim::examples::Elliptic_PCC_3D::Program_configuration &config,
+                                                                                  Gedim::MeshMatricesDAO &mesh)
+{
+    Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
+    geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance1D();
+    geometryUtilitiesConfig.Tolerance2D = config.GeometricTolerance2D();
+    geometryUtilitiesConfig.Tolerance3D = config.GeometricTolerance3D();
+    Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
+
+    return Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_3D_geometry_data(geometryUtilities, mesh);
+}
+// ***************************************************************************
+void export_solution(const Polydim::examples::Elliptic_PCC_3D::Program_configuration &config,
+                     const Gedim::MeshMatricesDAO &mesh,
+                     const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                     const Polydim::examples::Elliptic_PCC_3D::Assembler::Elliptic_PCC_3D_Problem_Data &assembler_data,
+                     const Polydim::examples::Elliptic_PCC_3D::Assembler::PostProcess_Data &post_process_data,
+                     const std::string &exportSolutionFolder,
+                     const std::string &exportVtuFolder)
+{
+    const unsigned int METHOD_ID = static_cast<unsigned int>(config.MethodType());
+    const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
+
+    std::string test_type{
+        Gedim::io_enum::enum_to_string<Polydim::examples::Elliptic_PCC_3D::test::Test_Types, 1, 4>(config.TestType())};
+    std::string mesh_generator{
+        Gedim::io_enum::enum_to_string<Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D, 0, 20>(
+            config.MeshGenerator())};
+    std::string method_type{
+        Gedim::io_enum::enum_to_string<Polydim::PDETools::LocalSpace_PCC_3D::MethodTypes, 0, 20>(config.MethodType())};
+
+    {
+        std::ostringstream error_to_str;
+        const int w = 15;
+
+        error_to_str << Gedim::Output::MagentaColor;
+        error_to_str << std::right;
+
+        error_to_str << std::setw(w + 10) << "ProgramType" << std::setw(w) << "MethodType" << std::setw(w)
+                     << "MethodOrder" << std::setw(w) << "MeshGenerator" << std::setw(w) << "Cell3Ds" << std::setw(w)
+                     << "Dofs" << std::setw(w) << "Strongs" << std::setw(w) << "h" << std::setw(w) << "errorL2"
+                     << std::setw(w) << "errorH1" << std::setw(w) << "normL2" << std::setw(w) << "normH1"
+                     << std::setw(w) << "nnzA" << std::setw(w) << "residual" << std::endl;
+
+        error_to_str.precision(2);
+        error_to_str << std::scientific;
+        error_to_str << std::setw(w + 14) << test_type << std::setw(w) << method_type << std::setw(w)
+                     << config.MethodOrder() << std::setw(w) << mesh_generator << std::setw(w) << mesh.Cell3DTotalNumber()
+                     << std::setw(w) << dofs_data.NumberDOFs << std::setw(w) << dofs_data.NumberStrongs << std::setw(w)
+                     << post_process_data.mesh_size << std::setw(w) << post_process_data.error_L2 << std::setw(w)
+                     << post_process_data.error_H1 << std::setw(w) << post_process_data.norm_L2 << std::setw(w)
+                     << post_process_data.norm_H1 << std::setw(w) << assembler_data.globalMatrixA.NonZeros()
+                     << std::setw(w) << post_process_data.residual_norm << Gedim::Output::EndColor;
+
+        Gedim::Output::PrintGenericMessage(error_to_str.str(), true);
+    }
+
+    {
+        const char separator = ';';
+        const std::string errorFileName = exportSolutionFolder + "/Errors_" + std::to_string(TEST_ID) + "_" +
+                                          std::to_string(METHOD_ID) + +"_" + std::to_string(config.MethodOrder()) + ".csv";
+        const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
+
+        std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);
+        if (!errorFileExists)
+        {
+            errorFile << "ProgramType" << separator;
+            errorFile << "MethodType" << separator;
+            errorFile << "MethodOrder" << separator;
+            errorFile << "Cell3Ds" << separator;
+            errorFile << "Dofs" << separator;
+            errorFile << "Strongs" << separator;
+            errorFile << "h" << separator;
+            errorFile << "errorL2" << separator;
+            errorFile << "errorH1" << separator;
+            errorFile << "normL2" << separator;
+            errorFile << "normH1" << separator;
+            errorFile << "nnzA" << separator;
+            errorFile << "residual" << std::endl;
+        }
+
+        errorFile.precision(16);
+        errorFile << std::scientific << TEST_ID << separator;
+        errorFile << std::scientific << METHOD_ID << separator;
+        errorFile << std::scientific << config.MethodOrder() << separator;
+        errorFile << std::scientific << mesh.Cell3DTotalNumber() << separator;
+        errorFile << std::scientific << dofs_data.NumberDOFs << separator;
+        errorFile << std::scientific << dofs_data.NumberStrongs << separator;
+        errorFile << std::scientific << post_process_data.mesh_size << separator;
+        errorFile << std::scientific << post_process_data.error_L2 << separator;
+        errorFile << std::scientific << post_process_data.error_H1 << separator;
+        errorFile << std::scientific << post_process_data.norm_L2 << separator;
+        errorFile << std::scientific << post_process_data.norm_H1 << separator;
+        errorFile << std::scientific << assembler_data.globalMatrixA.NonZeros() << separator;
+        errorFile << std::scientific << post_process_data.residual_norm << std::endl;
+
+        errorFile.close();
+        Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor + "Errors are exported in: " + errorFileName +
+                                               Gedim::Output::EndColor,
+                                           true);
+    }
+
+    if (config.ExportFormat()[1])
+    {
+        Gedim::VTKUtilities exporter;
+        exporter.AddPolyhedrons(mesh.Cell0DsCoordinates(),
+                                mesh.Cell3DsFacesVertices(),
+                                {{"Numeric",
+                                  Gedim::VTPProperty::Formats::Points,
+                                  static_cast<unsigned int>(post_process_data.cell0Ds_numeric.size()),
+                                  post_process_data.cell0Ds_numeric.data()},
+                                 {"Exact",
+                                  Gedim::VTPProperty::Formats::Points,
+                                  static_cast<unsigned int>(post_process_data.cell0Ds_exact.size()),
+                                  post_process_data.cell0Ds_exact.data()},
+                                 {"ErrorL2",
+                                  Gedim::VTPProperty::Formats::Cells,
+                                  static_cast<unsigned int>(post_process_data.cell3Ds_error_L2.size()),
+                                  post_process_data.cell3Ds_error_L2.data()},
+                                 {"ErrorH1",
+                                  Gedim::VTPProperty::Formats::Cells,
+                                  static_cast<unsigned int>(post_process_data.cell3Ds_error_H1.size()),
+                                  post_process_data.cell3Ds_error_H1.data()}});
+
+        std::string file_name = exportVtuFolder + "/Solution_" + std::to_string(TEST_ID) + "_" +
+                                std::to_string(METHOD_ID) + "_" + std::to_string(config.MethodOrder()) + ".vtu";
+        exporter.Export(file_name);
+        Gedim::Output::PrintGenericMessage(
+            Gedim::Output::MagentaColor + "Solution and Errors are exported in: " + file_name + Gedim::Output::EndColor,
+            true);
+    }
+
+    if (config.ExportFormat()[0])
+    {
+        const char separator = ';';
+        const std::string solutionFileName = exportSolutionFolder + "/Solution_" + std::to_string(TEST_ID) + "_" +
+                                             std::to_string(METHOD_ID) + "_" + std::to_string(config.MethodOrder()) + ".csv";
+
+        const Eigen::MatrixXd coordinates = mesh.Cell0DsCoordinates();
+
+        std::ofstream solutionFile(solutionFileName, std::ios_base::trunc | std::ios_base::out);
+
+        solutionFile << "x" << separator << "y" << separator << "z" << separator << "discrete_solution" << separator
+                     << "exact_solution" << std::endl;
+        for (unsigned int i = 0; i < post_process_data.cell0Ds_numeric.size(); i++)
+            solutionFile << coordinates(0, i) << separator << coordinates(1, i) << separator << coordinates(2, i)
+                         << separator << post_process_data.cell0Ds_numeric[i] << separator
+                         << post_process_data.cell0Ds_exact[i] << std::endl;
+
+        solutionFile.close();
+
+        Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor +
+                                               "Solution is exported in: " + solutionFileName + Gedim::Output::EndColor,
+                                           true);
+    }
+}
+// ***************************************************************************
+void export_performance(const Polydim::examples::Elliptic_PCC_3D::Program_configuration &config,
+                        const Assembler::Performance_Data &performance_data,
+                        const std::string &exportFolder)
+{
+
+    const char separator = ',';
+    std::ofstream exporter;
+    const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
+    const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
+    std::string file_name = exportFolder + "/Cell3Ds_MethodPerformance_" + std::to_string(TEST_ID) + "_" +
+                            std::to_string(Method_ID) + "_" + std::to_string(config.MethodOrder()) + ".csv";
+    exporter.open(file_name);
+    exporter.precision(16);
+
+    if (exporter.fail())
+        throw std::runtime_error("Error on mesh cell2Ds file");
+
+    exporter << "Cell3D_Index" << separator;
+    exporter << "NumQuadPoints_Boundary" << separator;
+    exporter << "NumQuadPoints_Internal" << separator;
+    exporter << "PiNabla_Cond" << separator;
+    exporter << "Pi0k_Cond" << separator;
+    exporter << "Pi0km1_Cond" << separator;
+    exporter << "PiNabla_Error" << separator;
+    exporter << "Pi0k_Error" << separator;
+    exporter << "Pi0km1_Error" << separator;
+    exporter << "HCD_Error" << separator;
+    exporter << "GBD_Error" << separator;
+    exporter << "Stab_Error" << std::endl;
+
+    for (unsigned int v = 0; v < performance_data.Cell3DsPerformance.size(); v++)
+    {
+        const auto &cell3D_performance = performance_data.Cell3DsPerformance[v].VEM_Performance_Data;
+
+        exporter << std::scientific << v << separator;
+        exporter << std::scientific << cell3D_performance.NumBoundaryQuadraturePoints << separator;
+        exporter << std::scientific << cell3D_performance.NumInternalQuadraturePoints << separator;
+        exporter << std::scientific << cell3D_performance.Analysis.PiNablaConditioning << separator;
+        exporter << std::scientific << cell3D_performance.Analysis.Pi0kConditioning << separator;
+        exporter << std::scientific << cell3D_performance.Analysis.Pi0km1Conditioning << separator;
+        exporter << std::scientific << cell3D_performance.Analysis.ErrorPiNabla << separator;
+        exporter << std::scientific << cell3D_performance.Analysis.ErrorPi0k << separator;
+        exporter << std::scientific << cell3D_performance.Analysis.ErrorPi0km1 << separator;
+        exporter << std::scientific << cell3D_performance.Analysis.ErrorHCD << separator;
+        exporter << std::scientific << cell3D_performance.Analysis.ErrorGBD << separator;
+        exporter << std::scientific << cell3D_performance.Analysis.ErrorStabilization << std::endl;
+    }
+
+    exporter.close();
+    Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor + "Performance are exported in: " + file_name + Gedim::Output::EndColor,
+                                       true);
+}
+// ***************************************************************************
+void export_dofs(const Polydim::examples::Elliptic_PCC_3D::Program_configuration &config,
+                 const Gedim::MeshMatricesDAO &mesh,
+                 const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
+                 const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                 const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                 const Polydim::PDETools::LocalSpace_PCC_3D::ReferenceElement_Data &reference_element_data,
+                 const Polydim::examples::Elliptic_PCC_3D::Assembler::Elliptic_PCC_3D_Problem_Data &assembler_data,
+                 const Polydim::examples::Elliptic_PCC_3D::Assembler::PostProcess_Data &post_process_data,
+                 const test::I_Test &test,
+                 const std::string &exportVtuFolder)
+{
+    Gedim::GeometryUtilitiesConfig geometryUtilitiesConfig;
+    geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance1D();
+    geometryUtilitiesConfig.Tolerance2D = config.GeometricTolerance2D();
+    geometryUtilitiesConfig.Tolerance3D = config.GeometricTolerance3D();
+    Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
+
+    std::list<Eigen::Vector3d> dofs_coordinate;
+    std::list<double> exact_solution_values;
+    std::list<double> solution_values;
+    std::list<double> rhs_values;
+    std::list<double> dof_global_index_values;
+    std::list<double> dof_type_values;
+    std::list<double> dof_cell_index_values;
+    std::list<double> dof_dimension_values;
+    std::list<double> dof_boundary_type_values;
+    std::list<double> dof_boundary_marker_values;
+
+    for (unsigned int c = 0; c < mesh.Cell0DTotalNumber(); ++c)
+    {
+        const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(0).at(c);
+
+        const auto &local_dofs = dofs_data.CellsDOFs[0].at(c);
+
+        const unsigned int num_loc_dofs = local_dofs.size();
+
+        if (num_loc_dofs == 0)
+            continue;
+
+        for (unsigned int loc_i = 0; loc_i < num_loc_dofs; ++loc_i)
+        {
+            const auto &local_dof = local_dofs.at(loc_i);
+
+            const Eigen::Vector3d dof_coordinate = mesh.Cell0DCoordinates(c);
+
+            dof_cell_index_values.push_back(c);
+            dof_dimension_values.push_back(0);
+            dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
+            dof_boundary_marker_values.push_back(boundary_info.Marker);
+            dofs_coordinate.push_back(dof_coordinate);
+            dof_type_values.push_back(static_cast<double>(local_dof.Type));
+            dof_global_index_values.push_back(local_dof.Global_Index);
+            exact_solution_values.push_back(test.exact_solution(dof_coordinate)[0]);
+
+            switch (local_dof.Type)
+            {
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                solution_values.push_back(assembler_data.solutionDirichlet.GetValue(local_dof.Global_Index));
+                rhs_values.push_back(std::nan(""));
+                break;
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
+                solution_values.push_back(assembler_data.solution.GetValue(local_dof.Global_Index));
+                rhs_values.push_back(assembler_data.rightHandSide.GetValue(local_dof.Global_Index));
+                break;
+            default:
+                throw std::runtime_error("Unknown DOF Type");
+            }
+        }
+    }
+
+    for (unsigned int c = 0; c < mesh.Cell1DTotalNumber(); ++c)
+    {
+        const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(1).at(c);
+
+        const auto &local_dofs = dofs_data.CellsDOFs[1].at(c);
+
+        const unsigned int num_loc_dofs = local_dofs.size();
+
+        if (num_loc_dofs == 0)
+            continue;
+
+        const std::vector<double> local_edge_coordinates = geometryUtilities.EquispaceCoordinates(num_loc_dofs, 0.0, 1.0, false);
+        const Eigen::Vector3d edge_origin = mesh.Cell1DOriginCoordinates(c);
+        const Eigen::Vector3d edge_tangent = mesh.Cell1DEndCoordinates(c) - edge_origin;
+
+        for (unsigned int loc_i = 0; loc_i < num_loc_dofs; ++loc_i)
+        {
+            const auto &local_dof = local_dofs.at(loc_i);
+
+            const Eigen::Vector3d dof_coordinate = edge_origin + local_edge_coordinates[loc_i] * edge_tangent;
+
+            dof_cell_index_values.push_back(c);
+            dof_dimension_values.push_back(1);
+            dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
+            dof_boundary_marker_values.push_back(boundary_info.Marker);
+            dofs_coordinate.push_back(dof_coordinate);
+            dof_type_values.push_back(static_cast<double>(local_dof.Type));
+            dof_global_index_values.push_back(local_dof.Global_Index);
+            exact_solution_values.push_back(test.exact_solution(dof_coordinate)[0]);
+
+            switch (local_dof.Type)
+            {
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                solution_values.push_back(assembler_data.solutionDirichlet.GetValue(local_dof.Global_Index));
+                rhs_values.push_back(std::nan(""));
+                break;
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
+                solution_values.push_back(assembler_data.solution.GetValue(local_dof.Global_Index));
+                rhs_values.push_back(assembler_data.rightHandSide.GetValue(local_dof.Global_Index));
+                break;
+            default:
+                throw std::runtime_error("Unknown DOF Type");
+            }
+        }
+    }
+
+    for (unsigned int c = 0; c < mesh.Cell2DTotalNumber(); ++c)
+    {
+        const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(2).at(c);
+
+        const auto &local_dofs = dofs_data.CellsDOFs[2].at(c);
+
+        const unsigned int num_loc_dofs = local_dofs.size();
+
+        if (num_loc_dofs == 0)
+            continue;
+
+        const std::vector<double> local_polygon_coordinates =
+            geometryUtilities.EquispaceCoordinates(num_loc_dofs + 1, 0.0, 1.0, true);
+
+        unsigned int neigh = mesh.Cell2DNeighbourCell3D(c, 0);
+        if (neigh == std::numeric_limits<unsigned int>::max())
+            neigh = mesh.Cell2DNeighbourCell3D(c, 1);
+
+        const auto local_index_face = mesh.Cell3DFindFace(neigh, c);
+
+        const Eigen::Vector3d polygon_centroid = mesh_geometric_data.Cell3DsFaces2DCentroids.at(neigh)[local_index_face];
+        const auto polygonCentroidEdgesDistance = geometryUtilities.PolygonCentroidEdgesDistance(
+            mesh_geometric_data.Cell3DsFaces2DVertices.at(neigh)[local_index_face],
+            polygon_centroid,
+            mesh_geometric_data.Cell3DsFacesEdge2DNormals.at(neigh)[local_index_face]);
+
+        const double circle_diameter = 0.5 * geometryUtilities.PolygonInRadius(polygonCentroidEdgesDistance);
+
+        for (unsigned int loc_i = 0; loc_i < num_loc_dofs; ++loc_i)
+        {
+            const auto &local_dof = local_dofs.at(loc_i);
+
+            dof_cell_index_values.push_back(c);
+            dof_dimension_values.push_back(2);
+            dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
+            dof_boundary_marker_values.push_back(boundary_info.Marker);
+
+            switch (config.MethodType())
+            {
+            case Polydim::PDETools::LocalSpace_PCC_3D::MethodTypes::FEM_PCC: {
+                const unsigned int cell3DIndex = mesh.Cell2DNeighbourCell3D(c, 0);
+                const unsigned int face_local_index = mesh.Cell3DFindFace(cell3DIndex, c);
+                const auto local_space_data =
+                    Polydim::PDETools::LocalSpace_PCC_3D::CreateLocalSpace(config.GeometricTolerance1D(),
+                                                                           config.GeometricTolerance2D(),
+                                                                           config.GeometricTolerance3D(),
+                                                                           mesh_geometric_data,
+                                                                           cell3DIndex,
+                                                                           reference_element_data);
+                unsigned int offset = 0;
+                const auto face_dofs_coordinates =
+                    Polydim::PDETools::LocalSpace_PCC_3D::FaceDofsCoordinates(reference_element_data, local_space_data, face_local_index, offset);
+                dofs_coordinate.push_back(face_dofs_coordinates.Points.col(loc_i));
+            }
+            break;
+            case Polydim::PDETools::LocalSpace_PCC_3D::MethodTypes::VEM_PCC:
+            case Polydim::PDETools::LocalSpace_PCC_3D::MethodTypes::VEM_PCC_Ortho:
+            case Polydim::PDETools::LocalSpace_PCC_3D::MethodTypes::VEM_PCC_Inertia: {
+                if (num_loc_dofs > 1)
+                    dofs_coordinate.push_back(geometryUtilities.RotatePointsFrom2DTo3D(
+                        polygon_centroid +
+                            circle_diameter * Eigen::Vector3d(cos(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
+                                                              sin(2.0 * std::numbers::pi * local_polygon_coordinates.at(loc_i)),
+                                                              0.0),
+                        mesh_geometric_data.Cell3DsFacesRotationMatrices.at(neigh)[local_index_face],
+                        mesh_geometric_data.Cell3DsFacesTranslations.at(neigh)[local_index_face]));
+                else
+                    dofs_coordinate.push_back(geometryUtilities.RotatePointsFrom2DTo3D(
+                        polygon_centroid,
+                        mesh_geometric_data.Cell3DsFacesRotationMatrices.at(neigh)[local_index_face],
+                        mesh_geometric_data.Cell3DsFacesTranslations.at(neigh)[local_index_face]));
+            }
+            break;
+            default:
+                throw std::runtime_error("not valid method type");
+            }
+
+            const Eigen::Vector3d dof_coordinate = dofs_coordinate.back();
+
+            dof_type_values.push_back(static_cast<double>(local_dof.Type));
+            dof_global_index_values.push_back(local_dof.Global_Index);
+            exact_solution_values.push_back(test.exact_solution(dof_coordinate)[0]);
+
+            switch (local_dof.Type)
+            {
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                solution_values.push_back(assembler_data.solutionDirichlet.GetValue(local_dof.Global_Index));
+                rhs_values.push_back(std::nan(""));
+                break;
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
+                solution_values.push_back(assembler_data.solution.GetValue(local_dof.Global_Index));
+                rhs_values.push_back(assembler_data.rightHandSide.GetValue(local_dof.Global_Index));
+                break;
+            default:
+                throw std::runtime_error("Unknown DOF Type");
+            }
+        }
+    }
+
+    for (unsigned int c = 0; c < mesh.Cell3DTotalNumber(); ++c)
+    {
+        const auto &boundary_info = mesh_dofs_info.CellsBoundaryInfo.at(3).at(c);
+
+        const auto &local_dofs = dofs_data.CellsDOFs[3].at(c);
+
+        const unsigned int num_loc_dofs = local_dofs.size();
+
+        const auto local_polyhedron_coordinates = geometryUtilities.fibonacci_sphere(num_loc_dofs);
+        const Eigen::Vector3d polyhedron_centroid = mesh_geometric_data.Cell3DsCentroids.at(c);
+        const auto polyhedron_centroid_faces_distance =
+            geometryUtilities.PolyhedronCentroidFacesDistance(polyhedron_centroid,
+                                                              mesh_geometric_data.Cell3DsFacesNormals.at(c),
+                                                              mesh_geometric_data.Cell3DsFaces3DVertices.at(c));
+        const double polyhedron_in_radius = geometryUtilities.PolyhedronInRadius(polyhedron_centroid_faces_distance);
+
+        const double sphere_diameter = 0.5 * polyhedron_in_radius;
+
+        for (unsigned int loc_i = 0; loc_i < num_loc_dofs; ++loc_i)
+        {
+            const auto &local_dof = local_dofs.at(loc_i);
+
+            dof_cell_index_values.push_back(c);
+            dof_dimension_values.push_back(3);
+            dof_boundary_type_values.push_back(static_cast<double>(boundary_info.Type));
+            dof_boundary_marker_values.push_back(boundary_info.Marker);
+            dofs_coordinate.push_back(polyhedron_centroid + sphere_diameter * local_polyhedron_coordinates.col(loc_i));
+
+            dof_type_values.push_back(static_cast<double>(local_dof.Type));
+            dof_global_index_values.push_back(local_dof.Global_Index);
+
+            const Eigen::Vector3d dof_coordinate = dofs_coordinate.back();
+            exact_solution_values.push_back(test.exact_solution(dof_coordinate)[0]);
+
+            switch (local_dof.Type)
+            {
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::Strong:
+                solution_values.push_back(assembler_data.solutionDirichlet.GetValue(local_dof.Global_Index));
+                rhs_values.push_back(std::nan(""));
+                break;
+            case Polydim::PDETools::DOFs::DOFsManager::DOFsData::DOF::Types::DOF:
+                solution_values.push_back(assembler_data.solution.GetValue(local_dof.Global_Index));
+                rhs_values.push_back(assembler_data.rightHandSide.GetValue(local_dof.Global_Index));
+                break;
+            default:
+                throw std::runtime_error("Unknown DOF Type");
+            }
+        }
+    }
+    {
+        Eigen::MatrixXd coordinates(3, dofs_coordinate.size());
+        unsigned int c = 0;
+        for (const auto &dof_coordinate : dofs_coordinate)
+            coordinates.col(c++) << dof_coordinate;
+        const auto rhs_values_data = std::vector<double>(rhs_values.begin(), rhs_values.end());
+        const auto exact_solution_values_data = std::vector<double>(exact_solution_values.begin(), exact_solution_values.end());
+        const auto solution_values_data = std::vector<double>(solution_values.begin(), solution_values.end());
+        const auto dof_global_index_values_data =
+            std::vector<double>(dof_global_index_values.begin(), dof_global_index_values.end());
+        const auto dof_type_values_data = std::vector<double>(dof_type_values.begin(), dof_type_values.end());
+        const auto dof_cell_index_values_data = std::vector<double>(dof_cell_index_values.begin(), dof_cell_index_values.end());
+        const auto dof_dimension_values_data = std::vector<double>(dof_dimension_values.begin(), dof_dimension_values.end());
+        const auto dof_boundary_type_values_data =
+            std::vector<double>(dof_boundary_type_values.begin(), dof_boundary_type_values.end());
+        const auto dof_boundary_marker_values_data =
+            std::vector<double>(dof_boundary_marker_values.begin(), dof_boundary_marker_values.end());
+
+        Gedim::VTKUtilities exporter;
+        exporter.AddPoints(coordinates,
+                           {{"cell_dimension",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(dof_dimension_values_data.size()),
+                             dof_dimension_values_data.data()},
+                            {"cell_index",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(dof_cell_index_values_data.size()),
+                             dof_cell_index_values_data.data()},
+                            {"boundary_type",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(dof_boundary_type_values_data.size()),
+                             dof_boundary_type_values_data.data()},
+                            {"boundary_marker",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(dof_boundary_marker_values_data.size()),
+                             dof_boundary_marker_values_data.data()},
+                            {"dof_global_index",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(dof_global_index_values_data.size()),
+                             dof_global_index_values_data.data()},
+                            {"dof_type",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(dof_type_values_data.size()),
+                             dof_type_values_data.data()},
+                            {"rhs",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(rhs_values_data.size()),
+                             rhs_values_data.data()},
+                            {"solution",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(solution_values_data.size()),
+                             solution_values_data.data()},
+                            {"exact_solution",
+                             Gedim::VTPProperty::Formats::Points,
+                             static_cast<unsigned int>(exact_solution_values_data.size()),
+                             exact_solution_values_data.data()}});
+
+        const unsigned int METHOD_ID = static_cast<unsigned int>(config.MethodType());
+        const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
+        exporter.Export(exportVtuFolder + "/dofs_" + std::to_string(TEST_ID) + "_" + std::to_string(METHOD_ID) + +"_" +
+                        std::to_string(config.MethodOrder()) + ".vtu");
+    }
+}
+// ***************************************************************************
+} // namespace program_utilities
+} // namespace Elliptic_PCC_3D
+} // namespace examples
+} // namespace Polydim
