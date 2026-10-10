@@ -22,20 +22,29 @@ namespace examples
 {
 namespace Stokes_DF_PCC_3D
 {
+
+unsigned int Polydim::examples::Stokes_DF_PCC_3D::test::Patch_Test::order;
+unsigned int Polydim::examples::Stokes_DF_PCC_3D::test::Stokes_Benchmark_1::order;
+unsigned int Polydim::examples::Stokes_DF_PCC_3D::test::Stokes_Benchmark_2::order;
+
 namespace program_utilities
 {
 // ***************************************************************************
 std::unique_ptr<Polydim::examples::Stokes_DF_PCC_3D::test::I_Test> create_test(const Polydim::examples::Stokes_DF_PCC_3D::Program_configuration &config)
 {
+
     switch (config.TestType())
     {
     case Polydim::examples::Stokes_DF_PCC_3D::test::Test_Types::Patch_Test:
+        Polydim::examples::Stokes_DF_PCC_3D::test::Patch_Test::order = config.VemOrder();
         return std::make_unique<Polydim::examples::Stokes_DF_PCC_3D::test::Patch_Test>();
     case Polydim::examples::Stokes_DF_PCC_3D::test::Test_Types::Stokes:
         return std::make_unique<Polydim::examples::Stokes_DF_PCC_3D::test::Stokes>();
     case Polydim::examples::Stokes_DF_PCC_3D::test::Test_Types::Stokes_Benchmark_1:
+        Polydim::examples::Stokes_DF_PCC_3D::test::Stokes_Benchmark_1::order = config.VemOrder();
         return std::make_unique<Polydim::examples::Stokes_DF_PCC_3D::test::Stokes_Benchmark_1>();
     case Polydim::examples::Stokes_DF_PCC_3D::test::Test_Types::Stokes_Benchmark_2:
+        Polydim::examples::Stokes_DF_PCC_3D::test::Stokes_Benchmark_2::order = config.VemOrder();
         return std::make_unique<Polydim::examples::Stokes_DF_PCC_3D::test::Stokes_Benchmark_2>();
     default:
         throw std::runtime_error("Test type " + std::to_string((unsigned int)config.TestType()) + " not supported");
@@ -89,8 +98,6 @@ void create_domain_mesh(const Polydim::examples::Stokes_DF_PCC_3D::Program_confi
     geometryUtilitiesConfig.Tolerance3D = config.GeometricTolerance3D();
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
-    Gedim::MeshUtilities meshUtilities;
-
     switch (config.MeshGenerator())
     {
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Tetrahedral:
@@ -98,7 +105,6 @@ void create_domain_mesh(const Polydim::examples::Stokes_DF_PCC_3D::Program_confi
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Polyhedral:
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Cubic: {
         Polydim::PDETools::Mesh::PDE_Mesh_Utilities::create_mesh_3D(geometryUtilities,
-                                                                    meshUtilities,
                                                                     config.MeshGenerator(),
                                                                     domain,
                                                                     config.MeshMaxVolume(),
@@ -108,7 +114,7 @@ void create_domain_mesh(const Polydim::examples::Stokes_DF_PCC_3D::Program_confi
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::CsvImporter:
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::VtkImporter:
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::OVMImporter: {
-        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::import_mesh_3D(meshUtilities, config.MeshGenerator(), config.MeshImportFilePath(), mesh);
+        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::import_mesh_3D(config.MeshGenerator(), config.MeshImportFilePath(), mesh);
     }
     break;
     default:

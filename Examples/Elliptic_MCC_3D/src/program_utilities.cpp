@@ -52,8 +52,6 @@ void create_domain_mesh(const Polydim::examples::Elliptic_MCC_3D::Program_config
     geometryUtilitiesConfig.Tolerance3D = config.GeometricTolerance3D();
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
-    Gedim::MeshUtilities meshUtilities;
-
     switch (config.MeshGenerator())
     {
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Tetrahedral:
@@ -61,7 +59,6 @@ void create_domain_mesh(const Polydim::examples::Elliptic_MCC_3D::Program_config
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Polyhedral:
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::Cubic: {
         Polydim::PDETools::Mesh::PDE_Mesh_Utilities::create_mesh_3D(geometryUtilities,
-                                                                    meshUtilities,
                                                                     config.MeshGenerator(),
                                                                     domain,
                                                                     config.MeshMaxVolume(),
@@ -71,7 +68,7 @@ void create_domain_mesh(const Polydim::examples::Elliptic_MCC_3D::Program_config
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::OVMImporter:
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::VtkImporter:
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D::CsvImporter: {
-        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::import_mesh_3D(meshUtilities, config.MeshGenerator(), config.MeshImportFilePath(), mesh);
+        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::import_mesh_3D(config.MeshGenerator(), config.MeshImportFilePath(), mesh);
     }
     break;
     default:

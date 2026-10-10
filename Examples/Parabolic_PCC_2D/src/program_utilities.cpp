@@ -67,8 +67,6 @@ void create_domain_mesh(const Polydim::examples::Parabolic_PCC_2D::Program_confi
     geometryUtilitiesConfig.Tolerance2D = config.GeometricTolerance2D();
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
-    Gedim::MeshUtilities meshUtilities;
-
     switch (config.MeshGenerator())
     {
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular:
@@ -77,7 +75,6 @@ void create_domain_mesh(const Polydim::examples::Parabolic_PCC_2D::Program_confi
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Squared:
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::RandomDistorted: {
         Polydim::PDETools::Mesh::PDE_Mesh_Utilities::create_mesh_2D(geometryUtilities,
-                                                                    meshUtilities,
                                                                     config.MeshGenerator(),
                                                                     domain,
                                                                     config.MeshMaxArea(),
@@ -88,7 +85,6 @@ void create_domain_mesh(const Polydim::examples::Parabolic_PCC_2D::Program_confi
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::OFFImporter:
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::TriangularSimpleImporter: {
         Polydim::PDETools::Mesh::PDE_Mesh_Utilities::import_mesh_2D(geometryUtilities,
-                                                                    meshUtilities,
                                                                     config.MeshGenerator(),
                                                                     config.MeshImportFilePath(),
                                                                     mesh);
@@ -107,9 +103,7 @@ Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_propertie
     geometryUtilitiesConfig.Tolerance2D = config.GeometricTolerance2D();
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
-    Gedim::MeshUtilities meshUtilities;
-
-    return Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_2D_geometry_data(geometryUtilities, meshUtilities, mesh);
+    return Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_2D_geometry_data(geometryUtilities, mesh);
 }
 // ***************************************************************************
 void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configuration &config,

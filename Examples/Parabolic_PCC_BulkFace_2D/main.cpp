@@ -12,6 +12,7 @@
 #include "Eigen_LUSolver.hpp"
 #include "FEM_PCC_1D_Creator.hpp"
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
+#include "VtkMeshExporter.hpp"
 #include "program_utilities.hpp"
 #include "test_definition.hpp"
 
@@ -57,8 +58,6 @@ int main(int argc, char **argv)
     geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance1D();
     geometryUtilitiesConfig.Tolerance2D = config.GeometricTolerance2D();
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
-
-    Gedim::MeshUtilities meshUtilities;
 
     const auto test = Polydim::examples::Parabolic_PCC_BulkFace_2D::program_utilities::create_test(config);
 
@@ -114,7 +113,7 @@ int main(int argc, char **argv)
             cell1DsFilter.push_back(c);
 
     Gedim::MeshUtilities::ExtractMeshData extract_data =
-        meshUtilities.ExtractMesh1D(cell0DsFilter, cell1DsFilter, mesh_2D, mesh_1D);
+        Gedim::MeshUtilities::ExtractMesh1D(cell0DsFilter, cell1DsFilter, mesh_2D, mesh_1D);
 
     for (unsigned int c = 0; c < mesh_1D.Cell0DTotalNumber(); c++)
         mesh_1D.Cell0DSetMarker(c, mesh_2D.Cell0DMarker(extract_data.NewCell0DToOldCell0D[c]));
@@ -127,18 +126,18 @@ int main(int argc, char **argv)
 
     // Export the domain mesh
     {
-        meshUtilities.ExportMeshToVTU(mesh_2D, exportVtuFolder, "Domain_Mesh_2D");
-        meshUtilities.ExportMeshToVTU(mesh_1D, exportVtuFolder, "Domain_Mesh_1D");
+        Gedim::External::MeshUtilities::ExportMeshToVTU(mesh_2D, exportVtuFolder, "Domain_Mesh_2D");
+        Gedim::External::MeshUtilities::ExportMeshToVTU(mesh_1D, exportVtuFolder, "Domain_Mesh_1D");
     }
 
     Gedim::Output::PrintGenericMessage("ComputeGeometricProperties...", true);
     Gedim::Profiler::StartTime("ComputeGeometricProperties");
 
     const auto mesh_geometric_data_2D =
-        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_2D_geometry_data(geometryUtilities, meshUtilities, mesh_2D);
+        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_2D_geometry_data(geometryUtilities, mesh_2D);
 
     const auto mesh_geometric_data_1D =
-        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_1D_geometry_data(geometryUtilities, meshUtilities, mesh_1D);
+        Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_1D_geometry_data(geometryUtilities, mesh_1D);
 
     Gedim::Profiler::StopTime("ComputeGeometricProperties");
     Gedim::Output::PrintStatusProgram("ComputeGeometricProperties");

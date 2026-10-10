@@ -52,14 +52,11 @@ void create_domain_mesh(const Polydim::examples::Elliptic_PCC_1D::Program_config
     geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance1D();
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
-    Gedim::MeshUtilities meshUtilities;
-
     switch (config.MeshGenerator())
     {
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_1D::Minimal:
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_1D::Equispaced: {
         Polydim::PDETools::Mesh::PDE_Mesh_Utilities::create_mesh_1D(geometryUtilities,
-                                                                    meshUtilities,
                                                                     config.MeshGenerator(),
                                                                     domain,
                                                                     config.MeshMaxLength(),
@@ -82,9 +79,7 @@ Gedim::MeshUtilities::MeshGeometricData1D create_domain_mesh_geometric_propertie
     geometryUtilitiesConfig.Tolerance1D = config.GeometricTolerance1D();
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
-    Gedim::MeshUtilities meshUtilities;
-
-    return Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_1D_geometry_data(geometryUtilities, meshUtilities, mesh);
+    return Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_1D_geometry_data(geometryUtilities, mesh);
 }
 // ***************************************************************************
 void export_solution(const Polydim::examples::Elliptic_PCC_1D::Program_configuration &config,

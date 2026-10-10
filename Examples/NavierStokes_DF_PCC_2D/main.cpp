@@ -16,6 +16,7 @@
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
 #include "MeshUtilities.hpp"
 #include "VTKUtilities.hpp"
+#include "VtkMeshExporter.hpp"
 #include "assembler.hpp"
 #include "program_configuration.hpp"
 #include "program_utilities.hpp"
@@ -92,8 +93,7 @@ int main(int argc, char **argv)
 
     // Export the domain mesh
     {
-        Gedim::MeshUtilities meshUtilities;
-        meshUtilities.ExportMeshToVTU(mesh, exportVtuFolder, "Domain_Mesh");
+        Gedim::External::MeshUtilities::ExportMeshToVTU(mesh, exportVtuFolder, "Domain_Mesh");
     }
 
     Gedim::Output::PrintGenericMessage("ComputeGeometricProperties...", true);

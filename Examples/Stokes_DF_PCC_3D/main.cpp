@@ -10,17 +10,12 @@
 // This file can be used citing references in CITATION.cff file.
 
 #include "DOFsManager.hpp"
-#include "MeshMatricesDAO.hpp"
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
-#include "MeshUtilities.hpp"
 #include "VTKUtilities.hpp"
+#include "VtkMeshExporter.hpp"
 #include "assembler.hpp"
 #include "program_configuration.hpp"
 #include "program_utilities.hpp"
-
-unsigned int Polydim::examples::Stokes_DF_PCC_3D::test::Patch_Test::order;
-unsigned int Polydim::examples::Stokes_DF_PCC_3D::test::Stokes_Benchmark_1::order;
-unsigned int Polydim::examples::Stokes_DF_PCC_3D::test::Stokes_Benchmark_2::order;
 
 int main(int argc, char **argv)
 {
@@ -60,10 +55,6 @@ int main(int argc, char **argv)
     Gedim::Output::PrintGenericMessage("SetProblem...", true);
     Gedim::Profiler::StartTime("SetProblem");
 
-    Polydim::examples::Stokes_DF_PCC_3D::test::Patch_Test::order = config.VemOrder();
-    Polydim::examples::Stokes_DF_PCC_3D::test::Stokes_Benchmark_1::order = config.VemOrder();
-    Polydim::examples::Stokes_DF_PCC_3D::test::Stokes_Benchmark_2::order = config.VemOrder();
-
     const auto test = Polydim::examples::Stokes_DF_PCC_3D::program_utilities::create_test(config);
 
     const auto domain = test->domain();
@@ -96,8 +87,7 @@ int main(int argc, char **argv)
 
     // Export the domain mesh
     {
-        Gedim::MeshUtilities meshUtilities;
-        meshUtilities.ExportMeshToVTU(mesh, exportVtuFolder, "Domain_Mesh");
+        Gedim::External::MeshUtilities::ExportMeshToVTU(mesh, exportVtuFolder, "Domain_Mesh");
     }
 
     Gedim::Output::PrintGenericMessage("ComputeGeometricProperties...", true);

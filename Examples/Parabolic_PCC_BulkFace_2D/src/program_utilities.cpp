@@ -46,8 +46,6 @@ void create_domain_mesh_2D(const Polydim::examples::Parabolic_PCC_BulkFace_2D::P
     geometryUtilitiesConfig.Tolerance2D = config.GeometricTolerance2D();
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
-    Gedim::MeshUtilities meshUtilities;
-
     switch (config.MeshGenerator())
     {
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular:
@@ -56,7 +54,6 @@ void create_domain_mesh_2D(const Polydim::examples::Parabolic_PCC_BulkFace_2D::P
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Squared:
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::RandomDistorted: {
         Polydim::PDETools::Mesh::PDE_Mesh_Utilities::create_mesh_2D(geometryUtilities,
-                                                                    meshUtilities,
                                                                     config.MeshGenerator(),
                                                                     domain,
                                                                     config.MeshMaxArea(),
@@ -67,7 +64,6 @@ void create_domain_mesh_2D(const Polydim::examples::Parabolic_PCC_BulkFace_2D::P
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::OFFImporter:
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::TriangularSimpleImporter: {
         Polydim::PDETools::Mesh::PDE_Mesh_Utilities::import_mesh_2D(geometryUtilities,
-                                                                    meshUtilities,
                                                                     config.MeshGenerator(),
                                                                     config.MeshImportFilePath(),
                                                                     mesh);

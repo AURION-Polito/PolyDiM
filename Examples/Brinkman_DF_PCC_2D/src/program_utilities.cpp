@@ -62,8 +62,6 @@ void create_domain_mesh(const Polydim::examples::Brinkman_DF_PCC_2D::Program_con
     geometryUtilitiesConfig.Tolerance2D = config.GeometricTolerance2D();
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
-    Gedim::MeshUtilities meshUtilities;
-
     switch (config.MeshGenerator())
     {
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular:
@@ -71,7 +69,6 @@ void create_domain_mesh(const Polydim::examples::Brinkman_DF_PCC_2D::Program_con
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Polygonal:
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Squared: {
         Polydim::PDETools::Mesh::PDE_Mesh_Utilities::create_mesh_2D(geometryUtilities,
-                                                                    meshUtilities,
                                                                     config.MeshGenerator(),
                                                                     domain,
                                                                     config.MeshMaxArea(),
@@ -82,7 +79,6 @@ void create_domain_mesh(const Polydim::examples::Brinkman_DF_PCC_2D::Program_con
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::CsvImporter:
     case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::TriangularSimpleImporter: {
         Polydim::PDETools::Mesh::PDE_Mesh_Utilities::import_mesh_2D(geometryUtilities,
-                                                                    meshUtilities,
                                                                     config.MeshGenerator(),
                                                                     config.MeshImportFilePath(),
                                                                     mesh);
@@ -101,9 +97,8 @@ Gedim::MeshUtilities::MeshGeometricData2D create_domain_mesh_geometric_propertie
     geometryUtilitiesConfig.Tolerance2D = config.GeometricTolerance2D();
     Gedim::GeometryUtilities geometryUtilities(geometryUtilitiesConfig);
 
-    Gedim::MeshUtilities meshUtilities;
-    meshUtilities.ComputeCell1DCell2DNeighbours(mesh);
-    return Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_2D_geometry_data(geometryUtilities, meshUtilities, mesh);
+    Gedim::MeshUtilities::ComputeCell1DCell2DNeighbours(mesh);
+    return Polydim::PDETools::Mesh::PDE_Mesh_Utilities::compute_mesh_2D_geometry_data(geometryUtilities, mesh);
 }
 // ***************************************************************************
 void export_solution(const Polydim::examples::Brinkman_DF_PCC_2D::Program_configuration &config,
