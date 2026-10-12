@@ -33,6 +33,7 @@ def run_program(program_folder,
     program_parameters += " MeshGenerator:uint={0}".format(mesh_generator)
     program_parameters += " MeshMaxVolume:double={0}".format(mesh_max_volume)
     program_parameters += " ComputeVEMPerformance:bool={0}".format(0)
+    program_parameters += " ExportFormat:vector_uint={0}".format([1,1])
 
     output_file = os.path.join(program_folder,
                                "terminal.log")
@@ -52,7 +53,7 @@ def run_program(program_folder,
 
 def import_errors(export_path, vem_type, vem_order, test_type):
     errors_file = os.path.join(export_path,
-                               "Solution",
+                               "Csv",
                                "Errors_" + str(test_type) + "_" + str(vem_type) + "_" + str(vem_order) + ".csv")
     errors = []
     with open(errors_file, newline='') as csvfile:

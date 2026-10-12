@@ -41,6 +41,7 @@ def run_program(program_folder,
     program_parameters += " SUPG:bool={0}".format(supg)
     program_parameters += " PecletConstant:double={0}".format(1.0/3.0)
     program_parameters += " MeshImportFilePath:string={0}".format(mesh_import_path)
+    program_parameters += " ExportFormat:vector_uint={0}".format([1,1])
 
     output_file = os.path.join(program_folder,
                                "terminal.log")
@@ -60,7 +61,7 @@ def run_program(program_folder,
 
 def import_errors(export_path, method_type, method_order, test_type):
     errors_file = os.path.join(export_path,
-                               "Solution",
+                               "Csv",
                                "Errors_" + str(test_type) + "_" + str(method_type) + "_" + str(method_order) + ".csv")
     errors = []
     with open(errors_file, newline='') as csvfile:
@@ -120,7 +121,7 @@ def main():
     test_type = 1
     mesh_generator = 1
     mesh_max_area = 0.0
-    method_types = [0, 1, 2, 3]
+    method_types = [0, 1, 2, 3, 4]
     method_orders = [1, 2, 3]
     for method_type in method_types:
         for method_order in method_orders:
@@ -167,7 +168,7 @@ def main():
 
     test_type = 2
     mesh_generator = 0
-    method_types = [0, 1, 2, 3]
+    method_types = [0, 1, 2, 3, 4]
     mesh_max_areas = [0.01, 0.001]
     method_orders = [1, 2, 3]
     for method_type in method_types:
@@ -193,7 +194,7 @@ def main():
 
     test_type = 2
     mesh_generator = 2
-    method_types = [1, 2, 3]
+    method_types = [1, 2, 3, 4]
     mesh_max_areas = [0.01, 0.001]
     method_orders = [1, 2, 3]
     for method_type in method_types:
@@ -218,9 +219,10 @@ def main():
             if remove_folder:
                 os.system("rm -rf " + os.path.join(program_folder, export_path))
 
-    test_type = 4
+
+    test_type = 3
     mesh_generator = 5
-    method_types = [0, 1, 2, 3]
+    method_types = [0, 1, 2, 3, 4]
     mesh_max_areas = [0.01, 0.001]
     method_orders = [1, 2, 3]
     for method_type in method_types:
@@ -247,7 +249,7 @@ def main():
 
     test_type = 2
     mesh_generator = 4
-    mesh_import_paths = ["../../../../Mesh/2D/GenericPolyMesh"]
+    mesh_import_paths = ["../../../Mesh/2D/GenericPolyMesh"]
     method_types = [1, 2, 3]
     method_orders = np.arange(1, 13)
     list_errors = []
@@ -274,7 +276,6 @@ def main():
     fig, ax = plt.subplots(figsize=(12, 12))
     for h in range(len(method_types)):
         errors = list_errors[h]
-        num_rows = len(errors)
 
         if method_types[h] == 1:
             ax.plot(method_orders, errors[:, 2], '-k^', linewidth=2, markersize=12,
@@ -301,7 +302,8 @@ def main():
     plt.savefig(export_folder + "/{}_decay_plot.png".format(test_type), bbox_inches='tight', dpi=300)
     plt.show()
 
-    test_type = 3
+
+    test_type = 4
     mesh_generator = 0
     method_types = [0, 1, 2, 3]
     mesh_max_areas = [0.01, 0.001]
@@ -329,7 +331,7 @@ def main():
             if remove_folder:
                 os.system("rm -rf " + os.path.join(program_folder, export_path))
 
-    test_type = 3
+    test_type = 4
     mesh_generator = 2
     method_orders = [1, 2, 3]
     method_types = [1, 2, 3]

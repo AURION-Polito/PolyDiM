@@ -32,6 +32,7 @@ def run_program(program_folder,
     program_parameters += " TestType:uint={0}".format(test_type)
     program_parameters += " MeshGenerator:uint={0}".format(mesh_generator)
     program_parameters += " MeshMaxLength:double={0}".format(mesh_max_length)
+    program_parameters += " ExportFormat:vector_uint={0}".format([1,1])
 
     output_file = os.path.join(program_folder,
                                "terminal.log")
@@ -51,7 +52,7 @@ def run_program(program_folder,
 
 def import_errors(export_path, method_type, method_order, test_type):
     errors_file = os.path.join(export_path,
-                               "Solution",
+                               "Csv",
                                "Errors_" + str(test_type) + "_" + str(method_type) + "_" + str(method_order) + ".csv")
     errors = []
     with open(errors_file, newline='') as csvfile:
