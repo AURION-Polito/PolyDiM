@@ -30,7 +30,7 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty("TestType",
                                            static_cast<unsigned int>(Polydim::examples::Elliptic_PCC_2D::test::Test_Types::Patch_Test),
                                            "Test Type 1 - Patch_Test; 2 - Elliptic_Polynomial_Problem; 3 - "
-                                           "Elliptic_Problem"
+                                           "Elliptic_Problem; "
                                            "4 - SUPG_AdvDiff_Problem (Default: 1)");
         // Export parameters
         Gedim::Configurations::AddProperty("ExportFolder", "./Export", "Folder where to export data (Default: ./Export)");
@@ -44,8 +44,8 @@ struct Program_configuration final
             "MeshGenerator",
             static_cast<unsigned int>(Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::Triangular),
             "Mesh 2D generator type, 0 - Triangular; 1 - Minimal; 2 - "
-            "Polygonal; 3 - OFF Importer; 4 - CsvImporter (; separator); 5 - Squared; 6 - RandomDistorted (Default: "
-            "0)");
+            "Polygonal; 3 - OFF Importer; 4 - CsvImporter (; separator); 5 - Squared; "
+            "6 - RandomDistorted (Default: 0)");
         Gedim::Configurations::AddProperty("MeshImportFilePath", "./", "Mesh imported file path (Default: './')");
         Gedim::Configurations::AddProperty("MeshMaxArea", 0.1, "Mesh 2D maximum relative cell area (Default: 0.1)");
 
@@ -56,7 +56,7 @@ struct Program_configuration final
         // Method parameters
         Gedim::Configurations::AddProperty("MethodType",
                                            static_cast<unsigned int>(Polydim::PDETools::LocalSpace_PCC_2D::MethodTypes::FEM_PCC),
-                                           "Method Type, 0 - FEM; 1 - EVem; 2 - EVem_Inertia; 3 - EVem_Ortho; "
+                                           "Method Type, 0 - FEM; 1 - VEM; 2 - VEM_Inertia; 3 - VEM_Ortho; "
                                            "4 - ZFEM (Default: 0)");
 
         Gedim::Configurations::AddProperty("MethodOrder", static_cast<unsigned int>(1), "Method order (Default: 1)");
