@@ -42,6 +42,11 @@ struct Program_configuration final
 
         // Export parameters
         Gedim::Configurations::AddProperty("ExportFolder", "./Export", "Folder where to export data (Default: ./Export)");
+        Gedim::Configurations::AddProperty("ExportFormat",
+                                           std::vector<unsigned int>({1, 0}),
+                                           "A boolean vector of kind of desired export type for solution and mesh "
+                                           "[Csv, Vtu] (Default: [1,0])");
+
         // Mesh parameters
         Gedim::Configurations::AddProperty(
             "MeshGenerator",
@@ -163,6 +168,11 @@ struct Program_configuration final
     inline double NLRelResidualTolerance() const
     {
         return Gedim::Configurations::GetPropertyValue<double>("NLRelResidualTolerance");
+    }
+
+    inline std::vector<unsigned int> ExportFormat() const
+    {
+        return Gedim::Configurations::GetPropertyValue<std::vector<unsigned int>>("ExportFormat");
     }
 };
 } // namespace NavierStokes_DF_PCC_2D

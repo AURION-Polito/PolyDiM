@@ -144,6 +144,7 @@ def run_program(program_folder,
     program_parameters += " NLRelResidualTolerance:double={0}".format(1.0e-10)
     program_parameters += " ConvectiveForm:uint={0}".format(conv_form)
     program_parameters += " MeshImportFilePath:string={0}".format(mesh_import_path)
+    program_parameters += " ExportFormat:vector_uint={0}".format([1,1])
 
     output_file = os.path.join(program_folder,
                                "terminal.log")
@@ -164,7 +165,7 @@ def run_program(program_folder,
 
 def import_errors(export_path, method_type, method_order, test_type):
     errors_file = os.path.join(export_path,
-                               "Solution",
+                               "Csv",
                                "Errors_" + str(test_type) + "_" + str(method_type) + "_" + str(method_order) + ".csv")
     errors = []
     with open(errors_file, newline='') as csvfile:
@@ -351,9 +352,9 @@ def main():
 
     test_type = 4
     mesh_generator = 4
-    mesh_import_paths = [program_folder + "/../../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R1",
-                         program_folder + "/../../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R2",
-                         program_folder + "/../../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R3"]
+    mesh_import_paths = [program_folder + "/../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R1",
+                         program_folder + "/../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R2",
+                         program_folder + "/../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R3"]
     conv_forms = [0, 1]
     method_orders = [2]
     list_errors = []

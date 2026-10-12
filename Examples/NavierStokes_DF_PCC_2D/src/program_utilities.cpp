@@ -11,6 +11,7 @@
 
 #include "program_utilities.hpp"
 
+#include "IOEnum.hpp"
 #include "VTKUtilities.hpp"
 
 namespace Polydim
@@ -106,38 +107,39 @@ void export_solution(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_co
     const unsigned int METHOD_ID = static_cast<unsigned int>(config.MethodType());
     const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
 
-    {
-        const char separator = ';';
-        std::cout << "ProgramType" << separator;
-        std::cout << "MethodType" << separator;
-        std::cout << "MethodOrder" << separator;
-        std::cout << "Cell2Ds" << separator;
-        std::cout << "Dofs" << separator;
-        std::cout << "Strongs" << separator;
-        std::cout << "h" << separator;
-        std::cout << "errorH1Velocity" << separator;
-        std::cout << "errorL2Pressure" << separator;
-        std::cout << "normH1Velocity" << separator;
-        std::cout << "normL2Pressure" << separator;
-        std::cout << "nnzA" << separator;
-        std::cout << "num_nl_iterations" << separator;
-        std::cout << "residual" << std::endl;
+    std::string test_type{
+        Gedim::io_enum::enum_to_string<Polydim::examples::NavierStokes_DF_PCC_2D::test::Test_Types, 1, 4>(config.TestType())};
+    std::string mesh_generator{
+        Gedim::io_enum::enum_to_string<Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D, 0, 20>(
+            config.MeshGenerator())};
+    std::string method_type{
+        Gedim::io_enum::enum_to_string<Polydim::PDETools::LocalSpace_DF_PCC_2D::MethodTypes, 0, 20>(config.MethodType())};
 
-        std::cout.precision(2);
-        std::cout << std::scientific << TEST_ID << separator;
-        std::cout << std::scientific << METHOD_ID << separator;
-        std::cout << std::scientific << config.MethodOrder() << separator;
-        std::cout << std::scientific << mesh.Cell2DTotalNumber() << separator;
-        std::cout << std::scientific << count_dofs.num_total_dofs << separator;
-        std::cout << std::scientific << count_dofs.num_total_strong << separator;
-        std::cout << std::scientific << post_process_data.mesh_size << separator;
-        std::cout << std::scientific << post_process_data.error_H1_velocity << separator;
-        std::cout << std::scientific << post_process_data.error_L2_pressure << separator;
-        std::cout << std::scientific << post_process_data.norm_H1_velocity << separator;
-        std::cout << std::scientific << post_process_data.norm_L2_pressure << separator;
-        std::cout << std::scientific << assembler_data.globalMatrixA.NonZeros() << separator;
-        std::cout << std::scientific << num_nl_iterations << separator;
-        std::cout << std::scientific << post_process_data.residual_norm << std::endl;
+    {
+        std::ostringstream error_to_str;
+        const int w = 15;
+
+        error_to_str << Gedim::Output::MagentaColor;
+        error_to_str << std::right;
+
+        error_to_str << std::setw(w + 10) << "ProgramType" << std::setw(w + 10) << "MethodType" << std::setw(w)
+                     << "MethodOrder" << std::setw(w) << "MeshGenerator" << std::setw(w) << "Cell2Ds" << std::setw(w)
+                     << "Dofs" << std::setw(w) << "Strongs" << std::setw(w) << "h" << std::setw(w) << "errorH1Vel"
+                     << std::setw(w) << "errorL2Pres" << std::setw(w) << "normH1Vel" << std::setw(w) << "normL2Pres"
+                     << std::setw(w) << "nnzA" << std::setw(w) << "NLit" << std::setw(w) << "residual" << std::endl;
+
+        error_to_str.precision(2);
+        error_to_str << std::scientific;
+        error_to_str << std::setw(w + 14) << test_type << std::setw(w + 10) << method_type << std::setw(w)
+                     << config.MethodOrder() << std::setw(w) << mesh_generator << std::setw(w) << mesh.Cell2DTotalNumber()
+                     << std::setw(w) << count_dofs.num_total_dofs << std::setw(w) << count_dofs.num_total_strong
+                     << std::setw(w) << post_process_data.mesh_size << std::setw(w) << post_process_data.error_H1_velocity
+                     << std::setw(w) << post_process_data.error_L2_pressure << std::setw(w)
+                     << post_process_data.norm_H1_velocity << std::setw(w) << post_process_data.norm_L2_pressure
+                     << std::setw(w) << assembler_data.globalMatrixA.NonZeros() << std::setw(w) << num_nl_iterations
+                     << std::setw(w) << post_process_data.residual_norm << Gedim::Output::EndColor;
+
+        Gedim::Output::PrintGenericMessage(error_to_str.str(), true);
     }
 
     {
@@ -183,41 +185,48 @@ void export_solution(const Polydim::examples::NavierStokes_DF_PCC_2D::Program_co
         errorFile << std::scientific << post_process_data.residual_norm << std::endl;
 
         errorFile.close();
+        Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor + "Errors are exported in: " + errorFileName +
+                                               Gedim::Output::EndColor,
+                                           true);
     }
 
+    if (config.ExportFormat()[1])
     {
-        {
-            Gedim::VTKUtilities exporter;
-            exporter.AddPolygons(mesh.Cell0DsCoordinates(),
-                                 mesh.Cell2DsVertices(),
-                                 {{"Numeric Velocity - X",
-                                   Gedim::VTPProperty::Formats::Points,
-                                   static_cast<unsigned int>(post_process_data.cell0Ds_numeric_velocity[0].size()),
-                                   post_process_data.cell0Ds_numeric_velocity[0].data()},
-                                  {"Numeric Velocity - Y",
-                                   Gedim::VTPProperty::Formats::Points,
-                                   static_cast<unsigned int>(post_process_data.cell0Ds_numeric_velocity[1].size()),
-                                   post_process_data.cell0Ds_numeric_velocity[1].data()},
-                                  {"Exact Velocity - X",
-                                   Gedim::VTPProperty::Formats::Points,
-                                   static_cast<unsigned int>(post_process_data.cell0Ds_exact_velocity[0].size()),
-                                   post_process_data.cell0Ds_exact_velocity[0].data()},
-                                  {"Exact Velocity - Y",
-                                   Gedim::VTPProperty::Formats::Points,
-                                   static_cast<unsigned int>(post_process_data.cell0Ds_exact_velocity[1].size()),
-                                   post_process_data.cell0Ds_exact_velocity[1].data()},
-                                  {"ErrorL2Pressure",
-                                   Gedim::VTPProperty::Formats::Cells,
-                                   static_cast<unsigned int>(post_process_data.cell2Ds_error_L2_pressure.size()),
-                                   post_process_data.cell2Ds_error_L2_pressure.data()},
-                                  {"ErrorH1Velocity",
-                                   Gedim::VTPProperty::Formats::Cells,
-                                   static_cast<unsigned int>(post_process_data.cell2Ds_error_H1_velocity.size()),
-                                   post_process_data.cell2Ds_error_H1_velocity.data()}});
+        Gedim::VTKUtilities exporter;
+        exporter.AddPolygons(mesh.Cell0DsCoordinates(),
+                             mesh.Cell2DsVertices(),
+                             {{"Numeric Velocity - X",
+                               Gedim::VTPProperty::Formats::Points,
+                               static_cast<unsigned int>(post_process_data.cell0Ds_numeric_velocity[0].size()),
+                               post_process_data.cell0Ds_numeric_velocity[0].data()},
+                              {"Numeric Velocity - Y",
+                               Gedim::VTPProperty::Formats::Points,
+                               static_cast<unsigned int>(post_process_data.cell0Ds_numeric_velocity[1].size()),
+                               post_process_data.cell0Ds_numeric_velocity[1].data()},
+                              {"Exact Velocity - X",
+                               Gedim::VTPProperty::Formats::Points,
+                               static_cast<unsigned int>(post_process_data.cell0Ds_exact_velocity[0].size()),
+                               post_process_data.cell0Ds_exact_velocity[0].data()},
+                              {"Exact Velocity - Y",
+                               Gedim::VTPProperty::Formats::Points,
+                               static_cast<unsigned int>(post_process_data.cell0Ds_exact_velocity[1].size()),
+                               post_process_data.cell0Ds_exact_velocity[1].data()},
+                              {"ErrorL2Pressure",
+                               Gedim::VTPProperty::Formats::Cells,
+                               static_cast<unsigned int>(post_process_data.cell2Ds_error_L2_pressure.size()),
+                               post_process_data.cell2Ds_error_L2_pressure.data()},
+                              {"ErrorH1Velocity",
+                               Gedim::VTPProperty::Formats::Cells,
+                               static_cast<unsigned int>(post_process_data.cell2Ds_error_H1_velocity.size()),
+                               post_process_data.cell2Ds_error_H1_velocity.data()}});
 
-            exporter.Export(exportVtuFolder + "/Solution_" + std::to_string(TEST_ID) + "_" + std::to_string(METHOD_ID) +
-                            "_" + std::to_string(config.MethodOrder()) + ".vtu");
-        }
+        const std::string file_name = exportVtuFolder + "/Solution_" + std::to_string(TEST_ID) + "_" +
+                                      std::to_string(METHOD_ID) + "_" + std::to_string(config.MethodOrder()) + ".vtu";
+        exporter.Export(file_name);
+
+        Gedim::Output::PrintGenericMessage(
+            Gedim::Output::MagentaColor + "Solution and Errors are exported in: " + file_name + Gedim::Output::EndColor,
+            true);
     }
 }
 // ***************************************************************************
@@ -264,8 +273,9 @@ void export_performance(const Polydim::examples::NavierStokes_DF_PCC_2D::Program
     std::ofstream exporter;
     const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
     const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
-    exporter.open(exportFolder + "/Cell2Ds_MethodPerformance_" + std::to_string(TEST_ID) + "_" +
-                  std::to_string(Method_ID) + "_" + std::to_string(config.MethodOrder()) + ".csv");
+    const std::string file_name = exportFolder + "/Cell2Ds_MethodPerformance_" + std::to_string(TEST_ID) + "_" +
+                                  std::to_string(Method_ID) + "_" + std::to_string(config.MethodOrder()) + ".csv";
+    exporter.open(file_name);
     exporter.precision(16);
 
     if (exporter.fail())
@@ -313,6 +323,9 @@ void export_performance(const Polydim::examples::NavierStokes_DF_PCC_2D::Program
     }
 
     exporter.close();
+
+    Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor + "Performance are exported in: " + file_name + Gedim::Output::EndColor,
+                                       true);
 }
 // ***************************************************************************
 } // namespace program_utilities
