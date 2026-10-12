@@ -37,6 +37,7 @@ def run_program(program_folder,
     program_parameters += " MeshMaxVolume:double={0}".format(mesh_max_volume)
     program_parameters += " ComputeMethodPerformance:bool={0}".format(0)
     program_parameters += " MeshImportFilePath:string={0}".format(mesh_import_path)
+    program_parameters += " ExportFormat:vector_uint={0}".format([1,1])
 
     output_file = os.path.join(program_folder,
                                "terminal.log")
@@ -56,7 +57,7 @@ def run_program(program_folder,
 
 def import_errors(export_path, method_type, method_order, test_type):
     errors_file = os.path.join(export_path,
-                               "Solution",
+                               "Csv",
                                "Errors_" + str(test_type) + "_" + str(method_type) + "_" + str(method_order) + ".csv")
     errors = []
     with open(errors_file, newline='') as csvfile:
@@ -216,7 +217,7 @@ def main():
 
     test_type = 2
     mesh_generator = 5
-    mesh_import_paths = ["../../../../Mesh/3D/Conformed"]
+    mesh_import_paths = ["../../../Mesh/3D/Conformed"]
     method_types = [1, 2, 3]
     method_orders = np.arange(1, 5)
     list_errors = []
