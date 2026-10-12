@@ -18,7 +18,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/PolyDiM-core)
 
 # Include unit tests
 if(${ENABLE_POLYDIM_UNIT_TESTS})
-  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/PolyDiM-core/test)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/test)
 endif()
 
 # Include examples

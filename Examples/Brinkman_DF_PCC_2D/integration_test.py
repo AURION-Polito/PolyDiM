@@ -40,6 +40,7 @@ def run_program(program_folder,
     program_parameters += " ComputeMethodPerformance:bool={0}".format(0)
     program_parameters += " ComputeDiscrepancyError:bool={0}".format(compute_discrepancy)
     program_parameters += " MeshImportFilePath:string={0}".format(mesh_import_path)
+    program_parameters += " ExportFormat:vector_uint={0}".format([1,1])
 
     output_file = os.path.join(program_folder,
                                "terminal.log")
@@ -59,7 +60,7 @@ def run_program(program_folder,
 
 def import_errors(export_path, method_type, method_order, test_type):
     errors_file = os.path.join(export_path,
-                               "Solution",
+                               "Csv",
                                "Errors_" + str(test_type) + "_" + str(method_type) + "_" + str(method_order) + ".csv")
     errors = []
     with open(errors_file, newline='') as csvfile:
@@ -89,7 +90,7 @@ def import_errors(export_path, method_type, method_order, test_type):
 
 def import_discrepancy_errors(export_path, method_type, method_order, test_type):
     errors_file = os.path.join(export_path,
-                               "Solution",
+                               "Csv",
                                "DiscrepancyErrors_" + str(test_type) + "_" + str(method_type) + "_" + str(
                                    method_order) + ".csv")
     errors = []
@@ -117,7 +118,7 @@ def import_discrepancy_errors(export_path, method_type, method_order, test_type)
 
 
 def read_flux(export_path, method_type, method_order, test_type):
-    errors_file = os.path.join(export_path, "Solution",
+    errors_file = os.path.join(export_path, "Csv",
                                "Flux_" + str(test_type) + "_" + str(method_type) + "_" + str(method_order) + ".csv")
 
     flux = []
@@ -543,6 +544,7 @@ def main():
 
     test_type = 6
     mesh_generator = 2
+    method_orders = [2, 3]
     mesh_max_areas = [0.005, 0.001]
     method_types = [1]
     for method_type in method_types:
@@ -591,9 +593,10 @@ def main():
                 os.system("rm -rf " + os.path.join(program_folder, export_path))
 
     test_type = 7
+    method_orders = [2, 3, 4]
     mesh_generator = 4
-    mesh_names = [program_folder + "/../../../../Mesh/2D/DarcyStokesMesh/TriMesh_0_01",
-                  program_folder + "/../../../../Mesh/2D/DarcyStokesMesh/Square_1_8"]
+    mesh_names = [program_folder + "/../../../Mesh/2D/DarcyStokesMesh/TriMesh_0_01",
+                  program_folder + "/../../../Mesh/2D/DarcyStokesMesh/Square_1_8"]
     method_types = [1, 2]
     for method_type in method_types:
         for method_order in method_orders:

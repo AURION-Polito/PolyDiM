@@ -37,6 +37,7 @@ def run_program(program_folder,
     program_parameters += " MeshMaxArea:double={0}".format(mesh_max_area)
     program_parameters += " ComputeMethodPerformance:bool={0}".format(0)
     program_parameters += " MeshImportFilePath:string={0}".format(mesh_import_path)
+    program_parameters += " ExportFormat:vector_uint={0}".format([1,1])
 
     output_file = os.path.join(program_folder,
                                "terminal.log")
@@ -56,7 +57,7 @@ def run_program(program_folder,
 
 def import_errors(export_path, vem_type, vem_order, test_type):
     errors_file = os.path.join(export_path,
-                               "Solution",
+                               "Csv",
                                "Errors_" + str(test_type) + "_" + str(vem_type) + "_" + str(vem_order) + ".csv")
     errors = []
     with open(errors_file, newline='') as csvfile:
@@ -228,7 +229,7 @@ def main():
 
     test_type = 2
     mesh_generator = 4
-    mesh_import_paths = ["../../../../Mesh/2D/AgglomeratedConcaveMesh/M2"]
+    mesh_import_paths = ["../../../Mesh/2D/AgglomeratedConcaveMesh/M2"]
     method_types = [1, 3, 4, 5]
     method_orders = np.arange(0, 11)
     list_errors = []
