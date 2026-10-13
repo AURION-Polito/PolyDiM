@@ -151,7 +151,7 @@ Internal structure:
   - `IO/` — input/output and configuration: text readers, configuration handling, string/time
     utilities, and exporters such as UCD, and MEDIT.
   - `MpiTools/` — parallel/MPI tools: MPI process environment, and graph utilities.
-- **`gedim/3rd_party_libraries'**: Offers interfaces **PETSc**, **MKL**, **SuiteSparse**,
+- **`gedim/3rd_party_libraries/`**: Offers interfaces **PETSc**, **MKL**, **SuiteSparse**,
     **LAPACK**,  **VTK**, **METIS**, **VORO++**, **Triangle**, and **Tetgen**. CMake helpers to fetch and build the external dependencies
   (`InstallEigen3`, `InstallGTest`, `InstallLapack`, `InstallMetis`, `InstallTetgen`,
   `InstallTriangle`, `InstallVTK`, `InstallVoro`) plus the SuiteSparse config.
