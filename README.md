@@ -10,7 +10,7 @@ This file can be used by citing references in CITATION.cff file.
 
 ## Repository structure
 
-The codebase is organized into three main blocks — the **meshes**, the **library** itself, and the **GeDiM** dependency (included as a submodule) — plus the build/configuration and license files.
+The codebase is organized into three main blocks — the **Mesh**, the **PolyDiM-core** library itself (included as submodule), and the **gedim** dependency (included as a submodule) — plus **Examples** and **test** repositories and the build/configuration and license files.
 
 Legend of the acronyms recurring in folder and class names:
 
@@ -45,12 +45,12 @@ Other mesh generators can be found in GeDiM at the path `PolyDiM/gedim/GeDiM/src
 
 ---
 
-### `PolyDiM/` — Main library
+### `PolyDiM-core/` — Main library
 
 Contains the library source code, application examples, unit tests, and the CMake
 configuration/installation files.
 
-#### `PolyDiM/src/` — Library source code
+#### `PolyDiM-core/src/` — Library source code
 
 - **`Common/`** — shared definitions and compile-time macros (`Polydim_Macro.in`).
 
@@ -90,7 +90,7 @@ configuration/installation files.
     abstracts away the underlying discretization method.
   - `Mesh/` — utilities for mesh connectivity and interfacing with the GeDiM data structures.
 
-#### `PolyDiM/examples/` — Application examples
+#### `Examples/` — Application examples
 
 Complete executable programs (`main.cpp` + a `src/` folder with assembler, configuration,
 and test definition), each with an `integration_test.py` script for validation. They cover
@@ -105,13 +105,13 @@ a broad range of problems:
 - `Parabolic_PCC_2D` — 2D parabolic (time-dependent) problem.
 - `Parabolic_PCC_BulkFace_2D` — parabolic problem with bulk–face coupling.
 
-#### `PolyDiM/test/` — Unit tests
+#### `test/` — Unit tests
 
 Tests (GoogleTest) organized to mirror the sources: `FEM/`, `VEM/`, `ZFEM/`, `PDETools/`,
 verifying the local spaces for each element type and the assemblers/DOF management. The
 entry point is `main.cpp`.
 
-#### `PolyDiM/cmake/`
+#### `PolyDiM-core/cmake/`
 
 Configuration files for exporting and installing the library (`PolyDiMConfig.cmake.in`),
 enabling PolyDiM to be consumed as a CMake package (`find_package`).
@@ -123,8 +123,9 @@ enabling PolyDiM to be consumed as a CMake package (`find_package`).
 Git submodule pointing to [AURION-Polito/gedim](https://github.com/AURION-Polito/gedim).
 **GeDiM** (GEometry for DIscretization MEthods) is the foundational C++ library on which
 PolyDiM is built: it provides the common geometrical operations in 1D/2D/3D, the mesh data
-structures, quadrature rules, linear-algebra/solver interfaces, and I/O used by discretization
-methods. It requires the **C++20** standard (gcc ≥ 10) and CMake ≥ 3.12. Initialize it with
+structures, quadrature rules, linear-algebra/solver interfaces, I/O used by discretization
+methods and the interfaces for external libraries. 
+It requires the **C++20** standard (gcc ≥ 10) and CMake ≥ 3.12. Initialize it with
 
 ```bash
 git submodule init
@@ -133,12 +134,11 @@ git submodule update
 
 Internal structure:
 
-- **`gedim/GeDiM/src/`** — library source code, split into modules:
+- **`gedim/GeDiM-core/src/`** — library source code, split into modules:
   - `Common/` — shared utilities and compile-time macros (`CommonUtilities`, `Gedim_Macro.in`).
   - `Algebra/` — linear-algebra abstractions and solver back-ends: dense/sparse arrays and
     interfaces (`IArray`, `ISparseArray`, `ILinearSolver`), an **Eigen** back-end (LU, Cholesky,
-    PCG, BiCGSTAB), plus optional interfaces to **PETSc**, **Pardiso**, **SuiteSparse**, and
-    **LAPACK**, and linear-programming utilities (`LPUtilities`).
+    PCG, BiCGSTAB),  and linear-programming utilities (`LPUtilities`).
   - `Geometry/` — geometric operations (`GeometryUtilities`: intersections, points, polygons,
     polyhedra, splitting/merging) and reference-element maps (triangle, quadrilateral,
     tetrahedron, hexahedron, parallelogram, parallelepiped).
@@ -149,15 +149,15 @@ Internal structure:
   - `Quadrature/` — Gauss and Gauss–Lobatto quadrature rules for segments, triangles, squares,
     tetrahedra, and hexahedra (including positive-weight variants).
   - `IO/` — input/output and configuration: text readers, configuration handling, string/time
-    utilities, and exporters such as **VTK**, UCD, and MEDIT.
-  - `MpiTools/` — parallel/MPI tools: MPI process environment, graph utilities, and a **METIS**
-    interface for mesh partitioning.
+    utilities, and exporters such as UCD, and MEDIT.
+  - `MpiTools/` — parallel/MPI tools: MPI process environment, and graph utilities.
+- **`gedim/3rd_party_libraries'**: Offers interfaces **PETSc**, **MKL**, **SuiteSparse**,
+    **LAPACK**,  **VTK**, **METIS**, **VORO++**, **Triangle**, and **Tetgen**. CMake helpers to fetch and build the external dependencies
+  (`InstallEigen3`, `InstallGTest`, `InstallLapack`, `InstallMetis`, `InstallTetgen`,
+  `InstallTriangle`, `InstallVTK`, `InstallVoro`) plus the SuiteSparse config.
 - **`gedim/GeDiM/test/`** — GoogleTest unit tests mirroring the source modules (`Algebra`,
   `Geometry`, `Mesh`, `Quadrature`, `IO`, `MpiTools`), with sample test meshes.
 - **`gedim/GeDiM/cmake/`** — CMake export/installation configuration for GeDiM.
-- **`gedim/3rd_party_libraries/`** — CMake helpers to fetch and build the external dependencies
-  (`InstallEigen3`, `InstallGTest`, `InstallLapack`, `InstallMetis`, `InstallTetgen`,
-  `InstallTriangle`, `InstallVTK`, `InstallVoro`) plus the SuiteSparse config.
 - **`gedim/cmake/`** — developer tooling: `clang-format`, `cppcheck`, and license-prepending scripts.
 - **`gedim/external_dependencies.sh`** — helper that prints the `CMAKE_PREFIX_PATH` for the
   installed external libraries.

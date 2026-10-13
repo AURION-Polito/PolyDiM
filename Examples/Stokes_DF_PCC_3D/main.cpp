@@ -10,6 +10,7 @@
 // This file can be used citing references in CITATION.cff file.
 
 #include "DOFsManager.hpp"
+#include "MeshDAOExporterToCsv.hpp"
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
 #include "VTKUtilities.hpp"
 #include "VtkMeshExporter.hpp"
@@ -32,12 +33,10 @@ int main(int argc, char **argv)
     const std::string exportFolder = config.ExportFolder();
     Gedim::Output::CreateFolder(exportFolder);
 
-    const std::string exportCsvFolder = exportFolder + "/Mesh";
+    const std::string exportCsvFolder = exportFolder + "/Csv";
     Gedim::Output::CreateFolder(exportCsvFolder);
     const std::string exportVtuFolder = exportFolder + "/Paraview";
     Gedim::Output::CreateFolder(exportVtuFolder);
-    const std::string exportSolutionFolder = exportFolder + "/Solution";
-    Gedim::Output::CreateFolder(exportSolutionFolder);
 
     const std::string logFolder = exportFolder + "/Log";
 
@@ -61,10 +60,14 @@ int main(int argc, char **argv)
     const auto boundary_info = test->boundary_info();
 
     // export domain
+    if (config.ExportFormat()[1])
     {
         Gedim::VTKUtilities vtkUtilities;
         vtkUtilities.AddPolyhedron(domain.vertices, domain.edges, domain.faces);
         vtkUtilities.Export(exportVtuFolder + "/Domain.vtu");
+        Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor + "Domain is exported in: " + exportVtuFolder +
+                                               "/Domain.vtu" + Gedim::Output::EndColor,
+                                           true);
     }
 
     Gedim::Profiler::StopTime("SetProblem");
@@ -84,10 +87,28 @@ int main(int argc, char **argv)
 
     Gedim::Profiler::StopTime("CreateMesh");
     Gedim::Output::PrintStatusProgram("CreateMesh");
-
     // Export the domain mesh
+    if (config.ExportFormat()[1])
     {
         Gedim::External::MeshUtilities::ExportMeshToVTU(mesh, exportVtuFolder, "Domain_Mesh");
+        Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor + "Mesh is exported in: " + exportVtuFolder +
+                                               Gedim::Output::EndColor,
+                                           true);
+    }
+
+    if (config.ExportFormat()[0])
+    {
+        const std::string exportMeshFolder = exportCsvFolder + "/Mesh";
+        Gedim::Output::CreateFolder(exportMeshFolder);
+
+        const Gedim::MeshFromCsvUtilities csv_utilities;
+        Gedim::MeshFromCsvUtilities::Configuration csv_configuration;
+        csv_configuration.Folder = exportMeshFolder;
+        Gedim::MeshDAOExporterToCsv exporter_to_csv(csv_utilities);
+        exporter_to_csv.Export(csv_configuration, mesh);
+        Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor + "Mesh is exported in: " + exportMeshFolder +
+                                               Gedim::Output::EndColor,
+                                           true);
     }
 
     Gedim::Output::PrintGenericMessage("ComputeGeometricProperties...", true);
@@ -99,20 +120,20 @@ int main(int argc, char **argv)
     Gedim::Profiler::StopTime("ComputeGeometricProperties");
     Gedim::Output::PrintStatusProgram("ComputeGeometricProperties");
 
-    Gedim::Output::PrintGenericMessage("CreateVEMSpace of order " + std::to_string(config.VemOrder()) + " and DOFs...", true);
-    Gedim::Profiler::StartTime("CreateVEMSpace");
+    Gedim::Output::PrintGenericMessage("CreateDiscreteSpace...", true);
+    Gedim::Profiler::StartTime("CreateDiscreteSpace");
 
     Polydim::PDETools::Mesh::MeshMatricesDAO_mesh_connectivity_data mesh_connectivity_data(mesh);
 
     const auto vem_velocity_reference_element_2D =
-        Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_velocity_reference_element_2D(config.VemType());
-    const auto velocity_reference_element_data_2D = vem_velocity_reference_element_2D->Create(config.VemOrder());
+        Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_velocity_reference_element_2D(config.MethodType());
+    const auto velocity_reference_element_data_2D = vem_velocity_reference_element_2D->Create(config.MethodOrder());
     const auto vem_pressure_reference_element_3D =
-        Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_pressure_reference_element_3D(config.VemType());
-    const auto pressure_reference_element_data_3D = vem_pressure_reference_element_3D->Create(config.VemOrder());
+        Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_pressure_reference_element_3D(config.MethodType());
+    const auto pressure_reference_element_data_3D = vem_pressure_reference_element_3D->Create(config.MethodOrder());
     const auto vem_velocity_reference_element_3D =
-        Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_velocity_reference_element_3D(config.VemType());
-    const auto velocity_reference_element_data_3D = vem_velocity_reference_element_3D->Create(config.VemOrder());
+        Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_velocity_reference_element_3D(config.MethodType());
+    const auto velocity_reference_element_data_3D = vem_velocity_reference_element_3D->Create(config.MethodOrder());
 
     Polydim::PDETools::DOFs::DOFsManager dofManager;
     std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> mesh_dofs_info(8);
@@ -156,18 +177,14 @@ int main(int argc, char **argv)
     if (count_dofs.num_total_boundary_dofs == 0)
         count_dofs.num_total_dofs += 1; // lagrange
 
-    Gedim::Output::PrintGenericMessage("VEM Space with " + std::to_string(count_dofs.num_total_dofs) + " DOFs and " +
-                                           std::to_string(count_dofs.num_total_strong) + " STRONGs",
-                                       true);
+    Gedim::Profiler::StopTime("CreateDiscreteSpace");
+    Gedim::Output::PrintStatusProgram("CreateDiscreteSpace");
 
-    Gedim::Profiler::StopTime("CreateVEMSpace");
-    Gedim::Output::PrintStatusProgram("CreateVEMSpace");
-
-    Gedim::Output::PrintGenericMessage("AssembleSystem VEM Type " + std::to_string((unsigned int)config.VemType()) + "...", true);
+    Gedim::Output::PrintGenericMessage("AssembleSystem...", true);
     Gedim::Profiler::StartTime("AssembleSystem");
 
-    const auto vem_pressure_local_space = Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_pressure_local_space_3D(config.VemType());
-    const auto vem_velocity_local_space = Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_velocity_local_space_3D(config.VemType());
+    const auto vem_pressure_local_space = Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_pressure_local_space_3D(config.MethodType());
+    const auto vem_velocity_local_space = Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_velocity_local_space_3D(config.MethodType());
 
     Polydim::examples::Stokes_DF_PCC_3D::Assembler assembler;
     auto assembler_data = assembler.Assemble(config,
@@ -223,7 +240,7 @@ int main(int argc, char **argv)
                                                                             count_dofs,
                                                                             assembler_data,
                                                                             post_process_data,
-                                                                            exportSolutionFolder,
+                                                                            exportCsvFolder,
                                                                             exportVtuFolder);
 
     Polydim::examples::Stokes_DF_PCC_3D::program_utilities::export_velocity_dofs(config,
@@ -240,34 +257,34 @@ int main(int argc, char **argv)
     Gedim::Profiler::StopTime("ExportSolution");
     Gedim::Output::PrintStatusProgram("ExportSolution");
 
-    Gedim::Output::PrintGenericMessage("ComputeVEMPerformance...", true);
-    Gedim::Profiler::StartTime("ComputeVEMPerformance");
-
-    if (config.ComputeVEMPerformance())
+    if (config.ComputeMethodPerformance())
     {
+        Gedim::Output::PrintGenericMessage("ComputeMethodPerformance...", true);
+        Gedim::Profiler::StartTime("ComputeMethodPerformance");
+
         const auto performance = assembler.ComputeVemPerformance(config,
                                                                  mesh,
                                                                  mesh_geometric_data,
                                                                  velocity_reference_element_data_2D,
                                                                  velocity_reference_element_data_3D,
                                                                  *vem_velocity_local_space);
-        Polydim::examples::Stokes_DF_PCC_3D::program_utilities::export_performance(config, performance, exportSolutionFolder);
-    }
+        Polydim::examples::Stokes_DF_PCC_3D::program_utilities::export_performance(config, performance, exportCsvFolder);
 
-    Gedim::Profiler::StopTime("ComputeVEMPerformance");
-    Gedim::Output::PrintStatusProgram("ComputeVEMPerformance");
+        Gedim::Profiler::StopTime("ComputeMethodPerformance");
+        Gedim::Output::PrintStatusProgram("ComputeMethodPerformance");
+    }
 
     if (config.ComputeDiscrepancyError())
     {
-        Gedim::Output::PrintGenericMessage("Create Full VEM Space of order " + std::to_string(config.VemOrder()) + " and DOFs...", true);
-        Gedim::Profiler::StartTime("CreateFULLVEMSpace");
+        Gedim::Output::PrintGenericMessage("CreateFULLSpace...", true);
+        Gedim::Profiler::StartTime("CreateFULLSpace");
 
         const auto vem_full_pressure_reference_element_3D =
-            Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_full_pressure_reference_element_3D(config.VemType());
-        const auto full_pressure_reference_element_data_3D = vem_full_pressure_reference_element_3D->Create(config.VemOrder());
+            Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_full_pressure_reference_element_3D(config.MethodType());
+        const auto full_pressure_reference_element_data_3D = vem_full_pressure_reference_element_3D->Create(config.MethodOrder());
         const auto vem_full_velocity_reference_element_3D =
-            Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_full_velocity_reference_element_3D(config.VemType());
-        const auto full_velocity_reference_element_data_3D = vem_full_velocity_reference_element_3D->Create(config.VemOrder());
+            Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_full_velocity_reference_element_3D(config.MethodType());
+        const auto full_velocity_reference_element_data_3D = vem_full_velocity_reference_element_3D->Create(config.MethodOrder());
 
         std::vector<Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo> full_mesh_dofs_info(8);
         std::vector<Polydim::PDETools::DOFs::DOFsManager::DOFsData> full_dofs_data(8);
@@ -314,20 +331,16 @@ int main(int argc, char **argv)
         if (full_count_dofs.num_total_boundary_dofs == 0)
             full_count_dofs.num_total_dofs += 1; // lagrange
 
-        Gedim::Output::PrintGenericMessage("VEM Space with " + std::to_string(full_count_dofs.num_total_dofs) +
-                                               " DOFs and " + std::to_string(full_count_dofs.num_total_strong) + " STRONGs",
-                                           true);
+        Gedim::Profiler::StopTime("CreateFULLSpace");
+        Gedim::Output::PrintStatusProgram("CreateFULLSpace");
 
-        Gedim::Profiler::StopTime("CreateFULLVEMSpace");
-        Gedim::Output::PrintStatusProgram("CreateFULLVEMSpace");
-
-        Gedim::Output::PrintGenericMessage("AssembleSystem FULL VEM Type " + std::to_string((unsigned int)config.VemType()) + "...", true);
-        Gedim::Profiler::StartTime("AssembleSystem");
+        Gedim::Output::PrintGenericMessage("AssembleFullSystem...", true);
+        Gedim::Profiler::StartTime("AssembleFullSystem");
 
         const auto vem_full_pressure_local_space =
-            Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_full_pressure_local_space_3D(config.VemType());
+            Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_full_pressure_local_space_3D(config.MethodType());
         const auto vem_full_velocity_local_space =
-            Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_full_velocity_local_space_3D(config.VemType());
+            Polydim::VEM::DF_PCC::create_VEM_DF_PCC_3D_full_velocity_local_space_3D(config.MethodType());
 
         auto full_assembler_data = assembler.Assemble(config,
                                                       mesh,
@@ -342,8 +355,8 @@ int main(int argc, char **argv)
                                                       *vem_full_pressure_local_space,
                                                       *test);
 
-        Gedim::Profiler::StopTime("AssembleSystem");
-        Gedim::Output::PrintStatusProgram("AssembleSystem");
+        Gedim::Profiler::StopTime("AssembleFullSystem");
+        Gedim::Output::PrintStatusProgram("AssembleFullSystem");
 
         Gedim::Output::PrintGenericMessage("Solve...", true);
         Gedim::Profiler::StartTime("Solve");
@@ -379,7 +392,7 @@ int main(int argc, char **argv)
         Polydim::examples::Stokes_DF_PCC_3D::program_utilities::export_discrepancy_errors(config,
                                                                                           mesh,
                                                                                           discrepancy_errors_data,
-                                                                                          exportSolutionFolder,
+                                                                                          exportCsvFolder,
                                                                                           exportVtuFolder);
 
         Gedim::Profiler::StopTime("ComputeDiscrepancyErrors");

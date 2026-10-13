@@ -13,6 +13,7 @@
 
 #include "Eigen_BiCGSTABSolver.hpp"
 #include "Eigen_LUSolver.hpp"
+#include "IOEnum.hpp"
 #include "VTKUtilities.hpp"
 #include <numbers>
 
@@ -36,15 +37,15 @@ std::unique_ptr<Polydim::examples::Stokes_DF_PCC_3D::test::I_Test> create_test(c
     switch (config.TestType())
     {
     case Polydim::examples::Stokes_DF_PCC_3D::test::Test_Types::Patch_Test:
-        Polydim::examples::Stokes_DF_PCC_3D::test::Patch_Test::order = config.VemOrder();
+        Polydim::examples::Stokes_DF_PCC_3D::test::Patch_Test::order = config.MethodOrder();
         return std::make_unique<Polydim::examples::Stokes_DF_PCC_3D::test::Patch_Test>();
     case Polydim::examples::Stokes_DF_PCC_3D::test::Test_Types::Stokes:
         return std::make_unique<Polydim::examples::Stokes_DF_PCC_3D::test::Stokes>();
     case Polydim::examples::Stokes_DF_PCC_3D::test::Test_Types::Stokes_Benchmark_1:
-        Polydim::examples::Stokes_DF_PCC_3D::test::Stokes_Benchmark_1::order = config.VemOrder();
+        Polydim::examples::Stokes_DF_PCC_3D::test::Stokes_Benchmark_1::order = config.MethodOrder();
         return std::make_unique<Polydim::examples::Stokes_DF_PCC_3D::test::Stokes_Benchmark_1>();
     case Polydim::examples::Stokes_DF_PCC_3D::test::Test_Types::Stokes_Benchmark_2:
-        Polydim::examples::Stokes_DF_PCC_3D::test::Stokes_Benchmark_2::order = config.VemOrder();
+        Polydim::examples::Stokes_DF_PCC_3D::test::Stokes_Benchmark_2::order = config.MethodOrder();
         return std::make_unique<Polydim::examples::Stokes_DF_PCC_3D::test::Stokes_Benchmark_2>();
     default:
         throw std::runtime_error("Test type " + std::to_string((unsigned int)config.TestType()) + " not supported");
@@ -143,45 +144,48 @@ void export_solution(const Polydim::examples::Stokes_DF_PCC_3D::Program_configur
                      const std::string &exportSolutionFolder,
                      const std::string &exportVtuFolder)
 {
-    const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
+    const unsigned int VEM_ID = static_cast<unsigned int>(config.MethodType());
     const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
 
     {
-        const char separator = ';';
-        std::cout << "ProgramType" << separator;
-        std::cout << "VemType" << separator;
-        std::cout << "VemOrder" << separator;
-        std::cout << "Cell3Ds" << separator;
-        std::cout << "Dofs" << separator;
-        std::cout << "Strongs" << separator;
-        std::cout << "h" << separator;
-        std::cout << "errorH1Velocity" << separator;
-        std::cout << "errorL2Pressure" << separator;
-        std::cout << "normH1Velocity" << separator;
-        std::cout << "normL2Pressure" << separator;
-        std::cout << "nnzA" << separator;
-        std::cout << "residual" << std::endl;
+        std::string test_type{
+            Gedim::io_enum::enum_to_string<Polydim::examples::Stokes_DF_PCC_3D::test::Test_Types, 1, 4>(config.TestType())};
+        std::string mesh_generator{
+            Gedim::io_enum::enum_to_string<Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D, 0, 20>(
+                config.MeshGenerator())};
+        std::string method_type{
+            Gedim::io_enum::enum_to_string<Polydim::VEM::DF_PCC::VEM_DF_PCC_3D_LocalSpace_Types, 0, 20>(config.MethodType())};
 
-        std::cout.precision(2);
-        std::cout << std::scientific << TEST_ID << separator;
-        std::cout << std::scientific << VEM_ID << separator;
-        std::cout << std::scientific << config.VemOrder() << separator;
-        std::cout << std::scientific << mesh.Cell3DTotalNumber() << separator;
-        std::cout << std::scientific << count_dofs.num_total_dofs << separator;
-        std::cout << std::scientific << count_dofs.num_total_strong << separator;
-        std::cout << std::scientific << post_process_data.mesh_size << separator;
-        std::cout << std::scientific << post_process_data.error_H1_velocity << separator;
-        std::cout << std::scientific << post_process_data.error_L2_pressure << separator;
-        std::cout << std::scientific << post_process_data.norm_H1_velocity << separator;
-        std::cout << std::scientific << post_process_data.norm_L2_pressure << separator;
-        std::cout << std::scientific << assembler_data.globalMatrixA.NonZeros() << separator;
-        std::cout << std::scientific << post_process_data.residual_norm << std::endl;
+        std::ostringstream error_to_str;
+        const int w = 15;
+
+        error_to_str << Gedim::Output::MagentaColor;
+        error_to_str << std::right;
+
+        error_to_str << std::setw(w + 5) << "ProgramType" << std::setw(w + 15) << "MethodType" << std::setw(w)
+                     << "MethodOrder" << std::setw(w) << "MeshGenerator" << std::setw(w) << "Cell3Ds" << std::setw(w)
+                     << "Dofs" << std::setw(w) << "Strongs" << std::setw(w) << "h" << std::setw(w) << "errorH1Vel"
+                     << std::setw(w) << "errorL2Pres" << std::setw(w) << "normH1Vel" << std::setw(w) << "normL2Pres"
+                     << std::setw(w) << "nnzA" << std::setw(w) << "residual" << std::endl;
+
+        error_to_str.precision(2);
+        error_to_str << std::scientific;
+        error_to_str << std::setw(w + 9) << test_type << std::setw(w + 15) << method_type << std::setw(w)
+                     << config.MethodOrder() << std::setw(w) << mesh_generator << std::setw(w)
+                     << mesh.Cell3DTotalNumber() << std::setw(w) << count_dofs.num_total_dofs << std::setw(w)
+                     << count_dofs.num_total_strong << std::setw(w) << post_process_data.mesh_size << std::setw(w)
+                     << post_process_data.error_H1_velocity << std::setw(w) << post_process_data.error_L2_pressure
+                     << std::setw(w) << post_process_data.norm_H1_velocity << std::setw(w)
+                     << post_process_data.norm_L2_pressure << std::setw(w) << assembler_data.globalMatrixA.NonZeros()
+                     << std::setw(w) << post_process_data.residual_norm << Gedim::Output::EndColor;
+
+        Gedim::Output::PrintGenericMessage(error_to_str.str(), true);
     }
 
     {
         const char separator = ';';
         const std::string errorFileName = exportSolutionFolder + "/Errors_" + std::to_string(TEST_ID) + "_" +
-                                          std::to_string(VEM_ID) + +"_" + std::to_string(config.VemOrder()) + ".csv";
+                                          std::to_string(VEM_ID) + "_" + std::to_string(config.MethodOrder()) + ".csv";
         const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
 
         std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);
@@ -189,8 +193,8 @@ void export_solution(const Polydim::examples::Stokes_DF_PCC_3D::Program_configur
         if (!errorFileExists)
         {
             errorFile << "ProgramType" << separator;
-            errorFile << "VemType" << separator;
-            errorFile << "VemOrder" << separator;
+            errorFile << "MethodType" << separator;
+            errorFile << "MethodOrder" << separator;
             errorFile << "Cell3Ds" << separator;
             errorFile << "Dofs" << separator;
             errorFile << "Strongs" << separator;
@@ -206,7 +210,7 @@ void export_solution(const Polydim::examples::Stokes_DF_PCC_3D::Program_configur
         errorFile.precision(16);
         errorFile << std::scientific << TEST_ID << separator;
         errorFile << std::scientific << VEM_ID << separator;
-        errorFile << std::scientific << config.VemOrder() << separator;
+        errorFile << std::scientific << config.MethodOrder() << separator;
         errorFile << std::scientific << mesh.Cell3DTotalNumber() << separator;
         errorFile << std::scientific << count_dofs.num_total_dofs << separator;
         errorFile << std::scientific << count_dofs.num_total_strong << separator;
@@ -219,49 +223,57 @@ void export_solution(const Polydim::examples::Stokes_DF_PCC_3D::Program_configur
         errorFile << std::scientific << post_process_data.residual_norm << std::endl;
 
         errorFile.close();
+
+        Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor + "Errors are exported in: " + errorFileName +
+                                               Gedim::Output::EndColor,
+                                           true);
     }
 
+    if (config.ExportFormat()[1])
     {
-        {
-            Gedim::VTKUtilities exporter;
-            exporter.AddPolyhedrons(mesh.Cell0DsCoordinates(),
-                                    mesh.Cell3DsFacesVertices(),
-                                    {{"Numeric Velocity - X",
-                                      Gedim::VTPProperty::Formats::Points,
-                                      static_cast<unsigned int>(post_process_data.cell0Ds_numeric_velocity[0].size()),
-                                      post_process_data.cell0Ds_numeric_velocity[0].data()},
-                                     {"Numeric Velocity - Y",
-                                      Gedim::VTPProperty::Formats::Points,
-                                      static_cast<unsigned int>(post_process_data.cell0Ds_numeric_velocity[1].size()),
-                                      post_process_data.cell0Ds_numeric_velocity[1].data()},
-                                     {"Numeric Velocity - Z",
-                                      Gedim::VTPProperty::Formats::Points,
-                                      static_cast<unsigned int>(post_process_data.cell0Ds_numeric_velocity[2].size()),
-                                      post_process_data.cell0Ds_numeric_velocity[2].data()},
-                                     {"Exact Velocity - X",
-                                      Gedim::VTPProperty::Formats::Points,
-                                      static_cast<unsigned int>(post_process_data.cell0Ds_exact_velocity[0].size()),
-                                      post_process_data.cell0Ds_exact_velocity[0].data()},
-                                     {"Exact Velocity - Y",
-                                      Gedim::VTPProperty::Formats::Points,
-                                      static_cast<unsigned int>(post_process_data.cell0Ds_exact_velocity[1].size()),
-                                      post_process_data.cell0Ds_exact_velocity[1].data()},
-                                     {"Exact Velocity - Z",
-                                      Gedim::VTPProperty::Formats::Points,
-                                      static_cast<unsigned int>(post_process_data.cell0Ds_exact_velocity[2].size()),
-                                      post_process_data.cell0Ds_exact_velocity[2].data()},
-                                     {"ErrorL2Pressure",
-                                      Gedim::VTPProperty::Formats::Cells,
-                                      static_cast<unsigned int>(post_process_data.cell3Ds_error_L2_pressure.size()),
-                                      post_process_data.cell3Ds_error_L2_pressure.data()},
-                                     {"ErrorH1Velocity",
-                                      Gedim::VTPProperty::Formats::Cells,
-                                      static_cast<unsigned int>(post_process_data.cell3Ds_error_H1_velocity.size()),
-                                      post_process_data.cell3Ds_error_H1_velocity.data()}});
 
-            exporter.Export(exportVtuFolder + "/Solution_" + std::to_string(TEST_ID) + "_" + std::to_string(VEM_ID) +
-                            +"_" + std::to_string(config.VemOrder()) + ".vtu");
-        }
+        Gedim::VTKUtilities exporter;
+        exporter.AddPolyhedrons(mesh.Cell0DsCoordinates(),
+                                mesh.Cell3DsFacesVertices(),
+                                {{"Numeric Velocity - X",
+                                  Gedim::VTPProperty::Formats::Points,
+                                  static_cast<unsigned int>(post_process_data.cell0Ds_numeric_velocity[0].size()),
+                                  post_process_data.cell0Ds_numeric_velocity[0].data()},
+                                 {"Numeric Velocity - Y",
+                                  Gedim::VTPProperty::Formats::Points,
+                                  static_cast<unsigned int>(post_process_data.cell0Ds_numeric_velocity[1].size()),
+                                  post_process_data.cell0Ds_numeric_velocity[1].data()},
+                                 {"Numeric Velocity - Z",
+                                  Gedim::VTPProperty::Formats::Points,
+                                  static_cast<unsigned int>(post_process_data.cell0Ds_numeric_velocity[2].size()),
+                                  post_process_data.cell0Ds_numeric_velocity[2].data()},
+                                 {"Exact Velocity - X",
+                                  Gedim::VTPProperty::Formats::Points,
+                                  static_cast<unsigned int>(post_process_data.cell0Ds_exact_velocity[0].size()),
+                                  post_process_data.cell0Ds_exact_velocity[0].data()},
+                                 {"Exact Velocity - Y",
+                                  Gedim::VTPProperty::Formats::Points,
+                                  static_cast<unsigned int>(post_process_data.cell0Ds_exact_velocity[1].size()),
+                                  post_process_data.cell0Ds_exact_velocity[1].data()},
+                                 {"Exact Velocity - Z",
+                                  Gedim::VTPProperty::Formats::Points,
+                                  static_cast<unsigned int>(post_process_data.cell0Ds_exact_velocity[2].size()),
+                                  post_process_data.cell0Ds_exact_velocity[2].data()},
+                                 {"ErrorL2Pressure",
+                                  Gedim::VTPProperty::Formats::Cells,
+                                  static_cast<unsigned int>(post_process_data.cell3Ds_error_L2_pressure.size()),
+                                  post_process_data.cell3Ds_error_L2_pressure.data()},
+                                 {"ErrorH1Velocity",
+                                  Gedim::VTPProperty::Formats::Cells,
+                                  static_cast<unsigned int>(post_process_data.cell3Ds_error_H1_velocity.size()),
+                                  post_process_data.cell3Ds_error_H1_velocity.data()}});
+
+        std::string file_name = exportVtuFolder + "/Solution_" + std::to_string(TEST_ID) + "_" +
+                                std::to_string(VEM_ID) + "_" + std::to_string(config.MethodOrder()) + ".vtu";
+        exporter.Export(file_name);
+        Gedim::Output::PrintGenericMessage(
+            Gedim::Output::MagentaColor + "Solution and Errors are exported in: " + file_name + Gedim::Output::EndColor,
+            true);
     }
 }
 // ***************************************************************************
@@ -269,47 +281,51 @@ void export_performance(const Polydim::examples::Stokes_DF_PCC_3D::Program_confi
                         const Assembler::VEM_Performance_Result &performance_data,
                         const std::string &exportFolder)
 {
+
+    const char separator = ',';
+    std::ofstream exporter;
+    const unsigned int Method_ID = static_cast<unsigned int>(config.MethodType());
+    const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
+
+    std::string file_name = exportFolder + "/Cell3Ds_MethodPerformance_" + std::to_string(TEST_ID) + "_" +
+                            std::to_string(Method_ID) + "_" + std::to_string(config.MethodOrder()) + ".csv";
+    exporter.open(file_name);
+    exporter.precision(16);
+
+    if (exporter.fail())
+        throw std::runtime_error("Error on mesh cell2Ds file");
+
+    exporter << "Cell3D_Index" << separator;
+    exporter << "NumQuadPoints_Boundary" << separator;
+    exporter << "NumQuadPoints_Internal" << separator;
+    exporter << "PiNabla_Cond" << separator;
+    exporter << "Pi0k_Cond" << separator;
+    exporter << "PiNabla_Error" << separator;
+    exporter << "Pi0k_Error" << separator;
+    exporter << "GBD_Error" << separator;
+    exporter << "HCD_Error" << separator;
+    exporter << "Stab_Error" << std::endl;
+
+    for (unsigned int v = 0; v < performance_data.Cell3DsPerformance.size(); v++)
     {
-        const char separator = ',';
-        std::ofstream exporter;
-        const unsigned int Method_ID = static_cast<unsigned int>(config.VemType());
-        const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
-        exporter.open(exportFolder + "/Cell3Ds_MethodPerformance_" + std::to_string(TEST_ID) + "_" +
-                      std::to_string(Method_ID) + +"_" + std::to_string(config.VemOrder()) + ".csv");
-        exporter.precision(16);
+        const auto &cell3DPerformance = performance_data.Cell3DsPerformance[v];
 
-        if (exporter.fail())
-            throw std::runtime_error("Error on mesh cell2Ds file");
-
-        exporter << "Cell3D_Index" << separator;
-        exporter << "NumQuadPoints_Boundary" << separator;
-        exporter << "NumQuadPoints_Internal" << separator;
-        exporter << "PiNabla_Cond" << separator;
-        exporter << "Pi0k_Cond" << separator;
-        exporter << "PiNabla_Error" << separator;
-        exporter << "Pi0k_Error" << separator;
-        exporter << "GBD_Error" << separator;
-        exporter << "HCD_Error" << separator;
-        exporter << "Stab_Error" << std::endl;
-
-        for (unsigned int v = 0; v < performance_data.Cell3DsPerformance.size(); v++)
-        {
-            const auto &cell3DPerformance = performance_data.Cell3DsPerformance[v];
-
-            exporter << std::scientific << v << separator;
-            exporter << std::scientific << cell3DPerformance.NumBoundaryQuadraturePoints << separator;
-            exporter << std::scientific << cell3DPerformance.NumInternalQuadraturePoints << separator;
-            exporter << std::scientific << cell3DPerformance.maxPiNablaConditioning << separator;
-            exporter << std::scientific << cell3DPerformance.maxPi0kConditioning << separator;
-            exporter << std::scientific << cell3DPerformance.maxErrorPiNabla << separator;
-            exporter << std::scientific << cell3DPerformance.maxErrorPi0k << separator;
-            exporter << std::scientific << cell3DPerformance.maxErrorGBD << separator;
-            exporter << std::scientific << cell3DPerformance.maxErrorHCD << separator;
-            exporter << std::scientific << cell3DPerformance.ErrorStabilization << std::endl;
-        }
-
-        exporter.close();
+        exporter << std::scientific << v << separator;
+        exporter << std::scientific << cell3DPerformance.NumBoundaryQuadraturePoints << separator;
+        exporter << std::scientific << cell3DPerformance.NumInternalQuadraturePoints << separator;
+        exporter << std::scientific << cell3DPerformance.maxPiNablaConditioning << separator;
+        exporter << std::scientific << cell3DPerformance.maxPi0kConditioning << separator;
+        exporter << std::scientific << cell3DPerformance.maxErrorPiNabla << separator;
+        exporter << std::scientific << cell3DPerformance.maxErrorPi0k << separator;
+        exporter << std::scientific << cell3DPerformance.maxErrorGBD << separator;
+        exporter << std::scientific << cell3DPerformance.maxErrorHCD << separator;
+        exporter << std::scientific << cell3DPerformance.ErrorStabilization << std::endl;
     }
+
+    exporter.close();
+
+    Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor + "Performance are exported in: " + file_name + Gedim::Output::EndColor,
+                                       true);
 }
 // ***************************************************************************
 void export_velocity_dofs(const Polydim::examples::Stokes_DF_PCC_3D::Program_configuration &config,
@@ -695,11 +711,11 @@ void export_velocity_dofs(const Polydim::examples::Stokes_DF_PCC_3D::Program_con
                              static_cast<unsigned int>(solution_values_data.size()),
                              solution_values_data.data()}});
 
-        const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
+        const unsigned int VEM_ID = static_cast<unsigned int>(config.MethodType());
         const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
 
         exporter.Export(exportVtuFolder + "/dofs_" + std::to_string(TEST_ID) + "_" + std::to_string(VEM_ID) + +"_" +
-                        std::to_string(config.VemOrder()) + ".vtu");
+                        std::to_string(config.MethodOrder()) + ".vtu");
     }
 }
 // ***************************************************************************
@@ -709,14 +725,14 @@ void export_discrepancy_errors(const Polydim::examples::Stokes_DF_PCC_3D::Progra
                                const std::string &exportSolutionFolder,
                                const std::string &exportVtuFolder)
 {
-    const unsigned int VEM_ID = static_cast<unsigned int>(config.VemType());
+    const unsigned int VEM_ID = static_cast<unsigned int>(config.MethodType());
     const unsigned int TEST_ID = static_cast<unsigned int>(config.TestType());
 
     {
         const char separator = ';';
         std::cout << "ProgramType" << separator;
-        std::cout << "VemType" << separator;
-        std::cout << "VemOrder" << separator;
+        std::cout << "MethodType" << separator;
+        std::cout << "MethodOrder" << separator;
         std::cout << "Cell3Ds" << separator;
         std::cout << "VelocityDofsRatio" << separator;
         std::cout << "PressureDofsRatio" << separator;
@@ -730,7 +746,7 @@ void export_discrepancy_errors(const Polydim::examples::Stokes_DF_PCC_3D::Progra
         std::cout.precision(2);
         std::cout << std::scientific << TEST_ID << separator;
         std::cout << std::scientific << VEM_ID << separator;
-        std::cout << std::scientific << config.VemOrder() << separator;
+        std::cout << std::scientific << config.MethodOrder() << separator;
         std::cout << std::scientific << mesh.Cell3DTotalNumber() << separator;
         std::cout << std::scientific << discrepancy_errors_data.velocity_dofs_ratio << separator;
         std::cout << std::scientific << discrepancy_errors_data.pressure_dofs_ratio << separator;
@@ -745,7 +761,7 @@ void export_discrepancy_errors(const Polydim::examples::Stokes_DF_PCC_3D::Progra
     {
         const char separator = ';';
         const std::string errorFileName = exportSolutionFolder + "/DiscrepancyErrors_" + std::to_string(TEST_ID) + "_" +
-                                          std::to_string(VEM_ID) + +"_" + std::to_string(config.VemOrder()) + ".csv";
+                                          std::to_string(VEM_ID) + +"_" + std::to_string(config.MethodOrder()) + ".csv";
         const bool errorFileExists = Gedim::Output::FileExists(errorFileName);
 
         std::ofstream errorFile(errorFileName, std::ios_base::app | std::ios_base::out);
@@ -753,8 +769,8 @@ void export_discrepancy_errors(const Polydim::examples::Stokes_DF_PCC_3D::Progra
         if (!errorFileExists)
         {
             errorFile << "ProgramType" << separator;
-            errorFile << "VemType" << separator;
-            errorFile << "VemOrder" << separator;
+            errorFile << "MethodType" << separator;
+            errorFile << "MethodOrder" << separator;
             errorFile << "Cell3Ds" << separator;
             errorFile << "VelocityDofsRatio" << separator;
             errorFile << "PressureDofsRatio" << separator;
@@ -769,7 +785,7 @@ void export_discrepancy_errors(const Polydim::examples::Stokes_DF_PCC_3D::Progra
         errorFile.precision(16);
         errorFile << std::scientific << TEST_ID << separator;
         errorFile << std::scientific << VEM_ID << separator;
-        errorFile << std::scientific << config.VemOrder() << separator;
+        errorFile << std::scientific << config.MethodOrder() << separator;
         errorFile << std::scientific << mesh.Cell3DTotalNumber() << separator;
         errorFile << std::scientific << discrepancy_errors_data.velocity_dofs_ratio << separator;
         errorFile << std::scientific << discrepancy_errors_data.pressure_dofs_ratio << separator;
@@ -799,7 +815,7 @@ void export_discrepancy_errors(const Polydim::examples::Stokes_DF_PCC_3D::Progra
                   discrepancy_errors_data.cell3Ds_discrepancy_error_H1_velocity.data()}});
 
             exporter.Export(exportVtuFolder + "/DiscrepancyErrors_" + std::to_string(TEST_ID) + "_" +
-                            std::to_string(VEM_ID) + +"_" + std::to_string(config.VemOrder()) + ".vtu");
+                            std::to_string(VEM_ID) + +"_" + std::to_string(config.MethodOrder()) + ".vtu");
         }
     }
 }

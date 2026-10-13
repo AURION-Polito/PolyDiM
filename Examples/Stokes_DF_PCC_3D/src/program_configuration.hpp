@@ -40,6 +40,11 @@ struct Program_configuration final
 
         // Export parameters
         Gedim::Configurations::AddProperty("ExportFolder", "./Export", "Folder where to export data (Default: ./Export)");
+        Gedim::Configurations::AddProperty("ExportFormat",
+                                           std::vector<unsigned int>({1, 0}),
+                                           "A boolean vector of kind of desired export type for solution and mesh "
+                                           "[Csv, Vtu] (Default: [1,0])");
+
         // Mesh parameters
         Gedim::Configurations::AddProperty(
             "MeshGenerator",
@@ -55,11 +60,11 @@ struct Program_configuration final
 
         /// Method parameters
         Gedim::Configurations::AddProperty(
-            "VemType",
+            "MethodType",
             static_cast<unsigned int>(Polydim::VEM::DF_PCC::VEM_DF_PCC_3D_LocalSpace_Types::VEM_DF_PCC_3D_LocalSpace),
-            "Vem Type, 1 - Vem; 2 - RVem (Default: 1)");
-        Gedim::Configurations::AddProperty("VemOrder", static_cast<unsigned int>(2), "VEM order (Default: 2)");
-        Gedim::Configurations::AddProperty("ComputeVEMPerformance", true, "Compute VEM Performance (Default: true)");
+            "Method Type, 1 - Vem; 2 - RVem (Default: 1)");
+        Gedim::Configurations::AddProperty("MethodOrder", static_cast<unsigned int>(2), "Method order (Default: 2)");
+        Gedim::Configurations::AddProperty("ComputeMethodPerformance", true, "Compute Method Performance (Default: true)");
         Gedim::Configurations::AddProperty("ComputeDiscrepancyError", false, "Compute Discrepancy error (Default: false)");
 
         /// Solver
@@ -80,6 +85,11 @@ struct Program_configuration final
     inline std::string ExportFolder() const
     {
         return Gedim::Configurations::GetPropertyValue<std::string>("ExportFolder");
+    }
+
+    inline std::vector<unsigned int> ExportFormat() const
+    {
+        return Gedim::Configurations::GetPropertyValue<std::vector<unsigned int>>("ExportFormat");
     }
 
     inline Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_3D MeshGenerator() const
@@ -108,24 +118,24 @@ struct Program_configuration final
         return Gedim::Configurations::GetPropertyValue<double>("GeometricTolerance3D");
     }
 
-    inline Polydim::VEM::DF_PCC::VEM_DF_PCC_3D_LocalSpace_Types VemType() const
+    inline Polydim::VEM::DF_PCC::VEM_DF_PCC_3D_LocalSpace_Types MethodType() const
     {
-        return (Polydim::VEM::DF_PCC::VEM_DF_PCC_3D_LocalSpace_Types)Gedim::Configurations::GetPropertyValue<unsigned int>("VemType");
+        return (Polydim::VEM::DF_PCC::VEM_DF_PCC_3D_LocalSpace_Types)Gedim::Configurations::GetPropertyValue<unsigned int>("MethodType");
     }
-    inline bool ComputeVEMPerformance() const
+    inline bool ComputeMethodPerformance() const
     {
-        return Gedim::Configurations::GetPropertyValue<bool>("ComputeVEMPerformance");
+        return Gedim::Configurations::GetPropertyValue<bool>("ComputeMethodPerformance");
     }
     inline bool ComputeDiscrepancyError() const
     {
         return Gedim::Configurations::GetPropertyValue<bool>("ComputeDiscrepancyError");
     }
-    inline unsigned int VemOrder() const
+    inline unsigned int MethodOrder() const
     {
-        if (Gedim::Configurations::GetPropertyValue<unsigned int>("VemOrder") < 2)
+        if (Gedim::Configurations::GetPropertyValue<unsigned int>("MethodOrder") < 2)
             throw std::runtime_error("not valid order");
 
-        return Gedim::Configurations::GetPropertyValue<unsigned int>("VemOrder");
+        return Gedim::Configurations::GetPropertyValue<unsigned int>("MethodOrder");
     }
 
     /// Solver parameters
