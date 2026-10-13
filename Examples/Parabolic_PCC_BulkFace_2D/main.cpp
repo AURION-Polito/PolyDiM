@@ -11,6 +11,7 @@
 
 #include "Eigen_LUSolver.hpp"
 #include "FEM_PCC_1D_Creator.hpp"
+#include "MeshDAOExporterToCsv.hpp"
 #include "MeshMatricesDAO_mesh_connectivity_data.hpp"
 #include "VtkMeshExporter.hpp"
 #include "program_utilities.hpp"
@@ -31,12 +32,10 @@ int main(int argc, char **argv)
     const std::string exportFolder = config.ExportFolder();
     Gedim::Output::CreateFolder(exportFolder);
 
-    const std::string exportCsvFolder = exportFolder + "/Mesh";
+    const std::string exportCsvFolder = exportFolder + "/Csv";
     Gedim::Output::CreateFolder(exportCsvFolder);
     const std::string exportVtuFolder = exportFolder + "/Paraview";
     Gedim::Output::CreateFolder(exportVtuFolder);
-    const std::string exportSolutionFolder = exportFolder + "/Solution";
-    Gedim::Output::CreateFolder(exportSolutionFolder);
 
     const std::string logFolder = exportFolder + "/Log";
 
@@ -81,7 +80,7 @@ int main(int argc, char **argv)
         case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::StructuredTriangular:
         case Polydim::PDETools::Mesh::PDE_Mesh_Utilities::MeshGenerator_Types_2D::QuadFromTriangular:
         dafault:
-            throw std::runtime_error("Test case requires imported mesh. Examples Mesh is availble in "
+            throw std::runtime_error("Test case requires imported mesh. Examples of Meshes are availble in "
                                      "'Mesh/2D/CircleTriangularMesh'.");
         }
     }
@@ -125,9 +124,44 @@ int main(int argc, char **argv)
     Gedim::Output::PrintStatusProgram("CreateMesh");
 
     // Export the domain mesh
+    if (config.ExportFormat()[1])
     {
         Gedim::External::MeshUtilities::ExportMeshToVTU(mesh_2D, exportVtuFolder, "Domain_Mesh_2D");
         Gedim::External::MeshUtilities::ExportMeshToVTU(mesh_1D, exportVtuFolder, "Domain_Mesh_1D");
+
+        Gedim::Output::PrintGenericMessage(
+            Gedim::Output::MagentaColor + "Meshes 1D and 2D are exported in: " + exportVtuFolder + Gedim::Output::EndColor,
+            true);
+    }
+
+    if (config.ExportFormat()[0])
+    {
+        const std::string exportMeshFolder1D = exportCsvFolder + "/Mesh_1D";
+        Gedim::Output::CreateFolder(exportMeshFolder1D);
+
+        const Gedim::MeshFromCsvUtilities csv_utilities;
+        Gedim::MeshFromCsvUtilities::Configuration csv_configuration;
+        csv_configuration.Folder = exportMeshFolder1D;
+        Gedim::MeshDAOExporterToCsv exporter_to_csv(csv_utilities);
+        exporter_to_csv.Export(csv_configuration, mesh_1D);
+        Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor +
+                                               "Mesh 1D is exported in: " + exportMeshFolder1D + Gedim::Output::EndColor,
+                                           true);
+    }
+
+    if (config.ExportFormat()[0])
+    {
+        const std::string exportMeshFolder2D = exportCsvFolder + "/Mesh_2D";
+        Gedim::Output::CreateFolder(exportMeshFolder2D);
+
+        const Gedim::MeshFromCsvUtilities csv_utilities;
+        Gedim::MeshFromCsvUtilities::Configuration csv_configuration;
+        csv_configuration.Folder = exportMeshFolder2D;
+        Gedim::MeshDAOExporterToCsv exporter_to_csv(csv_utilities);
+        exporter_to_csv.Export(csv_configuration, mesh_2D);
+        Gedim::Output::PrintGenericMessage(Gedim::Output::MagentaColor +
+                                               "Mesh 2D is exported in: " + exportMeshFolder2D + Gedim::Output::EndColor,
+                                           true);
     }
 
     Gedim::Output::PrintGenericMessage("ComputeGeometricProperties...", true);
@@ -143,7 +177,7 @@ int main(int argc, char **argv)
     Gedim::Output::PrintStatusProgram("ComputeGeometricProperties");
 
     /// Initialize Discrete Space
-    Gedim::Output::PrintGenericMessage("CreateDiscreteSpace of order " + std::to_string(config.MethodOrder()) + " and DOFs...", true);
+    Gedim::Output::PrintGenericMessage("CreateDiscreteSpace...", true);
     Gedim::Profiler::StartTime("CreateDiscreteSpace");
 
     const auto reference_element_data_2D =
@@ -180,20 +214,10 @@ int main(int argc, char **argv)
 
     const auto count_dofs = Polydim::PDETools::Assembler_Utilities::count_dofs(dofs_data);
 
-    Gedim::Output::PrintGenericMessage("2D Discrete Space with " + std::to_string(dofs_data[0].NumberDOFs) +
-                                           " DOFs and " + std::to_string(dofs_data[0].NumberStrongs) + " STRONGs",
-                                       true);
-
-    Gedim::Output::PrintGenericMessage("1D Discrete Space with " + std::to_string(dofs_data[1].NumberDOFs) +
-                                           " DOFs and " + std::to_string(dofs_data[1].NumberStrongs) + " STRONGs",
-                                       true);
-
     Gedim::Profiler::StopTime("CreateDiscreteSpace");
     Gedim::Output::PrintStatusProgram("CreateDiscreteSpace");
 
-    Gedim::Output::PrintGenericMessage("AssembleSystem Discrete Type " +
-                                           std::to_string(static_cast<unsigned int>(config.MethodType())) + "...",
-                                       true);
+    Gedim::Output::PrintGenericMessage("AssembleSystem...", true);
     Gedim::Profiler::StartTime("AssembleSystem");
 
     Polydim::examples::Parabolic_PCC_BulkFace_2D::Assembler assembler;
@@ -363,8 +387,8 @@ int main(int argc, char **argv)
         }
     }
 
-    Gedim::Output::PrintGenericMessage("ExportSolution...", true);
-    Gedim::Profiler::StartTime("ExportSolution");
+    Gedim::Output::PrintGenericMessage("ExportSolutionAndErrors...", true);
+    Gedim::Profiler::StartTime("ExportSolutionAndErrors");
 
     Polydim::examples::Parabolic_PCC_BulkFace_2D::program_utilities::export_solution(config,
                                                                                      value_time,
@@ -374,24 +398,24 @@ int main(int argc, char **argv)
                                                                                      count_dofs,
                                                                                      assembler_data,
                                                                                      post_process_data,
-                                                                                     exportSolutionFolder,
+                                                                                     exportCsvFolder,
                                                                                      exportVtuFolder);
 
-    Gedim::Profiler::StopTime("ExportSolution");
-    Gedim::Output::PrintStatusProgram("ExportSolution");
-
-    Gedim::Output::PrintGenericMessage("ComputeMethodPerformance...", true);
-    Gedim::Profiler::StartTime("ComputeMethodPerformance");
+    Gedim::Profiler::StopTime("ExportSolutionAndErrors");
+    Gedim::Output::PrintStatusProgram("ExportSolutionAndErrors");
 
     if (config.ComputeMethodPerformance())
     {
+        Gedim::Output::PrintGenericMessage("ComputeMethodPerformance...", true);
+        Gedim::Profiler::StartTime("ComputeMethodPerformance");
+
         const auto performance = assembler.ComputePerformance_2D(config, mesh_2D, mesh_geometric_data_2D, reference_element_data_2D);
 
-        Polydim::examples::Parabolic_PCC_BulkFace_2D::program_utilities::export_performance_2D(config, performance, exportSolutionFolder);
-    }
+        Polydim::examples::Parabolic_PCC_BulkFace_2D::program_utilities::export_performance_2D(config, performance, exportCsvFolder);
 
-    Gedim::Profiler::StopTime("ComputeMethodPerformance");
-    Gedim::Output::PrintStatusProgram("ComputeMethodPerformance");
+        Gedim::Profiler::StopTime("ComputeMethodPerformance");
+        Gedim::Output::PrintStatusProgram("ComputeMethodPerformance");
+    }
 
     return 0;
 }

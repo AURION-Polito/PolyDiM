@@ -39,6 +39,7 @@ def run_program(program_folder,
     program_parameters += " MeshMaxArea:double={0}".format(mesh_max_area)
     program_parameters += " TimeStep:double={0}".format(time_step)
     program_parameters += " MeshImportFilePath:string={0}".format(mesh_import_path)
+    program_parameters += " ExportFormat:vector_uint={0}".format([1,1])
 
     output_file = os.path.join(program_folder,
                                "terminal.log")
@@ -58,7 +59,7 @@ def run_program(program_folder,
 
 def import_errors(export_path, method_type, method_order, test_type):
     errors_file = os.path.join(export_path,
-                               "Solution",
+                               "Csv",
                                "Errors_" + str(test_type) + "_" + str(method_type) + "_" + str(method_order) + ".csv")
     errors = []
     with open(errors_file, newline='') as csvfile:
@@ -119,10 +120,10 @@ def main():
 
     test_type = 1
     mesh_generator = 4
-    mesh_import_paths = [program_folder + "/../../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R1",
-                         program_folder + "/../../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R2",
-                         program_folder + "/../../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R3",
-                         program_folder + "/../../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R4"]
+    mesh_import_paths = [program_folder + "/../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R1",
+                         program_folder + "/../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R2",
+                         program_folder + "/../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R3",
+                         program_folder + "/../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R4"]
     method_types = [0, 1, 2, 3]
     method_order = 1
     list_errors = []
@@ -153,10 +154,10 @@ def main():
 
     test_type = 2
     mesh_generator = 4
-    mesh_import_paths = [program_folder + "/../../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R1",
-                         program_folder + "/../../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R2",
-                         program_folder + "/../../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R3",
-                         program_folder + "/../../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R4"]
+    mesh_import_paths = [program_folder + "/../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R1",
+                         program_folder + "/../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R2",
+                         program_folder + "/../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R3",
+                         program_folder + "/../../../Mesh/2D/CircleTriangularMesh/CircleTriangularMesh_R4"]
     method_types = [0, 1, 2, 3]
     method_order = 1
     list_errors = []

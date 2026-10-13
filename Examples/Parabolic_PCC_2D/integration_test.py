@@ -53,6 +53,7 @@ def run_program(program_folder,
     program_parameters += " TimeStep:double={0}".format(time_step)
     program_parameters += " Theta:double={0}".format(theta)
     program_parameters += " MeshImportFilePath:string={0}".format(mesh_import_path)
+    program_parameters += " ExportFormat:vector_uint={0}".format([1,1])
 
     output_file = os.path.join(program_folder,
                                "terminal.log")
@@ -73,7 +74,7 @@ def run_program(program_folder,
 
 def import_errors(export_path, method_type, method_order, time_order_values, test_type):
     errors_file = os.path.join(export_path,
-                               "Solution",
+                               "Csv",
                                "Errors_" + str(test_type) + "_" + str(method_type) + "_" + str(
                                    method_order) + "_" + str(time_order_values) + ".csv")
     errors = []
