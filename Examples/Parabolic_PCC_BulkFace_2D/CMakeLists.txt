@@ -27,6 +27,23 @@ else()
       list(APPEND Parabolic_PCC_BulkFace_2D_INCLUDE ${GEDIM_LIBRARY_INCLUDE_DIRECTORIES})
 endif()
 
+## 3rd_party_libraries
+if (NOT TARGET 3rd_party_libraries::3rd_party_libraries)
+      find_package(3rd_party_libraries CONFIG REQUIRED)
+      list(APPEND Parabolic_PCC_BulkFace_2D_LINKED_LIBRARIES 3rd_party_libraries::3rd_party_libraries)
+else()
+      get_target_property(3rd_party_libraries_LIBRARY_HEADERS 3rd_party_libraries::3rd_party_libraries PUBLIC_HEADER)
+      get_target_property(3rd_party_libraries_LIBRARY_NAME 3rd_party_libraries::3rd_party_libraries EXPORT_NAME)
+      get_target_property(3rd_party_libraries_LIBRARY_LINKED_LIBRARIES 3rd_party_libraries::3rd_party_libraries LINK_LIBRARIES)
+      get_target_property(3rd_party_libraries_LIBRARY_INCLUDE_DIRECTORIES 3rd_party_libraries::3rd_party_libraries INCLUDE_DIRECTORIES)
+      get_target_property(3rd_party_libraries_LIBRARY_SOURCES 3rd_party_libraries::3rd_party_libraries SOURCES)
+
+      list(APPEND Parabolic_PCC_BulkFace_2D_LINKED_LIBRARIES ${3rd_party_libraries_LIBRARY_NAME} ${3rd_party_libraries_LIBRARY_LINKED_LIBRARIES})
+      list(APPEND Parabolic_PCC_BulkFace_2D_HEADERS ${3rd_party_libraries_LIBRARY_HEADERS})
+      list(APPEND Parabolic_PCC_BulkFace_2D_INCLUDE ${3rd_party_libraries_LIBRARY_INCLUDE_DIRECTORIES})
+      list(APPEND Parabolic_PCC_BulkFace_2D_LINKED_LIBRARIES 3rd_party_libraries::3rd_party_libraries)
+endif()
+
 ## PolyDiM
 if (NOT TARGET PolyDiM::PolyDiM)
       find_package(PolyDiM CONFIG REQUIRED)
