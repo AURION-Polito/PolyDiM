@@ -42,7 +42,6 @@ else()
       list(APPEND Elliptic_MCC_2D_LINKED_LIBRARIES ${3rd_party_libraries_LIBRARY_NAME} ${3rd_party_libraries_LIBRARY_LINKED_LIBRARIES})
       list(APPEND Elliptic_MCC_2D_HEADERS ${3rd_party_libraries_LIBRARY_HEADERS})
       list(APPEND Elliptic_MCC_2D_INCLUDE ${3rd_party_libraries_LIBRARY_INCLUDE_DIRECTORIES})
-      list(APPEND Elliptic_MCC_2D_LINKED_LIBRARIES 3rd_party_libraries::3rd_party_libraries)
 endif()
 
 ## PolyDiM

@@ -41,7 +41,6 @@ else()
       list(APPEND Parabolic_PCC_BulkFace_2D_LINKED_LIBRARIES ${3rd_party_libraries_LIBRARY_NAME} ${3rd_party_libraries_LIBRARY_LINKED_LIBRARIES})
       list(APPEND Parabolic_PCC_BulkFace_2D_HEADERS ${3rd_party_libraries_LIBRARY_HEADERS})
       list(APPEND Parabolic_PCC_BulkFace_2D_INCLUDE ${3rd_party_libraries_LIBRARY_INCLUDE_DIRECTORIES})
-      list(APPEND Parabolic_PCC_BulkFace_2D_LINKED_LIBRARIES 3rd_party_libraries::3rd_party_libraries)
 endif()
 
 ## PolyDiM

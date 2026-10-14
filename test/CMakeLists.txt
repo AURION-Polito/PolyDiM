@@ -60,7 +60,6 @@ else()
       list(APPEND POLYDIM_LIBRARY_TEST_LINKED_LIBRARIES PRIVATE ${3rd_party_libraries_LIBRARY_NAME} ${3rd_party_libraries_LIBRARY_LINKED_LIBRARIES})
       list(APPEND POLYDIM_LIBRARY_TEST_HEADERS ${3rd_party_libraries_LIBRARY_HEADERS})
       list(APPEND POLYDIM_LIBRARY_TEST_INCLUDE ${3rd_party_libraries_LIBRARY_INCLUDE_DIRECTORIES})
-      list(APPEND POLYDIM_LIBRARY_TEST_LINKED_LIBRARIES PRIVATE 3rd_party_libraries::3rd_party_libraries)
 endif()
 
 ## PolyDiM

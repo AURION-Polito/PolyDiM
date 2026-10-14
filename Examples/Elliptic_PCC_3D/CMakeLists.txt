@@ -30,7 +30,7 @@ endif()
 ## 3rd_party_libraries
 if (NOT TARGET 3rd_party_libraries::3rd_party_libraries)
       find_package(3rd_party_libraries CONFIG REQUIRED)
-      list(APPEND Elliptic_PCC_3D_LINKED_LIBRARIES 3rd_party_libraries::3rd_party_libraries)
+      list(APPEND ELLIPTIC_PCC_3D_LINKED_LIBRARIES 3rd_party_libraries::3rd_party_libraries)
 else()
       get_target_property(3rd_party_libraries_LIBRARY_HEADERS 3rd_party_libraries::3rd_party_libraries PUBLIC_HEADER)
       get_target_property(3rd_party_libraries_LIBRARY_NAME 3rd_party_libraries::3rd_party_libraries EXPORT_NAME)
@@ -38,10 +38,9 @@ else()
       get_target_property(3rd_party_libraries_LIBRARY_INCLUDE_DIRECTORIES 3rd_party_libraries::3rd_party_libraries INCLUDE_DIRECTORIES)
       get_target_property(3rd_party_libraries_LIBRARY_SOURCES 3rd_party_libraries::3rd_party_libraries SOURCES)
 
-      list(APPEND Elliptic_PCC_3D_LINKED_LIBRARIES ${3rd_party_libraries_LIBRARY_NAME} ${3rd_party_libraries_LIBRARY_LINKED_LIBRARIES})
-      list(APPEND Elliptic_PCC_3D_HEADERS ${3rd_party_libraries_LIBRARY_HEADERS})
-      list(APPEND Elliptic_PCC_3D_INCLUDE ${3rd_party_libraries_LIBRARY_INCLUDE_DIRECTORIES})
-      list(APPEND Elliptic_PCC_3D_LINKED_LIBRARIES 3rd_party_libraries::3rd_party_libraries)
+      list(APPEND ELLIPTIC_PCC_3D_LINKED_LIBRARIES ${3rd_party_libraries_LIBRARY_NAME} ${3rd_party_libraries_LIBRARY_LINKED_LIBRARIES})
+      list(APPEND ELLIPTIC_PCC_3D_HEADERS ${3rd_party_libraries_LIBRARY_HEADERS})
+      list(APPEND ELLIPTIC_PCC_3D_INCLUDE ${3rd_party_libraries_LIBRARY_INCLUDE_DIRECTORIES})
 endif()
 
 ## PolyDiM
