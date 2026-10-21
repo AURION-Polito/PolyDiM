@@ -6,11 +6,10 @@ set(ENABLE_GEDIM_EXAMPLES OFF CACHE BOOL "Enable Gedim Examples")
 set(ENABLE_POLYDIM_UNIT_TESTS OFF CACHE BOOL "Enable Polydim Unit Tests")
 set(ENABLE_POLYDIM_EXAMPLES OFF CACHE BOOL "Enable Polydim Examples")
 
+# Include dependencies
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/gedim/GeDiM-core)
+
 if(NOT ${EXTRACT_CORE})
-  # Include dependencies
-  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/gedim/GeDiM-core)
-
-
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/gedim/3rd_party_libraries)
 
   if(${ENABLE_GEDIM_UNIT_TESTS})
@@ -34,8 +33,6 @@ if(NOT ${EXTRACT_CORE})
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Examples)
   endif()
 else()
-  # Include dependencies
-  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/gedim/GeDiM-core)
 
   # Include library
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/PolyDiM-core)
