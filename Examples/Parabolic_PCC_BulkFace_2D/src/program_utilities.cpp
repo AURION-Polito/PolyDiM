@@ -14,6 +14,7 @@
 #include "IOEnum.hpp"
 #include "VTKUtilities.hpp"
 #include <cassert>
+#include <iomanip>
 
 namespace Polydim
 {

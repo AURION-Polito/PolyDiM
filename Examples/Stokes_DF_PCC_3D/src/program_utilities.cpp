@@ -15,6 +15,7 @@
 #include "Eigen_LUSolver.hpp"
 #include "IOEnum.hpp"
 #include "VTKUtilities.hpp"
+#include <iomanip>
 #include <numbers>
 
 namespace Polydim
