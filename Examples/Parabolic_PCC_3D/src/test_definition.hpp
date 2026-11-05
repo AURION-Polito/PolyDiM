@@ -154,8 +154,8 @@ namespace Polydim
 
             Eigen::VectorXd source_term(const Eigen::MatrixXd &points, const double &time_value) const
             {
-              Eigen::VectorXd source_space_term = Eigen::VectorXd::Constant(points.cols(), 2.0 * space_order * (space_order - 1));
-              const Eigen::ArrayXd space_polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+              Eigen::VectorXd source_space_term = Eigen::VectorXd::Constant(points.cols(), 6.0 * space_order * (space_order - 1));
+              const Eigen::ArrayXd space_polynomial = points.row(0).array() + points.row(1).array() + points.row(2).array() + 0.5;
 
               const int max_space_order = space_order - 2;
               for (int i = 0; i < max_space_order; ++i)
@@ -186,8 +186,8 @@ namespace Polydim
             Eigen::VectorXd weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points, const double &time_value) const
             {
 
-              Eigen::VectorXd derivatives = Eigen::VectorXd::Constant(points.cols(), 1.0);
-              const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+              Eigen::VectorXd derivatives = Eigen::VectorXd::Constant(points.cols(), 2.0 * space_order);
+              const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + points.row(2).array() + 0.5;
 
               const int max_order = space_order - 1;
               for (int i = 0; i < max_order; ++i)
@@ -210,7 +210,7 @@ namespace Polydim
 
             Eigen::VectorXd exact_solution(const Eigen::MatrixXd &points, const double &time_value) const
             {
-              const Eigen::ArrayXd space_polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+              const Eigen::ArrayXd space_polynomial = points.row(0).array() + points.row(1).array() + points.row(2).array() + 0.5;
               Eigen::VectorXd space_exact = Eigen::VectorXd::Constant(points.cols(), 1.0);
               for (int i = 0; i < space_order; ++i)
                 space_exact.array() *= space_polynomial;
@@ -226,7 +226,7 @@ namespace Polydim
             std::array<Eigen::VectorXd, 3> exact_derivative_solution(const Eigen::MatrixXd &points, const double &time_value) const
             {
               Eigen::VectorXd derivatives = Eigen::VectorXd::Constant(points.cols(), space_order);
-              const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + 0.5;
+              const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + points.row(2).array() + 0.5;
 
               const int max_order = space_order - 1;
               for (int i = 0; i < max_order; ++i)

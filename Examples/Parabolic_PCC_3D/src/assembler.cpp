@@ -667,7 +667,7 @@ namespace Polydim
           const auto exact_solution_values = test.exact_solution(cell3D_internal_quadrature.Points, time_value);
           const auto exact_derivative_solution_values = test.exact_derivative_solution(cell3D_internal_quadrature.Points, time_value);
 
-          const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<2>(c, dofs_data);
+          const auto local_count_dofs = Polydim::PDETools::Assembler_Utilities::local_count_dofs<3>(c, dofs_data);
           const Eigen::VectorXd dofs_values =
               PDETools::Assembler_Utilities::global_solution_to_local_solution<3>(c,
                                                                                   dofs_data,
