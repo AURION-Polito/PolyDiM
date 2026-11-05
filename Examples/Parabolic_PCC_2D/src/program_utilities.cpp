@@ -246,7 +246,7 @@ void export_solution(const Polydim::examples::Parabolic_PCC_2D::Program_configur
         const char separator = ';';
         std::string file_name = exportVtuFolder + "/Solution" + "_" + std::to_string(TEST_ID) + "_" +
                                 std::to_string(Method_ID) + "_" + std::to_string(space_order) + "_" +
-                                std::to_string(time_order) + "_" + std::to_string(time_index) + ".vtu";
+                                std::to_string(time_order) + "_" + std::to_string(time_index) + ".csv";
 
         const Eigen::MatrixXd coordinates = mesh.Cell0DsCoordinates();
 
