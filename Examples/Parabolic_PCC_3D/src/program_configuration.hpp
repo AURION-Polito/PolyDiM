@@ -50,7 +50,6 @@ struct Program_configuration final
         Gedim::Configurations::AddProperty("MeshMaxVolume", 0.1, "Mesh 3D maximum relative cell volume (Default: 0.1)");
 
         Gedim::Configurations::AddProperty("GeometricTolerance1D", 1.0e-6, "Geometric Tolerance 1D (Default: 1.0e-6)");
-
         Gedim::Configurations::AddProperty("GeometricTolerance2D", 1.0e-10, "Geometric Tolerance 2D (Default: 1.0e-10)");
         Gedim::Configurations::AddProperty("GeometricTolerance3D", 1.0e-8, "Geometric Tolerance 3D (Default: 1.0e-8)");
 

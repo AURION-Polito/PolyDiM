@@ -22,118 +22,118 @@
 
 namespace Polydim
 {
-  namespace examples
-  {
-    namespace Parabolic_PCC_3D
+namespace examples
+{
+namespace Parabolic_PCC_3D
+{
+class Assembler final
+{
+  public:
+    struct Parabolic_PCC_3D_Initial_Data final
     {
-      class Assembler final
-      {
-        public:
-          struct Parabolic_PCC_3D_Initial_Data final
-          {
-              Gedim::Eigen_Array<> initial_condition;
-              Gedim::Eigen_Array<> initial_condition_dirichlet;
-          };
+        Gedim::Eigen_Array<> initial_condition;
+        Gedim::Eigen_Array<> initial_condition_dirichlet;
+    };
 
-          struct Parabolic_PCC_3D_Static_Problem_Data final
-          {
-              Gedim::Eigen_SparseArray<> globalMatrixA;
-              Gedim::Eigen_SparseArray<> dirichletMatrixA;
-              Gedim::Eigen_SparseArray<> globalMatrixM;
-              Gedim::Eigen_SparseArray<> dirichletMatrixM;
-          };
+    struct Parabolic_PCC_3D_Static_Problem_Data final
+    {
+        Gedim::Eigen_SparseArray<> globalMatrixA;
+        Gedim::Eigen_SparseArray<> dirichletMatrixA;
+        Gedim::Eigen_SparseArray<> globalMatrixM;
+        Gedim::Eigen_SparseArray<> dirichletMatrixM;
+    };
 
-          struct Parabolic_PCC_3D_Problem_Data final
-          {
-              Gedim::Eigen_Array<> rightHandSide;
-              Gedim::Eigen_Array<> solution;
-              Gedim::Eigen_Array<> solutionDirichlet;
-          };
+    struct Parabolic_PCC_3D_Problem_Data final
+    {
+        Gedim::Eigen_Array<> rightHandSide;
+        Gedim::Eigen_Array<> solution;
+        Gedim::Eigen_Array<> solutionDirichlet;
+    };
 
-          struct Performance_Data final
-          {
-              std::vector<Polydim::PDETools::LocalSpace_PCC_3D::Performance_Data> Cell3DsPerformance;
-          };
+    struct Performance_Data final
+    {
+        std::vector<Polydim::PDETools::LocalSpace_PCC_3D::Performance_Data> Cell3DsPerformance;
+    };
 
-          struct PostProcess_Data final
-          {
-              Eigen::VectorXd cell0Ds_numeric;
-              Eigen::VectorXd cell0Ds_exact;
+    struct PostProcess_Data final
+    {
+        Eigen::VectorXd cell0Ds_numeric;
+        Eigen::VectorXd cell0Ds_exact;
 
-              Eigen::VectorXd cell3Ds_error_L2;
-              Eigen::VectorXd cell3Ds_norm_L2;
-              double error_L2;
-              double norm_L2;
-              Eigen::VectorXd cell3Ds_error_H1;
-              Eigen::VectorXd cell3Ds_norm_H1;
-              double error_H1;
-              double norm_H1;
+        Eigen::VectorXd cell3Ds_error_L2;
+        Eigen::VectorXd cell3Ds_norm_L2;
+        double error_L2;
+        double norm_L2;
+        Eigen::VectorXd cell3Ds_error_H1;
+        Eigen::VectorXd cell3Ds_norm_H1;
+        double error_H1;
+        double norm_H1;
 
-              double mesh_size;
+        double mesh_size;
 
-              double residual_norm;
-          };
+        double residual_norm;
+    };
 
-        private:
-          void ComputeStrongTerm(const unsigned int &cell3DIndex,
-                                 const Gedim::MeshMatricesDAO &mesh,
-                                 const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
-                                 const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-                                 const PDETools::LocalSpace_PCC_3D::ReferenceElement_Data &reference_element_data,
-                                 const PDETools::LocalSpace_PCC_3D::LocalSpace_Data &local_space_data,
-                                 const test::I_Test &test,
-                                 const double &time_value,
-                                 Parabolic_PCC_3D_Problem_Data &assembler_data) const;
+  private:
+    void ComputeStrongTerm(const unsigned int &cell3DIndex,
+                           const Gedim::MeshMatricesDAO &mesh,
+                           const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                           const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                           const PDETools::LocalSpace_PCC_3D::ReferenceElement_Data &reference_element_data,
+                           const PDETools::LocalSpace_PCC_3D::LocalSpace_Data &local_space_data,
+                           const test::I_Test &test,
+                           const double &time_value,
+                           Parabolic_PCC_3D_Problem_Data &assembler_data) const;
 
-          void ComputeWeakTerm(const unsigned int cell3DIndex,
-                               const Gedim::MeshMatricesDAO &mesh,
-                               const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
-                               const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-                               const PDETools::LocalSpace_PCC_3D::ReferenceElement_Data &reference_element_data,
-                               const PDETools::LocalSpace_PCC_3D::LocalSpace_Data &local_space_data,
-                               const Polydim::examples::Parabolic_PCC_3D::test::I_Test &test,
-                               const double &time_value,
-                               Parabolic_PCC_3D_Problem_Data &assembler_data) const;
+    void ComputeWeakTerm(const unsigned int cell3DIndex,
+                         const Gedim::MeshMatricesDAO &mesh,
+                         const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                         const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                         const PDETools::LocalSpace_PCC_3D::ReferenceElement_Data &reference_element_data,
+                         const PDETools::LocalSpace_PCC_3D::LocalSpace_Data &local_space_data,
+                         const Polydim::examples::Parabolic_PCC_3D::test::I_Test &test,
+                         const double &time_value,
+                         Parabolic_PCC_3D_Problem_Data &assembler_data) const;
 
-        public:
-          Parabolic_PCC_3D_Static_Problem_Data StaticAssemble(const Polydim::examples::Parabolic_PCC_3D::Program_configuration &config,
-                                                              const Gedim::MeshMatricesDAO &mesh,
-                                                              const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
-                                                              const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
-                                                              const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-                                                              const Polydim::PDETools::LocalSpace_PCC_3D::ReferenceElement_Data &reference_element_data,
-                                                              const Polydim::examples::Parabolic_PCC_3D::test::I_Test &test) const;
+  public:
+    Parabolic_PCC_3D_Static_Problem_Data StaticAssemble(const Polydim::examples::Parabolic_PCC_3D::Program_configuration &config,
+                                                        const Gedim::MeshMatricesDAO &mesh,
+                                                        const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
+                                                        const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                                                        const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                                                        const Polydim::PDETools::LocalSpace_PCC_3D::ReferenceElement_Data &reference_element_data,
+                                                        const Polydim::examples::Parabolic_PCC_3D::test::I_Test &test) const;
 
-          Parabolic_PCC_3D_Problem_Data Assemble(const Polydim::examples::Parabolic_PCC_3D::Program_configuration &config,
-                                                 const Gedim::MeshMatricesDAO &mesh,
-                                                 const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
-                                                 const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
-                                                 const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-                                                 const Polydim::PDETools::LocalSpace_PCC_3D::ReferenceElement_Data &reference_element_data,
-                                                 const Polydim::examples::Parabolic_PCC_3D::test::I_Test &test,
-                                                 const Assembler::Parabolic_PCC_3D_Static_Problem_Data &static_assembler_data,
-                                                 const double &time_value) const;
+    Parabolic_PCC_3D_Problem_Data Assemble(const Polydim::examples::Parabolic_PCC_3D::Program_configuration &config,
+                                           const Gedim::MeshMatricesDAO &mesh,
+                                           const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
+                                           const Polydim::PDETools::DOFs::DOFsManager::MeshDOFsInfo &mesh_dofs_info,
+                                           const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                                           const Polydim::PDETools::LocalSpace_PCC_3D::ReferenceElement_Data &reference_element_data,
+                                           const Polydim::examples::Parabolic_PCC_3D::test::I_Test &test,
+                                           const Assembler::Parabolic_PCC_3D_Static_Problem_Data &static_assembler_data,
+                                           const double &time_value) const;
 
-          PostProcess_Data PostProcessSolution(const Polydim::examples::Parabolic_PCC_3D::Program_configuration &config,
-                                               const Gedim::MeshMatricesDAO &mesh,
-                                               const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
-                                               const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-                                               const Polydim::PDETools::LocalSpace_PCC_3D::ReferenceElement_Data &reference_element_data,
-                                               const Parabolic_PCC_3D_Problem_Data &assembler_data,
-                                               const Polydim::examples::Parabolic_PCC_3D::test::I_Test &test,
-                                               const Gedim::Eigen_SparseArray<> &A,
-                                               const Gedim::Eigen_Array<> &rhs,
-                                               const double &time_value) const;
+    PostProcess_Data PostProcessSolution(const Polydim::examples::Parabolic_PCC_3D::Program_configuration &config,
+                                         const Gedim::MeshMatricesDAO &mesh,
+                                         const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
+                                         const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                                         const Polydim::PDETools::LocalSpace_PCC_3D::ReferenceElement_Data &reference_element_data,
+                                         const Parabolic_PCC_3D_Problem_Data &assembler_data,
+                                         const Polydim::examples::Parabolic_PCC_3D::test::I_Test &test,
+                                         const Gedim::Eigen_SparseArray<> &A,
+                                         const Gedim::Eigen_Array<> &rhs,
+                                         const double &time_value) const;
 
-          Parabolic_PCC_3D_Initial_Data ComputeInitalCondition(const Polydim::examples::Parabolic_PCC_3D::Program_configuration &config,
-                                                               const Gedim::IMeshDAO &mesh,
-                                                               const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
-                                                               const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
-                                                               const Polydim::PDETools::LocalSpace_PCC_3D::ReferenceElement_Data &reference_element_data,
-                                                               const Polydim::examples::Parabolic_PCC_3D::test::I_Test &test) const;
-      };
-    } // namespace Parabolic_PCC_3D
-  } // namespace examples
+    Parabolic_PCC_3D_Initial_Data ComputeInitalCondition(const Polydim::examples::Parabolic_PCC_3D::Program_configuration &config,
+                                                         const Gedim::IMeshDAO &mesh,
+                                                         const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
+                                                         const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
+                                                         const Polydim::PDETools::LocalSpace_PCC_3D::ReferenceElement_Data &reference_element_data,
+                                                         const Polydim::examples::Parabolic_PCC_3D::test::I_Test &test) const;
+};
+} // namespace Parabolic_PCC_3D
+} // namespace examples
 } // namespace Polydim
 
 #endif

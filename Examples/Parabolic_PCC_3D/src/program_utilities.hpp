@@ -33,7 +33,7 @@ void create_domain_mesh(const Polydim::examples::Parabolic_PCC_3D::Program_confi
                         Gedim::MeshMatricesDAO &mesh);
 
 Gedim::MeshUtilities::MeshGeometricData3D create_domain_mesh_geometric_properties(const Polydim::examples::Parabolic_PCC_3D::Program_configuration &config,
-                                                                                  Gedim::MeshMatricesDAO& mesh);
+                                                                                  Gedim::MeshMatricesDAO &mesh);
 
 void export_solution(const Polydim::examples::Parabolic_PCC_3D::Program_configuration &config,
                      const Gedim::MeshMatricesDAO &mesh,
