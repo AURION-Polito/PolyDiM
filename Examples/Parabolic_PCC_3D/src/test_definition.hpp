@@ -128,7 +128,8 @@ struct Patch_Test final : public I_Test
                 {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {9, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {10, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+                //{11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
+          {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {12, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {13, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {14, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
@@ -138,17 +139,19 @@ struct Patch_Test final : public I_Test
                 {18, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {19, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {20, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {21, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
+                //{21, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
+          {21, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {22, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {23, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {24, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {25, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                {26, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 4}}};
+                //{26, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 4}}};
+          {26, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
     }
 
     Eigen::VectorXd diffusion_term(const Eigen::MatrixXd &points) const
     {
-        return Eigen::VectorXd::Constant(points.cols(), 1.0);
+        return Eigen::VectorXd::Constant(points.cols(), 2.0);
     }
 
     Eigen::VectorXd source_term(const Eigen::MatrixXd &points, const double &time_value) const
@@ -196,10 +199,10 @@ struct Patch_Test final : public I_Test
 
         switch (marker)
         {
-        case 2:
-            return space_order * derivatives.array();
-        case 4:
-            return space_order * derivatives.array();
+        case 2: // co-normal derivatives on the left
+            return - derivatives.array();
+        case 4: // co-normal derivatives on the right
+            return  derivatives.array();
         default:
             throw std::runtime_error("not valid marker");
         }
