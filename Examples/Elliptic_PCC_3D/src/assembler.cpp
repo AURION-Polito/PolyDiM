@@ -281,23 +281,6 @@ typename Assembler::Elliptic_PCC_3D_Problem_Data Assembler::Assemble(
 
     for (unsigned int c = 0; c < mesh.Cell3DTotalNumber(); ++c)
     {
-        // TODO("Remove comments")
-        // std::cout << "C3D " << c << " ";
-        // std::cout << "C0D " << mesh.Cell3DVertex(c, 0) << ", ";
-        // std::cout << mesh.Cell3DVertex(c, 1) << ", ";
-        // std::cout << mesh.Cell3DVertex(c, 2) << ", ";
-        // std::cout << mesh.Cell3DVertex(c, 3) << " ";
-        // std::cout << "C1D " << mesh.Cell3DEdge(c, 0) << ", ";
-        // std::cout << mesh.Cell3DEdge(c, 1) << ", ";
-        // std::cout << mesh.Cell3DEdge(c, 2) << ", ";
-        // std::cout << mesh.Cell3DEdge(c, 3) << ", ";
-        // std::cout << mesh.Cell3DEdge(c, 4) << ", ";
-        // std::cout << mesh.Cell3DEdge(c, 5) << " ";
-        // std::cout << "C2D " << mesh.Cell3DFace(c, 0) << ", ";
-        // std::cout << mesh.Cell3DFace(c, 1) << ", ";
-        // std::cout << mesh.Cell3DFace(c, 2) << ", ";
-        // std::cout << mesh.Cell3DFace(c, 3) << std::endl;
-
         const auto local_space_data = Polydim::PDETools::LocalSpace_PCC_3D::CreateLocalSpace(config.GeometricTolerance1D(),
                                                                                              config.GeometricTolerance2D(),
                                                                                              config.GeometricTolerance3D(),
