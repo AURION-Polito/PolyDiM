@@ -187,22 +187,14 @@ struct Patch_Test final : public I_Test
 
     Eigen::VectorXd weak_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points, const double &time_value) const
     {
-
-        Eigen::VectorXd derivatives = Eigen::VectorXd::Constant(points.cols(), 2.0 * space_order);
-        const Eigen::ArrayXd polynomial = points.row(0).array() + points.row(1).array() + points.row(2).array() + 0.5;
-
-        const int max_order = space_order - 1;
-        for (int i = 0; i < max_order; ++i)
-            derivatives.array() *= polynomial;
-
-        std::array<Eigen::VectorXd, 3> der = {derivatives, derivatives, Eigen::VectorXd::Zero(points.cols())};
+        const auto exact_der = exact_derivative_solution(points, time_value);
 
         switch (marker)
         {
         case 2: // co-normal derivatives on the left
-            return - derivatives.array();
+            return - 2.0 * exact_der.at(0).array();
         case 4: // co-normal derivatives on the right
-            return  derivatives.array();
+            return  2.0 * exact_der.at(0).array();
         default:
             throw std::runtime_error("not valid marker");
         }
@@ -234,7 +226,7 @@ struct Patch_Test final : public I_Test
         for (int i = 0; i < max_order; ++i)
             derivatives.array() *= polynomial;
 
-        return {derivatives, derivatives, Eigen::VectorXd::Zero(points.cols())};
+        return { derivatives, derivatives, derivatives };
     }
 };
 // ***************************************************************************
