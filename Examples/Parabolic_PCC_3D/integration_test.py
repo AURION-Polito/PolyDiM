@@ -18,7 +18,7 @@ def run_program(program_folder,
                 test_type,
                 mesh_generator,
                 num_ref,
-                mesh_max_area=0.1,
+                mesh_max_volume=0.1,
                 time_step=0.5,
                 theta=0.0,
                 mesh_import_path="./",
@@ -49,7 +49,7 @@ def run_program(program_folder,
     program_parameters += " ExportFolder:string={0}".format(export_path)
     program_parameters += " TestType:uint={0}".format(test_type)
     program_parameters += " MeshGenerator:uint={0}".format(mesh_generator)
-    program_parameters += " MeshMaxArea:double={0}".format(mesh_max_area)
+    program_parameters += " MeshMaxVolume:double={0}".format(mesh_max_volume)
     program_parameters += " TimeStep:double={0}".format(time_step)
     program_parameters += " Theta:double={0}".format(theta)
     program_parameters += " MeshImportFilePath:string={0}".format(mesh_import_path)
@@ -153,7 +153,7 @@ def check_time_errors(errors,
 
 def main():
     program_folder = os.path.dirname(os.path.realpath(__file__))
-    program_path = os.path.join(".", program_folder, "Parabolic_PCC_2D")
+    program_path = os.path.join(".", program_folder, "Parabolic_PCC_3D")
 
     remove_folder = True
 
@@ -164,7 +164,7 @@ def main():
 
     test_type = 1
     mesh_generator = 1
-    mesh_max_area = 0.0
+    mesh_max_volume = 0.0
     method_types = [0, 1, 2, 3]
     method_orders = [1, 2, 3]
     thetas = [1, 0.5]
@@ -179,7 +179,7 @@ def main():
                                           test_type,
                                           mesh_generator,
                                           0,
-                                          mesh_max_area=mesh_max_area,
+                                          mesh_max_volume=mesh_max_volume,
                                           theta=theta)
                 errors = import_errors(export_path, method_type, method_order, time_order(theta), test_type)
                 check_space_errors(errors,
@@ -192,7 +192,7 @@ def main():
 
     test_type = 1
     mesh_generator = 0
-    mesh_max_area = 0.1
+    mesh_max_volume = 0.1
     method_types = [0]
     method_orders = [1, 2, 3]
     thetas = [1, 0.5]
@@ -207,7 +207,7 @@ def main():
                                           test_type,
                                           mesh_generator,
                                           0,
-                                          mesh_max_area=mesh_max_area,
+                                          mesh_max_volume=mesh_max_volume,
                                           theta=theta)
                 errors = import_errors(export_path, method_type, method_order, time_order(theta), test_type)
                 check_space_errors(errors,
@@ -220,7 +220,7 @@ def main():
 
     test_type = 3
     mesh_generator = 0
-    mesh_max_area = 0.1
+    mesh_max_volume = 0.1
     method_types = [0]
     method_orders = [1, 2, 3]
     time_steps = [1. / 5., 1. / 10., 1. / 20]
@@ -237,7 +237,7 @@ def main():
                                               test_type,
                                               mesh_generator,
                                               0,
-                                              mesh_max_area=mesh_max_area,
+                                              mesh_max_volume=mesh_max_volume,
                                               time_step=time_step,
                                               theta=theta)
 
@@ -251,9 +251,9 @@ def main():
                     os.system("rm -rf " + os.path.join(program_folder, export_path))
 
     test_type = 4
-    mesh_generator = 5
+    mesh_generator = 0
     method_types = [0, 1, 2, 3]
-    mesh_max_areas = [1. / 16., 1. / 64., 1. / (16. * 16), 1. / (32. * 32)]
+    mesh_max_volumes = [0.005, 0.001]
     method_orders = [1, 2]
     time_steps = [1. / 40.]
     thetas = [0.5]
@@ -262,7 +262,7 @@ def main():
             for method_type in method_types:
                 for method_order in method_orders:
                     num_ref = 0
-                    for mesh_max_area in mesh_max_areas:
+                    for mesh_max_volume in mesh_max_volumes:
                         export_path = run_program(program_folder,
                                                   program_path,
                                                   "Run_MG{0}".format(mesh_generator),
@@ -271,7 +271,7 @@ def main():
                                                   test_type,
                                                   mesh_generator,
                                                   num_ref,
-                                                  mesh_max_area=mesh_max_area,
+                                                  mesh_max_volume=mesh_max_volume,
                                                   time_step=time_step,
                                                   theta=theta)
                         num_ref += 1

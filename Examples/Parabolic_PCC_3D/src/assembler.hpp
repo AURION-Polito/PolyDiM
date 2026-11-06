@@ -130,7 +130,8 @@ class Assembler final
                                                          const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
                                                          const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
                                                          const Polydim::PDETools::LocalSpace_PCC_3D::ReferenceElement_Data &reference_element_data,
-                                                         const Polydim::examples::Parabolic_PCC_3D::test::I_Test &test) const;
+                                                         const Polydim::examples::Parabolic_PCC_3D::test::I_Test &test,
+                                                         const double &time_0_value) const;
 };
 } // namespace Parabolic_PCC_3D
 } // namespace examples

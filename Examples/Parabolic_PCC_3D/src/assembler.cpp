@@ -29,7 +29,8 @@ Assembler::Parabolic_PCC_3D_Initial_Data Assembler::ComputeInitalCondition(
     const Gedim::MeshUtilities::MeshGeometricData3D &mesh_geometric_data,
     const Polydim::PDETools::DOFs::DOFsManager::DOFsData &dofs_data,
     const Polydim::PDETools::LocalSpace_PCC_3D::ReferenceElement_Data &reference_element_data,
-    const test::I_Test &test) const
+    const test::I_Test &test,
+    const double &time_0_value) const
 {
     Parabolic_PCC_3D_Initial_Data result;
 
@@ -41,7 +42,7 @@ Assembler::Parabolic_PCC_3D_Initial_Data Assembler::ComputeInitalCondition(
     {
         // DOFs: vertices
         const Eigen::MatrixXd coordinates = mesh.Cell3DVerticesCoordinates(c);
-        const Eigen::VectorXd dofs_vertices = test.initial_solution(coordinates);
+        const Eigen::VectorXd dofs_vertices = test.initial_solution(coordinates, time_0_value);
 
         // Assemble local numerical solution
         unsigned int count = 0;
@@ -93,7 +94,7 @@ Assembler::Parabolic_PCC_3D_Initial_Data Assembler::ComputeInitalCondition(
                 const auto edge_dofs_coordinates =
                     Polydim::PDETools::LocalSpace_PCC_3D::EdgeDofsCoordinates(reference_element_data, local_space_data, ed);
 
-                const Eigen::VectorXd dofs_edge = test.initial_solution(edge_dofs_coordinates);
+                const Eigen::VectorXd dofs_edge = test.initial_solution(edge_dofs_coordinates, time_0_value);
 
                 for (unsigned int loc_i = 0; loc_i < local_dofs.size(); ++loc_i)
                 {
@@ -129,7 +130,7 @@ Assembler::Parabolic_PCC_3D_Initial_Data Assembler::ComputeInitalCondition(
                 if (local_dofs.size() == 0)
                     continue;
 
-                const Eigen::VectorXd intial_values_at_dofs = test.initial_solution(face_dofs_coordinates.Points);
+                const Eigen::VectorXd intial_values_at_dofs = test.initial_solution(face_dofs_coordinates.Points, time_0_value);
                 const Eigen::VectorXd dofs_face =
                     Polydim::PDETools::LocalSpace_PCC_3D::FaceDofs(reference_element_data, local_space_data, f, intial_values_at_dofs, face_dofs_coordinates);
 
@@ -159,7 +160,7 @@ Assembler::Parabolic_PCC_3D_Initial_Data Assembler::ComputeInitalCondition(
                 const auto internal_dofs_coordinates =
                     Polydim::PDETools::LocalSpace_PCC_3D::InternalDofsCoordinates(reference_element_data, local_space_data);
 
-                const Eigen::VectorXd initial_values_at_dofs = test.initial_solution(internal_dofs_coordinates.Points);
+                const Eigen::VectorXd initial_values_at_dofs = test.initial_solution(internal_dofs_coordinates.Points, time_0_value);
 
                 const Eigen::VectorXd dofs_internal =
                     Polydim::PDETools::LocalSpace_PCC_3D::InternalDofs(reference_element_data,

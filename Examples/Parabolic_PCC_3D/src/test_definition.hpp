@@ -48,7 +48,7 @@ struct I_Test
     virtual Eigen::VectorXd weak_boundary_condition(const unsigned int marker,
                                                     const Eigen::MatrixXd &points,
                                                     const double &time_value) const = 0;
-    virtual Eigen::VectorXd initial_solution(const Eigen::MatrixXd &points) const = 0;
+    virtual Eigen::VectorXd initial_solution(const Eigen::MatrixXd &points, const double &time_0_value) const = 0;
     virtual Eigen::VectorXd exact_solution(const Eigen::MatrixXd &points, const double &time_value) const = 0;
     virtual std::array<Eigen::VectorXd, 3> exact_derivative_solution(const Eigen::MatrixXd &points,
                                                                      const double &time_value) const = 0;
@@ -58,6 +58,7 @@ struct Patch_Test final : public I_Test
 {
     unsigned int space_order;
     unsigned int time_order;
+    double k = 2.0;
 
     Patch_Test(const unsigned int space_order, const unsigned int time_order)
         : space_order(space_order), time_order(time_order)
@@ -112,6 +113,8 @@ struct Patch_Test final : public I_Test
 
         domain.spatial_domain.shape_type = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_3D::Domain_Shape_Types::Parallelepiped;
 
+        domain.time_domain = {0.0, 1.0};
+
         return domain;
     }
 
@@ -151,12 +154,12 @@ struct Patch_Test final : public I_Test
 
     Eigen::VectorXd diffusion_term(const Eigen::MatrixXd &points) const
     {
-        return Eigen::VectorXd::Constant(points.cols(), 2.0);
+        return Eigen::VectorXd::Constant(points.cols(), k);
     }
 
     Eigen::VectorXd source_term(const Eigen::MatrixXd &points, const double &time_value) const
     {
-        Eigen::VectorXd source_space_term = Eigen::VectorXd::Constant(points.cols(), 6.0 * space_order * (space_order - 1));
+        Eigen::VectorXd source_space_term = Eigen::VectorXd::Constant(points.cols(), 3.0 * k * space_order * (space_order - 1));
         const Eigen::ArrayXd space_polynomial = points.row(0).array() + points.row(1).array() + points.row(2).array() + 0.5;
 
         const int max_space_order = space_order - 2;
@@ -172,9 +175,9 @@ struct Patch_Test final : public I_Test
         return source_time_term - source_space_term;
     }
 
-    Eigen::VectorXd initial_solution(const Eigen::MatrixXd &points) const
+    Eigen::VectorXd initial_solution(const Eigen::MatrixXd &points, const double &time_0_value) const
     {
-        return exact_solution(points, 0.0);
+        return exact_solution(points, time_0_value);
     }
 
     Eigen::VectorXd strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points, const double &time_value) const
@@ -192,9 +195,9 @@ struct Patch_Test final : public I_Test
         switch (marker)
         {
         case 2: // co-normal derivatives on the left
-            return - 2.0 * exact_der.at(0).array();
+            return - k * exact_der.at(0).array();
         case 4: // co-normal derivatives on the right
-            return  2.0 * exact_der.at(0).array();
+            return  k * exact_der.at(0).array();
         default:
             throw std::runtime_error("not valid marker");
         }
@@ -285,6 +288,8 @@ struct Parabolic_Problem final : public I_Test
 
         domain.spatial_domain.shape_type = Polydim::PDETools::Mesh::PDE_Mesh_Utilities::PDE_Domain_3D::Domain_Shape_Types::Parallelepiped;
 
+        domain.time_domain = {0.0, 1.0};
+
         return domain;
     }
 
@@ -330,9 +335,9 @@ struct Parabolic_Problem final : public I_Test
                sin(std::numbers::pi * points.row(1).array()) * exp(time_value);
     }
 
-    Eigen::VectorXd initial_solution(const Eigen::MatrixXd &points) const
+    Eigen::VectorXd initial_solution(const Eigen::MatrixXd &points, const double &time_0_value) const
     {
-        return exact_solution(points, 0.0);
+        return exact_solution(points, time_0_value);
     }
 
     Eigen::VectorXd strong_boundary_condition(const unsigned int marker, const Eigen::MatrixXd &points, const double &time_value) const
