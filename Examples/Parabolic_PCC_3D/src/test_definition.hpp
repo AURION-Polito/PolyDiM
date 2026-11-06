@@ -164,7 +164,7 @@ struct Patch_Test final : public I_Test
             source_space_term.array() *= space_polynomial;
 
         Eigen::VectorXd source_time_term = Eigen::VectorXd::Constant(points.cols(), time_order);
-        const Eigen::ArrayXd time_polynomial = Eigen::VectorXd::Constant(points.cols(), time_value);
+        const Eigen::ArrayXd time_polynomial = Eigen::VectorXd::Constant(points.cols(), time_value + 0.5);
         const int max_time_order = time_order - 1;
         for (int i = 0; i < max_time_order; ++i)
             source_time_term.array() *= time_polynomial;
@@ -209,7 +209,7 @@ struct Patch_Test final : public I_Test
         for (int i = 0; i < space_order; ++i)
             space_exact.array() *= space_polynomial;
 
-        const Eigen::ArrayXd time_polynomial = Eigen::VectorXd::Constant(points.cols(), time_value);
+        const Eigen::ArrayXd time_polynomial = Eigen::VectorXd::Constant(points.cols(), time_value + 0.5);
         Eigen::VectorXd time_exact = Eigen::VectorXd::Constant(points.cols(), 1.0);
         for (int i = 0; i < time_order; ++i)
             time_exact.array() *= time_polynomial;
