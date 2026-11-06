@@ -220,7 +220,7 @@ def main():
 
     test_type = 3
     mesh_generator = 0
-    mesh_max_volume = 0.1
+    mesh_max_volume = 0.01
     method_types = [0]
     method_orders = [1, 2, 3]
     time_steps = [1. / 5., 1. / 10., 1. / 20]
