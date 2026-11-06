@@ -172,7 +172,7 @@ struct Patch_Test final : public I_Test
 
         switch (marker)
         {
-        case 2: // co-normal derivatives on the left
+        case 2: // co-normal derivatives on the bottom
             return -derivatives;
         case 4: // co-normal derivatives on the right
             return derivatives;

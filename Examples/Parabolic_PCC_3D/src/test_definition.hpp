@@ -191,8 +191,8 @@ struct Patch_Test final : public I_Test
 
         switch (marker)
         {
-        case 2: // co-normal derivatives on the left
-            return - k * exact_der.at(1).array();
+        case 2: // co-normal derivatives on the bottom
+            return - k * exact_der.at(2).array();
         case 4: // co-normal derivatives on the right
             return  k * exact_der.at(1).array();
         default:
