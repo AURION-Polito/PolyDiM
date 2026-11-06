@@ -32,7 +32,7 @@ std::unique_ptr<Polydim::examples::Parabolic_PCC_3D::test::I_Test> create_test(c
     {
     case Polydim::examples::Parabolic_PCC_3D::test::Test_Types::Patch_Test: {
         const auto space_order = config.MethodOrder();
-        const auto time_order = abs(config.Theta() - 0.5) < 1.0e-12 ? 2 : 1;
+        const auto time_order = std::abs(config.Theta() - 0.5) < 1.0e-12 ? 2 : 1;
         return std::make_unique<Polydim::examples::Parabolic_PCC_3D::test::Patch_Test>(space_order, time_order);
     }
     case Polydim::examples::Parabolic_PCC_3D::test::Test_Types::Space_Test: {
@@ -42,7 +42,7 @@ std::unique_ptr<Polydim::examples::Parabolic_PCC_3D::test::I_Test> create_test(c
     }
     case Polydim::examples::Parabolic_PCC_3D::test::Test_Types::Time_Test: {
         const auto space_order = config.MethodOrder();
-        const auto time_order = abs(config.Theta() - 0.5) < 1.0e-12 ? 2 + 1 : 1 + 1;
+        const auto time_order = std::abs(config.Theta() - 0.5) < 1.0e-12 ? 2 + 1 : 1 + 1;
         return std::make_unique<Polydim::examples::Parabolic_PCC_3D::test::Patch_Test>(space_order, time_order);
     }
     case Polydim::examples::Parabolic_PCC_3D::test::Test_Types::Parabolic_Problem: {

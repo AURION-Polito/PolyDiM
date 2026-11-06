@@ -131,8 +131,7 @@ struct Patch_Test final : public I_Test
                 {8, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {9, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {10, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                //{11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
-          {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {11, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::None, 0}},
                 {12, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {13, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {14, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
@@ -142,14 +141,12 @@ struct Patch_Test final : public I_Test
                 {18, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {19, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {20, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                //{21, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
-          {21, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
+                {21, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 2}},
                 {22, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {23, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {24, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
                 {25, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}},
-                //{26, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 4}}};
-          {26, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Strong, 1}}};
+                {26, {Polydim::PDETools::DOFs::DOFsManager::BoundaryTypes::Weak, 4}}};
     }
 
     Eigen::VectorXd diffusion_term(const Eigen::MatrixXd &points) const
