@@ -192,9 +192,9 @@ struct Patch_Test final : public I_Test
         switch (marker)
         {
         case 2: // co-normal derivatives on the left
-            return - k * exact_der.at(0).array();
+            return - k * exact_der.at(1).array();
         case 4: // co-normal derivatives on the right
-            return  k * exact_der.at(0).array();
+            return  k * exact_der.at(1).array();
         default:
             throw std::runtime_error("not valid marker");
         }
